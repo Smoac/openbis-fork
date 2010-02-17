@@ -16,21 +16,30 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.server;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.QueryTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
 
@@ -79,6 +88,40 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
         DAO dao = createDAO();
         return dao.query(sqlQuery);
+    }
+
+    public List<GridCustomFilter> listQueries(String sessionToken)
+    {
+        checkSession(sessionToken);
+        
+        try
+        {
+            List<QueryPE> queries = getDAOFactory().getQueryDAO().listQueries();
+            return QueryTranslator.translate(queries);
+        } catch (DataAccessException ex)
+        {
+            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+        }
+    }
+
+    public void registerQuery(String sessionToken, NewExpression expression)
+    {
+        Session session = getSession(sessionToken);
+        
+        QueryPE query = new QueryPE();
+        query.setName(expression.getName());
+        query.setDescription(expression.getDescription());
+        query.setExpression(expression.getExpression());
+        query.setPublic(expression.isPublic());
+        query.setRegistrator(session.tryGetPerson());
+        try
+        {
+            getDAOFactory().getQueryDAO().createQuery(query);
+            
+        } catch (DataAccessException ex)
+        {
+            DataAccessExceptionTranslator.throwException(ex, "Query", null);
+        }
     }
 
     private DAO createDAO()

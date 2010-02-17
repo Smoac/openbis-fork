@@ -26,9 +26,10 @@ import org.apache.commons.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractGridExpressionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractExpressionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -105,7 +106,40 @@ public final class GridCustomExpressionTranslator
 
     }
 
-    private static void translateGridExpression(final AbstractGridExpressionPE<?> gridExpression,
+    /**
+     * A {@link GridCustomFilter} &lt;---&gt; {@link QueryPE} translator.
+     * 
+     * @author Izabela Adamczyk
+     */
+    public static final class QueryTranslator
+    {
+        public final static List<GridCustomFilter> translate(final List<QueryPE> queries)
+        {
+            final List<GridCustomFilter> result = new ArrayList<GridCustomFilter>();
+            for (final QueryPE query : queries)
+            {
+                result.add(QueryTranslator.translate(query));
+            }
+            return result;
+        }
+        
+        public final static GridCustomFilter translate(final QueryPE original)
+        {
+            if (original == null)
+            {
+                return null;
+            }
+            final GridCustomFilter result = new GridCustomFilter();
+            result.setName(escapeHtml(original.getName()));
+            result.setParameters(ExpressionUtil.extractParameters(original.getExpression()));
+            
+            translateGridExpression(original, result);
+            return result;
+        }
+        
+    }
+    
+    private static void translateGridExpression(final AbstractExpressionPE<?> gridExpression,
             final AbstractExpression result)
     {
         result.setId(HibernateUtils.getId(gridExpression));
