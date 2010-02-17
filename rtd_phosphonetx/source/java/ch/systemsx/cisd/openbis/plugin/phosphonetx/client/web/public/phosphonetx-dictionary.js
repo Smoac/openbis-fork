@@ -1,6 +1,5 @@
 // PhosphoNetX dictionary
 var phosphonetx = {
-  query_menu_title: "Queries",
   ALL_PROTEINS_OF_AN_EXPERIMENT_menu_item: "All Proteins of an Experiment",
   ALL_PROTEINS_OF_AN_EXPERIMENT_tab_label: "Proteins of an Experiment",
   selected_experiment_label: "Experiment",

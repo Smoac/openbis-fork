@@ -26,9 +26,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.GenericTableBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -51,11 +52,12 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
 
     public static final String GRID_ID = BROWSER_ID + "-grid";
 
-    public static IDisposableComponent create(
+    public static DatabaseModificationAwareComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
         RawDataSampleGrid grid = new RawDataSampleGrid(viewContext);
-        return grid.asDisposableWithoutToolbar();
+        DisposableEntityChooser<GenericTableRow> disposable = grid.asDisposableWithoutToolbar();
+        return new DatabaseModificationAwareComponent(disposable.getComponent(), disposable);
     }
 
 

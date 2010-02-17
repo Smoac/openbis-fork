@@ -22,7 +22,11 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabActionMenuItemDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TabActionMenuItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
@@ -31,6 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNet
  */
 public class PhosphoNetXModule implements IModule
 {
+    public static final String ID = GenericConstants.ID_PREFIX + "-phosphonetx-";
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
 
     public PhosphoNetXModule(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
@@ -40,7 +45,26 @@ public class PhosphoNetXModule implements IModule
 
     public List<? extends MenuItem> getMenuItems()
     {
-        return Collections.singletonList(new QueryMenu(viewContext));
+        return Collections.singletonList(TabActionMenuItemFactory.createActionMenu(viewContext, ID,
+                new ITabActionMenuItemDefinition<IPhosphoNetXClientServiceAsync>()
+                    {
+
+                        public String getName()
+                        {
+                            return "ALL_RAW_DATA_SAMPLES";
+                        }
+
+                        public String getHelpPageTitle()
+                        {
+                            return "MS INJECTION Data Overview";
+                        }
+
+                        public DatabaseModificationAwareComponent createComponent(
+                                IViewContext<IPhosphoNetXClientServiceAsync> context)
+                        {
+                            return RawDataSampleGrid.create(context);
+                        }
+                    }));
     }
 
     public String getName()
