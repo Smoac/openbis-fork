@@ -21,14 +21,22 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
- * Default factory for {@link IValidator} intances.
- *
+ * Default factory for {@link IValidator} instances.
+ * 
  * @author Franz-Josef Elmer
  */
 public class DefaultValueValidatorFactory implements IValidatorFactory
 {
     private enum ValueType
     {
+        UNIQUE_GROUPS
+        {
+            @Override
+            public IValidatorFactory createFactory(Properties properties)
+            {
+                return new UniqueGroupValidatorFactory(properties);
+            }
+        },
         UNIQUE
         {
             @Override
@@ -63,7 +71,7 @@ public class DefaultValueValidatorFactory implements IValidatorFactory
         };
 
         abstract IValidatorFactory createFactory(Properties properties);
-        
+
         static ValueType getValueType(String name)
         {
             ValueType[] values = ValueType.values();
@@ -79,7 +87,7 @@ public class DefaultValueValidatorFactory implements IValidatorFactory
     }
 
     static final String VALUE_TYPE_KEY = "value-type";
-    
+
     private final IValidatorFactory factory;
 
     public DefaultValueValidatorFactory(Properties properties)
