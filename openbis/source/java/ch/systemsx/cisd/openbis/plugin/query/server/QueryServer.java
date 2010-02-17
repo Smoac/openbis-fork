@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -147,11 +148,10 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
                         BeanUtils
                                 .createBean(DatabaseConfigurationContext.class, databaseProperties);
                 databaseDefinition =
-                        new DatabaseDefinition(databaseProperties.getProperty(LABEL_PROPERTY_KEY),
-                                configurationContext);
+                        new DatabaseDefinition(PropertyUtils.getMandatoryProperty(
+                                databaseProperties, LABEL_PROPERTY_KEY), configurationContext);
             }
         }
         return databaseDefinition;
     }
-
 }
