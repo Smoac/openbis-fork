@@ -21,8 +21,8 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 
@@ -34,6 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 public class FilterModel extends NonHierarchicalBaseModelData
 {
     public static FilterModel COLUMN_FILTER_MODEL = createColumnFilter();
+
+    /** Name of the standard filter kind which is available for all grids */
+    public static final String COLUMN_FILTER = "Column Filter";
 
     private static final long serialVersionUID = 1L;
 
@@ -66,7 +69,7 @@ public class FilterModel extends NonHierarchicalBaseModelData
     private static FilterModel createColumnFilter()
     {
         final GridCustomFilter allSampleType = new GridCustomFilter();
-        allSampleType.setName(GridCustomFilter.COLUMN_FILTER);
+        allSampleType.setName(COLUMN_FILTER);
         return new FilterModel(allSampleType);
     }
 

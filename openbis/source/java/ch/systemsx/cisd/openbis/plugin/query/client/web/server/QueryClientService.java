@@ -98,6 +98,19 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         }
     }
 
+    public List<GridCustomFilter> listQueries()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            return queryServer.listQueries(sessionToken);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public ResultSet<GridCustomFilter> listQueries(
             final IResultSetConfig<String, GridCustomFilter> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException

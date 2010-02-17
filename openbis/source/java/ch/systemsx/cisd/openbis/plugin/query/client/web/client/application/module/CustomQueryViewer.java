@@ -45,7 +45,7 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
             IViewContext<IQueryClientServiceAsync> viewContext)
     {
         final CustomQueryViewer panel =
-                new CustomQueryViewer(viewContext, new CustomQueryToolbar(viewContext));
+                new CustomQueryViewer(viewContext, new SimpleCustomQueryToolbar(viewContext));
         return new DatabaseModificationAwareComponent(panel, panel);
     }
 
@@ -58,7 +58,7 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
     private ICustomQueryProvider queryProvider;
 
     private CustomQueryViewer(IViewContext<IQueryClientServiceAsync> viewContext,
-            CustomQueryToolbar toolBar)
+            AbstractCustomQueryToolbar toolBar)
     {
         this.viewContext = viewContext;
         this.queryProvider = toolBar;

@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Stores information describing the grid custom filter.
+ * Stores information describing an expression with parameters (e.g. custom filter).
  * 
  * @author Izabela Adamczyk
  */
@@ -27,23 +28,52 @@ public class GridCustomFilter extends AbstractExpression
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    /** Name of the standard filter kind which is available for all grids */
-    public static final String COLUMN_FILTER = "Column Filter";
+    private List<String> allParameters;
 
-    private Set<String> parameters;
+    // need to use list here because set doesn't provide fixed order
+    private List<String> parameters;
 
     public GridCustomFilter()
     {
     }
 
-    public Set<String> getParameters()
+    public List<String> getParameters()
     {
         return parameters;
     }
 
-    public void setParameters(Set<String> parameters)
+    private void setParameters(List<String> parameters)
     {
         this.parameters = parameters;
+
     }
 
+    public List<String> getAllParameters()
+    {
+        return allParameters;
+    }
+
+    private void setAllParameters(List<String> allParameters)
+    {
+        this.allParameters = allParameters;
+    }
+
+    public void setupParameters(List<String> allParameters)
+    {
+        setAllParameters(allParameters);
+        setParameters(createDistinctParametersList(allParameters));
+    }
+
+    private static List<String> createDistinctParametersList(List<String> allParameters)
+    {
+        List<String> result = new ArrayList<String>();
+        for (String parameter : allParameters)
+        {
+            if (result.contains(parameter) == false)
+            {
+                result.add(parameter);
+            }
+        }
+        return result;
+    }
 }

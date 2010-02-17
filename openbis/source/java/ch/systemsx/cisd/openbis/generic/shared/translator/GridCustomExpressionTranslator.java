@@ -98,7 +98,7 @@ public final class GridCustomExpressionTranslator
             }
             final GridCustomFilter result = new GridCustomFilter();
             result.setName(escapeHtml(original.getName()));
-            result.setParameters(ExpressionUtil.extractParameters(original.getExpression()));
+            result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
 
             translateGridExpression(original, result);
             return result;
@@ -122,7 +122,7 @@ public final class GridCustomExpressionTranslator
             }
             return result;
         }
-        
+
         public final static GridCustomFilter translate(final QueryPE original)
         {
             if (original == null)
@@ -131,14 +131,14 @@ public final class GridCustomExpressionTranslator
             }
             final GridCustomFilter result = new GridCustomFilter();
             result.setName(escapeHtml(original.getName()));
-            result.setParameters(ExpressionUtil.extractParameters(original.getExpression()));
-            
+            result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
+
             translateGridExpression(original, result);
             return result;
         }
-        
+
     }
-    
+
     private static void translateGridExpression(final AbstractExpressionPE<?> gridExpression,
             final AbstractExpression result)
     {

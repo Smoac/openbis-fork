@@ -162,7 +162,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     {
         GridCustomFilter selected = filterSelectionWidget.tryGetSelected();
         return (selected != null)
-                && (selected.getName().equals(GridCustomFilter.COLUMN_FILTER) == requiredState);
+                && (selected.getName().equals(FilterModel.COLUMN_FILTER) == requiredState);
     }
 
     private CustomFilterInfo<T> tryGetCustomFilter()

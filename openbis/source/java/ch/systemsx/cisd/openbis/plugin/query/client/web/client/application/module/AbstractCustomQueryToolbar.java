@@ -16,48 +16,40 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.TextArea;
-import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 
 /**
- * The toolbar of query viewer.
+ * An abstract implementation of a query viewer toolbar that provides query information.
  * 
  * @author Piotr Buczek
  */
-public class CustomQueryToolbar extends ToolBar implements ICustomQueryProvider
+public abstract class AbstractCustomQueryToolbar extends ToolBar implements ICustomQueryProvider
 {
-
-    private static final int QUERY_FIELD_WIDTH = 600;
-
-    private final IViewContext<IQueryClientServiceAsync> viewContext;
-
-    private final TextArea queryField;
-
-    private final Button executeButton;
 
     private IDelegatedAction refreshViewerAction;
 
-    public CustomQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
+    protected final IViewContext<IQueryClientServiceAsync> viewContext;
+
+    protected final Button executeButton;
+
+    public AbstractCustomQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
-        this.queryField = createQueryField();
         this.executeButton = createExecuteButton();
-        display();
+        setBorders(true);
     }
 
-    public void setRefreshViewerAction(IDelegatedAction refreshViewerAction)
+    abstract protected boolean isQueryValid();
+
+    public final void setRefreshViewerAction(IDelegatedAction refreshViewerAction)
     {
         this.refreshViewerAction = refreshViewerAction;
     }
@@ -70,38 +62,12 @@ public class CustomQueryToolbar extends ToolBar implements ICustomQueryProvider
                         @Override
                         public void componentSelected(ButtonEvent ce)
                         {
-                            if (queryField.isValid() && refreshViewerAction != null)
+                            if (isQueryValid() && refreshViewerAction != null)
                             {
                                 refreshViewerAction.execute();
                             }
                         }
                     });
-    }
-
-    private TextArea createQueryField()
-    {
-        TextArea result = new MultilineVarcharField(viewContext.getMessage(Dict.QUERY_TEXT), true);
-        result.setWidth(QUERY_FIELD_WIDTH);
-        return result;
-    }
-
-    private void display()
-    {
-        setAlignment(HorizontalAlignment.CENTER);
-        setBorders(true);
-        add(new LabelToolItem(viewContext.getMessage(Dict.QUERY_TEXT)
-                + GenericConstants.LABEL_SEPARATOR));
-        add(queryField);
-        add(executeButton);
-    }
-
-	//
-	// ICustomQueryProvider
-	//
-
-    public String tryGetCustomSQLQuery()
-    {
-        return queryField.getValue();
     }
 
 }

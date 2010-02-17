@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
@@ -115,10 +116,10 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
 
         validateAndSave();
     }
-    
+
     private String checkExpressionFreeOfParameters(String expression)
     {
-        Set<String> parameters = ExpressionUtil.extractParameters(expression);
+        Set<String> parameters = new HashSet<String>(ExpressionUtil.extractParameters(expression));
         if (parameters.isEmpty())
         {
             return expression;

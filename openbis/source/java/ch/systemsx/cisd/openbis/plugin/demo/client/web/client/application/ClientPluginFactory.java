@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.module.DemoModule;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 
@@ -221,6 +220,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
     @Override
     public IModule tryGetModule()
     {
+        // uncomment to test DemoModule
+        // return new DemoModule(getViewContext());
         return null;
     }
 }

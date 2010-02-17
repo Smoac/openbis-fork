@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -51,21 +48,19 @@ public class ExpressionUtilTest extends AssertJUnit
     public void testExtractOneDuplicatedParameter() throws Exception
     {
         String expression = "${abc} ${abc}";
-        assertEquals("[abc]", extractParameters(expression).toString());
+        assertEquals("[abc, abc]", extractParameters(expression).toString());
     }
 
     @Test
-    public void testExtractManyParameters() throws Exception
+    public void testExtractManyParametersWithPreservedOrder() throws Exception
     {
-        String expression = "${abc} ${abc} ${def} ${ghi}";
-        assertEquals("[abc, def, ghi]", extractParameters(expression).toString());
+        String expression = "${abc} ${def} ${abc} ${ghi}";
+        assertEquals("[abc, def, abc, ghi]", extractParameters(expression).toString());
     }
 
     private Collection<String> extractParameters(String expression)
     {
-        List<String> list = new ArrayList<String>(ExpressionUtil.extractParameters(expression));
-        Collections.sort(list);
-        return list;
+        return ExpressionUtil.extractParameters(expression);
     }
-    
+
 }

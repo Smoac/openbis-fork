@@ -16,28 +16,28 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
  * Useful static methods for expressions.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ExpressionUtil
 {
     public static final String PARAMETER_PATTERN = "\\$\\{.*?\\}";
+
     private static final Pattern PATTERN = Pattern.compile(ExpressionUtil.PARAMETER_PATTERN);
 
     /**
-     * Extracts all parameters in the specified expression
+     * Extracts list of all parameters in the specified expression
      */
-    public static Set<String> extractParameters(String expression)
+    public static List<String> extractParameters(String expression)
     {
-        Set<String> list = new HashSet<String>();
+        List<String> list = new ArrayList<String>();
         Matcher matcher = PATTERN.matcher(expression);
         while (matcher.find())
         {
@@ -46,7 +46,7 @@ public class ExpressionUtil
         }
         return list;
     }
-    
+
     private ExpressionUtil()
     {
     }

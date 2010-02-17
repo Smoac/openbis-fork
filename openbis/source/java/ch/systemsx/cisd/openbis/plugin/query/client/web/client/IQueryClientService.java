@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -38,6 +40,9 @@ public interface IQueryClientService extends IClientService
     public TableModelReference createQueryResultsReport(String sqlQuery)
             throws UserFailureException;
 
+    /** Returns a list of all the canned custom queries created so far. */
+    public List<GridCustomFilter> listQueries() throws UserFailureException;
+
     /**
      * Returns all queries for the specified configuration.
      */
@@ -49,7 +54,7 @@ public interface IQueryClientService extends IClientService
      */
     public String prepareExportQueries(TableExportCriteria<GridCustomFilter> criteria)
             throws UserFailureException;
-    
+
     /**
      * Registers specified new query.
      */
