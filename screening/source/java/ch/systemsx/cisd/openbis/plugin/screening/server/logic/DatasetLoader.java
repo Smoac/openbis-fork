@@ -35,6 +35,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleIma
  */
 public class DatasetLoader
 {
+    public static TableModel loadAnalysisResults(List<String> datasets, String datastoreCode,
+            IExternalDataTable externalDataTable)
+    {
+        return externalDataTable.createReportFromDatasets(
+                ScreeningConstants.PLATE_IMAGE_ANALYSIS_REPORT_KEY, datastoreCode, datasets);
+    }
 
     public static List<PlateSingleImageReference> loadPlateImages(List<String> datasets,
             String datastoreCode, IExternalDataTable externalDataTable)

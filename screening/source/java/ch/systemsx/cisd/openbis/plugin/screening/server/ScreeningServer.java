@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -143,6 +144,20 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.listPlateImages(session, businessObjectFactory, plateId);
+    }
+
+    public TableModel loadImageAnalysisForExperiment(String sessionToken, TechId experimentId)
+    {
+        Session session = getSession(sessionToken);
+        return PlateContentLoader.loadImageAnalysisForExperiment(session, businessObjectFactory,
+                experimentId);
+    }
+
+    public TableModel loadImageAnalysisForPlate(String sessionToken, TechId plateId)
+    {
+        Session session = getSession(sessionToken);
+        return PlateContentLoader
+                .loadImageAnalysisForPlate(session, businessObjectFactory, plateId);
     }
 
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)

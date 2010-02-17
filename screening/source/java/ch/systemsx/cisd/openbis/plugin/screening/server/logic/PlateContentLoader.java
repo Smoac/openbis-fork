@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -62,6 +63,20 @@ public class PlateContentLoader
             IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
     {
         return new PlateContentLoader(session, businessObjectFactory).loadAllImages(plateId);
+    }
+
+    public static TableModel loadImageAnalysisForPlate(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
+    {
+        return new PlateContentLoader(session, businessObjectFactory)
+                .loadImageAnalysisForPlate(plateId);
+    }
+
+    public static TableModel loadImageAnalysisForExperiment(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, TechId experimentId)
+    {
+        return new PlateContentLoader(session, businessObjectFactory)
+                .loadImageAnalysisForExperiment(experimentId);
     }
 
     /**
@@ -119,6 +134,30 @@ public class PlateContentLoader
         return externalData;
     }
 
+    private TableModel loadImageAnalysisForPlate(TechId plateId)
+    {
+        IExternalDataTable externalDataTable = createExternalDataTable();
+        List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
+        return loadImageAnalysis(externalDataTable, datasets);
+    }
+
+    private TableModel loadImageAnalysisForExperiment(TechId experimentId)
+    {
+        IExternalDataTable externalDataTable = createExternalDataTable();
+        List<ExternalDataPE> datasets = loadDatasetsForExperiment(experimentId, externalDataTable);
+        return loadImageAnalysis(externalDataTable, datasets);
+    }
+
+    private TableModel loadImageAnalysis(IExternalDataTable externalDataTable,
+            List<ExternalDataPE> datasets)
+    {
+        List<ExternalDataPE> analysisDatasets =
+                filterDatasetsByType(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+        List<String> datasetCodes = extractCodes(analysisDatasets);
+        String dataStoreCode = extractDataStoreCode(analysisDatasets);
+        return DatasetLoader.loadAnalysisResults(datasetCodes, dataStoreCode, externalDataTable);
+    }
+
     private List<PlateSingleImageReference> loadAllImages(TechId plateId)
     {
         IExternalDataTable externalDataTable = createExternalDataTable();
@@ -130,13 +169,19 @@ public class PlateContentLoader
         {
             List<String> datasetCodes = extractCodes(imageDatasets);
             // NOTE: we assume that all datasets for one plate come from the same datastore
-            ExternalDataPE imageDataset = imageDatasets.get(0);
-            String dataStoreCode = extractDataStoreCode(imageDataset);
-            ensureSameDataStore(imageDatasets, dataStoreCode);
+            String dataStoreCode = extractDataStoreCode(imageDatasets);
             imagePaths =
                     DatasetLoader.loadPlateImages(datasetCodes, dataStoreCode, externalDataTable);
         }
         return imagePaths;
+    }
+
+    private String extractDataStoreCode(List<ExternalDataPE> imageDatasets)
+    {
+        assert imageDatasets.size() > 0;
+        String dataStoreCode = extractDataStoreCode(imageDatasets.get(0));
+        ensureSameDataStore(imageDatasets, dataStoreCode);
+        return dataStoreCode;
     }
 
     private List<String> extractCodes(List<ExternalDataPE> datasets)
@@ -234,8 +279,14 @@ public class PlateContentLoader
             IExternalDataTable externalDataTable)
     {
         externalDataTable.loadBySampleTechId(plateId);
-        List<ExternalDataPE> externalData = externalDataTable.getExternalData();
-        return externalData;
+        return externalDataTable.getExternalData();
+    }
+
+    private List<ExternalDataPE> loadDatasetsForExperiment(TechId experimentId,
+            IExternalDataTable externalDataTable)
+    {
+        externalDataTable.loadByExperimentTechId(experimentId);
+        return externalDataTable.getExternalData();
     }
 
     private DatasetImagesReference loadImages(IExternalDataTable externalDataTable,
