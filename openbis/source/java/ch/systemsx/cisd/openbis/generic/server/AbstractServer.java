@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.CustomGridExpressionValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -360,7 +360,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         List<GridCustomColumn> result = new ArrayList<GridCustomColumn>();
         List<GridCustomColumn> columns = GridCustomColumnTranslator.translate(columnPEs);
         // we have to remove private columns of different users to avoid calculating them
-        CustomGridExpressionValidator validator = new CustomGridExpressionValidator();
+        ExpressionValidator validator = new ExpressionValidator();
         PersonPE currentPerson = session.tryGetPerson();
         for (GridCustomColumn column : columns)
         {

@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractGridExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 
 /**
@@ -110,7 +110,7 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
 
     protected abstract HelpPageIdentifier createHelpPageIdentifier();
 
-    protected void initializeValues(AbstractGridExpression gridExpression)
+    protected void initializeValues(AbstractExpression gridExpression)
     {
         descriptionField.setValue(unescapeHtml(gridExpression.getDescription()));
         expressionField.setValue(unescapeHtml(gridExpression.getExpression()));
@@ -163,7 +163,7 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
         return newItem;
     }
 
-    protected void update(final AbstractGridExpression gridExpression)
+    protected void update(final AbstractExpression gridExpression)
     {
         gridExpression.setDescription(descriptionField.getValue());
         gridExpression.setExpression(expressionField.getValue());

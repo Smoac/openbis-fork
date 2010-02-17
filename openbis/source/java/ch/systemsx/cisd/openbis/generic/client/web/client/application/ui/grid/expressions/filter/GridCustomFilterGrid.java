@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractGridExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -140,7 +140,7 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
                 columnDataModelProvider);
     }
 
-    private Window createEditDialog(AbstractGridExpression updatedItem)
+    private Window createEditDialog(AbstractExpression updatedItem)
     {
         return new EditDialog(viewContext, createRefreshGridAction(), gridDisplayId,
                 columnDataModelProvider, updatedItem);
@@ -178,12 +178,12 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
     {
         private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-        private final AbstractGridExpression itemToUpdate;
+        private final AbstractExpression itemToUpdate;
 
         public EditDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
                 final IDelegatedAction postRegistrationCallback, String gridId,
                 AbstractColumnSettingsDataModelProvider columnDataModelProvider,
-                AbstractGridExpression itemToUpdate)
+                AbstractExpression itemToUpdate)
         {
             super(viewContext, viewContext.getMessage(Dict.EDIT_TITLE, viewContext
                     .getMessage(Dict.FILTER), itemToUpdate.getName()), postRegistrationCallback,

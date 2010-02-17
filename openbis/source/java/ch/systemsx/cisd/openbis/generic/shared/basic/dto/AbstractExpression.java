@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * 
  * @author Izabela Adamczyk
  */
-public abstract class AbstractGridExpression extends AbstractRegistrationHolder implements
+public abstract class AbstractExpression extends AbstractRegistrationHolder implements
         IsSerializable, Serializable, IIdHolder, IFilterOrColumnUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -47,7 +47,7 @@ public abstract class AbstractGridExpression extends AbstractRegistrationHolder 
 
     private DatabaseInstance databaseInstance;
 
-    public AbstractGridExpression()
+    public AbstractExpression()
     {
     }
 

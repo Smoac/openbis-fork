@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractGridExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -144,7 +144,7 @@ public class GridCustomColumnGrid extends AbstractSimpleBrowserGrid<GridCustomCo
                 columnDataModelProvider);
     }
 
-    private Window createEditDialog(AbstractGridExpression updatedItem)
+    private Window createEditDialog(AbstractExpression updatedItem)
     {
         return new EditDialog(viewContext, createRefreshGridAction(), gridDisplayId,
                 columnDataModelProvider, updatedItem);
@@ -182,12 +182,12 @@ public class GridCustomColumnGrid extends AbstractSimpleBrowserGrid<GridCustomCo
     {
         private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-        private final AbstractGridExpression itemToUpdate;
+        private final AbstractExpression itemToUpdate;
 
         public EditDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
                 final IDelegatedAction postRegistrationCallback, String gridId,
                 AbstractColumnSettingsDataModelProvider columnDataModelProvider,
-                AbstractGridExpression itemToUpdate)
+                AbstractExpression itemToUpdate)
         {
             super(viewContext, viewContext.getMessage(Dict.EDIT_TITLE, viewContext
                     .getMessage(Dict.COLUMN), itemToUpdate.getName()), postRegistrationCallback,

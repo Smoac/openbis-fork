@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.GroupTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.CustomGridExpressionValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
@@ -932,7 +932,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    @ReturnValueFilter(validatorClass = CustomGridExpressionValidator.class)
+    @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<GridCustomFilter> listFilters(String sessionToken, String gridId);
 
     /**
@@ -970,7 +970,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    @ReturnValueFilter(validatorClass = CustomGridExpressionValidator.class)
+    @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId);
 
     /**

@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  * 
  * @author Tomasz Pylak
  */
-public class GridCustomColumn extends AbstractGridExpression
+public class GridCustomColumn extends AbstractExpression
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractGridExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractGridExpressionPE;
@@ -106,7 +106,7 @@ public final class GridCustomExpressionTranslator
     }
 
     private static void translateGridExpression(final AbstractGridExpressionPE<?> gridExpression,
-            final AbstractGridExpression result)
+            final AbstractExpression result)
     {
         result.setId(HibernateUtils.getId(gridExpression));
         result.setModificationDate(gridExpression.getModificationDate());

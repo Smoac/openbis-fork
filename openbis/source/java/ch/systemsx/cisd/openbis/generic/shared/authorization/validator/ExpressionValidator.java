@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractGridExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -33,22 +33,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
  * 
  * @author Izabela Adamczyk
  */
-public final class CustomGridExpressionValidator extends
-        AbstractValidator<AbstractGridExpression>
+public final class ExpressionValidator extends AbstractValidator<AbstractExpression>
 {
     //
     // IValidator
     //
 
     @Override
-    public final boolean doValidation(final PersonPE person, final AbstractGridExpression value)
+    public final boolean doValidation(final PersonPE person, final AbstractExpression value)
     {
         return value.isPublic() || isRegistrator(person, value)
                 || isInstanceAdmin(person, value.getDatabaseInstance());
 
     }
 
-    private boolean isRegistrator(final PersonPE person, final AbstractGridExpression value)
+    private boolean isRegistrator(final PersonPE person, final AbstractExpression value)
     {
         Person registrator = value.getRegistrator();
         return person.getUserId().equals(registrator.getUserId())

@@ -23,7 +23,7 @@ import java.util.Set;
  * 
  * @author Izabela Adamczyk
  */
-public class GridCustomFilter extends AbstractGridExpression
+public class GridCustomFilter extends AbstractExpression
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
