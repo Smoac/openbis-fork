@@ -23,9 +23,11 @@ import org.springframework.stereotype.Component;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
@@ -68,6 +70,20 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         {
             final String sessionToken = getSessionToken();
             return queryServer.tryToGetQueryDatabaseLabel(sessionToken);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public TableModelReference createQueryResultsReport(String sqlQuery)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final TableModel tableModel = queryServer.queryDatabase(sessionToken, sqlQuery);
+            String resultSetKey = saveInCache(tableModel.getRows());
+            return new TableModelReference(resultSetKey, tableModel.getHeader());
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,21 +41,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
- * Grid displaying dataset reporting results. This grid is special comparing to other grids, because
- * it cannot be refreshed and it is ensured, that the data for the grid are cached before it is
+ * Grid displaying reporting results. This grid is special comparing to other grids, because it
+ * cannot be refreshed and it is ensured, that the data for the grid are cached before it is
  * created.
  * 
  * @author Tomasz Pylak
  */
-public class DataSetReporterGrid extends
-        AbstractBrowserGrid<TableModelRow, BaseEntityModel<TableModelRow>>
+public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityModel<TableModelRow>>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "DataSetReporterGrid";
@@ -70,20 +69,20 @@ public class DataSetReporterGrid extends
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            TableModelReference tableModelReference, DatastoreServiceDescription service)
+            TableModelReference tableModelReference, IReportInformationProvider infoProvider)
     {
-        final DataSetReporterGrid grid =
-                new DataSetReporterGrid(viewContext, tableModelReference, service.getKey(), service
-                        .getDownloadURL());
+        final ReportGrid grid =
+                new ReportGrid(viewContext, tableModelReference, infoProvider.getKey(),
+                        infoProvider.getDownloadURL());
         return grid.asDisposableWithoutToolbar();
     }
 
-    public static class DatasetReportColumnUI extends DataSetReportColumnDefinition implements
+    public static class ReportColumnUI extends DataSetReportColumnDefinition implements
             IColumnDefinitionUI<TableModelRow>
     {
         private boolean isHidden;
 
-        public DatasetReportColumnUI(TableModelColumnHeader columnHeader, String downloadURL,
+        public ReportColumnUI(TableModelColumnHeader columnHeader, String downloadURL,
                 String sessionID, boolean isHidden)
         {
             super(columnHeader, downloadURL, sessionID);
@@ -107,7 +106,7 @@ public class DataSetReporterGrid extends
 
         // GWT only
         @SuppressWarnings("unused")
-        private DatasetReportColumnUI()
+        private ReportColumnUI()
         {
             this(null, null, null, false);
         }
@@ -126,7 +125,7 @@ public class DataSetReporterGrid extends
 
     private final String downloadURL;
 
-    private DataSetReporterGrid(IViewContext<ICommonClientServiceAsync> viewContext,
+    private ReportGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference, String reportKind, String downloadURL)
     {
         super(viewContext, GRID_ID, false, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
@@ -158,14 +157,14 @@ public class DataSetReporterGrid extends
         // The custom columns should be recomputed.
         resultSetConfig.setCacheConfig(ResultSetFetchConfig
                 .createFetchFromCacheAndRecompute(resultSetKey));
-        viewContext.getService().listDatasetReport(resultSetConfig, callback);
+        viewContext.getService().listReport(resultSetConfig, callback);
     }
 
     @Override
     protected void prepareExportEntities(TableExportCriteria<TableModelRow> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        viewContext.getService().prepareExportDatasetReport(exportCriteria, callback);
+        viewContext.getService().prepareExportReport(exportCriteria, callback);
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)
@@ -209,13 +208,13 @@ public class DataSetReporterGrid extends
     @Override
     protected ColumnDefsAndConfigs<TableModelRow> createColumnsDefinition()
     {
-        List<DatasetReportColumnUI> colDefinitions = createColDefinitions();
+        List<ReportColumnUI> colDefinitions = createColDefinitions();
         ColumnDefsAndConfigs<TableModelRow> definitions =
                 ColumnDefsAndConfigs.create(colDefinitions);
         RealNumberRenderer renderer =
                 new RealNumberRenderer(viewContext.getDisplaySettingsManager()
                         .getRealNumberFormatingParameters());
-        for (DatasetReportColumnUI colDefinition : colDefinitions)
+        for (ReportColumnUI colDefinition : colDefinitions)
         {
             if (colDefinition.getDataType() == DataTypeCode.REAL)
             {
@@ -225,15 +224,15 @@ public class DataSetReporterGrid extends
         return definitions;
     }
 
-    private List<DatasetReportColumnUI> createColDefinitions()
+    private List<ReportColumnUI> createColDefinitions()
     {
         String sessionID = viewContext.getModel().getSessionContext().getSessionID();
-        List<DatasetReportColumnUI> columns = new ArrayList<DatasetReportColumnUI>();
+        List<ReportColumnUI> columns = new ArrayList<ReportColumnUI>();
         int i = 0;
         for (TableModelColumnHeader columnHeader : tableHeader)
         {
             boolean isHidden = (i > MAX_SHOWN_COLUMNS);
-            columns.add(new DatasetReportColumnUI(columnHeader, downloadURL, sessionID, isHidden));
+            columns.add(new ReportColumnUI(columnHeader, downloadURL, sessionID, isHidden));
             i++;
         }
         return columns;

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
  * @author Piotr Buczek
@@ -25,6 +27,10 @@ public interface IQueryClientService extends IClientService
 {
 
     /** Returns label of the database used for queries or null if it is not configured. */
-    public String tryToGetQueryDatabaseLabel();
+    public String tryToGetQueryDatabaseLabel() throws UserFailureException;
+
+    /** Returns results of the specified SQL query. */
+    public TableModelReference createQueryResultsReport(String sqlQuery)
+            throws UserFailureException;
 
 }

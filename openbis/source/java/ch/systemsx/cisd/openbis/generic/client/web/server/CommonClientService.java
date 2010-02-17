@@ -1968,14 +1968,14 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<TableModelRow> listDatasetReport(
+    public ResultSet<TableModelRow> listReport(
             DefaultResultSetConfig<String, TableModelRow> resultSetConfig)
     {
         IOriginalDataProvider<TableModelRow> dummyDataProvider = createDummyDataProvider();
         return listEntities(resultSetConfig, dummyDataProvider);
     }
 
-    public String prepareExportDatasetReport(TableExportCriteria<TableModelRow> criteria)
+    public String prepareExportReport(TableExportCriteria<TableModelRow> criteria)
     {
         return prepareExportEntities(criteria);
     }

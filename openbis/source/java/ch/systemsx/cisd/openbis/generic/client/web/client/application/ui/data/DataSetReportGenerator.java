@@ -16,11 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.ProgressBar;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
@@ -30,9 +26,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**
@@ -41,11 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
  */
 public class DataSetReportGenerator
 {
-
-    public interface IOnReportComponentGeneratedAction
-    {
-        void execute(final IDisposableComponent reportComponent);
-    }
 
     /** Generates a report for specified datasets and displays it in a new tab. */
     public static void generate(final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -92,7 +84,7 @@ public class DataSetReportGenerator
                             public String getId()
                             {
                                 final String reportKey = service.getKey();
-                                return DataSetReporterGrid.createId(reportKey);
+                                return ReportGrid.createId(reportKey);
                             }
 
                             public HelpPageIdentifier getHelpPageIdentifier()
@@ -105,61 +97,5 @@ public class DataSetReportGenerator
                 }
 
             };
-    }
-
-    private static class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelReference>
-    {
-        private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-        private final Dialog progressBar;
-
-        private final DatastoreServiceDescription service;
-
-        private final IOnReportComponentGeneratedAction action;
-
-        public ReportGeneratedCallback(IViewContext<ICommonClientServiceAsync> viewContext,
-                DatastoreServiceDescription service, IOnReportComponentGeneratedAction action)
-        {
-            super(viewContext);
-            this.viewContext = viewContext;
-            this.service = service;
-            this.action = action;
-            this.progressBar = createAndShowProgressBar();
-        }
-
-        @Override
-        protected void process(final TableModelReference tableModelReference)
-        {
-            progressBar.hide();
-            final IDisposableComponent reportComponent =
-                    DataSetReporterGrid.create(viewContext, tableModelReference, service);
-            action.execute(reportComponent);
-        }
-
-        @Override
-        public void finishOnFailure(Throwable caught)
-        {
-            progressBar.hide();
-            super.finishOnFailure(caught);
-        }
-    }
-
-    private static Dialog createAndShowProgressBar()
-    {
-        ProgressBar progressBar = new ProgressBar();
-        progressBar.auto();
-
-        Dialog dialog = new Dialog();
-        String title = "Generating the report...";
-        GWTUtils.setToolTip(dialog, title);
-
-        dialog.add(progressBar);
-        dialog.setButtons("");
-        dialog.setAutoHeight(true);
-        dialog.setClosable(false);
-        dialog.addText(title);
-        dialog.setResizable(false);
-        dialog.show();
-        return dialog;
     }
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 
 /**
  * @author Piotr Buczek
@@ -28,4 +29,9 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
 
     /** @see IQueryClientService#tryToGetQueryDatabaseLabel() */
     public void tryToGetQueryDatabaseLabel(AsyncCallback<String> callback);
+
+    /** @see IQueryClientService#createQueryResultsReport(String) */
+    public void createQueryResultsReport(String sqlQuery,
+            AsyncCallback<TableModelReference> callback);
+
 }

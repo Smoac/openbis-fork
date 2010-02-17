@@ -694,16 +694,16 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Returns a list of datasets report rows.
+     * Returns a list of report rows.
      */
-    public ResultSet<TableModelRow> listDatasetReport(
+    public ResultSet<TableModelRow> listReport(
             DefaultResultSetConfig<String, TableModelRow> resultSetConfig)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for TableModelRow.
      */
-    public String prepareExportDatasetReport(TableExportCriteria<TableModelRow> exportCriteria)
+    public String prepareExportReport(TableExportCriteria<TableModelRow> exportCriteria)
             throws UserFailureException;
 
     /**

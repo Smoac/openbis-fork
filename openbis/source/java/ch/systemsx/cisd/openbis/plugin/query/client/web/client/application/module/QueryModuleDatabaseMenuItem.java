@@ -80,13 +80,13 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
 
         public ITabItem create()
         {
-            return DefaultTabItem.create("Custom Query Executor", CustomQueryExecutionPanel
+            return DefaultTabItem.create("Custom Query Executor", CustomQueryViewer
                     .create(viewContext), viewContext, false);
         }
 
         public String getId()
         {
-            return CustomQueryExecutionPanel.ID;
+            return CustomQueryViewer.ID;
         }
 
         public HelpPageIdentifier getHelpPageIdentifier()

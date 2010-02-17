@@ -599,15 +599,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TableModelReference> callback);
 
     /**
-     * @see ICommonClientService#listDatasetReport(DefaultResultSetConfig)
+     * @see ICommonClientService#listReport(DefaultResultSetConfig)
      */
-    public void listDatasetReport(DefaultResultSetConfig<String, TableModelRow> resultSetConfig,
+    public void listReport(DefaultResultSetConfig<String, TableModelRow> resultSetConfig,
             AsyncCallback<ResultSet<TableModelRow>> callback);
 
     /**
-     * @see ICommonClientService#prepareExportDatasetReport(TableExportCriteria)
+     * @see ICommonClientService#prepareExportReport(TableExportCriteria)
      */
-    public void prepareExportDatasetReport(TableExportCriteria<TableModelRow> exportCriteria,
+    public void prepareExportReport(TableExportCriteria<TableModelRow> exportCriteria,
             AsyncCallback<String> callback);
 
     /**
