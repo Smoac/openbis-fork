@@ -29,6 +29,10 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
     public static final String QUERY_DATABASE_MENU_TITLE_TEMPLATE =
             "query_database_menu_title_template";
 
+    public static final String QUERY_TEXT = "query_text";
+
+    public static final String QUERY_EXECUTE = "query_execute";
+
     private Dict()
     {
         // Can not be instantiated.

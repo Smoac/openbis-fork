@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
@@ -40,22 +41,39 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Const
 public class CustomQueryViewer extends ContentPanel implements IDatabaseModificationObserver
 {
 
-    public static final String ID = Constants.QUERY_ID_PREFIX + "_custom-query-viewer";
+    public static DatabaseModificationAwareComponent create(
+            IViewContext<IQueryClientServiceAsync> viewContext)
+    {
+        final CustomQueryViewer panel =
+                new CustomQueryViewer(viewContext, new CustomQueryToolbar(viewContext));
+        return new DatabaseModificationAwareComponent(panel, panel);
+    }
 
-    // TODO
-    private static final String QUERY = "select * from groups";
+    public static final String ID = Constants.QUERY_ID_PREFIX + "_custom-query-viewer";
 
     private final IViewContext<IQueryClientServiceAsync> viewContext;
 
     private Component currentGridOrNull;
 
-    public CustomQueryViewer(IViewContext<IQueryClientServiceAsync> viewContext)
+    private ICustomQueryProvider queryProvider;
+
+    private CustomQueryViewer(IViewContext<IQueryClientServiceAsync> viewContext,
+            CustomQueryToolbar toolBar)
     {
         this.viewContext = viewContext;
+        this.queryProvider = toolBar;
         setHeaderVisible(false);
         setCollapsible(false);
         setAnimCollapse(false);
         setBodyBorder(true);
+        setTopComponent(toolBar);
+        toolBar.setRefreshViewerAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    refresh();
+                }
+            });
         setLayout(new FitLayout());
     }
 
@@ -68,18 +86,15 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
 
     private void refresh()
     {
-        viewContext.getService().createQueryResultsReport(
-                QUERY,
-                new ReportGeneratedCallback(viewContext.getCommonViewContext(),
-                        createReportInformationProvider(QUERY),
-                        createDisplayQueryResultsAction(QUERY)));
-    }
-
-    public static DatabaseModificationAwareComponent create(
-            IViewContext<IQueryClientServiceAsync> viewContext)
-    {
-        CustomQueryViewer panel = new CustomQueryViewer(viewContext);
-        return new DatabaseModificationAwareComponent(panel, panel);
+        String sqlQueryOrNull = queryProvider.tryGetCustomSQLQuery();
+        if (sqlQueryOrNull != null)
+        {
+            viewContext.getService().createQueryResultsReport(
+                    sqlQueryOrNull,
+                    new ReportGeneratedCallback(viewContext.getCommonViewContext(),
+                            createReportInformationProvider(sqlQueryOrNull),
+                            createDisplayQueryResultsAction(sqlQueryOrNull)));
+        }
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
