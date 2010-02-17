@@ -16,11 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.shared;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 
 /**
@@ -37,4 +43,12 @@ public interface IQueryServer extends IServer
     @RolesAllowed(RoleSet.POWER_USER)
     public TableModel queryDatabase(String sessionToken, String sqlQuery);
 
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    @ReturnValueFilter(validatorClass = ExpressionValidator.class)
+    public List<GridCustomFilter> listQueries(String sessionToken);
+    
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    public void registerQuery(String sessionToken, NewExpression expression);
 }
