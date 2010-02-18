@@ -1,0 +1,21 @@
+<project name="screening-hcdc-client" default="jar" basedir="..">
+	<property name="dist" value="targets/dist" />
+	<property name="lib" value="${dist}/lib" />
+	<property name="jar.file" value="${lib}/openbis4hcdc.jar" />
+
+	<target name="clean">
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="jar">
+		<mkdir dir="${lib}" />
+		<jar destfile="${jar.file}">
+			<fileset dir="targets/classes">
+				<include name="ch/systemsx/cisd/openbis/hcdc/*.class" />
+			</fileset>
+		</jar>
+		<copydir src="lib" dest="${lib}" />
+		<copy file="dist/run.sh" todir="${dist}" />
+	</target>
+
+</project>
