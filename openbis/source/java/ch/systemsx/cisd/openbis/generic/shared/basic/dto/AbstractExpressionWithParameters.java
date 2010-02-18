@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 
 /**
  * {@link AbstractExpression} extension that stores expression parameters.
@@ -47,19 +48,7 @@ abstract public class AbstractExpressionWithParameters extends AbstractExpressio
 
     public void setupParameters(List<String> allParameters)
     {
-        setParameters(createDistinctParametersList(allParameters));
+        setParameters(ExpressionUtil.createDistinctParametersList(allParameters));
     }
 
-    private static List<String> createDistinctParametersList(List<String> allParameters)
-    {
-        List<String> result = new ArrayList<String>();
-        for (String parameter : allParameters)
-        {
-            if (result.contains(parameter) == false)
-            {
-                result.add(parameter);
-            }
-        }
-        return result;
-    }
 }

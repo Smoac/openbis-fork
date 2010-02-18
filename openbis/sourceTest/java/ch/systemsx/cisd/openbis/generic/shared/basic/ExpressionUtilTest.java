@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.util;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 
 /**
@@ -40,22 +42,33 @@ public class ExpressionUtilTest extends AssertJUnit
     @Test
     public void testExtractOneParameter() throws Exception
     {
-        String expression = "${abc}";
+        String expression = "hello ${abc}";
         assertEquals("[abc]", extractParameters(expression).toString());
     }
 
     @Test
     public void testExtractOneDuplicatedParameter() throws Exception
     {
-        String expression = "${abc} ${abc}";
+        String expression = "${abc} and ${abc}";
         assertEquals("[abc, abc]", extractParameters(expression).toString());
     }
 
     @Test
     public void testExtractManyParametersWithPreservedOrder() throws Exception
     {
-        String expression = "${abc} ${def} ${abc} ${ghi}";
+        String expression = "${abc} ${def} ${abc} ${ghi}.";
         assertEquals("[abc, def, abc, ghi]", extractParameters(expression).toString());
+    }
+    
+    @Test
+    public void testCreateDistinctParametersList()
+    {
+        assertEquals("[a, b, c]", createDistinctList("a", "b", "a", "c", "b").toString());
+    }
+    
+    private Collection<String> createDistinctList(String...strings)
+    {
+        return ExpressionUtil.createDistinctParametersList(Arrays.asList(strings));
     }
 
     private Collection<String> extractParameters(String expression)

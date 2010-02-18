@@ -23,13 +23,13 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractExpressionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
-import ch.systemsx.cisd.openbis.generic.shared.util.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
