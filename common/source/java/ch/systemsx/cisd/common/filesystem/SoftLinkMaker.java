@@ -45,9 +45,9 @@ public class SoftLinkMaker
         return tokens;
     }
 
-    public static void createSymbolicLink(File sourceFile, File targetDir)
+    public static boolean createSymbolicLink(File sourceFile, File targetDir)
     {
-        ProcessExecutionHelper.runAndLog(new SoftLinkMaker().createCommand(sourceFile, targetDir),
-                operationLog, machineLog);
+        return ProcessExecutionHelper.runAndLog(new SoftLinkMaker().createCommand(sourceFile,
+                targetDir), operationLog, machineLog);
     }
 }

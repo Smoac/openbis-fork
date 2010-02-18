@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.testng.AssertJUnit;
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
 
 /**
  * Test cases for corresponding {@link Directory} class.
@@ -132,9 +134,7 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
     @Test
     public void testExtractTo()
     {
-        File dir = new File(workingDirectory, "dir");
-        dir.mkdirs();
-        final IDirectory directory = NodeFactory.createDirectoryNode(dir);
+        final IDirectory directory = createDirectory("dir");
         directory.addKeyValuePair("p1", "property 1");
         IDirectory subdir = directory.makeDirectory("subdir");
         subdir.addKeyValuePair("p2", "property 2");
@@ -155,9 +155,7 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
     @Test
     public void testMoveTo()
     {
-        File dir = new File(workingDirectory, "dir");
-        dir.mkdirs();
-        final IDirectory directory = NodeFactory.createDirectoryNode(dir);
+        final IDirectory directory = createDirectory("dir");
         directory.addKeyValuePair("p1", "property 1");
         IDirectory subdir = directory.makeDirectory("subdir");
         subdir.addKeyValuePair("p2", "property 2");
@@ -172,6 +170,38 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
         File subdir2 = new File(workingDirectory, "subdir");
         assertEquals(true, subdir2.isDirectory());
         assertEquals("property 2", FileUtilities.loadToString(new File(subdir2, "p2")).trim());
+    }
+
+    private IDirectory createDirectory(String name)
+    {
+        File dir = new File(workingDirectory, name);
+        dir.mkdirs();
+        return NodeFactory.createDirectoryNode(dir);
+    }
+
+    @Test
+    public void testMoveSymbolicLink() throws IOException
+    {
+        final IDirectory directory = createDirectory("parent");
+        IDirectory original = directory.makeDirectory("original");
+        IDirectory subdir = directory.makeDirectory("child");
+        File linkFile = new File(asFile(directory), "link");
+        // create a link to original dir in a parent dir
+        boolean ok = SoftLinkMaker.createSymbolicLink(asFile(original).getAbsoluteFile(), linkFile);
+        assertTrue(ok);
+
+        // this is what we test: move the link from parent dir to child dir
+        AbstractNode.moveFileToDirectory(linkFile, asFile(subdir), null);
+
+        assertFalse(linkFile.exists());
+        File newLink = new File(asFile(subdir), linkFile.getName());
+        assertTrue(newLink.exists());
+        assertEquals(asFile(original).getCanonicalPath(), newLink.getCanonicalPath());
+    }
+
+    private static File asFile(final IDirectory directory)
+    {
+        return new File(directory.getPath());
     }
 
     @Test

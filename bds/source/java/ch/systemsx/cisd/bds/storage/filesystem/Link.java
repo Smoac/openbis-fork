@@ -43,8 +43,6 @@ final class Link implements IFileBasedLink
     {
         assert name != null : "A name must be specified.";
         assert reference != null : "Reference can not be null.";
-        assert reference instanceof IFile : "Given reference must be of type IFile: "
-                + reference.getClass().getName();
         assert reference.isValid() : "Given reference must be valid: " + reference;
         this.name = name;
         this.reference = reference;

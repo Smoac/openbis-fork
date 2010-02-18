@@ -56,7 +56,10 @@ public final class NodeFactory
     {
         assert file != null : "Given file can not be null";
         assert name != null : "Given name can not be null";
-        return new Link(name, internalCreateNode(file));
+        IFileBasedNode reference = internalCreateNode(file);
+        assert reference instanceof IFile : "Given reference must be of type IFile: "
+                + reference.getClass().getName();
+        return new Link(name, reference);
     }
 
     /**
