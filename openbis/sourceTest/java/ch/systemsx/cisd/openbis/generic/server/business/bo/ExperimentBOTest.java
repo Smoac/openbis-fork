@@ -545,7 +545,7 @@ public final class ExperimentBOTest extends AbstractBOTest
 
         prepareTryFindSample(exp.getProject().getGroup(), unknownSampleCode, null);
         String errorMsg =
-                "Samples with following codes do not exist in the group 'HOME_GROUP': '[unknownSampleCode]'.";
+                "Samples with following codes do not exist in the space 'HOME_GROUP': '[unknownSampleCode]'.";
         try
         {
             expBO.setExperimentSamples(new String[]

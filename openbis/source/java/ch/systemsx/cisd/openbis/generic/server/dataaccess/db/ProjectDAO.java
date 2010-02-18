@@ -64,7 +64,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
 
     public List<ProjectPE> listProjects(final GroupPE group)
     {
-        assert group != null : "Unspecified group.";
+        assert group != null : "Unspecified space.";
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(ProjectPE.class);
         criteria.add(Restrictions.eq("group", group));
@@ -81,7 +81,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
             final String projectCode)
     {
         assert projectCode != null : "Unspecified project code.";
-        assert groupCode != null : "Unspecified group code.";
+        assert groupCode != null : "Unspecified space code.";
 
         final Criteria criteria = getSession().createCriteria(ProjectPE.class);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(projectCode)));

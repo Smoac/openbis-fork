@@ -52,7 +52,7 @@ public class SampleOwnerFinder
         final SampleOwner ownerId = tryFigureSampleOwner(owner);
         if (ownerId == null)
         {
-            throw UserFailureException.fromTemplate("Incorrect group or database name in '%s'",
+            throw UserFailureException.fromTemplate("Incorrect space or database name in '%s'",
                     owner);
         }
         return ownerId;

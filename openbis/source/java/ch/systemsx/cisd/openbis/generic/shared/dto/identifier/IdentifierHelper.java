@@ -53,8 +53,8 @@ public final class IdentifierHelper
      */
     public final static GroupIdentifier createGroupIdentifier(final GroupPE groupPE)
     {
-        assert groupPE != null : "Unspecified group";
-        assert groupPE.getDatabaseInstance() != null : "Any group must "
+        assert groupPE != null : "Unspecified space";
+        assert groupPE.getDatabaseInstance() != null : "Any space must "
                 + "be attached to a database instance";
         return new GroupIdentifier(groupPE.getDatabaseInstance().getCode(), groupPE.getCode());
     }

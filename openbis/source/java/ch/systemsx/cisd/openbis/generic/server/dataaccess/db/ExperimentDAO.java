@@ -131,7 +131,7 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
     public List<ExperimentPE> listExperimentsByProjectAndProperty(String propertyCode,
             String propertyValue, ProjectPE project) throws DataAccessException
     {
-        assert project != null : "Unspecified group.";
+        assert project != null : "Unspecified space.";
         assert propertyCode != null : "Unspecified property code";
         assert propertyValue != null : "Unspecified property value";
 

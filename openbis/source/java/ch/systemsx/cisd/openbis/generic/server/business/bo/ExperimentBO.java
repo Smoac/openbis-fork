@@ -514,7 +514,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         if (missingSamples.size() > 0)
         {
             throw UserFailureException.fromTemplate(
-                    "Samples with following codes do not exist in the group '%s': '%s'.", group
+                    "Samples with following codes do not exist in the space '%s': '%s'.", group
                             .getCode(), CollectionUtils.abbreviate(missingSamples, 10));
         } else
         {

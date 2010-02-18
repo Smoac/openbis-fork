@@ -246,7 +246,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         if (project == null)
         {
             throw UserFailureException.fromTemplate(
-                    "No project '%s' could be found in the '%s' group!", projectCode, groupCode);
+                    "No project '%s' could be found in the '%s' space!", projectCode, groupCode);
         }
         return project;
     }
@@ -273,7 +273,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
         if (hasDatasets && sample.getGroup() == null)
         {
-            throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the group "
+            throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the space "
                     + "because there are already datasets attached to the sample.", sample
                     .getIdentifier());
         }
@@ -282,7 +282,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                         .equals(sample.getGroup()) == false))
         {
             throw new UserFailureException(
-                    "Sample group must be the same as experiment group. Shared samples cannot be attached to experiments.");
+                    "Sample space must be the same as experiment space. Shared samples cannot be attached to experiments.");
         }
         SampleGenericBusinessRules.assertValidParents(sample);
         SampleGenericBusinessRules.assertValidChildren(sample);

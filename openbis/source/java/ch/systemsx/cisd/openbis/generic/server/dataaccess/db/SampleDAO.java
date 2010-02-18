@@ -240,7 +240,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
             final SampleTypePE sampleType, final GroupPE group) throws DataAccessException
     {
         assert sampleType != null : "Unspecified sample type.";
-        assert group != null : "Unspecified group.";
+        assert group != null : "Unspecified space.";
 
         final Criteria criteria = createListSampleForTypeCriteria(sampleType);
         final Criterion criterion = Restrictions.eq("group", group);
@@ -290,7 +290,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     public final List<SamplePE> listSamplesByGroupAndProperty(final String propertyCode,
             final String propertyValue, final GroupPE group) throws DataAccessException
     {
-        assert group != null : "Unspecified group.";
+        assert group != null : "Unspecified space.";
         assert propertyCode != null : "Unspecified property code";
         assert propertyValue != null : "Unspecified property value";
 
@@ -380,7 +380,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     public final SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group)
     {
         assert sampleCode != null : "Unspecified sample code.";
-        assert group != null : "Unspecified group.";
+        assert group != null : "Unspecified space.";
 
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         addSampleCodeCriterion(criteria, sampleCode);

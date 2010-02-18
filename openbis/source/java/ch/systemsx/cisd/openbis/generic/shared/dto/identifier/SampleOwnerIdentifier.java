@@ -66,7 +66,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
 
     private static GroupIdentifier checkNotNull(final GroupIdentifier identifier)
     {
-        assert identifier != null : "group identifier cannot be null";
+        assert identifier != null : "space identifier cannot be null";
         return identifier;
     }
 

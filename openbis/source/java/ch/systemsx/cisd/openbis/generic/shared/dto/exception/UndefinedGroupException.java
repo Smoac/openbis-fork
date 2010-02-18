@@ -27,7 +27,7 @@ public final class UndefinedGroupException extends UserFailureException
 {
     private static final long serialVersionUID = 1L;
 
-    private final static String MESSAGE = "Group not specified, home group unknown";
+    private final static String MESSAGE = "Space not specified, home space unknown";
 
     public UndefinedGroupException()
     {

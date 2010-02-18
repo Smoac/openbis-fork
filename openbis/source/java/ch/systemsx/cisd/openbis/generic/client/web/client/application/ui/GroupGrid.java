@@ -141,7 +141,8 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
     {
         final String code = group.getCode();
         final String description = group.getDescription();
-        final String title = viewContext.getMessage(Dict.EDIT_TITLE, "Group", code);
+        final String title =
+                viewContext.getMessage(Dict.EDIT_TITLE, viewContext.getMessage(Dict.GROUP), code);
 
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {

@@ -57,13 +57,13 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
 
     public final void save() throws UserFailureException
     {
-        assert group != null : "Group not defined";
+        assert group != null : "Space not defined";
         try
         {
             getGroupDAO().createGroup(group);
         } catch (final DataAccessException e)
         {
-            throwException(e, "Group '" + IdentifierHelper.createGroupIdentifier(group) + "'");
+            throwException(e, "Space '" + IdentifierHelper.createGroupIdentifier(group) + "'");
         }
     }
 
@@ -84,7 +84,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
     public final void define(String groupCode, final String descriptionOrNull)
             throws UserFailureException
     {
-        assert groupCode != null : "Unspecified group code.";
+        assert groupCode != null : "Unspecified space code.";
         group = new GroupPE();
         final GroupIdentifier groupIdentifier =
                 new GroupIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
@@ -106,7 +106,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         group = GroupIdentifierHelper.tryGetGroup(groupIdentifier, session.tryGetPerson(), this);
         if (group == null)
         {
-            throw new UserFailureException(String.format("Group '%s' does not exist.",
+            throw new UserFailureException(String.format("Space '%s' does not exist.",
                     groupIdentifier));
         }
     }
@@ -131,7 +131,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
             getEventDAO().persist(createDeletionEvent(group, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)
         {
-            throwException(ex, String.format("Group '%s'", group.getCode()));
+            throwException(ex, String.format("Space '%s'", group.getCode()));
         }
     }
 

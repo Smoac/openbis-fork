@@ -94,11 +94,11 @@ public final class RoleWithIdentifier extends Role
 
     private static RoleLevel figureRoleLevel(final RoleAssignmentPE roleAssignment)
     {
-        assert roleAssignment.getDatabaseInstance() == null || roleAssignment.getGroup() == null : "Either the group or the database instance must be null";
+        assert roleAssignment.getDatabaseInstance() == null || roleAssignment.getGroup() == null : "Either the space or the database instance must be null";
         final RoleLevel roleGroup =
                 roleAssignment.getDatabaseInstance() != null ? RoleLevel.INSTANCE : roleAssignment
                         .getGroup() != null ? RoleLevel.GROUP : null;
-        assert roleGroup != null : "Either the group or the database instance must not be null";
+        assert roleGroup != null : "Either the space or the database instance must not be null";
         return roleGroup;
     }
 
@@ -118,7 +118,8 @@ public final class RoleWithIdentifier extends Role
     {
         if (databaseInstanceOrNull != null)
         {
-            return IdentifierHelper.createDatabaseInstanceIdentifier(databaseInstanceOrNull).toString();
+            return IdentifierHelper.createDatabaseInstanceIdentifier(databaseInstanceOrNull)
+                    .toString();
         } else
         {
             return IdentifierHelper.createGroupIdentifier(groupOrNull).toString();
