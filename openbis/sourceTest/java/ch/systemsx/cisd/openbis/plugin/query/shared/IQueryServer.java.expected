@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.DeleteQueryPredicate;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.UpdateQueryPredicate;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
  * @author Franz-Josef Elmer
@@ -48,6 +49,16 @@ public interface IQueryServer extends IServer
     @RolesAllowed(RoleSet.POWER_USER)
     public TableModel queryDatabase(String sessionToken, String sqlQuery);
 
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.POWER_USER)
+    public TableModel queryDatabase(String sessionToken, QueryExpression query,
+            QueryParameterBindings bindings);
+
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public TableModel queryDatabase(String sessionToken, TechId queryId,
+            QueryParameterBindings bindings);
+
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
@@ -60,7 +71,7 @@ public interface IQueryServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
     public void deleteQueries(String sessionToken,
-            @AuthorizationGuard(guardClass = DeleteQueryPredicate.class) List<TechId> filterIds);
+            @AuthorizationGuard(guardClass = DeleteQueryPredicate.class) List<TechId> queryIds);
 
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)

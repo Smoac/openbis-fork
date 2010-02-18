@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 import ch.systemsx.cisd.openbis.plugin.query.shared.translator.QueryTranslator;
 
 /**
@@ -107,19 +108,6 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
         DatabaseDefinition definition = tryToGetDatabaseDefinition();
         return definition == null ? null : definition.getLabel();
-    }
-
-    public TableModel queryDatabase(String sessionToken, String sqlQuery)
-    {
-        checkSession(sessionToken);
-
-        try
-        {
-            return getDAO().query(sqlQuery);
-        } catch (DataAccessException ex)
-        {
-            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
-        }
     }
 
     public List<QueryExpression> listQueries(String sessionToken)
@@ -211,6 +199,54 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             }
         }
         return databaseDefinition;
+    }
+
+    // TODO remove
+    public TableModel queryDatabase(String sessionToken, String sqlQuery)
+    {
+        checkSession(sessionToken);
+
+        try
+        {
+            return getDAO().query(sqlQuery);
+        } catch (DataAccessException ex)
+        {
+            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+        }
+    }
+
+    public TableModel queryDatabase(String sessionToken, QueryExpression query,
+            QueryParameterBindings bindings)
+    {
+        checkSession(sessionToken);
+        try
+        {
+            return queryDatabase(query, bindings);
+        } catch (DataAccessException ex)
+        {
+            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+        }
+    }
+
+    public TableModel queryDatabase(String sessionToken, TechId queryId,
+            QueryParameterBindings bindings)
+    {
+        checkSession(sessionToken);
+        try
+        {
+            IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
+            QueryPE query = queryDAO.getByTechId(queryId);
+            return queryDatabase(QueryTranslator.translate(query), bindings);
+        } catch (DataAccessException ex)
+        {
+            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+        }
+    }
+
+    private TableModel queryDatabase(QueryExpression translate, QueryParameterBindings bindings)
+    {
+        // TODO
+        return null;
     }
 
 }

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
  * @author Franz-Josef Elmer
@@ -71,6 +72,21 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
     {
         logTracking(sessionToken, "update_query", "ID(%s) QUERY_NAME(%s)", updates.getId(), updates
                 .getName());
+    }
+
+    public TableModel queryDatabase(String sessionToken, QueryExpression query,
+            QueryParameterBindings bindings)
+    {
+        logAccess(sessionToken, "query_database", "SQL(%s) BINDINGS(%s)", query.getExpression(),
+                bindings);
+        return null;
+    }
+
+    public TableModel queryDatabase(String sessionToken, TechId queryId,
+            QueryParameterBindings bindings)
+    {
+        logAccess(sessionToken, "query_database", "QUERY(%s) BINDINGS(%s)", queryId, bindings);
+        return null;
     }
 
 }
