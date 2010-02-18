@@ -64,7 +64,9 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 public class QueryEditor extends Dialog
 {
     public static final String ID = Constants.QUERY_ID_PREFIX + "_query_editor";
-    
+
+    private static final FormData FORM_DATA = new FormData("100%");
+
     private static Button createCancelButton(IViewContext<?> viewContext, final Window window)
     {
         return new Button(viewContext.getMessage(Dict.BUTTON_CANCEL),
@@ -77,15 +79,16 @@ public class QueryEditor extends Dialog
                         }
                     });
     }
-    
+
     private static interface QueryExecutor
     {
         public void execute(QueryParameterBindings parameterBindings);
     }
-    
+
     private static final class BindingsDialog extends Dialog
     {
         private final Map<String, TextField<String>> parameterFields;
+
         private final QueryExecutor queryExecutor;
 
         public BindingsDialog(IViewContext<IQueryClientServiceAsync> viewContext,
@@ -103,7 +106,7 @@ public class QueryEditor extends Dialog
             form.setBodyBorder(false);
             form.setLabelWidth(150);
             form.setFieldWidth(250);
-            
+
             parameterFields = new HashMap<String, TextField<String>>();
             for (String parameter : parameters)
             {
@@ -129,7 +132,6 @@ public class QueryEditor extends Dialog
             setWidth(500);
         }
 
-        
         private void prepareBindingsAndExecuteQuery()
         {
             QueryParameterBindings bindings = new QueryParameterBindings();
@@ -153,11 +155,15 @@ public class QueryEditor extends Dialog
 
     private final QueryExpression queryOrNull;
 
+    private final int parentHeight;
+
     public QueryEditor(final IViewContext<IQueryClientServiceAsync> viewContext,
-            QueryExpression queryOrNull, IDelegatedAction refreshAction)
+            QueryExpression queryOrNull, IDelegatedAction refreshAction, int parentWidth,
+            int parentHeight)
     {
         this.viewContext = viewContext;
         this.queryOrNull = queryOrNull;
+        this.parentHeight = parentHeight;
         setHeading(viewContext.getMessage(queryOrNull == null ? Dict.QUERY_CREATE_TITLE
                 : Dict.QUERY_EDIT_TITLE));
         setModal(true);
@@ -167,20 +173,15 @@ public class QueryEditor extends Dialog
         form.setHeaderVisible(false);
         form.setBorders(true);
         form.setBodyBorder(false);
-        form.setFieldWidth(450);
         nameField =
                 AbstractRegistrationDialog.createTextField(viewContext.getMessage(Dict.NAME), true);
         nameField.setMaxLength(200);
-        form.add(nameField, new FormData("100%"));
         descriptionField =
                 AbstractRegistrationDialog.createTextField(
                         viewContext.getMessage(Dict.DESCRIPTION), false);
         descriptionField.setMaxLength(GenericConstants.DESCRIPTION_2000);
-        form.add(descriptionField, new FormData("100%"));
         statementField = createStatementField();
-        form.add(statementField, new FormData("100%"));
         isPublicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false);
-        form.add(isPublicField);
         if (queryOrNull != null)
         {
             nameField.setValue(queryOrNull.getName());
@@ -188,15 +189,19 @@ public class QueryEditor extends Dialog
             statementField.setValue(StringEscapeUtils.unescapeHtml(queryOrNull.getExpression()));
             isPublicField.setValue(queryOrNull.isPublic());
         }
+        form.add(nameField, FORM_DATA);
+        form.add(descriptionField, FORM_DATA);
+        form.add(statementField, FORM_DATA);
+        form.add(isPublicField);
+        form.setPadding(20);
         setTopComponent(form);
-        
+
         addButton(createSaveButton(form, refreshAction));
-        Button testButton = createTestButton();
-        addButton(testButton);
+        addButton(createTestButton(form));
         addButton(createCancelButton(viewContext, this));
-        
-        setWidth("100%");
-        setHeight(550);
+
+        setPosition(5, 70);
+        setWidth(parentWidth);
     }
 
     private MultilineVarcharField createStatementField()
@@ -233,36 +238,40 @@ public class QueryEditor extends Dialog
                             });
         return button;
     }
-    
-    private Button createTestButton()
+
+    private Button createTestButton(final FormPanel form)
     {
         Button testButton = new Button(viewContext.getMessage(Dict.BUTTON_TEST_QUERY));
         testButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-                {
-            @Override
-            public void componentSelected(ButtonEvent ce)
             {
-                List<String> parameters =
-                    ExpressionUtil.extractParameters(statementField.getValue());
-                parameters = ExpressionUtil.createDistinctParametersList(parameters);
-                if (parameters.size() > 0)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
-                    new BindingsDialog(viewContext, parameters, new QueryExecutor()
+                    if (form.isValid())
                     {
-                        public void execute(QueryParameterBindings parameterBindings)
+                        List<String> parameters =
+                                ExpressionUtil.extractParameters(statementField.getValue());
+                        parameters = ExpressionUtil.createDistinctParametersList(parameters);
+                        if (parameters.size() > 0)
                         {
-                            runQuery(parameterBindings);
+                            new BindingsDialog(viewContext, parameters, new QueryExecutor()
+                                {
+                                    public void execute(QueryParameterBindings parameterBindings)
+                                    {
+                                        runQuery(parameterBindings);
+                                    }
+                                }).show();
+                        } else
+                        {
+                            runQuery(new QueryParameterBindings());
                         }
-                    }).show();
-                } else
-                {
-                    runQuery(new QueryParameterBindings());
+                    }
                 }
-            }
-                });
+
+            });
         return testButton;
     }
-    
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[0];
@@ -291,14 +300,15 @@ public class QueryEditor extends Dialog
             viewContext.getService().updateQuery(queryOrNull, registrationCallback);
         }
     }
-    
+
     private void runQuery(QueryParameterBindings parameterBindings)
     {
         String sqlStatement = statementField.getValue();
         if (sqlStatement != null && sqlStatement.length() > 0)
         {
             viewContext.getService().createQueryResultsReport(
-                    sqlStatement, parameterBindings,
+                    sqlStatement,
+                    parameterBindings,
                     new ReportGeneratedCallback(viewContext.getCommonViewContext(),
                             createReportInformationProvider(sqlStatement),
                             createDisplayQueryResultsAction()));
@@ -329,6 +339,10 @@ public class QueryEditor extends Dialog
                 {
                     removeAll();
                     add(reportComponent.getComponent());
+                    if (getHeight() < parentHeight)
+                    {
+                        setHeight(parentHeight);
+                    }
                     layout();
                 }
             };

@@ -126,8 +126,8 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    new QueryEditor(viewContext, null, createRefreshGridAction())
-                                            .show();
+                                    new QueryEditor(viewContext, null, createRefreshGridAction(),
+                                            getWidth(), getHeight()).show();
                                 }
 
                             });
@@ -139,8 +139,8 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
                                 public void invoke(BaseEntityModel<QueryExpression> selectedItem)
                                 {
                                     QueryExpression query = selectedItem.getBaseObject();
-                                    new QueryEditor(viewContext, query, createRefreshGridAction())
-                                            .show();
+                                    new QueryEditor(viewContext, query, createRefreshGridAction(),
+                                            getWidth(), getHeight()).show();
                                 }
 
                             });

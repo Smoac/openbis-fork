@@ -20,7 +20,7 @@ var query = {
   // Query Browser and Editing
   //
   	
-	QUERY_BROWSER_menu_item: "List Query Definitions",
+	QUERY_BROWSER_menu_item: "Browse Query Definitions",
 	QUERY_BROWSER_tab_label: "Query Definitions",
 
 	button_add_query: "Add Query Definition",

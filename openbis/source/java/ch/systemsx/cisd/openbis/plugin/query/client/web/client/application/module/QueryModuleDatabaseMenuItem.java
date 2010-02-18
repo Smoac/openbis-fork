@@ -47,7 +47,7 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
         for (ActionMenuDefinition definition : values)
         {
             submenu.add(TabActionMenuItemFactory.createActionMenu(viewContext, ID, definition));
-            
+
         }
         setSubMenu(submenu);
     }
@@ -70,8 +70,7 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
             {
                 return QueryBrowserGrid.create(viewContext);
             }
-        }
-        ;
+        };
 
         private final String helpPageTitle;
 
@@ -90,5 +89,5 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
             return name();
         }
     }
-    
+
 }
