@@ -18,5 +18,6 @@
 	<classpathentry kind="lib" path="lib/restrictions.jar"/>
 	<classpathentry kind="lib" path="lib/spring.jar"/>
 	<classpathentry kind="lib" path="lib/screening.jar"/>
+	<classpathentry kind="lib" path="lib/csv.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

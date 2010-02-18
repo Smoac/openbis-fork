@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.transformers;
+package ch.systemsx.cisd.openbis.metadataimport;
 
 import java.io.File;
 import java.io.FileNotFoundException;

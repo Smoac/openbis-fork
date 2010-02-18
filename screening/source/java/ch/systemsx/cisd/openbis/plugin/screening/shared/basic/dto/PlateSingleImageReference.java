@@ -114,5 +114,4 @@ public class PlateSingleImageReference implements IsSerializable, Serializable
     {
         this.imagePath = imagePath;
     }
-
 }
