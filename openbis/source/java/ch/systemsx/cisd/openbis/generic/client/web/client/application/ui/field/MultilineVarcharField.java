@@ -31,7 +31,7 @@ public class MultilineVarcharField extends TextArea
 
     public static final int EM_TO_PIXEL = 10;
 
-    private static final int DEFAULT_LINES = 5;
+    protected static final int DEFAULT_LINES = 5;
 
     /** Constructor for default sized field (5 lines). */
     public MultilineVarcharField(final String label, final boolean mandatory)
@@ -56,8 +56,9 @@ public class MultilineVarcharField extends TextArea
         setHeight(linesToPixelHeight(lines));
     }
 
-	public static int linesToPixelHeight(int lines) {
-		return (int) (lines * DEFAULT_LINE_HEIGHT * EM_TO_PIXEL);
-	}
+    public static int linesToPixelHeight(int lines)
+    {
+        return (int) (lines * DEFAULT_LINE_HEIGHT * EM_TO_PIXEL);
+    }
 
 }

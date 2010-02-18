@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 
@@ -43,7 +42,7 @@ public class SimpleCustomQueryToolbar extends AbstractCustomQueryToolbar
         super(viewContext);
         setAlignment(HorizontalAlignment.CENTER);
         this.queryField = createQueryField();
-        add(new LabelToolItem(viewContext.getMessage(Dict.QUERY_TEXT)
+        add(new LabelToolItem(viewContext.getMessage(Dict.SQL_QUERY)
                 + GenericConstants.LABEL_SEPARATOR));
         add(queryField);
         add(executeButton);
@@ -51,7 +50,7 @@ public class SimpleCustomQueryToolbar extends AbstractCustomQueryToolbar
 
     private TextArea createQueryField()
     {
-        TextArea result = new MultilineVarcharField(viewContext.getMessage(Dict.QUERY_TEXT), true);
+        TextArea result = new SQLQueryField(viewContext, true, 4);
         result.setWidth(QUERY_FIELD_WIDTH);
         return result;
     }

@@ -93,7 +93,7 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
                     sqlQueryOrNull,
                     new ReportGeneratedCallback(viewContext.getCommonViewContext(),
                             createReportInformationProvider(sqlQueryOrNull),
-                            createDisplayQueryResultsAction(sqlQueryOrNull)));
+                            createDisplayQueryResultsAction()));
         }
     }
 
@@ -125,7 +125,7 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
             };
     }
 
-    private IOnReportComponentGeneratedAction createDisplayQueryResultsAction(final String sqlQuery)
+    private IOnReportComponentGeneratedAction createDisplayQueryResultsAction()
     {
         return new IOnReportComponentGeneratedAction()
             {

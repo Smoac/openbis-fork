@@ -40,8 +40,6 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Const
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class QueryEditor extends AbstractRegistrationDialog
@@ -49,10 +47,15 @@ public class QueryEditor extends AbstractRegistrationDialog
     public static final String ID = Constants.QUERY_ID_PREFIX + "_query_editor";
 
     private final IViewContext<IQueryClientServiceAsync> viewContext;
+
     private final TextField<String> nameField;
+
     private final TextField<String> descriptionField;
+
     private final MultilineVarcharField statementField;
+
     private final CheckBoxField isPublicField;
+
     private final GridCustomFilter queryOrNull;
 
     public QueryEditor(IViewContext<IQueryClientServiceAsync> viewContext,
@@ -102,12 +105,11 @@ public class QueryEditor extends AbstractRegistrationDialog
 
     private MultilineVarcharField createStatementField()
     {
-        MultilineVarcharField field =
-                new MultilineVarcharField(viewContext.getMessage(Dict.SQL_STATEMENT), true, 15);
+        MultilineVarcharField field = new SQLQueryField(viewContext, true, 15);
         field.setMaxLength(2000);
         return field;
     }
-    
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[0];

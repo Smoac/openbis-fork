@@ -23,8 +23,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public enum QueryColDefKind implements IColumnDefinitionKind<GridCustomFilter>
@@ -47,7 +45,9 @@ public enum QueryColDefKind implements IColumnDefinitionKind<GridCustomFilter>
             }
         }),
 
-    EXPRESSION(new AbstractColumnDefinitionKind<GridCustomFilter>(ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.SQL_STATEMENT, true)
+    EXPRESSION(new AbstractColumnDefinitionKind<GridCustomFilter>(
+            ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.SQL_QUERY,
+            true)
         {
             @Override
             public String tryGetValue(GridCustomFilter entity)
@@ -86,8 +86,7 @@ public enum QueryColDefKind implements IColumnDefinitionKind<GridCustomFilter>
 
     private final AbstractColumnDefinitionKind<GridCustomFilter> columnDefinitionKind;
 
-    private QueryColDefKind(
-            AbstractColumnDefinitionKind<GridCustomFilter> columnDefinitionKind)
+    private QueryColDefKind(AbstractColumnDefinitionKind<GridCustomFilter> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
