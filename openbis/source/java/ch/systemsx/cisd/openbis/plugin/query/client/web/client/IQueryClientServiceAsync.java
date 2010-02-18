@@ -27,9 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 
 /**
  * @author Piotr Buczek
@@ -45,23 +45,23 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TableModelReference> callback);
 
     /** @see IQueryClientService#listQueries(IResultSetConfig) */
-    public void listQueries(IResultSetConfig<String, GridCustomFilter> resultSetConfig,
-            AsyncCallback<ResultSet<GridCustomFilter>> callback);
+    public void listQueries(IResultSetConfig<String, QueryExpression> resultSetConfig,
+            AsyncCallback<ResultSet<QueryExpression>> callback);
 
     /** @see IQueryClientService#listQueries() */
-    public void listQueries(AsyncCallback<List<GridCustomFilter>> callback)
+    public void listQueries(AsyncCallback<List<QueryExpression>> callback)
             throws UserFailureException;
 
     /** @see IQueryClientService#prepareExportQueries(TableExportCriteria) */
-    public void prepareExportQueries(TableExportCriteria<GridCustomFilter> criteria,
+    public void prepareExportQueries(TableExportCriteria<QueryExpression> criteria,
             AsyncCallback<String> callback);
 
     /** @see IQueryClientService#registerQuery(NewExpression) */
     public void registerQuery(NewExpression query, AsyncCallback<Void> callback);
-    
+
     /** @see IQueryClientService#deleteQueries(List) */
     public void deleteQueries(List<TechId> filterIds, AsyncCallback<Void> callback);
-    
+
     /** @see IQueryClientService#updateQuery(IFilterOrColumnUpdates) */
     public void updateQuery(final IFilterOrColumnUpdates queryUpdate, AsyncCallback<Void> callback);
 }

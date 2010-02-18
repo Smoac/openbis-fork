@@ -33,8 +33,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.M
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
@@ -56,10 +56,10 @@ public class QueryEditor extends AbstractRegistrationDialog
 
     private final CheckBoxField isPublicField;
 
-    private final GridCustomFilter queryOrNull;
+    private final QueryExpression queryOrNull;
 
     public QueryEditor(IViewContext<IQueryClientServiceAsync> viewContext,
-            GridCustomFilter queryOrNull, IDelegatedAction refreshAction)
+            QueryExpression queryOrNull, IDelegatedAction refreshAction)
     {
         super(viewContext, viewContext.getMessage(queryOrNull == null ? Dict.QUERY_CREATE_TITLE
                 : Dict.QUERY_EDIT_TITLE), refreshAction);

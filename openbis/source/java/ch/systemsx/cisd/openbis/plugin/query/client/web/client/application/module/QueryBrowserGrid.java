@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
@@ -46,17 +46,16 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Displ
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ui.columns.QueryColDefKind;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter>
+public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
 {
     private static final String BROWSER_ID = Constants.QUERY_ID_PREFIX + "queries_browser";
+
     private static final String GRID_ID = BROWSER_ID + "_grid";
-    
+
     private static class DeletionConfirmationDialog extends
-            AbstractDataConfirmationDialog<List<GridCustomFilter>>
+            AbstractDataConfirmationDialog<List<QueryExpression>>
     {
         private static final int LABEL_WIDTH = 60;
 
@@ -67,7 +66,7 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter
         private final AbstractAsyncCallback<Void> callback;
 
         public DeletionConfirmationDialog(IViewContext<IQueryClientServiceAsync> viewContext,
-                List<GridCustomFilter> data, AbstractAsyncCallback<Void> callback)
+                List<QueryExpression> data, AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data, viewContext.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
             this.callback = callback;
@@ -85,7 +84,7 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter
         protected String createMessage()
         {
             List<String> names = new ArrayList<String>();
-            for (GridCustomFilter query : data)
+            for (QueryExpression query : data)
             {
                 names.add(query.getName());
             }
@@ -106,12 +105,13 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter
         QueryBrowserGrid browser = new QueryBrowserGrid(viewContext);
         return new DatabaseModificationAwareComponent(browser, browser);
     }
-    
+
     private final IViewContext<IQueryClientServiceAsync> viewContext;
-    
+
     QueryBrowserGrid(IViewContext<IQueryClientServiceAsync> viewContext)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.QUERY_EDITOR);
+        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID,
+                DisplayTypeIDGenerator.QUERY_EDITOR);
         this.viewContext = viewContext;
         extendBottomToolbar();
     }
@@ -126,19 +126,21 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    new QueryEditor(viewContext, null, createRefreshGridAction()).show();
+                                    new QueryEditor(viewContext, null, createRefreshGridAction())
+                                            .show();
                                 }
 
                             });
         addButton(addButton);
         final Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new ISelectedEntityInvoker<BaseEntityModel<GridCustomFilter>>()
+                        new ISelectedEntityInvoker<BaseEntityModel<QueryExpression>>()
                             {
-                                public void invoke(BaseEntityModel<GridCustomFilter> selectedItem)
+                                public void invoke(BaseEntityModel<QueryExpression> selectedItem)
                                 {
-                                    GridCustomFilter query = selectedItem.getBaseObject();
-                                    new QueryEditor(viewContext, query, createRefreshGridAction()).show();
+                                    QueryExpression query = selectedItem.getBaseObject();
+                                    new QueryEditor(viewContext, query, createRefreshGridAction())
+                                            .show();
                                 }
 
                             });
@@ -148,7 +150,7 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<GridCustomFilter> selected,
+                                protected Dialog createDialog(List<QueryExpression> selected,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new DeletionConfirmationDialog(viewContext, selected,
@@ -161,27 +163,27 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter
     }
 
     @Override
-    protected IColumnDefinitionKind<GridCustomFilter>[] getStaticColumnsDefinition()
+    protected IColumnDefinitionKind<QueryExpression>[] getStaticColumnsDefinition()
     {
         return QueryColDefKind.values();
     }
 
     @Override
-    protected List<IColumnDefinition<GridCustomFilter>> getInitialFilters()
+    protected List<IColumnDefinition<QueryExpression>> getInitialFilters()
     {
         return asColumnFilters(new QueryColDefKind[]
             { QueryColDefKind.NAME, QueryColDefKind.PUBLIC });
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<GridCustomFilter>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, QueryExpression> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<QueryExpression>> callback)
     {
         viewContext.getService().listQueries(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<GridCustomFilter> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<QueryExpression> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportQueries(exportCriteria, callback);

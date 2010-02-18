@@ -25,9 +25,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 
 /**
  * @author Piotr Buczek
@@ -43,30 +43,30 @@ public interface IQueryClientService extends IClientService
             throws UserFailureException;
 
     /** Returns a list of all the canned custom queries created so far. */
-    public List<GridCustomFilter> listQueries() throws UserFailureException;
+    public List<QueryExpression> listQueries() throws UserFailureException;
 
     /**
      * Returns all queries for the specified configuration.
      */
-    public ResultSet<GridCustomFilter> listQueries(
-            IResultSetConfig<String, GridCustomFilter> resultSetConfig) throws UserFailureException;
+    public ResultSet<QueryExpression> listQueries(
+            IResultSetConfig<String, QueryExpression> resultSetConfig) throws UserFailureException;
 
     /**
      * Prepares export of queries.
      */
-    public String prepareExportQueries(TableExportCriteria<GridCustomFilter> criteria)
+    public String prepareExportQueries(TableExportCriteria<QueryExpression> criteria)
             throws UserFailureException;
 
     /**
      * Registers specified new query.
      */
     public void registerQuery(NewExpression query) throws UserFailureException;
-    
+
     /**
      * Deletes specified queries.
      */
     public void deleteQueries(List<TechId> filterIds) throws UserFailureException;
-    
+
     /**
      * Updates specified query.
      */

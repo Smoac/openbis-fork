@@ -34,9 +34,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
@@ -100,7 +100,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         }
     }
 
-    public List<GridCustomFilter> listQueries()
+    public List<QueryExpression> listQueries()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -113,15 +113,15 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         }
     }
 
-    public ResultSet<GridCustomFilter> listQueries(
-            final IResultSetConfig<String, GridCustomFilter> resultSetConfig)
+    public ResultSet<QueryExpression> listQueries(
+            final IResultSetConfig<String, QueryExpression> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
-            return listEntities(resultSetConfig, new IOriginalDataProvider<GridCustomFilter>()
+            return listEntities(resultSetConfig, new IOriginalDataProvider<QueryExpression>()
                 {
-                    public List<GridCustomFilter> getOriginalData() throws UserFailureException
+                    public List<QueryExpression> getOriginalData() throws UserFailureException
                     {
                         return queryServer.listQueries(getSessionToken());
                     }
@@ -132,7 +132,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         }
     }
 
-    public String prepareExportQueries(TableExportCriteria<GridCustomFilter> criteria)
+    public String prepareExportQueries(TableExportCriteria<QueryExpression> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);

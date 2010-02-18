@@ -21,9 +21,9 @@ import java.util.List;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
@@ -51,7 +51,7 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
         return null;
     }
 
-    public List<GridCustomFilter> listQueries(String sessionToken)
+    public List<QueryExpression> listQueries(String sessionToken)
     {
         logAccess(sessionToken, "list_queries");
         return null;

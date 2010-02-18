@@ -37,15 +37,15 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.QueryTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.query.shared.translator.QueryTranslator;
 
 /**
  * @author Franz-Josef Elmer
@@ -122,7 +122,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
-    public List<GridCustomFilter> listQueries(String sessionToken)
+    public List<QueryExpression> listQueries(String sessionToken)
     {
         checkSession(sessionToken);
 
@@ -176,7 +176,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     public void updateQuery(String sessionToken, IFilterOrColumnUpdates updates)
     {
         checkSession(sessionToken);
-        
+
         try
         {
             IQueryDAO queryDAO = getDAOFactory().getQueryDAO();

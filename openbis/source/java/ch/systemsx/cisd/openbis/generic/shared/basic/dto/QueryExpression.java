@@ -16,17 +16,38 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.List;
+
 /**
- * Stores information describing a grid custom filter.
+ * Stores information describing a parametrized query.
  * 
- * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public class GridCustomFilter extends AbstractExpressionWithParameters
+public class QueryExpression extends AbstractExpressionWithParameters
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public GridCustomFilter()
+    private List<String> allParameters;
+
+    public QueryExpression()
     {
+    }
+
+    public List<String> getAllParameters()
+    {
+        return allParameters;
+    }
+
+    private void setAllParameters(List<String> allParameters)
+    {
+        this.allParameters = allParameters;
+    }
+
+    @Override
+    public void setupParameters(List<String> allParameters)
+    {
+        super.setupParameters(allParameters);
+        setAllParameters(allParameters);
     }
 
 }

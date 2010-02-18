@@ -20,73 +20,73 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 
 /**
  * @author Franz-Josef Elmer
  */
-public enum QueryColDefKind implements IColumnDefinitionKind<GridCustomFilter>
+public enum QueryColDefKind implements IColumnDefinitionKind<QueryExpression>
 {
-    NAME(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.NAME)
+    NAME(new AbstractColumnDefinitionKind<QueryExpression>(Dict.NAME)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(QueryExpression entity)
             {
                 return entity.getName();
             }
         }),
 
-    DESCRIPTION(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.DESCRIPTION)
+    DESCRIPTION(new AbstractColumnDefinitionKind<QueryExpression>(Dict.DESCRIPTION)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(QueryExpression entity)
             {
                 return entity.getDescription();
             }
         }),
 
-    EXPRESSION(new AbstractColumnDefinitionKind<GridCustomFilter>(
+    EXPRESSION(new AbstractColumnDefinitionKind<QueryExpression>(
             ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.SQL_QUERY,
             true)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(QueryExpression entity)
             {
                 return entity.getExpression();
             }
         }),
 
-    PUBLIC(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.IS_PUBLIC, true)
+    PUBLIC(new AbstractColumnDefinitionKind<QueryExpression>(Dict.IS_PUBLIC, true)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(QueryExpression entity)
             {
                 return SimpleYesNoRenderer.render(entity.isPublic());
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.REGISTRATOR, true)
+    REGISTRATOR(new AbstractColumnDefinitionKind<QueryExpression>(Dict.REGISTRATOR, true)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(QueryExpression entity)
             {
                 return renderRegistrator(entity);
             }
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.REGISTRATION_DATE,
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<QueryExpression>(Dict.REGISTRATION_DATE,
             AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH, true)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(QueryExpression entity)
             {
                 return renderRegistrationDate(entity);
             }
         });
 
-    private final AbstractColumnDefinitionKind<GridCustomFilter> columnDefinitionKind;
+    private final AbstractColumnDefinitionKind<QueryExpression> columnDefinitionKind;
 
-    private QueryColDefKind(AbstractColumnDefinitionKind<GridCustomFilter> columnDefinitionKind)
+    private QueryColDefKind(AbstractColumnDefinitionKind<QueryExpression> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -96,7 +96,7 @@ public enum QueryColDefKind implements IColumnDefinitionKind<GridCustomFilter>
         return name();
     }
 
-    public AbstractColumnDefinitionKind<GridCustomFilter> getDescriptor()
+    public AbstractColumnDefinitionKind<QueryExpression> getDescriptor()
     {
         return columnDefinitionKind;
     }

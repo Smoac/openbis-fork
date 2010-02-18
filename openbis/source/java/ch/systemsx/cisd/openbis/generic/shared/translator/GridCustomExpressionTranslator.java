@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractExpressionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -68,7 +67,7 @@ public final class GridCustomExpressionTranslator
             result.setCode(escapeHtml(original.getCode()));
             result.setName(escapeHtml(original.getLabel()));
 
-            translateGridExpression(original, result);
+            translateExpression(original, result);
             return result;
         }
     }
@@ -100,57 +99,24 @@ public final class GridCustomExpressionTranslator
             result.setName(escapeHtml(original.getName()));
             result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
 
-            translateGridExpression(original, result);
+            translateExpression(original, result);
             return result;
         }
 
     }
 
-    /**
-     * A {@link GridCustomFilter} &lt;---&gt; {@link QueryPE} translator.
-     * 
-     * @author Izabela Adamczyk
-     */
-    public static final class QueryTranslator
-    {
-        public final static List<GridCustomFilter> translate(final List<QueryPE> queries)
-        {
-            final List<GridCustomFilter> result = new ArrayList<GridCustomFilter>();
-            for (final QueryPE query : queries)
-            {
-                result.add(QueryTranslator.translate(query));
-            }
-            return result;
-        }
-
-        public final static GridCustomFilter translate(final QueryPE original)
-        {
-            if (original == null)
-            {
-                return null;
-            }
-            final GridCustomFilter result = new GridCustomFilter();
-            result.setName(escapeHtml(original.getName()));
-            result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
-
-            translateGridExpression(original, result);
-            return result;
-        }
-
-    }
-
-    private static void translateGridExpression(final AbstractExpressionPE<?> gridExpression,
+    public static void translateExpression(final AbstractExpressionPE<?> expression,
             final AbstractExpression result)
     {
-        result.setId(HibernateUtils.getId(gridExpression));
-        result.setModificationDate(gridExpression.getModificationDate());
-        result.setExpression(escapeHtml(gridExpression.getExpression()));
-        result.setDescription(StringEscapeUtils.escapeHtml(gridExpression.getDescription()));
-        result.setRegistrator(PersonTranslator.translate(gridExpression.getRegistrator()));
-        result.setRegistrationDate(gridExpression.getRegistrationDate());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(gridExpression
+        result.setId(HibernateUtils.getId(expression));
+        result.setModificationDate(expression.getModificationDate());
+        result.setExpression(escapeHtml(expression.getExpression()));
+        result.setDescription(StringEscapeUtils.escapeHtml(expression.getDescription()));
+        result.setRegistrator(PersonTranslator.translate(expression.getRegistrator()));
+        result.setRegistrationDate(expression.getRegistrationDate());
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(expression
                 .getDatabaseInstance()));
-        result.setPublic(gridExpression.isPublic());
+        result.setPublic(expression.isPublic());
     }
 
 }
