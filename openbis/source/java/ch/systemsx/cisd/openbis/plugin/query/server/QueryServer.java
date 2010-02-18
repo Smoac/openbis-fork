@@ -65,7 +65,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     /** @deprecated don't use it directly - use getter instead */
     @Deprecated
-    private DAO dao;
+    private IDAO dao;
 
     public QueryServer()
     {
@@ -73,33 +73,16 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     QueryServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
-            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
+            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin,
+            IDAO dao)
     {
         super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+        this.dao = dao;
     }
 
     public IQueryServer createLogger(boolean invocationSuccessful, long elapsedTime)
     {
         return new QueryServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
-    }
-
-    private DAO getDAO()
-    {
-        if (dao == null)
-        {
-            dao = createDAO();
-        }
-        return dao;
-    }
-
-    private DAO createDAO()
-    {
-        DatabaseDefinition definition = tryToGetDatabaseDefinition();
-        if (definition == null)
-        {
-            throw new UnsupportedOperationException("Undefined query database");
-        }
-        return new DAO(definition.getConfigurationContext().getDataSource());
     }
 
     public String tryToGetQueryDatabaseLabel(String sessionToken)
@@ -181,26 +164,6 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
-    private DatabaseDefinition tryToGetDatabaseDefinition()
-    {
-        if (databaseDefinition == null)
-        {
-            ExtendedProperties databaseProperties =
-                    ExtendedProperties.getSubset(configurer.getResolvedProps(),
-                            DATABASE_PROPERTIES_PREFIX, true);
-            if (databaseProperties.isEmpty() == false)
-            {
-                DatabaseConfigurationContext configurationContext =
-                        BeanUtils
-                                .createBean(DatabaseConfigurationContext.class, databaseProperties);
-                databaseDefinition =
-                        new DatabaseDefinition(PropertyUtils.getMandatoryProperty(
-                                databaseProperties, LABEL_PROPERTY_KEY), configurationContext);
-            }
-        }
-        return databaseDefinition;
-    }
-
     public TableModel queryDatabase(String sessionToken, String sqlQuery,
             QueryParameterBindings bindings)
     {
@@ -232,6 +195,40 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     private TableModel queryDatabase(String sqlQuery, QueryParameterBindings bindings)
     {
         return getDAO().query(sqlQuery, bindings);
+    }
+    
+    private IDAO getDAO()
+    {
+        if (dao == null)
+        {
+            DatabaseDefinition definition = tryToGetDatabaseDefinition();
+            if (definition == null)
+            {
+                throw new UnsupportedOperationException("Undefined query database");
+            }
+            dao = new DAO(definition.getConfigurationContext().getDataSource());
+        }
+        return dao;
+    }
+
+    private DatabaseDefinition tryToGetDatabaseDefinition()
+    {
+        if (databaseDefinition == null)
+        {
+            ExtendedProperties databaseProperties =
+                    ExtendedProperties.getSubset(configurer.getResolvedProps(),
+                            DATABASE_PROPERTIES_PREFIX, true);
+            if (databaseProperties.isEmpty() == false)
+            {
+                DatabaseConfigurationContext configurationContext =
+                        BeanUtils
+                                .createBean(DatabaseConfigurationContext.class, databaseProperties);
+                databaseDefinition =
+                        new DatabaseDefinition(PropertyUtils.getMandatoryProperty(
+                                databaseProperties, LABEL_PROPERTY_KEY), configurationContext);
+            }
+        }
+        return databaseDefinition;
     }
 
 }

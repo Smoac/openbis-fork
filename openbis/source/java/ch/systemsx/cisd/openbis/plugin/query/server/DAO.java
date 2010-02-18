@@ -34,7 +34,6 @@ import org.springframework.jdbc.support.JdbcUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.Template;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -48,7 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 /**
  * @author Franz-Josef Elmer
  */
-class DAO extends SimpleJdbcDaoSupport
+class DAO extends SimpleJdbcDaoSupport implements IDAO
 {
     private static DataTypeCode getDataTypeCode(int sqlType)
     {
@@ -88,9 +87,6 @@ class DAO extends SimpleJdbcDaoSupport
             throw new UserFailureException("Sorry, only select statements are allowed.");
         }
 
-        sqlQuery.replace(ExpressionUtil.START, "");
-        sqlQuery.replace(ExpressionUtil.END, "");
-
         PreparedStatementCallback callback = new PreparedStatementCallback()
             {
                 public Object doInPreparedStatement(PreparedStatement ps) throws SQLException,
@@ -125,14 +121,13 @@ class DAO extends SimpleJdbcDaoSupport
                                 cells.add(new DoubleTableCell(number.doubleValue()));
                             } else
                             {
-                                cells
-                                        .add(new StringTableCell(value == null ? "" : value
-                                                .toString()));
+                                String string = value == null ? "" : value.toString();
+                                cells.add(new StringTableCell(string));
                             }
-                        }
+                       }
                         rows.add(new TableModelRow(cells));
                     }
-                    resultSet.close();
+                    JdbcUtils.closeResultSet(resultSet);
                     return new TableModel(headers, rows);
                 }
             };
