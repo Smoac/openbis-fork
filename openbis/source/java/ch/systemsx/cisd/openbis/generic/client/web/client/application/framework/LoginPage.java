@@ -81,7 +81,7 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
     private Anchor createLogo(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         Image image = new Image(viewContext.getImageBundle().getOpenBISLogo());
-        image.setTitle(viewContext.getMessage(Dict.OPENBIS_LOGO_TITLE));// FIXME
+        image.setTitle(viewContext.getMessage(Dict.OPENBIS_LOGO_TITLE));
         Anchor logo =
                 new Anchor(image.getElement().getString(), true,
                         "http://www.cisd.ethz.ch/software/openBIS", "_blank");

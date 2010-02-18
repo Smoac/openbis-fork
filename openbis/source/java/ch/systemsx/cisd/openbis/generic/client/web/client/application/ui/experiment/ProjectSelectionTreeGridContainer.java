@@ -197,8 +197,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 {
                     final Group group = (Group) model.get(ModelDataPropertyNames.OBJECT);
                     final Widget result = new InlineHTML(group.getCode());
-                    result.setTitle(createTooltipText("Group", group.getCode(), group
-                            .getDescription()));// FIXME
+                    result.setTitle(createTooltipText(viewContext.getMessage(Dict.GROUP), group
+                            .getCode(), group.getDescription()));
                     return result;
                 }
 
@@ -219,7 +219,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
                                         });
                     detailsLink.setTitle(viewContext
-                            .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP));// FIXME
+                            .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP));
                     projectLinks.put(project, detailsLink);
 
                     final FlowPanel panel =
