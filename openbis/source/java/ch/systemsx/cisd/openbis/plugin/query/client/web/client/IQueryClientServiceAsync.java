@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 
@@ -56,4 +57,7 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
 
     /** @see IQueryClientService#registerQuery(NewExpression) */
     public void registerQuery(NewExpression query, AsyncCallback<Void> callback);
+    
+    /** @see IQueryClientService#deleteQueries(List) */
+    public void deleteQueries(List<TechId> filterIds, AsyncCallback<Void> callback);
 }

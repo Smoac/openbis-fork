@@ -21,13 +21,16 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.DeleteQueryPredicate;
 
 /**
  * @author Franz-Josef Elmer
@@ -51,4 +54,10 @@ public interface IQueryServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
     public void registerQuery(String sessionToken, NewExpression expression);
+    
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    public void deleteQueries(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DeleteQueryPredicate.class) List<TechId> filterIds);
 }

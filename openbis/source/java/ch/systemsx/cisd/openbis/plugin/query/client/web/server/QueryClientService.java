@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -115,13 +116,19 @@ public class QueryClientService extends AbstractClientService implements IQueryC
             final IResultSetConfig<String, GridCustomFilter> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(resultSetConfig, new IOriginalDataProvider<GridCustomFilter>()
-            {
-                public List<GridCustomFilter> getOriginalData() throws UserFailureException
+        try
+        {
+            return listEntities(resultSetConfig, new IOriginalDataProvider<GridCustomFilter>()
                 {
-                    return queryServer.listQueries(getSessionToken());
-                }
-            });
+                    public List<GridCustomFilter> getOriginalData() throws UserFailureException
+                    {
+                        return queryServer.listQueries(getSessionToken());
+                    }
+                });
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 
     public String prepareExportQueries(TableExportCriteria<GridCustomFilter> criteria)
@@ -133,6 +140,24 @@ public class QueryClientService extends AbstractClientService implements IQueryC
     public void registerQuery(NewExpression query)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        queryServer.registerQuery(getSessionToken(), query);
+        try
+        {
+            queryServer.registerQuery(getSessionToken(), query);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void deleteQueries(List<TechId> filterIds)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            queryServer.deleteQueries(getSessionToken(), filterIds);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 }

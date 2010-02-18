@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -58,6 +59,11 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
     public void registerQuery(String sessionToken, NewExpression expression)
     {
         logTracking(sessionToken, "register_query", "EXPRESSION(%s)", expression.getName());
+    }
+
+    public void deleteQueries(String sessionToken, List<TechId> filterIds)
+    {
+        logTracking(sessionToken, "delete_queries", "QUERIES(%s)", filterIds.size());
     }
 
 }

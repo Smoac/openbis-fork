@@ -33,8 +33,10 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -146,7 +148,24 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         try
         {
             getDAOFactory().getQueryDAO().createQuery(query);
+        } catch (DataAccessException ex)
+        {
+            DataAccessExceptionTranslator.throwException(ex, "Query", null);
+        }
+    }
 
+    public void deleteQueries(String sessionToken, List<TechId> filterIds)
+    {
+        checkSession(sessionToken);
+
+        IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
+        try
+        {
+            for (TechId techId : filterIds)
+            {
+                QueryPE query = queryDAO.tryGetByTechId(techId);
+                queryDAO.delete(query);
+            }
         } catch (DataAccessException ex)
         {
             DataAccessExceptionTranslator.throwException(ex, "Query", null);

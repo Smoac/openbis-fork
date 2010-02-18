@@ -109,7 +109,7 @@ public class QueryEditor extends AbstractRegistrationDialog
         query.setName(nameField.getValue());
         query.setDescription(descriptionField.getValue());
         query.setExpression(statementField.getValue());
-        query.setPublic(isPublicField.isValid());
+        query.setPublic(isPublicField.getValue());
         viewContext.getService().registerQuery(query, registrationCallback);
     }
 

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -30,10 +31,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
@@ -52,6 +55,51 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter
     private static final String BROWSER_ID = Constants.QUERY_ID_PREFIX + "queries_browser";
     private static final String GRID_ID = BROWSER_ID + "_grid";
     
+    private static class DeletionConfirmationDialog extends
+            AbstractDataConfirmationDialog<List<GridCustomFilter>>
+    {
+        private static final int LABEL_WIDTH = 60;
+
+        private static final int FIELD_WIDTH = 180;
+
+        private final IViewContext<IQueryClientServiceAsync> viewContext;
+
+        private final AbstractAsyncCallback<Void> callback;
+
+        public DeletionConfirmationDialog(IViewContext<IQueryClientServiceAsync> viewContext,
+                List<GridCustomFilter> data, AbstractAsyncCallback<Void> callback)
+        {
+            super(viewContext, data, viewContext.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
+            this.callback = callback;
+            this.viewContext = viewContext;
+        }
+
+        @Override
+        protected void extendForm()
+        {
+            formPanel.setLabelWidth(LABEL_WIDTH);
+            formPanel.setFieldWidth(FIELD_WIDTH);
+        }
+
+        @Override
+        protected String createMessage()
+        {
+            List<String> names = new ArrayList<String>();
+            for (GridCustomFilter query : data)
+            {
+                names.add(query.getName());
+            }
+            return viewContext.getMessage(Dict.QUERY_DELETION_CONFIRMATION, names);
+        }
+
+        @Override
+        protected void executeConfirmedAction()
+        {
+            viewContext.getService().deleteQueries(TechId.createList(data), callback);
+        }
+
+    }
+
     public static DatabaseModificationAwareComponent create(
             IViewContext<IQueryClientServiceAsync> viewContext)
     {
@@ -102,8 +150,8 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter
                                 protected Dialog createDialog(List<GridCustomFilter> selected,
                                         IBrowserGridActionInvoker invoker)
                                 {
-                                    System.out.println("delete");
-                                    return null;
+                                    return new DeletionConfirmationDialog(viewContext, selected,
+                                            createDeletionCallback(invoker));
                                 }
                             });
         addButton(deleteButton);

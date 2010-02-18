@@ -105,7 +105,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
     }
 
     abstract protected AbstractExpressionPE<?> convert(T value);
-
+    
     private final String description;
 
     protected IAuthorizationDataProvider authorizationDataProvider;
@@ -154,8 +154,8 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
     private String createErrorMsg(AbstractExpressionPE<?> gridExpression, String userId)
     {
         return String.format("User '%s' does not have enough privileges to"
-                + " perform update/delete operation on custom grid filter/column "
-                + " '%s'. One needs to be either registrator or database instance admin.", userId,
+                + " perform " + description + " '%s'. "
+                + "One needs to be either registrator or database instance admin.", userId,
                 gridExpression);
     }
 

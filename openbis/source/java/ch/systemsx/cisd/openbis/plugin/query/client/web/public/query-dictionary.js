@@ -6,9 +6,6 @@ var query = {
 	// Module
 	//
 	
-	button_add_query: "Add Query",
-	button_test_query: "Test Query",
-	
 	sql_statement: "SQL Statement",
 	
 	module_menu_title: "Queries",
@@ -19,10 +16,18 @@ var query = {
 	
 	RUN_CUSTOM_QUERY_menu_item: "Run Custom SQL Query",
 	RUN_CUSTOM_QUERY_tab_label: "Custom SQL Query",
-	
-	QUERY_BROWSER_menu_item: "List SQL Queries",
-	QUERY_BROWSER_tab_label: "SQL Queries",
 
+  //
+  // Query Browser and Editing
+  //
+  	
+	QUERY_BROWSER_menu_item: "List Query Definition",
+	QUERY_BROWSER_tab_label: "Query Definitions",
+
+	button_add_query: "Add Query Definition",
+	button_test_query: "Test Query Definition",
+	query_deletion_confirmation: "Do you really want to delete the query definitions {0}?",
+	
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };
