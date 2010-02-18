@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.metadataimport;
+package ch.systemsx.cisd.openbis.metadata;
 
 import java.util.List;
 
