@@ -228,27 +228,9 @@ public class ExperimentBrowserGrid extends
     }
 
     @Override
-    protected final String createHeader()
-    {
-        return doCreateHeader(criteria);
-    }
-
-    @Override
     protected EntityType tryToGetEntityType()
     {
         return criteria == null ? null : criteria.getExperimentType();
-    }
-
-    private static final String doCreateHeader(ListExperimentsCriteria criteria)
-    {
-        final StringBuilder builder = new StringBuilder("Experiments");
-        builder.append(" of type ");
-        builder.append(criteria.getExperimentType().getCode());
-        builder.append(" belonging to the project ");
-        builder.append(criteria.getProjectCode());
-        builder.append(" from group ");
-        builder.append(criteria.getGroupCode());
-        return builder.toString();
     }
 
     @Override

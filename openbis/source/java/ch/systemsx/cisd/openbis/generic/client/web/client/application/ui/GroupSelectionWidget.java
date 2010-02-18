@@ -43,9 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
 {
-    private static final String EMPTY_RESULT_SUFFIX = "groups";
-
-    private static final String CHOOSE_SUFFIX = "group";
 
     public static final String SUFFIX = "group-select";
 
@@ -73,8 +70,8 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             boolean addShared, final String initialGroupCodeOrNull)
     {
-        super(viewContext, SUFFIX + idSuffix, Dict.GROUP, ModelDataPropertyNames.CODE,
-                CHOOSE_SUFFIX, EMPTY_RESULT_SUFFIX);
+        super(viewContext, SUFFIX + idSuffix, Dict.GROUP, ModelDataPropertyNames.CODE, viewContext
+                .getMessage(Dict.GROUP), viewContext.getMessage(Dict.GROUP));
         this.viewContext = viewContext;
         this.addShared = addShared;
         this.initialGroupOrNull = initialGroupCodeOrNull;
@@ -118,7 +115,8 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
             groupStore.add(convertItems(result.getList().extractOriginalObjects()));
             if (groupStore.getCount() > 0)
             {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, viewContext
+                        .getMessage(Dict.GROUP)));
                 setReadOnly(false);
                 final int homeGroupIndex = getHomeGroupIndex(groupStore);
                 if (homeGroupIndex > -1)
@@ -128,7 +126,8 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
                 }
             } else
             {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, EMPTY_RESULT_SUFFIX));
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, viewContext
+                        .getMessage(Dict.GROUPS)));
                 setReadOnly(true);
             }
             dataLoaded = true;

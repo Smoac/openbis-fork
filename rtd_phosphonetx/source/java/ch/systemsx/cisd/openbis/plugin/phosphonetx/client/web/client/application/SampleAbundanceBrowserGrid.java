@@ -292,12 +292,6 @@ public class SampleAbundanceBrowserGrid
     }
 
     @Override
-    protected final String createHeader()
-    {
-        return null;
-    }
-
-    @Override
     protected void prepareExportEntities(
             TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria,
             AbstractAsyncCallback<String> callback)

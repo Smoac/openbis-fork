@@ -144,7 +144,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     /**
      * Called when the user wants to refresh the data. Should be implemented by calling
-     * {@link #refresh(IDataRefreshCallback, String, boolean) at some point. }
+     * {@link #refresh(IDataRefreshCallback, boolean) at some point. }
      */
     abstract protected void refresh();
 
@@ -949,7 +949,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      */
     protected final void refresh(boolean refreshColumnsDefinition)
     {
-        refresh(null, null, refreshColumnsDefinition);
+        refresh(null, refreshColumnsDefinition);
     }
 
     /**
@@ -957,12 +957,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      *            method. It will be merged with the internal one.
      */
     protected final void refresh(final IDataRefreshCallback externalRefreshCallbackOrNull,
-            String headerOrNull, boolean refreshColumnsDefinition)
+            boolean refreshColumnsDefinition)
     {
         pagingToolbar.updateDefaultRefreshButton(false);
         debug("clean cache for refresh");
         this.refreshCallback = createRefreshCallback(externalRefreshCallbackOrNull);
-        setHeader(headerOrNull);
         if (columnDefinitions == null || refreshColumnsDefinition)
         {
             recreateColumnModelAndRefreshColumnsWithFilters();
@@ -1190,16 +1189,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     c2.postRefresh(wasSuccessful);
                 }
             };
-    }
-
-    private void setHeader(String headerOrNull)
-    {
-        if (headerOrNull != null)
-        {
-            assert this.contentPanel.isHeaderVisible() : "header was switched off";
-            this.contentPanel.setHeading(headerOrNull);
-            contentPanel.syncSize();
-        }
     }
 
     private List<IColumnDefinition<T>> getVisibleColumns(Set<IColumnDefinition<T>> availableColumns)

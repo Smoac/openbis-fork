@@ -30,10 +30,10 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     public static final String SAMPLE_REGISTRATION_TEMPLATE_COMMENT =
-            "# The \"container\" and \"parent\" columns are optional, only one should be specified. They should contain a sample identifier, e.g. /GROUP/SAMPLE_1\n"
+            "# The \"container\" and \"parent\" columns are optional, only one should be specified. They should contain a sample identifier, e.g. /SPACE/SAMPLE_1\n"
                     + "# If \"container\" sample is provided, the registered sample will become a \"component\" of it.\n"
                     + "# If \"parent\" sample is provided, the registered sample will become a \"child\" of it.\n"
-                    + "# The \"experiment\" column is optional, cannot be specified for shared samples and should contain experiment identifier, e.g. /GROUP/PROJECT/EXP_1\n";
+                    + "# The \"experiment\" column is optional, cannot be specified for shared samples and should contain experiment identifier, e.g. /SPACE/PROJECT/EXP_1\n";
 
     public static final String CONTAINER = "container";
 

@@ -156,12 +156,6 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
         return criteriaOrNull != null && (criteriaOrNull.getSearchCriteria().isEmpty() == false);
     }
 
-    @Override
-    protected String createHeader()
-    {
-        return null;
-    }
-
     private ListSampleDisplayCriteria tryGetDisplayCriteria()
     {
         return getCriteriaProvider().tryGetCriteria();

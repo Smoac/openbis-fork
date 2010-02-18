@@ -92,18 +92,17 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
         addEntityOperationsLabel();
 
         final Button addGroupButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Group"),
-                        new SelectionListener<ButtonEvent>()
-                            {
-                                @Override
-                                public void componentSelected(ButtonEvent ce)
-                                {
-                                    AddGroupDialog dialog =
-                                            new AddGroupDialog(viewContext,
-                                                    createRefreshGridAction());
-                                    dialog.show();
-                                }
-                            });
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, viewContext
+                        .getMessage(Dict.GROUP)), new SelectionListener<ButtonEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            AddGroupDialog dialog =
+                                    new AddGroupDialog(viewContext, createRefreshGridAction());
+                            dialog.show();
+                        }
+                    });
         addGroupButton.setId(ADD_BUTTON_ID);
         addButton(addGroupButton);
 

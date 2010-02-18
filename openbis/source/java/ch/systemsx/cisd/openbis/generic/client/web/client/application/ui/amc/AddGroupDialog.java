@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
@@ -29,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 /**
  * {@link Window} containing group registration form.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
 public class AddGroupDialog extends AbstractRegistrationDialog
@@ -43,7 +44,8 @@ public class AddGroupDialog extends AbstractRegistrationDialog
     public AddGroupDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
-        super(viewContext, "Add a new group", postRegistrationCallback);
+        super(viewContext, viewContext.getMessage(Dict.ADD_GROUP_TITLE),
+                postRegistrationCallback);
         this.viewContext = viewContext;
         this.codeField = createCodeField(viewContext);
         addField(codeField);

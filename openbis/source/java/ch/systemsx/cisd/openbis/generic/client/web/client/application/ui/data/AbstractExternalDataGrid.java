@@ -367,12 +367,6 @@ public abstract class AbstractExternalDataGrid
     }
 
     @Override
-    protected String createHeader()
-    {
-        return null;
-    }
-
-    @Override
     protected void showEntityViewer(ExternalData dataSet, boolean editMode)
     {
         showEntityInformationHolderViewer(dataSet, editMode);

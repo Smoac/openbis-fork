@@ -160,6 +160,7 @@ var common = {
   is_instance_sample: "Shared?",
   is_invalid: "Invalid?",
   group: "Space",
+  groups: "Spaces",
   project: "Project",
   experiment: "Experiment",
   experiment_identifier: "Experiment Identifier",
@@ -502,6 +503,7 @@ var common = {
  //
  group_browser: "Space Browser",
  leader: "Head",
+ add_group_title: "Add a new space",
 
  //
  // Project Browser
@@ -626,6 +628,11 @@ data_sets_radio_group_label: "Data Sets",
 experiments_radio_group_label: "Experiments",
 samples_radio_group_label: "Samples",
 materials_radio_group_label: "Materials",
+
+//
+// Import samples
+//
+default_group: "Default Space",
 
 //
 // Filters 

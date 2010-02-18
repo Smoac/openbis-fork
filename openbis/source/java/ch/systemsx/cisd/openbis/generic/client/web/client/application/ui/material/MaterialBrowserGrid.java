@@ -239,23 +239,9 @@ public class MaterialBrowserGrid extends
     }
 
     @Override
-    protected final String createHeader()
-    {
-        return doCreateHeader(criteria);
-    }
-
-    @Override
     protected EntityType tryToGetEntityType()
     {
         return criteria == null ? null : criteria.getMaterialType();
-    }
-
-    private static final String doCreateHeader(ListMaterialCriteria criteria)
-    {
-        final StringBuilder builder = new StringBuilder("Materials");
-        builder.append(" of type ");
-        builder.append(criteria.getMaterialType().getCode());
-        return builder.toString();
     }
 
     @Override

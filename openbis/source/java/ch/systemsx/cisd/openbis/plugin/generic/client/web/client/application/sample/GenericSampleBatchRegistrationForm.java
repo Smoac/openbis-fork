@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 public final class GenericSampleBatchRegistrationForm extends AbstractRegistrationForm
 {
+
     private static final String PREFIX = "sample-batch-registration";
 
     public final static String ID = GenericConstants.ID_PREFIX + PREFIX;
@@ -127,7 +128,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
                 }
             };
         FieldUtil.markAsMandatory(field);
-        field.setFieldLabel("Default Group");
+        field.setFieldLabel(viewContext.getMessage(Dict.DEFAULT_GROUP));
         field.setVisible(false);
         return field;
     }

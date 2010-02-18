@@ -57,7 +57,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityDisplayCriteriaKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
@@ -455,44 +454,6 @@ public class SampleBrowserGrid extends
     protected void showEntityViewer(Sample sample, boolean editMode)
     {
         showEntityInformationHolderViewer(sample, editMode);
-    }
-
-    @Override
-    protected String createHeader()
-    {
-        assert criteria.getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE : "browse criteria expected";
-        return doCreateHeader(criteria.getBrowseCriteria());
-    }
-
-    private static final String doCreateHeader(ListSampleCriteria criteria)
-    {
-        if (criteria.getExperimentId() != null || criteria.getContainerSampleId() != null)
-        {
-            return null;
-        }
-        SampleType sampleType = criteria.getSampleType();
-        final StringBuilder builder = new StringBuilder("Samples");
-        if (sampleType != null && sampleType.isAllTypesCode() == false)
-        {
-            builder.append(" of type ");
-            builder.append(sampleType.getCode());
-        }
-        if (criteria.isIncludeGroup())
-        {
-            builder.append(" belonging to the group ");
-            builder.append(criteria.getGroupCode());
-        }
-        if (criteria.isIncludeInstance())
-        {
-            if (criteria.isIncludeGroup())
-            {
-                builder.append(" or shared");
-            } else
-            {
-                builder.append(" which are shared among all the groups");
-            }
-        }
-        return builder.toString();
     }
 
     @Override

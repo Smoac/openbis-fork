@@ -29,6 +29,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 public abstract class Dict
 {
 
+    public static final String ADD_GROUP_TITLE = "add_group_title";
+
     protected Dict()
     {
         // Can not be instantiated.
@@ -208,6 +210,8 @@ public abstract class Dict
     public static final String IS_INVALID = "is_invalid";
 
     public static final String GROUP = "group";
+
+    public static final String GROUPS = "groups";
 
     public static final String PROJECT = "project";
 
@@ -750,7 +754,7 @@ public abstract class Dict
     public static final String SCIENTIFIC_FORMATING = "scientific_formating";
 
     public static final String REAL_NUMBER_FORMATING_PRECISION = "real_number_formating_precision";
-    
+
     public static final String ERROR_MESSAGE_FORMATING = "error_message_formating";
 
     //
@@ -924,6 +928,8 @@ public abstract class Dict
     public static final String BUTTON_TOP = "button_top";
 
     public static final String EXPLORE_LABEL = "explore_label";
+
+    public static final String DEFAULT_GROUP = "default_group";
 
     // ----- end generic ------------------
 }

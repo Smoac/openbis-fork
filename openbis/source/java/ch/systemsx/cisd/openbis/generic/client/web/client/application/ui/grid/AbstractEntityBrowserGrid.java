@@ -69,9 +69,6 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     /** @return true if column definitions should be refreshed */
     abstract protected boolean hasColumnsDefinitionChanged(K newCriteria);
 
-    /** @return text which should be used as a grid header */
-    abstract protected String createHeader();
-
     abstract protected EntityType tryToGetEntityType();
 
     abstract protected EntityKind getEntityKind();
@@ -160,8 +157,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         {
             return;
         }
-        String newHeader = createHeader();
-        super.refresh(null, newHeader, refreshColumnsNeeded);
+        super.refresh(null, refreshColumnsNeeded);
     }
 
     protected final void refreshColumnsSettingsIfNecessary()
