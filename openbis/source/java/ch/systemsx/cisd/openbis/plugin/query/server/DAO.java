@@ -81,11 +81,6 @@ class DAO extends SimpleJdbcDaoSupport
         afterPropertiesSet();
     }
 
-    public TableModel query(String sqlQuery)
-    {
-        return query(sqlQuery, new QueryParameterBindings());
-    }
-
     public TableModel query(String sqlQuery, QueryParameterBindings bindingsOrNull)
     {
         if (sqlQuery.toLowerCase().trim().startsWith("select") == false)

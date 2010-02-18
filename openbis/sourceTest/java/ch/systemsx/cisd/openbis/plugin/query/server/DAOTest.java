@@ -34,10 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
@@ -53,15 +52,30 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
     @Test
     public void testQuery()
     {
+        String query =
+                "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where id < 5 order by id";
+        testQueryWithBindings(query, null);
+    }
+
+    @Test
+    public void testQueryWithBindings()
+    {
+        String query =
+                "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where id < ${id} order by id";
+        QueryParameterBindings bindings = new QueryParameterBindings();
+        bindings.addBinding("id", "5");
+        testQueryWithBindings(query, bindings);
+    }
+
+    private void testQueryWithBindings(String query, QueryParameterBindings bindingsOrNull)
+    {
         DatabaseConfigurationContext context = new DatabaseConfigurationContext();
         context.setDatabaseEngineCode("postgresql");
         context.setBasicDatabaseName("openbis");
         context.setDatabaseKind("test");
         DataSource dataSource = context.getDataSource();
         DAO dao = new DAO(dataSource);
-        TableModel model =
-                dao.query("select id, code as DATA_SET_KEY, registration_timestamp, is_valid "
-                        + "from data where id < 5 order by id");
+        TableModel model = dao.query(query, bindingsOrNull);
         List<TableModelColumnHeader> headers = model.getHeader();
         assertColumnHeader("id", DataTypeCode.INTEGER, headers.get(0));
         assertColumnHeader("data_set_key", DataTypeCode.VARCHAR, headers.get(1));
@@ -73,13 +87,15 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
         assertRow("4\t20081105092159188-3\t2008-11-05 09:21:59.313\ttrue", rows.get(1));
         assertEquals(2, rows.size());
     }
-    
-    void assertColumnHeader(String expectedTitle, DataTypeCode expectedDataType, TableModelColumnHeader header)
+
+    void assertColumnHeader(String expectedTitle, DataTypeCode expectedDataType,
+            TableModelColumnHeader header)
     {
         assertEquals(expectedTitle, header.getTitle());
-        assertEquals("Data type of '" + header.getTitle() + "'", expectedDataType, header.getDataType());
+        assertEquals("Data type of '" + header.getTitle() + "'", expectedDataType, header
+                .getDataType());
     }
-    
+
     void assertRow(String expectedRow, TableModelRow row)
     {
         StringBuilder builder = new StringBuilder();
