@@ -25,7 +25,7 @@ ERROR: No datasets from the directory 'faulty-to-many-mapping-files' can be proc
 
 faulty-unknown-mapping --------------------
 ERROR: file1.mzXML - cannot upload the file: there is no sample which matches the criteria <Samples from the group 'TEST' with property 'samplename' set to 'unknown' in any experiment>
-ERROR: file2.mzXML - cannot upload the file: No project 'UNKNOWN' could be found in the 'TEST' group!
+ERROR: file2.mzXML - cannot upload the file: No project 'UNKNOWN' could be found in the 'TEST' space!
 ERROR: file3.mzXML - cannot upload the file: experiment and project columns should be both empty or should be both filled.
 ERROR: file4.mzXML - cannot upload the file: experiment and project columns should be both empty or should be both filled.
 ERROR: file5.mzXML - cannot upload the file: error when checking if sample '/unknown/x' belongs to an experiment: No group could be found for identifier 'CISD:/UNKNOWN'.
