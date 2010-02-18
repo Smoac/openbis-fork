@@ -13,7 +13,7 @@ public class OpenbisConnectionDemo
 {
     private static final String USER_ID = "hcdc_observer";
 
-    private static final String USER_PASSWORD = "lmc-openbis";
+    private static final String USER_PASSWORD = "xxx";
 
     private static final String SERVER_URL = "https://onlyweb1.ethz.ch:8443/openbis/openbis";
 
