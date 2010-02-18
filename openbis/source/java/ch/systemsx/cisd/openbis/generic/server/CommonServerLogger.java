@@ -115,7 +115,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public List<Group> listGroups(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
-        final String command = "list_groups";
+        final String command = "list_spaces";
         if (identifier == null || identifier.getDatabaseInstanceCode() == null)
         {
             logAccess(sessionToken, command);
@@ -129,12 +129,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void registerGroup(final String sessionToken, final String groupCode,
             final String descriptionOrNull)
     {
-        logTracking(sessionToken, "register_group", "CODE(%s)", groupCode);
+        logTracking(sessionToken, "register_space", "CODE(%s)", groupCode);
     }
 
     public void updateGroup(String sessionToken, IGroupUpdates updates)
     {
-        logTracking(sessionToken, "update_group", "GROUP(%s)", updates);
+        logTracking(sessionToken, "update_space", "SPACE(%s)", updates);
     }
 
     public List<Person> listPersons(final String sessionToken)
@@ -158,7 +158,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void registerGroupRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
-        logTracking(sessionToken, "register_role", "ROLE(%s) GROUP(%s) GRANTEE(%s)", roleCode,
+        logTracking(sessionToken, "register_role", "ROLE(%s) SPACE(%s) GRANTEE(%s)", roleCode,
                 groupIdentifier, grantee);
 
     }
@@ -173,7 +173,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
-        logTracking(sessionToken, "delete_role", "ROLE(%s) GROUP(%s) GRANTEE(%s)", roleCode,
+        logTracking(sessionToken, "delete_role", "ROLE(%s) SPACE(%s) GRANTEE(%s)", roleCode,
                 groupIdentifier, grantee);
 
     }
@@ -196,7 +196,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         if (criteria.isIncludeGroup())
         {
             logAccess(sessionToken, "list_samples",
-                    "TYPE(%s) OWNERS(group=%s) CONTAINER(%s) EXPERIMENT(%s)", criteria
+                    "TYPE(%s) OWNERS(space=%s) CONTAINER(%s) EXPERIMENT(%s)", criteria
                             .getSampleType(), criteria.getGroupCode(), criteria
                             .getContainerSampleId(), criteria.getExperimentId());
         } else if (criteria.isIncludeInstance())
@@ -517,7 +517,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void deleteGroups(String sessionToken, List<TechId> groupIds, String reason)
     {
-        logTracking(sessionToken, "delete_groups", "IDS(%s) REASON(%s)", groupIds, reason);
+        logTracking(sessionToken, "delete_spaces", "IDS(%s) REASON(%s)", groupIds, reason);
     }
 
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,

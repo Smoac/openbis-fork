@@ -76,11 +76,13 @@ public abstract class AbstractServerLogger implements IServer
     protected final void logAccess(final String sessionToken, final String commandName,
             final String parameterDisplayFormat, final Object... parameters)
     {
-        logMessage(accessLog, Level.INFO, sessionToken, commandName, parameterDisplayFormat, parameters);
+        logMessage(accessLog, Level.INFO, sessionToken, commandName, parameterDisplayFormat,
+                parameters);
     }
 
-    protected final void logAccess(final Level level, final String sessionToken, final String commandName,
-            final String parameterDisplayFormat, final Object... parameters)
+    protected final void logAccess(final Level level, final String sessionToken,
+            final String commandName, final String parameterDisplayFormat,
+            final Object... parameters)
     {
         logMessage(accessLog, level, sessionToken, commandName, parameterDisplayFormat, parameters);
     }
@@ -88,7 +90,8 @@ public abstract class AbstractServerLogger implements IServer
     protected final void logTracking(final String sessionToken, final String commandName,
             final String parameterDisplayFormat, final Object... parameters)
     {
-        logMessage(trackingLog, Level.INFO, sessionToken, commandName, parameterDisplayFormat, parameters);
+        logMessage(trackingLog, Level.INFO, sessionToken, commandName, parameterDisplayFormat,
+                parameters);
     }
 
     private final void logMessage(final Logger logger, final Level level,
@@ -188,7 +191,7 @@ public abstract class AbstractServerLogger implements IServer
     public void changeUserHomeGroup(String sessionToken, TechId groupIdOrNull)
     {
         String groupId = groupIdOrNull == null ? "null" : groupIdOrNull.toString();
-        logTracking(sessionToken, "change_user_home_group", "GROUP_ID (%s)", groupId);
+        logTracking(sessionToken, "change_user_home_space", "SPACE_ID (%s)", groupId);
     }
 
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
