@@ -28,7 +28,8 @@ var query = {
 	query_deletion_confirmation: "Do you really want to delete the query definitions {0}?",
   query_create_title: "Create Query Definition",
   query_edit_title: "Edit Query Definition",
-  	
+  query_parameters_binding_dialog_title: "Enter Query Parameters",
+    	
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };
