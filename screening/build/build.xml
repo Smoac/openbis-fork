@@ -50,4 +50,22 @@
                         </lib>
         	</war>
         </target>
+
+	<target name="prepare-and-run-module-test"
+	        depends="prepare-gwt, module-test"
+	        description="Prepare, compile, and run the module test mode">
+	</target>
+	
+	<target name="module-test" description="Compile and run the module test mode">
+		<antcall target="compile-module-test">
+			<param name="module-test.path" value="openbis-test-screening" />
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+		</antcall>
+		<antcall target="run-module-test">
+			<param name="module-test.path" value="openbis-test-screening" />
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+			<param name="module-test.db-kind" value="screening_demo" />
+		</antcall>
+	</target>
+	
 </project>

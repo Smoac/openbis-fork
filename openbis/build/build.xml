@@ -706,38 +706,50 @@
 			// Run the app with compiled javscript, but using the classes compiled by Eclipse 
 			-->
 
-	<!-- Properties used the the test mode -->
-	<property name="module-test.path" value="openbis-test" />
-	<property name="module-test.target" value="${targets.www}/${module-test.path}" />
-
-	<!-- 
-			// Compile Java to javscript, assuming that prepare-gwt has already been run 
+	<!--
+			// 
+			// Compile Java to javscript, assuming that prepare-gwt has already been run
+			//
+			// Must pass in module-test.path and module-test.module as arguments
+			// e.g.,
+			// <{property,param} name="module-test.path" value="openbis-test" />
+			// <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
+			//
 			-->
 	<target name="compile-module-test" description="Compile the module test mode">
-		<delete dir="${module-test.target}" />
+		<delete dir="${targets.www}/${module-test.path}" />
 		<java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
 		      classname="com.google.gwt.dev.Compiler"
 		      fork="true">
 			<jvmarg value="-Xmx512M" />
 			<arg value="-war" />
 			<arg value="${targets.www}" />
-			<arg value="ch.systemsx.cisd.openbis.OpenBISFirefox" />
+			<arg value="${module-test.module}Firefox" />
 			<arg value="-style" />
 			<arg value="PRETTY" />
 		</java>
-		<move todir="${module-test.target}">
+		<move todir="${targets.www}/${module-test.path}">
 			<!-- The module definition for OpenBISFirefox renames it to ch.systemsx.cisd.openbis.OpenBIS -->
-			<fileset dir="${targets.www}/ch.systemsx.cisd.openbis.OpenBIS" />
+			<fileset dir="${targets.www}/${module-test.module}" />
 		</move>
 	</target>
 
-	<!-- 
+	<!--
+			// 
 			// Run the production mode, assuming compile-module-test has already been run
+			//
+			// Must pass in module-test.path, module-test.module, and module-test.db-kind as arguments
+			// e.g.,
+			// <{property,param} name="module-test.path" value="openbis-test" />
+			// <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
+			// <{property,param} name="module-test.db-kind" value="test" />
+			//
 			-->
 	<target name="run-module-test" description="Run the module test mode">
 		<java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
 			<classpath>
 				<pathelement location="${sources}" />
+				<pathelement location="../openbis/${sources}" />
 				<pathelement path="${ecp}" />
 				<pathelement location="${gwt.lib}/gwt-dev.jar" />
 				<pathelement location="${gwt.lib}/gwt-user.jar" />
@@ -753,7 +765,7 @@
 
 			<sysproperty key="database.engine" value="postgresql" />
 			<sysproperty key="database.create-from-scratch" value="false" />
-			<sysproperty key="database.kind" value="test" />
+			<sysproperty key="database.kind" value="${module-test.db-kind}" />
 
 			<sysproperty key="database-instance" value="CISD" />
 
@@ -776,11 +788,11 @@
 			<!-- Arguments to com.google.gwt.dev.DevMode -->
 			<!-- Provide two startup urls : one for the compiled version, one for the normal dev version -->
 			<arg value="-startupUrl" />
-			<arg value="openbis-test/index.html" />
+			<arg value="${module-test.path}/index.html" />
 			<arg value="-startupUrl" />
-			<arg value="ch.systemsx.cisd.openbis.OpenBIS/index.html" />
+			<arg value="${module-test.module}/index.html" />
 
-			<arg value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<arg value="${module-test.module}" />
 			<arg value="-war" />
 			<arg value="targets/www" />
 			<arg value="-logLevel" />
@@ -789,12 +801,19 @@
 	</target>
 
 	<target name="prepare-and-run-module-test"
-	        depends="prepare-gwt, compile-module-test, run-module-test"
+	        depends="prepare-gwt, module-test"
 	        description="Prepare, compile, and run the module test mode">
 	</target>
 
-	<target name="module-test"
-	        depends="compile-module-test, run-module-test"
-	        description="Compile and run the module test mode">
+	<target name="module-test" description="Compile and run the module test mode">
+		<antcall target="compile-module-test">
+			<param name="module-test.path" value="openbis-test" />
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
+		</antcall>
+		<antcall target="run-module-test">
+			<param name="module-test.path" value="openbis-test" />
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<param name="module-test.db-kind" value="test" />
+		</antcall>
 	</target>
 </project>
