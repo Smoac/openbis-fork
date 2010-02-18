@@ -117,7 +117,7 @@ function assert_correct_errorlogs {
 	diff -w $TEMPLATE_INCOMING_CONTENT $errorlogs
 
 	if [ $? -ne 0 ]; then
-		report_error "Unexpected content of the error logs in the incoming directory $incoming_dir (see the report above)."
+		report_error "Unexpected content of the error logs in the incoming directory (compare $TEMPLATE_INCOMING_CONTENT with $errorlogs)."
 	fi
 }
 
