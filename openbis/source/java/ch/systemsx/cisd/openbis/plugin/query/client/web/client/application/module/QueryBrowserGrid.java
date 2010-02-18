@@ -38,12 +38,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ui.columns.QueryColDefKind;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 
 /**
  * @author Franz-Josef Elmer

@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 
 /**
  * A {@link QueryExpression} &lt;---&gt; {@link QueryPE} translator.

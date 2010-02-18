@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto;
 
 import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpressionWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Stores information describing a parametrized query.
