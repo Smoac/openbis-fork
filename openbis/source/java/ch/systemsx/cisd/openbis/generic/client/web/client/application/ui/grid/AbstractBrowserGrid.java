@@ -214,20 +214,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        this(viewContext, gridId, true, false, displayTypeIDGenerator);
+        this(viewContext, gridId, false, displayTypeIDGenerator);
     }
 
     /**
-     * @param showHeader decides if the header bar on top of the grid should be displayed. If false,
-     *            then an attempt to set a non-null header (e.g. in refresh method) is treated as an
-     *            error.
      * @param refreshAutomatically should the data be automatically loaded when the grid is rendered
      *            for the first time?
      * @param gridId unique id of the grid which will can used by testframework to identify the grid
      *            and identify the callback which fills it in.
      */
     protected AbstractBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            String gridId, boolean showHeader, boolean refreshAutomatically,
+            String gridId, boolean refreshAutomatically,
             IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
         this.displayTypeIDGenerator = displayTypeIDGenerator;
@@ -252,7 +249,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         this.contentPanel = createEmptyContentPanel();
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
-        contentPanel.setHeaderVisible(showHeader);
+        contentPanel.setHeaderVisible(false);
         contentPanel.setAutoWidth(true);
         filterToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
             {

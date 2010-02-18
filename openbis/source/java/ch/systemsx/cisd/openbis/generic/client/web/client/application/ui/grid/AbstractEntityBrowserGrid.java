@@ -100,10 +100,10 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     }
 
     protected AbstractEntityBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            String gridId, boolean showHeader, boolean refreshAutomatically,
+            String gridId, boolean refreshAutomatically,
             IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, showHeader, refreshAutomatically, displayTypeIDGenerator);
+        super(viewContext, gridId, refreshAutomatically, displayTypeIDGenerator);
         allowMultipleSelection();
     }
 

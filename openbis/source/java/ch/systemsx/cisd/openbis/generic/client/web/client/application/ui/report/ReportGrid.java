@@ -80,7 +80,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
     public static class ReportColumnUI extends DataSetReportColumnDefinition implements
             IColumnDefinitionUI<TableModelRow>
     {
-        private boolean isHidden;
+        private final boolean isHidden;
 
         public ReportColumnUI(TableModelColumnHeader columnHeader, String downloadURL,
                 String sessionID, boolean isHidden)
@@ -128,7 +128,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
     private ReportGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference, String reportKind, String downloadURL)
     {
-        super(viewContext, GRID_ID, false, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
+        super(viewContext, GRID_ID, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
         this.downloadURL = downloadURL;
         setId(BROWSER_ID);
         this.tableHeader = tableModelReference.getHeader();

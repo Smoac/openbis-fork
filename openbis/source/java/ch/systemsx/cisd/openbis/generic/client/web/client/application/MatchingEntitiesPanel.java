@@ -85,7 +85,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
             SearchableEntity searchableEntity, String queryText, boolean useWildcardSearchMode)
     {
         // NOTE: refreshAutomatically is false, refreshing should be called manually
-        super(viewContext, GRID_ID, false, false, DisplayTypeIDGenerator.SEARCH_RESULT_GRID);
+        super(viewContext, GRID_ID, false, DisplayTypeIDGenerator.SEARCH_RESULT_GRID);
         this.searchableEntity = searchableEntity;
         this.queryText = queryText;
         this.useWildcardSearchMode = useWildcardSearchMode;

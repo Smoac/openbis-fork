@@ -67,10 +67,10 @@ public abstract class GenericTableBrowserGrid extends
      * @param browserId Only lower-case letter, digits, and '_' are allowed as browser ID.
      */
     protected GenericTableBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            String browserId, String gridId, boolean showHeader, boolean refreshAutomatically,
+            String browserId, String gridId, boolean refreshAutomatically,
             IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, showHeader, refreshAutomatically, displayTypeIDGenerator);
+        super(viewContext, gridId, refreshAutomatically, displayTypeIDGenerator);
         if (browserId.matches(BROWSER_ID_PATTERN) == false)
         {
             throw new IllegalArgumentException("Invalid browser ID: " + browserId);

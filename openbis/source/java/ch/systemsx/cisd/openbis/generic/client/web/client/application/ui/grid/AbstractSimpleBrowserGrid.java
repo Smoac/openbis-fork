@@ -46,7 +46,7 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
             String browserId, String gridId, boolean refreshAutomatically,
             IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, false, refreshAutomatically, displayTypeIDGenerator);
+        super(viewContext, gridId, refreshAutomatically, displayTypeIDGenerator);
         setId(browserId);
         updateDefaultRefreshButton();
     }

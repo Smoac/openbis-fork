@@ -60,31 +60,31 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
         return new DatabaseModificationAwareComponent(disposable.getComponent(), disposable);
     }
 
+    private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
 
-   private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
-    
     RawDataSampleGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, true, true,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, true,
                 PhosphoNetXDisplayTypeIDGenerator.RAW_DATA_SAMPLE_BROWSER_GRID);
         specificViewContext = viewContext;
         registerLinkClickListenerFor("CODE", new ICellListener<GenericTableRow>()
+            {
+                public void handle(GenericTableRow rowItem)
                 {
-                    public void handle(GenericTableRow rowItem)
-                    {
-                        showEntityViewer(rowItem, false);
-                    }
-                });
+                    showEntityViewer(rowItem, false);
+                }
+            });
         allowMultipleSelection();
         addEntityOperationsLabel();
-        RawDataProcessingMenu button = new RawDataProcessingMenu(viewContext,
-                new IDelegatedActionWithResult<List<GenericTableRow>>()
-                    {
-                        public List<GenericTableRow> execute()
-                        {
-                            return getSelectedBaseObjects();
-                        }
-                    });
+        RawDataProcessingMenu button =
+                new RawDataProcessingMenu(viewContext,
+                        new IDelegatedActionWithResult<List<GenericTableRow>>()
+                            {
+                                public List<GenericTableRow> execute()
+                                {
+                                    return getSelectedBaseObjects();
+                                }
+                            });
         enableButtonOnSelectedItems(button);
         addButton(button);
     }
@@ -111,30 +111,30 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
-    
+
     @Override
     protected void showEntityViewer(final GenericTableRow entity, boolean editMode)
     {
         showEntityInformationHolderViewer(new IEntityInformationHolder()
             {
-                
+
                 public String getCode()
                 {
                     return entity.tryToGetValue(0).toString();
                 }
-                
+
                 public Long getId()
                 {
                     return ((SerializableComparableIDDecorator) entity.tryToGetValue(0)).getID();
                 }
-                
+
                 public BasicEntityType getEntityType()
                 {
                     BasicEntityType type = new BasicEntityType();
                     type.setCode("MS_INJECTION");
                     return type;
                 }
-                
+
                 public EntityKind getEntityKind()
                 {
                     return EntityKind.SAMPLE;

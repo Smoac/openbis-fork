@@ -145,7 +145,7 @@ public class MaterialBrowserGrid extends
     private MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             boolean refreshAutomatically, ICriteriaProvider<ListMaterialCriteria> criteriaProvider)
     {
-        super(viewContext, GRID_ID, true, refreshAutomatically,
+        super(viewContext, GRID_ID, refreshAutomatically,
                 DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         this.criteriaProvider = criteriaProvider;
         setId(BROWSER_ID);

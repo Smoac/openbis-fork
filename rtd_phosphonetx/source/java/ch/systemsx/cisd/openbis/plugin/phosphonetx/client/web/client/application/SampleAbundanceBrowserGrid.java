@@ -96,7 +96,7 @@ public class SampleAbundanceBrowserGrid
         // be loaded
         boolean refreshAutomatically = false;
         final SampleAbundanceBrowserGrid browserGrid =
-                new SampleAbundanceBrowserGrid(viewContext, criteriaProvider, gridId, false,
+                new SampleAbundanceBrowserGrid(viewContext, criteriaProvider, gridId,
                         refreshAutomatically);
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
@@ -172,10 +172,10 @@ public class SampleAbundanceBrowserGrid
 
     private SampleAbundanceBrowserGrid(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            ISampleAbundanceCriteriaProvider criteriaProvider, String gridId, boolean showHeader,
+            ISampleAbundanceCriteriaProvider criteriaProvider, String gridId,
             boolean refreshAutomatically)
     {
-        super(viewContext.getCommonViewContext(), gridId, showHeader, refreshAutomatically,
+        super(viewContext.getCommonViewContext(), gridId, refreshAutomatically,
                 DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         this.phosphoViewContext = viewContext;
         this.propertyTypesAndCriteriaProvider = criteriaProvider;

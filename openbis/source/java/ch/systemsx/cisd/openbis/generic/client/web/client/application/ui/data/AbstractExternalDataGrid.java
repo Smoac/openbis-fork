@@ -85,7 +85,7 @@ public abstract class AbstractExternalDataGrid
     protected AbstractExternalDataGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId, String gridId, DisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, false, false, displayTypeIDGenerator);
+        super(viewContext, gridId, false, displayTypeIDGenerator);
         this.criteriaProvider = createCriteriaProvider();
         setId(browserId);
         updateCriteriaProviderAndRefresh();

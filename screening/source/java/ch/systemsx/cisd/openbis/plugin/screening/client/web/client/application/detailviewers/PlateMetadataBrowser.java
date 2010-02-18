@@ -67,7 +67,7 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
             TechId sampleId)
     {
 
-        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, true, true,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, true,
                 ScreeningDisplayTypeIDGenerator.PLATE_METADATA_GRID);
         screeningViewContext = viewContext;
         this.sampleId = sampleId;
@@ -102,7 +102,8 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
                         public void handle(GenericTableRow rowItem)
                         {
                             ISerializableComparable gene =
-                                    rowItem.tryToGetValue(PlateMetadataStaticColumns.INHIBITED_GENE.ordinal());
+                                    rowItem.tryToGetValue(PlateMetadataStaticColumns.INHIBITED_GENE
+                                            .ordinal());
                             String geneCode = gene.toString();
                             // NOTE: If we want to include the gene library url in
                             // exported data we must configure it outside the dictionary
@@ -143,7 +144,8 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
 
                 public String getCode()
                 {
-                    return entity.tryToGetValue(PlateMetadataStaticColumns.WELL.ordinal()).toString();
+                    return entity.tryToGetValue(PlateMetadataStaticColumns.WELL.ordinal())
+                            .toString();
                 }
 
                 public Long getId()
@@ -173,7 +175,8 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
 
                 public String getCode()
                 {
-                    return entity.tryToGetValue(PlateMetadataStaticColumns.CONTENT.ordinal()).toString();
+                    return entity.tryToGetValue(PlateMetadataStaticColumns.CONTENT.ordinal())
+                            .toString();
                 }
 
                 public Long getId()
@@ -203,13 +206,16 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
 
                 public String getCode()
                 {
-                    return entity.tryToGetValue(PlateMetadataStaticColumns.INHIBITED_GENE.ordinal()).toString();
+                    return entity
+                            .tryToGetValue(PlateMetadataStaticColumns.INHIBITED_GENE.ordinal())
+                            .toString();
                 }
 
                 public Long getId()
                 {
                     return ((SerializableComparableIDDecorator) entity
-                            .tryToGetValue(PlateMetadataStaticColumns.INHIBITED_GENE.ordinal())).getID();
+                            .tryToGetValue(PlateMetadataStaticColumns.INHIBITED_GENE.ordinal()))
+                            .getID();
                 }
 
                 public BasicEntityType getEntityType()

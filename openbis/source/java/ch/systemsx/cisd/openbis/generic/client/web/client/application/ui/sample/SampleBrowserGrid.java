@@ -105,8 +105,8 @@ public class SampleBrowserGrid extends
                 new SampleBrowserToolbar(viewContext, addShared, excludeWithoutExperiment);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, true,
-                        false, DisplayTypeIDGenerator.ENTITY_BROWSER_GRID)
+                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, false,
+                        DisplayTypeIDGenerator.ENTITY_BROWSER_GRID)
                     {
                         @Override
                         protected void showEntityViewer(Sample sample, boolean editMode)
@@ -124,8 +124,8 @@ public class SampleBrowserGrid extends
         final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext, true, false);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, true,
-                        false, DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
+                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, false,
+                        DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithToolbar(toolbar);
@@ -173,7 +173,7 @@ public class SampleBrowserGrid extends
         // be loaded
         boolean refreshAutomatically = false;
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, gridId, BROWSER_ID, false,
+                new SampleBrowserGrid(viewContext, criteriaProvider, gridId, BROWSER_ID,
                         refreshAutomatically, displayTypeIDGenerator)
                     {
                         @Override
@@ -286,10 +286,9 @@ public class SampleBrowserGrid extends
 
     protected SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             ISampleCriteriaProvider criteriaProvider, String gridId, String browserId,
-            boolean showHeader, boolean refreshAutomatically,
-            IDisplayTypeIDGenerator displayTypeIDGenerator)
+            boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, showHeader, refreshAutomatically, displayTypeIDGenerator);
+        super(viewContext, gridId, refreshAutomatically, displayTypeIDGenerator);
         this.propertyTypesAndCriteriaProvider = criteriaProvider;
         this.previousPropertyTypes = null;
 
