@@ -164,7 +164,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         {
             for (TechId techId : filterIds)
             {
-                QueryPE query = queryDAO.tryGetByTechId(techId);
+                QueryPE query = queryDAO.getByTechId(techId);
                 queryDAO.delete(query);
             }
         } catch (DataAccessException ex)
@@ -180,7 +180,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         try
         {
             IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
-            QueryPE query = queryDAO.tryGetByTechId(TechId.create(updates));
+            QueryPE query = queryDAO.getByTechId(TechId.create(updates));
 
             query.setName(updates.getName());
             query.setDescription(updates.getDescription());
