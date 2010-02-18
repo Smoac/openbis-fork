@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.M
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
@@ -52,19 +53,26 @@ public class QueryEditor extends AbstractRegistrationDialog
     private final TextField<String> descriptionField;
     private final MultilineVarcharField statementField;
     private final CheckBoxField isPublicField;
-    
-    public QueryEditor(IViewContext<IQueryClientServiceAsync> viewContext, IDelegatedAction refreshAction)
+    private final GridCustomFilter queryOrNull;
+
+    public QueryEditor(IViewContext<IQueryClientServiceAsync> viewContext,
+            GridCustomFilter queryOrNull, IDelegatedAction refreshAction)
     {
-        super(viewContext, "edit", refreshAction);
+        super(viewContext, viewContext.getMessage(queryOrNull == null ? Dict.QUERY_CREATE_TITLE
+                : Dict.QUERY_EDIT_TITLE), refreshAction);
         this.viewContext = viewContext;
+        this.queryOrNull = queryOrNull;
         setLayout(new FitLayout());
         form.setHeaderVisible(false);
         form.setBorders(false);
         form.setBodyBorder(false);
-        nameField = AbstractRegistrationDialog.createTextField(viewContext.getMessage(Dict.NAME), true);
+        nameField =
+                AbstractRegistrationDialog.createTextField(viewContext.getMessage(Dict.NAME), true);
         nameField.setMaxLength(200);
         form.add(nameField, new FormData("100%"));
-        descriptionField = AbstractRegistrationDialog.createTextField(viewContext.getMessage(Dict.DESCRIPTION), false);
+        descriptionField =
+                AbstractRegistrationDialog.createTextField(
+                        viewContext.getMessage(Dict.DESCRIPTION), false);
         descriptionField.setMaxLength(GenericConstants.DESCRIPTION_2000);
         form.add(descriptionField, new FormData("100%"));
         statementField = createStatementField();
@@ -83,8 +91,15 @@ public class QueryEditor extends AbstractRegistrationDialog
                 }
             });
         addButton(testButton);
+        if (queryOrNull != null)
+        {
+            nameField.setValue(queryOrNull.getName());
+            descriptionField.setValue(queryOrNull.getDescription());
+            statementField.setValue(queryOrNull.getExpression());
+            isPublicField.setValue(queryOrNull.isPublic());
+        }
     }
-    
+
     private MultilineVarcharField createStatementField()
     {
         MultilineVarcharField field =
@@ -105,12 +120,22 @@ public class QueryEditor extends AbstractRegistrationDialog
     @Override
     protected void register(AsyncCallback<Void> registrationCallback)
     {
-        NewExpression query = new NewExpression();
-        query.setName(nameField.getValue());
-        query.setDescription(descriptionField.getValue());
-        query.setExpression(statementField.getValue());
-        query.setPublic(isPublicField.getValue());
-        viewContext.getService().registerQuery(query, registrationCallback);
+        if (queryOrNull == null)
+        {
+            NewExpression query = new NewExpression();
+            query.setName(nameField.getValue());
+            query.setDescription(descriptionField.getValue());
+            query.setExpression(statementField.getValue());
+            query.setPublic(isPublicField.getValue());
+            viewContext.getService().registerQuery(query, registrationCallback);
+        } else
+        {
+            queryOrNull.setName(nameField.getValue());
+            queryOrNull.setDescription(descriptionField.getValue());
+            queryOrNull.setExpression(statementField.getValue());
+            queryOrNull.setPublic(isPublicField.getValue());
+            viewContext.getService().updateQuery(queryOrNull, registrationCallback);
+        }
     }
 
 }

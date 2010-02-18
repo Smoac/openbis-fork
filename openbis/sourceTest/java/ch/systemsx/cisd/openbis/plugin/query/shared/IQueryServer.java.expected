@@ -28,9 +28,11 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.DeleteQueryPredicate;
+import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.UpdateQueryPredicate;
 
 /**
  * @author Franz-Josef Elmer
@@ -60,4 +62,10 @@ public interface IQueryServer extends IServer
     public void deleteQueries(
             String sessionToken,
             @AuthorizationGuard(guardClass = DeleteQueryPredicate.class) List<TechId> filterIds);
+    
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    public void updateQuery(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = UpdateQueryPredicate.class) IFilterOrColumnUpdates updates);
 }

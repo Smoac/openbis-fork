@@ -22,6 +22,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -64,6 +65,12 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
     public void deleteQueries(String sessionToken, List<TechId> filterIds)
     {
         logTracking(sessionToken, "delete_queries", "QUERIES(%s)", filterIds.size());
+    }
+
+    public void updateQuery(String sessionToken, IFilterOrColumnUpdates updates)
+    {
+        logTracking(sessionToken, "update_query", "ID(%s) QUERY_NAME(%s)", updates.getId(), updates
+                .getName());
     }
 
 }

@@ -126,7 +126,7 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    new QueryEditor(viewContext, createRefreshGridAction()).show();
+                                    new QueryEditor(viewContext, null, createRefreshGridAction()).show();
                                 }
 
                             });
@@ -137,7 +137,8 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<GridCustomFilter
                             {
                                 public void invoke(BaseEntityModel<GridCustomFilter> selectedItem)
                                 {
-                                    System.out.println("edit");
+                                    GridCustomFilter query = selectedItem.getBaseObject();
+                                    new QueryEditor(viewContext, query, createRefreshGridAction()).show();
                                 }
 
                             });

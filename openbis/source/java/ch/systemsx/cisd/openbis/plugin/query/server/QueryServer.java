@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
@@ -166,6 +167,26 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
                 QueryPE query = queryDAO.tryGetByTechId(techId);
                 queryDAO.delete(query);
             }
+        } catch (DataAccessException ex)
+        {
+            DataAccessExceptionTranslator.throwException(ex, "Query", null);
+        }
+    }
+
+    public void updateQuery(String sessionToken, IFilterOrColumnUpdates updates)
+    {
+        checkSession(sessionToken);
+        
+        try
+        {
+            IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
+            QueryPE query = queryDAO.tryGetByTechId(TechId.create(updates));
+
+            query.setName(updates.getName());
+            query.setDescription(updates.getDescription());
+            query.setExpression(updates.getExpression());
+            query.setPublic(updates.isPublic());
+            queryDAO.validateAndSaveUpdatedEntity(query);
         } catch (DataAccessException ex)
         {
             DataAccessExceptionTranslator.throwException(ex, "Query", null);

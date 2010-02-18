@@ -41,6 +41,10 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String QUERY_DELETION_CONFIRMATION = "query_deletion_confirmation";
 
+    public static final String QUERY_CREATE_TITLE = "query_create_title";
+
+    public static final String QUERY_EDIT_TITLE = "query_edit_title";
+
     private Dict()
     {
         // Can not be instantiated.
