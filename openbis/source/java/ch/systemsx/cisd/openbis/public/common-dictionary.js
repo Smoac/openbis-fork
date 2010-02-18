@@ -159,7 +159,7 @@ var common = {
   sample_identifier: "Identifier",
   is_instance_sample: "Shared?",
   is_invalid: "Invalid?",
-  group: "Group",
+  group: "Space",
   project: "Project",
   experiment: "Experiment",
   experiment_identifier: "Experiment Identifier",
@@ -177,7 +177,7 @@ var common = {
   project_selector_title: "Project Selection",
   project_selector_tooltip: "Click on a row with project code to select it.",
   project_selector_description_not_available: "(not available)",
-  project_selector_code_column: "Group / Project",
+  project_selector_code_column: "Space / Project",
   project_selector_details_link_label: "(?)",
   project_selector_details_link_tooltip: "Click on the link to see project details.",
   
@@ -267,7 +267,7 @@ var common = {
   //
   
   menu_administration: "Administration",
-  ADMINISTRATION_MENU_MANAGE_GROUPS: "Groups",
+  ADMINISTRATION_MENU_MANAGE_GROUPS: "Spaces",
   
   menu_authorization: "Authorization",
   AUTHORIZATION_MENU_USERS: "Users",
@@ -343,7 +343,7 @@ var common = {
   sample_batch_update: "Sample Batch Update",
   sample_registration: "Sample Registration",
   sample_broser: "Sample Browser",
-  list_groups: "Groups Browser",
+  list_groups: "Spaces Browser",
   confirm_title: "Confirmation",
   confirm_close_msg: "All unsaved changes will be lost. Are you sure?",
 
@@ -382,7 +382,7 @@ var common = {
   HELP__DATA_SET__DATA_SET_TYPE__EDIT: "Add or Edit Data Set Type",
   HELP__RELATED_DATA_SETS__BROWSE: "Related Data Sets Browser",
   HELP__ADMINISTRATION__FILE_TYPE__BROWSE: "File Type Browser",
-  HELP__ADMINISTRATION__GROUP__BROWSE: "Group Browser",
+  HELP__ADMINISTRATION__GROUP__BROWSE: "Space Browser",
   HELP__ADMINISTRATION__VOCABULARY__BROWSE: "Vocabulary Browser",
   HELP__ADMINISTRATION__VOCABULARY__REGISTER: "Vocabulary Registration",
   HELP__ADMINISTRATION__VOCABULARY__TERM__BROWSE: "Vocabulary Terms Browser",
@@ -419,11 +419,11 @@ var common = {
   //
   
   change_user_settings_dialog_title: "Change User Settings",  
-  home_group_label: "Home Group",
+  home_group_label: "Home Space",
   use_wildcard_search_mode_label: "Search with Wildcards",
   use_wildcard_search_mode_tooltip: "Check to treat '*' and '?' as wildcards in searched text. Note, that only whole words will match if you don't add '*' at the beginning and at the end of the text.",
   reset_user_settings_button: "Restore Default",
-  reset_user_settings_confirmation_msg: "Are you sure that you want to restore default settings?<br><br><b>Note that:</b><li>Every setting you changed in this application apart from home group, e.g. hiding/showing certain columns in a browser, will be lost.<li>All currently opened tabs will be closed.",
+  reset_user_settings_confirmation_msg: "Are you sure that you want to restore default settings?<br><br><b>Note that:</b><li>Every setting you changed in this application apart from home space, e.g. hiding/showing certain columns in a browser, will be lost.<li>All currently opened tabs will be closed.",
   real_number_formating_fields: "Custom Real Number Formating in Tables",
   scientific_formating: "Scientific",
   real_number_formating_precision: "Precision",
@@ -498,9 +498,9 @@ var common = {
  button_release_role_assignment: "Release Assignment",
  
  //
- // Group Browser
+ // Space Browser
  //
- group_browser: "Group Browser",
+ group_browser: "Space Browser",
  leader: "Head",
 
  //
@@ -575,7 +575,7 @@ var common = {
  choose_any_material: "Choose Any Material...",
  incorrect_material_syntax: "Incorrect material specification. Please provide the material code followed by the type in brackets: 'code (type)'.",
  TITLE_CHOOSE_EXPERIMENT: "Choose an Experiment",
-incorrect_experiment_syntax: "Incorrect experiment specification. Please provide the experiment group, project and code using the format '/group/project/code'.",
+incorrect_experiment_syntax: "Incorrect experiment specification. Please provide the experiment space, project and code using the format '/space/project/code'.",
  title_choose_sample: "Choose a Sample",
 
  //
