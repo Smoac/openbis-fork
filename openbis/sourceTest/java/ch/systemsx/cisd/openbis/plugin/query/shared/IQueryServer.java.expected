@@ -27,9 +27,9 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.DeleteQueryPredicate;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.UpdateQueryPredicate;
@@ -51,18 +51,17 @@ public interface IQueryServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
-    public List<GridCustomFilter> listQueries(String sessionToken);
-    
+    public List<QueryExpression> listQueries(String sessionToken);
+
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
     public void registerQuery(String sessionToken, NewExpression expression);
-    
+
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
-    public void deleteQueries(
-            String sessionToken,
+    public void deleteQueries(String sessionToken,
             @AuthorizationGuard(guardClass = DeleteQueryPredicate.class) List<TechId> filterIds);
-    
+
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
     public void updateQuery(
