@@ -34,6 +34,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -91,6 +92,10 @@ class DAO extends SimpleJdbcDaoSupport
         {
             throw new UserFailureException("Sorry, only select statements are allowed.");
         }
+
+        sqlQuery.replace(ExpressionUtil.START, "");
+        sqlQuery.replace(ExpressionUtil.END, "");
+
         PreparedStatementCallback callback = new PreparedStatementCallback()
             {
                 public Object doInPreparedStatement(PreparedStatement ps) throws SQLException,
@@ -136,8 +141,17 @@ class DAO extends SimpleJdbcDaoSupport
                     return new TableModel(headers, rows);
                 }
             };
-        return (TableModel) new NamedParameterJdbcTemplate(getJdbcTemplate()).execute(sqlQuery,
-                tryExtractBindingsMap(bindingsOrNull), callback);
+        return (TableModel) new NamedParameterJdbcTemplate(getJdbcTemplate()).execute(
+                createQueryWithJDBCParameters(sqlQuery), tryExtractBindingsMap(bindingsOrNull),
+                callback);
+    }
+
+    /** replaces parameters used in our expressions into the ones supported by JDBC */
+    private static String createQueryWithJDBCParameters(String sqlQuery)
+    {
+        String result = sqlQuery.replace(ExpressionUtil.START, ":");
+        result = sqlQuery.replace(ExpressionUtil.END, "");
+        return result;
     }
 
     @SuppressWarnings("unchecked")
