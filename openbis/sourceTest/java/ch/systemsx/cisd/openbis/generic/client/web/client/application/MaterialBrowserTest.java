@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.CheckMaterialTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.ListMaterials;
@@ -30,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 public class MaterialBrowserTest extends AbstractGWTTestCase
 {
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testListMaterials()
     {
         loginAndInvokeAction(ActionMenuKind.MATERIAL_MENU_BROWSE);
