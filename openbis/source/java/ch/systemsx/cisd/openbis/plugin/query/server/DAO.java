@@ -23,17 +23,17 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
@@ -141,22 +141,25 @@ class DAO extends SimpleJdbcDaoSupport
                     return new TableModel(headers, rows);
                 }
             };
-        return (TableModel) new NamedParameterJdbcTemplate(getJdbcTemplate()).execute(
-                createQueryWithJDBCParameters(sqlQuery), tryExtractBindingsMap(bindingsOrNull),
-                callback);
+
+        return (TableModel) getJdbcTemplate().execute(
+                createSQLQueryWithBindingsResolved(sqlQuery, bindingsOrNull), callback);
     }
 
-    /** replaces parameters used in our expressions into the ones supported by JDBC */
-    private static String createQueryWithJDBCParameters(String sqlQuery)
+    // TODO 2010-02-18, Piotr Buczek: this solution is not safe
+    // prepared statement parameters would be better but then we need to know the type of parameters
+    private static String createSQLQueryWithBindingsResolved(String sqlQuery,
+            QueryParameterBindings bindingsOrNull)
     {
-        String result = sqlQuery.replace(ExpressionUtil.START, ":");
-        result = sqlQuery.replace(ExpressionUtil.END, "");
-        return result;
+        Template template = new Template(sqlQuery);
+        if (bindingsOrNull != null)
+        {
+            for (Entry<String, String> entry : bindingsOrNull.getBindings().entrySet())
+            {
+                template.bind(entry.getKey(), entry.getValue());
+            }
+        }
+        return template.createText();
     }
 
-    @SuppressWarnings("unchecked")
-    private Map tryExtractBindingsMap(QueryParameterBindings bindingsOrNull)
-    {
-        return bindingsOrNull == null ? null : bindingsOrNull.getBindings();
-    }
 }
