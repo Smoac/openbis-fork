@@ -46,12 +46,6 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
         return null;
     }
 
-    public TableModel queryDatabase(String sessionToken, String sqlQuery)
-    {
-        logAccess(sessionToken, "query_database", "SQL(%s)", sqlQuery);
-        return null;
-    }
-
     public List<QueryExpression> listQueries(String sessionToken)
     {
         logAccess(sessionToken, "list_queries");
@@ -74,12 +68,12 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
                 .getName());
     }
 
-    public TableModel queryDatabase(String sessionToken, QueryExpression query,
+    public TableModel queryDatabase(String sessionToken, String sqlQuery,
             QueryParameterBindings bindings)
     {
-        logAccess(sessionToken, "query_database", "SQL(%s) BINDINGS(%s)", query.getExpression(),
-                bindings);
+        logAccess(sessionToken, "query_database", "SQL(%s) BINDINGS(%s)", sqlQuery, bindings);
         return null;
+
     }
 
     public TableModel queryDatabase(String sessionToken, TechId queryId,

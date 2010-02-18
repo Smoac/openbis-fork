@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
+
 /**
  * @author Piotr Buczek
  */
 public interface ICustomQueryProvider
 {
     String tryGetCustomSQLQuery();
+
+    QueryParameterBindings tryGetQueryParameterBindings();
 }

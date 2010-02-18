@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServi
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
  * @author Piotr Buczek
@@ -86,12 +87,14 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         }
     }
 
-    public TableModelReference createQueryResultsReport(String sqlQuery)
+    public TableModelReference createQueryResultsReport(String sqlQuery,
+            QueryParameterBindings bindingsOrNull)
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final TableModel tableModel = queryServer.queryDatabase(sessionToken, sqlQuery);
+            final TableModel tableModel =
+                    queryServer.queryDatabase(sessionToken, sqlQuery, bindingsOrNull);
             String resultSetKey = saveInCache(tableModel.getRows());
             return new TableModelReference(resultSetKey, tableModel.getHeader());
         } catch (final UserFailureException e)

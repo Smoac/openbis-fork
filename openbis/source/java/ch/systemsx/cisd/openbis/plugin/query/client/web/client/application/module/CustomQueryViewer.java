@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
  * @author Piotr Buczek
@@ -87,10 +88,12 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
     private void refresh()
     {
         String sqlQueryOrNull = queryProvider.tryGetCustomSQLQuery();
+        QueryParameterBindings bindingsOrNull = queryProvider.tryGetQueryParameterBindings();
         if (sqlQueryOrNull != null)
         {
             viewContext.getService().createQueryResultsReport(
                     sqlQueryOrNull,
+                    bindingsOrNull,
                     new ReportGeneratedCallback(viewContext.getCommonViewContext(),
                             createReportInformationProvider(sqlQueryOrNull),
                             createDisplayQueryResultsAction()));

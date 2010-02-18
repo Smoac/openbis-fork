@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
  * The toolbar of query viewer.
@@ -68,6 +69,11 @@ public class SimpleCustomQueryToolbar extends AbstractCustomQueryToolbar
     public String tryGetCustomSQLQuery()
     {
         return queryField.getValue();
+    }
+
+    public QueryParameterBindings tryGetQueryParameterBindings()
+    {
+        return null;
     }
 
 }

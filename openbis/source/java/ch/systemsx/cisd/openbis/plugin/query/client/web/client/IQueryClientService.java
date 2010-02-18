@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
  * @author Piotr Buczek
@@ -39,8 +40,8 @@ public interface IQueryClientService extends IClientService
     public String tryToGetQueryDatabaseLabel() throws UserFailureException;
 
     /** Returns results of the specified SQL query. */
-    public TableModelReference createQueryResultsReport(String sqlQuery)
-            throws UserFailureException;
+    public TableModelReference createQueryResultsReport(String sqlQuery,
+            QueryParameterBindings bindingsOrNull) throws UserFailureException;
 
     /** Returns a list of all the canned custom queries created so far. */
     public List<QueryExpression> listQueries() throws UserFailureException;

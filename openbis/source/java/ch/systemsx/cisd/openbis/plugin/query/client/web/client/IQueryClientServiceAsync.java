@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
  * @author Piotr Buczek
@@ -40,8 +41,8 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
     /** @see IQueryClientService#tryToGetQueryDatabaseLabel() */
     public void tryToGetQueryDatabaseLabel(AsyncCallback<String> callback);
 
-    /** @see IQueryClientService#createQueryResultsReport(String) */
-    public void createQueryResultsReport(String sqlQuery,
+    /** @see IQueryClientService#createQueryResultsReport(String, QueryParameterBindings) */
+    public void createQueryResultsReport(String sqlQuery, QueryParameterBindings bindingsOrNull,
             AsyncCallback<TableModelReference> callback);
 
     /** @see IQueryClientService#listQueries(IResultSetConfig) */

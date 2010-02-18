@@ -20,12 +20,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * Encapsulation of bindings of values to parameters used in a query.
  * 
  * @author Piotr Buczek
  */
-public class QueryParameterBindings
+public class QueryParameterBindings implements IsSerializable
 {
     private Map<String, String> bindings = new HashMap<String, String>();
 

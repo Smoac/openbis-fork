@@ -201,27 +201,13 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         return databaseDefinition;
     }
 
-    // TODO remove
-    public TableModel queryDatabase(String sessionToken, String sqlQuery)
-    {
-        checkSession(sessionToken);
-
-        try
-        {
-            return getDAO().query(sqlQuery);
-        } catch (DataAccessException ex)
-        {
-            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
-        }
-    }
-
-    public TableModel queryDatabase(String sessionToken, QueryExpression query,
+    public TableModel queryDatabase(String sessionToken, String sqlQuery,
             QueryParameterBindings bindings)
     {
         checkSession(sessionToken);
         try
         {
-            return queryDatabase(query, bindings);
+            return queryDatabase(sqlQuery, bindings);
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
@@ -236,17 +222,16 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         {
             IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
             QueryPE query = queryDAO.getByTechId(queryId);
-            return queryDatabase(QueryTranslator.translate(query), bindings);
+            return queryDatabase(query.getExpression(), bindings);
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
         }
     }
 
-    private TableModel queryDatabase(QueryExpression translate, QueryParameterBindings bindings)
+    private TableModel queryDatabase(String sqlQuery, QueryParameterBindings bindings)
     {
-        // TODO
-        return null;
+        return getDAO().query(sqlQuery, bindings);
     }
 
 }

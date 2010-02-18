@@ -47,11 +47,7 @@ public interface IQueryServer extends IServer
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.POWER_USER)
-    public TableModel queryDatabase(String sessionToken, String sqlQuery);
-
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.POWER_USER)
-    public TableModel queryDatabase(String sessionToken, QueryExpression query,
+    public TableModel queryDatabase(String sessionToken, String sqlQuery,
             QueryParameterBindings bindings);
 
     @Transactional(readOnly = true)

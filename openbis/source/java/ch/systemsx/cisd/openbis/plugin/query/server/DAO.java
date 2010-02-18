@@ -23,11 +23,13 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 
@@ -40,10 +42,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class DAO extends SimpleJdbcDaoSupport
@@ -64,7 +65,7 @@ class DAO extends SimpleJdbcDaoSupport
     private static boolean isInteger(int sqlType)
     {
         return Types.BIGINT == sqlType || Types.INTEGER == sqlType || Types.SMALLINT == sqlType
-        || Types.TINYINT == sqlType;
+                || Types.TINYINT == sqlType;
     }
 
     private static boolean isReal(int sqlType)
@@ -72,14 +73,19 @@ class DAO extends SimpleJdbcDaoSupport
         return Types.DECIMAL == sqlType || Types.DOUBLE == sqlType || Types.FLOAT == sqlType
                 || Types.NUMERIC == sqlType || Types.REAL == sqlType;
     }
-    
+
     public DAO(DataSource dataSource)
     {
         setDataSource(dataSource);
         afterPropertiesSet();
     }
-    
+
     public TableModel query(String sqlQuery)
+    {
+        return query(sqlQuery, new QueryParameterBindings());
+    }
+
+    public TableModel query(String sqlQuery, QueryParameterBindings bindingsOrNull)
     {
         if (sqlQuery.toLowerCase().trim().startsWith("select") == false)
         {
@@ -105,7 +111,8 @@ class DAO extends SimpleJdbcDaoSupport
                     List<TableModelRow> rows = new ArrayList<TableModelRow>();
                     while (resultSet.next())
                     {
-                        List<ISerializableComparable> cells = new ArrayList<ISerializableComparable>();
+                        List<ISerializableComparable> cells =
+                                new ArrayList<ISerializableComparable>();
                         for (int i = 1; i <= columnCount; i++)
                         {
                             Object value = JdbcUtils.getResultSetValue(resultSet, i);
@@ -118,7 +125,9 @@ class DAO extends SimpleJdbcDaoSupport
                                 cells.add(new DoubleTableCell(number.doubleValue()));
                             } else
                             {
-                                cells.add(new StringTableCell(value == null ? "" : value.toString()));
+                                cells
+                                        .add(new StringTableCell(value == null ? "" : value
+                                                .toString()));
                             }
                         }
                         rows.add(new TableModelRow(cells));
@@ -127,6 +136,13 @@ class DAO extends SimpleJdbcDaoSupport
                     return new TableModel(headers, rows);
                 }
             };
-        return (TableModel) getJdbcTemplate().execute(sqlQuery, callback);
+        return (TableModel) new NamedParameterJdbcTemplate(getJdbcTemplate()).execute(sqlQuery,
+                tryExtractBindingsMap(bindingsOrNull), callback);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map tryExtractBindingsMap(QueryParameterBindings bindingsOrNull)
+    {
+        return bindingsOrNull == null ? null : bindingsOrNull.getBindings();
     }
 }
