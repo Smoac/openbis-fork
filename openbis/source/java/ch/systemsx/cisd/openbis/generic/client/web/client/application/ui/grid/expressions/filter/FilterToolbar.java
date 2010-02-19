@@ -297,6 +297,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 ((Field<?>) field).reset();
             }
         }
+        updateApplyToolEnabledState();
     }
 
     /** resets filter selection to column filter but doesn't invoke apply */

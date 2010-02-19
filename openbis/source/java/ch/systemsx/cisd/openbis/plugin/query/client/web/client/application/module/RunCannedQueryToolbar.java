@@ -113,6 +113,7 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
         executeButton.hide();
 
         parameterContainer.removeAll();
+        parameterFields.clear();
         QueryExpression queryOrNull = querySelectionWidget.tryGetSelected();
         if (queryOrNull != null)
         {
@@ -158,6 +159,7 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
         {
             field.reset();
         }
+        updateExecuteButtonEnabledState();
     }
 
     @Override
