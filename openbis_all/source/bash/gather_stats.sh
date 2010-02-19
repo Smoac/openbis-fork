@@ -3,14 +3,16 @@
 # This is a pattern that can editet for several (SQL) queries on several
 # openbis servers, was initially just for querying memory
  
-SERVERS=" sprint-openbis.ethz.ch
-          cisd-openbis.ethz.ch
-          imsb-us-openbis.ethz.ch
-          openbis-phosphonetx.ethz.ch
-          openbis-liverx.ethz.ch
-          agronomics.ethz.ch
-          openbis-bsse.ethz.ch
-          basysbio.ethz.ch"
+SERVERS=" openbis@sprint-openbis.ethz.ch
+          openbis@cisd-openbis.ethz.ch
+          openbis@imsb-us-openbis.ethz.ch
+          openbis@openbis-phosphonetx.ethz.ch
+          openbis@openbis-liverx.ethz.ch
+          openbis@agronomics.ethz.ch
+          sbsuser@openbis-dsu.ethz.ch
+          openbis@openbis-scu.ethz.ch
+          openbis@openbis-test.ethz.ch
+          openbis@basysbio.ethz.ch"
 
 SQL="WITH RECURSIVE data_set_parents(id, parent_ids, cycle) AS (
         SELECT  r.data_id_child AS data_id, 
@@ -27,19 +29,18 @@ SQL="WITH RECURSIVE data_set_parents(id, parent_ids, cycle) AS (
 SELECT count(*) AS cycles FROM data_set_parents WHERE cycle = true;"
 
 SQL_QUERY="psql -c \"$SQL\" openbis_productive"
-JAVA_MAX_HEAP_SIZE="echo -n JAVA_MAX_HEAP_SIZE: ;cat ~/sprint/openBIS-server/apache-tomcat/etc/openbis.conf | grep JAVA_MEM_OPTS | cut -d \- -f 2"
-JAVA_INIT_HEAP_SIZE="echo -n JAVA_INIT_HEAP_SIZE: ;cat ~/sprint/openBIS-server/apache-tomcat/etc/openbis.conf | grep JAVA_MEM_OPTS | cut -d \- -f 3"
+JAVA_MAX_HEAP_SIZE="echo -n JAVA_MAX_HEAP_SIZE: ;cat ~openbis/sprint/openBIS-server/apache-tomcat/etc/openbis.conf | grep JAVA_MEM_OPTS | cut -d \- -f 2"
+JAVA_INIT_HEAP_SIZE="echo -n JAVA_INIT_HEAP_SIZE: ;cat ~openbis/sprint/openBIS-server/apache-tomcat/etc/openbis.conf | grep JAVA_MEM_OPTS | cut -d \- -f 3"
 JAVA_VERSION="java -version"
 PSQL_VERSION="psql --version | grep PostgreSQL"
+OPENBIS_VERSION="ls -1d ~openbis/sprint-* | cut -d - -f2"
 
-STATEMENTS="$JAVA_MAX_HEAP_SIZE;
-            $JAVA_INIT_HEAP_SIZE;
-            $PSQL_VERSION;
-            $JAVA_VERSION"
+#STATEMENTS="$JAVA_MAX_HEAP_SIZE; $JAVA_INIT_HEAP_SIZE; $PSQL_VERSION; $JAVA_VERSION"
+STATEMENTS="$OPENBIS_VERSION"
 
 if [ -n "${1}" ]
 then
-  STATEMENTS="$STATEMENTS;$1;echo" 
+  STATEMENTS="$STATEMENTS;$1" 
 else STATEMENTS="$STATEMENTS;echo"
 fi
 
@@ -48,5 +49,6 @@ echo ====================================
 for j in $SERVERS; 
   do
     echo $j:  
-    ssh openbis@$j $STATEMENTS
+    ssh $j $STATEMENTS
+    echo -e "\n"
 done
