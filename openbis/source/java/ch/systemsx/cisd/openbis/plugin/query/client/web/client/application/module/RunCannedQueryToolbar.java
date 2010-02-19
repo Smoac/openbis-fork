@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -27,12 +27,13 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ParameterField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
@@ -56,7 +57,7 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
 
     private final Button resetButton;
 
-    private final Map<String, TextField<String>> parameterFields;
+    private final Collection<ParameterField> parameterFields;
 
     public RunCannedQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
     {
@@ -64,7 +65,7 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
         add(new LabelToolItem(viewContext.getMessage(Dict.QUERY) + ": "));
         querySelectionWidget = new QuerySelectionWidget(viewContext);
         parameterContainer = new ButtonGroup(MAX_PARAMETER_COLUMNS);
-        parameterFields = new HashMap<String, TextField<String>>();
+        parameterFields = new HashSet<ParameterField>();
         resetButton = new Button(viewContext.getMessage(Dict.BUTTON_RESET));
         add(querySelectionWidget);
         add(parameterContainer);
@@ -130,20 +131,20 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
     private void createAndAddQueryParameterFields(QueryExpression query)
     {
         parameterContainer.hide();
+        IDelegatedAction updateExecuteButtonAction = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    updateExecuteButtonEnabledState();
+                }
+            };
         for (String parameter : query.getParameters())
         {
-            TextField<String> parameterField = createParameterField(parameter);
-            parameterFields.put(parameter, parameterField);
+            ParameterField parameterField =
+                    new ParameterField(parameter, updateExecuteButtonAction);
+            parameterFields.add(parameterField);
             parameterContainer.add(parameterField);
         }
-    }
-
-    private static TextField<String> createParameterField(String parameterName)
-    {
-        TextField<String> result = new VarcharField(parameterName, true);
-        result.setEmptyText(parameterName);
-        result.setToolTip(parameterName);
-        return result;
     }
 
     private void updateExecuteButtonEnabledState()
@@ -153,7 +154,7 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
 
     private void resetParameterFields()
     {
-        for (TextField<String> field : parameterFields.values())
+        for (ParameterField field : parameterFields)
         {
             field.reset();
         }
@@ -168,7 +169,7 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
         } else
         {
             boolean valid = true;
-            for (TextField<String> field : parameterFields.values())
+            for (ParameterField field : parameterFields)
             {
                 valid = field.isValid() && valid;
             }
@@ -189,9 +190,10 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
     public QueryParameterBindings tryGetQueryParameterBindings()
     {
         QueryParameterBindings bindings = new QueryParameterBindings();
-        for (Map.Entry<String, TextField<String>> entry : parameterFields.entrySet())
+        for (ParameterField field : parameterFields)
         {
-            bindings.addBinding(entry.getKey(), entry.getValue().getValue());
+            ParameterWithValue parameterWithValue = field.getParameterWithValue();
+            bindings.addBinding(parameterWithValue.getParameter(), parameterWithValue.getValue());
         }
         return bindings;
     }

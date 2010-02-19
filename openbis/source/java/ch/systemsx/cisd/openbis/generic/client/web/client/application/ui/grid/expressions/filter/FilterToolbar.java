@@ -5,10 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -17,7 +14,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.TriggerField;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.Widget;
@@ -27,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ParameterField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisplayTypeIDProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.TextColumnFilterWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
@@ -175,7 +172,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             Set<ParameterWithValue> parameters = new HashSet<ParameterWithValue>();
             for (Component field : filterContainer.getItems())
             {
-                parameters.add(((CustomFilterParameterWidget) field).getParameterWithValue());
+                parameters.add(((ParameterField) field).getParameterWithValue());
             }
             info.setParameters(parameters);
             return info;
@@ -232,9 +229,17 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     private List<Widget> createCustomFilterWidgets(GridCustomFilter filter)
     {
         List<Widget> filterWidgets = new ArrayList<Widget>();
+        IDelegatedAction updateApplyButtonAction = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    updateApplyToolEnabledState();
+                }
+
+            };
         for (String parameter : filter.getParameters())
         {
-            filterWidgets.add(new CustomFilterParameterWidget(parameter));
+            filterWidgets.add(new ParameterField(parameter, updateApplyButtonAction));
         }
         return filterWidgets;
     }
@@ -322,50 +327,13 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             boolean valid = true;
             for (Component field : filterContainer.getItems())
             {
-                CustomFilterParameterWidget f = (CustomFilterParameterWidget) field;
+                ParameterField f = (ParameterField) field;
                 valid = f.isValid() && valid;
             }
             return valid;
         } else
         {
             return true; // column filters are always valid
-        }
-    }
-
-    private class CustomFilterParameterWidget extends TriggerField<ModelData>
-    {
-
-        private final String label;
-
-        public CustomFilterParameterWidget(String label)
-        {
-            this.label = label;
-            setEmptyText(label);
-            setTriggerStyle("x-form-clear-trigger");
-            setWidth(100);
-            setAllowBlank(false);
-            setAutoValidate(true);
-            setValidateOnBlur(true);
-        }
-
-        @Override
-        protected void onKeyUp(FieldEvent fe)
-        {
-            super.onKeyUp(fe);
-            updateApplyToolEnabledState();
-        }
-
-        public ParameterWithValue getParameterWithValue()
-        {
-            return new ParameterWithValue(label, getRawValue());
-        }
-
-        @Override
-        protected void onTriggerClick(ComponentEvent ce)
-        {
-            super.onTriggerClick(ce);
-            setValue(null);
-            updateApplyToolEnabledState();
         }
     }
 
