@@ -60,10 +60,20 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)
             {
-                return CustomQueryViewer.create(viewContext);
+                return CustomQueryViewer
+                        .create(viewContext, new RunCustomQueryToolbar(viewContext));
             }
         },
-        QUERY_BROWSER("Browsing and Editing SQL Queries")
+        RUN_CANNED_QUERY("Run Predefined Query")
+        {
+            public DatabaseModificationAwareComponent createComponent(
+                    IViewContext<IQueryClientServiceAsync> viewContext)
+            {
+                return CustomQueryViewer
+                        .create(viewContext, new RunCannedQueryToolbar(viewContext));
+            }
+        },
+        QUERY_BROWSER("Browsing and Editing of SQL Queries")
         {
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)

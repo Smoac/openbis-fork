@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class QueryParameterBindings implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private Map<String, String> bindings = new HashMap<String, String>();
 
     public Map<String, String> getBindings()

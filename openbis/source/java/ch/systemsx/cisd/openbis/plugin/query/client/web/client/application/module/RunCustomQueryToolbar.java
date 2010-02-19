@@ -16,29 +16,32 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
+import java.util.Set;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
- * The toolbar of query viewer.
+ * The toolbar of query viewer for running custom queries.
  * 
  * @author Piotr Buczek
  */
-public class SimpleCustomQueryToolbar extends AbstractCustomQueryToolbar
+public class RunCustomQueryToolbar extends AbstractCustomQueryToolbar
 {
 
     private static final int QUERY_FIELD_WIDTH = 600;
 
     private final TextArea queryField;
 
-    public SimpleCustomQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
+    public RunCustomQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
     {
         super(viewContext);
         setAlignment(HorizontalAlignment.CENTER);
@@ -66,7 +69,7 @@ public class SimpleCustomQueryToolbar extends AbstractCustomQueryToolbar
     // ICustomQueryProvider
     //
 
-    public String tryGetCustomSQLQuery()
+    public String tryGetSQLQuery()
     {
         return queryField.getValue();
     }
@@ -74,6 +77,18 @@ public class SimpleCustomQueryToolbar extends AbstractCustomQueryToolbar
     public QueryParameterBindings tryGetQueryParameterBindings()
     {
         return null;
+    }
+
+    // IDatabaseModificationObserver
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[0];
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        // nothing to do
     }
 
 }

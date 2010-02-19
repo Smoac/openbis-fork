@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
@@ -63,6 +63,6 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
     /** @see IQueryClientService#deleteQueries(List) */
     public void deleteQueries(List<TechId> filterIds, AsyncCallback<Void> callback);
 
-    /** @see IQueryClientService#updateQuery(IFilterOrColumnUpdates) */
-    public void updateQuery(final IFilterOrColumnUpdates queryUpdate, AsyncCallback<Void> callback);
+    /** @see IQueryClientService#updateQuery(IExpressionUpdates) */
+    public void updateQuery(final IExpressionUpdates queryUpdate, AsyncCallback<Void> callback);
 }

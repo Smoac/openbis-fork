@@ -36,6 +36,7 @@ public class QueryExpression extends AbstractExpressionWithParameters
     {
     }
 
+    // TODO remove
     public List<String> getAllParameters()
     {
         return allParameters;

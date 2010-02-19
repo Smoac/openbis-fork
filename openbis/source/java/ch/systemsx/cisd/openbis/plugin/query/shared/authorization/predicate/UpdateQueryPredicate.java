@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractExpressionPE;
 
 /**
@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractExpressionPE;
  *
  * @author Franz-Josef Elmer
  */
-public class UpdateQueryPredicate extends AbstractExpressionPredicate<IFilterOrColumnUpdates>
+public class UpdateQueryPredicate extends AbstractExpressionPredicate<IExpressionUpdates>
 {
 
     public UpdateQueryPredicate()
@@ -35,7 +35,7 @@ public class UpdateQueryPredicate extends AbstractExpressionPredicate<IFilterOrC
     }
 
     @Override
-    public AbstractExpressionPE<?> convert(IFilterOrColumnUpdates criteria)
+    public AbstractExpressionPE<?> convert(IExpressionUpdates criteria)
     {
         TechId techId = TechId.create(criteria);
         return authorizationDataProvider.getQuery(techId);

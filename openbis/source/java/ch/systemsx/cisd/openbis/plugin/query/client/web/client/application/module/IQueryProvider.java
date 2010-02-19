@@ -21,9 +21,9 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 /**
  * @author Piotr Buczek
  */
-public interface ICustomQueryProvider
+public interface IQueryProvider
 {
-    String tryGetCustomSQLQuery();
+    String tryGetSQLQuery();
 
     QueryParameterBindings tryGetQueryParameterBindings();
 }

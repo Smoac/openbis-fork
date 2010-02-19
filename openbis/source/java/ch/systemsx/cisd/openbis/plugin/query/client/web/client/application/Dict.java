@@ -35,6 +35,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String BUTTON_TEST_QUERY = "button_test_query";
 
+    public static final String QUERY = "query";
+
     public static final String QUERY_EXECUTE = "query_execute";
 
     public static final String QUERY_DELETION_CONFIRMATION = "query_deletion_confirmation";
@@ -43,7 +45,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String QUERY_EDIT_TITLE = "query_edit_title";
 
-    public static final String QUERY_PARAMETERS_BINDINGS_DIALOG_TITLE = "query_parameters_binding_dialog_title";
+    public static final String QUERY_PARAMETERS_BINDINGS_DIALOG_TITLE =
+            "query_parameters_binding_dialog_title";
 
     private Dict()
     {

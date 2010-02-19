@@ -21,7 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -62,7 +62,7 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
         logTracking(sessionToken, "delete_queries", "QUERIES(%s)", filterIds.size());
     }
 
-    public void updateQuery(String sessionToken, IFilterOrColumnUpdates updates)
+    public void updateQuery(String sessionToken, IExpressionUpdates updates)
     {
         logTracking(sessionToken, "update_query", "ID(%s) QUERY_NAME(%s)", updates.getId(), updates
                 .getName());

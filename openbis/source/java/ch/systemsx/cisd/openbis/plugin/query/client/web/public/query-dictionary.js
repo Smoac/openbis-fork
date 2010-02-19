@@ -6,6 +6,7 @@ var query = {
 	// Module
 	//
 	
+	query: "Query",
 	sql_query: "SQL Query",
 	
 	module_menu_title: "Queries",
@@ -15,6 +16,8 @@ var query = {
 	
 	RUN_CUSTOM_QUERY_menu_item: "Run Custom SQL Query",
 	RUN_CUSTOM_QUERY_tab_label: "Custom SQL Query",
+	RUN_CANNED_QUERY_menu_item: "Run Predefined Query",
+	RUN_CANNED_QUERY_tab_label: "Predefined Query",
 
   //
   // Query Browser and Editing

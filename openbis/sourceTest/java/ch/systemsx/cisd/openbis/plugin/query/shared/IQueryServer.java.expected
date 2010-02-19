@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
@@ -27,9 +29,10 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.DeleteQueryPredicate;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.UpdateQueryPredicate;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
@@ -55,23 +58,25 @@ public interface IQueryServer extends IServer
     public TableModel queryDatabase(String sessionToken, TechId queryId,
             QueryParameterBindings bindings);
 
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<QueryExpression> listQueries(String sessionToken);
 
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.QUERY)
     public void registerQuery(String sessionToken, NewExpression expression);
 
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.QUERY)
     public void deleteQueries(String sessionToken,
             @AuthorizationGuard(guardClass = DeleteQueryPredicate.class) List<TechId> queryIds);
 
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
-    public void updateQuery(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = UpdateQueryPredicate.class) IFilterOrColumnUpdates updates);
+    @DatabaseUpdateModification(value = ObjectKind.QUERY)
+    public void updateQuery(String sessionToken,
+            @AuthorizationGuard(guardClass = UpdateQueryPredicate.class) IExpressionUpdates updates);
 }

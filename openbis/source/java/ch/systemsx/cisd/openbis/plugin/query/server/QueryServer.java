@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
@@ -144,7 +144,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
-    public void updateQuery(String sessionToken, IFilterOrColumnUpdates updates)
+    public void updateQuery(String sessionToken, IExpressionUpdates updates)
     {
         checkSession(sessionToken);
 

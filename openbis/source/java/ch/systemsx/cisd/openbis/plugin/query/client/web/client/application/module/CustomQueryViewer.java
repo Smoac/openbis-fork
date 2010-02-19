@@ -43,10 +43,9 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
 {
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IQueryClientServiceAsync> viewContext)
+            IViewContext<IQueryClientServiceAsync> viewContext, AbstractCustomQueryToolbar toolbar)
     {
-        final CustomQueryViewer panel =
-                new CustomQueryViewer(viewContext, new SimpleCustomQueryToolbar(viewContext));
+        final CustomQueryViewer panel = new CustomQueryViewer(viewContext, toolbar);
         return new DatabaseModificationAwareComponent(panel, panel);
     }
 
@@ -56,7 +55,7 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
 
     private Component currentGridOrNull;
 
-    private ICustomQueryProvider queryProvider;
+    private IQueryProvider queryProvider;
 
     private CustomQueryViewer(IViewContext<IQueryClientServiceAsync> viewContext,
             AbstractCustomQueryToolbar toolBar)
@@ -87,7 +86,7 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
 
     private void refresh()
     {
-        String sqlQueryOrNull = queryProvider.tryGetCustomSQLQuery();
+        String sqlQueryOrNull = queryProvider.tryGetSQLQuery();
         QueryParameterBindings bindingsOrNull = queryProvider.tryGetQueryParameterBindings();
         if (sqlQueryOrNull != null)
         {
