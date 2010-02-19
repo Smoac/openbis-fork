@@ -39,13 +39,13 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 /**
  * @author Piotr Buczek
  */
-public class CustomQueryViewer extends ContentPanel implements IDatabaseModificationObserver
+public class QueryViewer extends ContentPanel implements IDatabaseModificationObserver
 {
 
     public static DatabaseModificationAwareComponent create(
             IViewContext<IQueryClientServiceAsync> viewContext, AbstractCustomQueryToolbar toolbar)
     {
-        final CustomQueryViewer panel = new CustomQueryViewer(viewContext, toolbar);
+        final QueryViewer panel = new QueryViewer(viewContext, toolbar);
         return new DatabaseModificationAwareComponent(panel, panel);
     }
 
@@ -57,7 +57,7 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
 
     private IQueryProvider queryProvider;
 
-    private CustomQueryViewer(IViewContext<IQueryClientServiceAsync> viewContext,
+    private QueryViewer(IViewContext<IQueryClientServiceAsync> viewContext,
             AbstractCustomQueryToolbar toolBar)
     {
         this.viewContext = viewContext;
@@ -101,12 +101,12 @@ public class CustomQueryViewer extends ContentPanel implements IDatabaseModifica
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[0];
+        return queryProvider.getRelevantModifications();
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        return; // nothing to do
+        queryProvider.update(observedModifications);
     }
 
     private IReportInformationProvider createReportInformationProvider(final String sqlQuery)

@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
@@ -32,8 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
  * 
  * @author Piotr Buczek
  */
-public abstract class AbstractCustomQueryToolbar extends ToolBar implements IQueryProvider,
-        IDatabaseModificationObserver
+public abstract class AbstractCustomQueryToolbar extends ToolBar implements IQueryProvider
 {
     private IDelegatedAction refreshViewerAction;
 

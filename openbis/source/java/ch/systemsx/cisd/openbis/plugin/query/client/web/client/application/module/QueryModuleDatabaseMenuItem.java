@@ -60,8 +60,8 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)
             {
-                return CustomQueryViewer
-                        .create(viewContext, new RunCustomQueryToolbar(viewContext));
+                return QueryViewer.create(viewContext, new RunCustomQueryToolbar(
+                        viewContext));
             }
         },
         RUN_CANNED_QUERY("Run Predefined Query")
@@ -69,8 +69,8 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)
             {
-                return CustomQueryViewer
-                        .create(viewContext, new RunCannedQueryToolbar(viewContext));
+                return QueryViewer.create(viewContext, new RunCannedQueryToolbar(
+                        viewContext));
             }
         },
         QUERY_BROWSER("Browsing and Editing of SQL Queries")

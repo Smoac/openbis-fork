@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
  * @author Piotr Buczek
  */
-public interface IQueryProvider
+public interface IQueryProvider extends IDatabaseModificationObserver
 {
     String tryGetSQLQuery();
 
