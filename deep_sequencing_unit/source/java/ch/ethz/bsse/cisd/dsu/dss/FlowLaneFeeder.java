@@ -69,6 +69,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
 {
     static final String META_DATA_FILE_TYPE = ".tsv";
+    
+    static final String META_DATA_FILE_PREFIX = "meta-data-file-prefix";
 
     static final String TRANSFER_PREFIX = "transfer.";
 
@@ -92,6 +94,8 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     private final IEncapsulatedOpenBISService service;
 
     private final MessageFormat flowLaneDropBoxTemplate;
+    
+    private final String metaDataFilePrefix;
 
     private final String entitySepaparator;
 
@@ -108,6 +112,9 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         flowLaneDropBoxTemplate =
                 new MessageFormat(PropertyUtils.getMandatoryProperty(properties,
                         FLOW_LANE_DROP_BOX_TEMPLATE));
+        metaDataFilePrefix =
+            PropertyUtils.getMandatoryProperty(properties,
+                    META_DATA_FILE_PREFIX);
         entitySepaparator = properties.getProperty(ENTITY_SEPARATOR_KEY, DEFAULT_ENTITY_SEPARATOR);
         srfInfoPathOrNull = properties.getProperty(SRF_INFO_PATH);
         if (srfInfoPathOrNull != null)
@@ -276,7 +283,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             }
         }
         String sampleCode = flowLaneSample.getCode();
-        String metaFileName = escapeSampleCode(sampleCode) + META_DATA_FILE_TYPE;
+        String metaFileName = metaDataFilePrefix + escapeSampleCode(sampleCode) + META_DATA_FILE_TYPE;
         FileUtilities.writeToFile(new File(flowLaneDataSet, metaFileName), builder.toString());
         copyToDropBox(dropBox, flowLaneDataSet);
     }
