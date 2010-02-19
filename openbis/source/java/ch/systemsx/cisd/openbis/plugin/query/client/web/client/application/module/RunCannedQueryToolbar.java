@@ -112,8 +112,7 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
 
         executeButton.hide();
 
-        parameterContainer.removeAll();
-        parameterFields.clear();
+        removeAllParameterFields();
         QueryExpression queryOrNull = querySelectionWidget.tryGetSelected();
         if (queryOrNull != null)
         {
@@ -141,11 +140,20 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
             };
         for (String parameter : query.getParameters())
         {
-            ParameterField parameterField =
-                    new ParameterField(parameter, updateExecuteButtonAction);
-            parameterFields.add(parameterField);
-            parameterContainer.add(parameterField);
+            addParameterField(new ParameterField(parameter, updateExecuteButtonAction));
         }
+    }
+
+    private void addParameterField(ParameterField parameterField)
+    {
+        parameterFields.add(parameterField);
+        parameterContainer.add(parameterField);
+    }
+
+    private void removeAllParameterFields()
+    {
+        parameterContainer.removeAll();
+        parameterFields.clear();
     }
 
     private void updateExecuteButtonEnabledState()
