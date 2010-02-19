@@ -123,6 +123,8 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
         boolean parametersAvailable = parameterContainer.getItemCount() > 0;
         resetButton.setVisible(parametersAvailable);
         parameterContainer.setVisible(parametersAvailable);
+
+        layout();
     }
 
     private void createAndAddQueryParameterFields(QueryExpression query)
