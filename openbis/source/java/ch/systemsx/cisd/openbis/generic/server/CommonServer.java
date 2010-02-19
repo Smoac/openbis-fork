@@ -94,7 +94,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -1758,7 +1758,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         deleteFiltersOrColumns(filterIds, bo);
     }
 
-    public void updateFilter(String sessionToken, IFilterOrColumnUpdates updates)
+    public void updateFilter(String sessionToken, IExpressionUpdates updates)
     {
         assert updates != null : "Unspecified updates";
         createGridCustomFilterBO(sessionToken).update(updates);
@@ -1778,7 +1778,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         deleteFiltersOrColumns(columnIds, bo);
     }
 
-    public void updateGridCustomColumn(String sessionToken, IFilterOrColumnUpdates updates)
+    public void updateGridCustomColumn(String sessionToken, IExpressionUpdates updates)
     {
         assert updates != null : "Unspecified updates";
         createGridCustomColumnBO(sessionToken).update(updates);

@@ -36,7 +36,9 @@ public class DatabaseModificationKind implements IsSerializable
         AUTHORIZATION_GROUP, SAMPLE, EXPERIMENT, MATERIAL, DATA_SET, SAMPLE_TYPE, EXPERIMENT_TYPE,
         MATERIAL_TYPE, DATASET_TYPE, FILE_FORMAT_TYPE, PROJECT, GROUP, PROPERTY_TYPE,
         PROPERTY_TYPE_ASSIGNMENT, VOCABULARY, VOCABULARY_TERM, ROLE_ASSIGNMENT, PERSON,
-        GRID_CUSTOM_FILTER, GRID_CUSTOM_COLUMN
+        GRID_CUSTOM_FILTER, GRID_CUSTOM_COLUMN,
+        // FIXME no easy way to extend current modification notification solution in modules
+        QUERY
     }
 
     public enum OperationKind implements IsSerializable

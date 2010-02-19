@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractExpressionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractGridExpressionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 /**
  * An <code>IPredicate</code> implementation based on {@link AbstractGridExpressionPE} of a grid
  * custom filter or column. Public internal class provide predicates for deletions based on
- * {@link TechId} and updates base on {@link IFilterOrColumnUpdates}.
+ * {@link TechId} and updates base on {@link IExpressionUpdates}.
  * 
  * @author Piotr Buczek
  * @author Tomasz Pylak
@@ -73,7 +73,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
     }
 
     public static class UpdateGridCustomFilterPredicate extends
-            AbstractExpressionPredicate<IFilterOrColumnUpdates>
+            AbstractExpressionPredicate<IExpressionUpdates>
     {
         public UpdateGridCustomFilterPredicate()
         {
@@ -81,7 +81,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
         }
 
         @Override
-        public AbstractExpressionPE<?> convert(IFilterOrColumnUpdates criteria)
+        public AbstractExpressionPE<?> convert(IExpressionUpdates criteria)
         {
             TechId techId = TechId.create(criteria);
             return authorizationDataProvider.getGridCustomFilter(techId);
@@ -89,7 +89,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
     }
 
     public static class UpdateGridCustomColumnPredicate extends
-            AbstractExpressionPredicate<IFilterOrColumnUpdates>
+            AbstractExpressionPredicate<IExpressionUpdates>
     {
         public UpdateGridCustomColumnPredicate()
         {
@@ -97,7 +97,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
         }
 
         @Override
-        public AbstractExpressionPE<?> convert(IFilterOrColumnUpdates criteria)
+        public AbstractExpressionPE<?> convert(IExpressionUpdates criteria)
         {
             TechId techId = TechId.create(criteria);
             return authorizationDataProvider.getGridCustomColumn(techId);

@@ -70,7 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -961,7 +961,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.GRID_CUSTOM_FILTER)
     public void updateFilter(
             String sessionToken,
-            @AuthorizationGuard(guardClass = UpdateGridCustomFilterPredicate.class) IFilterOrColumnUpdates updates);
+            @AuthorizationGuard(guardClass = UpdateGridCustomFilterPredicate.class) IExpressionUpdates updates);
 
     // columns
 
@@ -999,7 +999,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.GRID_CUSTOM_COLUMN)
     public void updateGridCustomColumn(
             String sessionToken,
-            @AuthorizationGuard(guardClass = UpdateGridCustomColumnPredicate.class) IFilterOrColumnUpdates updates);
+            @AuthorizationGuard(guardClass = UpdateGridCustomColumnPredicate.class) IExpressionUpdates updates);
 
     /**
      * Updates vocabulary terms.

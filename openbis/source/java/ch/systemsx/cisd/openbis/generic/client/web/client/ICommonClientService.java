@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -796,7 +796,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates grid custom filter.
      */
-    public void updateFilter(final IFilterOrColumnUpdates updates) throws UserFailureException;
+    public void updateFilter(final IExpressionUpdates updates) throws UserFailureException;
 
     // -- custom grid columns
 
@@ -829,7 +829,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates grid custom column.
      */
-    public void updateColumn(IFilterOrColumnUpdates updates) throws UserFailureException;
+    public void updateColumn(IExpressionUpdates updates) throws UserFailureException;
 
     /** Deletes the specified materials. */
     public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> criteria,

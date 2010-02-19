@@ -22,7 +22,7 @@ import org.springframework.dao.DataRetrievalFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -89,7 +89,7 @@ public class GridCustomFilterBO extends AbstractBusinessObject implements
         }
     }
 
-    public void update(IFilterOrColumnUpdates updates)
+    public void update(IExpressionUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
 

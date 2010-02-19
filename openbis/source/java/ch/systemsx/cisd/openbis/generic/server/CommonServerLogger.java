@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -780,7 +780,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 .toArray(new TechId[0]), ","));
     }
 
-    public void updateFilter(String sessionToken, IFilterOrColumnUpdates updates)
+    public void updateFilter(String sessionToken, IExpressionUpdates updates)
     {
         logTracking(sessionToken, "updateFilters", "ID(%s) NAME(%s)", updates.getId(), updates
                 .getName());
@@ -799,7 +799,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 columnIds.toArray(new TechId[0]), ","));
     }
 
-    public void updateGridCustomColumn(String sessionToken, IFilterOrColumnUpdates updates)
+    public void updateGridCustomColumn(String sessionToken, IExpressionUpdates updates)
     {
         logTracking(sessionToken, "updateGridCustomColumn", "ID(%s) NAME(%s)", updates.getId(),
                 updates.getName());

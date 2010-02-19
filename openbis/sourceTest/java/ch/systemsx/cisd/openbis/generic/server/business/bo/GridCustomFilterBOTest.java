@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 
 /**
@@ -48,7 +48,7 @@ public class GridCustomFilterBOTest extends AbstractBOTest
     public void testUpdate()
     {
         final GridCustomFilterPE filter = createFilter();
-        final IFilterOrColumnUpdates updates = createFilterUpdates(filter);
+        final IExpressionUpdates updates = createFilterUpdates(filter);
         context.checking(new Expectations()
             {
                 {
@@ -82,7 +82,7 @@ public class GridCustomFilterBOTest extends AbstractBOTest
         return filter;
     }
 
-    private IFilterOrColumnUpdates createFilterUpdates(final GridCustomFilterPE filter)
+    private IExpressionUpdates createFilterUpdates(final GridCustomFilterPE filter)
     {
         final GridCustomFilter updates = new GridCustomFilter();
         updates.setId(filter.getId());

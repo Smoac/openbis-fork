@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -702,8 +702,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#deleteFilters(List) */
     public void deleteFilters(List<TechId> filterIds, AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#updateFilter(IFilterOrColumnUpdates) */
-    public void updateFilter(IFilterOrColumnUpdates updates,
+    /** @see ICommonClientService#updateFilter(IExpressionUpdates) */
+    public void updateFilter(IExpressionUpdates updates,
             AsyncCallback<Void> registrationCallback);
 
     // -- custom grid columns
@@ -732,8 +732,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#deleteColumns(List) */
     public void deleteColumns(List<TechId> columnIds, AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#updateColumn(IFilterOrColumnUpdates) */
-    public void updateColumn(IFilterOrColumnUpdates updates,
+    /** @see ICommonClientService#updateColumn(IExpressionUpdates) */
+    public void updateColumn(IExpressionUpdates updates,
             AsyncCallback<Void> registrationCallback);
 
     /** @see ICommonClientService#deleteMaterials(DisplayedOrSelectedIdHolderCriteria, String) */

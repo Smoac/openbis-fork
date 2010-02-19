@@ -21,11 +21,12 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
- * Description of the updates which should be performed on a grid custom filter or column.
+ * Description of the updates which should be performed on a stored expression (e.g. grid custom
+ * filter or column expression).
  * 
  * @author Piotr Buczek
  */
-public interface IFilterOrColumnUpdates extends IIdHolder, IsSerializable
+public interface IExpressionUpdates extends IIdHolder, IsSerializable
 {
     String getDescription();
 
