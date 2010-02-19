@@ -62,7 +62,7 @@ public class QueryParameterBindings implements IsSerializable, Serializable
         StringBuilder sb = new StringBuilder();
         for (Entry<String, String> entry : bindings.entrySet())
         {
-            sb.append(entry.getKey() + " " + entry.getValue() + ", ");
+            sb.append(entry.getKey() + "=" + entry.getValue() + ", ");
         }
         return sb.toString();
     }
