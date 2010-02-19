@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ShowDetailsLinkCellRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -242,8 +242,9 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
 
     protected final GridCellRenderer<BaseEntityModel<?>> createShowDetailsLinkCellRenderer()
     {
-        return new ShowDetailsLinkCellRenderer(viewContext
-                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE));
+        return LinkRenderer.createLinkRenderer(viewContext
+                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE), true);
+
     }
 
     // ------ static helpers

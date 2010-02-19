@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -28,6 +26,8 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Widget;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 
 /**
  * @author Franz-Josef Elmer
@@ -47,6 +47,23 @@ public class LinkRenderer
                         Grid<BaseEntityModel<?>> grid)
                 {
                     return LinkRenderer.renderAsLinkWithAnchor(model.get(property).toString());
+                }
+            };
+    }
+
+    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer(final String text,
+            final boolean openInNewWindow)
+    {
+        return new GridCellRenderer<BaseEntityModel<?>>()
+            {
+
+                public Object render(BaseEntityModel<?> model, String property, ColumnData config,
+                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
+                        Grid<BaseEntityModel<?>> grid)
+                {
+                    String originalValue = String.valueOf(model.get(property));
+                    return LinkRenderer
+                            .renderAsLinkWithAnchor(text, originalValue, openInNewWindow);
                 }
             };
     }
@@ -97,8 +114,8 @@ public class LinkRenderer
     }
 
     /**
-     * @return {@link Anchor} GWT widget that is displayed as a link with given <var>text</var>
-     *         and a <var>listener</var> registered on the click event. The link display style is
+     * @return {@link Anchor} GWT widget that is displayed as a link with given <var>text</var> and
+     *         a <var>listener</var> registered on the click event. The link display style is
      *         default (not invalidated).
      */
     public static Widget getLinkWidget(final String text, final ClickHandler listener)
