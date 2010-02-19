@@ -21,19 +21,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetReportColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
@@ -44,6 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
@@ -211,17 +218,42 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
         List<ReportColumnUI> colDefinitions = createColDefinitions();
         ColumnDefsAndConfigs<TableModelRow> definitions =
                 ColumnDefsAndConfigs.create(colDefinitions);
-        RealNumberRenderer renderer =
+        GridCellRenderer<BaseEntityModel<?>> realNumberRenderer =
                 new RealNumberRenderer(viewContext.getDisplaySettingsManager()
                         .getRealNumberFormatingParameters());
-        for (ReportColumnUI colDefinition : colDefinitions)
+        GridCellRenderer<BaseEntityModel<?>> linkRenderer = LinkRenderer.createLinkRenderer();
+        for (final ReportColumnUI colDefinition : colDefinitions)
         {
+            final int colIndex = colDefinition.getIndex();
             if (colDefinition.getDataType() == DataTypeCode.REAL)
             {
-                definitions.setGridCellRendererFor(colDefinition.getIdentifier(), renderer);
+                definitions.setGridCellRendererFor(colDefinition.getIdentifier(),
+                        realNumberRenderer);
+            } else if (colDefinition.tryGetEntityKind() != null)
+            {
+                final EntityKind entityKind = colDefinition.tryGetEntityKind();
+                if (entityKind != EntityKind.MATERIAL)
+                {
+                    definitions.setGridCellRendererFor(colDefinition.getIdentifier(), linkRenderer);
+                    registerLinkClickListenerFor(colDefinition.getIdentifier(),
+                            new ICellListener<TableModelRow>()
+                                {
+                                    public void handle(TableModelRow rowItem)
+                                    {
+                                        ISerializableComparable cellValue =
+                                                rowItem.getValues().get(colIndex);
+                                        showEntityViewer(entityKind, cellValue.toString());
+                                    }
+                                });
+                }
             }
         }
         return definitions;
+    }
+
+    private void showEntityViewer(EntityKind entityKind, String permId)
+    {
+        OpenEntityDetailsTabHelper.open(viewContext, entityKind, permId);
     }
 
     private List<ReportColumnUI> createColDefinitions()

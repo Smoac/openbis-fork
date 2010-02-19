@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -40,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
@@ -213,7 +213,7 @@ public final class UrlParamsHelper
                 throws UserFailureException
         {
             EntityKind entityKind = getEntityKind(entityKindValue);
-            openEntityDetailsTab(entityKind, permIdValue);
+            OpenEntityDetailsTabHelper.open(viewContext, entityKind, permIdValue);
         }
 
         private void openInitialEntitySearch(String entityKindValue) throws UserFailureException
@@ -244,13 +244,6 @@ public final class UrlParamsHelper
             {
                 throw new UserFailureException("Missing URL parameter: " + parameter);
             }
-        }
-
-        private void openEntityDetailsTab(EntityKind entityKind, String permId)
-        {
-            viewContext.getCommonService().getEntityInformationHolder(entityKind, permId,
-                    new OpenEntityDetailsTabCallback(viewContext));
-
         }
 
         private void openEntitySearch(EntityKind entityKind, String codeString)
@@ -297,29 +290,6 @@ public final class UrlParamsHelper
             }
         }
 
-    }
-
-    private class OpenEntityDetailsTabCallback extends
-            AbstractAsyncCallback<IEntityInformationHolder>
-    {
-
-        private OpenEntityDetailsTabCallback(final IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        /**
-         * Opens the tab with <var>result</var> entity details.
-         */
-        @Override
-        protected final void process(final IEntityInformationHolder result)
-        {
-            new OpenEntityDetailsTabAction(result, viewContext).execute();
-        }
     }
 
     private class OpenEntitySearchTabCallback implements

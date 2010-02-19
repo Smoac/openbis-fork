@@ -55,25 +55,23 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
     private static enum ActionMenuDefinition implements
             ITabActionMenuItemDefinition<IQueryClientServiceAsync>
     {
-        RUN_CUSTOM_QUERY("Run Custom SQL Query")
-        {
-            public DatabaseModificationAwareComponent createComponent(
-                    IViewContext<IQueryClientServiceAsync> viewContext)
-            {
-                return QueryViewer.create(viewContext, new RunCustomQueryToolbar(
-                        viewContext));
-            }
-        },
         RUN_CANNED_QUERY("Run Predefined Query")
         {
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)
             {
-                return QueryViewer.create(viewContext, new RunCannedQueryToolbar(
-                        viewContext));
+                return QueryViewer.create(viewContext, new RunCannedQueryToolbar(viewContext));
             }
         },
-        QUERY_BROWSER("Browsing and Editing of SQL Queries")
+        RUN_CUSTOM_QUERY("Run Custom SQL Query")
+        {
+            public DatabaseModificationAwareComponent createComponent(
+                    IViewContext<IQueryClientServiceAsync> viewContext)
+            {
+                return QueryViewer.create(viewContext, new RunCustomQueryToolbar(viewContext));
+            }
+        },
+        QUERY_BROWSER("Browsing and Edition of SQL Queries")
         {
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)

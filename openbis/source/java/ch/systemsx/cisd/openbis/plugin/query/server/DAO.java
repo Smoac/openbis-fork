@@ -22,7 +22,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.sql.DataSource;
@@ -36,6 +38,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -49,6 +52,24 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
  */
 class DAO extends SimpleJdbcDaoSupport implements IDAO
 {
+    private static String ENTITY_COLUMN_NAME_SUFFIX = "_KEY";
+
+    private static Map<String, EntityKind> entityKindByColumnName =
+            new HashMap<String, EntityKind>();
+
+    static
+    {
+        for (EntityKind entityKind : EntityKind.values())
+        {
+            entityKindByColumnName.put(entityKind.name() + ENTITY_COLUMN_NAME_SUFFIX, entityKind);
+        }
+    }
+
+    private static EntityKind tryGetEntityKind(String columnName)
+    {
+        return entityKindByColumnName.get(columnName.toUpperCase());
+    }
+
     private static DataTypeCode getDataTypeCode(int sqlType)
     {
         if (isInteger(sqlType))
@@ -102,6 +123,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                         TableModelColumnHeader header =
                                 new TableModelColumnHeader(columnName, i - 1);
                         header.setDataType(getDataTypeCode(metaData.getColumnType(i)));
+                        header.setEntityKind(tryGetEntityKind(columnName));
                         headers.add(header);
                     }
                     List<TableModelRow> rows = new ArrayList<TableModelRow>();
@@ -124,7 +146,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                                 String string = value == null ? "" : value.toString();
                                 cells.add(new StringTableCell(string));
                             }
-                       }
+                        }
                         rows.add(new TableModelRow(cells));
                     }
                     JdbcUtils.closeResultSet(resultSet);

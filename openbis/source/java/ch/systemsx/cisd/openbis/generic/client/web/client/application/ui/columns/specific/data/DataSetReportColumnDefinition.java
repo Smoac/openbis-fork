@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
@@ -54,9 +55,19 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
         return getCellValue(rowModel);
     }
 
+    public EntityKind tryGetEntityKind()
+    {
+        return columnHeader.tryGetEntityKind();
+    }
+
     public String getHeader()
     {
         return columnHeader.getTitle();
+    }
+
+    public int getIndex()
+    {
+        return columnHeader.getIndex();
     }
 
     public String getIdentifier()
@@ -91,7 +102,7 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
     {
         return columnHeader.isNumeric();
     }
-    
+
     public DataTypeCode getDataType()
     {
         return columnHeader.getDataType();

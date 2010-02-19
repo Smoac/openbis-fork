@@ -35,18 +35,21 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     private int index;
 
     private DataTypeCode dataType;
-    
+
+    // if column values contain permIds of certain entities entity kind is stored here
+    private EntityKind entityKindOrNull;
+
     public TableModelColumnHeader(String title, int index)
     {
         this.title = title;
         this.index = index;
     }
-    
+
     public void setDataType(DataTypeCode dataType)
     {
         this.dataType = dataType;
     }
-    
+
     public DataTypeCode getDataType()
     {
         return dataType;
@@ -66,7 +69,7 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     {
         return dataType == DataTypeCode.REAL || dataType == DataTypeCode.INTEGER;
     }
-    
+
     // GWT only
     @SuppressWarnings("unused")
     private TableModelColumnHeader()
@@ -85,5 +88,15 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     private void setIndex(int index)
     {
         this.index = index;
+    }
+
+    public EntityKind tryGetEntityKind()
+    {
+        return entityKindOrNull;
+    }
+
+    public void setEntityKind(EntityKind entityKind)
+    {
+        this.entityKindOrNull = entityKind;
     }
 }
