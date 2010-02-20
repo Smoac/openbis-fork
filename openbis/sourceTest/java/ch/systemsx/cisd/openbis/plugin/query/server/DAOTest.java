@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -78,7 +79,8 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
         TableModel model = dao.query(query, bindingsOrNull);
         List<TableModelColumnHeader> headers = model.getHeader();
         assertColumnHeader("id", DataTypeCode.INTEGER, headers.get(0));
-        assertColumnHeader("data_set_key", DataTypeCode.VARCHAR, headers.get(1));
+        assertColumnHeader("Data Set", DataTypeCode.VARCHAR, headers.get(1));
+        assertEquals(EntityKind.DATA_SET, headers.get(1).tryGetEntityKind());
         assertColumnHeader("registration_timestamp", DataTypeCode.VARCHAR, headers.get(2));
         assertColumnHeader("is_valid", DataTypeCode.VARCHAR, headers.get(3));
         assertEquals(4, headers.size());

@@ -70,12 +70,6 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         return entityKindByColumnName.get(columnName.toUpperCase());
     }
 
-    private static String removeEntityColumnNameSuffix(String columnName)
-    {
-        assert columnName.toUpperCase().endsWith(ENTITY_COLUMN_NAME_SUFFIX);
-        return columnName.substring(0, columnName.length() - ENTITY_COLUMN_NAME_SUFFIX.length());
-    }
-
     private static DataTypeCode getDataTypeCode(int sqlType)
     {
         if (isInteger(sqlType))
@@ -129,7 +123,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                         EntityKind entityKindOrNull = tryGetEntityKind(columnName);
                         if (entityKindOrNull != null)
                         {
-                            columnName = removeEntityColumnNameSuffix(columnName);
+                            columnName = entityKindOrNull.getDescription();
                         }
                         TableModelColumnHeader header =
                                 new TableModelColumnHeader(columnName, i - 1);
