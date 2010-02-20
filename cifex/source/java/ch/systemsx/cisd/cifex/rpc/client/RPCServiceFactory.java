@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.InetSocketAddress;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -45,6 +46,7 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 /**
  * The factory for the CIFEX RPC service.
@@ -147,6 +149,13 @@ public final class RPCServiceFactory
         httpInvokerProxy.setServiceInterface(ICIFEXRPCService.class);
         ((CommonsHttpInvokerRequestExecutor) httpInvokerProxy.getHttpInvokerRequestExecutor())
                 .setReadTimeout((int) DateUtils.MILLIS_PER_MINUTE * SERVER_TIMEOUT_MIN);
+        final InetSocketAddress proxyAddressOrNull = HttpInvokerUtils.tryFindProxy(serviceURL);
+        if (proxyAddressOrNull != null)
+        {
+            ((CommonsHttpInvokerRequestExecutor) httpInvokerProxy.getHttpInvokerRequestExecutor())
+                    .getHttpClient().getHostConfiguration().setProxy(
+                            proxyAddressOrNull.getHostName(), proxyAddressOrNull.getPort());
+        }
         httpInvokerProxy.afterPropertiesSet();
         return (ICIFEXRPCService) httpInvokerProxy.getObject();
     }
