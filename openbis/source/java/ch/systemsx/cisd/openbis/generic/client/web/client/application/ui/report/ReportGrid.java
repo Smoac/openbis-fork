@@ -256,7 +256,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
             EntityKind entityKind)
     {
         return LinkRenderer.createLinkRenderer(viewContext.getMessage(
-                Dict.SHOW_ENTITY_DETAILS_LINK_TEXT_TEMPLATE, entityKind.getDescription()), false);
+                Dict.SHOW_ENTITY_DETAILS_LINK_TEXT_TEMPLATE, entityKind.getDescription()));
     }
 
     private void showEntityViewer(EntityKind entityKind, String permId)

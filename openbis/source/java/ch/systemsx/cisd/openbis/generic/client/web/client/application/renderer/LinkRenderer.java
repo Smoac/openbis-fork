@@ -51,8 +51,21 @@ public class LinkRenderer
             };
     }
 
-    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer(final String text,
-            final boolean openInNewWindow)
+    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer(final String text)
+    {
+        return new GridCellRenderer<BaseEntityModel<?>>()
+            {
+                public Object render(BaseEntityModel<?> model, String property, ColumnData config,
+                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
+                        Grid<BaseEntityModel<?>> grid)
+                {
+                    return LinkRenderer.renderAsLinkWithAnchor(text);
+                }
+            };
+    }
+
+    public static GridCellRenderer<BaseEntityModel<?>> createExternalLinkRenderer(
+            final String overridenLinkTextOrNull)
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
@@ -62,25 +75,17 @@ public class LinkRenderer
                         Grid<BaseEntityModel<?>> grid)
                 {
                     String originalValue = String.valueOf(model.get(property));
-                    return LinkRenderer
-                            .renderAsLinkWithAnchor(text, originalValue, openInNewWindow);
+                    String linkText =
+                            overridenLinkTextOrNull != null ? overridenLinkTextOrNull
+                                    : originalValue;
+                    return LinkRenderer.renderAsLinkWithAnchor(linkText, originalValue, true);
                 }
             };
     }
 
     public static GridCellRenderer<BaseEntityModel<?>> createExternalLinkRenderer()
     {
-        return new GridCellRenderer<BaseEntityModel<?>>()
-            {
-
-                public Object render(BaseEntityModel<?> model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
-                        Grid<BaseEntityModel<?>> grid)
-                {
-                    return LinkRenderer.renderAsLinkWithAnchor(model.get(property).toString(),
-                            model.get(property).toString(), true);
-                }
-            };
+        return createExternalLinkRenderer(null);
     }
 
     /** renders a div witch looks like an anchor (hand cursor is on div - block) */

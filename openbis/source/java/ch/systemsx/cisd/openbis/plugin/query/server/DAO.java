@@ -70,6 +70,12 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         return entityKindByColumnName.get(columnName.toUpperCase());
     }
 
+    private static String removeEntityColumnNameSuffix(String columnName)
+    {
+        assert columnName.toUpperCase().endsWith(ENTITY_COLUMN_NAME_SUFFIX);
+        return columnName.substring(0, columnName.length() - ENTITY_COLUMN_NAME_SUFFIX.length());
+    }
+
     private static DataTypeCode getDataTypeCode(int sqlType)
     {
         if (isInteger(sqlType))
@@ -120,10 +126,15 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                     for (int i = 1; i <= columnCount; i++)
                     {
                         String columnName = JdbcUtils.lookupColumnName(metaData, i);
+                        EntityKind entityKindOrNull = tryGetEntityKind(columnName);
+                        if (entityKindOrNull != null)
+                        {
+                            columnName = removeEntityColumnNameSuffix(columnName);
+                        }
                         TableModelColumnHeader header =
                                 new TableModelColumnHeader(columnName, i - 1);
                         header.setDataType(getDataTypeCode(metaData.getColumnType(i)));
-                        header.setEntityKind(tryGetEntityKind(columnName));
+                        header.setEntityKind(entityKindOrNull);
                         headers.add(header);
                     }
                     List<TableModelRow> rows = new ArrayList<TableModelRow>();
@@ -152,6 +163,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                     JdbcUtils.closeResultSet(resultSet);
                     return new TableModel(headers, rows);
                 }
+
             };
 
         return (TableModel) getJdbcTemplate().execute(

@@ -242,8 +242,8 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
 
     protected final GridCellRenderer<BaseEntityModel<?>> createShowDetailsLinkCellRenderer()
     {
-        return LinkRenderer.createLinkRenderer(viewContext
-                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE), true);
+        return LinkRenderer.createExternalLinkRenderer(viewContext
+                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE));
 
     }
 
