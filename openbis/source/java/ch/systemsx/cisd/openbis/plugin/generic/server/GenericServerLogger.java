@@ -126,7 +126,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public void registerMaterials(String sessionToken, String materialTypeCode,
             List<NewMaterial> newMaterials)
     {
-        logAccess(sessionToken, "register_materials", "MATERIAL_TYPE(%s) MATERIALS(%s)",
+        logTracking(sessionToken, "register_materials", "MATERIAL_TYPE(%s) MATERIALS(%s)",
                 materialTypeCode, CollectionUtils.abbreviate(newMaterials, 20));
     }
 
@@ -205,7 +205,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             }
             sb.append(s.getSampleType().getCode() + ":" + s.getNewSamples().size());
         }
-        logAccess(sessionToken, "register_samples", sb.toString());
+        logTracking(sessionToken, "register_samples", sb.toString());
 
     }
 
@@ -221,7 +221,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             }
             sb.append(s.getSampleType().getCode() + ":" + s.getNewSamples().size());
         }
-        logAccess(sessionToken, "update_samples", sb.toString());
+        logTracking(sessionToken, "update_samples", sb.toString());
     }
 
 }
