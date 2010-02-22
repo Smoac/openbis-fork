@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.bds;
 
-import java.text.SimpleDateFormat;
 import java.util.regex.Pattern;
-
-import ch.systemsx.cisd.common.utilities.DateFormatThreadLocal;
 
 /**
  * Some constants used inside the <i>BDS</i> library
@@ -29,15 +26,8 @@ import ch.systemsx.cisd.common.utilities.DateFormatThreadLocal;
 public final class Constants
 {
 
-    /** The date format pattern. */
-    private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
-
     /** The only accepted path separator (system independent). */
     public final static char PATH_SEPARATOR = '/';
-
-    /** The uniformly date format used. */
-    public static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
-            new DateFormatThreadLocal(DATE_FORMAT_PATTERN);
 
     /** Regular expression pattern for <i>UUID</i>. */
     public static final Pattern UUID_PATTERN =

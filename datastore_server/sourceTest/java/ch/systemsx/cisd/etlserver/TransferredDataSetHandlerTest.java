@@ -73,7 +73,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Test cases for corresponding {@link TransferredDataSetHandler} class.
@@ -290,11 +289,16 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
     }
 
-    private final String createLogMsgOfSuccess(final ExperimentIdentifier identifier,
-            final SampleIdentifier sampleIdentifier)
+    private final String createLogMsgOfSuccess(final DataSetInformation dataSet)
     {
-        return String.format(TransferredDataSetHandler.SUCCESSFULLY_REGISTERED_FOR_SAMPLE_TEMPLATE,
-                DATA_SET_CODE, sampleIdentifier, DATA_SET_TYPE.getCode(), identifier);
+        return TransferredDataSetHandler.SUCCESSFULLY_REGISTERED + "Data Set Code::"
+                + DATA_SET_CODE + ";Data Set Type::" + DATA_SET_TYPE.getCode()
+                + ";Experiment Identifier::" + dataSet.getExperimentIdentifier().toString()
+                + ";Sample Identifier::" + dataSet.getSampleIdentifier().toString()
+                + ";Producer Code::" + dataSet.getProducerCode() + ";Production Date::"
+                + Constants.DATE_FORMAT.get().format(dataSet.getProductionDate())
+                + ";Parent Data Sets::" + StringUtils.join(dataSet.getParentDataSetCodes(), ' ')
+                + ";Is complete::" + dataSet.getIsCompleteFlag() + "]";
     }
 
     private final void assertLog(final String expectedLog)
@@ -436,26 +440,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             final String dataSetCode)
     {
         final StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append(createLogMsgOfSuccess(dataset.getExperimentIdentifier(), dataset
-                .getSampleIdentifier())
-                + OSUtilities.LINE_SEPARATOR + OSUtilities.LINE_SEPARATOR);
-        stringBuffer.append("Experiment Identifier:\t"
-                + dataSetInformation.getExperimentIdentifier() + OSUtilities.LINE_SEPARATOR);
-        stringBuffer.append("Producer Code:\t" + dataset.getProducerCode()
-                + OSUtilities.LINE_SEPARATOR);
-        if (dataset.getProductionDate() != null)
-        {
-            stringBuffer.append("Production Date:\t" + dataset.getProductionDate()
-                    + OSUtilities.LINE_SEPARATOR);
-        }
-        if (dataset.getParentDataSetCodes().isEmpty() == false)
-        {
-            stringBuffer.append("Parent Data Sets:\t"
-                    + StringUtils.join(dataset.getParentDataSetCodes(), ' ')
-                    + OSUtilities.LINE_SEPARATOR);
-        }
-        stringBuffer.append("Is complete:\t" + dataset.getIsCompleteFlag()
-                + OSUtilities.LINE_SEPARATOR);
+        stringBuffer.append(createLogMsgOfSuccess(dataset));
 
         return stringBuffer.toString();
     }
@@ -546,9 +531,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 }
             });
         final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.OPERATION, String
-                        .format(createLogMsgOfSuccess(dataSetInformation.getExperimentIdentifier(),
-                                dataSetInformation.getSampleIdentifier())));
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION,
+                        createLogMsgOfSuccess(dataSetInformation));
         handler.handle(isFinishedData1);
         final File dataSetPath = createDatasetDir(baseDir);
         assertEquals(true, dataSetPath.isDirectory());
@@ -589,9 +573,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 }
             });
         final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.OPERATION, createLogMsgOfSuccess(
-                        dataSetInformation.getExperimentIdentifier(), dataSetInformation
-                                .getSampleIdentifier()));
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION,
+                        createLogMsgOfSuccess(dataSetInformation));
         handler.handle(isFinishedData1);
         final File dataSetPath = createDatasetDir(baseDir);
         assertEquals(true, dataSetPath.isDirectory());
@@ -694,9 +677,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 }
             });
         final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.OPERATION, createLogMsgOfSuccess(
-                        dataSetInformation.getExperimentIdentifier(), dataSetInformation
-                                .getSampleIdentifier()));
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION,
+                        createLogMsgOfSuccess(dataSetInformation));
         final LogMonitoringAppender appender2 =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, String.format(
                         TransferredDataSetHandler.DATA_SET_STORAGE_FAILURE_TEMPLATE,
@@ -753,9 +735,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 }
             });
         final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.OPERATION, createLogMsgOfSuccess(
-                        dataSetInformation.getExperimentIdentifier(), dataSetInformation
-                                .getSampleIdentifier()));
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION,
+                        createLogMsgOfSuccess(dataSetInformation));
         final LogMonitoringAppender appender2 =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, String.format(
                         TransferredDataSetHandler.DATA_SET_REGISTRATION_FAILURE_TEMPLATE,

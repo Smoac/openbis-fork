@@ -36,7 +36,6 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -87,14 +86,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             "Registration of data set '%s' failed.";
 
     @Private
-    static final String SUCCESSFULLY_REGISTERED_FOR_SAMPLE_TEMPLATE =
-            "Successfully registered data set '%s' for sample '%s', data set type '%s', "
-                    + "experiment '%s' with openBIS service.";
-
-    @Private
-    static final String SUCCESSFULLY_REGISTERED_FOR_EXPERIMENT_TEMPLATE =
-            "Successfully registered data set '%s' for experiment '%s' and data set type '%s'"
-                    + " with openBIS service.";
+    static final String SUCCESSFULLY_REGISTERED = "Successfully registered data set: [";
 
     @Private
     static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for experiment '%s";
@@ -672,31 +664,25 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         private final String getSuccessRegistrationMessage()
         {
             final StringBuilder buffer = new StringBuilder();
-            SampleIdentifier sampleIdentifier = dataSetInformation.getSampleIdentifier();
-            if (sampleIdentifier != null)
-            {
-                buffer.append(String.format(SUCCESSFULLY_REGISTERED_FOR_SAMPLE_TEMPLATE,
-                        dataSetInformation.getDataSetCode(), sampleIdentifier, dataSetType
-                                .getCode(), dataSetInformation.getExperimentIdentifier()));
-            } else
-            {
-                buffer.append(String.format(SUCCESSFULLY_REGISTERED_FOR_EXPERIMENT_TEMPLATE,
-                        dataSetInformation.getDataSetCode(), dataSetInformation
-                                .getExperimentIdentifier(), dataSetType.getCode()));
-            }
-            buffer.append(OSUtilities.LINE_SEPARATOR);
-            buffer.append(OSUtilities.LINE_SEPARATOR);
+            buffer.append(SUCCESSFULLY_REGISTERED);
+            appendNameAndObject(buffer, "Data Set Code", dataSetInformation.getDataSetCode());
+            appendNameAndObject(buffer, "Data Set Type", dataSetType.getCode());
             appendNameAndObject(buffer, "Experiment Identifier", dataSetInformation
                     .getExperimentIdentifier());
+            appendNameAndObject(buffer, "Sample Identifier", dataSetInformation
+                    .getSampleIdentifier());
             appendNameAndObject(buffer, "Producer Code", dataSetInformation.getProducerCode());
-            appendNameAndObject(buffer, "Production Date", dataSetInformation.getProductionDate());
-            List<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
+            appendNameAndObject(buffer, "Production Date", Constants.DATE_FORMAT.get().format(
+                    dataSetInformation.getProductionDate()));
+            final List<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
             if (parentDataSetCodes.isEmpty() == false)
             {
                 appendNameAndObject(buffer, "Parent Data Sets", StringUtils.join(
                         parentDataSetCodes, ' '));
             }
             appendNameAndObject(buffer, "Is complete", dataSetInformation.getIsCompleteFlag());
+            buffer.setLength(buffer.length() - 1);
+            buffer.append(']');
             return buffer.toString();
         }
 
@@ -705,8 +691,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         {
             if (object != null)
             {
-                buffer.append(name).append(":\t").append(object);
-                buffer.append(OSUtilities.LINE_SEPARATOR);
+                buffer.append(name).append("::").append(object).append(";");
             }
         }
 

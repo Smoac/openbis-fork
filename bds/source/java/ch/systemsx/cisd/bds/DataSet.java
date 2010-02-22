@@ -199,8 +199,9 @@ public final class DataSet implements IStorable
         final IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(CODE, code);
         folder.addKeyValuePair(PRODUCTION_TIMESTAMP,
-                productionTimestamp == null ? StringUtils.EMPTY_STRING : Constants.DATE_FORMAT
-                        .get().format(productionTimestamp));
+                productionTimestamp == null ? StringUtils.EMPTY_STRING
+                        : ch.systemsx.cisd.common.Constants.DATE_FORMAT.get().format(
+                                productionTimestamp));
         folder.addKeyValuePair(PRODUCER_CODE, StringUtils.emptyIfNull(producerCode));
         folder.addKeyValuePair(IS_MEASURED, isMeasured.toString());
         folder.addKeyValuePair(DATA_SET_TYPE, dataSetTypeCode);

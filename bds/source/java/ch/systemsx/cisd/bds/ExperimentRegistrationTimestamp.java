@@ -48,7 +48,7 @@ public final class ExperimentRegistrationTimestamp implements IStorable
 
     private final String getFormattedDate()
     {
-        return Constants.DATE_FORMAT.get().format(date);
+        return ch.systemsx.cisd.common.Constants.DATE_FORMAT.get().format(date);
     }
 
     /**

@@ -207,7 +207,7 @@ public class Utilities
         }
         try
         {
-            return Constants.DATE_FORMAT.get().parse(value);
+            return ch.systemsx.cisd.common.Constants.DATE_FORMAT.get().parse(value);
         } catch (final ParseException ex)
         {
             throw new DataStructureException("Value of '" + name
