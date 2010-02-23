@@ -24,6 +24,8 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
  */
 public interface IQueryProvider extends IDatabaseModificationObserver
 {
+    Long tryGetQueryId();
+
     String tryGetSQLQuery();
 
     QueryParameterBindings tryGetQueryParameterBindings();

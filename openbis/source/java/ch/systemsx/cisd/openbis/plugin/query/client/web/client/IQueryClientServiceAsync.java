@@ -41,6 +41,10 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
     /** @see IQueryClientService#tryToGetQueryDatabaseLabel() */
     public void tryToGetQueryDatabaseLabel(AsyncCallback<String> callback);
 
+    /** @see IQueryClientService#createQueryResultsReport(TechId, QueryParameterBindings) */
+    public void createQueryResultsReport(TechId techId, QueryParameterBindings bindingsOrNull,
+            AsyncCallback<TableModelReference> callback);
+
     /** @see IQueryClientService#createQueryResultsReport(String, QueryParameterBindings) */
     public void createQueryResultsReport(String sqlQuery, QueryParameterBindings bindingsOrNull,
             AsyncCallback<TableModelReference> callback);
@@ -65,4 +69,5 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
 
     /** @see IQueryClientService#updateQuery(IExpressionUpdates) */
     public void updateQuery(final IExpressionUpdates queryUpdate, AsyncCallback<Void> callback);
+
 }

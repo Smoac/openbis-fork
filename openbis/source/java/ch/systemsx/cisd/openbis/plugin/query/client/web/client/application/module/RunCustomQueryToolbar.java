@@ -69,6 +69,11 @@ public class RunCustomQueryToolbar extends AbstractCustomQueryToolbar
     // ICustomQueryProvider
     //
 
+    public Long tryGetQueryId()
+    {
+        return null;
+    }
+
     public String tryGetSQLQuery()
     {
         return queryField.getValue();

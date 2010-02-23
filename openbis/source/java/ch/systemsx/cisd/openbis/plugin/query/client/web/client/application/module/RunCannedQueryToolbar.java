@@ -191,6 +191,12 @@ public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
     // ICustomQueryProvider
     //
 
+    public Long tryGetQueryId()
+    {
+        QueryExpression selectedQueryOrNull = querySelectionWidget.tryGetSelected();
+        return selectedQueryOrNull == null ? null : selectedQueryOrNull.getId();
+    }
+
     public String tryGetSQLQuery()
     {
         QueryExpression selectedQueryOrNull = querySelectionWidget.tryGetSelected();

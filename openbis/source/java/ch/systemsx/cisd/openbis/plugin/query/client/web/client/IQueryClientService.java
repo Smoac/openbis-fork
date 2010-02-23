@@ -39,6 +39,10 @@ public interface IQueryClientService extends IClientService
     /** Returns label of the database used for queries or null if it is not configured. */
     public String tryToGetQueryDatabaseLabel() throws UserFailureException;
 
+    /** Returns results of the query with specified id. */
+    public TableModelReference createQueryResultsReport(TechId queryId,
+            QueryParameterBindings bindingsOrNull) throws UserFailureException;
+
     /** Returns results of the specified SQL query. */
     public TableModelReference createQueryResultsReport(String sqlQuery,
             QueryParameterBindings bindingsOrNull) throws UserFailureException;

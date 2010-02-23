@@ -103,6 +103,22 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         }
     }
 
+    public TableModelReference createQueryResultsReport(TechId query,
+            QueryParameterBindings bindingsOrNull)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final TableModel tableModel =
+                    queryServer.queryDatabase(sessionToken, query, bindingsOrNull);
+            String resultSetKey = saveInCache(tableModel.getRows());
+            return new TableModelReference(resultSetKey, tableModel.getHeader());
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public List<QueryExpression> listQueries()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

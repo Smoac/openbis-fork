@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -74,8 +75,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     QueryServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
-            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin,
-            IDAO dao)
+            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin, IDAO dao)
     {
         super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
         this.dao = dao;
@@ -188,7 +188,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         {
             IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
             QueryPE query = queryDAO.getByTechId(queryId);
-            return queryDatabase(query.getExpression(), bindings);
+            String expression = StringEscapeUtils.unescapeHtml(query.getExpression());
+            return queryDatabase(expression, bindings);
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
@@ -199,7 +200,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     {
         return getDAO().query(sqlQuery, bindings);
     }
-    
+
     private IDAO getDAO()
     {
         if (dao == null)

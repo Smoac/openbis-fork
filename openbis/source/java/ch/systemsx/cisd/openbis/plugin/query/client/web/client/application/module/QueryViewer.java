@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
@@ -86,16 +87,21 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
 
     private void refresh()
     {
+        Long queryIdOrNull = queryProvider.tryGetQueryId();
         String sqlQueryOrNull = queryProvider.tryGetSQLQuery();
         QueryParameterBindings bindingsOrNull = queryProvider.tryGetQueryParameterBindings();
-        if (sqlQueryOrNull != null)
+        ReportGeneratedCallback callback =
+                new ReportGeneratedCallback(viewContext.getCommonViewContext(),
+                        createReportInformationProvider(sqlQueryOrNull),
+                        createDisplayQueryResultsAction());
+        if (queryIdOrNull != null)
         {
-            viewContext.getService().createQueryResultsReport(
-                    sqlQueryOrNull,
-                    bindingsOrNull,
-                    new ReportGeneratedCallback(viewContext.getCommonViewContext(),
-                            createReportInformationProvider(sqlQueryOrNull),
-                            createDisplayQueryResultsAction()));
+            viewContext.getService().createQueryResultsReport(new TechId(queryIdOrNull),
+                    bindingsOrNull, callback);
+        } else if (sqlQueryOrNull != null)
+        {
+            viewContext.getService().createQueryResultsReport(sqlQueryOrNull, bindingsOrNull,
+                    callback);
         }
     }
 

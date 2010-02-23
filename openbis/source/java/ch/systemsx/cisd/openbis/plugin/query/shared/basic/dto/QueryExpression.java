@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpressionWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -26,32 +24,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Piotr Buczek
  */
+// TODO 2010-02-23, Piotr Buczek: no need to use subclasses
 public class QueryExpression extends AbstractExpressionWithParameters
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
-    private List<String> allParameters;
 
     public QueryExpression()
     {
     }
 
-    // TODO remove
-    public List<String> getAllParameters()
+    public QueryExpression(String expression)
     {
-        return allParameters;
-    }
-
-    private void setAllParameters(List<String> allParameters)
-    {
-        this.allParameters = allParameters;
-    }
-
-    @Override
-    public void setupParameters(List<String> allParameters)
-    {
-        super.setupParameters(allParameters);
-        setAllParameters(allParameters);
+        setExpression(expression);
     }
 
 }

@@ -21,8 +21,6 @@ import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -111,7 +109,7 @@ public final class GridCustomExpressionTranslator
         result.setId(HibernateUtils.getId(expression));
         result.setModificationDate(expression.getModificationDate());
         result.setExpression(escapeHtml(expression.getExpression()));
-        result.setDescription(StringEscapeUtils.escapeHtml(expression.getDescription()));
+        result.setDescription(escapeHtml(expression.getDescription()));
         result.setRegistrator(PersonTranslator.translate(expression.getRegistrator()));
         result.setRegistrationDate(expression.getRegistrationDate());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(expression
