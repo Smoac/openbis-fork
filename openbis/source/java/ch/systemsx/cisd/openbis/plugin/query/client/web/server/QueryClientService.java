@@ -95,8 +95,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
             final String sessionToken = getSessionToken();
             final TableModel tableModel =
                     queryServer.queryDatabase(sessionToken, sqlQuery, bindingsOrNull);
-            String resultSetKey = saveInCache(tableModel.getRows());
-            return new TableModelReference(resultSetKey, tableModel.getHeader());
+            return createTableModelReference(tableModel);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -111,12 +110,17 @@ public class QueryClientService extends AbstractClientService implements IQueryC
             final String sessionToken = getSessionToken();
             final TableModel tableModel =
                     queryServer.queryDatabase(sessionToken, query, bindingsOrNull);
-            String resultSetKey = saveInCache(tableModel.getRows());
-            return new TableModelReference(resultSetKey, tableModel.getHeader());
+            return createTableModelReference(tableModel);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    private TableModelReference createTableModelReference(TableModel tableModel)
+    {
+        String resultSetKey = saveInCache(tableModel.getRows());
+        return new TableModelReference(resultSetKey, tableModel.getHeader());
     }
 
     public List<QueryExpression> listQueries()
