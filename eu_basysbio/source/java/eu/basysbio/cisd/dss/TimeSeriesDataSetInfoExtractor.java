@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -74,6 +75,7 @@ public class TimeSeriesDataSetInfoExtractor implements IDataSetInfoExtractor
         Map<DataHeaderProperty, Set<String>> values =
                 TimeSeriesHeaderUtils.extractHeaderPropertyValues(headers);
         addDataSetProperty(info, TimeSeriesPropertyType.TECHNICAL_REPLICATE_CODE, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.BIOLOGICAL_REPLICATE_CODE, values);
         addDataSetProperty(info, TimeSeriesPropertyType.TIME_SERIES_DATA_SET_TYPE, values);
         return info;
     }
@@ -100,18 +102,21 @@ public class TimeSeriesDataSetInfoExtractor implements IDataSetInfoExtractor
                 new NewProperty(timeSeriesPropertyType.name(), propertyValue));
     }
 
-    private String getPropertyValue(DataHeaderProperty property,
+    @Private
+    static String getPropertyValue(DataHeaderProperty property,
             Map<DataHeaderProperty, Set<String>> map)
     {
         Set<String> set = map.get(property);
-        if (set == null || set.size() > 1)
+        if (set == null || set.size() < 1)
         {
-            String list = StringUtils.join(set, ",");
-            String message = String.format("%s defined more than once (%s)", property.name(), list);
+            String message = String.format("%s not defined", property.name());
             throw new UserFailureException(message);
         }
-        String val = set.iterator().next();
-        return val;
+        if (set.size() == 1)
+        {
+            return set.iterator().next();
+        }
+        return StringUtils.join(set, ",");
     }
 
     private Collection<DataColumnHeader> loadHeadersFromFile(boolean ignoreEmptyLines, File tsvFile)

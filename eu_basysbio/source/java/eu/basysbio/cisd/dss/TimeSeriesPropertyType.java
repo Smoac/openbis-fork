@@ -23,6 +23,9 @@ package eu.basysbio.cisd.dss;
  */
 enum TimeSeriesPropertyType
 {
+
+    BIOLOGICAL_REPLICATE_CODE(DataHeaderProperty.BiologicalReplicatateCode),
+
     TECHNICAL_REPLICATE_CODE(DataHeaderProperty.TechnicalReplicateCode),
 
     TIME_SERIES_DATA_SET_TYPE(DataHeaderProperty.DataSetType),
