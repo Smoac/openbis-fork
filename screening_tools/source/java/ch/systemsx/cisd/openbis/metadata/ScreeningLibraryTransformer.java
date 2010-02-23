@@ -70,6 +70,7 @@ public class ScreeningLibraryTransformer
             String[] row = csvReader.getValues();
             registrator.register(extractor, row);
         }
+        registrator.saveResults();
         System.out.println("Done, look for results in " + new File(".").getAbsolutePath());
     }
 

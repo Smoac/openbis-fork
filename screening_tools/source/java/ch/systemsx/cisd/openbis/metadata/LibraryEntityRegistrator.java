@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -74,6 +75,20 @@ public class LibraryEntityRegistrator
         plateRegistrator.registerWell(extractor, row, plateId, oligoId);
     }
 
+    /** smust be called at the end of registration of all rows */
+    public void saveResults() throws IOException, FileNotFoundException
+    {
+        plateRegistrator.saveResults();
+        close();
+    }
+
+    private void close() throws IOException
+    {
+        geneRegistrator.close();
+        oligoRegistrator.close();
+        plateRegistrator.close();
+    }
+
     abstract static protected class AbstractMetadataRegistrator
     {
         private static final String TAB = "\t";
@@ -100,6 +115,11 @@ public class LibraryEntityRegistrator
         {
             IOUtils.writeLines(Arrays.asList(line), "\n", stream);
         }
+
+        public void close() throws IOException
+        {
+            stream.close();
+        }
     }
 
     private static class PlateRegistrator extends AbstractMetadataRegistrator
@@ -118,19 +138,17 @@ public class LibraryEntityRegistrator
 
         private final String groupCode;
 
-        // we register wells and plates in the same file. This flag tells us in which section we
-        // are, the one for plates or one for wells
-        private boolean lastRegisteredWasWell;
+        private final List<String[]> wellRegistrationBuffer;
 
-        public PlateRegistrator(File outputFile, String experimentIdentifier, String plateGeometry,
-                String groupCode) throws IOException
+        public PlateRegistrator(File outputPlateFile, String experimentIdentifier,
+                String plateGeometry, String groupCode) throws IOException
         {
-            super(outputFile);
+            super(outputPlateFile);
             this.experimentIdentifier = experimentIdentifier;
             this.plateGeometry = plateGeometry;
             this.groupCode = groupCode;
             this.registeredPlates = new HashSet<String>();
-            lastRegisteredWasWell = false;
+            this.wellRegistrationBuffer = new ArrayList<String[]>();
             writeLine(HEADER_PLATES);
         }
 
@@ -142,11 +160,6 @@ public class LibraryEntityRegistrator
             String sampleIdentifier = getSampleIdentifier(plateCode);
             if (registeredPlates.contains(plateCode) == false)
             {
-                if (lastRegisteredWasWell)
-                {
-                    lastRegisteredWasWell = false;
-                    writeLine(HEADER_PLATES);
-                }
                 writeLine(sampleIdentifier, experimentIdentifier, plateGeometry);
                 registeredPlates.add(plateCode);
             }
@@ -161,15 +174,30 @@ public class LibraryEntityRegistrator
         public void registerWell(IScreeningLibraryColumnExtractor extractor, String[] row,
                 String plateId, String oligoId) throws IOException
         {
-            if (lastRegisteredWasWell == false)
-            {
-                lastRegisteredWasWell = true;
-                writeLine(HEADER_OLIGOS);
-            }
             String wellCode = extractor.getWellCode(row);
             String wellIdentifier = plateId + ":" + wellCode;
             String oligoMaterialProperty = oligoId + " (OLIGO)";
-            writeLine(wellIdentifier, plateId, oligoMaterialProperty);
+            saveWell(wellIdentifier, plateId, oligoMaterialProperty);
+        }
+
+        private void saveWell(String... tokens)
+        {
+            wellRegistrationBuffer.add(tokens);
+        }
+
+        // saves all the wells to the file
+        public void saveResults() throws IOException
+        {
+            writeLine(HEADER_OLIGOS);
+            for (String[] wellLine : wellRegistrationBuffer)
+            {
+                writeLine(wellLine);
+            }
+        }
+
+        public Set<String> getRegisteredPlateCodes()
+        {
+            return registeredPlates;
         }
 
     }
