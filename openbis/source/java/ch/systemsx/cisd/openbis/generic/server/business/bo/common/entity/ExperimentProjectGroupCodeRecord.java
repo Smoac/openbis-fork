@@ -17,5 +17,7 @@ public class ExperimentProjectGroupCodeRecord
 
     public String g_code;
 
+    public Long p_id;
+
     public Long dbin_id;
 }

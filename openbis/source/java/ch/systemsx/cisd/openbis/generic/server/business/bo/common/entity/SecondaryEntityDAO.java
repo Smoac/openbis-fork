@@ -114,6 +114,7 @@ public class SecondaryEntityDAO
         experiment.setIdentifier(new ExperimentIdentifier(null, group.getCode(), record.p_code,
                 record.e_code).toString());
         final Project project = new Project();
+        project.setId(record.p_id);
         project.setCode(escapeHtml(record.p_code));
         project.setGroup(group);
         experiment.setProject(project);

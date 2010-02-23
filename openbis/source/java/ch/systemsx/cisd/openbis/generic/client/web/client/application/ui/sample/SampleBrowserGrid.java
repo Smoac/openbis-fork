@@ -123,7 +123,8 @@ public class SampleBrowserGrid extends
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext, true, true, false);
+        final SampleBrowserToolbar toolbar =
+                new SampleBrowserToolbar(viewContext, true, true, false);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, false,
@@ -499,9 +500,7 @@ public class SampleBrowserGrid extends
 
         GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();
         schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT.id(), linkCellRenderer);
-        // TODO 2010-02-23, Piotr Buczek: uncomment after making changes to loader of samples
-        // so that project id is loaded
-        // schema.setGridCellRendererFor(CommonSampleColDefKind.PROJECT.id(), linkCellRenderer);
+        schema.setGridCellRendererFor(CommonSampleColDefKind.PROJECT.id(), linkCellRenderer);
         // setup link renderers and listeners on parent columns
         for (final AbstractParentSampleColDef parentColDef : parentColumnsSchema)
         {
