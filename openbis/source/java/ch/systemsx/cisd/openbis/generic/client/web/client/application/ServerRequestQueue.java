@@ -112,7 +112,7 @@ public class ServerRequestQueue
         HashSet<Object> processedIdentifiers = new HashSet<Object>();
         for (IServerRequestAction request : requests)
         {
-            if (!processedIdentifiers.contains(request.getIdentifier()))
+            if (processedIdentifiers.contains(request.getIdentifier()) == false)
             {
                 processedIdentifiers.add(request.getIdentifier());
                 request.onInvoke();
