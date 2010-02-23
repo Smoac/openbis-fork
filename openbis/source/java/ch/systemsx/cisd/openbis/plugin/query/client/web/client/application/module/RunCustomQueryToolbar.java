@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
  * 
  * @author Piotr Buczek
  */
-public class RunCustomQueryToolbar extends AbstractCustomQueryToolbar
+public class RunCustomQueryToolbar extends AbstractQueryProviderToolbar
 {
 
     private static final int QUERY_FIELD_WIDTH = 600;

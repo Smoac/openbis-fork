@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
  * 
  * @author Piotr Buczek
  */
-public abstract class AbstractCustomQueryToolbar extends ToolBar implements IQueryProvider
+public abstract class AbstractQueryProviderToolbar extends ToolBar implements IQueryProvider
 {
     private IDelegatedAction refreshViewerAction;
 
@@ -39,7 +39,7 @@ public abstract class AbstractCustomQueryToolbar extends ToolBar implements IQue
 
     protected final Button executeButton;
 
-    public AbstractCustomQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
+    public AbstractQueryProviderToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
         this.executeButton = createExecuteButton();

@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
  * 
  * @author Piotr Buczek
  */
-public class RunCannedQueryToolbar extends AbstractCustomQueryToolbar
+public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
 {
 
     // 6 parameter fields fit into browser with 1024px width

@@ -44,7 +44,7 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
 {
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IQueryClientServiceAsync> viewContext, AbstractCustomQueryToolbar toolbar)
+            IViewContext<IQueryClientServiceAsync> viewContext, AbstractQueryProviderToolbar toolbar)
     {
         final QueryViewer panel = new QueryViewer(viewContext, toolbar);
         return new DatabaseModificationAwareComponent(panel, panel);
@@ -59,7 +59,7 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
     private IQueryProvider queryProvider;
 
     private QueryViewer(IViewContext<IQueryClientServiceAsync> viewContext,
-            AbstractCustomQueryToolbar toolBar)
+            AbstractQueryProviderToolbar toolBar)
     {
         this.viewContext = viewContext;
         this.queryProvider = toolBar;
