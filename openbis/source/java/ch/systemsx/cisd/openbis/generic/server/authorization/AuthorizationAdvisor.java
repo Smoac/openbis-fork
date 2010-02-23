@@ -157,10 +157,10 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
                 final String groupCode = session.tryGetHomeGroupCode();
                 final String errorMessage = status.tryGetErrorMessage();
                 authorizationLog.info(String.format(
-                        "[USER:'%s' GROUP:%s]: Authorization failure while "
+                        "[USER:'%s' SPACE:%s]: Authorization failure while "
                                 + "invoking method '%s': %s", session.getUserName(),
-                        groupCode == null ? "<UNDEFINED>" : "'" + groupCode + "'",
-                        MethodUtils.describeMethod(method), errorMessage));
+                        groupCode == null ? "<UNDEFINED>" : "'" + groupCode + "'", MethodUtils
+                                .describeMethod(method), errorMessage));
                 throw new AuthorizationFailureException(errorMessage);
             }
             return returnValueFilter.applyFilter(session, method, methodInvocation.proceed());
@@ -180,7 +180,7 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
             if (firstObject instanceof String)
             {
                 String sessionToken = (String) firstObject;
-                
+
                 Object wrappedObject = methodInvocation.getThis();
                 if (wrappedObject instanceof ISessionProvider)
                 {
@@ -188,7 +188,7 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
                     return sessionProvider.getAuthSession(sessionToken);
                 }
                 throw new AssertionError("Wrapped object doesn't implement "
-                        + ISessionProvider.class.getSimpleName() + ": " + wrappedObject);   
+                        + ISessionProvider.class.getSimpleName() + ": " + wrappedObject);
             }
             throw new AssertionError("First argument is neither an "
                     + IAuthSession.class.getSimpleName() + " object nor a String.");

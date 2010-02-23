@@ -34,13 +34,13 @@ public class ListSamplesByPropertyCriteria implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private String samplePropertyCode;
+    private final String samplePropertyCode;
 
-    private String samplePropertyValue;
+    private final String samplePropertyValue;
 
-    private String groupCode;
+    private final String groupCode;
 
-    private LocalExperimentIdentifier experimentIdentifierOrNull;
+    private final LocalExperimentIdentifier experimentIdentifierOrNull;
 
     public ListSamplesByPropertyCriteria(String propertyCode, String propertyValue,
             String groupCode, LocalExperimentIdentifier experimentIdentifierOrNull)
@@ -85,7 +85,7 @@ public class ListSamplesByPropertyCriteria implements Serializable
         String expDesc =
                 (experimentIdentifierOrNull == null ? "any experiment" : experimentIdentifierOrNull
                         .toString());
-        return String.format("Samples from the group '%s' with property '%s' set to '%s' in %s",
+        return String.format("Samples from the space '%s' with property '%s' set to '%s' in %s",
                 groupCode, samplePropertyCode, samplePropertyValue, expDesc);
     }
 

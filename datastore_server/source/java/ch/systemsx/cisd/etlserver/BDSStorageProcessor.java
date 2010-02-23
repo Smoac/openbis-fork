@@ -246,7 +246,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
     private final static void checkExperimentIdentifier(
             final ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier experimentIdentifier)
     {
-        assert experimentIdentifier.getGroupCode() != null : "Group code is null";
+        assert experimentIdentifier.getGroupCode() != null : "Space code is null";
         assert experimentIdentifier.getExperimentCode() != null : "Experiment code is null";
         assert experimentIdentifier.getProjectCode() != null : "Project code is null";
     }

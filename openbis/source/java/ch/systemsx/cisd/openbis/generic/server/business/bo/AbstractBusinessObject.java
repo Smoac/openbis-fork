@@ -106,7 +106,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
     {
         if (group == null)
         {
-            throw new UserFailureException("Unknown group '" + groupIdentifier + "'.");
+            throw new UserFailureException("Unknown space '" + groupIdentifier + "'.");
         }
     }
 

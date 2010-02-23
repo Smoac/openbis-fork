@@ -85,16 +85,16 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public long registerSample(String sessionToken, NewSample newSample, String userIDOrNull)
             throws UserFailureException
     {
-        logTracking(sessionToken, "registerSample", "SAMPLE_TYPE(%s) SAMPLE(%S) USER(%s)", newSample
-                .getSampleType(), newSample.getIdentifier(), userIDOrNull);
+        logTracking(sessionToken, "registerSample", "SAMPLE_TYPE(%s) SAMPLE(%S) USER(%s)",
+                newSample.getSampleType(), newSample.getIdentifier(), userIDOrNull);
         return 0;
     }
 
     public long registerExperiment(String sessionToken, NewExperiment experiment)
             throws UserFailureException
     {
-        logTracking(sessionToken, "registerExperiment", "EXPERIMENT_TYPE(%s) EXPERIMENT(%S)", experiment
-                .getExperimentTypeCode(), experiment.getIdentifier());
+        logTracking(sessionToken, "registerExperiment", "EXPERIMENT_TYPE(%s) EXPERIMENT(%S)",
+                experiment.getExperimentTypeCode(), experiment.getIdentifier());
         return 0;
     }
 
@@ -172,7 +172,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         logAccess(sessionToken, "tryGetDataSet", "DATA_SET(%s)", dataSetCode);
         return null;
     }
-    
+
     public List<Sample> listSamplesByCriteria(String sessionToken,
             ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
@@ -191,7 +191,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
             GroupIdentifier groupIdentifier, String propertyValue)
     {
         logAccess(sessionToken, "getSampleWithProperty",
-                "PROPERTY_TYPE(%s) GROUP(%s) PROPERTY_VALUE(%s)", propertyTypeCode,
+                "PROPERTY_TYPE(%s) SPACE(%s) PROPERTY_VALUE(%s)", propertyTypeCode,
                 groupIdentifier, propertyValue);
         return null;
     }

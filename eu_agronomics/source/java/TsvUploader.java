@@ -1,7 +1,13 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Scanner;
-import java.io.*;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -14,20 +20,20 @@ class TsvUploader
     private final String incomingDir =
             new String("/localhome/openbis/sprint/datastore_server/data/incoming");
 
-    private int headRow;
+    private final int headRow;
 
-    private ArrayList<Integer> ignoreRow;
+    private final ArrayList<Integer> ignoreRow;
 
-    private ArrayList<Integer> keyCols = new ArrayList<Integer>();
+    private final ArrayList<Integer> keyCols = new ArrayList<Integer>();
 
     // SampleKeys are generated according to numeric specification supplied in keyCols
     private ArrayList<String> sampleKeys = new ArrayList<String>();
 
-    private String inFile;
+    private final String inFile;
 
-    private String tag;
+    private final String tag;
 
-    private ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+    private final ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
     private ArrayList<String> header;
 
@@ -263,7 +269,7 @@ class TsvUploader
         sb.append("# The directory to watch for incoming data.\n");
         sb.append(t + ".incoming-dir = data/incoming/" + t + "\n");
         sb.append(t + ".incoming-data-completeness-condition = auto-detection\n");
-        sb.append(t + ".group-code = 'AGRON-OMICS'\n");
+        sb.append(t + ".space-code = 'AGRON-OMICS'\n");// FIXME:
         sb.append("# ---------------- Plugin properties\n");
         sb
                 .append(t
@@ -272,7 +278,7 @@ class TsvUploader
         sb
                 .append(t
                         + ".data-set-info-extractor.entity-separator = ${data-set-file-name-entity-separator}\n");
-        sb.append(t + ".data-set-info-extractor.group-code = AGRON-OMICS\n");
+        sb.append(t + ".data-set-info-extractor.space-code = AGRON-OMICS\n");// FIXME:
         sb
                 .append(t
                         + ".data-set-info-extractor.data-set-properties-file-name = data-set-properties.tsv\n");

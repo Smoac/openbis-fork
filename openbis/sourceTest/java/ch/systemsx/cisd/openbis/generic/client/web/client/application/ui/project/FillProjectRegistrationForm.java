@@ -41,7 +41,7 @@ public final class FillProjectRegistrationForm extends AbstractDefaultTestComman
             final String description)
     {
         assert projectCode != null : "Unspecified code.";
-        assert groupName != null : "Unspecified group.";
+        assert groupName != null : "Unspecified space.";
 
         this.code = projectCode;
         this.groupName = groupName;

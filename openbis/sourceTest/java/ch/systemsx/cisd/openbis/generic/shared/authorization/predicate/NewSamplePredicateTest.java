@@ -31,8 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class NewSamplePredicateTest extends AuthorizationTestCase
@@ -48,51 +46,51 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
                 new NewSample(sampleIdentifier.toString(), sampleType, "parent", "container");
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status status = predicate.evaluate(createPerson(), createRoles(true), sample);
-        
+
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisteringInstanceSampleNotAllowedBecauseOfWrongInstance()
     {
         NewSamplePredicate predicate = new NewSamplePredicate();
         SampleType sampleType = new SampleType();
         SampleIdentifier sampleIdentifier =
-            new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "s1");
         NewSample sample =
-            new NewSample(sampleIdentifier.toString(), sampleType, "parent", "container");
+                new NewSample(sampleIdentifier.toString(), sampleType, "parent", "container");
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status status = predicate.evaluate(createPerson(), createRoles(true), sample);
-        
+
         assertEquals(true, status.isError());
         assertEquals("User 'megapixel' does not have enough privileges to modify "
                 + "database instance 'DB1'.", status.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAllowRegisteringGroupSample()
     {
         NewSamplePredicate predicate = new NewSamplePredicate();
         SampleType sampleType = new SampleType();
         SampleIdentifier sampleIdentifier =
-            new SampleIdentifier(new GroupIdentifier(INSTANCE_CODE, GROUP_CODE), "s1");
+                new SampleIdentifier(new GroupIdentifier(INSTANCE_CODE, GROUP_CODE), "s1");
         NewSample sample =
-            new NewSample(sampleIdentifier.toString(), sampleType, "parent", "container");
+                new NewSample(sampleIdentifier.toString(), sampleType, "parent", "container");
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status status = predicate.evaluate(createPerson(), createRoles(false), sample);
-        
+
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisteringGroupSampleNotAllowedBecauseOfWrongGroup()
     {
@@ -105,12 +103,12 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         List<GroupPE> groups = Arrays.asList(createGroup(groupIdentifier));
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), groups);
         predicate.init(provider);
-        
+
         Status status = predicate.evaluate(createPerson(), createRoles(false), sample);
-        
+
         assertEquals(true, status.isError());
         assertEquals("User 'megapixel' does not have enough privileges to access "
-                + "data in the group 'DB1:/G2'.", status.tryGetErrorMessage());
+                + "data in the space 'DB1:/G2'.", status.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
 }

@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 @Friend(toClasses = ETLDaemon.class)
 public final class MainTest extends AbstractFileSystemTestCase
 {
-    private static final String GROUP_PREFIX = "Group_";
+    private static final String GROUP_PREFIX = "Group_";// FIXME: group->space???
 
     private static final String INSTANCE_PREFIX = "Instance_";
 

@@ -361,7 +361,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         {
             exceptionThrown = true;
             assertTrue(e.getMessage().contains(
-                    "Sample '/NOT_CISD/SAMPLE1' does not belong to the group 'CISD'"));
+                    "Sample '/NOT_CISD/SAMPLE1' does not belong to the space 'CISD'"));
         }
         assertTrue(exceptionThrown);
         context.assertIsSatisfied();

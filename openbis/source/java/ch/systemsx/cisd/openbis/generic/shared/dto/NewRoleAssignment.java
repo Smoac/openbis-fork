@@ -75,7 +75,8 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
         return groupIdentifier;
     }
 
-    @BeanProperty(label = "group")
+    @BeanProperty(label = "space")
+    // FIXME:
     public final void setGroupIdentifier(final GroupIdentifier groupIdentifier)
     {
         this.groupIdentifier = groupIdentifier;

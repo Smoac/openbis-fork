@@ -168,7 +168,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
                 tryFindEntity(roles, "role_assignments", role, group, grantee);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("FIND: group role assignment '%s'.", roleAssignment));
+            operationLog.info(String.format("FIND: space role assignment '%s'.", roleAssignment));
         }
         return roleAssignment;
 

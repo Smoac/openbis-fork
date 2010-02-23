@@ -245,7 +245,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     public final boolean equals(final Object obj)
     {
         EqualsHashUtils.assertDefined(getCode(), "code");
-        EqualsHashUtils.assertDefined(getGroup(), "group");
+        EqualsHashUtils.assertDefined(getGroup(), "space");
         if (obj == this)
         {
             return true;

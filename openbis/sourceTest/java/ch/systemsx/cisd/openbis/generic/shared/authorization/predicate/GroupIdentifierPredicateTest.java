@@ -58,7 +58,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseInstanceDoesNotExist()
     {
         final GroupIdentifierPredicate predicate = new GroupIdentifierPredicate();
-        prepareProvider(INSTANCE_CODE, null, Collections.<GroupPE>emptyList());
+        prepareProvider(INSTANCE_CODE, null, Collections.<GroupPE> emptyList());
         predicate.init(provider);
         predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
                 INSTANCE_CODE, GROUP_CODE));
@@ -69,7 +69,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseGroupDoesNotExist()
     {
         final GroupIdentifierPredicate predicate = new GroupIdentifierPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), Collections.<GroupPE>emptyList());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), Collections.<GroupPE> emptyList());
         predicate.init(provider);
         predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
                 INSTANCE_CODE, GROUP_CODE));
@@ -116,7 +116,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
                         ANOTHER_INSTANCE_CODE, ANOTHER_GROUP_CODE));
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
         assertEquals(
-                "User 'megapixel' does not have enough privileges to access data in the group 'DB2:/G2'.",
+                "User 'megapixel' does not have enough privileges to access data in the space 'DB2:/G2'.",
                 evaluation.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
@@ -135,7 +135,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
                         INSTANCE_CODE, ANOTHER_GROUP_CODE));
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
         assertEquals(
-                "User 'megapixel' does not have enough privileges to access data in the group 'DB1:/G2'.",
+                "User 'megapixel' does not have enough privileges to access data in the space 'DB1:/G2'.",
                 evaluation.tryGetErrorMessage());
         context.assertIsSatisfied();
     }

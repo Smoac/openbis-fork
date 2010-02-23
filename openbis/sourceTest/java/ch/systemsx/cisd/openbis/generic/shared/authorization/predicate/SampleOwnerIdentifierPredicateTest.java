@@ -28,8 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
@@ -43,13 +41,13 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(ANOTHER_INSTANCE_IDENTIFIER);
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status status = predicate.evaluate(person, roles, identifier);
-        
+
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNotAllowedToModifyDatabase()
     {
@@ -59,15 +57,15 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(INSTANCE_IDENTIFIER);
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status status = predicate.evaluate(person, roles, identifier);
-        
+
         assertEquals(true, status.isError());
         assertEquals("User 'megapixel' does not have enough privileges to modify "
                 + "database instance 'DB1'.", status.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAllowedDatabaseInstance()
     {
@@ -77,13 +75,13 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(INSTANCE_IDENTIFIER);
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status status = predicate.evaluate(person, roles, identifier);
-        
+
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNotAllowedDatabaseInstance()
     {
@@ -93,15 +91,15 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(ANOTHER_INSTANCE_IDENTIFIER);
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status status = predicate.evaluate(person, roles, identifier);
-        
+
         assertEquals(true, status.isError());
         assertEquals("User 'megapixel' does not have enough privileges to read "
                 + "from database instance 'DB2'.", status.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAllowedGroup()
     {
@@ -109,16 +107,16 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier =
-            new SampleOwnerIdentifier(new GroupIdentifier(INSTANCE_IDENTIFIER, GROUP_CODE));
+                new SampleOwnerIdentifier(new GroupIdentifier(INSTANCE_IDENTIFIER, GROUP_CODE));
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status status = predicate.evaluate(person, roles, identifier);
-        
+
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNotAllowedGroup()
     {
@@ -126,15 +124,16 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier =
-            new SampleOwnerIdentifier(new GroupIdentifier(ANOTHER_INSTANCE_CODE, ANOTHER_GROUP_CODE));
+                new SampleOwnerIdentifier(new GroupIdentifier(ANOTHER_INSTANCE_CODE,
+                        ANOTHER_GROUP_CODE));
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status status = predicate.evaluate(person, roles, identifier);
-        
+
         assertEquals(true, status.isError());
         assertEquals("User 'megapixel' does not have enough privileges to access data "
-                + "in the group 'DB2:/G2'.", status.tryGetErrorMessage());
+                + "in the space 'DB2:/G2'.", status.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
 }

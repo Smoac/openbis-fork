@@ -70,7 +70,7 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
 
             } else
             {
-                return "Sample <b>" + code + "</b> successfully registered in group <b>"
+                return "Sample <b>" + code + "</b> successfully registered in space <b>"
                         + selectedGroup.getCode() + "</b>";
             }
         }

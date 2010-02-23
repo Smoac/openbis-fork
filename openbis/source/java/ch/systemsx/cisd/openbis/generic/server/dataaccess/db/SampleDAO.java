@@ -248,7 +248,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "%d samples have been found for sample type '%s' and group '%s'.", list.size(),
+                    "%d samples have been found for sample type '%s' and space '%s'.", list.size(),
                     sampleType, group));
         }
         return list;
@@ -304,7 +304,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "%d samples have been found for group '%s' and property '%s' equal to '%s'.",
+                    "%d samples have been found for space '%s' and property '%s' equal to '%s'.",
                     entities.size(), group, propertyCode, propertyValue));
         }
         return entities;
@@ -390,7 +390,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "Following sample '%s' has been found for code '%s' and group '%s'.", sample,
+                    "Following sample '%s' has been found for code '%s' and space '%s'.", sample,
                     sampleCode, group));
         }
         return sample;

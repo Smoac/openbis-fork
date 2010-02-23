@@ -112,7 +112,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
                 predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
         assertEquals(
-                "User 'megapixel' does not have enough privileges to access data in the group 'DB2:/G2'.",
+                "User 'megapixel' does not have enough privileges to access data in the space 'DB2:/G2'.",
                 evaluation.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
@@ -131,7 +131,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
                 predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
         assertEquals(
-                "User 'megapixel' does not have enough privileges to access data in the group 'DB1:/G2'.",
+                "User 'megapixel' does not have enough privileges to access data in the space 'DB1:/G2'.",
                 evaluation.tryGetErrorMessage());
         context.assertIsSatisfied();
     }

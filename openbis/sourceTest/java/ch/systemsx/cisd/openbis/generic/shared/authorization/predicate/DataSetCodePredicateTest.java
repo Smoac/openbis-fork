@@ -24,8 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCa
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetCodePredicateTest extends AuthorizationTestCase
@@ -45,13 +43,13 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
         DataSetCodePredicate predicate = new DataSetCodePredicate();
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status evaluation = predicate.doEvaluation(createPerson(), createRoles(false), "d1");
-        
+
         assertEquals(Status.OK, evaluation);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithOneInvalidGroup()
     {
@@ -67,11 +65,11 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
         DataSetCodePredicate predicate = new DataSetCodePredicate();
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
-        
+
         Status evaluation = predicate.doEvaluation(createPerson(), createRoles(false), "d1");
-        
+
         assertEquals(
-                "User 'megapixel' does not have enough privileges to access data in the group 'DB2:/G2'.",
+                "User 'megapixel' does not have enough privileges to access data in the space 'DB2:/G2'.",
                 evaluation.tryGetErrorMessage());
         context.assertIsSatisfied();
     }

@@ -1,9 +1,13 @@
-
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
-import java.io.*;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -27,34 +31,34 @@ class TsvMangler
     private final String incomingDir = new String("~/sprint/datastore_server/data/incoming");
 
     // An integer specification the row which contains column headings
-    private int headRow;
+    private final int headRow;
 
     // The column headings specified by headRow are stored in header
     private ArrayList<String> header;
 
     // Rows to ignore
-    private ArrayList<Integer> ignoreRow;
+    private final ArrayList<Integer> ignoreRow;
 
     // The columns which define a unique Sample key
-    private ArrayList<Integer> keyCols = new ArrayList<Integer>();
+    private final ArrayList<Integer> keyCols = new ArrayList<Integer>();
 
     // List of Samples with Properties
-    private ArrayList<SampleWithProperties> swp = new ArrayList<SampleWithProperties>();
+    private final ArrayList<SampleWithProperties> swp = new ArrayList<SampleWithProperties>();
 
     // The file to parse
-    private String inFile;
+    private final String inFile;
 
     // The name of the DataSet used by the Date Set Server
-    private String dataSetName;
+    private final String dataSetName;
 
     // The name of the experiment
-    private String expt;
+    private final String expt;
 
     // The project name
-    private String project;
+    private final String project;
 
     // The TSV is stored as an ArrayList of ArrayLists (of Strings)
-    private ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+    private final ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
     // directory for writing output files
     private String topLevel = new String();
@@ -63,7 +67,7 @@ class TsvMangler
     private HashMap<Integer, String> dspts = new HashMap<Integer, String>();
 
     // Sample Property Types column config
-    private HashMap<Integer, String> spts = new HashMap<Integer, String>();
+    private final HashMap<Integer, String> spts = new HashMap<Integer, String>();
 
     // CONSTRUCTER
     public TsvMangler(int h, ArrayList<Integer> i, String in, ArrayList<Integer> k, String e,
@@ -100,7 +104,7 @@ class TsvMangler
         loadTsvFile();
 
         System.out.println("header is size ; " + header.size());
-        
+
         generateSampleKeys();
 
         topLevel =
@@ -130,8 +134,6 @@ class TsvMangler
                 while ((line = input.readLine()) != null)
                 {
 
-                  
-                    
                     lineNum++;
                     if (line.matches("^\\s+$"))
                     {
@@ -220,13 +222,12 @@ class TsvMangler
         }
     }
 
-    
-    private String getDataSetPropertiesAsText(){
-        
-            return StringUtils.join(dspts.values().toArray(),"\n");
+    private String getDataSetPropertiesAsText()
+    {
+
+        return StringUtils.join(dspts.values().toArray(), "\n");
     }
-    
-    
+
     public void writeDataSetPropertyLoader()
     {
 
@@ -342,7 +343,7 @@ class TsvMangler
         sb.append("# The directory to watch for incoming data.\n");
         sb.append(t + ".incoming-dir = data/incoming/" + t + "\n");
         sb.append(t + ".incoming-data-completeness-condition = auto-detection\n");
-        sb.append(t + ".group-code = " + project + "\n");
+        sb.append(t + ".space-code = " + project + "\n");// FIXME:
         sb.append("# ---------------- Plugin properties\n");
         sb
                 .append(t
@@ -351,7 +352,7 @@ class TsvMangler
         sb
                 .append(t
                         + ".data-set-info-extractor.entity-separator = ${data-set-file-name-entity-separator}\n");
-        sb.append(t + ".data-set-info-extractor.group-code = " + project + "\n");
+        sb.append(t + ".data-set-info-extractor.space-code = " + project + "\n");// FIXME:
         sb
                 .append(t
                         + ".data-set-info-extractor.data-set-properties-file-name = data-set-properties.tsv\n");
@@ -443,29 +444,33 @@ class TsvMangler
                 while (ci.hasNext())
                 {
                     j++;
-                    //String cell = ci.next().toUpperCase();
+                    // String cell = ci.next().toUpperCase();
                     String cell = ci.next();
                     if (dspts.containsKey(j))
                     {
-                        if (cell.equals("")){
-                            System.err.println(dspts.get(j) + " is `" + cell + "` for sample " + sample);
-                        } else {
+                        if (cell.equals(""))
+                        {
+                            System.err.println(dspts.get(j) + " is `" + cell + "` for sample "
+                                    + sample);
+                        } else
+                        {
                             ftsvOut.write(dspts.get(j) + "\t" + cell + "\n");
                         }
                     }
                     fresOut.write("'" + cell + "'" + "\t");
 
                 }
-                
+
                 System.out.println("printed " + j + " cells for sample " + sample + "\n");
                 Integer blankCells = header.size() - j;
                 System.out.println("need to print " + blankCells + " blank cells\n");
-                
-                while (blankCells > 0){
+
+                while (blankCells > 0)
+                {
                     fresOut.write("''" + "\t");
                     blankCells--;
                 }
-                
+
                 fresOut.write("\n");
 
                 ftsvOut.close();

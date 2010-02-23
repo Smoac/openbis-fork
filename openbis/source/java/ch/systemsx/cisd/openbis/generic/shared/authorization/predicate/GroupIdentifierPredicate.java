@@ -43,7 +43,7 @@ public class GroupIdentifierPredicate extends AbstractGroupPredicate<GroupIdenti
     @Override
     public final String getCandidateDescription()
     {
-        return "group identifier";
+        return "space identifier";
     }
 
     @Override

@@ -181,6 +181,6 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
     {
         return "[" + "[" + getDatabaseInstanceIdentifierSchema()
                 + Constants.DATABASE_INSTANCE_SEPARATOR + "][" + Constants.IDENTIFIER_SEPARATOR
-                + "<group-code>]" + Constants.IDENTIFIER_SEPARATOR + "]";
+                + "<space-code>]" + Constants.IDENTIFIER_SEPARATOR + "]";
     }
 }

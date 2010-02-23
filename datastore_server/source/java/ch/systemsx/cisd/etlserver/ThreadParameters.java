@@ -76,7 +76,7 @@ public final class ThreadParameters
 
     private final boolean deleteUnidentified;
 
-    private boolean reprocessFaultyDatasets;
+    private final boolean reprocessFaultyDatasets;
 
     /**
      * @param threadProperties parameters for one processing thread together with general
@@ -193,7 +193,7 @@ public final class ThreadParameters
             logLine("Incoming data directory: '%s'.", getIncomingDataDirectory().getAbsolutePath());
             if (groupCode != null)
             {
-                logLine("Group code: '%s'.", groupCode);
+                logLine("Space code: '%s'.", groupCode);
             }
             String completenessCond =
                     useIsFinishedMarkerFile ? "marker file exists"

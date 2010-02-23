@@ -42,7 +42,7 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
 
     private static final Template EXPERIMENT_DATASET_DESCRIPTION_TEMPLATE =
             new Template("${group}/${project}/${experiment}/${dataset}");
-    
+
     private static final String CSS =
             "<style type='text/css'> "
                     + "* { margin: 3px; }"
@@ -62,17 +62,22 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
                     "<tr><td class='td_file'><a href='${path}'>${name}</td><td>${size}</td></tr>");
 
     private static final Template HEADER_TEMPLATE =
-        new Template("<html><head><title>Data Set Download Service: ${dataset-description}</title>" 
-                + CSS + "</head>"
-                + "<body><div class='wrapper'><h1>" + "Data Set Download Service" + "</h1>"
-                + "<div class='div_hd'>Information about data set</div>" + "<table>"
-                + "<tr><td class='td_hd'>Group:</td><td>${group}</td></tr>"
-                + "<tr><td class='td_hd'>Project:</td><td>${project}</td></tr>"
-                + "<tr><td class='td_hd'>Experiment:</td><td>${experiment}</td></tr>"
-                + "${sampleLine}"
-                + "<tr><td class='td_hd'>Data Set Code:</td><td>${dataset}</td></tr></table> "
-                + "<div class='div_hd'>Files</div>" + "<table> " + "${folder}" + "");
-    
+            new Template(
+                    "<html><head><title>Data Set Download Service: ${dataset-description}</title>"
+                            + CSS
+                            + "</head>"
+                            + "<body><div class='wrapper'><h1>"
+                            + "Data Set Download Service"
+                            + "</h1>"
+                            + "<div class='div_hd'>Information about data set</div>"
+                            + "<table>"
+                            + "<tr><td class='td_hd'>Space:</td><td>${group}</td></tr>"
+                            + "<tr><td class='td_hd'>Project:</td><td>${project}</td></tr>"
+                            + "<tr><td class='td_hd'>Experiment:</td><td>${experiment}</td></tr>"
+                            + "${sampleLine}"
+                            + "<tr><td class='td_hd'>Data Set Code:</td><td>${dataset}</td></tr></table> "
+                            + "<div class='div_hd'>Files</div>" + "<table> " + "${folder}" + "");
+
     private static final Template SAMPLE_LINE_TEMPLATE =
             new Template("<tr><td class='td_hd'>Sample:</td><td>${sample}</td></tr>");
 
@@ -124,7 +129,7 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         }
         writer.println(template.createText());
     }
-    
+
     private String renderDataSetDescription(ExternalData dataSet)
     {
         String sampleCode = dataSet.getSampleCode();
@@ -145,7 +150,6 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         template.bind("dataset", dataSet.getCode());
         return template.createText();
     }
-
 
     private String createSampleLine(final String sampleCode)
     {

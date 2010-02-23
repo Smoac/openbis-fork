@@ -93,9 +93,9 @@ public class DataSetHierarchyHelper
 
         Project(Experiment),
 
-        Group(Project),
+        Space(Project),
 
-        Instance(Group);
+        Instance(Space);
 
         private PathElementKey next;
 
@@ -187,7 +187,7 @@ public class DataSetHierarchyHelper
 
     private static String group(SimpleDataSetInformationDTO data)
     {
-        return merge(PathElementKey.Group, data.getGroupCode());
+        return merge(PathElementKey.Space, data.getGroupCode());
     }
 
     private static String sample(SimpleDataSetInformationDTO data)

@@ -257,7 +257,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     {
         registerPersons(sessionToken, Arrays.asList(userID));
     }
-    
+
     public final List<RoleAssignment> listRoleAssignments(final String sessionToken)
     {
         checkSession(sessionToken);
@@ -309,7 +309,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
                         groupIdentifier.getGroupCode(), grantee);
         if (roleAssignment == null)
         {
-            throw new UserFailureException("Given group role does not exist.");
+            throw new UserFailureException("Given space role does not exist.");
         }
         final PersonPE personPE = session.tryGetPerson();
         if (roleAssignment.getPerson() != null && roleAssignment.getPerson().equals(personPE)
@@ -327,7 +327,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             if (isInstanceAdmin == false)
             {
                 throw new UserFailureException(
-                        "For safety reason you cannot give away your own group admin power. "
+                        "For safety reason you cannot give away your own space admin power. "
                                 + "Ask instance admin to do that for you.");
             }
         }
@@ -773,7 +773,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         return ExternalDataTranslator.translate(dataset, getDataStoreBaseURL(), session
                 .getBaseIndexURL(), false);
     }
-    
+
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities relatedEntities)
     {

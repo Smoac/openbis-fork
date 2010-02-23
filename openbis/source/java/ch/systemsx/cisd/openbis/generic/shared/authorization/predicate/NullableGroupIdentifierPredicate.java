@@ -35,7 +35,7 @@ public class NullableGroupIdentifierPredicate extends
     @Override
     public final String getCandidateDescription()
     {
-        return "nullable group identifier";
+        return "nullable space identifier";
     }
 
 }

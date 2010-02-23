@@ -58,7 +58,7 @@ public final class LogMessagePrefixGenerator implements ILogMessagePrefixGenerat
 
     private String createPrefix(String user, String groupCodeOrNull, String remoteHost)
     {
-        return String.format("[USER:%s GROUP:%s HOST:%s]", cite(user), cite(groupCodeOrNull),
+        return String.format("[USER:%s SPACE:%s HOST:%s]", cite(user), cite(groupCodeOrNull),
                 cite(remoteHost));
     }
 

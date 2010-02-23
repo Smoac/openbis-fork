@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * Abstract super class of predicates based on groups.
- *
- * @author     Franz-Josef Elmer
+ * 
+ * @author Franz-Josef Elmer
  */
 abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredicate<T>
 {
@@ -58,16 +58,16 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
             return Status.OK;
         }
         return Status.createError(String.format(
-                "User '%s' does not have enough privileges to access data in the group '%s'.",
+                "User '%s' does not have enough privileges to access data in the space '%s'.",
                 person.getUserId(), new GroupIdentifier(databaseInstance.getCode(), groupCodeOrNull)));
     }
-    
+
     private void ensureGroupExists(final GroupIdentifier groupIdentifier,
             final String databaseInstanceUUID, final String groupCodeOrNull)
     {
         if (groupCodeOrNull != null && tryFindGroup(databaseInstanceUUID, groupCodeOrNull) == null)
         {
-            throw UserFailureException.fromTemplate("No group could be found for identifier '%s'.",
+            throw UserFailureException.fromTemplate("No space could be found for identifier '%s'.",
                     groupIdentifier);
         }
     }

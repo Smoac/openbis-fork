@@ -51,7 +51,7 @@ public class SampleGenericBusinessRules
             if (childId.isDatabaseInstanceLevel())
             {
                 throwUserFailureException("The database instance sample '%s' "
-                        + "can not be %s the group sample '%s'.", child, parent, childRelationName);
+                        + "can not be %s the space sample '%s'.", child, parent, childRelationName);
             }
         }
     }
@@ -72,7 +72,7 @@ public class SampleGenericBusinessRules
                 SampleIdentifier childId = child.getSampleIdentifier();
                 if (childId.isDatabaseInstanceLevel())
                 {
-                    throwUserFailureException("Sample '%s' can not be a group sample because of "
+                    throwUserFailureException("Sample '%s' can not be a space sample because of "
                             + "a %s database instance sample '%s'.", parent, child,
                             childRelationName);
                 }

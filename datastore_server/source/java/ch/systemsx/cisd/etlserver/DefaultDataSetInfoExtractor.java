@@ -46,10 +46,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * <li>Data producer code
  * <li>Data production date
  * </ul>
- * The name is split into entities separated by the property {@link #ENTITY_SEPARATOR_PROPERTY_NAME} .
- * It is assumed that each of the above-mentioned pieces of information is one of these entities.
- * The extractor can be configured by the following optional properties: <table border="1" *
- * cellspacing="0" cellpadding="5">
+ * The name is split into entities separated by the property {@link #ENTITY_SEPARATOR_PROPERTY_NAME}
+ * . It is assumed that each of the above-mentioned pieces of information is one of these entities.
+ * The extractor can be configured by the following optional properties:
+ * <table border="1" * * cellspacing="0" cellpadding="5">
  * <tr>
  * <th>Property</th>
  * <th>Default value</th>
@@ -58,8 +58,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * <tr>
  * <td><code>strip-file-extension</code></td>
  * <td><code>false</code></td>
- * <td>If <code>true</code> the file extension will be removed before extracting informations
- * from the file name.</td>
+ * <td>If <code>true</code> the file extension will be removed before extracting informations from
+ * the file name.</td>
  * </tr>
  * <tr>
  * <td><code>entity-separator</code></td>
@@ -120,15 +120,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * <td><code>data-production-date-format</code></td>
  * <td><code>yyyyMMddHHmmss</code></td>
  * <td>Format of the data production date. For the correct syntax see <a
- * href="http://java.sun.com/j2se/1.5.0/docs/api/java/text/SimpleDateFormat.html" >SimpleDateFormat</a>.</td>
+ * href="http://java.sun.com/j2se/1.5.0/docs/api/java/text/SimpleDateFormat.html"
+ * >SimpleDateFormat</a>.</td>
  * </tr>
  * <tr>
  * <td><code>data-set-properties-file-name</code></td>
  * <td><code>&nbsp;</code></td>
  * <td>Path to a file inside a data set directory which contains data set properties.</td>
  * </tr>
- * </table> The first entity has index 0, the second 1, etc. Using negative numbers one can specify
- * entities from the end. Thus, -1 means the last entity, -2 the second last entity, etc.
+ * </table>
+ * The first entity has index 0, the second 1, etc. Using negative numbers one can specify entities
+ * from the end. Thus, -1 means the last entity, -2 the second last entity, etc.
  * 
  * @author Franz-Josef Elmer
  */
@@ -137,7 +139,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     /** The name of the property to get sub entity separator from. */
     @Private
     static final String SUB_ENTITY_SEPARATOR_PROPERTY_NAME = "sub-entity-separator";
-    
+
     /** The default sub entity separator. */
     protected static final char DEFAULT_SUB_ENTITY_SEPARATOR = '&';
 
@@ -162,10 +164,10 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
      */
     @Private
     static final String INDEX_OF_EXPERIMENT_IDENTIFIER = "index-of-experiment-identifier";
-    
+
     /**
-     * Name of the property specifying the index of the entity which should be interpreted as 
-     * parent data set codes.
+     * Name of the property specifying the index of the entity which should be interpreted as parent
+     * data set codes.
      * <p>
      * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as
      * the sample code.
@@ -187,7 +189,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
      * </p>
      */
     @Private
-    static final String INDEX_OF_GROUP_CODE = "index-of-group-code";
+    static final String INDEX_OF_GROUP_CODE = "index-of-space-code";// FIXME:
 
     /**
      * Name of the property specifying the index of the entity which should be interpreted as the
@@ -222,17 +224,18 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 
     @Private
     static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
-    
+
     private static final class Index
     {
-        private boolean undefined;
-        private int index;
-        
+        private final boolean undefined;
+
+        private final int index;
+
         Index(Properties properties, String key)
         {
             this(properties, key, 0);
         }
-        
+
         Index(Properties properties, String key, int defaultValue)
         {
             undefined = StringUtils.isBlank(properties.getProperty(key));
@@ -251,7 +254,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     }
 
     private final int indexOfSampleCode;
-    
+
     private final Index indexOfExperimentIdentifier;
 
     private final Index indexOfGroupCode;
@@ -271,11 +274,13 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     public DefaultDataSetInfoExtractor(final Properties globalProperties)
     {
         super(globalProperties);
-        subEntitySeparator = PropertyUtils.getChar(properties, SUB_ENTITY_SEPARATOR_PROPERTY_NAME,
-                DEFAULT_SUB_ENTITY_SEPARATOR);
+        subEntitySeparator =
+                PropertyUtils.getChar(properties, SUB_ENTITY_SEPARATOR_PROPERTY_NAME,
+                        DEFAULT_SUB_ENTITY_SEPARATOR);
         if (Character.isWhitespace(subEntitySeparator))
         {
-            throw new ConfigurationFailureException("Sub entity separator is a whitespace character.");
+            throw new ConfigurationFailureException(
+                    "Sub entity separator is a whitespace character.");
         }
         if (subEntitySeparator == entitySeparator)
         {
@@ -313,8 +318,8 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
                         stripExtension);
         final DataSetInformation dataSetInformation = new DataSetInformation();
         String groupCode = extractGroupCode(entitiesProvider);
-        ExperimentIdentifier experimentIdentifier = tryToExtractExperimentIdentifier(
-                entitiesProvider, groupCode);
+        ExperimentIdentifier experimentIdentifier =
+                tryToExtractExperimentIdentifier(entitiesProvider, groupCode);
         dataSetInformation.setExperimentIdentifier(experimentIdentifier);
         if (experimentIdentifier == null)
         {
@@ -336,7 +341,8 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         {
             return null;
         }
-        String experimentIdentifier = entitiesProvider.getEntity(indexOfExperimentIdentifier.getIndex());
+        String experimentIdentifier =
+                entitiesProvider.getEntity(indexOfExperimentIdentifier.getIndex());
 
         String[] codes = StringUtils.split(experimentIdentifier, subEntitySeparator);
         ExperimentIdentifier identifier = new ExperimentIdentifier();
@@ -351,10 +357,8 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         identifier.setGroupCode(codes.length > 2 ? codes[codes.length - 3] : groupCode);
         return identifier;
     }
-    
 
-    private List<String> getParentDataSetCodes(
-            final DataSetNameEntitiesProvider entitiesProvider)
+    private List<String> getParentDataSetCodes(final DataSetNameEntitiesProvider entitiesProvider)
     {
         if (indexOfParentDataSetCodes.isUndefined())
         {

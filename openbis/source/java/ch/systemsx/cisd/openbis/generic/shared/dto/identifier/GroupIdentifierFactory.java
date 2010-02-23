@@ -77,6 +77,6 @@ public final class GroupIdentifierFactory extends AbstractIdentifierFactory
     {
         return "[" + getDatabaseInstanceIdentifierSchema()
                 + DatabaseInstanceIdentifier.Constants.DATABASE_INSTANCE_SEPARATOR + "]"
-                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + "<group-code>";
+                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + "<space-code>";
     }
 }

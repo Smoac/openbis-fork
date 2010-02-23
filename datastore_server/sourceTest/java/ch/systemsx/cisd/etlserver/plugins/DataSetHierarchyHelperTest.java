@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.etlserver.plugins.DataSetHierarchyHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -37,7 +36,7 @@ public class DataSetHierarchyHelperTest extends AbstractFileSystemTestCase
 {
 
     private static final String DATASET_PATH =
-            "Instance_DB-I/Group_GROUP-G/Project_PROJECT-P/Experiment_EXP-E/DataSetType_TYPE-T/Sample_SAMPLE-S/Dataset_DATASET-D";
+            "Instance_DB-I/Space_GROUP-G/Project_PROJECT-P/Experiment_EXP-E/DataSetType_TYPE-T/Sample_SAMPLE-S/Dataset_DATASET-D";
 
     private static final String SAMPLE = "SAMPLE-S";
 

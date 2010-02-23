@@ -117,7 +117,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
                             .tryGetGroup(groupIdentifier, session.tryGetPerson(), this);
             if (group == null)
             {
-                throw UserFailureException.fromTemplate("Specified group '%s' could not be found",
+                throw UserFailureException.fromTemplate("Specified space '%s' could not be found",
                         groupIdentifier);
             }
             roleAssignment.setGroup(group);

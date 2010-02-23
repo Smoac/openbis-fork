@@ -37,7 +37,7 @@ public final class Session extends BasicSession implements IAuthSession
      * not defined.
      */
     private PersonPE personOrNull;
-    
+
     /**
      * The base URL that the web server is reachable at.
      */
@@ -124,7 +124,7 @@ public final class Session extends BasicSession implements IAuthSession
     @Override
     public final String toString()
     {
-        return "Session{user=" + getUserName() + ",group=" + tryGetHomeGroupCode()
+        return "Session{user=" + getUserName() + ",space=" + tryGetHomeGroupCode()
                 + ",sessionstart=" + DateFormatUtils.format(getSessionStart(), DATE_FORMAT_PATTERN)
                 + "}";
     }

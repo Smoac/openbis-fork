@@ -475,14 +475,15 @@ class UploadingCommand implements IDataSetCommand
             builder.sample("type_code", sample.getSampleType().getCode());
             builder.sample("code", sample.getCode());
             Group group = sample.getGroup();
-            builder.sample("group_code", group == null ? "(shared)" : group.getCode());
+            builder.sample("space_code", group == null ? "(shared)" : group.getCode());// FIXME:
+            // group->space
             builder.sample("registration_timestamp", sample.getRegistrationDate());
             builder.sample("registrator", sample.getRegistrator());
             builder.sampleProperties(sample.getProperties());
         }
         Experiment experiment = dataSet.getExperiment();
         Project project = experiment.getProject();
-        builder.experiment("group_code", project.getGroup().getCode());
+        builder.experiment("space_code", project.getGroup().getCode());// FIXME:
         builder.experiment("project_code", project.getCode());
         builder.experiment("experiment_code", experiment.getCode());
         builder.experiment("experiment_type_code", experiment.getExperimentType().getCode());

@@ -251,7 +251,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         if (group == null)
         {
             throw UserFailureException
-                    .fromTemplate("No group with the name '%s' found!", groupCode);
+                    .fromTemplate("No space with the name '%s' found!", groupCode);
         }
         return group;
     }

@@ -83,7 +83,7 @@ final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroup
         final List<GroupPE> list = cast(getHibernateTemplate().loadAll(getEntityClass()));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%s(): %d group(s) have been found.", MethodUtils
+            operationLog.debug(String.format("%s(): %d space(s) have been found.", MethodUtils
                     .getCurrentMethod().getName(), list.size()));
         }
         return list;
@@ -99,7 +99,7 @@ final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroup
         final List<GroupPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%s(%s): %d group(s) have been found.", MethodUtils
+            operationLog.debug(String.format("%s(%s): %d space(s) have been found.", MethodUtils
                     .getCurrentMethod().getName(), databaseInstance, list.size()));
         }
         return list;
@@ -119,7 +119,7 @@ final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroup
         template.flush();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("ADD: group '%s'.", group));
+            operationLog.info(String.format("ADD: space '%s'.", group));
         }
     }
 

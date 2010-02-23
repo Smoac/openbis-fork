@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 public abstract class AbstractIdentifierFactory
 {
     public static final String NO_GROUP_PREFIX =
-            String.format("group identifier does not start with '%s'",
+            String.format("space identifier does not start with '%s'",
                     Constants.IDENTIFIER_SEPARATOR);
 
     public final static String ILLEGAL_EMPTY_IDENTIFIER = "Illegal empty identifier";

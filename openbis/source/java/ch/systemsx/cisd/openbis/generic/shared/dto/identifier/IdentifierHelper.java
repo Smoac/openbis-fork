@@ -251,7 +251,7 @@ public final class IdentifierHelper
         } else
         {
             throw new UserFailureException(String.format(
-                    "Sample '%s' does not belong to the group '%s'", sample, expectedGroupCode));
+                    "Sample '%s' does not belong to the space '%s'", sample, expectedGroupCode));
         }
     }
 }
