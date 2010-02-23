@@ -50,6 +50,10 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 public class QueryClientService extends AbstractClientService implements IQueryClientService
 {
 
+    private static final String QUERY_EXECUTION_ERROR_MSG =
+            "Problem occured during query execution.<br><br>Check that all provided parameter values are correct. "
+                    + "If everything seems fine contact query registrator or instance admin about a possible bug in the query definition.";
+
     @Resource(name = ResourceNames.QUERY_PLUGIN_SERVER)
     private IQueryServer queryServer;
 
@@ -113,7 +117,12 @@ public class QueryClientService extends AbstractClientService implements IQueryC
             return createTableModelReference(tableModel);
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslator.translate(e);
+            if (operationLog.isInfoEnabled())
+            {
+                // we do not log this as an error, because it can be only user fault
+                operationLog.info(QUERY_EXECUTION_ERROR_MSG + " DETAILS: " + e.getMessage(), e);
+            }
+            throw UserFailureExceptionTranslator.translate(e, QUERY_EXECUTION_ERROR_MSG);
         }
     }
 

@@ -69,7 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 public abstract class AbstractClientService implements IClientService,
         IOnlineHelpResourceLocatorService
 {
-    private static final Logger operationLog =
+    protected static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractClientService.class);
 
     @Resource(name = "request-context-provider")

@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
  * Translator of server side {@link ch.systemsx.cisd.common.exceptions.UserFailureException} into
  * GWT compatible {@link UserFailureException}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class UserFailureExceptionTranslator
 {
@@ -45,22 +45,41 @@ public class UserFailureExceptionTranslator
 
     /**
      * Converts any {@link ch.systemsx.cisd.common.exceptions.UserFailureException} or subclass of
-     * it to a <i>GWT</i> {@link UserFailureException} (or subclass of it if this one could be
-     * found in the same package).
+     * it to a <i>GWT</i> {@link UserFailureException} (or subclass of it if this one could be found
+     * in the same package).
      */
     public static UserFailureException translate(
             ch.systemsx.cisd.common.exceptions.UserFailureException exception)
+    {
+        return translate(exception, null);
+    }
+
+    /**
+     * Converts any {@link ch.systemsx.cisd.common.exceptions.UserFailureException} or subclass of
+     * it to a <i>GWT</i> {@link UserFailureException} (or subclass of it if this one could be found
+     * in the same package) using specified message as the main message and message in the original
+     * exception as the detail message.
+     */
+    public static UserFailureException translate(
+            ch.systemsx.cisd.common.exceptions.UserFailureException exception,
+            String simpleMessageOrNull)
     {
         final String className =
                 WEB_CLIENT_EXCEPTIONS_PACKAGE + "." + exception.getClass().getSimpleName();
         String message = StringEscapeUtils.escapeHtml(exception.getMessage());
         try
         {
-            return ClassUtils.create(UserFailureException.class, className, message);
+            if (simpleMessageOrNull != null)
+            {
+                return ClassUtils.create(UserFailureException.class, className,
+                        simpleMessageOrNull, message);
+            } else
+            {
+                return ClassUtils.create(UserFailureException.class, className, message);
+            }
         } catch (final CheckedExceptionTunnel e)
         {
             return new UserFailureException(message);
         }
-
     }
 }
