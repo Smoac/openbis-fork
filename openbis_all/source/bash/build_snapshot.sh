@@ -10,7 +10,7 @@ SPRINT_INSTALL_SCRIPT=sprint_install.sh
 svn checkout http://svncisd.ethz.ch/repos/cisd/build_resources/trunk build_resources
 cd build_resources
 echo Building openBIS...
-./build.sh openbis_all
+./build.sh --private openbis_all
 
 echo Copying new openBIS components to \'$SPRINT_SERVER\'...
 scp openBIS-server-*.zip $SPRINT_SERVER:.
