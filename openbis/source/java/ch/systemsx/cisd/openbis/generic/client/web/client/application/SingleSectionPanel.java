@@ -82,7 +82,9 @@ public class SingleSectionPanel extends ContentPanel
     {
         this.isContentVisible = isContentVisible;
         if (this.isContentVisible)
+        {
             serverRequestQueue.processUniqueRequests();
+        }
         serverRequestQueue.setProcessImmediately(this.isContentVisible);
     }
 
