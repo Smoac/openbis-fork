@@ -52,26 +52,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectViewer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -303,33 +293,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private void showProjectDetailsView(final Project project)
     {
-        ITabItemFactory tabFactory;
-        final TechId projectId = TechId.create(project);
-        tabFactory = new ITabItemFactory()
-            {
-                public ITabItem create()
-                {
-                    final DatabaseModificationAwareComponent viewer =
-                            ProjectViewer.create(viewContext.getCommonViewContext(), projectId);
-                    return DefaultTabItem.create(getViewerTitle(), viewer, viewContext, false);
-                }
-
-                public String getId()
-                {
-                    return ProjectViewer.createId(projectId);
-                }
-
-                private String getViewerTitle()
-                {
-                    return AbstractViewer.getTitle(viewContext, Dict.PROJECT, project);
-                }
-
-                public HelpPageIdentifier getHelpPageIdentifier()
-                {
-                    return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.VIEW);
-                }
-            };
-        DispatcherHelper.dispatchNaviEvent(tabFactory);
+        OpenEntityDetailsTabHelper.open(viewContext, project);
     }
 
     /**

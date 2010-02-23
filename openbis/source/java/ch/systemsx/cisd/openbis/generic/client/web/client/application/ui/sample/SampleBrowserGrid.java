@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -306,6 +307,15 @@ public class SampleBrowserGrid extends
                             return rowItem.getExperiment();
                         }
                     });
+        registerLinkClickListenerFor(CommonSampleColDefKind.PROJECT.id(),
+                new ICellListener<Sample>()
+                    {
+                        public void handle(Sample rowItem)
+                        {
+                            OpenEntityDetailsTabHelper.open(viewContext, rowItem.getExperiment()
+                                    .getProject());
+                        }
+                    });
         setId(browserId);
     }
 
@@ -489,6 +499,9 @@ public class SampleBrowserGrid extends
 
         GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();
         schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT.id(), linkCellRenderer);
+        // TODO 2010-02-23, Piotr Buczek: uncomment after making changes to loader of samples
+        // so that project id is loaded
+        // schema.setGridCellRendererFor(CommonSampleColDefKind.PROJECT.id(), linkCellRenderer);
         // setup link renderers and listeners on parent columns
         for (final AbstractParentSampleColDef parentColDef : parentColumnsSchema)
         {

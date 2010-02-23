@@ -43,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
@@ -116,6 +118,14 @@ public class ExperimentBrowserGrid extends
     {
         super(viewContext, GRID_ID, DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         this.criteriaProvider = criteriaProvider;
+        registerLinkClickListenerFor(CommonSampleColDefKind.PROJECT.id(),
+                new ICellListener<Experiment>()
+                    {
+                        public void handle(Experiment rowItem)
+                        {
+                            OpenEntityDetailsTabHelper.open(viewContext, rowItem.getProject());
+                        }
+                    });
         setId(BROWSER_ID);
     }
 
@@ -206,6 +216,8 @@ public class ExperimentBrowserGrid extends
                 getColumnsFactory().createColumnsSchema(viewContext, criteria.getExperimentType());
         schema.setGridCellRendererFor(CommonSampleColDefKind.SHOW_DETAILS_LINK.id(),
                 createShowDetailsLinkCellRenderer());
+        schema.setGridCellRendererFor(CommonSampleColDefKind.PROJECT.id(),
+                createInternalLinkCellRenderer());
         return schema;
     }
 
