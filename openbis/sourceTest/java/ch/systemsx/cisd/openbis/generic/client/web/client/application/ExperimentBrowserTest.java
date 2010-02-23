@@ -55,7 +55,6 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testListExperiments()
     {
         loginAndInvokeAction(ActionMenuKind.EXPERIMENT_MENU_BROWSE);
