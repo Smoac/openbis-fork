@@ -90,6 +90,10 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
         Long queryIdOrNull = queryProvider.tryGetQueryId();
         String sqlQueryOrNull = queryProvider.tryGetSQLQuery();
         QueryParameterBindings bindingsOrNull = queryProvider.tryGetQueryParameterBindings();
+        if (queryIdOrNull == null && sqlQueryOrNull == null)
+        {
+            return;
+        }
         ReportGeneratedCallback callback =
                 new ReportGeneratedCallback(viewContext.getCommonViewContext(),
                         createReportInformationProvider(sqlQueryOrNull),
