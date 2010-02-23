@@ -28,18 +28,8 @@ import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
  */
 public class QuerySystemTestCase extends SystemTestCase
 {
-    static
-    {
-        System.setProperty("query-database.label", "openBIS");
-        System.setProperty("query-database.databaseEngineCode", "postgresql");
-        System.setProperty("query-database.basicDatabaseName", "openbis");
-        System.setProperty("query-database.databaseKind", "test");
-        System.setProperty("query-database.owner", "postgres");
-        System.setProperty("query-database.owner-password", "");
-    }
-    
     protected IQueryClientService queryClientService;
-
+    
     @Autowired
     public final void setQueryClientService(IQueryClientService queryClientService)
     {

@@ -21,6 +21,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
@@ -40,11 +41,12 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
     protected ICommonServer commonServer;
     protected ICommonClientService commonClientService;
     
-    static
+    @BeforeSuite
+    public void beforeSuite()
     {
         TestInitializer.init();
     }
-
+    
     /**
      * Sets a {@link MockHttpServletRequest} for the specified context provider
      */

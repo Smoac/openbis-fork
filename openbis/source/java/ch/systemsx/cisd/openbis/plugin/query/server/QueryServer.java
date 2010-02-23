@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.query.server;
 
 import java.util.List;
+import java.util.Properties;
 
 import javax.annotation.Resource;
 
@@ -122,7 +123,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             getDAOFactory().getQueryDAO().createQuery(query);
         } catch (DataAccessException ex)
         {
-            DataAccessExceptionTranslator.throwException(ex, "Query", null);
+            DataAccessExceptionTranslator.throwException(ex, "Query definition '"
+                    + expression.getName() + "'", null);
         }
     }
 
@@ -140,7 +142,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             }
         } catch (DataAccessException ex)
         {
-            DataAccessExceptionTranslator.throwException(ex, "Query", null);
+            DataAccessExceptionTranslator.throwException(ex, "Query definition", null);
         }
     }
 
@@ -160,7 +162,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             queryDAO.validateAndSaveUpdatedEntity(query);
         } catch (DataAccessException ex)
         {
-            DataAccessExceptionTranslator.throwException(ex, "Query", null);
+            DataAccessExceptionTranslator.throwException(ex, "Query definition '"
+                    + updates.getName() + "'", null);
         }
     }
 
@@ -215,8 +218,10 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     {
         if (databaseDefinition == null)
         {
+            Properties resolvedProps = configurer.getResolvedProps();
+            resolvedProps.list(System.out);
             ExtendedProperties databaseProperties =
-                    ExtendedProperties.getSubset(configurer.getResolvedProps(),
+                    ExtendedProperties.getSubset(resolvedProps,
                             DATABASE_PROPERTIES_PREFIX, true);
             if (databaseProperties.isEmpty() == false)
             {

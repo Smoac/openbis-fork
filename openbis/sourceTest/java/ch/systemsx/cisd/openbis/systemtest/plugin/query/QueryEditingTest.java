@@ -17,15 +17,28 @@
 package ch.systemsx.cisd.openbis.systemtest.plugin.query;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -37,6 +50,25 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 @Test(groups = "system test")
 public class QueryEditingTest extends QuerySystemTestCase
 {
+    @AfterMethod
+    public void tearDown()
+    {
+        List<QueryExpression> queries = queryClientService.listQueries();
+        List<TechId> ids = new ArrayList<TechId>();
+        for (QueryExpression queryExpression : queries)
+        {
+            ids.add(new TechId(queryExpression.getId()));
+        }
+        queryClientService.deleteQueries(ids);
+    }
+    
+    @Test
+    public void testGetQueryDatabaseLabel()
+    {
+        logIntoCommonClientService();
+        
+        assertEquals("openBIS meta data", queryClientService.tryToGetQueryDatabaseLabel());
+    }
     
     @Test
     public void testRegisterEditAndDeleteQueryDefinition()
@@ -71,6 +103,59 @@ public class QueryEditingTest extends QuerySystemTestCase
         assertEquals(0, queryClientService.listQueries().size());
     }
     
+    @Test
+    public void testRegisterQueryDefinitionsWithSameName()
+    {
+        logIntoCommonClientService();
+        
+        NewExpression query = createQuery("query", "select * from sample_types", true);
+        queryClientService.registerQuery(query);
+        
+        try
+        {
+            queryClientService.registerQuery(query);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Query definition 'query' already exists "
+                    + "in the database and needs to be unique.", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testChangeNameOfQueryDefinitionsToAnExistingOne()
+    {
+        logIntoCommonClientService();
+        
+        NewExpression query1 = createQuery("query1", "select * from sample_types", true);
+        NewExpression query2 = createQuery("query2", "select * from experiment_types", true);
+        queryClientService.registerQuery(query1);
+        queryClientService.registerQuery(query2);
+        
+        List<QueryExpression> queries = queryClientService.listQueries();
+        assertEquals(2, queries.size());
+        Collections.sort(queries, new Comparator<QueryExpression>()
+            {
+                public int compare(QueryExpression o1, QueryExpression o2)
+                {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
+        QueryExpression queryExpression = queries.get(0);
+        assertEquals("query1", queryExpression.getName());
+        queryExpression.setName("query2");
+        
+        try
+        {
+            queryClientService.updateQuery(queryExpression);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Query definition 'query2' already exists "
+                    + "in the database and needs to be unique.", ex.getMessage());
+        }
+    }
+    
     @Test(groups = "broken")
     public void testCreateQueryResult()
     {
@@ -80,7 +165,22 @@ public class QueryEditingTest extends QuerySystemTestCase
         bindings.addBinding("id", "1");
         TableModelReference table =
                 queryClientService.createQueryResultsReport(
-                        "select * from sample_types where id = ${id}", bindings);
+                        "select id, code from sample_types where id = ${id}", bindings);
+        List<TableModelColumnHeader> headers = table.getHeader();
+        assertEquals("id", headers.get(0).getTitle());
+        assertEquals(DataTypeCode.INTEGER, headers.get(0).getDataType());
+        assertEquals(true, headers.get(0).isNumeric());
+        assertEquals("code", headers.get(1).getTitle());
+        assertEquals(DataTypeCode.VARCHAR, headers.get(1).getDataType());
+        assertEquals(false, headers.get(1).isNumeric());
+        assertEquals(2, headers.size());
+        
+        DefaultResultSetConfig<String, TableModelRow> config = new DefaultResultSetConfig<String, TableModelRow>();
+        config.setCacheConfig(ResultSetFetchConfig.createFetchFromCache(table.getResultSetKey()));
+        ResultSet<TableModelRow> rs = commonClientService.listReport(config);
+        GridRowModels<TableModelRow> l = rs.getList();
+        assertEquals("[1, MASTER_PLATE]", l.get(0).getOriginalObject().getValues().toString());
+        assertEquals(1, rs.getTotalLength());
     }
     
     private NewExpression createQuery(String name, String expression, boolean isPublic)
