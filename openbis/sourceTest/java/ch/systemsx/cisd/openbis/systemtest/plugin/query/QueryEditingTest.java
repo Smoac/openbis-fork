@@ -156,7 +156,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         }
     }
     
-    @Test(groups = "broken")
+    @Test
     public void testCreateQueryResult()
     {
         logIntoCommonClientService();
@@ -166,6 +166,33 @@ public class QueryEditingTest extends QuerySystemTestCase
         TableModelReference table =
                 queryClientService.createQueryResultsReport(
                         "select id, code from sample_types where id = ${id}", bindings);
+        checkTable(table);
+    }
+
+    @Test
+    public void testRegisterQueryAndExecuteIt()
+    {
+        logIntoCommonClientService();
+
+        NewExpression query =
+                createQuery("query", "select id, code from sample_types where id = ${id}", true);
+        queryClientService.registerQuery(query);
+
+        List<QueryExpression> queries = queryClientService.listQueries();
+        assertEquals(1, queries.size());
+        QueryExpression actualQuery = queries.get(0);
+        QueryParameterBindings bindings = new QueryParameterBindings();
+        bindings.addBinding("id", "1");
+
+        TableModelReference table =
+                queryClientService.createQueryResultsReport(new TechId(actualQuery.getId()),
+                        bindings);
+
+        checkTable(table);
+    }
+
+    private void checkTable(TableModelReference table)
+    {
         List<TableModelColumnHeader> headers = table.getHeader();
         assertEquals("id", headers.get(0).getTitle());
         assertEquals(DataTypeCode.INTEGER, headers.get(0).getDataType());
