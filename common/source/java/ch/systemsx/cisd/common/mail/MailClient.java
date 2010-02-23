@@ -185,15 +185,8 @@ public final class MailClient extends Authenticator implements IMailClient
                 msg.setReplyTo(replyToAddress);
             }
             msg.addRecipients(Message.RecipientType.TO, internetAddresses);
-            if (true)
-            {
-                msg.setSubject(subject);
-                msg.setText(content);
-            } else
-            {
-                msg.setSubject(subject, UNICODE_CHARSET);
-                msg.setText(content, UNICODE_CHARSET);
-            }
+            msg.setSubject(subject, UNICODE_CHARSET);
+            msg.setText(content, UNICODE_CHARSET);
             send(msg);
         } catch (MessagingException ex)
         {
