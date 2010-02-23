@@ -22,20 +22,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 /**
  * Panel of a details view showing data in a browser (i.e. table).
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class BrowserSectionPanel extends SingleSectionPanel
 {
-    private final IDisposableComponent disposableBrowser;
+    IDisposableComponent disposableBrowser;
 
     /**
-     * Creates section with specified header and disposable browser.
+     * Creates section with specified header and disposable browser. Subclasses need to invoke
+     * initializeDisposableBrowser in their constructors -- instances are not usable until the
+     * disposableBrowser has been initialized
      */
-    public BrowserSectionPanel(String header, IDisposableComponent disposableBrowser)
+    public BrowserSectionPanel(String header)
     {
         super(header);
-        this.disposableBrowser = disposableBrowser;
-        add(disposableBrowser.getComponent());
+    }
+
+    public BrowserSectionPanel(String header, IDisposableComponent browser)
+    {
+        super(header);
+        initializeDisposableBrowser(browser);
     }
 
     public IDatabaseModificationObserver getDatabaseModificationObserver()
@@ -50,4 +56,9 @@ public class BrowserSectionPanel extends SingleSectionPanel
         super.onDetach();
     }
 
+    protected void initializeDisposableBrowser(IDisposableComponent browser)
+    {
+        this.disposableBrowser = browser;
+        add(disposableBrowser.getComponent());
+    }
 }

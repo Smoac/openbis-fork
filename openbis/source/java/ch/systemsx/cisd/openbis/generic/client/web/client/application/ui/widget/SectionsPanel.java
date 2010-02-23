@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 public class SectionsPanel extends ContentPanel
 {
     public static final String POSTFIX_BUTTON_ID = "_button";
-    
+
     List<SectionElement> elements = new ArrayList<SectionElement>();
 
     private final ToolBar toolbar;
@@ -149,7 +149,11 @@ public class SectionsPanel extends ContentPanel
         addToToolbar(element.getButton());
         if (element.getButton().isPressed())
         {
+            element.getPanel().setContentVisible(true);
             internalAdd(element);
+        } else
+        {
+            element.getPanel().setContentVisible(false);
         }
     }
 
@@ -159,7 +163,9 @@ public class SectionsPanel extends ContentPanel
         removeAll();
         for (SectionElement el : elements)
         {
-            if (el.getButton().isPressed())
+            boolean isVisible = el.getButton().isPressed();
+            el.getPanel().setContentVisible(isVisible);
+            if (isVisible)
             {
                 internalAdd(el);
             }
@@ -215,7 +221,6 @@ public class SectionsPanel extends ContentPanel
 
     private class SectionElement
     {
-
 
         private final ToggleButton button;
 
@@ -290,7 +295,7 @@ public class SectionsPanel extends ContentPanel
             // because of strange ToggleToolItem implementation need to initialize both:
             // - 'pressed' value
             result.toggle(pressed);// TODO 2010-01-03, IA: get rid of those hacks, as we no longer
-                                   // need
+            // need
             // ToggleToolItem
             // - internal button pressed state using 'toggle(boolean)'
             result.toggle(pressed);

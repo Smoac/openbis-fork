@@ -30,6 +30,15 @@ public class SingleSectionPanel extends ContentPanel
 {
     private String displayId;
 
+    private boolean isContentVisible;
+
+    /**
+     * A queue used to store requests for data when the selection panel is hidden to avoid
+     * retrieving data while the panel is not visible. Subclasses that use abstract browser grids
+     * should set the grid's queue to this queue
+     */
+    private final ServerRequestQueue serverRequestQueue;
+
     public SingleSectionPanel(final String header)
     {
         setHeaderVisible(true);
@@ -38,6 +47,8 @@ public class SingleSectionPanel extends ContentPanel
         setAnimCollapse(false);
         setBodyBorder(true);
         setLayout(new FitLayout());
+        isContentVisible = false;
+        serverRequestQueue = new ServerRequestQueue();
     }
 
     public void setDisplayID(IDisplayTypeIDGenerator generator, String suffix)
@@ -62,4 +73,21 @@ public class SingleSectionPanel extends ContentPanel
         }
     }
 
+    public boolean isContentVisible()
+    {
+        return isContentVisible;
+    }
+
+    public void setContentVisible(boolean isContentVisible)
+    {
+        this.isContentVisible = isContentVisible;
+        if (this.isContentVisible)
+            serverRequestQueue.processUniqueRequests();
+        serverRequestQueue.setProcessImmediately(this.isContentVisible);
+    }
+
+    protected ServerRequestQueue getServerRequestQueue()
+    {
+        return serverRequestQueue;
+    }
 }

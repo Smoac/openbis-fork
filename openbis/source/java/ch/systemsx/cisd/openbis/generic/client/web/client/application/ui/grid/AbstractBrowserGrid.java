@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowRelatedDatasetsDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
@@ -210,6 +211,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private IDataRefreshCallback refreshCallback;
 
     private LayoutContainer bottomToolbars;
+
+    // A request queue for managing when requests for data from the server are actually carried out.
+    private ServerRequestQueue serverRequestQueueOrNull = null;
 
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, IDisplayTypeIDGenerator displayTypeIDGenerator)
@@ -522,13 +526,29 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             pendingFetchConfigOrNull =
                     ResultSetFetchConfig.createFetchFromCache(resultSetKeyOrNull);
         }
-        DefaultResultSetConfig<String, T> resultSetConfig =
+        final DefaultResultSetConfig<String, T> resultSetConfig =
                 createPagingConfig(loadConfig, columnDefinitions, filterToolbar.getFilters(),
                         pendingFetchConfigOrNull, getGridDisplayTypeID(), viewContext);
         debug("create a refresh callback " + pendingFetchConfigOrNull);
-        ListEntitiesCallback listCallback =
+        final ListEntitiesCallback listCallback =
                 new ListEntitiesCallback(viewContext, callback, resultSetConfig);
-        listEntities(resultSetConfig, listCallback);
+
+        // If this objects has a queue, don't execute the request immediately -- queue it up instead
+        if (shouldQueueServerRequests())
+        {
+            ServerRequestQueue queue = tryGetServerRequestQueue();
+            assert queue != null;
+            queue.addRequestToQueue(new ServerRequestQueue.ServerRequestAction(this)
+                {
+                    public void onInvoke()
+                    {
+                        listEntities(resultSetConfig, listCallback);
+                    }
+                });
+        } else
+        {
+            listEntities(resultSetConfig, listCallback);
+        }
     }
 
     private void debug(String msg)
@@ -1658,6 +1678,28 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             new ShowRelatedDatasetsDialog(viewContext, selectedEntities, displayedEntities, browser
                     .getTotalCount()).show();
         }
+    }
+
+    public ServerRequestQueue tryGetServerRequestQueue()
+    {
+        return serverRequestQueueOrNull;
+    }
+
+    /**
+     * Set the request queue for this browser grid. Pass in null to clear the request queue.
+     */
+    public void setServerRequestQueue(ServerRequestQueue requestQueueOrNull)
+    {
+        this.serverRequestQueueOrNull = requestQueueOrNull;
+    }
+
+    /**
+     * See if requests for data from the server should be queued instead of being executed
+     * immediately. INVARIANT: If this returns true, then the requestQueueOrNull is not null
+     */
+    protected boolean shouldQueueServerRequests()
+    {
+        return this.serverRequestQueueOrNull != null;
     }
 
 }
