@@ -45,7 +45,8 @@ public class ExperimentSamplesSection extends SingleSectionPanel
         sampleDisposableGrid =
                 SampleBrowserGrid.createGridForExperimentSamples(
                         viewContext.getCommonViewContext(), experimentId,
-                        createGridId(experimentId), experiment.getExperimentType());
+                        createGridId(experimentId), experiment.getExperimentType(),
+                        getServerRequestQueue());
         add(sampleDisposableGrid.getComponent());
     }
 

@@ -195,16 +195,12 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         containerSamplesSection.addSamplesGrid(generator);
         container.addPanel(containerSamplesSection);
         // Data Sets
-        final SingleSectionPanel externalDataPanel =
-                createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
-        CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
-        externalDataPanel.getHeader().addTool(showOnlyDirectlyConnectedCheckBox);
-        dataSetBrowser =
-                SampleDataSetBrowser.create(viewContext, sampleId, generator.getSampleType(),
-                        new DataSetConnectionTypeProvider(showOnlyDirectlyConnectedCheckBox));
-        externalDataPanel.add(dataSetBrowser.getComponent());
+        final SampleDataSetsSection externalDataPanel = new SampleDataSetsSection(viewContext);
         externalDataPanel.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, displayIdSuffix);
-        container.addPanel(externalDataPanel);
+        CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
+        externalDataPanel.addDataSetGrid(showOnlyDirectlyConnectedCheckBox, sampleId, generator
+                .getSampleType());
+        dataSetBrowser = externalDataPanel.getDataSetBrowser();
 
         // Attachments
         attachmentsSection = createAttachmentsSection(generator);
@@ -246,11 +242,6 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
             dataSetBrowser.dispose();
         }
         super.onDetach();
-    }
-
-    private final static SingleSectionPanel createContentPanel(final String heading)
-    {
-        return new SingleSectionPanel(heading);
     }
 
     private final static Map<String, Object> createProperties(

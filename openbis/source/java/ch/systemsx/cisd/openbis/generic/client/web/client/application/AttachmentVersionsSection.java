@@ -31,7 +31,7 @@ public class AttachmentVersionsSection<T extends IAttachmentHolder> extends Brow
     public AttachmentVersionsSection(final IViewContext<ICommonClientServiceAsync> viewContext,
             final T attachmentHolder)
     {
-        super(viewContext.getMessage(Dict.ATTACHMENTS), AttachmentBrowser.create(viewContext,
-                attachmentHolder));
+        super(viewContext.getMessage(Dict.ATTACHMENTS));
+        initializeDisposableBrowser(AttachmentBrowser.create(viewContext, attachmentHolder, getServerRequestQueue()));
     }
 }

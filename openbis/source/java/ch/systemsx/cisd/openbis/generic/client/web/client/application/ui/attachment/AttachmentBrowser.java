@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
@@ -105,6 +106,15 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
             final IAttachmentHolder attachmentHolder)
     {
         final AttachmentBrowser browser = new AttachmentBrowser(viewContext, attachmentHolder);
+        return browser.asDisposableWithoutToolbar();
+    }
+
+    public static IDisposableComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final IAttachmentHolder attachmentHolder, ServerRequestQueue requestQueueOrNull)
+    {
+        final AttachmentBrowser browser = new AttachmentBrowser(viewContext, attachmentHolder);
+        browser.setServerRequestQueue(requestQueueOrNull);
         return browser.asDisposableWithoutToolbar();
     }
 

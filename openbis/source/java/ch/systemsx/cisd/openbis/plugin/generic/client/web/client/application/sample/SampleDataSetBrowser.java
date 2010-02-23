@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -32,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DataSetConnectionTypeProvider;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 class SampleDataSetBrowser extends AbstractExternalDataGrid
 {
@@ -43,20 +44,25 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     private final DataSetConnectionTypeProvider connectionTypeProvider;
 
     public static IDisposableComponent create(IViewContext<?> viewContext, TechId sampleId,
-            final SampleType sampleType, final DataSetConnectionTypeProvider connectionTypeProvider)
+            final SampleType sampleType,
+            final DataSetConnectionTypeProvider connectionTypeProvider,
+            final ServerRequestQueue requestQueueOrNull)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
 
-        return new SampleDataSetBrowser(commonViewContext, sampleId, connectionTypeProvider)
-            {
-                @Override
-                public String getGridDisplayTypeID()
-                {
-                    return super.getGridDisplayTypeID() + "-" + sampleType.getCode();
-                }
+        SampleDataSetBrowser browser =
+                new SampleDataSetBrowser(commonViewContext, sampleId, connectionTypeProvider)
+                    {
+                        @Override
+                        public String getGridDisplayTypeID()
+                        {
+                            return super.getGridDisplayTypeID() + "-" + sampleType.getCode();
+                        }
 
-            }.asDisposableWithoutToolbar();
+                    };
+        browser.setServerRequestQueue(requestQueueOrNull);
+        return browser.asDisposableWithoutToolbar();
     }
 
     private final TechId sampleId;

@@ -22,14 +22,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 class ExperimentDataSetSection extends BrowserSectionPanel
 {
     ExperimentDataSetSection(Experiment experiment, IViewContext<?> viewContext)
     {
-        super("Data Sets", ExperimentDataSetBrowser.create(viewContext, TechId.create(experiment),
-                experiment.getExperimentType()));
+        super("Data Sets");
+        initializeDisposableBrowser(ExperimentDataSetBrowser.create(viewContext, TechId
+                .create(experiment), experiment.getExperimentType(), getServerRequestQueue()));
     }
 
 }

@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
 {
@@ -39,18 +40,21 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     static IDisposableComponent create(IViewContext<?> viewContext, TechId experimentId,
-            final ExperimentType experimentType)
+            final ExperimentType experimentType, ServerRequestQueue requestQueueOrNull)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
-        return new ExperimentDataSetBrowser(commonViewContext, experimentId)
-            {
-                @Override
-                public String getGridDisplayTypeID()
-                {
-                    return super.getGridDisplayTypeID() + "-" + experimentType.getCode();
-                }
-            }.asDisposableWithoutToolbar();
+        ExperimentDataSetBrowser browser =
+                new ExperimentDataSetBrowser(commonViewContext, experimentId)
+                    {
+                        @Override
+                        public String getGridDisplayTypeID()
+                        {
+                            return super.getGridDisplayTypeID() + "-" + experimentType.getCode();
+                        }
+                    };
+        browser.setServerRequestQueue(requestQueueOrNull);
+        return browser.asDisposableWithoutToolbar();
     }
 
     private final TechId experimentId;

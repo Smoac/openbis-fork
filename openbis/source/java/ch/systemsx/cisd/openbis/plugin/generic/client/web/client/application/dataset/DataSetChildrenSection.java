@@ -29,8 +29,10 @@ class DataSetChildrenSection extends BrowserSectionPanel
 {
     DataSetChildrenSection(IViewContext<?> viewContext, ExternalData dataset)
     {
-        super("Children (Data Sets)", DataSetRelationshipBrowser.create(viewContext, TechId.create(dataset),
-                DataSetRelationshipRole.PARENT, dataset.getDataSetType()));
+        super("Children (Data Sets)");
+        initializeDisposableBrowser(DataSetRelationshipBrowser.create(viewContext, TechId
+                .create(dataset), DataSetRelationshipRole.PARENT, dataset.getDataSetType(),
+                getServerRequestQueue()));
     }
 
 }
