@@ -432,6 +432,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
             operationLog.info(String.format("ADD: %d samples.", samples.size()));
         }
         hibernateTemplate.flush();
+        // if session is not cleared registration of many samples takes forever
+        hibernateTemplate.clear();
     }
 
     public final void updateSample(final SamplePE sample) throws DataAccessException

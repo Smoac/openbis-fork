@@ -22,9 +22,12 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
@@ -49,6 +52,9 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 @Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
 public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlaveServerPlugin
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, GenericSampleTypeSlaveServerPlugin.class);
+
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
 
@@ -63,8 +69,8 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
     // ISlaveServerPlugin
     //
 
-    public final SampleParentWithDerivedDTO getSampleInfo(final Session session, final SamplePE sample)
-            throws UserFailureException
+    public final SampleParentWithDerivedDTO getSampleInfo(final Session session,
+            final SamplePE sample) throws UserFailureException
     {
         assert session != null : "Unspecified session.";
         assert sample != null : "Unspecified sample.";
@@ -83,14 +89,26 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 
         daoFactory.disableSecondLevelCacheForSession();
-        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         final Map<String, SampleTypePE> sampleTypeCache = new HashMap<String, SampleTypePE>();
         final Map<String, ExperimentPE> experimentCache = new HashMap<String, ExperimentPE>();
         final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
                 new HashMap<SampleOwnerIdentifier, SampleOwner>();
+        int batch = 0;
+        int counter = 0;
         for (final NewSample newSample : newSamples)
         {
+            if (batch == 5000)
+            {
+                operationLog.info("Progress of registering samples: " + counter + " out of "
+                        + newSamples.size());
+                sampleTable.save();
+                sampleTable = businessObjectFactory.createSampleTable(session);
+                batch = 0;
+            }
             sampleTable.add(newSample, sampleTypeCache, sampleOwnerCache, experimentCache);
+            batch++;
+            counter++;
         }
         sampleTable.save();
     }
