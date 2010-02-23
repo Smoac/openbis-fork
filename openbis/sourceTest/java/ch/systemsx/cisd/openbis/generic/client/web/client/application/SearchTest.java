@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
@@ -130,6 +133,7 @@ public class SearchTest extends AbstractGWTTestCase
         launchTest();
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testShowDatasetsRelatedToAll()
     {
         remoteConsole.prepare(new Login("test", "a"));
