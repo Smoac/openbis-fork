@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
@@ -54,11 +55,26 @@ public class PlateLayoutSampleSection extends SingleSectionPanel
 {
     public static final String ID_SUFFIX = "PlateLayoutSection";
 
-    public PlateLayoutSampleSection(ScreeningViewContext viewContext, TechId sampleId)
+    public PlateLayoutSampleSection(final ScreeningViewContext viewContext, final TechId sampleId)
     {
         super("Plate Layout");
         add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
-        viewContext.getService().getPlateContent(sampleId, createDisplayPlateCallback(viewContext));
+
+        // Don't get data immediately -- queue the request and let the panel decide when data needs
+        // to be retrieved
+        ServerRequestQueue.ServerRequestAction requestAction =
+                new ServerRequestQueue.ServerRequestAction(this)
+                    {
+
+                        public void onInvoke()
+                        {
+                            viewContext.getService().getPlateContent(sampleId,
+                                    createDisplayPlateCallback(viewContext));
+                        }
+                    };
+
+        getServerRequestQueue().addRequestToQueue(requestAction);
+
         setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
     }
 
@@ -146,7 +162,8 @@ public class PlateLayoutSampleSection extends SingleSectionPanel
         {
             container.add(datasetNumberLegend);
         }
-        container.add(PlateLayouter.createVisualization(plateContent.getPlateImages(), viewContext));
+        container
+                .add(PlateLayouter.createVisualization(plateContent.getPlateImages(), viewContext));
 
         add(container, PlateLayouter.createRowLayoutMarginData());
     }

@@ -25,6 +25,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -44,12 +45,26 @@ public class PlateLayoutDatasetSection extends SingleSectionPanel
 {
     public static final String ID_SUFFIX = "PlateLayoutDatasetSection";
 
-    public PlateLayoutDatasetSection(ScreeningViewContext viewContext, TechId datasetId)
+    public PlateLayoutDatasetSection(final ScreeningViewContext viewContext, final TechId datasetId)
     {
         super("Plate Layout");
         add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
-        viewContext.getService().getPlateContentForDataset(datasetId,
-                createDisplayPlateCallback(viewContext));
+
+        // Don't get data immediately -- queue the request and let the panel decide when data needs
+        // to be retrieved
+        ServerRequestQueue.ServerRequestAction requestAction =
+                new ServerRequestQueue.ServerRequestAction(this)
+                    {
+
+                        public void onInvoke()
+                        {
+                            viewContext.getService().getPlateContentForDataset(datasetId,
+                                    createDisplayPlateCallback(viewContext));
+                        }
+                    };
+
+        getServerRequestQueue().addRequestToQueue(requestAction);
+
         setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
     }
 
