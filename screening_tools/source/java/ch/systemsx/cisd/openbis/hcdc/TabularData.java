@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.hcdc;
 
 /**
- * Simple table to store tsv file content.
+ * Simple table to store e.g. tsv file content.
  * 
  * @author Tomasz Pylak
  */
-public class TsvTable
+public class TabularData
 {
     private final String[] headers;
 
@@ -29,7 +29,7 @@ public class TsvTable
 
     private final String[][] rows;
 
-    public TsvTable(String[] header, String[][] rows, boolean[] isNumeric)
+    public TabularData(String[] header, String[][] rows, boolean[] isNumeric)
     {
         this.headers = header;
         this.isNumeric = isNumeric;

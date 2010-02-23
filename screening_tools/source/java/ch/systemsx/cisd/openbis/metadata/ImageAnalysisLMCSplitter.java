@@ -36,6 +36,12 @@ public class ImageAnalysisLMCSplitter
 {
     public static void main(String[] args) throws FileNotFoundException, IOException
     {
+        if (args.length != 1)
+        {
+            System.err
+                    .println("There should be exactly one parameter: <image-analysis-results-file-path>");
+            return;
+        }
         CsvReader reader = ScreeningLibraryTransformer.readFile(args[0]);
         boolean ok = reader.readRecord();
         assert ok;

@@ -23,11 +23,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
 
 /**
- * A facade od openBIS API which the requirements of HCDC integration.
+ * A facade of openBIS API for KNIME-HCDC integration.
  * 
  * @author Tomasz Pylak
  */
-public class HCDSFasade
+public class HCDSFacade
 {
     private static final int SERVER_TIMEOUT_MIN = 5;
 
@@ -37,11 +37,11 @@ public class HCDSFasade
 
     private final String sessionToken;
 
-    public HCDSFasade(String userId, String userPassword, String serverUrl)
+    public HCDSFacade(String userId, String userPassword, String serverUrl)
     {
         this.commonServer = getOpenbisServer(serverUrl);
         this.screeningServer = getScreeningServer(serverUrl);
-        this.sessionToken = authentificate(commonServer, userId, userPassword);
+        this.sessionToken = authenticate(commonServer, userId, userPassword);
     }
 
     public List<PlateSingleImageReference> listImagePathsForPlate(long plateId)
@@ -58,7 +58,7 @@ public class HCDSFasade
         return images;
     }
 
-    public TsvTable listImageAnalysisResultsForExp(long experimentId)
+    public TabularData listImageAnalysisResultsForExp(long experimentId)
     {
         TableModel tableModel =
                 screeningServer.loadImageAnalysisForExperiment(sessionToken, new TechId(
@@ -66,12 +66,12 @@ public class HCDSFasade
         return createTable(tableModel);
     }
 
-    private TsvTable createTable(TableModel tableModel)
+    private TabularData createTable(TableModel tableModel)
     {
         String[] header = convert(tableModel.getHeader());
         String[][] rows = convert(tableModel.getRows());
         boolean[] isNumeric = extractIsNumeric(tableModel.getHeader());
-        return new TsvTable(header, rows, isNumeric);
+        return new TabularData(header, rows, isNumeric);
     }
 
     private boolean[] extractIsNumeric(List<TableModelColumnHeader> header)
@@ -120,7 +120,7 @@ public class HCDSFasade
         return result;
     }
 
-    public TsvTable listImageAnalysisResultsForPlate(long plateId)
+    public TabularData listImageAnalysisResultsForPlate(long plateId)
     {
         TableModel tableModel =
                 screeningServer.loadImageAnalysisForPlate(sessionToken, new TechId(plateId));
@@ -177,7 +177,7 @@ public class HCDSFasade
         return result;
     }
 
-    private static String authentificate(ICommonServer commonServer, String userId,
+    private static String authenticate(ICommonServer commonServer, String userId,
             String userPassword)
     {
         SessionContextDTO session = commonServer.tryToAuthenticate(userId, userPassword);

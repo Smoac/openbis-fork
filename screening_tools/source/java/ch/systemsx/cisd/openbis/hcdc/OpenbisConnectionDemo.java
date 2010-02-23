@@ -19,7 +19,7 @@ public class OpenbisConnectionDemo
 
     public static void main(String[] args)
     {
-        HCDSFasade client = new HCDSFasade(USER_ID, USER_PASSWORD, SERVER_URL);
+        HCDSFacade client = new HCDSFacade(USER_ID, USER_PASSWORD, SERVER_URL);
 
         List<EntityReference> experimentsIdentifiers = client.listExperimentsIdentifiers();
         System.out.println("experiments: " + experimentsIdentifiers);
@@ -36,7 +36,7 @@ public class OpenbisConnectionDemo
                     if (plate.getIdentifier().contains("H001-1A"))
                     {
                         Long plateId = plate.getId().getId();
-                        TsvTable table = client.listImageAnalysisResultsForPlate(plateId);
+                        TabularData table = client.listImageAnalysisResultsForPlate(plateId);
                         System.out.println("Image analysis results: " + table);
                         System.out.println("Fetching images...");
                         List<PlateSingleImageReference> images =
