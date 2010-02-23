@@ -85,31 +85,31 @@
 
 	<target name="run-editing1-tests">
 		<antcall target="run-system-test-suite">
-			<param name="test.suite" value="h.systemsx.cisd.openbis.generic.EditingTestSuite1" />
+			<param name="test.suite" value="ch.systemsx.cisd.openbis.generic.EditingTestSuite1" />
 		</antcall>
 	</target>
 
 	<target name="run-editing2-tests">
 		<antcall target="run-system-test-suite">
-			<param name="test.suite" value="h.systemsx.cisd.openbis.generic.EditingTestSuite1" />
+			<param name="test.suite" value="ch.systemsx.cisd.openbis.generic.EditingTestSuite2" />
 		</antcall>
 	</target>
 
 	<target name="run-viewing1-tests">
 		<antcall target="run-system-test-suite">
-			<param name="test.suite" value="h.systemsx.cisd.openbis.generic.EditingTestSuite1" />
+			<param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1" />
 		</antcall>
 	</target>
 
 	<target name="run-viewing2-tests">
 		<antcall target="run-system-test-suite">
-			<param name="test.suite" value="h.systemsx.cisd.openbis.generic.EditingTestSuite1" />
+			<param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite2" />
 		</antcall>
 	</target>
 
 	<target name="run-viewing3-tests">
 		<antcall target="run-system-test-suite">
-			<param name="test.suite" value="h.systemsx.cisd.openbis.generic.EditingTestSuite1" />
+			<param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite3" />
 		</antcall>
 	</target>
 
