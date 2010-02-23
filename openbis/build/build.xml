@@ -790,7 +790,7 @@
 			<sysproperty key="cifex-url" value="https://cifex.ethz.ch:443" />
 			<sysproperty key="cifex-recipient" value="id:cifexdatamanager" />
 
-			<sysproperty key="hibernate.search.index-base" value="./targets/indices-dev" />
+			<sysproperty key="hibernate.search.index-base" value="./targets/indices-${module-test.db-kind}" />
 			<sysproperty key="hibernate.search.index-mode" value="SKIP_IF_MARKER_FOUND" />
 			<sysproperty key="hibernate.search.batch-size" value="1000" />
 			<sysproperty key="hibernate.search.worker.execution" value="async" />
