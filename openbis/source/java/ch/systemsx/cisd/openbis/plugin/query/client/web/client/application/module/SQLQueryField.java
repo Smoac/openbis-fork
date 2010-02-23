@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.Validator;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
@@ -30,10 +33,13 @@ public class SQLQueryField extends MultilineVarcharField
 
     private final static String EMPTY_TEXT = "SELECT ... \nFROM ... \nWHERE ...";
 
-    // SQL query needs to start with 'select' (ignore-case) and can contain newlines
+    // SQL query needs to start with 'select' (ignore-case) and can contain newlines.
     private final static String REGEX = "^(select|SELECT)(.|[\n\r])*";
 
     private final static String REGEX_TEXT_MSG = "SQL query should begin with a 'SELECT' keyword.";
+
+    private final static String SINGLE_QUERY_MSG =
+            "SQL query should not contain ';' in the middle.";
 
     private final static String BLANK_TEXT_MSG = "SQL query text required";
 
@@ -42,6 +48,7 @@ public class SQLQueryField extends MultilineVarcharField
         super(messageProvider.getMessage(Dict.SQL_QUERY), mandatory, lines);
         setEmptyText(EMPTY_TEXT);
         setRegex(REGEX);
+        setValidator(new SingleSQLQueryValidator());
         getMessages().setRegexText(REGEX_TEXT_MSG);
         getMessages().setBlankText(BLANK_TEXT_MSG);
     }
@@ -49,6 +56,21 @@ public class SQLQueryField extends MultilineVarcharField
     public SQLQueryField(IMessageProvider messageProvider, boolean mandatory)
     {
         this(messageProvider, mandatory, DEFAULT_LINES);
+    }
+
+    /** {@link Validator} for single SQL query. */
+    protected class SingleSQLQueryValidator implements Validator
+    {
+        public String validate(Field<?> field, final String fieldValue)
+        {
+            int indexOfSemicolon = fieldValue.trim().indexOf(';');
+            if (indexOfSemicolon >= 0 && indexOfSemicolon < fieldValue.length() - 1)
+            {
+                return SINGLE_QUERY_MSG;
+            }
+            // validated value is valid
+            return null;
+        }
     }
 
 }
