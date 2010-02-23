@@ -53,7 +53,7 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
         List<DataSetMappingInformation> list = tryParse(indexFile);
         AssertJUnit.assertEquals(1, list.size());
         DataSetMappingInformation elem = list.get(0);
-        AssertJUnit.assertEquals("group1", elem.getGroupCode());
+        AssertJUnit.assertEquals("group1", elem.getSpaceOrGroupCode());
         AssertJUnit.assertEquals("parentCode", elem.getParentDataSetCodes());
         AssertJUnit.assertEquals("sample1", elem.getSampleCodeOrLabel());
         AssertJUnit.assertEquals("data.txt", elem.getFileName());
@@ -72,7 +72,7 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
         List<DataSetMappingInformation> list = tryParse(indexFile);
         AssertJUnit.assertEquals(1, list.size());
         DataSetMappingInformation elem = list.get(0);
-        AssertJUnit.assertEquals("group2", elem.getGroupCode());
+        AssertJUnit.assertEquals("group2", elem.getSpaceOrGroupCode());
         AssertJUnit.assertEquals("sample2", elem.getSampleCodeOrLabel());
         AssertJUnit.assertEquals("data2.txt", elem.getFileName());
     }
@@ -99,8 +99,8 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
         AssertJUnit.assertNull("error during parsing expected", result);
         List<String> logLines = readLogFile();
         AssertJUnit.assertEquals(2, logLines.size());
-        AssertionUtil.assertContains("Mandatory column(s) 'group', 'file_name' are missing",
-                logLines.get(1));
+        AssertionUtil
+                .assertContains("Mandatory column(s) 'file_name' are missing", logLines.get(1));
     }
 
     private List<DataSetMappingInformation> tryParse(File indexFile)

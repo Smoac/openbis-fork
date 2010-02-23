@@ -180,7 +180,7 @@ class DatasetMappingResolver
                 tryGetExperimentIdentifier(mapping, experimentPropertyCodeOrNull);
         ListSamplesByPropertyCriteria criteria =
                 new ListSamplesByPropertyCriteria(samplePropertyCodeOrNull, sampleCodeOrLabel,
-                        mapping.getGroupCode(), experimentIdentifier);
+                        mapping.getSpaceOrGroupCode(), experimentIdentifier);
         return criteria;
     }
 
@@ -207,6 +207,23 @@ class DatasetMappingResolver
 
     public boolean isMappingCorrect(DataSetMappingInformation mapping, LogUtils log)
     {
+        if (mapping.getSpaceOrGroupCode() == null)
+        {
+            log
+                    .datasetMappingError(
+                            mapping,
+                            "mandatory property 'space' (previously called 'group') not specified. "
+                                    + "Note: the name 'group' may still be used but will be forbidden in the future.");
+            return false;
+        } else if (mapping.getSpaceCode() != null && mapping.getGroupCode() != null)
+        {
+            log
+                    .datasetMappingError(
+                            mapping,
+                            "either 'space' or 'group' should be specified - but not both. "
+                                    + "Note: the name 'group' may still be used but will be forbidden in the future.");
+            return false;
+        }
         if (isExperimentColumnCorrect(mapping, log) == false)
         {
             return false;
@@ -277,7 +294,8 @@ class DatasetMappingResolver
         String experimentCode = mapping.getExperimentName();
         if (project != null && experimentCode != null)
         {
-            return new ExperimentIdentifier(null, mapping.getGroupCode(), project, experimentCode);
+            return new ExperimentIdentifier(null, mapping.getSpaceOrGroupCode(), project,
+                    experimentCode);
         } else
         {
             return null;
@@ -350,8 +368,8 @@ class DatasetMappingResolver
     private SampleIdentifier createSampleIdentifier(String sampleCode,
             DataSetMappingInformation mapping)
     {
-        return new SampleIdentifier(new GroupIdentifier((String) null, mapping.getGroupCode()),
-                sampleCode);
+        return new SampleIdentifier(new GroupIdentifier((String) null, mapping
+                .getSpaceOrGroupCode()), sampleCode);
     }
 
     private boolean isExperimentColumnCorrect(DataSetMappingInformation mapping, LogUtils log)

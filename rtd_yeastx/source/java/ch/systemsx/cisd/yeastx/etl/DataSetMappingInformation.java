@@ -49,6 +49,8 @@ public class DataSetMappingInformation
 
     private List<NewProperty> properties;
 
+    private String spaceCode;
+
     public String getFileName()
     {
         return fileName;
@@ -107,15 +109,32 @@ public class DataSetMappingInformation
         this.projectCode = StringUtils.trimToNull(projectCode);
     }
 
+    // TODO 2010-02-23, IA: migrate to getSpaceCode after transition period (group->space)
+    public String getSpaceOrGroupCode()
+    {
+        return spaceCode == null ? groupCode : spaceCode;
+    }
+
     public String getGroupCode()
     {
         return groupCode;
     }
 
-    @BeanProperty(label = "group")
+    @BeanProperty(label = "group", optional = true)
     public void setGroupCode(String groupCode)
     {
-        this.groupCode = groupCode;
+        this.groupCode = StringUtils.trimToNull(groupCode);
+    }
+
+    public String getSpaceCode()
+    {
+        return spaceCode;
+    }
+
+    @BeanProperty(label = "space", optional = true)
+    public void setSpaceCode(String spaceCode)
+    {
+        this.spaceCode = StringUtils.trimToNull(spaceCode);
     }
 
     public String getConversion()
