@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -39,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * A {@link Sample} &lt;---&gt; {@link SamplePE} translator.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class SampleTranslator
 {
@@ -87,6 +88,8 @@ public final class SampleTranslator
         result.setPermId(StringEscapeUtils.escapeHtml(samplePE.getPermId()));
         result.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.SAMPLE,
                 samplePE.getPermId()));
+        result.setSearchlink(SearchlinkUtilities.createSearchlinkURL(baseIndexURL,
+                EntityKind.SAMPLE, samplePE.getCode()));
         result.setModificationDate(samplePE.getModificationDate());
         // NOTE: we should always translate Id in this way
         // because getId() on HibernateProxy object always returns null

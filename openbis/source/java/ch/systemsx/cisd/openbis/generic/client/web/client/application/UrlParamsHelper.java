@@ -121,12 +121,11 @@ public final class UrlParamsHelper
     }
 
     /**
-     * Parse the parameter string and store the result. This method is not declared private because
-     * it is used by a test.
+     * Parse the parameter string and store the result.
      * 
      * @param nonEmptyParameterString A non-empty URL parameter string
      */
-    final void initializeUrlParameters(String nonEmptyParameterString)
+    private final void initializeUrlParameters(String nonEmptyParameterString)
     {
         setUrlParams(parseParamString(nonEmptyParameterString));
     }

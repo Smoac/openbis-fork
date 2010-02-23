@@ -68,6 +68,8 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
 
     private String permlink;
 
+    private String searchlink;
+
     private String subCode;
 
     public String getSubCode()
@@ -88,6 +90,16 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     public void setPermlink(String permlink)
     {
         this.permlink = permlink;
+    }
+
+    public String getSearchlink()
+    {
+        return searchlink;
+    }
+
+    public void setSearchlink(String searchlink)
+    {
+        this.searchlink = searchlink;
     }
 
     public AttachmentHolderKind getAttachmentHolderKind()

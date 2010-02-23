@@ -207,7 +207,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             appendln(sb, heading);
 
             // basic sample info
-            appendAttribute(sb, PERMLINK_LABEL, sample.getPermlink());
+            appendAttribute(sb, PERMLINK_LABEL, sample.getSearchlink());
             appendAttribute(sb, "Sample identifier", sample.getIdentifier());
             appendNewline(sb);
 

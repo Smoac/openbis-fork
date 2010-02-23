@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropert
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -398,7 +399,8 @@ final class SampleListingWorker
         String groupCode = criteria.getGroupCode();
         if (groupCode == null)
         {
-            return query.getAllGroupSamplesForSampleTypeWithExperiment(databaseInstanceId, sampleTypeId);
+            return query.getAllGroupSamplesForSampleTypeWithExperiment(databaseInstanceId,
+                    sampleTypeId);
         }
         return query.getGroupSamplesForSampleTypeWithExperiment(databaseInstanceId, groupCode,
                 sampleTypeId);
@@ -525,6 +527,8 @@ final class SampleListingWorker
             sample.setPermId(StringEscapeUtils.escapeHtml(row.perm_id));
             sample.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.SAMPLE,
                     row.perm_id));
+            sample.setSearchlink(SearchlinkUtilities.createSearchlinkURL(baseIndexURL,
+                    EntityKind.SAMPLE, row.code));
             sample.setRegistrationDate(row.registration_timestamp);
             if (row.inva_id != null)
             {
