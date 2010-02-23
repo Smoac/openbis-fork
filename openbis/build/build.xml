@@ -76,8 +76,35 @@
 			<sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
 			<sysproperty key="gwt.args" value="-testMethodTimeout 3 -Xtries 1" />
 			<formatter type="xml" />
-			<test name="ch.systemsx.cisd.openbis.generic.EditingTestSuite" todir="${output.test}" />
+			<test name="ch.systemsx.cisd.openbis.generic.EditingTestSuite1" todir="${output.test}" />
 		</junit>
+			<junit dir="."
+			       fork="true"
+			       forkmode="once"
+			       maxmemory="1024m"
+			       showoutput="true"
+			       failureproperty="tests-failed">
+				<classpath>
+					<pathelement location="${sources}" />
+					<pathelement location="${sources.test}" />
+					<pathelement path="${ecp}" />
+					<pathelement location="${gwt.lib}/gwt-dev.jar" />
+				</classpath>
+				<jvmarg value="-ea" />
+				<sysproperty key="authentication-service" value="file-authentication-service" />
+				<sysproperty key="database.create-from-scratch" value="true" />
+				<sysproperty key="database.kind" value="system_test" />
+				<sysproperty key="script-folder" value="sourceTest" />
+				<sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
+				<sysproperty key="log4j.configuration" value="etc/log.xml" />
+				<sysproperty key="hibernate.search.index-base" value="sourceTest/lucene/indices" />
+				<sysproperty key="hibernate.search.index-mode" value="NO_INDEX" />
+				<sysproperty key="hibernate.search.indexing_strategy" value="manual" />
+				<sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
+				<sysproperty key="gwt.args" value="-testMethodTimeout 3 -Xtries 1" />
+				<formatter type="xml" />
+				<test name="ch.systemsx.cisd.openbis.generic.EditingTestSuite2" todir="${output.test}" />
+			</junit>
 		<junit dir="."
 		       fork="true"
 		       forkmode="once"
