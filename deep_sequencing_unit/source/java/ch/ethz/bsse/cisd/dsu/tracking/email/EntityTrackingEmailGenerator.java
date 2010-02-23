@@ -165,7 +165,11 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 String sectionHeading;
                 final String sequencingSampleCode =
                         sequencingSampleData.getSequencingSample().getCode();
+                final String externalSampleName =
+                        getExternalSampleName(sequencingSampleData.getSequencingSample());
+
                 final int flowLaneSamplesSize = sequencingSampleData.getFlowLaneSamples().size();
+
                 if (sequencingSampleData.isNewlyTracked())
                 {
                     String headingSuffix =
@@ -185,24 +189,26 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 appendln(sb, SUBSECTION_SEPARATOR_LINE);
 
                 // append Sequencing sample details and then Flow Lane samples in subsections
-                appendSampleDetails(sb, "Sequencing", sequencingSampleData.getSequencingSample());
+                appendSampleDetails(sb, String.format(
+                        "Your order for sample '%s' is now queued for sequencing.",
+                        externalSampleName), sequencingSampleData.getSequencingSample());
                 appendln(sb, SUBSECTION_SEPARATOR_LINE);
                 for (Sample flowLaneSample : sequencingSampleData.getFlowLaneSamples())
                 {
-                    appendSampleDetails(sb, "Flow Lane", flowLaneSample);
+                    appendSampleDetails(sb, String.format("Sample '%s' is now being sequenced.",
+                            externalSampleName), flowLaneSample);
                     appendln(sb, SUBSECTION_SEPARATOR_LINE);
                 }
             }
         }
 
-        private static void appendSampleDetails(StringBuilder sb, String sampleTypeLabel,
-                Sample sample)
+        private static void appendSampleDetails(StringBuilder sb, String heading, Sample sample)
         {
-            appendln(sb, String.format("%s sample '%s' details", sampleTypeLabel, sample.getCode()));
+            appendln(sb, heading);
 
             // basic sample info
             appendAttribute(sb, PERMLINK_LABEL, sample.getPermlink());
-            appendAttribute(sb, "Identifier", sample.getIdentifier());
+            appendAttribute(sb, "Sample identifier", sample.getIdentifier());
             appendNewline(sb);
 
             // sample properties
@@ -217,9 +223,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             }
             appendln(sb, SECTION_SEPARATOR_LINE);
             appendln(sb, SUBSECTION_SEPARATOR_LINE);
-            appendln(sb, String.format(
-                    "Tracked creation of %d data set(s) connected with Flow Lane samples.",
-                    dataSets.size()));
+            appendln(sb, "There are new sequencing results available to you.");
             appendln(sb, SUBSECTION_SEPARATOR_LINE);
             for (ExternalData dataSet : dataSets)
             {
@@ -230,28 +234,33 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
         private static void appendDataSetDetails(StringBuilder sb, ExternalData dataSet)
         {
-            appendln(sb, String.format("Data set '%s' details", dataSet.getCode()));
-
-            // basic data set info
-            appendAttribute(sb, PERMLINK_LABEL, dataSet.getPermlink());
-            appendNewline(sb);
-
-            // basic flow lane and sequencing sample info
             Sample flowLaneSample = dataSet.getSample();
             assert flowLaneSample != null;
             Sample sequencingSample = flowLaneSample.getGeneratedFrom();
             assert sequencingSample != null;
-            appendAttribute(sb, "Flow Lane sample", String.format("'%s'\n\t\t%s", flowLaneSample
-                    .getCode(), flowLaneSample.getPermlink()));
-            appendAttribute(sb, "Sequencing sample", String.format("'%s'\n\t\t%s", sequencingSample
-                    .getCode(), sequencingSample.getPermlink()));
+            String externalSampleName = getExternalSampleName(sequencingSample);
 
-            // information about external sample name
-            appendAttribute(sb, "External sample name", tryGetSamplePropertyValue(sequencingSample,
-                    EXTERNAL_SAMPLE_NAME_PROPERTY_CODE));
+            // link to openbis
+            appendAttribute(sb, String.format(
+                    "You can dowload results for extrernal sample named '%s' at",
+                    externalSampleName), dataSet.getPermlink());
 
             // data set properties
             appendProperties(sb, dataSet.getProperties());
+
+            // sequencing sample info
+            appendAttribute(sb, String.format(
+                    "Meta data of Sequencing sample '%s' are available here", externalSampleName),
+                    sequencingSample.getPermlink());
+
+        }
+
+        private static String getExternalSampleName(Sample sequencingSample)
+        {
+            String externalSampleName =
+                    tryGetSamplePropertyValue(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY_CODE);
+            assert externalSampleName != null;
+            return externalSampleName;
         }
 
         private static String tryGetSamplePropertyValue(Sample sequencingSample, String propertyCode)
