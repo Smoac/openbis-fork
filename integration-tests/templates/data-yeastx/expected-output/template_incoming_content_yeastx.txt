@@ -16,20 +16,20 @@ faulty-no-mapping --------------------
 ERROR: file1.mzXML - no mapping could be found for this dataset
 
 faulty-non-unique-mapping --------------------
-ERROR: file1.mzXML - cannot upload the file: there is no sample which matches the criteria <Samples from the group 'TEST' with property 'samplename' set to 'any' in any experiment>
-ERROR: file2.mzXML - cannot upload the file: there is no sample which matches the criteria <Samples from the group 'TEST' with property 'samplename' set to 'any' in project 'TEST_PROJECT', experiment name = 'Praktikum Metabolic Networks 2009'>
+ERROR: file1.mzXML - cannot upload the file: there is no sample which matches the criteria <Samples from the space 'TEST' with property 'samplename' set to 'any' in any experiment>
+ERROR: file2.mzXML - cannot upload the file: there is no sample which matches the criteria <Samples from the space 'TEST' with property 'samplename' set to 'any' in project 'TEST_PROJECT', experiment name = 'Praktikum Metabolic Networks 2009'>
 ERROR: file3.mzXML - no mapping could be found for this dataset
 
 faulty-to-many-mapping-files --------------------
 ERROR: No datasets from the directory 'faulty-to-many-mapping-files' can be processed because there is more than one file with extension '[tsv]'.
 
 faulty-unknown-mapping --------------------
-ERROR: file1.mzXML - cannot upload the file: there is no sample which matches the criteria <Samples from the group 'TEST' with property 'samplename' set to 'unknown' in any experiment>
+ERROR: file1.mzXML - cannot upload the file: there is no sample which matches the criteria <Samples from the space 'TEST' with property 'samplename' set to 'unknown' in any experiment>
 ERROR: file2.mzXML - cannot upload the file: No project 'UNKNOWN' could be found in the 'TEST' space!
 ERROR: file3.mzXML - cannot upload the file: experiment and project columns should be both empty or should be both filled.
 ERROR: file4.mzXML - cannot upload the file: experiment and project columns should be both empty or should be both filled.
-ERROR: file5.mzXML - cannot upload the file: error when checking if sample '/unknown/x' belongs to an experiment: No group could be found for identifier 'CISD:/UNKNOWN'.
-ERROR: file5.mzXML - cannot upload the file: No group could be found for identifier 'CISD:/UNKNOWN'.
+ERROR: file5.mzXML - cannot upload the file: error when checking if sample '/unknown/x' belongs to an experiment: No space could be found for identifier 'CISD:/UNKNOWN'.
+ERROR: file5.mzXML - cannot upload the file: No space could be found for identifier 'CISD:/UNKNOWN'.
 
 faulty-unknown-property --------------------
 ERROR: file1.mzXML - cannot upload the file: Property type with code 'unknown-property' does not exist!
