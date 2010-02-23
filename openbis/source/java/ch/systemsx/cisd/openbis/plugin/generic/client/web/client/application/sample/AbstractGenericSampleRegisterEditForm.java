@@ -176,16 +176,16 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     @Override
     protected void createEntitySpecificFormFields()
     {
-        groupSelectionWidget = new GroupSelectionWidget(viewContext, getId(), true);
+        groupSelectionWidget = new GroupSelectionWidget(viewContext, getId(), true, false);
         FieldUtil.markAsMandatory(groupSelectionWidget);
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         parent =
                 SampleChooserField.create(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE),
-                        false, null, true, false, viewContext.getCommonViewContext(), getId()
+                        false, null, true, false, false, viewContext.getCommonViewContext(), getId()
                                 + ID_SUFFIX_PARENT);
         container =
                 SampleChooserField.create(viewContext.getMessage(Dict.PART_OF_SAMPLE), false, null,
-                        true, false, viewContext.getCommonViewContext(), getId()
+                        true, false, false, viewContext.getCommonViewContext(), getId()
                                 + ID_SUFFIX_CONTAINER);
         experimentField = createExperimentField();
         experimentField.getChooserField().setId(getId() + ID_SUFFIX_EXPERIMENT);

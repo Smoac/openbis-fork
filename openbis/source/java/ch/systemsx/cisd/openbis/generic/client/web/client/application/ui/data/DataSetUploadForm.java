@@ -91,7 +91,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
         // both sample and experiment choosers are mandatory but only one will be shown
         sampleChooser =
                 SampleChooserField.create(viewContext.getMessage(Dict.SAMPLE), true, null, false,
-                        true, viewContext);
+                        false, true, viewContext);
         formPanel.add(sampleChooser.getField());
         experimentChooser =
                 ExperimentChooserField.create(viewContext.getMessage(Dict.EXPERIMENT), true, null,

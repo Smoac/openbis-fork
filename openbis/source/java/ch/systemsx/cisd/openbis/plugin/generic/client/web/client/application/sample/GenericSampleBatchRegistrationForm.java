@@ -112,7 +112,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
             IViewContext<ICommonClientServiceAsync> context, String idSuffix, boolean addShared,
             final CheckBoxField checkbox)
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(context, idSuffix, addShared)
+        GroupSelectionWidget field = new GroupSelectionWidget(context, idSuffix, addShared, false)
             {
 
                 @Override

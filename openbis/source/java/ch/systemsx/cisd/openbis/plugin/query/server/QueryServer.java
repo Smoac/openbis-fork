@@ -220,7 +220,6 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         if (databaseDefinition == null)
         {
             Properties resolvedProps = configurer.getResolvedProps();
-            resolvedProps.list(System.out);
             ExtendedProperties databaseProperties =
                     ExtendedProperties.getSubset(resolvedProps,
                             DATABASE_PROPERTIES_PREFIX, true);

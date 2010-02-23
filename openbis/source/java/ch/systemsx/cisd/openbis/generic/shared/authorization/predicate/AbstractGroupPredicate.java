@@ -46,26 +46,26 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
     }
 
     protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final DatabaseInstancePE databaseInstance, final String groupCode)
+            final DatabaseInstancePE databaseInstance, final String groupCodeOrNull)
     {
         final String databaseInstanceUUID = databaseInstance.getUuid();
         final GroupIdentifier fullGroupIdentifier =
-                new GroupIdentifier(databaseInstance.getCode(), groupCode);
-        ensureGroupExists(fullGroupIdentifier, databaseInstanceUUID, groupCode);
-        final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, groupCode);
+                new GroupIdentifier(databaseInstance.getCode(), groupCodeOrNull);
+        ensureGroupExists(fullGroupIdentifier, databaseInstanceUUID, groupCodeOrNull);
+        final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, groupCodeOrNull);
         if (matching)
         {
             return Status.OK;
         }
         return Status.createError(String.format(
                 "User '%s' does not have enough privileges to access data in the group '%s'.",
-                person.getUserId(), new GroupIdentifier(databaseInstance.getCode(), groupCode)));
+                person.getUserId(), new GroupIdentifier(databaseInstance.getCode(), groupCodeOrNull)));
     }
     
     private void ensureGroupExists(final GroupIdentifier groupIdentifier,
-            final String databaseInstanceUUID, final String groupCode)
+            final String databaseInstanceUUID, final String groupCodeOrNull)
     {
-        if (tryFindGroup(databaseInstanceUUID, groupCode) == null)
+        if (groupCodeOrNull != null && tryFindGroup(databaseInstanceUUID, groupCodeOrNull) == null)
         {
             throw UserFailureException.fromTemplate("No group could be found for identifier '%s'.",
                     groupIdentifier);
@@ -85,13 +85,13 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
     }
 
     private boolean isMatching(final List<RoleWithIdentifier> allowedRoles,
-            final String databaseInstanceUUID, final String groupCode)
+            final String databaseInstanceUUID, final String groupCodeOrNull)
     {
         for (final RoleWithIdentifier role : allowedRoles)
         {
             final RoleLevel roleGroup = role.getRoleGroup();
             if (roleGroup.equals(RoleLevel.GROUP)
-                    && equalIdentifier(role.getAssignedGroup(), databaseInstanceUUID, groupCode))
+                    && equalIdentifier(role.getAssignedGroup(), databaseInstanceUUID, groupCodeOrNull))
             {
                 return true;
             } else if (roleGroup.equals(RoleLevel.INSTANCE)
@@ -106,9 +106,9 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
     }
 
     private boolean equalIdentifier(final GroupPE group, final String databaseInstanceUUID,
-            final String groupCode)
+            final String groupCodeOrNull)
     {
-        return group.getCode().equals(groupCode)
+        return (groupCodeOrNull == null || group.getCode().equals(groupCodeOrNull))
                 && group.getDatabaseInstance().getUuid().equals(databaseInstanceUUID);
     }
 

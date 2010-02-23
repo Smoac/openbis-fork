@@ -93,7 +93,7 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
     private final GroupSelectionWidget createGroupField(
             IViewContext<ICommonClientServiceAsync> context, String idSuffix, boolean addShared)
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(context, idSuffix, addShared);
+        GroupSelectionWidget field = new GroupSelectionWidget(context, idSuffix, addShared, false);
         field.setFieldLabel(viewContext.getMessage(Dict.DEFAULT_GROUP));
         return field;
     }

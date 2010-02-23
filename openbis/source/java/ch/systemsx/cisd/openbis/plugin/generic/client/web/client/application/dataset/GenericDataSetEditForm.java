@@ -244,7 +244,7 @@ public final class GenericDataSetEditForm extends
         String originalSampleOrNull = originalDataSet.getSampleIdentifier();
         // one cannot select a sample from shared group or a sample that has no experiment
         final SampleChooserFieldAdaptor result =
-                SampleChooserField.create(label, true, originalSampleOrNull, false, true,
+                SampleChooserField.create(label, true, originalSampleOrNull, false, false, true,
                         viewContext.getCommonViewContext());
         result.getField().setId(createChildId(SAMPLE_FIELD_ID_SUFFIX));
         return result;

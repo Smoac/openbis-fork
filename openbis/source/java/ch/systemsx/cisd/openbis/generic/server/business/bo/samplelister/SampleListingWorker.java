@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import net.lemnik.eodsql.DataIterator;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -342,26 +344,64 @@ final class SampleListingWorker
         {
             if (singleSampleTypeMode)
             {
-                final long sampleTypeId = getSampleTypeId();
-                return query.getGroupSamplesForSampleTypeWithExperiment(databaseInstanceId,
-                        criteria.getGroupCode(), sampleTypeId);
+                return getGroupSampleForSampleTypeWithExperiment();
             } else
             {
-                return query.getGroupSamplesWithExperiment(databaseInstanceId, criteria
-                        .getGroupCode());
+                return getGroupSamplesWithExperiment();
             }
         } else
         {
             if (singleSampleTypeMode)
             {
-                final long sampleTypeId = getSampleTypeId();
-                return query.getGroupSamplesForSampleType(databaseInstanceId, criteria
-                        .getGroupCode(), sampleTypeId);
+                return getGroupSamplesForSampleType();
             } else
             {
-                return query.getGroupSamples(databaseInstanceId, criteria.getGroupCode());
+                return getGroupSamples();
             }
         }
+    }
+
+    private DataIterator<SampleRecord> getGroupSamples()
+    {
+        String groupCode = criteria.getGroupCode();
+        if (groupCode == null)
+        {
+            return query.getAllGroupSamples(databaseInstanceId);
+        }
+        return query.getGroupSamples(databaseInstanceId, groupCode);
+    }
+
+    private Iterable<SampleRecord> getGroupSamplesForSampleType()
+    {
+        final long sampleTypeId = getSampleTypeId();
+        String groupCode = criteria.getGroupCode();
+        if (groupCode == null)
+        {
+            return query.getAllGroupSamplesForSampleType(databaseInstanceId, sampleTypeId);
+        }
+        return query.getGroupSamplesForSampleType(databaseInstanceId, groupCode, sampleTypeId);
+    }
+
+    private DataIterator<SampleRecord> getGroupSamplesWithExperiment()
+    {
+        String groupCode = criteria.getGroupCode();
+        if (groupCode == null)
+        {
+            return query.getAllGroupSamplesWithExperiment(databaseInstanceId);
+        }
+        return query.getGroupSamplesWithExperiment(databaseInstanceId, groupCode);
+    }
+
+    private DataIterator<SampleRecord> getGroupSampleForSampleTypeWithExperiment()
+    {
+        final long sampleTypeId = getSampleTypeId();
+        String groupCode = criteria.getGroupCode();
+        if (groupCode == null)
+        {
+            return query.getAllGroupSamplesForSampleTypeWithExperiment(databaseInstanceId, sampleTypeId);
+        }
+        return query.getGroupSamplesForSampleTypeWithExperiment(databaseInstanceId, groupCode,
+                sampleTypeId);
     }
 
     private Iterable<SampleRecord> tryGetIteratorForExperimentSamples()

@@ -250,6 +250,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
+    @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamples(
             final String sessionToken,
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class) final ListSampleCriteria criteria);

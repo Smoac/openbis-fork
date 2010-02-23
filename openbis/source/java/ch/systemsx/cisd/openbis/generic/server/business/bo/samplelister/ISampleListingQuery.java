@@ -132,6 +132,52 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     public DataIterator<SampleRecord> getGroupSamplesForSampleTypeWithExperiment(long dbInstanceId,
             String groupCode, long sampleTypeId);
 
+    /**
+     * Returns the samples for all groups.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.dbin_id, "
+        + "       s.registration_timestamp, s.pers_id_registerer, "
+        + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+        + "   from samples s join sample_types st on s.saty_id=st.id"
+        + " join groups g on s.grou_id=g.id "
+        + "   where st.is_listable and g.dbin_id=?{1} order by s.code", fetchSize = FETCH_SIZE)
+        public DataIterator<SampleRecord> getAllGroupSamples(long dbInstanceId);
+    
+    /**
+     * Returns the samples for all groups that are assigned to an experiment.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.saty_id, s.expe_id, s.grou_id, s.dbin_id, "
+        + "       s.samp_id_generated_from, s.registration_timestamp, s.modification_timestamp, "
+        + "       s.pers_id_registerer, s.samp_id_part_of, s.inva_id "
+        + "   from samples s join groups g on s.grou_id=g.id "
+        + "   where s.expe_id is not null and g.dbin_id=?{1} "
+        + "   order by s.code", fetchSize = FETCH_SIZE)
+        public DataIterator<SampleRecord> getAllGroupSamplesWithExperiment(long dbInstanceId);
+    
+    /**
+     * Returns the samples for all groups and <var>sampleTypeId</var>
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.dbin_id, "
+        + "       s.registration_timestamp, s.pers_id_registerer, "
+        + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+        + "   from samples s join groups g on s.grou_id=g.id "
+        + "   where g.dbin_id=?{1} and s.saty_id=?{2}"
+        + "      order by s.code", fetchSize = FETCH_SIZE)
+        public DataIterator<SampleRecord> getAllGroupSamplesForSampleType(long dbInstanceId, long sampleTypeId);
+    
+    /**
+     * Returns the samples for all groups and <var>sampleTypeId</var> that are
+     * assigned to an experiment.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.saty_id, s.expe_id, s.grou_id, s.dbin_id, "
+            + "       s.samp_id_generated_from, s.registration_timestamp, s.modification_timestamp, "
+            + "       s.pers_id_registerer, s.samp_id_part_of, s.inva_id "
+            + "   from samples s  join groups g on s.grou_id=g.id "
+            + "   where s.expe_id is not null and g.dbin_id=?{1} and s.saty_id=?{2} "
+            + "   order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getAllGroupSamplesForSampleTypeWithExperiment(
+            long dbInstanceId, long sampleTypeId);
+    
     //
     // Samples for experiment
     //

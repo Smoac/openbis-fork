@@ -107,7 +107,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     private final GroupSelectionWidget createGroupField()
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, getId(), false);
+        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, getId(), false, false);
         FieldUtil.markAsMandatory(field);
         field.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         return field;

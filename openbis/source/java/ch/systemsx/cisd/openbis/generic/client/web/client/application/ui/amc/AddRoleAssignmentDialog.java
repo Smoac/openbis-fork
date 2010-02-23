@@ -74,7 +74,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
                 postRegistrationCallback);
         this.viewContext = viewContext;
 
-        group = new GroupSelectionWidget(viewContext, PREFIX, false);
+        group = new GroupSelectionWidget(viewContext, PREFIX, false, false);
         group.setWidth(100);
 
         roleBox = new AdapterField(new RoleListBox(group));

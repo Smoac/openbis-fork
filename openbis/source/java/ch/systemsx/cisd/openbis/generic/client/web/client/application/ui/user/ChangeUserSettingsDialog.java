@@ -110,7 +110,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final GroupSelectionWidget createHomeGroupField()
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, GROUP_FIELD_ID, false);
+        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, GROUP_FIELD_ID, false, false);
         FieldUtil.setMandatoryFlag(field, false);
         field.setFieldLabel(viewContext.getMessage(Dict.HOME_GROUP_LABEL));
         return field;

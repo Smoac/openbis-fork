@@ -52,17 +52,17 @@ public class SampleChooserField extends ChosenEntitySetter<Sample>
      */
     public static SampleChooserFieldAdaptor create(final String labelField,
             final boolean mandatory, final String initialValueOrNull, final boolean addShared,
-            final boolean excludeWithoutExperiment,
+            boolean addAll, final boolean excludeWithoutExperiment,
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        return create(labelField, mandatory, initialValueOrNull, addShared,
+        return create(labelField, mandatory, initialValueOrNull, addShared, addAll,
                 excludeWithoutExperiment, viewContext, null);
 
     }
 
     public static SampleChooserFieldAdaptor create(final String labelField,
             final boolean mandatory, final String initialValueOrNull, final boolean addShared,
-            final boolean excludeWithoutExperiment,
+            final boolean addAll, final boolean excludeWithoutExperiment,
             final IViewContext<ICommonClientServiceAsync> viewContext, String idOrNull)
     {
         final SampleChooserField chooserField =
@@ -72,7 +72,7 @@ public class SampleChooserField extends ChosenEntitySetter<Sample>
                         protected void onTriggerClick(ComponentEvent ce)
                         {
                             super.onTriggerClick(ce);
-                            browse(viewContext, this, addShared, excludeWithoutExperiment);
+                            browse(viewContext, this, addShared, addAll, excludeWithoutExperiment);
                         }
                     };
         if (idOrNull != null)
@@ -114,10 +114,11 @@ public class SampleChooserField extends ChosenEntitySetter<Sample>
 
     private static void browse(final IViewContext<ICommonClientServiceAsync> viewContext,
             final ChosenEntitySetter<Sample> chosenSampleField, final boolean addShared,
-            final boolean excludeWithoutExperiment)
+            boolean addAll, final boolean excludeWithoutExperiment)
     {
         DisposableEntityChooser<Sample> browser =
-                SampleBrowserGrid.createChooser(viewContext, addShared, excludeWithoutExperiment);
+                SampleBrowserGrid.createChooser(viewContext, addShared, addAll,
+                        excludeWithoutExperiment);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_SAMPLE);
         new EntityChooserDialog<Sample>(browser, chosenSampleField, title, viewContext).show();
     }

@@ -71,12 +71,12 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
     private final boolean excludeWithoutExperiment;
 
     public SampleBrowserToolbar(final IViewContext<?> viewContext, final boolean addShared,
-            final boolean excludeWithoutExperiment)
+            boolean addAll, final boolean excludeWithoutExperiment)
     {
         this.viewContext = viewContext;
         this.excludeWithoutExperiment = excludeWithoutExperiment;
         selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID, true, true, false);
-        selectGroupCombo = new GroupSelectionWidget(viewContext, ID, addShared);
+        selectGroupCombo = new GroupSelectionWidget(viewContext, ID, addShared, addAll);
         display();
     }
 
@@ -97,7 +97,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
 
         ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSampleType(selectedType);
-        criteria.setGroupCode(selectedGroup.getCode());
+        criteria.setGroupCode(GroupSelectionWidget.tryToGetGroupCode(selectedGroup));
         criteria.setIncludeGroup(includeGroup);
         criteria.setIncludeInstance(includeInstance);
         criteria.setExcludeWithoutExperiment(excludeWithoutExperiment);

@@ -54,26 +54,36 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     {
         return SHARED_GROUP_CODE.equals(g.getCode());
     }
+    
+    public static final String tryToGetGroupCode(Group group)
+    {
+        String code = group.getCode();
+        return code.equals(ALL_GROUPS_CODE) ? null : code;
+    }
 
     public static final String SHARED_GROUP_CODE = "(Shared)";
+    public static final String ALL_GROUPS_CODE = "(all)";
 
     private final boolean addShared;
 
     public boolean dataLoaded = false;
 
+    private final boolean addAll;
+
     public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            boolean addShared)
+            boolean addShared, boolean addAll)
     {
-        this(viewContext, idSuffix, addShared, null);
+        this(viewContext, idSuffix, addShared, addAll, null);
     }
 
     public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            boolean addShared, final String initialGroupCodeOrNull)
+            boolean addShared, boolean addAll, final String initialGroupCodeOrNull)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.GROUP, ModelDataPropertyNames.CODE, viewContext
                 .getMessage(Dict.GROUP), viewContext.getMessage(Dict.GROUP));
         this.viewContext = viewContext;
         this.addShared = addShared;
+        this.addAll = addAll;
         this.initialGroupOrNull = initialGroupCodeOrNull;
 
     }
@@ -95,6 +105,13 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
         group.setIdentifier("/");
         return group;
     }
+    
+    private Group createAllGroups()
+    {
+        Group group = new Group();
+        group.setCode(ALL_GROUPS_CODE);
+        return group;
+    }
 
     private final class ListGroupsCallback extends AbstractAsyncCallback<ResultSet<Group>>
     {
@@ -111,6 +128,10 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
             if (addShared)
             {
                 groupStore.add(new GroupModel(createSharedGroup()));
+            }
+            if (addAll)
+            {
+                groupStore.add(new GroupModel(createAllGroups()));
             }
             groupStore.add(convertItems(result.getList().extractOriginalObjects()));
             if (groupStore.getCount() > 0)
