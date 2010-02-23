@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  * 
  * @author Izabela Adamczyk
  */
+@DoNotRunWith(Platform.HtmlUnit)
 public class ExperimentBrowserTest extends AbstractGWTTestCase
 {
 
