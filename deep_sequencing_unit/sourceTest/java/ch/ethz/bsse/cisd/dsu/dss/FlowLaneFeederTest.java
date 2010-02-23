@@ -57,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 {
+    private static final String META_DATA_PREFIX = "meta-";
+
     private static final String AFFILIATION = "fmi";
 
     private static final String EXTERNAL_SAMPLE_NAME = "ext23";
@@ -265,7 +267,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         assertEquals(2, transferedFiles.length);
         assertEquals("2.srf", transferedFiles[0].getName());
         File metaFile = transferedFiles[1];
-        assertEquals(SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE, metaFile.getName());
+        assertEquals(META_DATA_PREFIX + SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE, metaFile.getName());
         assertHardLinkOnSameFile(originalFlowLane2, transferedFiles[0]);
 
         context.assertIsSatisfied();
@@ -304,7 +306,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         assertEquals(2, transferedFiles.length);
         assertEquals("2.srf", transferedFiles[0].getName());
         File metaFile = transferedFiles[1];
-        assertEquals(SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE, metaFile
+        assertEquals(META_DATA_PREFIX + SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE, metaFile
                 .getName());
         List<String> metaData = FileUtilities.loadToStringList(metaFile);
         String lastLine = metaData.remove(metaData.size() - 1);
@@ -452,8 +454,8 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         assertEquals(FileUtilities.loadToString(originalFlowLane), FileUtilities
                 .loadToString(flowLane));
         assertHardLinkOnSameFile(originalFlowLane, flowLane);
-        String metaDataFileName =
-                (SAMPLE_CODE + "_" + FlowLaneFeeder.escapeSampleCode(flowLaneNumber)) + FlowLaneFeeder.META_DATA_FILE_TYPE;
+        String metaDataFileName = META_DATA_PREFIX 
+                + (SAMPLE_CODE + "_" + FlowLaneFeeder.escapeSampleCode(flowLaneNumber)) + FlowLaneFeeder.META_DATA_FILE_TYPE;
         assertEquals(true, new File(ds, FlowLaneFeeder.escapeSampleCode(metaDataFileName)).exists());
         assertEquals(true, new File(dropBox, Constants.IS_FINISHED_PREFIX + FlowLaneFeeder.escapeSampleCode(fileName)).exists());
     }
@@ -488,6 +490,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         properties.setProperty(FlowLaneFeeder.FLOW_LANE_DROP_BOX_TEMPLATE, new File(
                 workingDirectory, DROP_BOX_PREFIX).getAbsolutePath()
                 + "{0}");
+        properties.setProperty(FlowLaneFeeder.META_DATA_FILE_PREFIX, META_DATA_PREFIX);
         properties.setProperty(FlowLaneFeeder.TRANSFER_PREFIX + AFFILIATION, transferDropBox
                 .getAbsolutePath());
         if (srfInfoScriptOrNull != null)
