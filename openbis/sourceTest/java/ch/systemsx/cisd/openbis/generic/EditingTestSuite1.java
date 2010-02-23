@@ -24,22 +24,17 @@ import com.google.gwt.junit.tools.GWTTestSuite;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthenticationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationGroupsTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationManagementConsolTest;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypePropertyTypeAssignmentTest;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectRegistrationTest;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeRegistrationTest;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyRegistrationTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditorTest;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditorTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationTest;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class EditingTestSuite extends GWTTestSuite
+public class EditingTestSuite1 extends GWTTestSuite
 {
     public static Test suite()
     {
-        final TestSuite testSuite = new TestSuite("Editing Tests");
+        final TestSuite testSuite = new TestSuite("Editing Tests 1");
         testSuite.addTestSuite(AuthenticationTest.class);
         testSuite.addTestSuite(AuthorizationGroupsTest.class);
         testSuite.addTestSuite(GenericDataSetEditorTest.class);
@@ -49,12 +44,6 @@ public class EditingTestSuite extends GWTTestSuite
         // TODO 2009-01-21, IA: Uncomment after it's clear how to deal with
         // (NS_ERROR_DOM_SECURITY_ERR): Security error on CC
         // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);
-
-        testSuite.addTestSuite(EntityTypePropertyTypeAssignmentTest.class);
-        testSuite.addTestSuite(VocabularyRegistrationTest.class);
-        testSuite.addTestSuite(PropertyTypeRegistrationTest.class);
-        testSuite.addTestSuite(ProjectRegistrationTest.class);
-        testSuite.addTestSuite(GenericExperimentEditorTest.class);
         return testSuite;
     }
 }
