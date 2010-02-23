@@ -258,7 +258,12 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         final FileStorage storage = new FileStorage(rootDir);
         final IDataStructureV1_1 structure =
                 (IDataStructureV1_1) DataStructureFactory.createDataStructure(storage, version);
-        structure.create();
+
+        List<FormatParameter> parameters = new ArrayList<FormatParameter>(formatParameters);
+        final Geometry plateGeometry = getPlateGeometry(dataSetInformation);
+        parameters.add(new FormatParameter(PlateGeometry.PLATE_GEOMETRY, plateGeometry));
+
+        structure.create(parameters);
         structure.setFormat(format);
         structure.setExperimentIdentifier(createExperimentIdentifier(dataSetInformation));
         structure.setExperimentRegistrationTimestamp(new ExperimentRegistrationTimestamp(experiment
@@ -270,10 +275,12 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         structure.setExperimentRegistrator(new ExperimentRegistrator(firstName, lastName, email));
         structure.setSample(createSample(dataSetInformation));
         structure.setDataSet(createDataSet(dataSetInformation, typeExtractor, incomingDataSetPath));
-        for (final FormatParameter formatParameter : formatParameters)
-        {
-            structure.addFormatParameter(formatParameter);
-        }
+
+        return structure;
+    }
+
+    private Geometry getPlateGeometry(final DataSetInformation dataSetInformation)
+    {
         final IEntityProperty[] sampleProperties = dataSetInformation.getProperties();
         final PlateDimension plateDimension =
                 PlateDimensionParser.tryToGetPlateDimension(sampleProperties);
@@ -285,9 +292,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         }
         final Geometry plateGeometry =
                 new PlateGeometry(plateDimension.getRowsNum(), plateDimension.getColsNum());
-        structure.addFormatParameter(new FormatParameter(PlateGeometry.PLATE_GEOMETRY,
-                plateGeometry));
-        return structure;
+        return plateGeometry;
     }
 
     private final Sample createSample(final DataSetInformation dataSetInformation)

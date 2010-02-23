@@ -19,6 +19,8 @@ package ch.systemsx.cisd.bds.v1_0;
 import static ch.systemsx.cisd.bds.v1_0.DataStructureV1_0.DIR_METADATA;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
@@ -85,10 +87,15 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
                         1, 0));
     }
 
+    private void createDataStructure()
+    {
+        dataStructure.create(new ArrayList<FormatParameter>());
+    }
+
     @Test
     public void testGetOriginalData()
     {
-        dataStructure.create();
+        createDataStructure();
         final IDirectory dataFolder = dataStructure.getOriginalData();
         assertEquals(DataStructureV1_0.DIR_ORIGINAL, dataFolder.getName());
         assertEquals(DataStructureV1_0.DIR_DATA, dataFolder.tryGetParent().getName());
@@ -97,7 +104,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test
     public void testGetFormattedData()
     {
-        dataStructure.create();
+        createDataStructure();
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         final IFormattedData formattedData = dataStructure.getFormattedData();
         assertTrue(formattedData instanceof NoFormattedData);
@@ -107,7 +114,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test
     public void testGetFormattedDataBeforeInvokingSetVersion()
     {
-        dataStructure.create();
+        createDataStructure();
         try
         {
             dataStructure.getFormattedData();
@@ -122,7 +129,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test
     public void testSetExperimentIdentifier()
     {
-        dataStructure.create();
+        createDataStructure();
         final ExperimentIdentifier id = new ExperimentIdentifier("i", "g", "p", "e");
         dataStructure.setExperimentIdentifier(id);
         final IDirectory root = storage.getRoot();
@@ -137,7 +144,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test
     public void testSetExperimentIdentifierTwice()
     {
-        dataStructure.create();
+        createDataStructure();
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("0", "a", "b", "c"));
         final ExperimentIdentifier id = new ExperimentIdentifier("i", "g", "p", "e");
         dataStructure.setExperimentIdentifier(id);
@@ -153,7 +160,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test
     public void testGetNonExistingExperimentIdentifier()
     {
-        dataStructure.create();
+        createDataStructure();
         try
         {
             dataStructure.getExperimentIdentifier();
@@ -167,7 +174,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test
     public void testGetExperimentIdentifier()
     {
-        dataStructure.create();
+        createDataStructure();
         final ExperimentIdentifier id = new ExperimentIdentifier("i", "g", "p", "e");
         dataStructure.setExperimentIdentifier(id);
         assertEquals(id, dataStructure.getExperimentIdentifier());
@@ -176,14 +183,14 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test
     public void testGetVersion()
     {
-        dataStructure.create();
+        createDataStructure();
         assertEquals(new Version(1, 0), dataStructure.getVersion());
     }
 
     @Test
     public void testAddReference()
     {
-        dataStructure.create();
+        createDataStructure();
         dataStructure.addReference(new Reference("a", "b", ReferenceType.IDENTICAL));
         final Set<Reference> mapping = dataStructure.getStandardOriginalMapping();
         assertEquals(1, mapping.size());
@@ -196,7 +203,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test
     public void testAddReferenceTwice()
     {
-        dataStructure.create();
+        createDataStructure();
         dataStructure.addReference(new Reference("a", "b", ReferenceType.IDENTICAL));
         try
         {
@@ -211,7 +218,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test
     public void testThatGetStandardOriginalMappingReturnsAnUnmodifiableMap()
     {
-        dataStructure.create();
+        createDataStructure();
         try
         {
             dataStructure.getStandardOriginalMapping().add(null);
@@ -230,7 +237,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test(groups = "broken")
     public void testCloseIfNoFormat()
     {
-        dataStructure.create();
+        createDataStructure();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         try
         {
@@ -245,7 +252,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test(groups = "broken")
     public void testCloseIfNoExperimentID()
     {
-        dataStructure.create();
+        createDataStructure();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         try
@@ -261,7 +268,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test(groups = "broken")
     public void testCloseIfNoExperimentRegistrator()
     {
-        dataStructure.create();
+        createDataStructure();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("i", "g", "p", "e"));
@@ -280,7 +287,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test(groups = "broken")
     public void testCloseIfNoExperimentRegistrationDate()
     {
-        dataStructure.create();
+        createDataStructure();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("i", "g", "p", "e"));
@@ -298,7 +305,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test(groups = "broken")
     public void testCloseIfNoMeasurementEntity()
     {
-        dataStructure.create();
+        createDataStructure();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("i", "g", "p", "e"));
@@ -318,7 +325,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     @Test
     public void testClose()
     {
-        dataStructure.create();
+        dataStructure.create(Arrays.asList(new FormatParameter("plate_dimension", "16x24")));
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         final ExperimentIdentifier experimentIdentifier =
@@ -335,7 +342,6 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         dataStructure.setSample(sample);
         addReference("path1", "origFile1", ReferenceType.IDENTICAL);
         addReference("path2", "origFile2", ReferenceType.TRANSFORMED);
-        dataStructure.addFormatParameter(new FormatParameter("plate_dimension", "16x24"));
         checkFormattedData(dataStructure.getFormattedData());
         dataStructure.setDataSet(new DataSet("data_set", "HCS_IMAGE_ANALYSIS_DATA"));
         final IDirectory root = storage.getRoot();

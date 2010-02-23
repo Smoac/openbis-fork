@@ -25,9 +25,9 @@ import ch.systemsx.cisd.bds.ExperimentRegistrationTimestamp;
 import ch.systemsx.cisd.bds.ExperimentRegistrator;
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormatParameter;
-import ch.systemsx.cisd.bds.FormatParameters;
 import ch.systemsx.cisd.bds.FormattedDataFactory;
 import ch.systemsx.cisd.bds.IAnnotations;
+import ch.systemsx.cisd.bds.IFormatParameters;
 import ch.systemsx.cisd.bds.IFormattedData;
 import ch.systemsx.cisd.bds.Reference;
 import ch.systemsx.cisd.bds.Sample;
@@ -63,8 +63,6 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
 
     private static final Version VERSION = new Version(1, 0);
 
-    private final FormatParameters formatParameters = new FormatParameters();
-
     private MappingFileHandler mappingFileHandler;
 
     private Format format;
@@ -84,8 +82,23 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
         mappingFileHandler =
                 new MappingFileHandler(getMetaDataDirectory(), getStandardData(), getOriginalData());
         registerHandler(mappingFileHandler);
-        registerHandler(new ChecksumHandler(getMetaDataDirectory().makeDirectory(
-                ChecksumHandler.CHECKSUM_DIRECTORY), getOriginalData()));
+        if (figureComputeFileChecksums(formatParameters))
+        {
+            registerHandler(new ChecksumHandler(getMetaDataDirectory().makeDirectory(
+                    ChecksumHandler.CHECKSUM_DIRECTORY), getOriginalData()));
+        }
+    }
+
+    private static boolean figureComputeFileChecksums(IFormatParameters params)
+    {
+        String paramName = Format.COMPUTE_FILE_CHECKSUMS;
+        if (params.containsParameter(paramName))
+        {
+            return (Utilities.Boolean.fromString((String) params.getValue(paramName))).toBoolean();
+        } else
+        {
+            return true; // default value
+        }
     }
 
     private final IDirectory getDataDirectory()

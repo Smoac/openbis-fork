@@ -23,7 +23,6 @@ import ch.systemsx.cisd.bds.ExperimentIdentifier;
 import ch.systemsx.cisd.bds.ExperimentRegistrationTimestamp;
 import ch.systemsx.cisd.bds.ExperimentRegistrator;
 import ch.systemsx.cisd.bds.Format;
-import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IAnnotations;
 import ch.systemsx.cisd.bds.IDataStructure;
 import ch.systemsx.cisd.bds.IFormattedData;
@@ -82,11 +81,6 @@ public interface IDataStructureV1_0 extends IDataStructure
      * Returns the {@link IFormattedData} implementation.
      */
     public IFormattedData getFormattedData() throws DataStructureException;
-
-    /**
-     * Adds a format parameter to this data structure.
-     */
-    public void addFormatParameter(final FormatParameter formatParameter);
 
     /**
      * Sets the annotations for this data structure.

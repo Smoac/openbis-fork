@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.bds;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,6 +32,12 @@ import ch.systemsx.cisd.bds.storage.INode;
  */
 public class Format implements IStorable
 {
+    /**
+     * Optional boolean flag specifying whether checksums for each original file should be computed
+     * and saved (it takes CPU and disk resources). True by default. Not saved explicitly in the
+     * structure.
+     */
+    public static final String COMPUTE_FILE_CHECKSUMS = "compute_file_checksums";
 
     public static final String FORMAT = "format";
 
@@ -187,12 +194,12 @@ public class Format implements IStorable
     /**
      * Returns an unmodifiable list of optional parameters that are specific to this format.
      * <p>
-     * Default implementation returns an empty list.
+     * Default implementation returns a list with one {@link #COMPUTE_FILE_CHECKSUMS} parameter.
      * </p>
      */
     public List<String> getOptionalParameterNames()
     {
-        return Collections.emptyList();
+        return Collections.unmodifiableList(Arrays.asList(COMPUTE_FILE_CHECKSUMS));
     }
 
     //

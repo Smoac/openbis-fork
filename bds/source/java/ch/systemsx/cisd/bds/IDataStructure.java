@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds;
 
+import java.util.List;
+
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 
 /**
@@ -23,7 +25,7 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
  * manipulate a data structure. These methods are specific for the version of the data structure.
  * For each version there is a concrete class implementing this interface.
  * <p>
- * A data structure must first be created with {@link #create()} or opened with {@link #open(Mode)}
+ * A data structure must first be created with {@link #create} or opened with {@link #open(Mode)}
  * before any other method can be invoked. An {@link IllegalStateException} is thrown otherwise.
  * Finally a data structure has to be closed with {@link #close()} in order to commit all changes
  * made since creation or opening.
@@ -46,7 +48,7 @@ public interface IDataStructure extends IHasVersion
      * mode. It is possible to change the data structure.
      * </p>
      */
-    public void create();
+    public void create(List<FormatParameter> formatParameters);
 
     /**
      * Opens an existing data structure with given <var>mode</var> and validates it.
@@ -68,8 +70,8 @@ public interface IDataStructure extends IHasVersion
      * Closes the data structure. Before the data structure is closed it will be validated.
      * 
      * @throws DataStructureException if the data structure is invalid.
-     * @throws IllegalStateException if called before the first invocation of either
-     *             {@link #create()} or {@link #open(Mode)}.
+     * @throws IllegalStateException if called before the first invocation of either {@link #create}
+     *             or {@link #open(Mode)}.
      */
     public void close();
 

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -91,13 +92,19 @@ public final class HCSImageFormatV1_0 extends Format
     @Override
     public final List<String> getMandatoryParameterNames()
     {
-        return Arrays.asList(MANDATORY_FORMAT_PARAMETERS);
+        List<String> result = new ArrayList<String>();
+        result.addAll(Arrays.asList(MANDATORY_FORMAT_PARAMETERS));
+        result.addAll(super.getMandatoryParameterNames());
+        return result;
     }
 
     @Override
     public List<String> getOptionalParameterNames()
     {
-        return Arrays.asList(OPTIONAL_FORMAT_PARAMETERS);
+        List<String> result = new ArrayList<String>();
+        result.addAll(Arrays.asList(OPTIONAL_FORMAT_PARAMETERS));
+        result.addAll(super.getOptionalParameterNames());
+        return result;
     }
 
     @Override

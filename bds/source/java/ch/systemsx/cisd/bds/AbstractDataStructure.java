@@ -38,6 +38,8 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
 
     private Mode mode;
 
+    protected FormatParameters formatParameters = new FormatParameters();
+
     protected AbstractDataStructure(final IStorage storage)
     {
         assert storage != null : "Unspecified storage.";
@@ -102,11 +104,20 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
         return root != null;
     }
 
-    public final void create()
+    public final void create(List<FormatParameter> parameters)
     {
-        mode = Mode.READ_WRITE;
+        this.mode = Mode.READ_WRITE;
+        addFormatParameters(parameters);
         mountStorage();
         performCreating();
+    }
+
+    private void addFormatParameters(List<FormatParameter> parameters)
+    {
+        for (FormatParameter param : parameters)
+        {
+            this.formatParameters.addParameter(param);
+        }
     }
 
     public final void open(final Mode thatMode)

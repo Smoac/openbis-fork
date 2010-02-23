@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.bds.v1_1;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.bds.DataStructureFactory;
 import ch.systemsx.cisd.bds.DataStructureLoader;
 import ch.systemsx.cisd.bds.ExperimentIdentifier;
 import ch.systemsx.cisd.bds.ExperimentIdentifierTest;
+import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.Sample;
 import ch.systemsx.cisd.bds.Version;
 import ch.systemsx.cisd.bds.IDataStructure.Mode;
@@ -78,14 +80,14 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
     @Test
     public void testGetVersion()
     {
-        dataStructure.create();
+        createDataStructure();
         assertEquals(new Version(1, 1), dataStructure.getVersion());
     }
 
     @Test
     public void testSetSample()
     {
-        dataStructure.create();
+        createDataStructure();
         try
         {
             dataStructure.setSample(SAMPLE);
@@ -100,7 +102,7 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
     @Test
     public final void testGetSample()
     {
-        dataStructure.create();
+        createDataStructure();
         final SampleWithOwner sampleWithOwner = createSampleWithOwner();
         dataStructure.setSample(sampleWithOwner);
         final Sample sample = dataStructure.getSample();
@@ -113,7 +115,7 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
     @Test
     public final void testGetExperimentIdentifier()
     {
-        dataStructure.create();
+        createDataStructure();
         final ExperimentIdentifierWithUUID experimentIdentifierWithUUID =
                 ExperimentIdentifierWithUUIDTest.createExperimentIdentifierWithUUID();
         dataStructure.setExperimentIdentifier(experimentIdentifierWithUUID);
@@ -126,7 +128,7 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
     @Test
     public final void testSetExperimentIdentifier()
     {
-        dataStructure.create();
+        createDataStructure();
         try
         {
             dataStructure.setExperimentIdentifier(EXPERIMENT_IDENTIFIER);
@@ -137,6 +139,11 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
         }
         dataStructure.setExperimentIdentifier(ExperimentIdentifierWithUUIDTest
                 .createExperimentIdentifierWithUUID());
+    }
+
+    private void createDataStructure()
+    {
+        dataStructure.create(new ArrayList<FormatParameter>());
     }
 
     @Test

@@ -101,7 +101,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                     }
                     for (final String formatParameterName : format.getOptionalParameterNames())
                     {
-                        one(formatParameters).containsParameter(formatParameterName);
+                        allowing(formatParameters).containsParameter(formatParameterName);
                         will(returnValue(true));
                     }
                     addParameterCheckExpectations(this, GEOMETRY, GEOMETRY, NUMBER_OF_CHANNELS);

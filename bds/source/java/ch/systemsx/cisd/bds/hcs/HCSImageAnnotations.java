@@ -21,11 +21,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.IAnnotations;
 import ch.systemsx.cisd.bds.IFormattedData;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * The <code>IAnnotations</code> implementation for <i>HCS</i>.
@@ -34,6 +38,9 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class HCSImageAnnotations implements IAnnotations
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, HCSImageAnnotations.class);
+
     private static final Set<Format> FORMATS =
             Collections.unmodifiableSet(new HashSet<Format>(Arrays
                     .asList(HCSImageFormatV1_0.HCS_IMAGE_1_0)));
@@ -69,8 +76,9 @@ public final class HCSImageAnnotations implements IAnnotations
         final int size = channels.size();
         if (channelCount != size)
         {
-            throw new DataStructureException(String.format(
-                    "Channel counts do not match (%d != %d).", channelCount, size));
+            // we do not throw an exception here - it should be a warning if some files are missing
+            operationLog.warn(String.format("Channel counts do not match (%d != %d).",
+                    channelCount, size));
         }
     }
 

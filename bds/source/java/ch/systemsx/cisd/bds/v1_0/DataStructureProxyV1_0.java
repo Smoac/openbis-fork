@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.bds.v1_0;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.bds.DataSet;
@@ -64,12 +65,6 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
     //
 
     // Write methods
-
-    public final void addFormatParameter(final FormatParameter formatParameter)
-    {
-        checkAccess();
-        dataStructure.addFormatParameter(formatParameter);
-    }
 
     public final void addReference(final Reference reference)
     {
@@ -138,10 +133,10 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
         dataStructure.close();
     }
 
-    public final void create()
+    public final void create(List<FormatParameter> formatParameters)
     {
         mode = Mode.READ_WRITE;
-        dataStructure.create();
+        dataStructure.create(formatParameters);
     }
 
     public final boolean isOpenOrCreated()

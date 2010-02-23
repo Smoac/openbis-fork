@@ -57,7 +57,7 @@ public interface IDataStructureHandler
     /**
      * Performs creating specific tasks for the concrete data structure.
      * <p>
-     * Will be invoked after the common part of {@link IDataStructure#create()}.
+     * Will be invoked after the common part of {@link IDataStructure#create}.
      * </p>
      */
     public void performCreating();
