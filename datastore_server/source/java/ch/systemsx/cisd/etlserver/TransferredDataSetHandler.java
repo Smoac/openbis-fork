@@ -23,6 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
@@ -130,7 +131,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private DatabaseInstance homeDatabaseInstance;
 
-    private IDataSetHandler dataSetHandler;
+    private final IDataSetHandler dataSetHandler;
 
     private final IDataSetValidator dataSetValidator;
 
@@ -672,8 +673,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             appendNameAndObject(buffer, "Sample Identifier", dataSetInformation
                     .getSampleIdentifier());
             appendNameAndObject(buffer, "Producer Code", dataSetInformation.getProducerCode());
-            appendNameAndObject(buffer, "Production Date", Constants.DATE_FORMAT.get().format(
-                    dataSetInformation.getProductionDate()));
+            appendNameAndObject(buffer, "Production Date", formatDate(dataSetInformation
+                    .getProductionDate()));
             final List<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
             if (parentDataSetCodes.isEmpty() == false)
             {
@@ -684,6 +685,11 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             buffer.setLength(buffer.length() - 1);
             buffer.append(']');
             return buffer.toString();
+        }
+
+        private String formatDate(Date productionDate)
+        {
+            return productionDate == null ? "" : Constants.DATE_FORMAT.get().format(productionDate);
         }
 
         private final void appendNameAndObject(final StringBuilder buffer, final String name,
