@@ -296,7 +296,7 @@ function build_remote {
     local PROJECT_NAME=$2
     
     cd $RSC
-    ./build.sh $PROJECT_NAME
+    ./build.sh --private $PROJECT_NAME
     cd ..
 }
 
