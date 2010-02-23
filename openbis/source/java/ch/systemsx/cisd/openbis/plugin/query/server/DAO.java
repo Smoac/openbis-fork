@@ -107,10 +107,11 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         {
             throw new UserFailureException("Sorry, only select statements are allowed.");
         }
-        if (sqlQuery.trim().indexOf(';') < sqlQuery.trim().length() - 1)
+        int indexOfSemicolon = sqlQuery.trim().indexOf(';');
+        if (indexOfSemicolon >= 0 && indexOfSemicolon < sqlQuery.trim().length() - 1)
         {
-            throw new UserFailureException("Sorry, onyl one query statement is allowed: "
-                    + "A ';' somewhere in the middle is found");
+            throw new UserFailureException("Sorry, only one query statement is allowed: "
+                    + "A ';' somewhere in the middle has been found.");
         }
 
         PreparedStatementCallback callback = new PreparedStatementCallback()
