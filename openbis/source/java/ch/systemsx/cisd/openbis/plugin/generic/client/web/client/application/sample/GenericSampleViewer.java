@@ -201,6 +201,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         externalDataPanel.addDataSetGrid(showOnlyDirectlyConnectedCheckBox, sampleId, generator
                 .getSampleType());
         dataSetBrowser = externalDataPanel.getDataSetBrowser();
+        container.addPanel(externalDataPanel);
 
         // Attachments
         attachmentsSection = createAttachmentsSection(generator);
