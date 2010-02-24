@@ -23,7 +23,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -215,8 +214,11 @@ class TimeSeriesDataSetUploader
             } else if (dataSetInformation.getDataSetType().getCode().equals(LCA_MTP_TIME_SERIES))
             {
                 List<DataHeaderProperty> consistent = new ArrayList<DataHeaderProperty>();
-                Collections.addAll(consistent, DataHeaderProperty.values());
-                consistent.remove(DataHeaderProperty.TimePoint);
+                // TODO 2010-02-24, IA: Uncomment after it's clear what header values should be
+                // consistent.
+                //
+                // Collections.addAll(consistent, DataHeaderProperty.values());
+                // consistent.remove(DataHeaderProperty.TimePoint);
                 TimeSeriesHeaderUtils.assertMetadataConsistent(TimeSeriesHeaderUtils
                         .extractDataColumnHeaders(dataColumns), consistent);
             }

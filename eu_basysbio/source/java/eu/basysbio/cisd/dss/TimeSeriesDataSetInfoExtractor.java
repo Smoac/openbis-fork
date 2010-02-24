@@ -77,6 +77,15 @@ public class TimeSeriesDataSetInfoExtractor implements IDataSetInfoExtractor
         addDataSetProperty(info, TimeSeriesPropertyType.TECHNICAL_REPLICATE_CODE, values);
         addDataSetProperty(info, TimeSeriesPropertyType.BIOLOGICAL_REPLICATE_CODE, values);
         addDataSetProperty(info, TimeSeriesPropertyType.TIME_SERIES_DATA_SET_TYPE, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.CEL_LOC, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.CG, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.CULTIVATION_METHOD_EXPERIMENT_CODE, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.EXPERIMENT_CODE, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.SCALE, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.TIME_POINT, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.TIME_POINT_TYPE, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.BI_ID, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.VALUE_TYPE, values);
         return info;
     }
 

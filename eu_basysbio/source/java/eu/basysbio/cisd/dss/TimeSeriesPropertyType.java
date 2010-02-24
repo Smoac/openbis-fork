@@ -23,6 +23,23 @@ package eu.basysbio.cisd.dss;
  */
 enum TimeSeriesPropertyType
 {
+    VALUE_TYPE(DataHeaderProperty.ValueType),
+
+    CEL_LOC(DataHeaderProperty.CelLoc),
+
+    CG(DataHeaderProperty.CG),
+
+    CULTIVATION_METHOD_EXPERIMENT_CODE(DataHeaderProperty.CultivationMethodExperimentCode),
+
+    EXPERIMENT_CODE(DataHeaderProperty.ExperimentCode),
+
+    SCALE(DataHeaderProperty.Scale),
+
+    TIME_POINT(DataHeaderProperty.TimePoint),
+
+    TIME_POINT_TYPE(DataHeaderProperty.TimePointType),
+
+    BI_ID(DataHeaderProperty.BiID),
 
     BIOLOGICAL_REPLICATE_CODE(DataHeaderProperty.BiologicalReplicatateCode),
 
