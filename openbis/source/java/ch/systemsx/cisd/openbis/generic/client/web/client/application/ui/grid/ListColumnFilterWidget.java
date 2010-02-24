@@ -32,8 +32,10 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.IColumnFilterWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -84,6 +86,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         setValidateOnBlur(false);
         String label = filteredField.getHeader();
         setEmptyText(label);
+        setTemplate(GWTUtils.getTooltipTemplate(MODEL_DISPLAY_KEY, ModelDataPropertyNames.TOOLTIP));
     }
 
     private static DelayedTask createFilterApplierTask(final IDelegatedAction onFilterAction)
@@ -101,7 +104,8 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
     // if the user stops typing for some time a filter should be applied
     protected void onKeyUp(FieldEvent fe)
     {
-        // NOTE: we do not call super.onKeyUp(). In this way we switch off showing only those
+        // WORKAROUND
+        // We do not call super.onKeyUp(). In this way we switch off showing only those
         // combobox entries, which matches the user query.
         // This feature did not work properly after delayedFilterApplierTask has been called (the
         // filtering was cleared, looked like GXT bug).
@@ -136,6 +140,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
             }
             model.set(MODEL_DISPLAY_KEY, displayValue);
             model.set(MODEL_VALUE_KEY, value);
+            model.set(ModelDataPropertyNames.TOOLTIP, value);
             models.add(model);
         }
         return models;
