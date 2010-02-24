@@ -149,8 +149,8 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         private static String generateContent(EntityTrackingEmailData emailData)
         {
             StringBuilder sb = new StringBuilder();
-            appendSequencingSamplesData(sb, emailData.getSequencingSamplesData());
             appendDataSetsData(sb, emailData.getDataSets());
+            appendSequencingSamplesData(sb, emailData.getSequencingSamplesData());
             return sb.toString();
         }
 
@@ -159,44 +159,26 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         {
             for (SequencingSampleData sequencingSampleData : sequencingSamplesData)
             {
-                appendln(sb, SECTION_SEPARATOR_LINE);
-                appendln(sb, SUBSECTION_SEPARATOR_LINE);
-                // heading of section depends on whether sequencing sample already existed
-                String sectionHeading;
-                final String sequencingSampleCode =
-                        sequencingSampleData.getSequencingSample().getCode();
                 final String externalSampleName =
                         getExternalSampleName(sequencingSampleData.getSequencingSample());
-
                 final int flowLaneSamplesSize = sequencingSampleData.getFlowLaneSamples().size();
 
-                if (sequencingSampleData.isNewlyTracked())
-                {
-                    String headingSuffix =
-                            flowLaneSamplesSize == 0 ? "" : String.format(
-                                    " and %d connected Flow Lane sample(s)", flowLaneSamplesSize);
-                    sectionHeading =
-                            String.format("Tracked creation of Sequencing sample '%s'%s.",
-                                    sequencingSampleCode, headingSuffix);
-                } else
-                {
-                    sectionHeading =
-                            String.format("Tracked creation of %d Flow Lane sample(s) "
-                                    + "connected with Sequencing sample '%s'.",
-                                    flowLaneSamplesSize, sequencingSampleCode);
-                }
-                appendln(sb, sectionHeading);
+                appendln(sb, SECTION_SEPARATOR_LINE);
                 appendln(sb, SUBSECTION_SEPARATOR_LINE);
 
-                // append Sequencing sample details and then Flow Lane samples in subsections
-                appendSampleDetails(sb, String.format(
-                        "Your order for sample '%s' is now queued for sequencing.",
-                        externalSampleName), sequencingSampleData.getSequencingSample());
-                appendln(sb, SUBSECTION_SEPARATOR_LINE);
-                for (Sample flowLaneSample : sequencingSampleData.getFlowLaneSamples())
+                // append Sequencing sample details
+                if (flowLaneSamplesSize == 0)
                 {
-                    appendSampleDetails(sb, String.format("Sample '%s' is now being sequenced.",
-                            externalSampleName), flowLaneSample);
+                    appendSampleDetails(sb, String.format(
+                            "Your order for sample '%s' has been queued for sequencing.",
+                            externalSampleName), sequencingSampleData.getSequencingSample());
+                    appendln(sb, SUBSECTION_SEPARATOR_LINE);
+                } else
+                {
+                    appendSampleDetails(sb, String.format(
+                            "Sample '%s' is now being sequenced in %d flow lanes.",
+                            externalSampleName, flowLaneSamplesSize), sequencingSampleData
+                            .getSequencingSample());
                     appendln(sb, SUBSECTION_SEPARATOR_LINE);
                 }
             }
