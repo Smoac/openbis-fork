@@ -242,7 +242,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
             // link to openbis
             appendAttribute(sb, String.format(
-                    "You can dowload results for extrernal sample named '%s' at",
+                    "You can download results for external sample named '%s' at",
                     externalSampleName), dataSet.getPermlink());
 
             // data set properties
