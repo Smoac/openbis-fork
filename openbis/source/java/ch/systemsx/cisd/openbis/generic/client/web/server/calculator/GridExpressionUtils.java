@@ -136,8 +136,11 @@ public class GridExpressionUtils
                 RowCalculator<T> calculator = calculators.get(columnId);
                 PrimitiveValue value =
                         evalCustomColumn(rowData, customColumn, calculator, errorMessagesAreLong);
-                customColumn.setDataType(DataTypeUtils.getCompatibleDataType(customColumn
-                        .getDataType(), value.getDataType()));
+                if (value.toString() != null)
+                {
+                    customColumn.setDataType(DataTypeUtils.getCompatibleDataType(customColumn
+                            .getDataType(), value.getDataType()));
+                }
                 customColumnValues.put(columnId, value);
             }
             result.add(new GridRowModel<T>(rowData, customColumnValues));
