@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
+import ch.systemsx.cisd.cifex.rpc.client.IncompatibleAPIVersionsException;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 
 final class CIFEXRPCServiceFactory implements ICIFEXRPCServiceFactory
 {
@@ -37,7 +39,13 @@ final class CIFEXRPCServiceFactory implements ICIFEXRPCServiceFactory
         if (cifexComponent == null)
         {
             final String serviceURL = cifexURL + Constants.CIFEX_RPC_PATH;
-            cifexComponent = RPCServiceFactory.createCIFEXComponent(serviceURL, true);
+            try
+            {
+                cifexComponent = RPCServiceFactory.createCIFEXComponent(serviceURL, true);
+            } catch (IncompatibleAPIVersionsException ex)
+            {
+                throw new MasqueradingException(ex, "Error occured on DSS");
+            }
         }
         return cifexComponent;
     }
