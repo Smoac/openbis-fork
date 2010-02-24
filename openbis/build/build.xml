@@ -655,34 +655,6 @@
 			<jvmarg value="-Xmx512M" />
 			<jvmarg value="-ea" />
 
-			<!-- Properties : same as in the properties file -->
-			<sysproperty key="authentication-service" value="dummy-authentication-service" />
-			<sysproperty key="session-timeout" value="720" />
-			<sysproperty key="authorization-component-factory" value="active-authorization" />
-			<sysproperty key="script-folder" value="./source/" />
-
-			<sysproperty key="database.engine" value="postgresql" />
-			<sysproperty key="database.create-from-scratch" value="false" />
-			<sysproperty key="database.kind" value="${module-test.db-kind}" />
-
-			<sysproperty key="database-instance" value="CISD" />
-
-			<sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
-
-			<sysproperty key="cifex-url" value="https://cifex.ethz.ch:443" />
-			<sysproperty key="cifex-recipient" value="id:cifexdatamanager" />
-
-			<sysproperty key="hibernate.search.index-base" value="./targets/indices-${module-test.db-kind}" />
-			<sysproperty key="hibernate.search.index-mode" value="SKIP_IF_MARKER_FOUND" />
-			<sysproperty key="hibernate.search.batch-size" value="1000" />
-			<sysproperty key="hibernate.search.worker.execution" value="async" />
-			<sysproperty key="hibernate.search.indexing_strategy" value="manual" />
-
-			<sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
-
-			<sysproperty key="log4j.configuration" value="etc/log.xml" />
-			<sysproperty key="javax.net.ssl.trustStore" value="dist/server/openBIS.keystore" />
-
 			<!-- Arguments to com.google.gwt.dev.DevMode -->
 			<!-- Provide two startup urls : one for the compiled version, one for the normal dev version -->
 			<arg value="-startupUrl" />
@@ -711,7 +683,6 @@
 		<antcall target="run-module-test">
 			<param name="module-test.path" value="openbis-test" />
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
-			<param name="module-test.db-kind" value="test" />
 		</antcall>
 	</target>
 </project>

@@ -68,7 +68,6 @@
 		<antcall target="run-module-test">
 			<param name="module-test.path" value="openbis-test-screening" />
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
-			<param name="module-test.db-kind" value="screening_demo" />
 		</antcall>
 	</target>
 	
