@@ -149,6 +149,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     private final static VocabularyTermPE tryGetVocabularyTerm(final String untypedValue,
             final PropertyTypePE propertyType)
     {
+        if (propertyType.getType().getCode() != EntityDataType.CONTROLLEDVOCABULARY)
+        {
+            return null; // this is not a property of CONTROLLED VOCABULARY type
+        }
+
         final VocabularyPE vocabulary = propertyType.getVocabulary();
         if (vocabulary == null)
         {

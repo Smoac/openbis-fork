@@ -98,7 +98,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         int counter = 0;
         for (final NewSample newSample : newSamples)
         {
-            if (batch == 5000)
+            if (batch == 1000)
             {
                 operationLog.info("Progress of registering samples: " + counter + " out of "
                         + newSamples.size());
