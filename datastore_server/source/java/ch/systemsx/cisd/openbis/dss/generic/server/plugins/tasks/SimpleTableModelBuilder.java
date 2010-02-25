@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
@@ -62,21 +64,24 @@ public class SimpleTableModelBuilder
             TableModelColumnHeader header = headers.get(i);
             DataTypeCode headerDataType = header.getDataType();
             DataTypeCode dataType = getDataTypeCodeFor(value);
-            header.setDataType(DataTypeUtils.getCompatibleDataType(headerDataType, dataType));
+            if (StringUtils.isNotBlank(value.toString()))
+            {
+                header.setDataType(DataTypeUtils.getCompatibleDataType(headerDataType, dataType));
+            }
         }
         rows.add(new TableModelRow(values));
     }
-    
+
     private DataTypeCode getDataTypeCodeFor(ISerializableComparable value)
     {
         if (value instanceof IntegerTableCell)
         {
             return DataTypeCode.INTEGER;
-        } 
+        }
         if (value instanceof DoubleTableCell)
         {
             return DataTypeCode.REAL;
-        } 
+        }
         if (value instanceof DateTableCell)
         {
             return DataTypeCode.TIMESTAMP;

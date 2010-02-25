@@ -55,15 +55,18 @@ public class DatasetFileLines
         dataLines = new ArrayList<String[]>(lines.size());
         for (int i = 1; i < lines.size(); i++)
         {
-            String[] dataTokens = parseLine(lines.get(i));
-            if (headerTokens.length != dataTokens.length)
+            if (StringUtils.isNotBlank(lines.get(i)))
             {
-                throw UserFailureException.fromTemplate(
-                        "Number of columns in header (%s) does not match number of columns "
-                                + "in %d data row (%s) in Data Set '%s' file.",
-                        headerTokens.length, i, dataTokens.length, dataset.getDatasetCode());
+                String[] dataTokens = parseLine(lines.get(i));
+                if (headerTokens.length != dataTokens.length)
+                {
+                    throw UserFailureException.fromTemplate(
+                            "Number of columns in header (%s) does not match number of columns "
+                                    + "in %d data row (%s) in Data Set '%s' file.",
+                            headerTokens.length, i, dataTokens.length, dataset.getDatasetCode());
+                }
+                dataLines.add(dataTokens);
             }
-            dataLines.add(dataTokens);
         }
     }
 
