@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -53,7 +52,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 
 /**
  * Grid displaying reporting results. This grid is special comparing to other grids, because it
@@ -235,7 +233,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
                 if (entityKind != EntityKind.MATERIAL)
                 {
                     definitions.setGridCellRendererFor(colDefinition.getIdentifier(),
-                            createShowEntityDetailsLinkCellRenderer(entityKind));
+                            createInternalLinkCellRenderer());
                     registerLinkClickListenerFor(colDefinition.getIdentifier(),
                             new ICellListener<TableModelRow>()
                                 {
@@ -250,13 +248,6 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
             }
         }
         return definitions;
-    }
-
-    protected final GridCellRenderer<BaseEntityModel<?>> createShowEntityDetailsLinkCellRenderer(
-            EntityKind entityKind)
-    {
-        return LinkRenderer.createLinkRenderer(viewContext.getMessage(
-                Dict.SHOW_ENTITY_DETAILS_LINK_TEXT_TEMPLATE, entityKind.getDescription()));
     }
 
     private void showEntityViewer(EntityKind entityKind, String permId)

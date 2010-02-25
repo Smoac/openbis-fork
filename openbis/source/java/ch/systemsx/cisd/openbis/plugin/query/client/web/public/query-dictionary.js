@@ -32,9 +32,7 @@ var query = {
   query_create_title: "Create Query Definition",
   query_edit_title: "Edit Query Definition",
   query_parameters_binding_dialog_title: "Enter Query Parameters",
-    	
-  show_entity_details_link_text_template: "Show {0} Details",  	
-    	
+    	    	
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };
