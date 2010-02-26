@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ComparableCellValueHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -52,7 +53,8 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
 
     public Comparable<?> tryGetComparableValue(GridRowModel<TableModelRow> rowModel)
     {
-        return getCellValue(rowModel);
+        ISerializableComparable value = getCellValue(rowModel);
+        return ComparableCellValueHelper.unwrap(value);
     }
 
     public EntityKind tryGetEntityKind()

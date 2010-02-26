@@ -18,12 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 
 /**
  * @author Franz-Josef Elmer
@@ -50,18 +47,7 @@ public class GenericTableRowColumnDefinition implements IColumnDefinition<Generi
     public Comparable<?> tryGetComparableValue(GridRowModel<GenericTableRow> rowModel)
     {
         ISerializableComparable value = getCellValue(rowModel);
-        Comparable<?> result;
-        // TODO CR --This code should be a method on ISerializableComparable and implemented using
-        // polymorphism.
-        if (value instanceof DateTableCell)
-            result = ((DateTableCell) value).getDateTime();
-        else if (value instanceof DoubleTableCell)
-            result = ((DoubleTableCell) value).getNumber();
-        else if (value instanceof IntegerTableCell)
-            result = ((IntegerTableCell) value).getNumber();
-        else
-            result = value.toString();
-        return result;
+        return ComparableCellValueHelper.unwrap(value);
     }
 
     public String getHeader()
