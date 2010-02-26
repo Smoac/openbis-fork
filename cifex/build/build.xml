@@ -395,5 +395,96 @@
 		<delete failonerror="true" dir="../${ant.project.name}/.gwt-cache" />
 		<delete file="${gwt.war.web-inf}/gwt.xml" />
 	</target>
+	
+	<!-- 
+			//
+			// MODULE TEST
+			//
+			// Run the app with compiled javscript, but using the classes compiled by Eclipse 
+			-->
 
+	<!--
+			// 
+			// Compile Java to javscript, assuming that prepare-gwt has already been run
+			//
+			// Must pass in module-test.path and module-test.module as arguments
+			// e.g.,
+			// <{property,param} name="module-test.path" value="openbis-test" />
+			// <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
+			//
+			-->
+	<target name="compile-module-test" description="Compile the module test mode">
+		<delete dir="${targets.www}/${module-test.path}" />
+		<java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../cifex/${sources}:${sources}"
+		      classname="com.google.gwt.dev.Compiler"
+		      fork="true">
+			<jvmarg value="-Xmx512M" />
+			<arg value="-war" />
+			<arg value="${targets}/www" />
+			<arg value="${module-test.module}Firefox" />
+			<arg value="-style" />
+			<arg value="PRETTY" />
+		</java>
+		<move todir="${targets}/www/${module-test.path}">
+			<fileset dir="${targets}/www/${module-test.module}" />
+		</move>
+	</target>
+
+	<!--
+			// 
+			// Run the production mode, assuming compile-module-test has already been run
+			//
+			// Must pass in module-test.path, module-test.module, and module-test.db-kind as arguments
+			// e.g.,
+			// <{property,param} name="module-test.path" value="cifex-test" />
+			// <{property,param} name="module-test.module" value="ch.systemsx.cisd.cifex.Cifex" />
+			//
+			-->
+	<target name="run-module-test" description="Run the module test mode">
+		<java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
+			<classpath>
+				<pathelement location="${sources}" />
+				<pathelement location="../cifex/${sources}" />
+				<pathelement path="${ecp}" />
+				<pathelement location="${gwt.lib}/gwt-dev.jar" />
+				<pathelement location="${gwt.lib}/gwt-user.jar" />
+			</classpath>
+			<jvmarg value="-Xmx512M" />
+			<jvmarg value="-ea" />
+
+			<!-- Arguments to com.google.gwt.dev.DevMode -->
+			<!-- Provide two startup urls : one for the compiled version, one for the normal dev version -->
+			<arg value="-startupUrl" />
+			<arg value="${module-test.path}/index.html" />
+			<arg value="-startupUrl" />
+			<arg value="${module-test.module}/index.html" />
+
+			<arg value="${module-test.module}" />
+			<arg value="-war" />
+			<arg value="targets/www" />
+			<arg value="-logLevel" />
+			<arg value="WARN" />
+			<!-- Start on a different port so openBIS and CIFEX can run side by side -->
+			<arg value="-port" />
+			<arg value="8895" />
+			<arg value="-codeServerPort" />
+			<arg value="9998" /> 
+		</java>
+	</target>
+
+	<target name="prepare-and-run-module-test"
+	        depends="prepare-gwt, module-test"
+	        description="Prepare, compile, and run the module test mode">
+	</target>
+
+	<target name="module-test" description="Compile and run the module test mode">
+		<antcall target="compile-module-test">
+			<param name="module-test.path" value="cifex-test" />
+			<param name="module-test.module" value="ch.systemsx.cisd.cifex.Cifex" />
+		</antcall>
+		<antcall target="run-module-test">
+			<param name="module-test.path" value="cifex-test" />
+			<param name="module-test.module" value="ch.systemsx.cisd.cifex.Cifex" />
+		</antcall>
+	</target>
 </project>
