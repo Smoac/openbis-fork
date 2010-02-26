@@ -627,7 +627,6 @@
 			<arg value="PRETTY" />
 		</java>
 		<move todir="${targets.www}/${module-test.path}">
-			<!-- The module definition for OpenBISFirefox renames it to ch.systemsx.cisd.openbis.OpenBIS -->
 			<fileset dir="${targets.www}/${module-test.module}" />
 		</move>
 	</target>
@@ -640,7 +639,6 @@
 			// e.g.,
 			// <{property,param} name="module-test.path" value="openbis-test" />
 			// <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
-			// <{property,param} name="module-test.db-kind" value="test" />
 			//
 			-->
 	<target name="run-module-test" description="Run the module test mode">
