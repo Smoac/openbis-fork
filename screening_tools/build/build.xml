@@ -35,6 +35,8 @@
 		<copy file="lib/csv.jar" todir="${metadata-lib}" />
 		<copy file="lib/screening.jar" todir="${metadata-lib}" />
 		<copy file="dist/metadata-importer.bat" todir="${metadata-dist}" />
+    <copy file="dist/metadata-importer.sh"  todir="${metadata-dist}" />
+    <copy file="dist/readme.txt" todir="${metadata-dist}" />
 	</target>
 
 </project>
