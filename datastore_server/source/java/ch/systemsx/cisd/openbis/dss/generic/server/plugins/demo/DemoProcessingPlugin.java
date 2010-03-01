@@ -40,10 +40,10 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
     public ProcessingStatus process(List<DatasetDescription> datasets)
     {
         System.out.println("Processing of the following datasets has been requested: " + datasets);
-        System.out.println("sleeping for 10 sec");
+        System.out.println("sleeping for 2 sec");
         try
         {
-            Thread.sleep(10000);
+            Thread.sleep(2000);
         } catch (InterruptedException ex)
         {
             ex.printStackTrace();
