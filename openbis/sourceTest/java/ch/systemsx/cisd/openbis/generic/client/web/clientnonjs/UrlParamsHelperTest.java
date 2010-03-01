@@ -34,6 +34,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
+ * Test the UrlParamsHelper, but since I want to use JMock, I need to do it in a Java environment,
+ * even though the class will actually be compiled to Javascript.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class UrlParamsHelperTest extends AssertJUnit
@@ -79,7 +82,8 @@ public class UrlParamsHelperTest extends AssertJUnit
             });
 
         final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper.initializeUrlParametersForTest("entity=SAMPLE&permId=20100104150239401-871");
+        urlParamsHelper
+                .initializeUrlParametersForTest("entity=SAMPLE&permId=20100104150239401-871");
 
         IDelegatedAction action = urlParamsHelper.getOpenInitialTabAction();
         action.execute();
