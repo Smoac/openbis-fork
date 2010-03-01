@@ -29,9 +29,9 @@ public enum ExperimentAttributeSearchFieldKind implements IsSerializable, IAttri
 
     EXPERIMENT_TYPE("Experiment Type"),
 
-    PROJECT("Space"), // FIXME:
+    PROJECT("Space"),
 
-    PROJECT_GROUP("Project Space");// FIXME:
+    PROJECT_GROUP("Project Space");
 
     private final String description;
 

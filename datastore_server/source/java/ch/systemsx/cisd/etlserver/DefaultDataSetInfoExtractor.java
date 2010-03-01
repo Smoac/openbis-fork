@@ -189,7 +189,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
      * </p>
      */
     @Private
-    static final String INDEX_OF_GROUP_CODE = "index-of-space-code";// FIXME:
+    static final String INDEX_OF_GROUP_CODE = "index-of-space-code";
 
     /**
      * Name of the property specifying the index of the entity which should be interpreted as the

@@ -62,7 +62,7 @@ public class AuthorizationTestCase extends AssertJUnit
     protected static final DatabaseInstanceIdentifier ANOTHER_INSTANCE_IDENTIFIER =
             new DatabaseInstanceIdentifier(ANOTHER_INSTANCE_CODE);
 
-    protected static final String GROUP_CODE = "G1";
+    protected static final String SPACE_CODE = "G1";
 
     protected static final String ANOTHER_GROUP_CODE = "G2";
 
@@ -71,16 +71,16 @@ public class AuthorizationTestCase extends AssertJUnit
     protected IAuthorizationDataProvider provider;
 
     /**
-     * Creates a role with level {@link RoleLevel#GROUP} with specified role code for specified
-     * group.
+     * Creates a role with level {@link RoleLevel#SPACE} with specified role code for specified
+     * space.
      */
-    protected RoleWithIdentifier createGroupRole(RoleCode roleCode, GroupIdentifier groupIdentifier)
+    protected RoleWithIdentifier createGroupRole(RoleCode roleCode, GroupIdentifier spaceIdentifier)
     {
         GroupPE groupPE = new GroupPE();
-        groupPE.setCode(groupIdentifier.getGroupCode());
-        DatabaseInstancePE instance = createDatabaseInstancePE(groupIdentifier);
+        groupPE.setCode(spaceIdentifier.getGroupCode());
+        DatabaseInstancePE instance = createDatabaseInstancePE(spaceIdentifier);
         groupPE.setDatabaseInstance(instance);
-        return new RoleWithIdentifier(RoleLevel.GROUP, roleCode, null, groupPE);
+        return new RoleWithIdentifier(RoleLevel.SPACE, roleCode, null, groupPE);
     }
 
     /**
@@ -152,7 +152,7 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a list of groups which contains {@link #createGroup()} and
+     * Creates a list of spaces which contains {@link #createGroup()} and
      * {@link #createAnotherGroup()}.
      */
     protected List<GroupPE> createGroups()
@@ -164,12 +164,12 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a group with code {@link #GROUP_CODE} and database instance with code
+     * Creates a group with code {@link #SPACE_CODE} and database instance with code
      * {@link AuthorizationTestCase#INSTANCE_CODE}.
      */
     protected GroupPE createGroup()
     {
-        return createGroup(GROUP_CODE, createDatabaseInstance());
+        return createGroup(SPACE_CODE, createDatabaseInstance());
     }
 
     /**
@@ -312,7 +312,7 @@ public class AuthorizationTestCase extends AssertJUnit
 
     /**
      * Creates a list of roles which contains a group role for a USER and group defined by code
-     * {@link #GROUP_CODE} and database instance {@link AuthorizationTestCase#INSTANCE_CODE}. If
+     * {@link #SPACE_CODE} and database instance {@link AuthorizationTestCase#INSTANCE_CODE}. If
      * <code>withInstanceRole == true</code> the list contains in addition an instance role for a
      * USER and database instance defined by {@link #ANOTHER_INSTANCE_CODE}.
      */
@@ -320,7 +320,7 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
         final RoleWithIdentifier groupRole =
-                createGroupRole(RoleCode.USER, new GroupIdentifier(INSTANCE_CODE, GROUP_CODE));
+                createGroupRole(RoleCode.USER, new GroupIdentifier(INSTANCE_CODE, SPACE_CODE));
         list.add(groupRole);
         if (withInstanceRole)
         {

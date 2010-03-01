@@ -107,7 +107,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier =
-                new SampleOwnerIdentifier(new GroupIdentifier(INSTANCE_IDENTIFIER, GROUP_CODE));
+                new SampleOwnerIdentifier(new GroupIdentifier(INSTANCE_IDENTIFIER, SPACE_CODE));
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
 

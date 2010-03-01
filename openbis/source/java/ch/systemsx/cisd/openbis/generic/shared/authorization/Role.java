@@ -28,21 +28,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
  */
 public class Role
 {
-    private final RoleLevel roleGroup;
+    private final RoleLevel roleLevel;
 
     private final RoleCode roleName;
 
-    public Role(final RoleLevel roleGroup, final RoleCode roleName)
+    public Role(final RoleLevel roleLevel, final RoleCode roleName)
     {
-        assert roleGroup != null : "Unspecified role group";
+        assert roleLevel != null : "Unspecified role level";
         assert roleName != null : "Unspecified role name";
-        this.roleGroup = roleGroup;
+        this.roleLevel = roleLevel;
         this.roleName = roleName;
     }
 
-    public final RoleLevel getRoleGroup()
+    public final RoleLevel getRoleLevel()
     {
-        return roleGroup;
+        return roleLevel;
     }
 
     public final RoleCode getRoleName()
@@ -67,7 +67,7 @@ public class Role
         }
         final Role that = (Role) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(roleGroup, that.roleGroup);
+        builder.append(roleLevel, that.roleLevel);
         builder.append(roleName, that.roleName);
         return builder.isEquals();
     }
@@ -76,7 +76,7 @@ public class Role
     public final int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(roleGroup);
+        builder.append(roleLevel);
         builder.append(roleName);
         return builder.toHashCode();
     }
@@ -84,7 +84,7 @@ public class Role
     @Override
     public String toString()
     {
-        return roleGroup + "." + roleName;
+        return roleLevel + "." + roleName;
     }
 
     //
@@ -93,7 +93,7 @@ public class Role
 
     public static enum RoleLevel
     {
-        INSTANCE, GROUP;
+        INSTANCE, SPACE;
     }
 
 }

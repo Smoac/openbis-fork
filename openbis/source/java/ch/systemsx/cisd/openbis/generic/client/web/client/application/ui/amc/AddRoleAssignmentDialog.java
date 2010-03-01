@@ -130,7 +130,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
                         : Grantee.createAuthorizationGroup(authGroup
                                 .tryGetSelectedAuthorizationGroupCode());
 
-        if (((RoleListBox) roleBox.getWidget()).getValue().isGroupLevel() == false)
+        if (((RoleListBox) roleBox.getWidget()).getValue().isSpaceLevel() == false)
         {
             viewContext.getService().registerInstanceRole(
                     ((RoleListBox) roleBox.getWidget()).getValue(), grantee, registrationCallback);

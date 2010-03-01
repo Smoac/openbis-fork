@@ -23,19 +23,19 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public enum RoleSetCode implements IsSerializable
 {
-    OBSERVER(true), USER(true), POWER_USER(true), GROUP_ETL_SERVER(true), GROUP_ADMIN(true),
+    OBSERVER(true), USER(true), POWER_USER(true), SPACE_ETL_SERVER(true), SPACE_ADMIN(true),
     INSTANCE_ETL_SERVER(false), INSTANCE_ADMIN(false), INSTANCE_ADMIN_OBSERVER(false);
 
-    private final boolean groupLevel;
+    private final boolean spaceLevel;
 
-    private RoleSetCode(boolean groupLevel)
+    private RoleSetCode(boolean spaceLevel)
     {
-        this.groupLevel = groupLevel;
+        this.spaceLevel = spaceLevel;
     }
 
-    public final boolean isGroupLevel()
+    public final boolean isSpaceLevel()
     {
-        return groupLevel;
+        return spaceLevel;
     }
 
 }

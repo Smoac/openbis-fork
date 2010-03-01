@@ -60,7 +60,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         prepareProvider(createDatabaseInstance(), Collections.<GroupPE> emptyList());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setGroupCode(GROUP_CODE);
+        criteria.setGroupCode(SPACE_CODE);
         criteria.setIncludeGroup(true);
         predicate.doEvaluation(createPerson(), createRoles(false), criteria);
         context.assertIsSatisfied();
@@ -85,7 +85,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         prepareProvider(createDatabaseInstance(), createGroups());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setGroupCode(GROUP_CODE);
+        criteria.setGroupCode(SPACE_CODE);
         criteria.setIncludeGroup(true);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), criteria);

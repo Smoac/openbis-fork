@@ -61,7 +61,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
         prepareProvider(INSTANCE_CODE, null, Collections.<GroupPE> emptyList());
         predicate.init(provider);
         predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
-                INSTANCE_CODE, GROUP_CODE));
+                INSTANCE_CODE, SPACE_CODE));
         context.assertIsSatisfied();
     }
 
@@ -72,7 +72,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), Collections.<GroupPE> emptyList());
         predicate.init(provider);
         predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
-                INSTANCE_CODE, GROUP_CODE));
+                INSTANCE_CODE, SPACE_CODE));
         context.assertIsSatisfied();
     }
 
@@ -84,7 +84,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
-                        INSTANCE_CODE, GROUP_CODE));
+                        INSTANCE_CODE, SPACE_CODE));
         assertEquals(Status.OK, evaluation);
         context.assertIsSatisfied();
     }

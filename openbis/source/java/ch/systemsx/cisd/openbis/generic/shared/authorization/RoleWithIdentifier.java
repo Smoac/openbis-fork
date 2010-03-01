@@ -44,7 +44,7 @@ public final class RoleWithIdentifier extends Role
             final DatabaseInstancePE databaseInstanceOrNull, final GroupPE groupOrNull)
     {
         super(roleGroup, roleName);
-        if (RoleLevel.GROUP.equals(roleGroup))
+        if (RoleLevel.SPACE.equals(roleGroup))
         {
             assert groupOrNull != null : "Unspecified identifier";
             assert databaseInstanceOrNull == null;
@@ -97,7 +97,7 @@ public final class RoleWithIdentifier extends Role
         assert roleAssignment.getDatabaseInstance() == null || roleAssignment.getGroup() == null : "Either the space or the database instance must be null";
         final RoleLevel roleGroup =
                 roleAssignment.getDatabaseInstance() != null ? RoleLevel.INSTANCE : roleAssignment
-                        .getGroup() != null ? RoleLevel.GROUP : null;
+                        .getGroup() != null ? RoleLevel.SPACE : null;
         assert roleGroup != null : "Either the space or the database instance must not be null";
         return roleGroup;
     }

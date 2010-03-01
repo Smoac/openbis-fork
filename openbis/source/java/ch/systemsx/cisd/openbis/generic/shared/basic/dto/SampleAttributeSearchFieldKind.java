@@ -29,7 +29,7 @@ public enum SampleAttributeSearchFieldKind implements IsSerializable, IAttribute
 
     SAMPLE_TYPE("Sample Type"),
 
-    GROUP("Space");// FIXME:
+    GROUP("Space");
 
     private final String description;
 

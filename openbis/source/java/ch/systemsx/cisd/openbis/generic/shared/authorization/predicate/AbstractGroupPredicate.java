@@ -89,8 +89,8 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
     {
         for (final RoleWithIdentifier role : allowedRoles)
         {
-            final RoleLevel roleGroup = role.getRoleGroup();
-            if (roleGroup.equals(RoleLevel.GROUP)
+            final RoleLevel roleGroup = role.getRoleLevel();
+            if (roleGroup.equals(RoleLevel.SPACE)
                     && equalIdentifier(role.getAssignedGroup(), databaseInstanceUUID, groupCodeOrNull))
             {
                 return true;

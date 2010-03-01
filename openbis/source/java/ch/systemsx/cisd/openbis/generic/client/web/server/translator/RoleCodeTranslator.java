@@ -36,10 +36,10 @@ public final class RoleCodeTranslator
     {
         switch (code)
         {
-            case GROUP_ADMIN:
+            case SPACE_ADMIN:
             case INSTANCE_ADMIN:
                 return RoleCode.ADMIN;
-            case GROUP_ETL_SERVER:
+            case SPACE_ETL_SERVER:
             case INSTANCE_ETL_SERVER:
                 return RoleCode.ETL_SERVER;
             case OBSERVER:

@@ -343,7 +343,7 @@ class TsvMangler
         sb.append("# The directory to watch for incoming data.\n");
         sb.append(t + ".incoming-dir = data/incoming/" + t + "\n");
         sb.append(t + ".incoming-data-completeness-condition = auto-detection\n");
-        sb.append(t + ".space-code = " + project + "\n");// FIXME:
+        sb.append(t + ".space-code = " + project + "\n");
         sb.append("# ---------------- Plugin properties\n");
         sb
                 .append(t
@@ -352,7 +352,7 @@ class TsvMangler
         sb
                 .append(t
                         + ".data-set-info-extractor.entity-separator = ${data-set-file-name-entity-separator}\n");
-        sb.append(t + ".data-set-info-extractor.space-code = " + project + "\n");// FIXME:
+        sb.append(t + ".data-set-info-extractor.space-code = " + project + "\n");
         sb
                 .append(t
                         + ".data-set-info-extractor.data-set-properties-file-name = data-set-properties.tsv\n");

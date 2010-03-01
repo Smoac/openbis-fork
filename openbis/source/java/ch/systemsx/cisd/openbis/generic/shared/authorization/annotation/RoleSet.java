@@ -36,17 +36,17 @@ public enum RoleSet
 
     INSTANCE_ADMIN(instanceRole(RoleCode.ADMIN)),
     
-    GROUP_ADMIN(INSTANCE_ADMIN, groupRole(RoleCode.ADMIN)),
+    SPACE_ADMIN(INSTANCE_ADMIN, spaceRole(RoleCode.ADMIN)),
 
-    POWER_USER(GROUP_ADMIN, groupRole(RoleCode.POWER_USER)),
+    POWER_USER(SPACE_ADMIN, spaceRole(RoleCode.POWER_USER)),
 
-    USER(POWER_USER, groupRole(RoleCode.USER)),
+    USER(POWER_USER, spaceRole(RoleCode.USER)),
 
     INSTANCE_ADMIN_OBSERVER(USER, instanceRole(RoleCode.OBSERVER)),
     
-    OBSERVER(INSTANCE_ADMIN_OBSERVER, groupRole(RoleCode.OBSERVER)),
+    OBSERVER(INSTANCE_ADMIN_OBSERVER, spaceRole(RoleCode.OBSERVER)),
 
-    ETL_SERVER(INSTANCE_ADMIN, groupRole(RoleCode.ETL_SERVER), instanceRole(RoleCode.ETL_SERVER));
+    ETL_SERVER(INSTANCE_ADMIN, spaceRole(RoleCode.ETL_SERVER), instanceRole(RoleCode.ETL_SERVER));
 
     private final Set<Role> roles;
 
@@ -62,9 +62,9 @@ public enum RoleSet
         this.roles.addAll(Arrays.asList(roles));
     }
 
-    private static Role groupRole(final RoleCode roleCode)
+    private static Role spaceRole(final RoleCode roleCode)
     {
-        return createRole(RoleLevel.GROUP, roleCode);
+        return createRole(RoleLevel.SPACE, roleCode);
     }
 
     private static Role instanceRole(final RoleCode roleCode)

@@ -53,7 +53,7 @@ public class RoleListBox extends ListBox
                     if (index < 0 || index >= roleSetCodes.length)
                         return;
 
-                    boolean groupLevel = roleSetCodes[index].isGroupLevel();
+                    boolean groupLevel = roleSetCodes[index].isSpaceLevel();
                     FieldUtil.setMandatoryFlag(group, groupLevel);
                     group.setVisible(groupLevel);
                 }

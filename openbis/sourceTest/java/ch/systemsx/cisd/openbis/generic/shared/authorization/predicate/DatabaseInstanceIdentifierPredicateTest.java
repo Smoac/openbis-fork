@@ -128,7 +128,7 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
         final Status evaluation =
                 predicate.doEvaluation(person, createRoles(false), new GroupIdentifier(
                         new DatabaseInstanceIdentifier(databaseInstance.getCode()),
-                        GROUP_CODE));
+                        SPACE_CODE));
         assertEquals(Status.OK, evaluation);
         context.assertIsSatisfied();
     }

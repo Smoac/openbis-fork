@@ -42,7 +42,7 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
     @Test
     public final void testEqualityWithRole()
     {
-        final Role role = new Role(RoleLevel.GROUP, RoleCode.ADMIN);
+        final Role role = new Role(RoleLevel.SPACE, RoleCode.ADMIN);
         RoleWithIdentifier roleWithCode =
                 createGroupRole(RoleCode.ADMIN, new GroupIdentifier(INSTANCE_IDENTIFIER, "CISD"));
         assertEquals(role, roleWithCode);
@@ -54,7 +54,7 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
     public final void testRetainAll()
     {
         final Set<Role> singleton =
-                Collections.singleton(new Role(RoleLevel.GROUP, RoleCode.ADMIN));
+                Collections.singleton(new Role(RoleLevel.SPACE, RoleCode.ADMIN));
         final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
         list.add(createGroupRole(RoleCode.ADMIN, new GroupIdentifier(INSTANCE_IDENTIFIER, "CISD")));
         list.add(createGroupRole(RoleCode.USER, new GroupIdentifier(INSTANCE_IDENTIFIER, "3V")));
@@ -69,12 +69,12 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
     {
         GroupPE group = new GroupPE();
         DatabaseInstancePE instance = new DatabaseInstancePE();
-        new RoleWithIdentifier(RoleLevel.GROUP, RoleCode.USER, null, group);
+        new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, null, group);
         new RoleWithIdentifier(RoleLevel.INSTANCE, RoleCode.USER, instance, null);
         boolean fail = true;
         try
         {
-            new RoleWithIdentifier(RoleLevel.GROUP, RoleCode.USER, instance, null);
+            new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, instance, null);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -121,7 +121,7 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
         roleAssignment.setDatabaseInstance(new DatabaseInstancePE());
         roleAssignment.setRole(RoleCode.ADMIN);
         Role role = RoleWithIdentifier.createRole(roleAssignment);
-        assertEquals(role.getRoleGroup(), Role.RoleLevel.INSTANCE);
+        assertEquals(role.getRoleLevel(), Role.RoleLevel.INSTANCE);
         assertEquals(role.getRoleName(), RoleCode.ADMIN);
     }
 
@@ -134,7 +134,7 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
         roleAssignment.setGroup(group);
         roleAssignment.setRole(RoleCode.OBSERVER);
         Role role = RoleWithIdentifier.createRole(roleAssignment);
-        assertEquals(role.getRoleGroup(), Role.RoleLevel.GROUP);
+        assertEquals(role.getRoleLevel(), Role.RoleLevel.SPACE);
         assertEquals(role.getRoleName(), RoleCode.OBSERVER);
     }
 }

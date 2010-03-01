@@ -47,7 +47,7 @@ public final class DatabaseInstanceIdentifierPredicate extends
     {
         for (final RoleWithIdentifier role : allowedRoles)
         {
-            final RoleLevel roleGroup = role.getRoleGroup();
+            final RoleLevel roleGroup = role.getRoleLevel();
             if (roleGroup.equals(RoleLevel.INSTANCE)
                     && role.getAssignedDatabaseInstance().getUuid().equals(databaseInstanceUUID))
             {
@@ -55,7 +55,7 @@ public final class DatabaseInstanceIdentifierPredicate extends
             }
             // TODO 2008-08-07, Tomasz Pylak: is this really necessary to belong to a group to have
             // access to instance samples?
-            if (roleGroup.equals(RoleLevel.GROUP)
+            if (roleGroup.equals(RoleLevel.SPACE)
                     && role.getAssignedGroup().getDatabaseInstance().getUuid().equals(
                             databaseInstanceUUID) && isReadAccess)
             {

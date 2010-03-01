@@ -72,7 +72,7 @@ public final class RoleAssignmentTranslator
                     code = RoleSetCode.INSTANCE_ADMIN;
                 } else
                 {
-                    code = RoleSetCode.GROUP_ADMIN;
+                    code = RoleSetCode.SPACE_ADMIN;
                 }
                 break;
             case OBSERVER:
@@ -96,7 +96,7 @@ public final class RoleAssignmentTranslator
                     code = RoleSetCode.INSTANCE_ETL_SERVER;
                 } else
                 {
-                    code = RoleSetCode.GROUP_ETL_SERVER;
+                    code = RoleSetCode.SPACE_ETL_SERVER;
                 }
                 break;
             default:

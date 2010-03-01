@@ -191,14 +191,14 @@ public interface ICommonServer extends IServer
      * Returns a list of all roles.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.SPACE_ADMIN)
     public List<RoleAssignment> listRoleAssignments(String sessionToken);
 
     /**
      * Registers a new group role.
      */
     @Transactional
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void registerGroupRole(
             String sessionToken,
@@ -218,7 +218,7 @@ public interface ICommonServer extends IServer
      * Deletes role described by given role code, group identifier and user id.
      */
     @Transactional
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void deleteGroupRole(
             String sessionToken,
@@ -494,7 +494,7 @@ public interface ICommonServer extends IServer
      * Registers new project.
      */
     @Transactional
-    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    @RolesAllowed(RoleSet.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     public void registerProject(
             String sessionToken,

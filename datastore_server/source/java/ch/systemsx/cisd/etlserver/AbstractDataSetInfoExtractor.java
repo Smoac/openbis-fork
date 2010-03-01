@@ -53,7 +53,7 @@ public abstract class AbstractDataSetInfoExtractor implements IDataSetInfoExtrac
     static final String STRIP_EXTENSION = "strip-file-extension";
 
     @Private
-    static final String GROUP_CODE = "space-code";// FIXME:
+    static final String GROUP_CODE = "space-code";
 
     protected final Properties properties;
 
