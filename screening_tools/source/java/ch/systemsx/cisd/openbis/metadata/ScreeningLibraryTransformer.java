@@ -39,7 +39,7 @@ public class ScreeningLibraryTransformer
         if (args.length != 4)
         {
             error("Invalid parameters. Expected: "
-                    + "<master-plate-file-path> <experiment-identifier> <plate-geometry> <group>");
+                    + "<library-file-path> <experiment-identifier> <plate-geometry> <space>");
         }
         CsvReader csvReader = readFile(args[0]);
         String experimentIdentifier = args[1];

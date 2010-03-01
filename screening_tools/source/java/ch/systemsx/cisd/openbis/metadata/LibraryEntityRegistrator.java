@@ -194,12 +194,6 @@ public class LibraryEntityRegistrator
                 writeLine(wellLine);
             }
         }
-
-        public Set<String> getRegisteredPlateCodes()
-        {
-            return registeredPlates;
-        }
-
     }
 
     private static class GeneRegistrator extends AbstractMetadataRegistrator
