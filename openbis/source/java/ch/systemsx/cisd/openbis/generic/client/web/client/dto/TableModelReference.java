@@ -36,10 +36,19 @@ public class TableModelReference implements IsSerializable
 
     private List<TableModelColumnHeader> header;
 
+    private String messageOrNull;
+
     public TableModelReference(String resultSetKey, List<TableModelColumnHeader> header)
+    {
+        this(resultSetKey, header, null);
+    }
+
+    public TableModelReference(String resultSetKey, List<TableModelColumnHeader> header,
+            String messageOrNull)
     {
         this.resultSetKey = resultSetKey;
         this.header = header;
+        this.messageOrNull = messageOrNull;
     }
 
     public String getResultSetKey()
@@ -50,6 +59,11 @@ public class TableModelReference implements IsSerializable
     public List<TableModelColumnHeader> getHeader()
     {
         return header;
+    }
+
+    public String tryGetMessage()
+    {
+        return messageOrNull;
     }
 
     // GWT only

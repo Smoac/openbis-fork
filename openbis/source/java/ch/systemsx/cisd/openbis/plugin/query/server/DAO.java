@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -52,7 +53,16 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
  */
 class DAO extends SimpleJdbcDaoSupport implements IDAO
 {
-    private static String ENTITY_COLUMN_NAME_SUFFIX = "_KEY";
+
+    private static final int FETCH_SIZE = 1000;
+
+    private static final int MAX_ROWS = 100 * FETCH_SIZE; // 100.000
+
+    private static final long MINUTE_MILIS = 60 * 1000;
+
+    private static final long QUERY_TIMEOUT_MILIS = 10 * MINUTE_MILIS;
+
+    private static final String ENTITY_COLUMN_NAME_SUFFIX = "_KEY";
 
     private static Map<String, EntityKind> entityKindByColumnName =
             new HashMap<String, EntityKind>();
@@ -101,6 +111,8 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         afterPropertiesSet();
     }
 
+    boolean b = false;
+
     public TableModel query(String sqlQuery, QueryParameterBindings bindingsOrNull)
     {
         if (sqlQuery.toLowerCase().trim().startsWith("select") == false)
@@ -119,55 +131,78 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                 public Object doInPreparedStatement(PreparedStatement ps) throws SQLException,
                         DataAccessException
                 {
-                    ResultSet resultSet = ps.executeQuery();
-                    ResultSetMetaData metaData = ps.getMetaData();
-                    List<TableModelColumnHeader> headers = new ArrayList<TableModelColumnHeader>();
-                    int columnCount = metaData.getColumnCount();
-                    for (int i = 1; i <= columnCount; i++)
+                    ResultSet resultSet = null;
+                    try
                     {
-                        String columnName = JdbcUtils.lookupColumnName(metaData, i);
-                        EntityKind entityKindOrNull = tryGetEntityKind(columnName);
-                        if (entityKindOrNull != null)
-                        {
-                            columnName = entityKindOrNull.getDescription();
-                        }
-                        TableModelColumnHeader header =
-                                new TableModelColumnHeader(columnName, i - 1);
-                        header.setDataType(getDataTypeCode(metaData.getColumnType(i)));
-                        header.setEntityKind(entityKindOrNull);
-                        headers.add(header);
-                    }
-                    List<TableModelRow> rows = new ArrayList<TableModelRow>();
-                    while (resultSet.next())
-                    {
-                        List<ISerializableComparable> cells =
-                                new ArrayList<ISerializableComparable>();
+                        resultSet = ps.executeQuery();
+                        ResultSetMetaData metaData = ps.getMetaData();
+                        List<TableModelColumnHeader> headers =
+                                new ArrayList<TableModelColumnHeader>();
+                        int columnCount = metaData.getColumnCount();
                         for (int i = 1; i <= columnCount; i++)
                         {
-                            Object value = JdbcUtils.getResultSetValue(resultSet, i);
-                            if (value instanceof Integer || value instanceof Long)
+                            String columnName = JdbcUtils.lookupColumnName(metaData, i);
+                            EntityKind entityKindOrNull = tryGetEntityKind(columnName);
+                            if (entityKindOrNull != null)
                             {
-                                cells.add(new IntegerTableCell(((Number) value).longValue()));
-                            } else if (value instanceof Number)
-                            {
-                                Number number = (Number) value;
-                                cells.add(new DoubleTableCell(number.doubleValue()));
-                            } else
-                            {
-                                String string = value == null ? "" : value.toString();
-                                cells.add(new StringTableCell(string));
+                                columnName = entityKindOrNull.getDescription();
                             }
+                            TableModelColumnHeader header =
+                                    new TableModelColumnHeader(columnName, i - 1);
+                            header.setDataType(getDataTypeCode(metaData.getColumnType(i)));
+                            header.setEntityKind(entityKindOrNull);
+                            headers.add(header);
                         }
-                        rows.add(new TableModelRow(cells));
+                        List<TableModelRow> rows = new ArrayList<TableModelRow>();
+                        int rowCounter = 0;
+                        String messageOrNull = null;
+                        while (resultSet.next())
+                        {
+                            if (++rowCounter > MAX_ROWS)
+                            {
+                                messageOrNull =
+                                        String.format("Result size is limited to a maximum of %d.",
+                                                MAX_ROWS);
+                                break;
+                            }
+                            List<ISerializableComparable> cells =
+                                    new ArrayList<ISerializableComparable>();
+                            for (int i = 1; i <= columnCount; i++)
+                            {
+                                Object value = JdbcUtils.getResultSetValue(resultSet, i);
+                                if (value instanceof Integer || value instanceof Long)
+                                {
+                                    cells.add(new IntegerTableCell(((Number) value).longValue()));
+                                } else if (value instanceof Number)
+                                {
+                                    Number number = (Number) value;
+                                    cells.add(new DoubleTableCell(number.doubleValue()));
+                                } else
+                                {
+                                    String string = value == null ? "" : value.toString();
+                                    cells.add(new StringTableCell(string));
+                                }
+                            }
+                            rows.add(new TableModelRow(cells));
+                        }
+                        return new TableModel(headers, rows, messageOrNull);
+                    } finally
+                    {
+                        JdbcUtils.closeResultSet(resultSet);
                     }
-                    JdbcUtils.closeResultSet(resultSet);
-                    return new TableModel(headers, rows);
                 }
 
             };
 
-        return (TableModel) getJdbcTemplate().execute(
-                createSQLQueryWithBindingsResolved(sqlQuery, bindingsOrNull), callback);
+        final JdbcTemplate template = getJdbcTemplate();
+        template.setFetchSize(FETCH_SIZE);
+        template.setMaxRows(MAX_ROWS + 1); // fetch one more row than allowed to detect excess
+        // WORKAROUND setQueryTimeout(int) is not implemented in the JDBC driver for PostgreSQL
+        // NOTE: This fallback solution is PostgreSQL specific!
+        // Setting timeout only once to all statements executed by this DAO doesn't seem to work.
+        template.execute("SET statement_timeout TO " + QUERY_TIMEOUT_MILIS);
+        final String resolvedQuery = createSQLQueryWithBindingsResolved(sqlQuery, bindingsOrNull);
+        return (TableModel) template.execute(resolvedQuery, callback);
     }
 
     // TODO 2010-02-18, Piotr Buczek: this solution is not safe

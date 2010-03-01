@@ -28,7 +28,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class TableModel implements IsSerializable, Serializable
 {
+
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private String messageOrNull;
 
     private List<TableModelRow> rows;
 
@@ -36,8 +39,15 @@ public class TableModel implements IsSerializable, Serializable
 
     public TableModel(List<TableModelColumnHeader> header, List<TableModelRow> rows)
     {
+        this(header, rows, null);
+    }
+
+    public TableModel(List<TableModelColumnHeader> header, List<TableModelRow> rows,
+            String messageOrNull)
+    {
         this.rows = rows;
         this.header = header;
+        this.messageOrNull = messageOrNull;
         validate();
     }
 
@@ -58,6 +68,11 @@ public class TableModel implements IsSerializable, Serializable
     public List<TableModelColumnHeader> getHeader()
     {
         return header;
+    }
+
+    public String tryGetMessage()
+    {
+        return messageOrNull;
     }
 
     // GWT only

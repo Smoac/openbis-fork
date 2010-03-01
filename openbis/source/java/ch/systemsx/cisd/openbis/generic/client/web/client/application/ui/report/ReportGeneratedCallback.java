@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.ProgressBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -24,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 
@@ -63,6 +65,10 @@ public class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelRef
         final IDisposableComponent reportComponent =
                 ReportGrid.create(viewContext, tableModelReference, reportInformationProvider);
         action.execute(reportComponent);
+        if (StringUtils.isBlank(tableModelReference.tryGetMessage()) == false)
+        {
+            MessageBox.info(null, tableModelReference.tryGetMessage(), null);
+        }
     }
 
     @Override
