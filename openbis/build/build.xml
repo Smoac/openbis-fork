@@ -678,9 +678,14 @@
 			<param name="module-test.path" value="openbis-test" />
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
 		</antcall>
+		<antcall target="run-openbis-test" />
+	</target>
+
+	<target name="run-openbis-test" description="Runs the openBIS test mode">
 		<antcall target="run-module-test">
 			<param name="module-test.path" value="openbis-test" />
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
 		</antcall>
 	</target>
+
 </project>
