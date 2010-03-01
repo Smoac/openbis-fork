@@ -46,10 +46,6 @@ public class ViewingTestSuite2 extends GWTTestSuite
         testSuite.addTestSuite(ExperimentBrowserTest.class);
         testSuite.addTestSuite(MaterialBrowserTest.class);
 
-        // TODO 2009-01-21, IA: Uncomment after it's clear how to deal with
-        // (NS_ERROR_DOM_SECURITY_ERR): Security error on CC
-        // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);
-        
         return testSuite;
     }
 }
