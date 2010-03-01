@@ -50,4 +50,25 @@
                         </lib>
         	</war>
         </target>
+
+	<target name="prepare-and-run-module-test"
+	        depends="prepare-gwt, module-test"
+	        description="Prepare, compile, and run the module test mode">
+	</target>
+	
+	<target name="compile-and-run-openbis-phosphonetx-from-eclipse" 
+		   description="Compile and run the phosphonetx openbis from Eclipse">
+		<antcall target="compile-module-test">
+			<param name="module-test.path" value="openbis-test-phosphonetx" />
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
+		</antcall>
+		<antcall target="run-openbis-phosphonetx-from-eclipse" />
+	</target>
+	
+	<target name="run-openbis-phosphonetx-from-eclipse" description="run the phosphonetx openbis from Eclipse">
+		<antcall target="run-module-test">
+			<param name="module-test.path" value="openbis-test-phosphonetx" />
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
+		</antcall>
+	</target>
 </project>
