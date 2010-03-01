@@ -28,7 +28,7 @@ public interface IDataStructureV1_1 extends IDataStructureV1_0
 {
 
     /**
-     * Returns the sample with its owner (a group or a database instance).
+     * Returns the sample with its owner (a space or a database instance).
      * <p>
      * This is only available in version 1.1. Using this method with data structure version 1.0
      * throws an exception.

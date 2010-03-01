@@ -33,7 +33,7 @@ public final class ExperimentIdentifierWithUUIDTest extends AbstractFileSystemTe
     final static ExperimentIdentifierWithUUID createExperimentIdentifierWithUUID()
     {
         return new ExperimentIdentifierWithUUID(SampleWithOwnerTest.INSTANCE_CODE,
-                SampleWithOwnerTest.INSTANCE_UUID, SampleWithOwnerTest.GROUP_CODE,
+                SampleWithOwnerTest.INSTANCE_UUID, SampleWithOwnerTest.SPACE_CODE,
                 ExperimentIdentifierTest.PROJECT_CODE, ExperimentIdentifierTest.EXPERMENT_CODE);
     }
 
@@ -44,7 +44,7 @@ public final class ExperimentIdentifierWithUUIDTest extends AbstractFileSystemTe
         try
         {
             new ExperimentIdentifierWithUUID(SampleWithOwner.INSTANCE_CODE, null,
-                    SampleWithOwner.GROUP_CODE, ExperimentIdentifierTest.PROJECT_CODE,
+                    SampleWithOwner.SPACE_CODE, ExperimentIdentifierTest.PROJECT_CODE,
                     ExperimentIdentifierTest.EXPERMENT_CODE);
         } catch (final AssertionError ex)
         {
@@ -55,7 +55,7 @@ public final class ExperimentIdentifierWithUUIDTest extends AbstractFileSystemTe
         try
         {
             new ExperimentIdentifierWithUUID(SampleWithOwner.INSTANCE_CODE, "",
-                    SampleWithOwner.GROUP_CODE, ExperimentIdentifierTest.PROJECT_CODE,
+                    SampleWithOwner.SPACE_CODE, ExperimentIdentifierTest.PROJECT_CODE,
                     ExperimentIdentifierTest.EXPERMENT_CODE);
         } catch (final AssertionError ex)
         {
@@ -63,7 +63,7 @@ public final class ExperimentIdentifierWithUUIDTest extends AbstractFileSystemTe
         }
         assertFalse(fail);
         new ExperimentIdentifierWithUUID(SampleWithOwner.INSTANCE_CODE,
-                SampleWithOwner.INSTANCE_UUID, SampleWithOwner.GROUP_CODE,
+                SampleWithOwner.INSTANCE_UUID, SampleWithOwner.SPACE_CODE,
                 ExperimentIdentifierTest.PROJECT_CODE, ExperimentIdentifierTest.EXPERMENT_CODE);
     }
 

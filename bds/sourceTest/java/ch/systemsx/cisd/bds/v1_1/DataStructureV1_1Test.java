@@ -49,7 +49,7 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
 
     private static final ExperimentIdentifier EXPERIMENT_IDENTIFIER =
             new ExperimentIdentifier(SampleWithOwnerTest.INSTANCE_CODE,
-                    SampleWithOwnerTest.GROUP_CODE, ExperimentIdentifierTest.PROJECT_CODE,
+                    SampleWithOwnerTest.SPACE_CODE, ExperimentIdentifierTest.PROJECT_CODE,
                     ExperimentIdentifierTest.EXPERMENT_CODE);
 
     private FileStorage storage;

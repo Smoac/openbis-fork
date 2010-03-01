@@ -83,7 +83,7 @@ public abstract class AbstractChecker
 
     public static final String FIRST_NAME = "first_name";
 
-    public static final String GROUP_CODE = "group_code";
+    public static final String SPACE_CODE = "space_code";
 
     public static final String INSTANCE_CODE = "instance_code";
 

@@ -49,24 +49,24 @@ public final class ExperimentIdentifierWithUUID extends ExperimentIdentifier
             final String instanceUUID)
     {
         this(experimentIdentifier.getInstanceCode(), instanceUUID, experimentIdentifier
-                .getGroupCode(), experimentIdentifier.getProjectCode(), experimentIdentifier
+                .getSpaceCode(), experimentIdentifier.getProjectCode(), experimentIdentifier
                 .getExperimentCode());
     }
 
     /**
-     * Creates an instance for the specified database instance and codes of group, project and
+     * Creates an instance for the specified database instance and codes of space, project and
      * experiment.
      * 
      * @param instanceCode A non-empty string of the instance code.
      * @param instanceUUID A non-empty string of the instance <i>UUID</i>.
-     * @param groupCode A non-empty string of the group code.
+     * @param spaceCode A non-empty string of the space code.
      * @param projectCode A non-empty string of the project code.
      * @param experimentCode A non-empty string of the experiment code.
      */
     public ExperimentIdentifierWithUUID(final String instanceCode, final String instanceUUID,
-            final String groupCode, final String projectCode, final String experimentCode)
+            final String spaceCode, final String projectCode, final String experimentCode)
     {
-        super(instanceCode, groupCode, projectCode, experimentCode);
+        super(instanceCode, spaceCode, projectCode, experimentCode);
         assert StringUtils.isEmpty(instanceUUID) == false : "Undefined instance UUID";
         this.instanceUUID = instanceUUID;
     }
@@ -92,12 +92,12 @@ public final class ExperimentIdentifierWithUUID extends ExperimentIdentifier
     {
         final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
         final String instanceCode = Utilities.getTrimmedString(idFolder, INSTANCE_CODE);
-        final String groupCode = Utilities.getTrimmedString(idFolder, GROUP_CODE);
+        final String spaceCode = Utilities.getTrimmedString(idFolder, SPACE_CODE);
         final String projectCode = Utilities.getTrimmedString(idFolder, PROJECT_CODE);
         final String experimentCode = Utilities.getTrimmedString(idFolder, EXPERIMENT_CODE);
         final String instanceUUID =
                 Utilities.getTrimmedString(idFolder, ExperimentIdentifierWithUUID.INSTANCE_UUID);
-        return new ExperimentIdentifierWithUUID(instanceCode, instanceUUID, groupCode, projectCode,
+        return new ExperimentIdentifierWithUUID(instanceCode, instanceUUID, spaceCode, projectCode,
                 experimentCode);
 
     }

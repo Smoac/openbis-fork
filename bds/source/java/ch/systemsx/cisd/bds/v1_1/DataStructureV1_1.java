@@ -43,7 +43,7 @@ public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataS
     //
 
     /**
-     * Returns the sample with its owner (a group or a database instance).
+     * Returns the sample with its owner (a space or a database instance).
      * <p>
      * This is only available in version 1.1. Using this method with data structure version 1.0
      * throws an exception.
@@ -96,7 +96,7 @@ public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataS
      * Returns the sample.
      * <p>
      * For backward compatibility, loads a {@link Sample} when no
-     * <code>SampleWithOwner.GROUP_CODE</code> node could be found in sample directory.
+     * <code>SampleWithOwner.SPACE_CODE</code> node could be found in sample directory.
      * </p>
      * 
      * @throws DataStructureException if the sample hasn't be loaded nor hasn't be set by
@@ -108,7 +108,7 @@ public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataS
     {
         final IDirectory metaDataDirectory = getMetaDataDirectory();
         final IDirectory sampleDir = metaDataDirectory.tryGetNode(Sample.FOLDER).tryAsDirectory();
-        if (sampleDir.tryGetNode(SampleWithOwner.GROUP_CODE) == null)
+        if (sampleDir.tryGetNode(SampleWithOwner.SPACE_CODE) == null)
         {
             return Sample.loadFrom(metaDataDirectory);
         }
@@ -178,7 +178,7 @@ public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataS
         if (getSample() instanceof SampleWithOwner == false)
         {
             throw new DataStructureException(
-                    "The owner (group or database instance) has not been set.");
+                    "The owner (space or database instance) has not been set.");
         }
         if (getExperimentIdentifier() instanceof ExperimentIdentifierWithUUID == false)
         {

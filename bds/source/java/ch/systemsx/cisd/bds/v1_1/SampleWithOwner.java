@@ -28,61 +28,61 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
  * Entity of measurement or calculation covered by the data. This is an immutable value object
- * class. It extends {@link Sample} with an owner (a database instance OR a group).
+ * class. It extends {@link Sample} with an owner (a database instance OR a space).
  * 
  * @author Christian Ribeaud
  */
 public final class SampleWithOwner extends Sample
 {
-    public static final String GROUP_CODE = ExperimentIdentifier.GROUP_CODE;
+    public static final String SPACE_CODE = ExperimentIdentifier.SPACE_CODE;
 
     public static final String INSTANCE_CODE = ExperimentIdentifier.INSTANCE_CODE;
 
     public static final String INSTANCE_UUID = ExperimentIdentifierWithUUID.INSTANCE_UUID;
 
-    private final String groupCode;
+    private final String spaceCode;
 
     private final String instanceCode;
 
     private final String instanceUUID;
 
     /**
-     * Creates an instance for the specified {@link Sample}, group code and database instance code
+     * Creates an instance for the specified {@link Sample}, space code and database instance code
      * of the sample.
      * 
-     * @param groupCode A non-<code>null</code> string of the group code. Could be empty.
+     * @param spaceCode A non-<code>null</code> string of the space code. Could be empty.
      * @param instanceCode A non-<code>null</code> string of the database instance code. Could
      *            not be empty.
      * @param instanceUUID the database instance <i>UUID</i>. Could not be empty.
      */
     public SampleWithOwner(final Sample sample, final String instanceUUID,
-            final String instanceCode, final String groupCode)
+            final String instanceCode, final String spaceCode)
     {
         this(sample.getCode(), sample.getTypeCode(), sample.getTypeDescription(), instanceUUID,
-                instanceCode, groupCode);
+                instanceCode, spaceCode);
     }
 
     /**
-     * Creates an instance for the specified code, type code, type description, group code and
+     * Creates an instance for the specified code, type code, type description, space code and
      * database instance code of the sample.
      * 
-     * @param groupCode A non-<code>null</code> string of the group code. Could be empty.
+     * @param spaceCode A non-<code>null</code> string of the space code. Could be empty.
      * @param instanceCode A non-<code>null</code> string of the database instance code. Could
      *            not be empty.
      * @param instanceUUID A non-<code>null</code> string of the database instance <i>UUID</i>.
      *            Could not be empty.
      */
     public SampleWithOwner(final String code, final String typeCode, final String typeDescription,
-            final String instanceUUID, final String instanceCode, final String groupCode)
+            final String instanceUUID, final String instanceCode, final String spaceCode)
     {
         super(code, typeCode, typeDescription);
-        assert groupCode != null : "Undefined group code.";
+        assert spaceCode != null : "Undefined space code.";
         assert instanceCode != null : "Undefined database instance code.";
         assert instanceUUID != null : "Undefined database instance UUID.";
         assertNonEmptyInstanceCodes(instanceUUID, instanceCode);
         this.instanceUUID = instanceUUID;
         this.instanceCode = instanceCode;
-        this.groupCode = groupCode;
+        this.spaceCode = spaceCode;
     }
 
     private final static void assertNonEmptyInstanceCodes(final String instanceUUID,
@@ -98,9 +98,9 @@ public final class SampleWithOwner extends Sample
         }
     }
 
-    public final String getGroupCode()
+    public final String getSpaceCode()
     {
-        return groupCode;
+        return spaceCode;
     }
 
     public final String getInstanceCode()
@@ -129,11 +129,11 @@ public final class SampleWithOwner extends Sample
         final String typeDescription = Utilities.getTrimmedString(folder, TYPE_DESCRIPTION);
         final String code = Utilities.getTrimmedString(folder, CODE);
         final String typeCode = Utilities.getTrimmedString(folder, TYPE_CODE);
-        final String groupCode = Utilities.getTrimmedString(folder, GROUP_CODE);
+        final String spaceCode = Utilities.getTrimmedString(folder, SPACE_CODE);
         final String instanceCode = Utilities.getTrimmedString(folder, INSTANCE_CODE);
         final String instanceUUID = Utilities.getTrimmedString(folder, INSTANCE_UUID);
         return new SampleWithOwner(code, typeCode, typeDescription, instanceUUID, instanceCode,
-                groupCode);
+                spaceCode);
     }
 
     @Override
@@ -141,7 +141,7 @@ public final class SampleWithOwner extends Sample
     {
         super.saveTo(directory);
         final IDirectory folder = directory.makeDirectory(FOLDER);
-        folder.addKeyValuePair(GROUP_CODE, groupCode);
+        folder.addKeyValuePair(SPACE_CODE, spaceCode);
         folder.addKeyValuePair(INSTANCE_CODE, instanceCode);
         folder.addKeyValuePair(INSTANCE_UUID, instanceUUID);
     }
@@ -152,9 +152,9 @@ public final class SampleWithOwner extends Sample
         final ToStringBuilder builder = createToStringBuilder();
         builder.append(INSTANCE_UUID, instanceUUID);
         builder.append(INSTANCE_CODE, instanceCode);
-        if (groupCode.length() > 0)
+        if (spaceCode.length() > 0)
         {
-            builder.append(GROUP_CODE, groupCode);
+            builder.append(SPACE_CODE, spaceCode);
         }
         return builder.toString();
     }
@@ -173,9 +173,9 @@ public final class SampleWithOwner extends Sample
         final SampleWithOwner that = (SampleWithOwner) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(that.getCode(), getCode());
-        if (groupCode.length() > 1)
+        if (spaceCode.length() > 1)
         {
-            builder.append(that.groupCode, groupCode);
+            builder.append(that.spaceCode, spaceCode);
         } else
         {
             builder.append(that.instanceUUID, instanceUUID);
@@ -188,9 +188,9 @@ public final class SampleWithOwner extends Sample
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
-        if (groupCode.length() > 1)
+        if (spaceCode.length() > 1)
         {
-            builder.append(groupCode);
+            builder.append(spaceCode);
         } else
         {
             builder.append(instanceUUID);

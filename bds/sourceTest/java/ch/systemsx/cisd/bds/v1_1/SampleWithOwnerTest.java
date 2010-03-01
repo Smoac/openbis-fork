@@ -42,7 +42,7 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
 
     static final String INSTANCE_UUID = "111-222";
 
-    static final String GROUP_CODE = "G1";
+    static final String SPACE_CODE = "S1";
 
     @Test
     public final void testConstructor()
@@ -66,7 +66,7 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
         }
         try
         {
-            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, "", "", GROUP_CODE);
+            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, "", "", SPACE_CODE);
             fail();
         } catch (final DataStructureException e)
         {
@@ -74,7 +74,7 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
         }
         try
         {
-            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, "", INSTANCE_CODE, GROUP_CODE);
+            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, "", INSTANCE_CODE, SPACE_CODE);
             fail();
         } catch (final DataStructureException e)
         {
@@ -87,28 +87,28 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
     {
         return new Object[][]
             {
-                { INSTANCE_UUID, INSTANCE_CODE, GROUP_CODE },
+                { INSTANCE_UUID, INSTANCE_CODE, SPACE_CODE },
                 { INSTANCE_UUID, INSTANCE_CODE, "" }, };
     }
 
     @Test(dataProvider = "getSampleData")
     public final void testLoadFrom(final String instanceUUID, final String instanceCode,
-            final String groupCode)
+            final String spaceCode)
     {
         final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         final Sample sample =
                 new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, instanceUUID, instanceCode,
-                        groupCode);
+                        spaceCode);
         sample.saveTo(directory);
         final SampleWithOwner newSample = SampleWithOwner.loadFrom(directory);
-        if (groupCode.length() > 0)
+        if (spaceCode.length() > 0)
         {
-            assertEquals(GROUP_CODE, newSample.getGroupCode());
+            assertEquals(SPACE_CODE, newSample.getSpaceCode());
             assertEquals(INSTANCE_CODE, newSample.getInstanceCode());
             assertEquals(INSTANCE_UUID, newSample.getInstanceUUID());
         } else
         {
-            assertEquals("", newSample.getGroupCode());
+            assertEquals("", newSample.getSpaceCode());
             assertEquals(INSTANCE_CODE, newSample.getInstanceCode());
             assertEquals(INSTANCE_UUID, newSample.getInstanceUUID());
         }

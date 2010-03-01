@@ -42,7 +42,7 @@ public final class ExperimentIdentifierTest extends EqualsHashCodeTestCase<Exper
         boolean fail = true;
         try
         {
-            new ExperimentIdentifier(SampleWithOwner.INSTANCE_CODE, SampleWithOwner.GROUP_CODE,
+            new ExperimentIdentifier(SampleWithOwner.INSTANCE_CODE, SampleWithOwner.SPACE_CODE,
                     null, null);
         } catch (final AssertionError ex)
         {
@@ -52,7 +52,7 @@ public final class ExperimentIdentifierTest extends EqualsHashCodeTestCase<Exper
         fail = true;
         try
         {
-            new ExperimentIdentifier(SampleWithOwner.INSTANCE_CODE, SampleWithOwner.GROUP_CODE,
+            new ExperimentIdentifier(SampleWithOwner.INSTANCE_CODE, SampleWithOwner.SPACE_CODE,
                     PROJECT_CODE, "");
         } catch (final AssertionError ex)
         {
@@ -68,12 +68,12 @@ public final class ExperimentIdentifierTest extends EqualsHashCodeTestCase<Exper
     @Override
     protected final ExperimentIdentifier createInstance() throws Exception
     {
-        return new ExperimentIdentifier("instance", "group", "project", "experiment1");
+        return new ExperimentIdentifier("instance", "space", "project", "experiment1");
     }
 
     @Override
     protected final ExperimentIdentifier createNotEqualInstance() throws Exception
     {
-        return new ExperimentIdentifier("instance", "group", "project", "experiment2");
+        return new ExperimentIdentifier("instance", "space", "project", "experiment2");
     }
 }

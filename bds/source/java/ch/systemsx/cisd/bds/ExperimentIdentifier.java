@@ -34,7 +34,7 @@ public class ExperimentIdentifier implements IStorable
 
     public static final String INSTANCE_CODE = "instance_code";
 
-    public static final String GROUP_CODE = "group_code";
+    public static final String SPACE_CODE = "space_code";
 
     public static final String PROJECT_CODE = "project_code";
 
@@ -49,36 +49,36 @@ public class ExperimentIdentifier implements IStorable
     {
         final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
         final String instanceCode = Utilities.getTrimmedString(idFolder, INSTANCE_CODE);
-        final String groupCode = Utilities.getTrimmedString(idFolder, GROUP_CODE);
+        final String spaceCode = Utilities.getTrimmedString(idFolder, SPACE_CODE);
         final String projectCode = Utilities.getTrimmedString(idFolder, PROJECT_CODE);
         final String experimentCode = Utilities.getTrimmedString(idFolder, EXPERIMENT_CODE);
-        return new ExperimentIdentifier(instanceCode, groupCode, projectCode, experimentCode);
+        return new ExperimentIdentifier(instanceCode, spaceCode, projectCode, experimentCode);
     }
 
     private final String instanceCode;
 
-    private final String groupCode;
+    private final String spaceCode;
 
     private final String projectCode;
 
     private final String experimentCode;
 
     /**
-     * Creates an instance for the specified database instance and codes of group, project and
+     * Creates an instance for the specified database instance and codes of space, project and
      * experiment.
      * 
      * @param instanceCode A non-empty string of the instance code.
-     * @param groupCode A non-empty string of the group code.
+     * @param spaceCode A non-empty string of the space code.
      * @param projectCode A non-empty string of the project code.
      * @param experimentCode A non-empty string of the experiment code.
      */
-    public ExperimentIdentifier(final String instanceCode, final String groupCode,
+    public ExperimentIdentifier(final String instanceCode, final String spaceCode,
             final String projectCode, final String experimentCode)
     {
         assert StringUtils.isEmpty(instanceCode) == false : "Undefined instance code";
         this.instanceCode = instanceCode;
-        assert StringUtils.isEmpty(groupCode) == false : "Undefined group code";
-        this.groupCode = groupCode;
+        assert StringUtils.isEmpty(spaceCode) == false : "Undefined space code";
+        this.spaceCode = spaceCode;
         assert StringUtils.isEmpty(projectCode) == false : "Undefined project code";
         this.projectCode = projectCode;
         assert StringUtils.isEmpty(experimentCode) == false : "Undefined experiment code";
@@ -89,7 +89,7 @@ public class ExperimentIdentifier implements IStorable
     {
         final ToStringBuilder builder = new ToStringBuilder();
         builder.append(INSTANCE_CODE, instanceCode);
-        builder.append(GROUP_CODE, groupCode);
+        builder.append(SPACE_CODE, spaceCode);
         builder.append(PROJECT_CODE, projectCode);
         builder.append(EXPERIMENT_CODE, experimentCode);
         return builder;
@@ -99,7 +99,7 @@ public class ExperimentIdentifier implements IStorable
     {
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(instanceCode, experimentIdentifier.instanceCode);
-        builder.append(groupCode, experimentIdentifier.groupCode);
+        builder.append(spaceCode, experimentIdentifier.spaceCode);
         builder.append(projectCode, experimentIdentifier.projectCode);
         builder.append(experimentCode, experimentIdentifier.experimentCode);
         return builder;
@@ -109,7 +109,7 @@ public class ExperimentIdentifier implements IStorable
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(instanceCode);
-        builder.append(groupCode);
+        builder.append(spaceCode);
         builder.append(projectCode);
         builder.append(experimentCode);
         return builder;
@@ -124,11 +124,11 @@ public class ExperimentIdentifier implements IStorable
     }
 
     /**
-     * Returns the group code.
+     * Returns the space code.
      */
-    public final String getGroupCode()
+    public final String getSpaceCode()
     {
-        return groupCode;
+        return spaceCode;
     }
 
     /**
@@ -158,7 +158,7 @@ public class ExperimentIdentifier implements IStorable
     {
         final IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(INSTANCE_CODE, instanceCode);
-        folder.addKeyValuePair(GROUP_CODE, groupCode);
+        folder.addKeyValuePair(SPACE_CODE, spaceCode);
         folder.addKeyValuePair(PROJECT_CODE, projectCode);
         folder.addKeyValuePair(EXPERIMENT_CODE, experimentCode);
     }

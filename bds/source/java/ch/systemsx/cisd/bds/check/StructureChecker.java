@@ -150,7 +150,7 @@ public final class StructureChecker extends AbstractChecker
         try
         {
             final IDirectory sample = Utilities.getSubDirectory(metadata, AbstractChecker.SAMPLE);
-            checkFileNotEmptyAndTrimmed(sample, AbstractChecker.GROUP_CODE);
+            checkFileNotEmptyAndTrimmed(sample, AbstractChecker.SPACE_CODE);
             checkFileNotEmptyAndTrimmed(sample, AbstractChecker.INSTANCE_CODE);
             checkFileContainsUUID(sample, AbstractChecker.INSTANCE_UUID);
             checkFileNotEmptyAndTrimmed(sample, AbstractChecker.TYPE_DESCRIPTION);
@@ -190,7 +190,7 @@ public final class StructureChecker extends AbstractChecker
                     Utilities.getSubDirectory(metadata, AbstractChecker.EXPERIMENT_IDENTIFIER);
             checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.INSTANCE_CODE);
             checkFileContainsUUID(experimentIdentifier, AbstractChecker.INSTANCE_UUID);
-            checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.GROUP_CODE);
+            checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.SPACE_CODE);
             checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.PROJECT_CODE);
             checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.EXPERIMENT_CODE);
         } catch (final Exception e)
