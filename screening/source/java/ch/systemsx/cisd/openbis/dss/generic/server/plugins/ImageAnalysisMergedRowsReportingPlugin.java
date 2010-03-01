@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -28,11 +27,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDataMergingReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -51,57 +46,10 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDataMergingR
 
     public ImageAnalysisMergedRowsReportingPlugin(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot, ";");
+        super(properties, storeRoot, SEMICOLON_SEPARATOR);
     }
 
     public TableModel createReport(List<DatasetDescription> datasets)
-    {
-        TableModel stringModel = createStringModel(datasets);
-        List<TableModelRow> typedRows = asTypedRows(stringModel.getRows());
-        return new TableModel(stringModel.getHeader(), typedRows);
-    }
-
-    private static List<TableModelRow> asTypedRows(List<TableModelRow> rows)
-    {
-        List<TableModelRow> typedRows = new ArrayList<TableModelRow>();
-        for (TableModelRow row : rows)
-        {
-            typedRows.add(asTypedRow(row));
-        }
-        return typedRows;
-    }
-
-    private static TableModelRow asTypedRow(TableModelRow row)
-    {
-        List<ISerializableComparable> typedValues = new ArrayList<ISerializableComparable>();
-        for (ISerializableComparable value : row.getValues())
-        {
-            typedValues.add(asTypedValue(value));
-        }
-        return new TableModelRow(typedValues);
-    }
-
-    private static ISerializableComparable asTypedValue(ISerializableComparable value)
-    {
-        String text = value.toString();
-        try
-        {
-            Double doubleValue = Double.parseDouble(text);
-            if (doubleValue.intValue() == doubleValue)
-            {
-                return new IntegerTableCell(doubleValue.intValue());
-            } else
-            {
-                return new DoubleTableCell(doubleValue);
-            }
-        } catch (NumberFormatException e)
-        {
-            return value;
-        }
-    }
-
-    // all columns will be strings
-    private TableModel createStringModel(List<DatasetDescription> datasets)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("Data Set Code");

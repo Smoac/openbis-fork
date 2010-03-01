@@ -7,6 +7,7 @@
     </groups>
     <packages>
       <package name="ch.systemsx.cisd.openbis.plugin.screening.*" />
+      <package name="ch.systemsx.cisd.openbis.dss.*" />
    </packages>
  </test>
 </suite>

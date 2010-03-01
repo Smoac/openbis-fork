@@ -17,14 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -32,7 +28,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.parser.ParsingException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -44,9 +39,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
  * 
  * @author Bernd Rinn
  */
-public abstract class AbstractDataMergingReportingPlugin extends AbstractDatastorePlugin implements
-        IReportingPluginTask
+public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTableReportingPlugin
 {
+    private static final long serialVersionUID = 1L;
+
     private static final String FILE_INCLUDE_PATTERN = "file-include-pattern";
 
     private static final String FILE_EXCLUDE_PATTERN = "file-exclude-pattern";
@@ -58,17 +54,15 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
 
     private final String includePatternOrNull;
 
-    private final String separator;
-
     protected AbstractDataMergingReportingPlugin(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, "\t");
+        this(properties, storeRoot, TAB_SEPARATOR);
     }
 
     protected AbstractDataMergingReportingPlugin(Properties properties, File storeRoot,
             String separator)
     {
-        super(properties, storeRoot);
+        super(properties, storeRoot, separator);
         final String excludePatternOrNull = properties.getProperty(FILE_EXCLUDE_PATTERN);
         if (excludePatternOrNull == null)
         {
@@ -78,7 +72,6 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
             this.excludePattern = excludePatternOrNull;
         }
         this.includePatternOrNull = properties.getProperty(FILE_INCLUDE_PATTERN);
-        this.separator = separator;
     }
 
     protected String[] getHeaderTitles(DatasetDescription dataset)
@@ -162,48 +155,6 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
         }
     }
 
-    /**
-     * Loads {@link DatasetFileLines} from the specified tab file.
-     * 
-     * @throws IOExceptionUnchecked if a {@link IOException} has occurred.
-     */
-    protected DatasetFileLines loadFromFile(DatasetDescription dataset, final File file)
-            throws ParserException, ParsingException, IllegalArgumentException,
-            IOExceptionUnchecked
-    {
-        assert file != null : "Given file must not be null";
-        assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
-
-        FileReader reader = null;
-        try
-        {
-            reader = new FileReader(file);
-            return load(dataset, reader, file);
-        } catch (final IOException ex)
-        {
-            throw new IOExceptionUnchecked(ex);
-        } finally
-        {
-            IOUtils.closeQuietly(reader);
-        }
-    }
-
-    /**
-     * Loads data from the specified reader.
-     * 
-     * @throws IOException
-     */
-    @SuppressWarnings("unchecked")
-    protected DatasetFileLines load(final DatasetDescription dataset, final Reader reader,
-            final File file) throws ParserException, ParsingException, IllegalArgumentException,
-            IOException
-    {
-        assert reader != null : "Unspecified reader";
-
-        final List<String> lines = IOUtils.readLines(reader);
-        return new DatasetFileLines(file, dataset, lines, separator);
-    }
-
     protected boolean isFileExcluded(File file)
     {
         if (includePatternOrNull != null)
@@ -214,7 +165,4 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
             return file.getName().matches(excludePattern);
         }
     }
-
-    private static final long serialVersionUID = 1L;
-
 }

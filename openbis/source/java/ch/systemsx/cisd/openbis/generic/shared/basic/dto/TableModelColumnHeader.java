@@ -99,4 +99,10 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     {
         this.entityKindOrNull = entityKind;
     }
+
+    @Override
+    public String toString()
+    {
+        return title;
+    }
 }

@@ -17,33 +17,28 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.AutoResolveUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
 
 /**
- * Shows the data as a table if one 'main data set' file exists and is a 'tsv' file.
+ * Shows the data as a table if one 'main data set' file exists, matches the selected dataset
+ * pattern and is a 'tsv' file.
  * 
  * @author Izabela Adamczyk
  */
-public class TSVViewReportingPlugin extends AbstractDataMergingReportingPlugin implements
-        IReportingPluginTask
+public class TSVViewReportingPlugin extends AbstractFileTableReportingPlugin
 {
     private static final long serialVersionUID = 1L;
 
     public TSVViewReportingPlugin(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot);
+        super(properties, storeRoot, TAB_SEPARATOR);
     }
 
     public TableModel createReport(List<DatasetDescription> datasets)
@@ -56,22 +51,8 @@ public class TSVViewReportingPlugin extends AbstractDataMergingReportingPlugin i
                         root);
         if (fileToOpenOrNull != null && fileToOpenOrNull.isFile() && fileToOpenOrNull.exists())
         {
-            SimpleTableModelBuilder tableBuilder = new SimpleTableModelBuilder();
             DatasetFileLines lines = loadFromFile(dataset, fileToOpenOrNull);
-            for (String title : lines.getHeaderTokens())
-            {
-                tableBuilder.addHeader(title);
-            }
-            for (String[] line : lines.getDataLines())
-            {
-                List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
-                for (String token : line)
-                {
-                    row.add(TableCellUtil.createTableCell(token));
-                }
-                tableBuilder.addRow(row);
-            }
-            return tableBuilder.getTableModel();
+            return createTableModel(lines);
         }
         throw UserFailureException.fromTemplate("Main TSV file could not be found.");
     }
