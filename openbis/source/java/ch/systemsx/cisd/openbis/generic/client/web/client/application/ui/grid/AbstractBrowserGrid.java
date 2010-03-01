@@ -696,6 +696,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             final PagingLoadResult<M> loadResult =
                     new BasePagingLoadResult<M>(models, resultSetConfig.getOffset(), result
                             .getTotalLength());
+
             delegate.onSuccess(loadResult);
             pagingToolbar.enableExportButton();
             pagingToolbar.updateDefaultConfigButton(true);
@@ -1695,7 +1696,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     /**
      * See if requests for data from the server should be queued instead of being executed
-     * immediately. INVARIANT: If this returns true, then the requestQueueOrNull is not null
+     * immediately. INVARIANT: If this returns true, then the serverRequestQueueOrNull is not null
      */
     protected boolean shouldQueueServerRequests()
     {
