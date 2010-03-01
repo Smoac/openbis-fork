@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,9 +25,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 
 /**
  * A view locator represents the information necessary to open a view including populating it any
- * parameters. The view locator may be initialized from URL-encoded parameters. One parameter,
- * ACTION, is required. ENTITY, though not required, is often used. These two parameters are thus
- * handled specially.
+ * parameters. The concept is similar to a URL (Universal Resource Locator), but made specific to
+ * view in openBIS.
+ * <p>
+ * The view locator may be initialized from URL-encoded parameters. One parameter, ACTION, is
+ * required. ENTITY, though not required, is often used. These two parameters are thus handled
+ * specially.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
