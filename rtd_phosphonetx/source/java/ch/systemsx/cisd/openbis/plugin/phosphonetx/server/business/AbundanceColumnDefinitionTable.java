@@ -26,8 +26,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
@@ -40,31 +39,29 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Treatment;
  */
 class AbundanceColumnDefinitionTable extends AbstractBusinessObject implements IAbundanceColumnDefinitionTable
 {
-    private final ISampleIDProvider idProvider;
     private final TreatmentFinder treatmentFinder;
     private final Map<Long, AbundanceColumnDefinition> columnDefinitions;
 
     AbundanceColumnDefinitionTable(IDAOFactory daoFactory,
-            IPhosphoNetXDAOFactory specificDAOFactory, ISampleIDProvider idProvider, Session session)
+            IPhosphoNetXDAOFactory specificDAOFactory, Session session)
     {
         super(daoFactory, specificDAOFactory, session);
-        this.idProvider = idProvider;
         treatmentFinder = new TreatmentFinder();
         columnDefinitions = new TreeMap<Long, AbundanceColumnDefinition>();
     }
 
-    public void add(String samplePermID)
+    public void add(Sample sample)
     {
-        long sampleID = idProvider.getSampleIDOrParentSampleID(samplePermID);
+        Sample parent = sample.getGeneratedFrom();
+        Sample sampleOrParent = parent == null ? sample : parent;
+        Long sampleID = sampleOrParent.getId();
         AbundanceColumnDefinition columnDefinition = columnDefinitions.get(sampleID);
         if (columnDefinition == null)
         {
             columnDefinition = new AbundanceColumnDefinition();
             columnDefinition.addSampleID(sampleID);
-            SamplePE sample =
-                    getDaoFactory().getSampleDAO().getByTechId(new TechId(sampleID));
-            columnDefinition.setSampleCode(sample.getCode());
-            columnDefinition.setTreatments(treatmentFinder.findTreatmentsOf(sample));
+            columnDefinition.setSampleCode(sampleOrParent.getCode());
+            columnDefinition.setTreatments(treatmentFinder.findTreatmentsOf(sampleOrParent));
             columnDefinitions.put(sampleID, columnDefinition);
         }
     }

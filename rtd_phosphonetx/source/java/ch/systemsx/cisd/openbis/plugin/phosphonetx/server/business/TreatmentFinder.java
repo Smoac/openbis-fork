@@ -23,16 +23,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Treatment;
 
@@ -50,7 +50,7 @@ public class TreatmentFinder
     /**
      * Returns all treatments found for specified sample and its ancestors.
      */
-    public List<Treatment> findTreatmentsOf(SamplePE sample)
+    public List<Treatment> findTreatmentsOf(Sample sample)
     {
         Map<String, Treatment> treatments = new LinkedHashMap<String, Treatment>();
         findAndAddTreatments(treatments, sample);
@@ -59,23 +59,23 @@ public class TreatmentFinder
         return treatmentList;
     }
     
-    private void findAndAddTreatments(Map<String, Treatment> treatments, SamplePE sampleOrNull)
+    private void findAndAddTreatments(Map<String, Treatment> treatments, Sample sampleOrNull)
     {
         if (sampleOrNull == null)
         {
             return;
         }
         findAndAddTreatments(treatments, sampleOrNull.getGeneratedFrom());
-        Set<SamplePropertyPE> properties = sampleOrNull.getProperties();
+        List<IEntityProperty> properties = sampleOrNull.getProperties();
         Map<String, Treatment> codeTreatmentMap = new HashMap<String, Treatment>();
-        for (SamplePropertyPE property : properties)
+        for (IEntityProperty property : properties)
         {
-            PropertyTypePE propertyType = property.getEntityTypePropertyType().getPropertyType();
+            PropertyType propertyType = property.getPropertyType();
             String code = propertyType.getCode();
             if (code.startsWith(TREATMENT_TYPE_CODE))
             {
                 String treatmentCode = code.substring(TREATMENT_TYPE_CODE.length());
-                VocabularyTermPE vocabularyTerm = property.getVocabularyTerm();
+                VocabularyTerm vocabularyTerm = property.getVocabularyTerm();
                 if (vocabularyTerm == null)
                 {
                     throw new UserFailureException("Data type of property type '" + code
@@ -88,7 +88,7 @@ public class TreatmentFinder
             {
                 String treatmentCode = code.substring(TREATMENT_VALUE_CODE.length());
                 Treatment treatment = getOrCreateTreatment(codeTreatmentMap, treatmentCode);
-                EntityDataType dataType = propertyType.getType().getCode();
+                DataTypeCode dataType = propertyType.getDataType().getCode();
                 treatment.setValueType(dataType.toString());
                 String value = getValue(property);
                 treatment.setValue(value);
@@ -108,18 +108,18 @@ public class TreatmentFinder
         }
     }
 
-    private String getValue(SamplePropertyPE property)
+    private String getValue(IEntityProperty property)
     {
-        MaterialPE material = property.getMaterialValue();
+        Material material = property.getMaterial();
         if (material != null)
         {
             return material.getCode();
         }
-        VocabularyTermPE vocabularyTerm = property.getVocabularyTerm();
+        VocabularyTerm vocabularyTerm = property.getVocabularyTerm();
         return vocabularyTerm == null ? property.getValue() : getLabelOrCode(vocabularyTerm);
     }
 
-    private String getLabelOrCode(VocabularyTermPE vocabularyTerm)
+    private String getLabelOrCode(VocabularyTerm vocabularyTerm)
     {
         String label = vocabularyTerm.getLabel();
         if (StringUtils.isBlank(label))

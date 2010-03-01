@@ -64,6 +64,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
     private IProteinQueryDAO proteinDAO;
     private ProteinInfoTable table;
     private ArrayList<AbundanceColumnDefinition> definitions;
+    private ISampleIDProvider sampleIDProvider;
     
     @Override
     @BeforeMethod
@@ -72,6 +73,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
         super.setUp();
         specificDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
         proteinDAO = context.mock(IProteinQueryDAO.class);
+        sampleIDProvider = context.mock(ISampleIDProvider.class);
         context.checking(new Expectations()
             {
                 {
@@ -79,7 +81,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
                     will(returnValue(proteinDAO));
                 }
             });
-        table = new ProteinInfoTable(daoFactory, specificDAOFactory, SESSION);
+        table = new ProteinInfoTable(daoFactory, specificDAOFactory, SESSION, sampleIDProvider);
         definitions = new ArrayList<AbundanceColumnDefinition>();
         definitions.add(create(SAMPLE_ID_1, SAMPLE_ID_2));
         definitions.add(create(SAMPLE_ID_3));

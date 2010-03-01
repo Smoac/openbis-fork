@@ -45,11 +45,13 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundan
 class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTable
 {
     private List<ProteinInfo> infos;
+    private final ISampleIDProvider sampleIDProvider;
 
     ProteinInfoTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
-            Session session)
+            Session session, ISampleIDProvider sampleIDProvider)
     {
         super(daoFactory, specificDAOFactory, session);
+        this.sampleIDProvider = sampleIDProvider;
     }
 
     public List<ProteinInfo> getProteinInfos()
@@ -107,9 +109,10 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
     private AbundanceManager setUpAbundanceManager(String experimentPermID,
             double falseDiscoveryRate)
     {
-        AbundanceManager abundanceManager = new AbundanceManager(getDaoFactory().getSampleDAO());
-        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
+        long time = System.currentTimeMillis();
+        AbundanceManager abundanceManager = new AbundanceManager(sampleIDProvider);
         ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
+        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
         DataSet<ProteinReferenceWithProbability> resultSet =
                 dao.listProteinsByExperiment(experimentPermID);
         try
@@ -125,11 +128,13 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         {
             resultSet.close();
         }
+        System.out.println(System.currentTimeMillis()-time +": listProteinsByExperiment");
         return abundanceManager;
     }
     
     private CoverageCalculator setUpCoverageCalculator(String experimentPermID)
     {
+        long time = System.currentTimeMillis();
         IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
         DataSet<ProteinReferenceWithPeptideSequence> resultSet = dao.listProteinsWithPeptidesByExperiment(experimentPermID);
         try
@@ -138,6 +143,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         } finally
         {
             resultSet.close();
+            System.out.println(System.currentTimeMillis()-time +": listProteinsWithPeptidesByExperiment");
         }
     }
     

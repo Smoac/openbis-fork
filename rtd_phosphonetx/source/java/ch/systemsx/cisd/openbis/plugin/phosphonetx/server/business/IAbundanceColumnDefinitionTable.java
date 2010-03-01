@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 
 /**
@@ -27,7 +28,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceCol
  */
 public interface IAbundanceColumnDefinitionTable
 {
-    public void add(String samplePermID);
+    public void add(Sample sample);
 
     public List<AbundanceColumnDefinition> getSortedAndAggregatedDefinitions(
             String treatmentTypeOrNull);

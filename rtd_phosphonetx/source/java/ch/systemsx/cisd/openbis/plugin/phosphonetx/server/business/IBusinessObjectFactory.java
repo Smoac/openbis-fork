@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -25,9 +26,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public interface IBusinessObjectFactory
 {
+    public ISampleLister createSampleLister(Session session);
+    
     public IAbundanceColumnDefinitionTable createAbundanceColumnDefinitionTable(Session session);
     
-    public IProteinInfoTable createProteinInfoTable(Session session);
+    public IProteinInfoTable createProteinInfoTable(Session session,
+            ISampleIDProvider sampleIDProvider);
     
     public IProteinSummaryTable createProteinSummaryTable(Session session);
     

@@ -19,20 +19,21 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder.TREATMENT_TYPE_CODE;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder.TREATMENT_VALUE_CODE;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Treatment;
 
@@ -46,11 +47,11 @@ public class TreatmentFinderTest extends AssertJUnit
     @Test
     public void testFindingTreatmentsInSample()
     {
-        SamplePE sample = new SamplePE();
-        sample.addProperty(create("BLABLA", "blub", EntityDataType.MULTILINE_VARCHAR));
+        Sample sample = createSample();
+        sample.getProperties().add(create("BLABLA", "blub", DataTypeCode.MULTILINE_VARCHAR));
         addTreatment(sample, "", "pH", "7");
         addTreatment(sample, "1", "PLASMA", "20");
-        addTreatment(sample, "2", "VIRUS", "HIV", EntityDataType.MATERIAL);
+        addTreatment(sample, "2", "VIRUS", "HIV", DataTypeCode.MATERIAL);
         
         List<Treatment> treatments = new TreatmentFinder().findTreatmentsOf(sample);
         
@@ -63,13 +64,13 @@ public class TreatmentFinderTest extends AssertJUnit
     @Test
     public void testFindingTreatmentsInAncestorsOverriddenInDescendants()
     {
-        SamplePE sample = new SamplePE();
-        SamplePE parentSample = new SamplePE();
+        Sample sample = createSample();
+        Sample parentSample = createSample();
         sample.setGeneratedFrom(parentSample);
-        SamplePE grandParentSample = new SamplePE();
+        Sample grandParentSample = createSample();
         parentSample.setGeneratedFrom(grandParentSample);
         addTreatment(grandParentSample, "1", "PLASMA", "35");
-        parentSample.addProperty(create("BLABLA", "blub", EntityDataType.MULTILINE_VARCHAR));
+        parentSample.getProperties().add(create("BLABLA", "blub", DataTypeCode.MULTILINE_VARCHAR));
         addTreatment(parentSample, "", "pH", "7");
         addTreatment(sample, "", "PLASMA", "20");
         
@@ -83,8 +84,8 @@ public class TreatmentFinderTest extends AssertJUnit
     @Test
     public void testFindingTreatmentsWhereTreatmentTypeIsNotAVocabulary()
     {
-        SamplePE sample = new SamplePE();
-        sample.addProperty(create(TREATMENT_TYPE_CODE, "pH", EntityDataType.VARCHAR));
+        Sample sample = createSample();
+        sample.getProperties().add(create(TREATMENT_TYPE_CODE, "pH", DataTypeCode.VARCHAR));
 
         try
         {
@@ -100,8 +101,8 @@ public class TreatmentFinderTest extends AssertJUnit
     @Test
     public void testFindingTreatmentsWhereOnlyTreatmentTypeIsDefined()
     {
-        SamplePE sample = new SamplePE();
-        sample.addProperty(create(TREATMENT_TYPE_CODE, "pH", EntityDataType.CONTROLLEDVOCABULARY));
+        Sample sample = createSample();
+        sample.getProperties().add(create(TREATMENT_TYPE_CODE, "pH", DataTypeCode.CONTROLLEDVOCABULARY));
         
         List<Treatment> treatments = new TreatmentFinder().findTreatmentsOf(sample);
         
@@ -112,8 +113,8 @@ public class TreatmentFinderTest extends AssertJUnit
     @Test
     public void testFindingTreatmentsWhereOnlyTreatmentValueIsDefined()
     {
-        SamplePE sample = new SamplePE();
-        sample.addProperty(create(TREATMENT_VALUE_CODE, "HIV", EntityDataType.MATERIAL));
+        Sample sample = createSample();
+        sample.getProperties().add(create(TREATMENT_VALUE_CODE, "HIV", DataTypeCode.MATERIAL));
         
         List<Treatment> treatments = new TreatmentFinder().findTreatmentsOf(sample);
         
@@ -137,38 +138,36 @@ public class TreatmentFinderTest extends AssertJUnit
                 treatment.getLabel());
     }
     
-    private void addTreatment(SamplePE sample, String treatmentCodePostfix, String treatmentType,
+    private void addTreatment(Sample sample, String treatmentCodePostfix, String treatmentType,
             String treatmentValue)
     {
         addTreatment(sample, treatmentCodePostfix, treatmentType, treatmentValue,
-                EntityDataType.VARCHAR);
+                DataTypeCode.VARCHAR);
     }
 
-    private void addTreatment(SamplePE sample, String treatmentCodePostfix, String treatmentType,
-            String treatmentValue, EntityDataType valueType)
+    private void addTreatment(Sample sample, String treatmentCodePostfix, String treatmentType,
+            String treatmentValue, DataTypeCode valueType)
     {
-        sample.addProperty(create(TREATMENT_TYPE_CODE + treatmentCodePostfix, treatmentType,
-                EntityDataType.CONTROLLEDVOCABULARY));
-        sample.addProperty(create(TREATMENT_VALUE_CODE + treatmentCodePostfix, treatmentValue,
+        List<IEntityProperty> properties = sample.getProperties();
+        properties.add(create(TREATMENT_TYPE_CODE + treatmentCodePostfix, treatmentType,
+                DataTypeCode.CONTROLLEDVOCABULARY));
+        properties.add(create(TREATMENT_VALUE_CODE + treatmentCodePostfix, treatmentValue,
                 valueType));
     }
 
-    private SamplePropertyPE create(String code, String value, EntityDataType type)
+    private IEntityProperty create(String code, String value, DataTypeCode type)
     {
-        SamplePropertyPE sampleProperty = new SamplePropertyPE();
-        SampleTypePropertyTypePE sampleTypePropertyType = new SampleTypePropertyTypePE();
-        sampleTypePropertyType.setEntityType(new SampleTypePE());
-        PropertyTypePE propertyType = new PropertyTypePE();
-        propertyType.setSimpleCode(code);
-        DataTypePE dataType = new DataTypePE();
+        EntityProperty sampleProperty = new EntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(code);
+        DataType dataType = new DataType();
         dataType.setCode(type);
-        propertyType.setType(dataType);
-        sampleTypePropertyType.setPropertyType(propertyType);
-        sampleProperty.setEntityTypePropertyType(sampleTypePropertyType);
+        propertyType.setDataType(dataType);
+        sampleProperty.setPropertyType(propertyType);
         switch (type)
         {
             case CONTROLLEDVOCABULARY:
-                VocabularyTermPE term = new VocabularyTermPE();
+                VocabularyTerm term = new VocabularyTerm();
                 if (Character.isUpperCase(value.charAt(0)))
                 {
                     term.setCode(value);
@@ -177,16 +176,23 @@ public class TreatmentFinderTest extends AssertJUnit
                     term.setCode(value.toUpperCase());
                     term.setLabel(value);
                 }
-                sampleProperty.setUntypedValue(null, term, null);
+                sampleProperty.setVocabularyTerm(term);
                 break;
             case MATERIAL:
-                MaterialPE material = new MaterialPE();
+                Material material = new Material();
                 material.setCode(value);
-                sampleProperty.setUntypedValue(null, null, material);
+                sampleProperty.setMaterial(material);
                 break;
             default:
-                sampleProperty.setUntypedValue(value, null, null);
+                sampleProperty.setValue(value);
         }
         return sampleProperty;
+    }
+    
+    private Sample createSample()
+    {
+        Sample sample = new Sample();
+        sample.setProperties(new ArrayList<IEntityProperty>());
+        return sample;
     }
 }

@@ -19,21 +19,21 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder.TREATMENT_TYPE_CODE;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder.TREATMENT_VALUE_CODE;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 
@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceCol
 public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
 {
     private IPhosphoNetXDAOFactory phosphoNetXDAOFactory;
-    private ISampleIDProvider sampleIDProvider;
     private AbundanceColumnDefinitionTable table;
     
     @Override
@@ -54,10 +53,7 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
     {
         super.setUp();
         phosphoNetXDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
-        sampleIDProvider = context.mock(ISampleIDProvider.class);
-        table =
-                new AbundanceColumnDefinitionTable(daoFactory, phosphoNetXDAOFactory,
-                        sampleIDProvider, SESSION);
+        table = new AbundanceColumnDefinitionTable(daoFactory, phosphoNetXDAOFactory, SESSION);
     }
     
     @Test
@@ -73,10 +69,9 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
     @Test
     public void testOneAbundanceColumnWithoutTreatment()
     {
-        SamplePE s1 = createSample(42);
-        prepareGetSample(s1);
+        Sample s1 = createSample(42);
         
-        table.add(s1.getPermId());
+        table.add(s1);
         List<AbundanceColumnDefinition> definitions = table.getSortedAndAggregatedDefinitions(null);
         
         assertEquals(1, definitions.size());
@@ -90,11 +85,10 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
     @Test
     public void testOneAbundanceColumnWithOneTreatment()
     {
-        SamplePE s1 = createSample(42);
+        Sample s1 = createSample(42);
         addTreatment(s1, "", "abc");
-        prepareGetSample(s1);
         
-        table.add(s1.getPermId());
+        table.add(s1);
         List<AbundanceColumnDefinition> definitions = table.getSortedAndAggregatedDefinitions(null);
         
         assertEquals(1, definitions.size());
@@ -111,18 +105,20 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
     @Test
     public void testAbundanceColumnsForTwoSamplesWithSameParent()
     {
-        SamplePE s1 = createSample(42);
-        addTreatment(s1, "", "abc");
-        prepareGetSample(s1);
-        prepareGetSample("abc2", s1.getId(), null);
+        Sample s1 = createSample(42);
+        Sample s2 = createSample(43);
+        Sample parent = createSample(4711);
+        s1.setGeneratedFrom(parent);
+        s2.setGeneratedFrom(parent);
+        addTreatment(parent, "", "abc");
         
-        table.add(s1.getPermId());
-        table.add("abc2");
+        table.add(s1);
+        table.add(s2);
         List<AbundanceColumnDefinition> definitions = table.getSortedAndAggregatedDefinitions(null);
         
         assertEquals(1, definitions.size());
-        assertEquals(42l, definitions.get(0).getID());
-        assertEquals("code-42", definitions.get(0).getSampleCode());
+        assertEquals(4711l, definitions.get(0).getID());
+        assertEquals("code-4711", definitions.get(0).getSampleCode());
         assertEquals(1, definitions.get(0).getTreatments().size());
         assertEquals("pH", definitions.get(0).getTreatments().get(0).getType());
         assertEquals("PH", definitions.get(0).getTreatments().get(0).getTypeCode());
@@ -131,62 +127,43 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
     
-    private SamplePE createSample(long sampleID)
+    private Sample createSample(long sampleID)
     {
-        SamplePE samplePE = new SamplePE();
-        samplePE.setId(sampleID);
-        samplePE.setCode("code-" + sampleID);
-        samplePE.setPermId("abc-" + sampleID);
-        return samplePE;
+        Sample sample = new Sample();
+        sample.setId(sampleID);
+        sample.setCode("code-" + sampleID);
+        sample.setPermId("abc-" + sampleID);
+        sample.setProperties(Collections.<IEntityProperty>emptyList());
+        return sample;
     }
     
-    private void addTreatment(SamplePE sample, String type, String value)
+    private void addTreatment(Sample sample, String type, String value)
     {
-        SamplePropertyPE sampleProperty = new SamplePropertyPE();
-        sampleProperty.setEntityTypePropertyType(createSTPT(TREATMENT_TYPE_CODE + type));
-        VocabularyTermPE term = new VocabularyTermPE();
+        List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
+        EntityProperty sampleProperty = new EntityProperty();
+        sampleProperty.setPropertyType(createPropertyType(TREATMENT_TYPE_CODE + type));
+        VocabularyTerm term = new VocabularyTerm();
         term.setCode("PH");
         term.setLabel("pH");
-        sampleProperty.setUntypedValue(null, term, null);
-        sample.addProperty(sampleProperty);
+        sampleProperty.setVocabularyTerm(term);
+        properties.add(sampleProperty);
 
-        sampleProperty = new SamplePropertyPE();
-        sampleProperty.setEntityTypePropertyType(createSTPT(TREATMENT_VALUE_CODE + type));
-        sampleProperty.setUntypedValue(value, null, null);
-        sample.addProperty(sampleProperty);
+        sampleProperty = new EntityProperty();
+        sampleProperty.setPropertyType(createPropertyType(TREATMENT_VALUE_CODE + type));
+        sampleProperty.setValue(value);
+        properties.add(sampleProperty);
+        
+        sample.setProperties(properties);
     }
 
-    private SampleTypePropertyTypePE createSTPT(String code)
+    private PropertyType createPropertyType(String code)
     {
-        SampleTypePropertyTypePE stpt = new SampleTypePropertyTypePE();
-        PropertyTypePE propertyType = new PropertyTypePE();
-        propertyType.setSimpleCode(code);
-        DataTypePE dataType = new DataTypePE();
-        dataType.setCode(EntityDataType.VARCHAR);
-        propertyType.setType(dataType);
-        stpt.setPropertyType(propertyType);
-        return stpt;
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(code);
+        DataType dataType = new DataType();
+        dataType.setCode(DataTypeCode.VARCHAR);
+        propertyType.setDataType(dataType);
+        return propertyType;
     }
    
-    private void prepareGetSample(final SamplePE sample)
-    {
-        prepareGetSample(sample.getPermId(), sample.getId(), sample);
-    }
-    
-    private void prepareGetSample(final String samplePermID, final long sampleID, final SamplePE sampleOrNull)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(sampleIDProvider).getSampleIDOrParentSampleID(samplePermID);
-                    will(returnValue(sampleID));
-                    
-                    if (sampleOrNull != null)
-                    {
-                        one(sampleDAO).getByTechId(new TechId(sampleID));
-                        will(returnValue(sampleOrNull));
-                    }
-                }
-            });
-    }
 }

@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
@@ -38,11 +37,6 @@ class AbundanceManager
     
     private final Set<Long> sampleIDs = new TreeSet<Long>();
 
-    AbundanceManager(ISampleDAO sampleDAO)
-    {
-        this(new SampleIDProvider(sampleDAO));
-    }
-    
     AbundanceManager(ISampleIDProvider sampleIDProvider)
     {
         this.sampleIDProvider = sampleIDProvider;

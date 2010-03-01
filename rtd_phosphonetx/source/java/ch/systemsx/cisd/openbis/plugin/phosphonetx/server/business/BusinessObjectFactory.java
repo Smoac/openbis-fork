@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 
 /**
@@ -25,7 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNet
  *
  * @author Franz-Josef Elmer
  */
-public class BusinessObjectFactory implements IBusinessObjectFactory
+public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory implements IBusinessObjectFactory
 {
     private final IDAOFactory daoFactory;
     private final IPhosphoNetXDAOFactory specificDAOFactory;
@@ -36,15 +38,19 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
         this.specificDAOFactory = specificDAOFactory;
     }
 
-    public IAbundanceColumnDefinitionTable createAbundanceColumnDefinitionTable(Session session)
+    public ISampleLister createSampleLister(Session session)
     {
-        return new AbundanceColumnDefinitionTable(daoFactory, specificDAOFactory,
-                createSampleIDProvider(session), session);
+        return getCommonBusinessObjectFactory().createSampleLister(session);
     }
 
-    public IProteinInfoTable createProteinInfoTable(Session session)
+    public IAbundanceColumnDefinitionTable createAbundanceColumnDefinitionTable(Session session)
     {
-        return new ProteinInfoTable(daoFactory, specificDAOFactory, session);
+        return new AbundanceColumnDefinitionTable(daoFactory, specificDAOFactory, session);
+    }
+
+    public IProteinInfoTable createProteinInfoTable(Session session, ISampleIDProvider sampleIDProvider)
+    {
+        return new ProteinInfoTable(daoFactory, specificDAOFactory, session, sampleIDProvider);
     }
 
     public IProteinSummaryTable createProteinSummaryTable(Session session)
