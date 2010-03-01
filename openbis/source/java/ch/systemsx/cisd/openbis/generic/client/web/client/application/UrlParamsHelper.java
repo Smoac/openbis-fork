@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -62,36 +60,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnectio
 public final class UrlParamsHelper
 {
 
-    private static final String KEY_VALUE_SEPARATOR = "=";
-
-    private static final String PARAMETER_SEPARATOR = "&";
-
     private static final String DEFAULT_SEARCH_STRING = "*";
 
-    /**
-     * Parses given URL <var>string</var> and returns the key-value pairs
-     */
-    private final Map<String, String> parseParamString(final String string)
-    {
-        assert string != null : "Given text can not be null.";
-        final String[] params = string.split(PARAMETER_SEPARATOR);
-        final Map<String, String> map = new HashMap<String, String>();
-        for (int i = 0; i < params.length; i++)
-        {
-            final String[] keyVal = params[i].split(KEY_VALUE_SEPARATOR);
-            assert keyVal.length == 2 : "Only two items should be found here.";
-            map.put(keyVal[0], keyVal[1]);
-        }
-        return map;
-    }
-
-    /**
-     * The URL parameters.
-     * <p>
-     * Is never <code>null</code> but could be empty.
-     * </p>
-     */
-    private Map<String, String> urlParams = new HashMap<String, String>();
+    // viewLocator is initialized by a method called from the constructor
+    private ViewLocator viewLocator;
 
     private IViewContext<?> viewContext;
 
@@ -102,13 +74,18 @@ public final class UrlParamsHelper
 
     private final String tryGetUrlParamValue(String paramKey)
     {
-        return urlParams.get(paramKey);
-    }
+        // Handle Action and Entity specially
+        if (ViewLocator.ACTION_PARAMETER.equalsIgnoreCase(paramKey))
+        {
+            return viewLocator.tryGetAction();
+        }
+        if (ViewLocator.ENTITY_PARAMETER.equalsIgnoreCase(paramKey))
+        {
+            return viewLocator.tryGetEntity();
+        }
 
-    private final void setUrlParams(final Map<String, String> urlParams)
-    {
-        assert urlParams != null : "URL params can not be null.";
-        this.urlParams = urlParams;
+        // Otherwise, get look in the paramters for the value
+        return viewLocator.getParameters().get(paramKey);
     }
 
     public final void initUrlParams()
@@ -127,7 +104,8 @@ public final class UrlParamsHelper
      */
     private final void initializeUrlParameters(String nonEmptyParameterString)
     {
-        setUrlParams(parseParamString(nonEmptyParameterString));
+        // setUrlParams(parseParamString(nonEmptyParameterString));
+        viewLocator = new ViewLocator(nonEmptyParameterString);
     }
 
     /**
