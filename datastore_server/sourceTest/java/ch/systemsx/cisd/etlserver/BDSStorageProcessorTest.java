@@ -404,7 +404,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals(new Version(1, 1), ds.getVersion());
         final ch.systemsx.cisd.bds.ExperimentIdentifier eid = ds.getExperimentIdentifier();
         assertEquals(EXAMPLE_INSTANCE, eid.getInstanceCode());
-        assertEquals(EXAMPLE_GROUP, eid.getGroupCode());
+        assertEquals(EXAMPLE_GROUP, eid.getSpaceCode());
         assertEquals(dataSetInformation.getExperimentIdentifier().getProjectCode(), eid
                 .getProjectCode());
         assertEquals(dataSetInformation.getExperimentIdentifier().getExperimentCode(), eid
