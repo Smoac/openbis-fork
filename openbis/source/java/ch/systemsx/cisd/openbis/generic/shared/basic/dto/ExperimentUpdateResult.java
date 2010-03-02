@@ -30,9 +30,9 @@ public class ExperimentUpdateResult implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    Date modificationDate;
+    private Date modificationDate;
 
-    String[] samples;
+    private String[] samples;
 
     public ExperimentUpdateResult()
     {
