@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
@@ -48,6 +49,8 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     private IMessageProvider messageProvider;
 
+    private final ViewLocatorHandlerRegistry locatorHandlerRegistry;
+
     CommonViewContext(final ICommonClientServiceAsync service,
             final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
             final IPageController pageController)
@@ -57,6 +60,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         this.imageBundle = imageBundle;
         this.pageController = pageController;
         viewModel = new GenericViewModel();
+        locatorHandlerRegistry = new ViewLocatorHandlerRegistry();
     }
 
     final void setClientPluginFactoryProvider(
@@ -161,5 +165,10 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         messageProvider =
                 new CompositeMessageProvider(new DictonaryBasedMessageProvider(messageSource),
                         messageProvider);
+    }
+
+    public ViewLocatorHandlerRegistry getLocatorHandlerRegistry()
+    {
+        return locatorHandlerRegistry;
     }
 }

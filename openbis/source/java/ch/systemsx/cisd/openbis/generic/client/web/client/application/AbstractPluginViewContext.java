@@ -22,6 +22,7 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -45,6 +46,7 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         service = createClientServiceAsync();
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
         endpoint.setServiceEntryPoint(GenericConstants.createServicePath(getTechnology()));
+        initializeLocatorHandlerRegistry(commonViewContext.getLocatorHandlerRegistry());
     }
 
     /**
@@ -128,6 +130,20 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     public void addMessageSource(String messageSource)
     {
         commonViewContext.addMessageSource(messageSource);
+    }
+
+    public ViewLocatorHandlerRegistry getLocatorHandlerRegistry()
+    {
+        // Delegate to the common view context
+        return commonViewContext.getLocatorHandlerRegistry();
+    }
+
+    /**
+     * Register any handlers for locators specified in the openBIS URL.
+     */
+    protected void initializeLocatorHandlerRegistry(ViewLocatorHandlerRegistry handlerRegistry)
+    {
+
     }
 
 }

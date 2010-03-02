@@ -72,6 +72,19 @@ public class ViewLocatorHandlerRegistry
         {
             return handledAction.equals(locator.tryGetAction());
         }
+
+        /**
+         * Utility method that throws an exception with a standard error message if the required
+         * paramter is not specified
+         */
+        protected void checkRequiredParameter(String valueOrNull, String parameter)
+                throws UserFailureException
+        {
+            if (valueOrNull == null)
+            {
+                throw new UserFailureException("Missing URL parameter: " + parameter);
+            }
+        }
     }
 
     // All the handler I know about

@@ -45,9 +45,9 @@ public class ViewLocator
 
     public static final String ENTITY_PARAMETER = PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY;
 
-    private static final String VIEW_ACTION = "VIEW";
+    public static final String PERMLINK_ACTION = "VIEW";
 
-    private static final String SEARCH_ACTION = "SEARCH";
+    public static final String SEARCH_ACTION = "SEARCH";
 
     // Instance Variables
     private String actionOrNull;
@@ -86,6 +86,8 @@ public class ViewLocator
 
     /**
      * A map of all parameters, excluding action and entity. Do not modify the returned map.
+     * <p>
+     * Keys are in lower case.
      */
     public Map<String, String> getParameters()
     {
@@ -132,13 +134,14 @@ public class ViewLocator
             } else if (PermlinkUtilities.PERM_ID_PARAMETER_KEY.equalsIgnoreCase(paramPair[0]))
             {
                 // Permlink URLs have an implied action
-                actionOrNull = VIEW_ACTION;
+                actionOrNull = PERMLINK_ACTION;
                 parameters.put(paramPair[0], paramPair[1]);
             } else if (SearchlinkUtilities.ENTITY_KIND_PARAMETER_KEY.equalsIgnoreCase(paramPair[0]))
             {
                 // Search URLs have an implied action as well
                 actionOrNull = SEARCH_ACTION;
-                parameters.put(paramPair[0], paramPair[1]);
+                entityOrNull = paramPair[1];
+                parameters.put(paramPair[0].toLowerCase(), paramPair[1]);
             } else
             {
                 parameters.put(paramPair[0], paramPair[1]);

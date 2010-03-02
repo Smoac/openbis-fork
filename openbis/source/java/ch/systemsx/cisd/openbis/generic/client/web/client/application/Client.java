@@ -31,6 +31,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorHandler;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorHandler;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry.IViewLocatorHandler;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
@@ -85,6 +89,7 @@ public class Client implements EntryPoint
         CommonViewContext commonContext =
                 new CommonViewContext(service, messageProvider, imageBundle, pageController);
         commonContext.setClientPluginFactoryProvider(createPluginFactoryProvider(commonContext));
+        initializeLocatorHandlerRegistry(commonContext.getLocatorHandlerRegistry());
         return commonContext;
     }
 
@@ -160,7 +165,7 @@ public class Client implements EntryPoint
                 }
             });
     }
-    
+
     protected IClientServiceAsync getServiceForRetrievingApplicationInfo(
             IViewContext<ICommonClientServiceAsync> context)
     {
@@ -168,8 +173,8 @@ public class Client implements EntryPoint
     }
 
     /**
-     * A version of onModuleLoad specifically for tests. Ignore the state in the session and go directly
-     * to the login page.
+     * A version of onModuleLoad specifically for tests. Ignore the state in the session and go
+     * directly to the login page.
      */
     public final void onModuleLoadTest()
     {
@@ -248,4 +253,16 @@ public class Client implements EntryPoint
         }
     }
 
+    /**
+     * Register any handlers for locators specified in the openBIS URL.
+     */
+    protected void initializeLocatorHandlerRegistry(ViewLocatorHandlerRegistry handlerRegistry)
+    {
+        IViewLocatorHandler handler;
+        handler = new PermlinkLocatorHandler(viewContext);
+        handlerRegistry.registerHandler(handler);
+        
+        handler = new SearchLocatorHandler(viewContext);
+        handlerRegistry.registerHandler(handler);
+    }
 }
