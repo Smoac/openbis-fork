@@ -61,9 +61,15 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
 
     public RunCannedQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
     {
+        this(viewContext, null);
+    }
+
+    public RunCannedQueryToolbar(IViewContext<IQueryClientServiceAsync> viewContext,
+            String initialQueryNameOrNull)
+    {
         super(viewContext);
         add(new LabelToolItem(viewContext.getMessage(Dict.QUERY) + ": "));
-        querySelectionWidget = new QuerySelectionWidget(viewContext);
+        querySelectionWidget = new QuerySelectionWidget(viewContext, initialQueryNameOrNull);
         parameterContainer = new ButtonGroup(MAX_PARAMETER_COLUMNS);
         parameterFields = new HashSet<ParameterField>();
         resetButton = new Button(viewContext.getMessage(Dict.BUTTON_RESET));

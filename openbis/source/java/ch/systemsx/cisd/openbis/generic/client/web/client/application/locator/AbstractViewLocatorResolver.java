@@ -31,7 +31,7 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
      * Utility method that throws an exception with a standard error message if the required
      * paramter is not specified
      */
-    protected void checkRequiredParameter(String valueOrNull, String parameter)
+    protected static final void checkRequiredParameter(String valueOrNull, String parameter)
             throws UserFailureException
     {
         if (valueOrNull == null)

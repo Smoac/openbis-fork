@@ -21,19 +21,19 @@ import com.google.gwt.core.client.GWT;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractPluginViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientService;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.locator.QueryLocatorResolver;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class ViewContext extends AbstractPluginViewContext<IQueryClientServiceAsync>
+public class QueryViewContext extends AbstractPluginViewContext<IQueryClientServiceAsync>
 {
     private static final String TECHNOLOGY_NAME = "query";
 
-    public ViewContext(IViewContext<ICommonClientServiceAsync> commonViewContext)
+    public QueryViewContext(IViewContext<ICommonClientServiceAsync> commonViewContext)
     {
         super(commonViewContext);
     }
@@ -43,11 +43,19 @@ public class ViewContext extends AbstractPluginViewContext<IQueryClientServiceAs
     {
         return TECHNOLOGY_NAME;
     }
-    
+
     @Override
     protected IQueryClientServiceAsync createClientServiceAsync()
     {
         return GWT.create(IQueryClientService.class);
+    }
+
+    @Override
+    protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry)
+    {
+        super.initializeLocatorHandlerRegistry(handlerRegistry);
+
+        handlerRegistry.registerHandler(new QueryLocatorResolver(this));
     }
 
 }

@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  *
  * @author Franz-Josef Elmer
  */
-public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext>
+public class ClientPluginFactory extends AbstractClientPluginFactory<QueryViewContext>
 {
 
     public ClientPluginFactory(IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -42,10 +42,10 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
     }
 
     @Override
-    protected ViewContext createViewContext(
+    protected QueryViewContext createViewContext(
             IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
-        return new ViewContext(originalViewContext);
+        return new QueryViewContext(originalViewContext);
     }
 
     public <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(

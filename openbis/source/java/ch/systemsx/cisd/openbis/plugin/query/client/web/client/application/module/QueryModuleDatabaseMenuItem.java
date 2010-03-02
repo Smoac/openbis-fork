@@ -47,12 +47,11 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
         for (ActionMenuDefinition definition : values)
         {
             submenu.add(TabActionMenuItemFactory.createActionMenu(viewContext, ID, definition));
-
         }
         setSubMenu(submenu);
     }
 
-    private static enum ActionMenuDefinition implements
+    public static enum ActionMenuDefinition implements
             ITabActionMenuItemDefinition<IQueryClientServiceAsync>
     {
         RUN_CANNED_QUERY("Run Predefined Query")

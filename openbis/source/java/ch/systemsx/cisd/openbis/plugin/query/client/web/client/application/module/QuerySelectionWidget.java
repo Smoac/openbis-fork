@@ -44,10 +44,14 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
 
     private final IViewContext<IQueryClientServiceAsync> viewContext;
 
-    public QuerySelectionWidget(final IViewContext<IQueryClientServiceAsync> viewContext)
+    private final String initialQueryNameOrNull;
+
+    public QuerySelectionWidget(final IViewContext<IQueryClientServiceAsync> viewContext,
+            String initialQueryNameOrNull)
     {
         super(viewContext, SUFFIX, Dict.QUERY, ModelDataPropertyNames.NAME, Dict.QUERY, "queries");
         this.viewContext = viewContext;
+        this.initialQueryNameOrNull = initialQueryNameOrNull;
         setCallbackId(createCallbackId());
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.NAME,
                 ModelDataPropertyNames.TOOLTIP));
@@ -67,11 +71,51 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
     @Override
     protected void loadData(AbstractAsyncCallback<List<QueryExpression>> callback)
     {
-        viewContext.getService().listQueries(callback);
+        viewContext.getService().listQueries(new ListTermsCallback(viewContext));
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.QUERY);
+    }
+
+    // 
+    // initial value support
+    //
+
+    public void selectInitialValue()
+    {
+        if (initialQueryNameOrNull != null)
+        {
+            trySelectByName(initialQueryNameOrNull);
+            updateOriginalValue();
+        }
+    }
+
+    public void trySelectByName(String queryName)
+    {
+        GWTUtils.setSelectedItem(this, ModelDataPropertyNames.NAME, queryName);
+    }
+
+    public void updateOriginalValue()
+    {
+        setOriginalValue(getValue());
+    }
+
+    private class ListTermsCallback extends QuerySelectionWidget.ListItemsCallback
+    {
+
+        protected ListTermsCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(List<QueryExpression> result)
+        {
+            super.process(result);
+            selectInitialValue();
+        }
     }
 }
