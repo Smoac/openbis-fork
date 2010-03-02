@@ -38,7 +38,6 @@ import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
@@ -89,8 +88,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Franz-Josef Elmer
  */
 @Component(value = ResourceNames.GENERIC_PLUGIN_SERVICE)
-public class GenericClientService extends AbstractClientService implements
-        IGenericClientService
+public class GenericClientService extends AbstractClientService implements IGenericClientService
 {
 
     @Resource(name = ResourceNames.GENERIC_PLUGIN_SERVER)
@@ -464,8 +462,9 @@ public class GenericClientService extends AbstractClientService implements
                 {
                     ExperimentUpdatesDTO updatesDTO =
                             createExperimentUpdatesDTO(updates, attachments);
-                    BeanUtils.fillBean(ExperimentUpdateResult.class, result, genericServer
-                            .updateExperiment(sessionToken, updatesDTO));
+                    ExperimentUpdateResult updateResult =
+                            genericServer.updateExperiment(sessionToken, updatesDTO);
+                    result.copyFrom(updateResult);
                 }
             }
                 .process(updates.getAttachmentSessionKey(), getHttpSession(), updates

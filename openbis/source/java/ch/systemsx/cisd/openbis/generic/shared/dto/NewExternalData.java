@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -32,9 +33,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
  * 
  * @author Christian Ribeaud
  */
-public final class NewExternalData extends ExtractableData
+public final class NewExternalData
 {
     private static final long serialVersionUID = IServer.VERSION;
+
+    private ExtractableData extractableData;
 
     private String location;
 
@@ -183,6 +186,66 @@ public final class NewExternalData extends ExtractableData
         this.measured = measured;
     }
 
+    public final String getCode()
+    {
+        return extractableData.getCode();
+    }
+
+    public String getDataProducerCode()
+    {
+        return extractableData.getDataProducerCode();
+    }
+
+    public final List<String> getParentDataSetCodes()
+    {
+        return extractableData.getParentDataSetCodes();
+    }
+
+    public Date getProductionDate()
+    {
+        return extractableData.getProductionDate();
+    }
+
+    public final void setCode(String code)
+    {
+        extractableData.setCode(code);
+    }
+
+    public void setDataProducerCode(String dataProducerCode)
+    {
+        extractableData.setDataProducerCode(dataProducerCode);
+    }
+
+    public final void setParentDataSetCodes(List<String> parentDataSetCodes)
+    {
+        extractableData.setParentDataSetCodes(parentDataSetCodes);
+    }
+
+    public void setProductionDate(Date productionDate)
+    {
+        extractableData.setProductionDate(productionDate);
+    }
+
+    public List<NewProperty> getDataSetProperties()
+    {
+        return extractableData.getDataSetProperties();
+    }
+
+    public void setDataSetProperties(List<NewProperty> dataSetProperties)
+    {
+        extractableData.setDataSetProperties(dataSetProperties);
+    }
+
+    public ExtractableData getExtractableData()
+    {
+        return extractableData;
+    }
+
+    public void setExtractableData(ExtractableData extractableData)
+    {
+        this.extractableData = extractableData;
+    }
+
     //
     // Object
     //
@@ -211,27 +274,4 @@ public final class NewExternalData extends ExtractableData
         builder.append(location);
         return builder.toHashCode();
     }
-
-    //
-    // Comparable
-    //
-
-    /**
-     * If <code>null</code> values are present for <code>code</code>, then they come first.
-     */
-    @Override
-    public final int compareTo(final ExtractableData o)
-    {
-        final String thatLocation = ((NewExternalData) o).location;
-        if (location == null)
-        {
-            return thatLocation == null ? 0 : -1;
-        }
-        if (thatLocation == null)
-        {
-            return 1;
-        }
-        return location.compareTo(thatLocation);
-    }
-
 }

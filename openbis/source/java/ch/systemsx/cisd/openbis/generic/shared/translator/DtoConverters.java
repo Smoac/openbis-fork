@@ -18,21 +18,13 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.BeanUtils.Converter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A static class which converts <i>business</i> <i>DTOs</i> into <i>GWT</i> ones.
@@ -69,14 +61,6 @@ public class DtoConverters
     }
 
     /**
-     * Returns the {@link VocabularyPE} converter.
-     */
-    public final static Converter getVocabularyConverter()
-    {
-        return VocabularyConverter.INSTANCE;
-    }
-
-    /**
      * Does not really create an unmodifiable empty list but this works with <i>GWT</i>.
      */
     static final <T> List<T> createUnmodifiableEmptyList()
@@ -109,44 +93,6 @@ public class DtoConverters
         public final DataTypeCode convertToCode(final DataTypePE dataType)
         {
             return DataTypeCode.valueOf(dataType.getCode().name());
-        }
-    }
-
-    /**
-     * A {@link BeanUtils.Converter} for converting {@link VocabularyPE} into {@link Vocabulary}.
-     * 
-     * @author Christian Ribeaud
-     */
-    // Note: the convertToXXX() methods will be used by reflection
-    private final static class VocabularyConverter implements BeanUtils.Converter
-    {
-        static final VocabularyConverter INSTANCE = new VocabularyConverter();
-
-        private VocabularyConverter()
-        {
-        }
-
-        //
-        // BeanUtils.Converter
-        //
-
-        @SuppressWarnings("unused")
-        public final String convertToDescription(final VocabularyPE vocabulary)
-        {
-            return StringEscapeUtils.escapeHtml(vocabulary.getDescription());
-        }
-
-        @SuppressWarnings("unused")
-        public final List<VocabularyTerm> convertToTerms(final VocabularyPE vocabulary)
-        {
-            final Set<VocabularyTermPE> terms = vocabulary.getTerms();
-            if (HibernateUtils.isInitialized(terms))
-            {
-                return BeanUtils.createBeanList(VocabularyTerm.class, terms);
-            } else
-            {
-                return createUnmodifiableEmptyList();
-            }
         }
     }
 }

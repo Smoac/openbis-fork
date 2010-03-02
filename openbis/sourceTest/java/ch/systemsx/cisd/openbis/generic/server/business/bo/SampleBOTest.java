@@ -35,7 +35,6 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -721,7 +720,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(groupParent));
 
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
-                    will(returnValue(BeanUtils.createBean(SampleTypePE.class, sampleType)));
+                    will(returnValue(asPE(sampleType)));
 
                     one(propertiesConverter).convertProperties(newSharedSample.getProperties(),
                             DILUTION_PLATE, EXAMPLE_PERSON);
@@ -902,6 +901,13 @@ public final class SampleBOTest extends AbstractBOTest
         final SampleType sampleType = new SampleType();
         sampleType.setCode(sampleTypeCode);
         return sampleType;
+    }
+
+    private static SampleTypePE asPE(SampleType sampleType)
+    {
+        SampleTypePE pe = new SampleTypePE();
+        pe.setCode(sampleType.getCode());
+        return pe;
     }
 
     private void prepareExperimentUpdateOnly(final SamplePE sample)

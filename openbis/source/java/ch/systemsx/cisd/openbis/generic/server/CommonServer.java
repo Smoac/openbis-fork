@@ -173,6 +173,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslat
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -575,8 +576,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             }
         }
         Collections.sort(vocabularies);
-        return BeanUtils.createBeanList(Vocabulary.class, vocabularies, DtoConverters
-                .getVocabularyConverter());
+        return VocabularyTranslator.translate(vocabularies);
     }
 
     private void enrichWithTerms(final VocabularyPE vocabularyPE)

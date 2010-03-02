@@ -58,4 +58,10 @@ public class ExperimentUpdateResult implements IsSerializable, Serializable
         this.samples = samples;
     }
 
+    public void copyFrom(ExperimentUpdateResult result)
+    {
+        setSamples(result.getSamples());
+        setModificationDate(result.getModificationDate());
+    }
+
 }

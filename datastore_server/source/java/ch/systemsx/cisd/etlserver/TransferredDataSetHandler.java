@@ -52,7 +52,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
@@ -62,7 +61,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -769,9 +767,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
         private NewExternalData createExternalData()
         {
-            final ExtractableData extractableData = dataSetInformation.getExtractableData();
-            final NewExternalData data =
-                    BeanUtils.createBean(NewExternalData.class, extractableData);
+            final NewExternalData data = new NewExternalData();
+            data.setExtractableData(dataSetInformation.getExtractableData());
             data.setLocatorType(typeExtractor.getLocatorType(incomingDataSetFile));
             data.setDataSetType(typeExtractor.getDataSetType(incomingDataSetFile));
             data.setFileFormatType(typeExtractor.getFileFormatType(incomingDataSetFile));

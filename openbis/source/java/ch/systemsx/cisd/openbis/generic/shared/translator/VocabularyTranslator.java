@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -46,6 +49,16 @@ public final class VocabularyTranslator
         result.setManagedInternally(vocabulary.isManagedInternally());
         result.setChosenFromList(vocabulary.isChosenFromList());
         result.setURLTemplate(StringEscapeUtils.escapeHtml(vocabulary.getURLTemplate()));
+        return result;
+    }
+
+    public static List<Vocabulary> translate(List<VocabularyPE> vocabularies)
+    {
+        List<Vocabulary> result = new ArrayList<Vocabulary>();
+        for (VocabularyPE v : vocabularies)
+        {
+            result.add(translate(v));
+        }
         return result;
     }
 
