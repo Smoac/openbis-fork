@@ -161,12 +161,12 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_equals_as_in_file 3VCP1 $metadata_dir/sample/code
     assert_equals_as_in_file CELL_PLATE $metadata_dir/sample/type_code
     assert_equals_as_in_file 'Screening Plate' $metadata_dir/sample/type_description
-    assert_equals_as_in_file CISD $metadata_dir/sample/group_code
+    assert_equals_as_in_file CISD $metadata_dir/sample/space_code
     assert_equals_as_in_file CISD $metadata_dir/sample/instance_code
 	assert_file_exists $metadata_dir/sample/instance_uuid
     # Experiment identifier
     assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/instance_code
-    assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/group_code
+    assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/space_code
     assert_equals_as_in_file NEMO $metadata_dir/experiment_identifier/project_code
     assert_equals_as_in_file EXP1 $metadata_dir/experiment_identifier/experiment_code
     assert_file_exists $metadata_dir/experiment_identifier/instance_uuid
