@@ -64,7 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -111,8 +111,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void registerGroup(String groupCode, String descriptionOrNull,
             AsyncCallback<Void> callback);
 
-    /** @see ICommonClientService#updateGroup(IGroupUpdates) */
-    public void updateGroup(final IGroupUpdates updates, final AsyncCallback<Void> asyncCallback);
+    /** @see ICommonClientService#updateGroup(ISpaceUpdates) */
+    public void updateGroup(final ISpaceUpdates updates, final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listPersons(ListPersonsCriteria) */
     public void listPersons(ListPersonsCriteria criteria,

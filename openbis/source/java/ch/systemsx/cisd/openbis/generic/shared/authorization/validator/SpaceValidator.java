@@ -29,11 +29,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
  * 
  * @author Christian Ribeaud
  */
-public final class GroupValidator extends AbstractValidator<Group>
+public final class SpaceValidator extends AbstractValidator<Group>
 {
     private final IValidator<DatabaseInstance> databaseInstanceValidator;
 
-    public GroupValidator()
+    public SpaceValidator()
     {
         databaseInstanceValidator = new DatabaseInstanceValidator();
     }

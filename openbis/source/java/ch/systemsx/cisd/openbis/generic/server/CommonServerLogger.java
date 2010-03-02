@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -112,7 +112,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     // IGenericServer
     //
 
-    public List<Group> listGroups(final String sessionToken,
+    public List<Group> listSpaces(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
         final String command = "list_spaces";
@@ -126,13 +126,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public void registerGroup(final String sessionToken, final String groupCode,
+    public void registerSpace(final String sessionToken, final String groupCode,
             final String descriptionOrNull)
     {
         logTracking(sessionToken, "register_space", "CODE(%s)", groupCode);
     }
 
-    public void updateGroup(String sessionToken, IGroupUpdates updates)
+    public void updateSpace(String sessionToken, ISpaceUpdates updates)
     {
         logTracking(sessionToken, "update_space", "SPACE(%s)", updates);
     }
@@ -155,7 +155,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public void registerGroupRole(final String sessionToken, final RoleCode roleCode,
+    public void registerSpaceRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
         logTracking(sessionToken, "register_role", "ROLE(%s) SPACE(%s) GRANTEE(%s)", roleCode,
@@ -170,7 +170,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
-    public void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
+    public void deleteSpaceRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
         logTracking(sessionToken, "delete_role", "ROLE(%s) SPACE(%s) GRANTEE(%s)", roleCode,
@@ -515,7 +515,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "delete_projects", "IDS(%s) REASON(%s)", projectIds, reason);
     }
 
-    public void deleteGroups(String sessionToken, List<TechId> groupIds, String reason)
+    public void deleteSpaces(String sessionToken, List<TechId> groupIds, String reason)
     {
         logTracking(sessionToken, "delete_spaces", "IDS(%s) REASON(%s)", groupIds, reason);
     }

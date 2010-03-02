@@ -31,7 +31,7 @@ public final class ExperimentValidator extends AbstractValidator<Experiment>
 
     public ExperimentValidator()
     {
-        groupValidator = new GroupValidator();
+        groupValidator = new SpaceValidator();
     }
 
     //

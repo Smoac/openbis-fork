@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * 
  * @author Piotr Buczek
  */
-public interface IGroupUpdates extends IIdHolder, ICodeProvider
+public interface ISpaceUpdates extends IIdHolder, ICodeProvider
 {
     String getDescription();
 }

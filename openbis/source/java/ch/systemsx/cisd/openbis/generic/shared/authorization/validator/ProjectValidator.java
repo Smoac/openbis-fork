@@ -31,7 +31,7 @@ public final class ProjectValidator extends AbstractValidator<Project>
 
     public ProjectValidator()
     {
-        groupValidator = new GroupValidator();
+        groupValidator = new SpaceValidator();
     }
 
     //

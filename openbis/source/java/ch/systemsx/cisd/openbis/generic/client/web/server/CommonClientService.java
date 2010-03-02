@@ -103,7 +103,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -274,14 +274,14 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.registerGroup(sessionToken, groupCode, descriptionOrNull);
+            commonServer.registerSpace(sessionToken, groupCode, descriptionOrNull);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public final void updateGroup(final IGroupUpdates updates)
+    public final void updateGroup(final ISpaceUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert updates != null : "Unspecified updates.";
@@ -289,7 +289,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.updateGroup(sessionToken, updates);
+            commonServer.updateSpace(sessionToken, updates);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -317,7 +317,7 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
-            commonServer.registerGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
+            commonServer.registerSpaceRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
                     groupIdentifier, grantee);
         } catch (final UserFailureException e)
         {
@@ -348,7 +348,7 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
-            commonServer.deleteGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
+            commonServer.deleteSpaceRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
                     groupIdentifier, grantee);
         } catch (final UserFailureException e)
         {
@@ -636,7 +636,7 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             final DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(null);
-            final List<Group> groups = commonServer.listGroups(sessionToken, identifier);
+            final List<Group> groups = commonServer.listSpaces(sessionToken, identifier);
             return groups;
         } catch (final UserFailureException e)
         {
@@ -1644,7 +1644,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.deleteGroups(sessionToken, groupIds, reason);
+            commonServer.deleteSpaces(sessionToken, groupIds, reason);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -31,7 +31,7 @@ public final class ExternalDataValidator extends AbstractValidator<ExternalData>
 
     public ExternalDataValidator()
     {
-        groupValidator = new GroupValidator();
+        groupValidator = new SpaceValidator();
     }
 
     //

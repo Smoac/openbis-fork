@@ -31,7 +31,7 @@ public final class MatchingEntityValidator extends AbstractValidator<MatchingEnt
 
     public MatchingEntityValidator()
     {
-        groupValidator = new GroupValidator();
+        groupValidator = new SpaceValidator();
     }
 
     //

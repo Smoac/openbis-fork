@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
@@ -71,7 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -117,30 +117,30 @@ public interface ICommonServer extends IServer
     public void keepSessionAlive(String sessionToken);
 
     /**
-     * Returns all groups which belong to the specified database instance. *
+     * Returns all spaces which belong to the specified database instance. *
      * 
      * @return a sorted list of {@link Group}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    @ReturnValueFilter(validatorClass = GroupValidator.class)
-    public List<Group> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier);
+    @ReturnValueFilter(validatorClass = SpaceValidator.class)
+    public List<Group> listSpaces(String sessionToken, DatabaseInstanceIdentifier identifier);
 
     /**
-     * Registers a new group with specified code and optional description.
+     * Registers a new space with specified code and optional description.
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.GROUP)
-    public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull);
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
+    public void registerSpace(String sessionToken, String spaceCode, String descriptionOrNull);
 
     /**
      * Updates a property type.
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseUpdateModification(value = ObjectKind.GROUP)
-    public void updateGroup(final String sessionToken, final IGroupUpdates updates);
+    @DatabaseUpdateModification(value = ObjectKind.SPACE)
+    public void updateSpace(final String sessionToken, final ISpaceUpdates updates);
 
     /**
      * Registers a new authorization group.
@@ -195,12 +195,12 @@ public interface ICommonServer extends IServer
     public List<RoleAssignment> listRoleAssignments(String sessionToken);
 
     /**
-     * Registers a new group role.
+     * Registers a new space role.
      */
     @Transactional
     @RolesAllowed(RoleSet.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
-    public void registerGroupRole(
+    public void registerSpaceRole(
             String sessionToken,
             RoleCode roleCode,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) GroupIdentifier identifier,
@@ -220,7 +220,7 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
-    public void deleteGroupRole(
+    public void deleteSpaceRole(
             String sessionToken,
             RoleCode roleCode,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) GroupIdentifier groupIdentifier,
@@ -455,12 +455,12 @@ public interface ICommonServer extends IServer
             String reason);
 
     /**
-     * Deletes specified groups.
+     * Deletes specified spaces.
      */
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.GROUP)
-    public void deleteGroups(String sessionToken,
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
+    public void deleteSpaces(String sessionToken,
             @AuthorizationGuard(guardClass = GroupTechIdPredicate.class) List<TechId> groupIds,
             String reason);
 

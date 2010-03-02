@@ -201,6 +201,6 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return DatabaseModificationKind.any(ObjectKind.GROUP);
+        return DatabaseModificationKind.any(ObjectKind.SPACE);
     }
 }

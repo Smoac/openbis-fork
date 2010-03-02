@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -127,7 +127,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates group.
      */
-    public void updateGroup(final IGroupUpdates updates) throws UserFailureException;
+    public void updateGroup(final ISpaceUpdates updates) throws UserFailureException;
 
     /**
      * Returns a list of all persons which belong to the current database instance.

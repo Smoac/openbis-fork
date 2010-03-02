@@ -107,7 +107,7 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
     {
         return new DatabaseModificationKind[]
             { createOrDelete(ObjectKind.SAMPLE_TYPE), edit(ObjectKind.SAMPLE_TYPE),
-                    createOrDelete(ObjectKind.GROUP),
+                    createOrDelete(ObjectKind.SPACE),
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }

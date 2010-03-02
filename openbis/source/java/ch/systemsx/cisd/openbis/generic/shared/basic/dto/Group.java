@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * 
  * @author Franz-Josef Elmer
  */
-public final class Group extends CodeWithRegistration<Group> implements IIdHolder, IGroupUpdates
+public final class Group extends CodeWithRegistration<Group> implements IIdHolder, ISpaceUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

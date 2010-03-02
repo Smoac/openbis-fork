@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 
 /**
- * Test cases for corresponding {@link GroupValidator} class.
+ * Test cases for corresponding {@link SpaceValidator} class.
  * 
  * @author Christian Ribeaud
  */
@@ -37,7 +37,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     {
         try
         {
-            new GroupValidator().isValid(null, null);
+            new SpaceValidator().isValid(null, null);
             fail("AssertionError expected");
         } catch (final AssertionError e)
         {
@@ -50,7 +50,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     @Test
     public final void testIsValidForAPersonWithoutAccessRights()
     {
-        final GroupValidator groupValidator = new GroupValidator();
+        final SpaceValidator groupValidator = new SpaceValidator();
         final PersonPE personPE = createPerson();
         final GroupPE groupPE = createGroup();
         final Group group = GroupTranslator.translate(groupPE);
@@ -63,7 +63,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     @Test
     public final void testIsValidWithMatchingRoleAssignmentOnGroupLevel()
     {
-        final GroupValidator groupValidator = new GroupValidator();
+        final SpaceValidator groupValidator = new SpaceValidator();
         final PersonPE personPE = createPersonWithRoleAssignments();
         final GroupPE groupPE = createAnotherGroup();
         final Group group = GroupTranslator.translate(groupPE);
@@ -74,7 +74,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     @Test
     public final void testIsValidWithMatchingRoleAssignmentOnDatabaseinstanceLevel()
     {
-        final GroupValidator groupValidator = new GroupValidator();
+        final SpaceValidator groupValidator = new SpaceValidator();
         final PersonPE personPE = createPersonWithRoleAssignments();
         final GroupPE groupPE = createGroup();
         final Group group = GroupTranslator.translate(groupPE);

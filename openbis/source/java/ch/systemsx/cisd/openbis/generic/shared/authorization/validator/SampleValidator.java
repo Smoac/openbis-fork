@@ -34,7 +34,7 @@ public final class SampleValidator extends AbstractValidator<Sample>
 
     public SampleValidator()
     {
-        groupValidator = new GroupValidator();
+        groupValidator = new SpaceValidator();
         databaseInstanceValidator = new DatabaseInstanceValidator();
     }
 

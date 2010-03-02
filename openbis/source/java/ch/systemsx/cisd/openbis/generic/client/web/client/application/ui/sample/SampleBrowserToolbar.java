@@ -167,7 +167,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
     {
         return new DatabaseModificationKind[]
             { createOrDelete(ObjectKind.SAMPLE_TYPE), edit(ObjectKind.SAMPLE_TYPE),
-                    createOrDelete(ObjectKind.GROUP),
+                    createOrDelete(ObjectKind.SPACE),
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
@@ -184,7 +184,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         {
             entityTypeRefreshCallback.postRefresh(true);
         }
-        if (observedModifications.contains(createOrDelete(ObjectKind.GROUP)))
+        if (observedModifications.contains(createOrDelete(ObjectKind.SPACE)))
         {
             selectGroupCombo.refreshStore();
         }

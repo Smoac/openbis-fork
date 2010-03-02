@@ -211,8 +211,8 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.GROUP),
-                    DatabaseModificationKind.edit(ObjectKind.GROUP) };
+            { DatabaseModificationKind.createOrDelete(ObjectKind.SPACE),
+                    DatabaseModificationKind.edit(ObjectKind.SPACE) };
     }
 
     private static final class GroupListDeletionConfirmationDialog extends

@@ -95,7 +95,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -218,7 +218,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     // IGenericServer
     //
 
-    public final List<Group> listGroups(final String sessionToken,
+    public final List<Group> listSpaces(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
         final Session session = getSession(sessionToken);
@@ -234,7 +234,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         return GroupTranslator.translate(groups);
     }
 
-    public final void registerGroup(final String sessionToken, final String groupCode,
+    public final void registerSpace(final String sessionToken, final String groupCode,
             final String descriptionOrNull)
     {
         final Session session = getSession(sessionToken);
@@ -243,7 +243,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         groupBO.save();
     }
 
-    public final void updateGroup(final String sessionToken, final IGroupUpdates updates)
+    public final void updateSpace(final String sessionToken, final ISpaceUpdates updates)
     {
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
@@ -266,7 +266,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         return RoleAssignmentTranslator.translate(roles);
     }
 
-    public final void registerGroupRole(final String sessionToken, final RoleCode roleCode,
+    public final void registerSpaceRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
         final Session session = getSession(sessionToken);
@@ -299,7 +299,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
 
     }
 
-    public final void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
+    public final void deleteSpaceRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
         final Session session = getSession(sessionToken);
@@ -1078,7 +1078,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         }
     }
 
-    public void deleteGroups(String sessionToken, List<TechId> groupIds, String reason)
+    public void deleteSpaces(String sessionToken, List<TechId> groupIds, String reason)
     {
         Session session = getSession(sessionToken);
         try

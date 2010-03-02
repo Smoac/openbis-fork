@@ -338,7 +338,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        final List<Group> groups = createServer().listGroups(SESSION_TOKEN, identifier);
+        final List<Group> groups = createServer().listSpaces(SESSION_TOKEN, identifier);
 
         assertEquals(GroupTranslator.translate(g1), groups.get(0));
         assertEquals(GroupTranslator.translate(g2), groups.get(1));
@@ -366,7 +366,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        createServer().registerGroup(SESSION_TOKEN, groupCode, description);
+        createServer().registerSpace(SESSION_TOKEN, groupCode, description);
 
         context.assertIsSatisfied();
     }
