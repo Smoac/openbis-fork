@@ -390,7 +390,7 @@ public class AuthorizationTestCase extends AssertJUnit
      * the specifier group.
      */
     protected final void prepareProvider(final List<GroupPE> groups, final GroupPE groupPE,
-            final EntityWithGroupKind entityKind, final TechId techId)
+            final SpaceOwnerKind entityKind, final TechId techId)
     {
         context.checking(new Expectations()
             {

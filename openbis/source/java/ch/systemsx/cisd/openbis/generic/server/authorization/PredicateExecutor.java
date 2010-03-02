@@ -23,7 +23,7 @@ import java.util.Map;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.EntityWithGroupKind;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ArrayPredicate;
@@ -236,7 +236,7 @@ public final class PredicateExecutor
             return dataSet.getExperiment().getProject();
         }
 
-        public GroupPE tryToGetGroup(EntityWithGroupKind kind, TechId techId)
+        public GroupPE tryToGetGroup(SpaceOwnerKind kind, TechId techId)
         {
             switch (kind)
             {
@@ -246,7 +246,7 @@ public final class PredicateExecutor
                 case EXPERIMENT:
                     ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(techId);
                     return experiment.getProject().getGroup();
-                case GROUP:
+                case SPACE:
                     GroupPE group = daoFactory.getGroupDAO().getByTechId(techId);
                     return group;
                 case PROJECT:

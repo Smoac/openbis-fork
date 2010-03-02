@@ -51,7 +51,7 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * 
      * @return <code>null</code> if entity has no group set.
      */
-    public GroupPE tryToGetGroup(EntityWithGroupKind entityKind, TechId techId);
+    public GroupPE tryToGetGroup(SpaceOwnerKind entityKind, TechId techId);
 
     /**
      * Returns the sample with given <var>techId</var>.

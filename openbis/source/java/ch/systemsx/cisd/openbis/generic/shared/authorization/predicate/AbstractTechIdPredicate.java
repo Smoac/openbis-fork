@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.EntityWithGroupKind;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -30,20 +30,20 @@ import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
 
 /**
  * An <code>IPredicate</code> abstract implementation based on {@link TechId} and
- * {@link EntityWithGroupKind}
+ * {@link SpaceOwnerKind}
  * 
  * @author Piotr Buczek
  */
 public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<TechId>
 {
-    private final EntityWithGroupKind entityKind;
+    private final SpaceOwnerKind entityKind;
 
-    public AbstractTechIdPredicate(EntityWithGroupKind entityKind)
+    public AbstractTechIdPredicate(SpaceOwnerKind entityKind)
     {
         this.entityKind = entityKind;
     }
 
-    public static AbstractTechIdPredicate create(EntityWithGroupKind entityKind)
+    public static AbstractTechIdPredicate create(SpaceOwnerKind entityKind)
     {
         switch (entityKind)
         {
@@ -53,8 +53,8 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
                 return new ExperimentTechIdPredicate();
             case PROJECT:
                 return new ProjectTechIdPredicate();
-            case GROUP:
-                return new GroupTechIdPredicate();
+            case SPACE:
+                return new SpaceTechIdPredicate();
         }
         return null;
     }
@@ -63,7 +63,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     {
         public DataSetTechIdPredicate()
         {
-            super(EntityWithGroupKind.DATASET);
+            super(SpaceOwnerKind.DATASET);
         }
     }
 
@@ -71,15 +71,15 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     {
         public ExperimentTechIdPredicate()
         {
-            super(EntityWithGroupKind.EXPERIMENT);
+            super(SpaceOwnerKind.EXPERIMENT);
         }
     }
 
-    public static class GroupTechIdPredicate extends AbstractTechIdPredicate
+    public static class SpaceTechIdPredicate extends AbstractTechIdPredicate
     {
-        public GroupTechIdPredicate()
+        public SpaceTechIdPredicate()
         {
-            super(EntityWithGroupKind.GROUP);
+            super(SpaceOwnerKind.SPACE);
         }
     }
 
@@ -87,7 +87,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     {
         public ProjectTechIdPredicate()
         {
-            super(EntityWithGroupKind.PROJECT);
+            super(SpaceOwnerKind.PROJECT);
         }
     }
 

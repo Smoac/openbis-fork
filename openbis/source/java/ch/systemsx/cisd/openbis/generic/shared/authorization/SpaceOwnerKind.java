@@ -17,16 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.shared.authorization;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 
 /**
- * Enumeration of the various ways to get the {@link GroupPE} of an entity knowing its
+ * Enumeration of the various ways to get the space of an entity knowing its
  * {@link TechId}.
  * 
  * @author Piotr Buczek
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
-public enum EntityWithGroupKind
+public enum SpaceOwnerKind
 {
-    DATASET, EXPERIMENT, GROUP, PROJECT;
+    DATASET, EXPERIMENT, SPACE, PROJECT;
 }

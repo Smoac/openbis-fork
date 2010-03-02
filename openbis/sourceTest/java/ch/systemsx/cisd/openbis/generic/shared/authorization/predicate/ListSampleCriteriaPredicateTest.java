@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.EntityWithGroupKind;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -116,7 +116,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).tryToGetGroup(EntityWithGroupKind.EXPERIMENT, new TechId(17L));
+                    one(provider).tryToGetGroup(SpaceOwnerKind.EXPERIMENT, new TechId(17L));
                     will(returnValue(createGroup()));
                 }
             });
@@ -137,7 +137,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).tryToGetGroup(EntityWithGroupKind.EXPERIMENT, new TechId(17L));
+                    one(provider).tryToGetGroup(SpaceOwnerKind.EXPERIMENT, new TechId(17L));
                     will(returnValue(createAnotherGroup()));
                 }
             });

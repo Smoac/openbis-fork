@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 public interface IRawDataService extends IServer
 {
     /**
-     * Returns all samples of type MS_INJECTION in group MS_DATA which have a parent sample which
+     * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample which
      * the specified user is allow to read.
      */
     @Transactional(readOnly = true)

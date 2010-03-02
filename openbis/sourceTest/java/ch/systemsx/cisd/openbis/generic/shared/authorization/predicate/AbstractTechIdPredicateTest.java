@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.EntityWithGroupKind;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -42,7 +42,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
 {
     private static TechId TECH_ID = CommonTestUtils.TECH_ID;
 
-    private static EntityWithGroupKind ENTITY_KIND = EntityWithGroupKind.EXPERIMENT;
+    private static SpaceOwnerKind ENTITY_KIND = SpaceOwnerKind.EXPERIMENT;
 
     private AbstractTechIdPredicate createPredicate()
     {
