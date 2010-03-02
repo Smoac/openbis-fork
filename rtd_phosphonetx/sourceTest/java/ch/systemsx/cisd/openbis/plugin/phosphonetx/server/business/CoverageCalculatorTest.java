@@ -34,12 +34,13 @@ public class CoverageCalculatorTest extends AssertJUnit
     @Test
     public void testCalculate()
     {
-        ProteinReferenceWithPeptideSequence p1a = protein(1, "abcd", "a");
-        ProteinReferenceWithPeptideSequence p1b = protein(1, "abcd", "c");
-        ProteinReferenceWithPeptideSequence p2a = protein(2, "aabbccdd", "bc");
-        ProteinReferenceWithPeptideSequence p2b = protein(2, "314159", "14");
-        ProteinReferenceWithPeptideSequence p2c = protein(2, "314159", "5");
-        CoverageCalculator caluclator = new CoverageCalculator(Arrays.asList(p1a, p1b, p2a, p2b, p2c));
+        ProteinReferenceWithPeptideSequence p1a = protein(1, 101, "abcd", "a");
+        ProteinReferenceWithPeptideSequence p1b = protein(1, 101, "abcd", "c");
+        ProteinReferenceWithPeptideSequence p2a = protein(2, 102, "aabbccdd", "bc");
+        ProteinReferenceWithPeptideSequence p2b = protein(2, 103, "314159", "14");
+        ProteinReferenceWithPeptideSequence p2c = protein(2, 103, "314159", "5");
+        CoverageCalculator caluclator = new CoverageCalculator(Arrays.asList(p1a, p2a, p2b));
+        caluclator.handlePeptideSequences(Arrays.asList(p1a, p1b, p2a, p2b, p2c));
         
         assertEquals(50.0, caluclator.calculateCoverageFor(1));
         assertEquals(37.5, caluclator.calculateCoverageFor(2));
@@ -61,10 +62,11 @@ public class CoverageCalculatorTest extends AssertJUnit
         }
     }
 
-    private ProteinReferenceWithPeptideSequence protein(long id, String protein, String peptide)
+    private ProteinReferenceWithPeptideSequence protein(long id, long seqID, String protein, String peptide)
     {
         ProteinReferenceWithPeptideSequence pp = new ProteinReferenceWithPeptideSequence();
         pp.setId(id);
+        pp.setSequenceID(seqID);
         pp.setProteinSequence(protein);
         pp.setPeptideSequence(peptide);
         return pp;

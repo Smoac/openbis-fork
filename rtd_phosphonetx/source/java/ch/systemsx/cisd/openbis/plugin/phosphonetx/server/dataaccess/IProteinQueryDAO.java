@@ -62,7 +62,17 @@ public interface IProteinQueryDAO extends BaseQuery
     public DataSet<ProteinReferenceWithProbabilityAndPeptide> listProteinsWithProbabilityAndPeptidesByExperiment(
             String experimentPermID);
     
-    @Select("select distinct on (s.prre_id,s.checksum,pe.sequence) s.prre_id, s.amino_acid_sequence, pe.sequence " 
+    @Select("select distinct on (s.prre_id,s.checksum) s.prre_id, ip.sequ_id, s.amino_acid_sequence "
+            + "from identified_proteins as ip "
+            + "left join proteins as p on ip.prot_id = p.id "
+            + "left join data_sets as d on p.dase_id = d.id "
+            + "left join experiments as e on d.expe_id = e.id "
+            + "left join sequences as s on ip.sequ_id = s.id "
+            + "where e.perm_id = ?{1} order by s.prre_id")
+    public DataSet<ProteinReferenceWithPeptideSequence> listProteinsWithSequencesByExperiment(
+            String experimentPermID);
+
+    @Select("select distinct on (s.prre_id,s.checksum,pe.sequence) s.prre_id, ip.sequ_id, pe.sequence "
             + "from identified_proteins as ip "
             + "left join proteins as p on ip.prot_id = p.id "
             + "left join data_sets as d on p.dase_id = d.id "
@@ -70,7 +80,9 @@ public interface IProteinQueryDAO extends BaseQuery
             + "left join sequences as s on ip.sequ_id = s.id "
             + "left join peptides as pe on p.id = pe.prot_id "
             + "where e.perm_id = ?{1} order by s.prre_id, pe.sequence")
-    public DataSet<ProteinReferenceWithPeptideSequence> listProteinsWithPeptidesByExperiment(String experimentPermID);
+    public DataSet<ProteinReferenceWithPeptideSequence> listProteinsWithPeptidesByExperiment(
+            String experimentPermID);    
+    
     
     @Select("select distinct s.perm_id "
             + "from abundances as a left join proteins as p on a.prot_id = p.id "

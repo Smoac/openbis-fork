@@ -48,9 +48,9 @@ public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory 
         return new AbundanceColumnDefinitionTable(daoFactory, specificDAOFactory, session);
     }
 
-    public IProteinInfoTable createProteinInfoTable(Session session, ISampleIDProvider sampleIDProvider)
+    public IProteinInfoTable createProteinInfoTable(Session session, ISampleProvider sampleProvider)
     {
-        return new ProteinInfoTable(daoFactory, specificDAOFactory, session, sampleIDProvider);
+        return new ProteinInfoTable(daoFactory, specificDAOFactory, session, sampleProvider);
     }
 
     public IProteinSummaryTable createProteinSummaryTable(Session session)
@@ -81,6 +81,11 @@ public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory 
     public ISampleIDProvider createSampleIDProvider(Session session)
     {
         return new SampleIDProvider(daoFactory.getSampleDAO());
+    }
+
+    public ISampleProvider createSampleProvider(Session session)
+    {
+        return new SampleProvider(session, this);
     }
 
 }

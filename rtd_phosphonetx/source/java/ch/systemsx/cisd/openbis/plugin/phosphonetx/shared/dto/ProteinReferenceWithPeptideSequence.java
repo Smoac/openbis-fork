@@ -28,6 +28,9 @@ public class ProteinReferenceWithPeptideSequence
     @ResultColumn("prre_id")
     private long id;
     
+    @ResultColumn("sequ_id")
+    private long sequenceID;
+    
     @ResultColumn("dase_id")
     private long dataSetID;
     
@@ -55,6 +58,16 @@ public class ProteinReferenceWithPeptideSequence
     public void setDataSetID(long dataSetID)
     {
         this.dataSetID = dataSetID;
+    }
+    
+    public void setSequenceID(long sequenceID)
+    {
+        this.sequenceID = sequenceID;
+    }
+    
+    public long getSequenceID()
+    {
+        return sequenceID;
     }
     
     public String getProteinSequence()

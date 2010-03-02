@@ -45,13 +45,13 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundan
 class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTable
 {
     private List<ProteinInfo> infos;
-    private final ISampleIDProvider sampleIDProvider;
+    private final ISampleProvider sampleProvider;
 
     ProteinInfoTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
-            Session session, ISampleIDProvider sampleIDProvider)
+            Session session, ISampleProvider sampleProvider)
     {
         super(daoFactory, specificDAOFactory, session);
-        this.sampleIDProvider = sampleIDProvider;
+        this.sampleProvider = sampleProvider;
     }
 
     public List<ProteinInfo> getProteinInfos()
@@ -109,8 +109,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
     private AbundanceManager setUpAbundanceManager(String experimentPermID,
             double falseDiscoveryRate)
     {
-        long time = System.currentTimeMillis();
-        AbundanceManager abundanceManager = new AbundanceManager(sampleIDProvider);
+        AbundanceManager abundanceManager = new AbundanceManager(sampleProvider);
         ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
         IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
         DataSet<ProteinReferenceWithProbability> resultSet =
@@ -128,25 +127,39 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         {
             resultSet.close();
         }
-        System.out.println(System.currentTimeMillis()-time +": listProteinsByExperiment");
         return abundanceManager;
     }
     
     private CoverageCalculator setUpCoverageCalculator(String experimentPermID)
     {
-        long time = System.currentTimeMillis();
         IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
-        DataSet<ProteinReferenceWithPeptideSequence> resultSet = dao.listProteinsWithPeptidesByExperiment(experimentPermID);
+        CoverageCalculator coverageCalculator = createAndPrepareCoverageCalculator(experimentPermID);
+        DataSet<ProteinReferenceWithPeptideSequence> resultSet =
+                dao.listProteinsWithPeptidesByExperiment(experimentPermID);
+        try
+        {
+            coverageCalculator.handlePeptideSequences(resultSet);
+        } finally
+        {
+            resultSet.close();
+        }
+        return coverageCalculator;
+    }
+
+    private CoverageCalculator createAndPrepareCoverageCalculator(String experimentPermID)
+    {
+        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
+        DataSet<ProteinReferenceWithPeptideSequence> resultSet =
+                dao.listProteinsWithSequencesByExperiment(experimentPermID);
         try
         {
             return new CoverageCalculator(resultSet);
         } finally
         {
             resultSet.close();
-            System.out.println(System.currentTimeMillis()-time +": listProteinsWithPeptidesByExperiment");
         }
     }
-    
+
     private static double[] concatenate(double[] array1OrNull, double[] array2OrNull)
     {
         if (array1OrNull == null || array1OrNull.length == 0)

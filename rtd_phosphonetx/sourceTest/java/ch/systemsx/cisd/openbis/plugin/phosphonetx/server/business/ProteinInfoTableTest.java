@@ -27,8 +27,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.MockDataSet;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
@@ -52,6 +52,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
     private static final long SAMPLE_ID_1 = 101L;
     private static final Double ABUNDANCE = new Double(47.11);
     private static final long PROTEIN_ID = 41L;
+    private static final long SEQUENCE_ID = 4142L;
     private static final String SAMPLE_PERM_ID = "s47-11";
     private static final long SAMPLE_ID = 4711;
     private static final long DATA_SET_ID = 42L;
@@ -64,7 +65,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
     private IProteinQueryDAO proteinDAO;
     private ProteinInfoTable table;
     private ArrayList<AbundanceColumnDefinition> definitions;
-    private ISampleIDProvider sampleIDProvider;
+    private ISampleProvider sampleProvider;
     
     @Override
     @BeforeMethod
@@ -73,7 +74,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
         super.setUp();
         specificDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
         proteinDAO = context.mock(IProteinQueryDAO.class);
-        sampleIDProvider = context.mock(ISampleIDProvider.class);
+        sampleProvider = context.mock(ISampleProvider.class);
         context.checking(new Expectations()
             {
                 {
@@ -81,7 +82,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
                     will(returnValue(proteinDAO));
                 }
             });
-        table = new ProteinInfoTable(daoFactory, specificDAOFactory, SESSION, sampleIDProvider);
+        table = new ProteinInfoTable(daoFactory, specificDAOFactory, SESSION, sampleProvider);
         definitions = new ArrayList<AbundanceColumnDefinition>();
         definitions.add(create(SAMPLE_ID_1, SAMPLE_ID_2));
         definitions.add(create(SAMPLE_ID_3));
@@ -142,10 +143,12 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
                     one(proteinDAO).getProbabilityFDRMapping(DATA_SET_ID);
                     will(returnValue(mappings));
 
-                    one(sampleDAO).tryToFindByPermID(SAMPLE_PERM_ID);
-                    SamplePE samplePE = new SamplePE();
-                    samplePE.setId(SAMPLE_ID);
-                    will(returnValue(samplePE));
+                    one(sampleProvider).getSample(SAMPLE_PERM_ID);
+                    Sample sample = new Sample();
+                    Sample parent = new Sample();
+                    parent.setId(SAMPLE_ID);
+                    sample.setGeneratedFrom(parent);
+                    will(returnValue(sample));
                 }
             });
         
@@ -198,10 +201,10 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
 
                     for (long id : new long[] {SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3})
                     {
-                        one(sampleDAO).tryToFindByPermID(PERM_ID_PREFIX + id);
-                        SamplePE samplePE = new SamplePE();
-                        samplePE.setId(id);
-                        will(returnValue(samplePE));
+                        atLeast(1).of(sampleProvider).getSample(PERM_ID_PREFIX + id);
+                        Sample sample = new Sample();
+                        sample.setId(id);
+                        will(returnValue(sample));
                     }
                 }
             });
@@ -238,14 +241,25 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
                     one(proteinDAO).listProteinsByExperiment(EXPERIMENT_PERM_ID);
                     will(returnValue(dataSet));
                     
+                    one(proteinDAO).listProteinsWithSequencesByExperiment(EXPERIMENT_PERM_ID);
+                    MockDataSet<ProteinReferenceWithPeptideSequence> dataSet1 =
+                            new MockDataSet<ProteinReferenceWithPeptideSequence>();
+                    ProteinReferenceWithPeptideSequence protein1 =
+                            new ProteinReferenceWithPeptideSequence();
+                    protein1.setId(PROTEIN_ID);
+                    protein1.setSequenceID(SEQUENCE_ID);
+                    protein1.setProteinSequence("ABCDEFblabla");
+                    dataSet1.add(protein1);
+                    will(returnValue(dataSet1));
+                    
                     one(proteinDAO).listProteinsWithPeptidesByExperiment(EXPERIMENT_PERM_ID);
                     MockDataSet<ProteinReferenceWithPeptideSequence> dataSet2 =
                             new MockDataSet<ProteinReferenceWithPeptideSequence>();
-                    ProteinReferenceWithPeptideSequence protein = new ProteinReferenceWithPeptideSequence();
-                    protein.setId(PROTEIN_ID);
-                    protein.setPeptideSequence("ABCDEF");
-                    protein.setProteinSequence("ABCDEFblabla");
-                    dataSet2.add(protein);
+                    ProteinReferenceWithPeptideSequence protein2 = new ProteinReferenceWithPeptideSequence();
+                    protein2.setId(PROTEIN_ID);
+                    protein2.setSequenceID(SEQUENCE_ID);
+                    protein2.setPeptideSequence("ABCDEF");
+                    dataSet2.add(protein2);
                     will(returnValue(dataSet2));
                 }
             });

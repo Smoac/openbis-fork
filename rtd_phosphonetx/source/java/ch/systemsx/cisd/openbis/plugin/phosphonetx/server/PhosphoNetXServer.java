@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -28,18 +26,13 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -53,7 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetai
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinInfoTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSummaryTable;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleIDProvider;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
@@ -115,39 +108,31 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
             throws UserFailureException
     {
         Session session = getSession(sessionToken);
-        long time = System.currentTimeMillis();
+        ISampleProvider sampleProvider = specificBOFactory.createSampleProvider(session);
+        sampleProvider.loadByExperimentID(experimentID);
+        return getAbundanceColumnDefinitions(session, sampleProvider, experimentID,
+                treatmentTypeOrNull);
+    }
+
+    private List<AbundanceColumnDefinition> getAbundanceColumnDefinitions(Session session,
+            ISampleProvider sampleProvider, TechId experimentID, String treatmentTypeOrNull)
+    {
         String experimentPermID = getExperimentPermIDFor(experimentID);
         IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
         DataSet<String> samplePermIDs =
                 dao.listAbundanceRelatedSamplePermIDsByExperiment(experimentPermID);
-        ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(experimentID);
-        ISampleLister lister = specificBOFactory.createSampleLister(session);
-        List<Sample> list = lister.list(new ListOrSearchSampleCriteria(criteria));
-        Map<String, Sample> samplesByPermIDs = new HashMap<String, Sample>();
-        for (Sample sample : list)
-        {
-            samplesByPermIDs.put(sample.getPermId(), sample);
-        }
         try
         {
             IAbundanceColumnDefinitionTable table =
                     specificBOFactory.createAbundanceColumnDefinitionTable(session);
             for (String samplePermID : samplePermIDs)
             {
-                Sample sample = samplesByPermIDs.get(samplePermID);
-                if (sample == null)
-                {
-                    throw new EnvironmentFailureException(
-                            "No sample with following perm ID registered in openBIS: "
-                                    + samplePermID);
-                }
-                table.add(sample);
+                table.add(sampleProvider.getSample(samplePermID));
             }
             return table.getSortedAndAggregatedDefinitions(treatmentTypeOrNull);
         } finally
         {
             samplePermIDs.close();
-            System.out.println(System.currentTimeMillis()-time +": getAbundanceColumnDefinitions total ");
         }
     }
 
@@ -156,11 +141,12 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
             boolean aggregateOnOriginal) throws UserFailureException
     {
         final Session session = getSession(sessionToken);
-        ISampleIDProvider sampleIDProvider = specificBOFactory.createSampleIDProvider(session);
+        ISampleProvider sampleProvider = specificBOFactory.createSampleProvider(session);
+        sampleProvider.loadByExperimentID(experimentId);
         List<AbundanceColumnDefinition> definitions =
-                getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken, experimentId,
+                getAbundanceColumnDefinitions(session, sampleProvider, experimentId,
                         treatmentTypeCode);
-        IProteinInfoTable table = specificBOFactory.createProteinInfoTable(session, sampleIDProvider);
+        IProteinInfoTable table = specificBOFactory.createProteinInfoTable(session, sampleProvider);
         table.load(definitions, experimentId, falseDiscoveryRate, function, aggregateOnOriginal);
         return table.getProteinInfos();
     }

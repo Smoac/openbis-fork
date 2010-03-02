@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 class SampleIDProvider implements ISampleIDProvider
 {
     private final ISampleDAO sampleDAO;
-    private final Map<String, Long> sampleIDs = new LinkedHashMap<String, Long>();
+    private final Map<String, SamplePE> samples = new LinkedHashMap<String, SamplePE>();
 
     SampleIDProvider(ISampleDAO sampleDAO)
     {
@@ -41,23 +41,26 @@ class SampleIDProvider implements ISampleIDProvider
     
     public long getSampleIDOrParentSampleID(String samplePermID)
     {
-        Long sampleID = sampleIDs.get(samplePermID);
-        if (sampleID == null)
+        return HibernateUtils.getId(getSampleOrParentSample(samplePermID));
+    }
+
+    public SamplePE getSampleOrParentSample(String samplePermID)
+    {
+        SamplePE sample = samples.get(samplePermID);
+        if (sample == null)
         {
-            SamplePE sample = sampleDAO.tryToFindByPermID(samplePermID);
+            sample = sampleDAO.tryToFindByPermID(samplePermID);
             if (sample == null)
             {
                 throw new UserFailureException("No sample found for permID " + samplePermID);
             }
-            sampleID = sample.getId();
             SamplePE parentSample = sample.getGeneratedFrom();
             if (parentSample != null)
             {
-                sampleID = HibernateUtils.getId(parentSample);
+                sample = parentSample;
             }
-            sampleIDs.put(samplePermID, sampleID);
+            samples.put(samplePermID, sample);
         }
-        return sampleID;
-        
+        return sample;
     }
 }

@@ -31,7 +31,7 @@ public interface IBusinessObjectFactory
     public IAbundanceColumnDefinitionTable createAbundanceColumnDefinitionTable(Session session);
     
     public IProteinInfoTable createProteinInfoTable(Session session,
-            ISampleIDProvider sampleIDProvider);
+            ISampleProvider sampleProvider);
     
     public IProteinSummaryTable createProteinSummaryTable(Session session);
     
@@ -44,4 +44,6 @@ public interface IBusinessObjectFactory
     public ISampleTable createSampleTable(Session session);
     
     public ISampleIDProvider createSampleIDProvider(Session session);
+    
+    public ISampleProvider createSampleProvider(Session session);
 }

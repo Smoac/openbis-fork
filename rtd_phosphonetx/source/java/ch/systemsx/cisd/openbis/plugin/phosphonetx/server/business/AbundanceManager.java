@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
@@ -33,13 +34,13 @@ class AbundanceManager
     private final Map<String, ProteinWithAbundances> proteins =
             new LinkedHashMap<String, ProteinWithAbundances>();
     
-    private final ISampleIDProvider sampleIDProvider;
+    private final ISampleProvider sampleProvider;
     
     private final Set<Long> sampleIDs = new TreeSet<Long>();
 
-    AbundanceManager(ISampleIDProvider sampleIDProvider)
+    AbundanceManager(ISampleProvider sampleProvider)
     {
-        this.sampleIDProvider = sampleIDProvider;
+        this.sampleProvider = sampleProvider;
         
     }
 
@@ -49,10 +50,17 @@ class AbundanceManager
         String samplePermID = proteinReference.getSamplePermID();
         if (samplePermID != null)
         {
-            long sampleID = sampleIDProvider.getSampleIDOrParentSampleID(samplePermID);
+            Long sampleID = getSampleIDOrParentSampleID(samplePermID);
             sampleIDs.add(sampleID);
             protein.addAbundanceFor(sampleID, proteinReference.getAbundance());
         }
+    }
+
+    private Long getSampleIDOrParentSampleID(String samplePermID)
+    {
+        Sample sample = sampleProvider.getSample(samplePermID);
+        Sample parent = sample.getGeneratedFrom();
+        return parent == null ? sample.getId() : parent.getId();
     }
 
     private ProteinWithAbundances getOrCreateProtein(ProteinReferenceWithProbability proteinReference)

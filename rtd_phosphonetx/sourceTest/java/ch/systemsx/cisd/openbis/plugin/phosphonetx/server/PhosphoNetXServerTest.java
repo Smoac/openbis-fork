@@ -19,22 +19,19 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IAbundanceColumnDefinitionTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
@@ -57,7 +54,7 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
     private IProteinQueryDAO proteinDAO;
     private PhosphoNetXServer server;
     private IAbundanceColumnDefinitionTable abundanceColumnDefinitionTable;
-    private ISampleLister sampleLister;
+    private ISampleProvider sampleProvider;
     
     @Override
     @BeforeMethod
@@ -70,7 +67,7 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
         proteinDAO = context.mock(IProteinQueryDAO.class);
         abundanceColumnDefinitionTable = context.mock(IAbundanceColumnDefinitionTable.class);
-        sampleLister = context.mock(ISampleLister.class);
+        sampleProvider = context.mock(ISampleProvider.class);
         server =
                 new PhosphoNetXServer(sessionManager, daoFactory, phosphoNetXDAOFactory, boFactory,
                         sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
@@ -104,30 +101,15 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
                     one(boFactory).createAbundanceColumnDefinitionTable(SESSION);
                     will(returnValue(abundanceColumnDefinitionTable));
                     
-                    one(boFactory).createSampleLister(SESSION);
-                    will(returnValue(sampleLister));
+                    one(boFactory).createSampleProvider(SESSION);
+                    will(returnValue(sampleProvider));
                     
-                    one(sampleLister).list(with(new BaseMatcher<ListOrSearchSampleCriteria>()
-                        {
-                            public boolean matches(Object item)
-                            {
-                                if (item instanceof ListOrSearchSampleCriteria)
-                                {
-                                    ListOrSearchSampleCriteria c =
-                                            (ListOrSearchSampleCriteria) item;
-                                    assertEquals(EXPERIMENT_ID, c.getExperimentId());
-                                    return true;
-                                }
-                                return false;
-                            }
-
-                            public void describeTo(Description description)
-                            {
-                            }
-                        }));
+                    one(sampleProvider).loadByExperimentID(EXPERIMENT_ID);
+                    
+                    one(sampleProvider).getSample(SAMPLE_PERM_ID);
                     Sample sample = new Sample();
                     sample.setPermId(SAMPLE_PERM_ID);
-                    will(returnValue(Arrays.asList(sample)));
+                    will(returnValue(sample));
                     
                     one(abundanceColumnDefinitionTable).add(sample);
                     

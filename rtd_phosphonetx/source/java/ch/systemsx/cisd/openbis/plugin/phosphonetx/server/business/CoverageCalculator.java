@@ -35,14 +35,20 @@ class CoverageCalculator
 {
     private static final class Coverage
     {
-        private final Map<String, Set<String>> peptidesOfProteins = new HashMap<String, Set<String>>();
+        private final Map<Long, Set<String>> peptidesOfProteins = new HashMap<Long, Set<String>>();
+        private final Map<Long, String> aminoAcidSequences = new HashMap<Long, String>();
         
         public double calculateCoverage()
         {
             double sum = 0;
-            for (Map.Entry<String, Set<String>> entry : peptidesOfProteins.entrySet())
+            if (peptidesOfProteins.size() > 1)
             {
-                String proteinSequence = entry.getKey();
+                System.out.println("SEQ:"+peptidesOfProteins.size());
+            }
+            for (Map.Entry<Long, Set<String>> entry : peptidesOfProteins.entrySet())
+            {
+                String proteinSequence = aminoAcidSequences.get(entry.getKey());
+                assert proteinSequence != null : "Unknown sequence ID: " + entry.getKey();
                 Set<String> peptideSequences = entry.getValue();
                 List<Occurrence> list = OccurrenceUtil.getCoverage(proteinSequence, peptideSequences);
                 int sumPeptides = 0;
@@ -55,13 +61,18 @@ class CoverageCalculator
             return 100 * sum / peptidesOfProteins.size();
         }
 
-        public void handle(String proteinSequence, String peptideSequence)
+        public void register(Long sequenceID, String aminoAcidSequence)
         {
-            Set<String> peptides = peptidesOfProteins.get(proteinSequence);
+            aminoAcidSequences.put(sequenceID, aminoAcidSequence);
+        }
+        
+        public void handle(Long sequenceID, String peptideSequence)
+        {
+            Set<String> peptides = peptidesOfProteins.get(sequenceID);
             if (peptides == null)
             {
                 peptides = new LinkedHashSet<String>();
-                peptidesOfProteins.put(proteinSequence, peptides);
+                peptidesOfProteins.put(sequenceID, peptides);
             }
             peptides.add(peptideSequence);
         }
@@ -84,8 +95,20 @@ class CoverageCalculator
                 coverage = new Coverage();
                 coverageMap.put(id, coverage);
             }
-            coverage.handle(protein.getProteinSequence(), protein.getPeptideSequence());
+            coverage.register(protein.getSequenceID(), protein.getProteinSequence());
         }
+    }
+    
+    void handlePeptideSequences(Iterable<ProteinReferenceWithPeptideSequence> proteins)
+    {
+        for (ProteinReferenceWithPeptideSequence protein : proteins)
+        {
+            Long id = protein.getId();
+            Coverage coverage = coverageMap.get(id);
+            assert coverage != null : "Unknown protein reference ID: " + id;
+            coverage.handle(protein.getSequenceID(), protein.getPeptideSequence());
+        }
+        
     }
 
     /**

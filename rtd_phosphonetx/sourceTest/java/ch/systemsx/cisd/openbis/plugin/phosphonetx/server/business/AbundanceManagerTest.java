@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
@@ -40,7 +41,7 @@ public class AbundanceManagerTest extends AbstractServerTestCase
     private static final long SAMPLE_ID_B = 4711;
     
     private AbundanceManager abundanceManager;
-    private ISampleIDProvider sampleIDProvider;
+    private ISampleProvider sampleProvider;
 
     @Override
     @BeforeMethod
@@ -48,8 +49,8 @@ public class AbundanceManagerTest extends AbstractServerTestCase
     {
         super.setUp();
         
-        sampleIDProvider = context.mock(ISampleIDProvider.class);
-        abundanceManager = new AbundanceManager(sampleIDProvider);
+        sampleProvider = context.mock(ISampleProvider.class);
+        abundanceManager = new AbundanceManager(sampleProvider);
     }
 
     @Test
@@ -135,10 +136,16 @@ public class AbundanceManagerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(sampleIDProvider).getSampleIDOrParentSampleID(PERM_ID1);
-                    will(returnValue(SAMPLE_ID_A));
-                    allowing(sampleIDProvider).getSampleIDOrParentSampleID(PERM_ID2);
-                    will(returnValue(SAMPLE_ID_B));
+                    allowing(sampleProvider).getSample(PERM_ID1);
+                    Sample s1 = new Sample();
+                    s1.setId(SAMPLE_ID_A);
+                    will(returnValue(s1));
+                    allowing(sampleProvider).getSample(PERM_ID2);
+                    Sample s2 = new Sample();
+                    Sample parent = new Sample();
+                    parent.setId(SAMPLE_ID_B);
+                    s2.setGeneratedFrom(parent);
+                    will(returnValue(s2));
                 }
             });
     }

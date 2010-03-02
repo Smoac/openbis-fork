@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,26 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * Provides the ID of a sample or its parent.
+ * Provides samples of an experiments.
  *
  * @author Franz-Josef Elmer
  */
-public interface ISampleIDProvider
+public interface ISampleProvider
 {
     /**
-     * Returns the ID of the specified sample or the ID of its parent if it exist.
-     * 
-     * @throws UserFailureException if no sample could be found.
+     * Loads all samples registered for the specified experiment.
      */
-    public long getSampleIDOrParentSampleID(String samplePermID);
-    public SamplePE getSampleOrParentSample(String samplePermID);
+    public void loadByExperimentID(TechId experimentID);
+
+    /**
+     * Returns the sample for specified permID.
+     * 
+     * @throws UserFailureException if sample not found.
+     */
+    public Sample getSample(String permID);
 
 }
