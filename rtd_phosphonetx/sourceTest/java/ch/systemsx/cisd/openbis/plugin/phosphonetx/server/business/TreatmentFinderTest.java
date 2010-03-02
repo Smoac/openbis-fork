@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Treatment;
 
 /**
@@ -58,7 +57,7 @@ public class TreatmentFinderTest extends AssertJUnit
         assertEquals(3, treatments.size());
         assertTreatment("7", "pH", treatments.get(0));
         assertTreatment("20", "PLASMA", treatments.get(1));
-        assertTreatment("HIV", "VIRUS", EntityDataType.MATERIAL, treatments.get(2));
+        assertTreatment("HIV", "VIRUS", DataTypeCode.MATERIAL, treatments.get(2));
     }
 
     @Test
@@ -119,16 +118,16 @@ public class TreatmentFinderTest extends AssertJUnit
         List<Treatment> treatments = new TreatmentFinder().findTreatmentsOf(sample);
         
         assertEquals(1, treatments.size());
-        assertTreatment("HIV", "", EntityDataType.MATERIAL, treatments.get(0));
+        assertTreatment("HIV", "", DataTypeCode.MATERIAL, treatments.get(0));
     }
     
     private void assertTreatment(String expectedValue, String expectedType, Treatment treatment)
     {
-        assertTreatment(expectedValue, expectedType, EntityDataType.VARCHAR, treatment);
+        assertTreatment(expectedValue, expectedType, DataTypeCode.VARCHAR, treatment);
     }
 
     private void assertTreatment(String expectedValue, String expectedType,
-            EntityDataType expectedDataType, Treatment treatment)
+            DataTypeCode expectedDataType, Treatment treatment)
     {
         assertEquals("Actual treatment: " + treatment, expectedValue, treatment.getValue());
         assertEquals("Actual treatment: " + treatment, expectedDataType.toString(), treatment

@@ -37,11 +37,11 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils.Boolean;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ValidationUtilities.HyperlinkValidationHelper;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * The default {@link IPropertyValueValidator} implementation.
@@ -81,22 +81,22 @@ public final class PropertyValidator implements IPropertyValueValidator
 
     private final static String[] DATE_PATTERNS = createDatePatterns();
 
-    private final static Map<EntityDataType, IDataTypeValidator> dataTypeValidators =
+    private final static Map<DataTypeCode, IDataTypeValidator> dataTypeValidators =
             createDataTypeValidators();
 
-    private final static Map<EntityDataType, IDataTypeValidator> createDataTypeValidators()
+    private final static Map<DataTypeCode, IDataTypeValidator> createDataTypeValidators()
     {
-        final Map<EntityDataType, IDataTypeValidator> map =
-                new EnumMap<EntityDataType, IDataTypeValidator>(EntityDataType.class);
-        map.put(EntityDataType.BOOLEAN, new BooleanValidator());
-        map.put(EntityDataType.VARCHAR, new VarcharValidator());
-        map.put(EntityDataType.TIMESTAMP, new TimestampValidator());
-        map.put(EntityDataType.INTEGER, new IntegerValidator());
-        map.put(EntityDataType.REAL, new RealValidator());
-        map.put(EntityDataType.CONTROLLEDVOCABULARY, new ControlledVocabularyValidator());
-        map.put(EntityDataType.MATERIAL, new MaterialValidator());
-        map.put(EntityDataType.HYPERLINK, new HyperlinkValidator());
-        map.put(EntityDataType.MULTILINE_VARCHAR, new VarcharValidator());
+        final Map<DataTypeCode, IDataTypeValidator> map =
+                new EnumMap<DataTypeCode, IDataTypeValidator>(DataTypeCode.class);
+        map.put(DataTypeCode.BOOLEAN, new BooleanValidator());
+        map.put(DataTypeCode.VARCHAR, new VarcharValidator());
+        map.put(DataTypeCode.TIMESTAMP, new TimestampValidator());
+        map.put(DataTypeCode.INTEGER, new IntegerValidator());
+        map.put(DataTypeCode.REAL, new RealValidator());
+        map.put(DataTypeCode.CONTROLLEDVOCABULARY, new ControlledVocabularyValidator());
+        map.put(DataTypeCode.MATERIAL, new MaterialValidator());
+        map.put(DataTypeCode.HYPERLINK, new HyperlinkValidator());
+        map.put(DataTypeCode.MULTILINE_VARCHAR, new VarcharValidator());
         return map;
     }
 
@@ -116,7 +116,7 @@ public final class PropertyValidator implements IPropertyValueValidator
         assert daoFactory != null : "Unspecified DAO factory.";
 
         final IDataTypeValidator dataTypeValidator =
-                dataTypeValidators.get(EntityDataType.CONTROLLEDVOCABULARY);
+                dataTypeValidators.get(DataTypeCode.CONTROLLEDVOCABULARY);
         ((ControlledVocabularyValidator) dataTypeValidator).setDaoFactory(daoFactory);
     }
 
@@ -129,11 +129,11 @@ public final class PropertyValidator implements IPropertyValueValidator
     {
         assert propertyType != null : "Unspecified property type.";
         assert value != null : "Unspecified value.";
-        final EntityDataType entityDataType = propertyType.getType().getCode();
+        final DataTypeCode entityDataType = propertyType.getType().getCode();
         final IDataTypeValidator dataTypeValidator = dataTypeValidators.get(entityDataType);
         assert dataTypeValidator != null : String.format("No IDataTypeValidator implementation "
                 + "specified for '%s'.", entityDataType);
-        if (entityDataType == EntityDataType.CONTROLLEDVOCABULARY)
+        if (entityDataType == DataTypeCode.CONTROLLEDVOCABULARY)
         {
             ((ControlledVocabularyValidator) dataTypeValidator).setVocabulary(propertyType
                     .getVocabulary());

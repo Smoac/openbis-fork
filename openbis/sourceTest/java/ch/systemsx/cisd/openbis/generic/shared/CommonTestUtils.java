@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -43,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * Contains methods and constants which may be used by many tests.
@@ -93,20 +93,20 @@ public class CommonTestUtils
     {
 
         public static PropertyTypePE INFECTED_ORGAN =
-                createPropertyType("USER.INFECTED_ORGAN", EntityDataType.CONTROLLEDVOCABULARY,
+                createPropertyType("USER.INFECTED_ORGAN", DataTypeCode.CONTROLLEDVOCABULARY,
                         ORGAN, null);
 
         public static PropertyTypePE INFECTING_VIRUS =
-                createPropertyType("USER.INFECTING_VIRUS", EntityDataType.MATERIAL, null, VIRUS);
+                createPropertyType("USER.INFECTING_VIRUS", DataTypeCode.MATERIAL, null, VIRUS);
 
         public static PropertyTypePE DESCRIPTION =
-                createPropertyType("USER.DESCRIPTION", EntityDataType.VARCHAR, null, null);
+                createPropertyType("USER.DESCRIPTION", DataTypeCode.VARCHAR, null, null);
 
         public static PropertyTypePE NOTES =
-                createPropertyType("USER.NOTES", EntityDataType.VARCHAR, null, null);
+                createPropertyType("USER.NOTES", DataTypeCode.VARCHAR, null, null);
 
         public static PropertyTypePE CATEGORY_DESCRIPTION =
-                createPropertyType("USER.CATEGORY_DESCRIPTION", EntityDataType.VARCHAR, null, null);
+                createPropertyType("USER.CATEGORY_DESCRIPTION", DataTypeCode.VARCHAR, null, null);
     }
 
     public static ExperimentPropertyPE createCategoryProperty(ExperimentTypePE experimentType)
@@ -221,7 +221,7 @@ public class CommonTestUtils
         return term;
     }
 
-    public static final PropertyTypePE createPropertyType(String fullCode, EntityDataType type,
+    public static final PropertyTypePE createPropertyType(String fullCode, DataTypeCode type,
             VocabularyPE vocabularyOrNull, MaterialTypePE materialTypeOrNull)
     {
         PropertyTypePE result = new PropertyTypePE();
@@ -235,7 +235,7 @@ public class CommonTestUtils
         return result;
     }
 
-    private static DataTypePE createDataType(EntityDataType type)
+    private static DataTypePE createDataType(DataTypeCode type)
     {
         DataTypePE result = new DataTypePE();
         result.setCode(type);

@@ -87,7 +87,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
@@ -697,7 +696,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final DataTypePE dataTypePE = new DataTypePE();
-        dataTypePE.setCode(EntityDataType.HYPERLINK);
+        dataTypePE.setCode(DataTypeCode.HYPERLINK);
         context.checking(new Expectations()
             {
                 {

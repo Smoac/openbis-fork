@@ -37,7 +37,7 @@ public final class NewExternalData
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private ExtractableData extractableData;
+    private ExtractableData extractableData = new ExtractableData();
 
     private String location;
 

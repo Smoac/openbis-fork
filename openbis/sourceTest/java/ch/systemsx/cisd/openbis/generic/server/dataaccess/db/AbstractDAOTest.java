@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -59,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
@@ -309,12 +309,12 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         propertyTypePE.setRegistrator(getSystemPerson());
         propertyTypePE.setType(dataType);
         propertyTypePE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-        if (EntityDataType.CONTROLLEDVOCABULARY.equals(dataType.getCode()))
+        if (DataTypeCode.CONTROLLEDVOCABULARY.equals(dataType.getCode()))
         {
             assertNotNull(vocabularyOrNull);
             propertyTypePE.setVocabulary(vocabularyOrNull);
         }
-        if (EntityDataType.MATERIAL.equals(dataType.getCode()))
+        if (DataTypeCode.MATERIAL.equals(dataType.getCode()))
         {
             propertyTypePE.setMaterialType(materialTypeOrNull);
         }

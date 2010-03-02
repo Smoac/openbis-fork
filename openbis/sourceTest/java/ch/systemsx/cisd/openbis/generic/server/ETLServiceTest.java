@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -61,7 +62,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * @author Franz-Josef Elmer
@@ -406,14 +406,14 @@ public class ETLServiceTest extends AbstractServerTestCase
     private SamplePropertyPE setAnyProperty(SamplePE top)
     {
         SamplePropertyPE property =
-                createSamplePropertyPE("type code", EntityDataType.VARCHAR, "The Value");
+                createSamplePropertyPE("type code", DataTypeCode.VARCHAR, "The Value");
 
         top.setProperties(new LinkedHashSet<SamplePropertyPE>(Arrays.asList(property)));
         return property;
     }
 
     private final static SamplePropertyPE createSamplePropertyPE(final String code,
-            final EntityDataType dataType, final String value)
+            final DataTypeCode dataType, final String value)
     {
         final SamplePropertyPE propertyPE = new SamplePropertyPE();
         final SampleTypePropertyTypePE entityTypePropertyTypePE = new SampleTypePropertyTypePE();

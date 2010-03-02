@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
@@ -39,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -130,7 +130,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
     private PropertyTypePE createMaterialPropertyType(MaterialTypePE materialType)
     {
         return createPropertyType(daoFactory.getPropertyTypeDAO().getDataTypeByCode(
-                EntityDataType.MATERIAL), "USER.MATERIAL-PROPERTY-TYPE", null, materialType);
+                DataTypeCode.MATERIAL), "USER.MATERIAL-PROPERTY-TYPE", null, materialType);
     }
 
     @Test

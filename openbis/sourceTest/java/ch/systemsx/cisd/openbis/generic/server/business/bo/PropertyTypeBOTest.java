@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * Test cases for corresponding {@link PropertyTypeBO} class.
@@ -111,7 +110,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
     public final void testDefineAndSave()
     {
         final DataTypePE dataTypePE = new DataTypePE();
-        dataTypePE.setCode(EntityDataType.VARCHAR);
+        dataTypePE.setCode(DataTypeCode.VARCHAR);
         context.checking(new Expectations()
             {
                 {
@@ -121,7 +120,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                     allowing(daoFactory).getPropertyTypeDAO();
                     will(returnValue(propertyTypeDAO));
 
-                    one(propertyTypeDAO).getDataTypeByCode(EntityDataType.VARCHAR);
+                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.VARCHAR);
                     will(returnValue(dataTypePE));
 
                     one(propertyTypeDAO).createPropertyType(with(aNonNull(PropertyTypePE.class)));
@@ -140,7 +139,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
     public final void testDefineAndSaveWithException()
     {
         final DataTypePE dataTypePE = new DataTypePE();
-        dataTypePE.setCode(EntityDataType.VARCHAR);
+        dataTypePE.setCode(DataTypeCode.VARCHAR);
         context.checking(new Expectations()
             {
                 {
@@ -150,7 +149,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                     allowing(daoFactory).getPropertyTypeDAO();
                     will(returnValue(propertyTypeDAO));
 
-                    one(propertyTypeDAO).getDataTypeByCode(EntityDataType.VARCHAR);
+                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.VARCHAR);
                     will(returnValue(dataTypePE));
 
                     one(propertyTypeDAO).createPropertyType(with(aNonNull(PropertyTypePE.class)));
@@ -177,7 +176,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
     public final void testDefineWithExistingVocabulary()
     {
         final DataTypePE dataTypePE = new DataTypePE();
-        dataTypePE.setCode(EntityDataType.CONTROLLEDVOCABULARY);
+        dataTypePE.setCode(DataTypeCode.CONTROLLEDVOCABULARY);
         final Vocabulary vocabulary = VocabularyBOTest.createVocabulary();
         final TechId vocabularyId = CommonTestUtils.TECH_ID;
         vocabulary.setId(vocabularyId.getId());
@@ -190,7 +189,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                     one(daoFactory).getPropertyTypeDAO();
                     will(returnValue(propertyTypeDAO));
 
-                    one(propertyTypeDAO).getDataTypeByCode(EntityDataType.CONTROLLEDVOCABULARY);
+                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.CONTROLLEDVOCABULARY);
                     will(returnValue(dataTypePE));
 
                     one(vocabularyDAO).getByTechId(vocabularyId);
@@ -210,7 +209,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
     public final void testFailDefineWithNewVocabulary()
     {
         final DataTypePE dataTypePE = new DataTypePE();
-        dataTypePE.setCode(EntityDataType.CONTROLLEDVOCABULARY);
+        dataTypePE.setCode(DataTypeCode.CONTROLLEDVOCABULARY);
         final Vocabulary vocabulary = VocabularyBOTest.createVocabulary();
         context.checking(new Expectations()
             {
@@ -221,7 +220,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                     one(daoFactory).getPropertyTypeDAO();
                     will(returnValue(propertyTypeDAO));
 
-                    one(propertyTypeDAO).getDataTypeByCode(EntityDataType.CONTROLLEDVOCABULARY);
+                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.CONTROLLEDVOCABULARY);
                     will(returnValue(dataTypePE));
                 }
             });

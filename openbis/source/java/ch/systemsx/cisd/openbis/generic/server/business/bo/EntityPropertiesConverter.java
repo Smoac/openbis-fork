@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.PropertyValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -41,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -127,7 +127,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     private MaterialPE tryGetMaterial(String value, PropertyTypePE propertyType)
     {
-        if (propertyType.getType().getCode() != EntityDataType.MATERIAL)
+        if (propertyType.getType().getCode() != DataTypeCode.MATERIAL)
         {
             return null; // this is not a property of MATERIAL type
         }
@@ -149,7 +149,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     private final static VocabularyTermPE tryGetVocabularyTerm(final String untypedValue,
             final PropertyTypePE propertyType)
     {
-        if (propertyType.getType().getCode() != EntityDataType.CONTROLLEDVOCABULARY)
+        if (propertyType.getType().getCode() != DataTypeCode.CONTROLLEDVOCABULARY)
         {
             return null; // this is not a property of CONTROLLED VOCABULARY type
         }

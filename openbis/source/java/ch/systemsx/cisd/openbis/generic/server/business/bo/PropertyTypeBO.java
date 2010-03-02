@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -38,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -73,7 +73,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         propertyTypePE.setMaterialType(materialType);
         propertyTypePE.setRegistrator(findRegistrator());
 
-        if (EntityDataType.CONTROLLEDVOCABULARY.equals(dataTypePE.getCode()))
+        if (DataTypeCode.CONTROLLEDVOCABULARY.equals(dataTypePE.getCode()))
         {
             Vocabulary vocabulary = propertyType.getVocabulary();
             if (vocabulary.getId() == null)
@@ -106,11 +106,9 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
     private DataTypePE getDataTypeCode(final DataType dataType)
     {
         DataTypePE dataTypePE = null;
-        final String dataTypeCode = dataType.getCode().name();
         try
         {
-            dataTypePE =
-                    getPropertyTypeDAO().getDataTypeByCode(EntityDataType.valueOf(dataTypeCode));
+            dataTypePE = getPropertyTypeDAO().getDataTypeByCode(dataType.getCode());
         } catch (final IllegalArgumentException e)
         {
             throw UserFailureException.fromTemplate("Unknow data type code '%s'.", dataType);

@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * Test cases for corresponding {@link PropertyTypeDAO} class.
@@ -88,7 +87,7 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
     public final void testListDataTypesAndEnumeration()
     {
         final List<DataTypePE> list = daoFactory.getPropertyTypeDAO().listDataTypes();
-        assertEquals(EntityDataType.values().length, list.size());
+        assertEquals(DataTypeCode.values().length, list.size());
         assertEquals(DataTypeCode.values().length, list.size());
         for (final DataTypePE dataType : list)
         {
@@ -110,7 +109,7 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
             fail = false;
         }
         assertFalse(fail);
-        assertNotNull(propertyTypeDAO.getDataTypeByCode(EntityDataType.INTEGER));
+        assertNotNull(propertyTypeDAO.getDataTypeByCode(DataTypeCode.INTEGER));
     }
 
     @SuppressWarnings("unused")
@@ -119,15 +118,15 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
     {
         return new Object[][]
             {
-                { EntityDataType.BOOLEAN },
-                { EntityDataType.INTEGER },
-                { EntityDataType.REAL },
-                { EntityDataType.TIMESTAMP },
-                { EntityDataType.VARCHAR }, };
+                { DataTypeCode.BOOLEAN },
+                { DataTypeCode.INTEGER },
+                { DataTypeCode.REAL },
+                { DataTypeCode.TIMESTAMP },
+                { DataTypeCode.VARCHAR }, };
     }
 
     @Test(dataProvider = "getEntityDataType")
-    public final void testCreatePropertyType(final EntityDataType entityDataType)
+    public final void testCreatePropertyType(final DataTypeCode entityDataType)
     {
         final IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
         boolean fail = true;
@@ -153,7 +152,7 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
         assertNotNull(propertyTypeDAO.tryFindPropertyTypeByCode("code"));
     }
 
-    private final void createPropertyType(final EntityDataType entityDataType, final String code)
+    private final void createPropertyType(final DataTypeCode entityDataType, final String code)
     {
         final IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
         propertyTypeDAO.createPropertyType(createPropertyType(propertyTypeDAO
@@ -164,7 +163,7 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
     public final void testDelete()
     {
         // create new property type with no connections
-        final EntityDataType entityDataType = EntityDataType.BOOLEAN;
+        final DataTypeCode entityDataType = DataTypeCode.BOOLEAN;
         final String propertyTypeCode = "user.bool";
         createPropertyType(entityDataType, propertyTypeCode);
 

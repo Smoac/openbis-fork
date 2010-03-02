@@ -92,7 +92,7 @@ public class DtoConverters
         @SuppressWarnings("unused")
         public final DataTypeCode convertToCode(final DataTypePE dataType)
         {
-            return DataTypeCode.valueOf(dataType.getCode().name());
+            return dataType.getCode();
         }
     }
 }

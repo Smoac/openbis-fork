@@ -21,7 +21,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * A {@link DataType} &lt;---&gt; {@link DataTypePE} translator.
@@ -44,12 +43,12 @@ public class DataTypeTranslator
         return result;
     }
 
-    public static EntityDataType translate(final DataType dataType)
+    public static DataTypeCode translate(final DataType dataType)
     {
-        return EntityDataType.valueOf(dataType.getCode().name());
+        return DataTypeCode.valueOf(dataType.getCode().name());
     }
 
-    private static DataTypeCode translate(EntityDataType edt)
+    private static DataTypeCode translate(DataTypeCode edt)
     {
         return DataTypeCode.valueOf(edt.name());
     }

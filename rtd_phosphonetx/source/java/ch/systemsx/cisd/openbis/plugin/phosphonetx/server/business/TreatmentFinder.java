@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Treatment;
 
 /**
@@ -139,7 +138,7 @@ public class TreatmentFinder
             treatment.setType("");
             treatment.setTypeCode("");
             treatment.setValue("");
-            treatment.setValueType(EntityDataType.VARCHAR.toString());
+            treatment.setValueType(DataTypeCode.VARCHAR.toString());
             codeTreatmentMap.put(treatmentCode, treatment);
         }
         return treatment;

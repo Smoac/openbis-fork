@@ -20,9 +20,9 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * <i>Data Access Object</i> for {@link PropertyTypePE}.
@@ -61,7 +61,7 @@ public interface IPropertyTypeDAO extends IGenericDAO<PropertyTypePE>
      * Returns the {@link DataTypePE} for specified <var>code</var> or <code>null</code> if none
      * could be found.
      */
-    public DataTypePE getDataTypeByCode(final EntityDataType code) throws DataAccessException;
+    public DataTypePE getDataTypeByCode(final DataTypeCode code) throws DataAccessException;
 
     /**
      * Creates a new property type based on given <var>propertyType</var>.

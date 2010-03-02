@@ -29,11 +29,11 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.util.PropertyValidator;
 import ch.systemsx.cisd.openbis.generic.server.util.PropertyValidator.SupportedDatePattern;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * Test cases for corresponding {@link PropertyValidator} class.
@@ -49,7 +49,7 @@ public final class PropertyValidatorTest extends AbstractBOTest
         return new PropertyValidator(daoFactory);
     }
 
-    private final static PropertyTypePE createPropertyType(final EntityDataType entityDataType)
+    private final static PropertyTypePE createPropertyType(final DataTypeCode entityDataType)
     {
         final PropertyTypePE propertyType = new PropertyTypePE();
         propertyType.setSimpleCode("PROP");
@@ -68,31 +68,31 @@ public final class PropertyValidatorTest extends AbstractBOTest
 
     private final static PropertyTypePE createBooleanPropertyType()
     {
-        final PropertyTypePE propertyType = createPropertyType(EntityDataType.BOOLEAN);
+        final PropertyTypePE propertyType = createPropertyType(DataTypeCode.BOOLEAN);
         return propertyType;
     }
 
     private final static PropertyTypePE createRealPropertyType()
     {
-        final PropertyTypePE propertyType = createPropertyType(EntityDataType.REAL);
+        final PropertyTypePE propertyType = createPropertyType(DataTypeCode.REAL);
         return propertyType;
     }
 
     private final static PropertyTypePE createIntegerPropertyType()
     {
-        final PropertyTypePE propertyType = createPropertyType(EntityDataType.INTEGER);
+        final PropertyTypePE propertyType = createPropertyType(DataTypeCode.INTEGER);
         return propertyType;
     }
 
     private final static PropertyTypePE createTimestampPropertyType()
     {
-        final PropertyTypePE propertyType = createPropertyType(EntityDataType.TIMESTAMP);
+        final PropertyTypePE propertyType = createPropertyType(DataTypeCode.TIMESTAMP);
         return propertyType;
     }
 
     private final static PropertyTypePE createVarcharPropertyType()
     {
-        final PropertyTypePE propertyType = createPropertyType(EntityDataType.VARCHAR);
+        final PropertyTypePE propertyType = createPropertyType(DataTypeCode.VARCHAR);
         return propertyType;
     }
 
@@ -172,7 +172,7 @@ public final class PropertyValidatorTest extends AbstractBOTest
 
     private final static PropertyTypePE createControlledVocabularyPropertyType()
     {
-        final PropertyTypePE propertyType = createPropertyType(EntityDataType.CONTROLLEDVOCABULARY);
+        final PropertyTypePE propertyType = createPropertyType(DataTypeCode.CONTROLLEDVOCABULARY);
         final VocabularyPE vocabularyPE = new VocabularyPE();
         // terms list is currently not used in validation but lets keep it here
         final List<VocabularyTermPE> terms = new ArrayList<VocabularyTermPE>();

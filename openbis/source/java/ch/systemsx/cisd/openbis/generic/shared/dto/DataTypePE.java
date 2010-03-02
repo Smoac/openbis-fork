@@ -40,7 +40,7 @@ import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
  * Persistence Entity representing 'data type'.
@@ -58,7 +58,7 @@ public final class DataTypePE implements IIdHolder, Serializable, Comparable<Dat
 
     private transient Long id;
 
-    private EntityDataType code;
+    private DataTypeCode code;
 
     private String description;
 
@@ -80,12 +80,12 @@ public final class DataTypePE implements IIdHolder, Serializable, Comparable<Dat
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     @Enumerated(EnumType.STRING)
-    public final EntityDataType getCode()
+    public final DataTypeCode getCode()
     {
         return code;
     }
 
-    public final void setCode(final EntityDataType code)
+    public final void setCode(final DataTypeCode code)
     {
         this.code = code;
     }

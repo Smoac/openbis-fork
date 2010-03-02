@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -23,8 +25,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Izabela Adamczyk
  */
-public enum DataTypeCode implements IsSerializable
+public enum DataTypeCode implements IsSerializable, Serializable
 {
+    // Do not refactor names - they are stored in database.
     INTEGER, VARCHAR, MULTILINE_VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY, MATERIAL,
     HYPERLINK;
 }

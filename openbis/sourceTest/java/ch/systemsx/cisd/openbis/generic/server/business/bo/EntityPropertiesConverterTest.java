@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -225,7 +224,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         final PropertyTypePE propertyTypePE = new PropertyTypePE();
         propertyTypePE.setCode(VARCHAR_PROPERTY_TYPE_CODE.toLowerCase());
         DataTypePE type = new DataTypePE();
-        type.setCode(EntityDataType.VARCHAR);
+        type.setCode(DataTypeCode.VARCHAR);
         propertyTypePE.setType(type);
         return propertyTypePE;
     }
