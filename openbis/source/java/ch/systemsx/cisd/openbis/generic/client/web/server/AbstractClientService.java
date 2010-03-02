@@ -456,7 +456,7 @@ public abstract class AbstractClientService implements IClientService,
         {
             final String sessionToken = getSessionToken();
             IServer server = getServer();
-            server.changeUserHomeGroup(sessionToken, groupIdOrNull);
+            server.changeUserHomeSpace(sessionToken, groupIdOrNull);
         } catch (InvalidSessionException e)
         {
             // ignored

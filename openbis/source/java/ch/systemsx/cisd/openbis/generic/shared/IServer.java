@@ -76,9 +76,9 @@ public interface IServer extends ISessionProvider
     @Transactional
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridDisplayId);
 
-    /** Changes logged user home group to the one with given technical id. */
+    /** Changes logged user home space to the one with given technical id. */
     @Transactional
-    public void changeUserHomeGroup(String sessionToken, TechId groupIdOrNull);
+    public void changeUserHomeSpace(String sessionToken, TechId spaceIdOrNull);
 
     /**
      * Logout the session with the specified session token.

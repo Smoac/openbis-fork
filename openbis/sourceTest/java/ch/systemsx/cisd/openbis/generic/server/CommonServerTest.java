@@ -1400,7 +1400,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        createServer().changeUserHomeGroup(SESSION_TOKEN, groupId);
+        createServer().changeUserHomeSpace(SESSION_TOKEN, groupId);
 
         assertSame(group, person.getHomeGroup());
         assertSame(groupId.getId(), person.getHomeGroup().getId());
@@ -1426,7 +1426,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        createServer().changeUserHomeGroup(SESSION_TOKEN, null);
+        createServer().changeUserHomeSpace(SESSION_TOKEN, null);
 
         assertNull(person.getHomeGroup());
 

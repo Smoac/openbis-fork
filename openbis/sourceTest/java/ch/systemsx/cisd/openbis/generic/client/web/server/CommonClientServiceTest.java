@@ -422,7 +422,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 {
                     prepareGetSessionToken(this);
 
-                    one(commonServer).changeUserHomeGroup(SESSION_TOKEN, groupId);
+                    one(commonServer).changeUserHomeSpace(SESSION_TOKEN, groupId);
                 }
             });
 

@@ -234,12 +234,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         return GroupTranslator.translate(groups);
     }
 
-    public final void registerSpace(final String sessionToken, final String groupCode,
+    public final void registerSpace(final String sessionToken, final String spaceCode,
             final String descriptionOrNull)
     {
         final Session session = getSession(sessionToken);
         final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
-        groupBO.define(groupCode, descriptionOrNull);
+        groupBO.define(spaceCode, descriptionOrNull);
         groupBO.save();
     }
 

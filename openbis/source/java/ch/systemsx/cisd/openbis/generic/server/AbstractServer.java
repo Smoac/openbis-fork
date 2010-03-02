@@ -330,7 +330,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         return systemUser.getDisplaySettings();
     }
 
-    public void changeUserHomeGroup(String sessionToken, TechId groupIdOrNull)
+    public void changeUserHomeSpace(String sessionToken, TechId groupIdOrNull)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         PersonPE person = session.tryGetPerson();

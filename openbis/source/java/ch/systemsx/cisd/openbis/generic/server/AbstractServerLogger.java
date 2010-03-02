@@ -188,10 +188,10 @@ public abstract class AbstractServerLogger implements IServer
         return null;
     }
 
-    public void changeUserHomeGroup(String sessionToken, TechId groupIdOrNull)
+    public void changeUserHomeSpace(String sessionToken, TechId spaceIdOrNull)
     {
-        String groupId = groupIdOrNull == null ? "null" : groupIdOrNull.toString();
-        logTracking(sessionToken, "change_user_home_space", "SPACE_ID (%s)", groupId);
+        String spaceId = spaceIdOrNull == null ? "null" : spaceIdOrNull.toString();
+        logTracking(sessionToken, "change_user_home_space", "SPACE_ID (%s)", spaceId);
     }
 
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
