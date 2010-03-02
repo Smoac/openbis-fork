@@ -167,7 +167,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
                         messageProvider);
     }
 
-    public ViewLocatorResolverRegistry getLocatorHandlerRegistry()
+    public ViewLocatorResolverRegistry getLocatorResolverRegistry()
     {
         return locatorHandlerRegistry;
     }

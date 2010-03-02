@@ -32,8 +32,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.IViewLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
@@ -89,7 +91,7 @@ public class Client implements EntryPoint
         CommonViewContext commonContext =
                 new CommonViewContext(service, messageProvider, imageBundle, pageController);
         commonContext.setClientPluginFactoryProvider(createPluginFactoryProvider(commonContext));
-        initializeLocatorHandlerRegistry(commonContext.getLocatorHandlerRegistry());
+        initializeLocatorHandlerRegistry(commonContext.getLocatorResolverRegistry(), commonContext);
         return commonContext;
     }
 
@@ -141,8 +143,7 @@ public class Client implements EntryPoint
             initializeControllers(openUrlController);
         }
 
-        final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper.initUrlParams();
+        final ViewLocator locator = new ViewLocator(GWTUtils.getParamString());
 
         final IClientServiceAsync service = getServiceForRetrievingApplicationInfo(viewContext);
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
@@ -160,7 +161,8 @@ public class Client implements EntryPoint
                     // initial page and may additionaly open an initial tab
                     SessionContextCallback sessionContextCallback =
                             new SessionContextCallback((CommonViewContext) viewContext,
-                                    urlParamsHelper.getOpenInitialTabAction());
+                                    new OpenViewAction(viewContext.getLocatorResolverRegistry(),
+                                            locator));
                     service.tryToGetCurrentSessionContext(sessionContextCallback);
                 }
             });
@@ -184,9 +186,6 @@ public class Client implements EntryPoint
             viewContext = createViewContext(openUrlController);
             initializeControllers(openUrlController);
         }
-
-        final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper.initUrlParams();
 
         final IClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
@@ -255,14 +254,19 @@ public class Client implements EntryPoint
 
     /**
      * Register any handlers for locators specified in the openBIS URL.
+     * 
+     * @param handlerRegistry The handler registry to initialize
+     * @param context The ViewContext which may be needed by resolvers. Can't use the viewContext
+     *            instance variable since it may not have been initialized yet.
      */
-    protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry)
+    protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry,
+            IViewContext<ICommonClientServiceAsync> context)
     {
         IViewLocatorResolver handler;
-        handler = new PermlinkLocatorResolver(viewContext);
+        handler = new PermlinkLocatorResolver(context);
         handlerRegistry.registerHandler(handler);
-        
-        handler = new SearchLocatorResolver(viewContext);
+
+        handler = new SearchLocatorResolver(context);
         handlerRegistry.registerHandler(handler);
     }
 }

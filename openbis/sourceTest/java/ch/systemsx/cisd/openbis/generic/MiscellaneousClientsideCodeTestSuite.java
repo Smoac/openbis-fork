@@ -21,6 +21,7 @@ import junit.framework.TestSuite;
 
 import com.google.gwt.junit.tools.GWTTestSuite;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistryTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorTest;
 
 /**
@@ -32,6 +33,7 @@ public class MiscellaneousClientsideCodeTestSuite extends GWTTestSuite
     {
         final TestSuite testSuite = new TestSuite("Miscellaneous Clientside Code Tests");
         testSuite.addTestSuite(ViewLocatorTest.class);
+        testSuite.addTestSuite(ViewLocatorResolverRegistryTest.class);
         return testSuite;
     }
 }

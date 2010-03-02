@@ -39,9 +39,17 @@ public class ViewLocatorTest extends AbstractGWTTestCase
         assertTrue(viewLocator.isValid());
     }
 
-    public void testURLParsingOfInvalidParameters()
+    public void testDefaultingOfParameters()
     {
         String urlParameterString = "entity=dataset&code=184029";
+        ViewLocator viewLocator = new ViewLocator(urlParameterString);
+        assertEquals("VIEW", viewLocator.tryGetAction());
+        assertTrue(viewLocator.isValid());
+    }
+
+    public void testURLParsingOfInvalidParameters()
+    {
+        String urlParameterString = "code=184029";
         ViewLocator viewLocator = new ViewLocator(urlParameterString);
         assertEquals(null, viewLocator.tryGetAction());
         assertFalse(viewLocator.isValid());

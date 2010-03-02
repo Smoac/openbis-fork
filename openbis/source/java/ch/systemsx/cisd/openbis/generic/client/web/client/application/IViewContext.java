@@ -50,5 +50,5 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
 
     public ICommonClientServiceAsync getCommonService();
 
-    public ViewLocatorResolverRegistry getLocatorHandlerRegistry();
+    public ViewLocatorResolverRegistry getLocatorResolverRegistry();
 }

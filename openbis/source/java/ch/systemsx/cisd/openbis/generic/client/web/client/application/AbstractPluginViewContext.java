@@ -46,7 +46,7 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         service = createClientServiceAsync();
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
         endpoint.setServiceEntryPoint(GenericConstants.createServicePath(getTechnology()));
-        initializeLocatorHandlerRegistry(commonViewContext.getLocatorHandlerRegistry());
+        initializeLocatorHandlerRegistry(commonViewContext.getLocatorResolverRegistry());
     }
 
     /**
@@ -132,10 +132,10 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         commonViewContext.addMessageSource(messageSource);
     }
 
-    public ViewLocatorResolverRegistry getLocatorHandlerRegistry()
+    public ViewLocatorResolverRegistry getLocatorResolverRegistry()
     {
         // Delegate to the common view context
-        return commonViewContext.getLocatorHandlerRegistry();
+        return commonViewContext.getLocatorResolverRegistry();
     }
 
     /**

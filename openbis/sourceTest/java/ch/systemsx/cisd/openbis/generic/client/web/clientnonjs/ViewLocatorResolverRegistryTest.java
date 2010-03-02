@@ -110,7 +110,7 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testResolvePermIdLocator()
+    public void testResolvePermlinkLocator()
     {
         initializeLocatorHandlerRegistry(registry);
         context.checking(new Expectations()
