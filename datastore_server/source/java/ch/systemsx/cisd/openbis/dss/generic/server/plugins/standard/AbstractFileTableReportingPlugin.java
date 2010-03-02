@@ -17,16 +17,17 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
+import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.parser.ParsingException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -46,9 +47,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
 abstract public class AbstractFileTableReportingPlugin extends AbstractDatastorePlugin implements
         IReportingPluginTask
 {
-    protected static final String TAB_SEPARATOR = "\t";
+    protected static final char TAB_SEPARATOR = '\t';
 
-    protected static final String SEMICOLON_SEPARATOR = "\t";
+    protected static final char SEMICOLON_SEPARATOR = ';';
 
     private static final long serialVersionUID = 1L;
 
@@ -57,18 +58,18 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
     private static final String IGNORE_COMMENTS_PROPERTY_KEY = "ignore-comments";
 
     // if the line starts with this character and comments should be ignored, the line is ignored
-    private static final String COMMENT = "#";
+    private static final char COMMENT = '#';
 
-    private final String separator;
+    private final char separator;
 
     private final boolean ignoreComments;
 
     protected AbstractFileTableReportingPlugin(Properties properties, File storeRoot,
-            String defaultSeparator)
+            char defaultSeparator)
     {
         super(properties, storeRoot);
         this.separator =
-                PropertyUtils.getProperty(properties, SEPARATOR_PROPERTY_KEY, defaultSeparator);
+                PropertyUtils.getChar(properties, SEPARATOR_PROPERTY_KEY, defaultSeparator);
         this.ignoreComments =
                 PropertyUtils.getBoolean(properties, IGNORE_COMMENTS_PROPERTY_KEY, true);
 
@@ -86,18 +87,41 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
         assert file != null : "Given file must not be null";
         assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
 
-        FileReader reader = null;
+        CsvReader reader = null;
         try
         {
-            reader = new FileReader(file);
+            reader = readFile(file, ignoreComments, separator);
             return load(dataset, reader, file);
         } catch (final IOException ex)
         {
             throw new IOExceptionUnchecked(ex);
         } finally
         {
-            IOUtils.closeQuietly(reader);
+            if (reader != null)
+            {
+                reader.close();
+            }
         }
+    }
+
+    private static CsvReader readFile(File file, boolean ignoreComments, char separator)
+            throws IOException
+    {
+        if (file.isFile() == false)
+        {
+            throw new UserFailureException(file + " does not exist or is not a file.");
+        }
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        CsvReader csvReader = new CsvReader(fileInputStream, Charset.defaultCharset());
+        csvReader.setDelimiter(separator);
+        csvReader.setSkipEmptyRecords(true);
+        if (ignoreComments)
+        {
+            csvReader.setUseComments(true);
+            csvReader.setComment(COMMENT);
+        }
+        return csvReader;
     }
 
     /**
@@ -105,32 +129,18 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
      * 
      * @throws IOException
      */
-    @SuppressWarnings("unchecked")
-    protected DatasetFileLines load(final DatasetDescription dataset, final Reader reader,
+    protected DatasetFileLines load(final DatasetDescription dataset, final CsvReader reader,
             final File file) throws ParserException, ParsingException, IllegalArgumentException,
             IOException
     {
         assert reader != null : "Unspecified reader";
 
-        List<String> lines = IOUtils.readLines(reader);
-        if (ignoreComments)
+        List<String[]> lines = new ArrayList<String[]>();
+        while (reader.readRecord())
         {
-            lines = filterCommentedLines(lines);
+            lines.add(reader.getValues());
         }
-        return new DatasetFileLines(file, dataset, lines, separator);
-    }
-
-    private static List<String> filterCommentedLines(List<String> lines)
-    {
-        List<String> result = new ArrayList<String>();
-        for (String line : lines)
-        {
-            if (line.trim().startsWith(COMMENT) == false)
-            {
-                result.add(line);
-            }
-        }
-        return result;
+        return new DatasetFileLines(file, dataset, lines);
     }
 
     protected static TableModel createTableModel(DatasetFileLines lines)

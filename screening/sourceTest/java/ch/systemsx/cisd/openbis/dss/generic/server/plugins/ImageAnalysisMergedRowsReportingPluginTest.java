@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
@@ -55,7 +56,8 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
 
         List<TableModelRow> rows = model.getRows();
         assertEquals(2, rows.size());
-        assertEquals("datasetCode-a#fa.txt#one#1", StringUtils.join(rows.get(0).getValues(), '#'));
+        assertEquals("datasetCode-a#fa.txt#one, and the only#1", StringUtils.join(rows.get(0)
+                .getValues(), '#'));
         assertEquals("datasetCode-b#fb.txt#two#2", StringUtils.join(rows.get(1).getValues(), '#'));
     }
 
@@ -72,6 +74,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
             createReport(separator, props);
         } catch (UserFailureException ex)
         {
+            AssertionUtil.assertContains("Number of columns in header", ex.getMessage());
             failedBecauseOfComment = true;
         }
         assertTrue("should fail when comment is treated as a header in file a.txt",
@@ -99,9 +102,11 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         f1.deleteOnExit();
         final File f2 = new File(dirB, "fb.txt");
         f2.deleteOnExit();
-        FileUtilities.writeToFile(f1, "# any comment\n" + "key" + separator + "val\n" + "one"
-                + separator + "1\n");
-        FileUtilities.writeToFile(f2, "key" + separator + "val\n" + "two" + separator + "2\n");
+        FileUtilities.writeToFile(f2, "\n"); // empty line - should be ignored
+        String keyColumnValue = "\"one" + separator + " and the only\""; // escaped separator
+        FileUtilities.writeToFile(f1, "# any comment\n" + "key" + separator + "val\n"
+                + keyColumnValue + separator + "1\n");
+        FileUtilities.writeToFile(f2, "key" + separator + "val\n" + "\"two\"" + separator + "2\n");
 
         IReportingPluginTask plugin = new ImageAnalysisMergedRowsReportingPlugin(props, dir);
         List<DatasetDescription> datasets =

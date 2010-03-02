@@ -60,9 +60,9 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
     }
 
     protected AbstractDataMergingReportingPlugin(Properties properties, File storeRoot,
-            String separator)
+            char defaultSeparator)
     {
-        super(properties, storeRoot, separator);
+        super(properties, storeRoot, defaultSeparator);
         final String excludePatternOrNull = properties.getProperty(FILE_EXCLUDE_PATTERN);
         if (excludePatternOrNull == null)
         {

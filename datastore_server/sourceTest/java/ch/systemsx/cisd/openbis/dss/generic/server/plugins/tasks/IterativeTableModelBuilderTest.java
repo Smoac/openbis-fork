@@ -45,14 +45,29 @@ public class IterativeTableModelBuilderTest
         LogInitializer.init();
     }
 
+    private List<String[]> createFirstLine()
+    {
+        return Arrays.asList(asTab("id", "val"), asTab("a", "A"), asTab("b", "B"), asTab("c", "C"));
+    }
+
+    private List<String[]> createSecondLine()
+    {
+        return Arrays
+                .asList(asTab("id", "val2"), asTab("d", "D"), asTab("b", "E"), asTab("f", "F"));
+    }
+
+    private List<String[]> createBigIdLine()
+    {
+        return Arrays.asList(asTab("ID", "val"), asTab("a", "A"), asTab("b", "B"), asTab("c", "C"));
+    }
+
     @Test
     public void testHappyCaseOneFile()
     {
         final IterativeTableModelBuilder builder = new IterativeTableModelBuilder("id");
         final DatasetDescription description = createDatasetDescription();
         final DatasetFileLines lines =
-                createLines(new File("doesn't matter"), description, Arrays.asList("id\tval",
-                        "a\tA", "b\tB", "c\tC"));
+                createLines(new File("doesn't matter"), description, createFirstLine());
         builder.addFile(lines);
         final TableModel model = builder.getTableModel();
         final List<TableModelColumnHeader> headers = model.getHeader();
@@ -77,6 +92,12 @@ public class IterativeTableModelBuilderTest
         assertEquals("C", row2.get(1).toString());
     }
 
+    private String[] asTab(String arg1, String arg2)
+    {
+        return new String[]
+            { arg1, arg2 };
+    }
+
     private DatasetDescription createDatasetDescription()
     {
         return new DatasetDescription("code", "location", "sampleCode", "groupCode", "projCode",
@@ -90,12 +111,11 @@ public class IterativeTableModelBuilderTest
         final DatasetDescription description = createDatasetDescription();
 
         final DatasetFileLines lines =
-                createLines(new File("doesn't matter"), description, Arrays.asList("id\tval",
-                        "a\tA", "b\tB", "c\tC"));
+                createLines(new File("doesn't matter"), description, createFirstLine());
         builder.addFile(lines);
         final DatasetFileLines lines2 =
-                createLines(new File("doesn't matter"), description, Arrays.asList("id\tval2",
-                        "a\tD", "b\tE", "c\tF"));
+                createLines(new File("doesn't matter"), description, Arrays.asList(asTab("id",
+                        "val2"), asTab("a", "D"), asTab("b", "E"), asTab("c", "F")));
         builder.addFile(lines2);
         final TableModel model = builder.getTableModel();
         final List<TableModelColumnHeader> headers = model.getHeader();
@@ -132,12 +152,10 @@ public class IterativeTableModelBuilderTest
         final DatasetDescription description = createDatasetDescription();
 
         final DatasetFileLines lines =
-                createLines(new File("doesn't matter"), description, Arrays.asList("id\tval",
-                        "a\tA", "b\tB", "c\tC"));
+                createLines(new File("doesn't matter"), description, createFirstLine());
         builder.addFile(lines);
         final DatasetFileLines lines2 =
-                createLines(new File("doesn't matter"), description, Arrays.asList("id\tval2",
-                        "d\tD", "b\tE", "f\tF"));
+                createLines(new File("doesn't matter"), description, createSecondLine());
         builder.addFile(lines2);
         final TableModel model = builder.getTableModel();
         final List<TableModelColumnHeader> headers = model.getHeader();
@@ -184,8 +202,7 @@ public class IterativeTableModelBuilderTest
         final DatasetDescription description = createDatasetDescription();
 
         final DatasetFileLines lines =
-                createLines(new File("doesn't matter"), description, Arrays.asList("id\tval",
-                        "a\tA", "b\tB", "c\tC"));
+                createLines(new File("doesn't matter"), description, createFirstLine());
         builder.addFile(lines);
         builder.addFile(lines);
         final TableModel model = builder.getTableModel();
@@ -223,8 +240,7 @@ public class IterativeTableModelBuilderTest
         final DatasetDescription description = createDatasetDescription();
 
         final DatasetFileLines lines =
-                createLines(new File("bad file - no id"), description, Arrays.asList("ID\tval",
-                        "a\tA", "b\tB", "c\tC"));
+                createLines(new File("bad file - no id"), description, createBigIdLine());
         builder.addFile(lines);
         final TableModel model = builder.getTableModel();
         assertEquals(0, model.getHeader().size());
@@ -238,12 +254,10 @@ public class IterativeTableModelBuilderTest
         final DatasetDescription description = createDatasetDescription();
 
         final DatasetFileLines lines =
-                createLines(new File("bad file - no id (2)"), description, Arrays.asList("ID\tval",
-                        "a\tA", "b\tB", "c\tC"));
+                createLines(new File("bad file - no id (2)"), description, createBigIdLine());
         builder.addFile(lines);
         final DatasetFileLines lines2 =
-                createLines(new File("doesn't matter"), description, Arrays.asList("id\tval",
-                        "a\tA", "b\tB", "c\tC"));
+                createLines(new File("doesn't matter"), description, createFirstLine());
         builder.addFile(lines2);
         final TableModel model = builder.getTableModel();
         final List<TableModelColumnHeader> headers = model.getHeader();
@@ -269,8 +283,8 @@ public class IterativeTableModelBuilderTest
     }
 
     private static DatasetFileLines createLines(File file, DatasetDescription dataset,
-            List<String> lines)
+            List<String[]> lines)
     {
-        return new DatasetFileLines(file, dataset, lines, "\t");
+        return new DatasetFileLines(file, dataset, lines);
     }
 }
