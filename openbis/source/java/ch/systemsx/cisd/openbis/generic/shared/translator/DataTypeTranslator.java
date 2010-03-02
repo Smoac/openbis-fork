@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 
 /**
@@ -35,21 +37,22 @@ public class DataTypeTranslator
     }
 
     public static DataType translate(final DataTypePE dataTypePE)
-    
+
     {
         final DataType result = new DataType();
-        result.setCode(translate(dataTypePE.getCode()));
+        result.setCode(dataTypePE.getCode());
         result.setDescription(StringEscapeUtils.escapeHtml(dataTypePE.getDescription()));
         return result;
     }
 
-    public static DataTypeCode translate(final DataType dataType)
+    public static List<DataType> translate(List<DataTypePE> dataTypePEs)
     {
-        return DataTypeCode.valueOf(dataType.getCode().name());
+        List<DataType> result = new ArrayList<DataType>();
+        for (DataTypePE dt : dataTypePEs)
+        {
+            result.add(translate(dt));
+        }
+        return result;
     }
 
-    private static DataTypeCode translate(DataTypeCode edt)
-    {
-        return DataTypeCode.valueOf(edt.name());
-    }
 }

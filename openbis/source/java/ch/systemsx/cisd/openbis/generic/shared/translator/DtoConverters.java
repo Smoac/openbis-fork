@@ -19,12 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.utilities.BeanUtils;
-import ch.systemsx.cisd.common.utilities.BeanUtils.Converter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 
 /**
  * A static class which converts <i>business</i> <i>DTOs</i> into <i>GWT</i> ones.
@@ -53,46 +48,10 @@ public class DtoConverters
     }
 
     /**
-     * Returns the {@link DataTypePE} converter.
-     */
-    public final static Converter getDataTypeConverter()
-    {
-        return DataTypeConverter.INSTANCE;
-    }
-
-    /**
      * Does not really create an unmodifiable empty list but this works with <i>GWT</i>.
      */
     static final <T> List<T> createUnmodifiableEmptyList()
     {
         return new ArrayList<T>();
-    }
-
-    //
-    // Helper classes
-    //
-    /**
-     * A {@link BeanUtils.Converter} for converting {@link DataTypePE} into {@link DataType}.
-     * 
-     * @author Christian Ribeaud
-     */
-    // Note: the convertToXXX() methods will be used by reflection
-    private final static class DataTypeConverter implements BeanUtils.Converter
-    {
-        static final DataTypeConverter INSTANCE = new DataTypeConverter();
-
-        private DataTypeConverter()
-        {
-        }
-
-        //
-        // BeanUtils.Converter
-        //
-
-        @SuppressWarnings("unused")
-        public final DataTypeCode convertToCode(final DataTypePE dataType)
-        {
-            return dataType.getCode();
-        }
     }
 }
