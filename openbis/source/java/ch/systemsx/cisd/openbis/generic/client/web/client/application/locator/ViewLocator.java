@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
-import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 
 /**
  * A view locator represents the information necessary to open a view including populating it any
@@ -136,12 +135,6 @@ public class ViewLocator
                 // Permlink URLs have an implied action
                 actionOrNull = PERMLINK_ACTION;
                 parameters.put(paramPair[0], paramPair[1]);
-            } else if (SearchlinkUtilities.ENTITY_KIND_PARAMETER_KEY.equalsIgnoreCase(paramPair[0]))
-            {
-                // Search URLs have an implied action as well
-                actionOrNull = SEARCH_ACTION;
-                entityOrNull = paramPair[1];
-                parameters.put(paramPair[0].toLowerCase(), paramPair[1]);
             } else
             {
                 parameters.put(paramPair[0], paramPair[1]);

@@ -230,7 +230,7 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
 
             });
 
-        ViewLocator locator = new ViewLocator("searchEntity=SAMPLE&code=CL1");
+        ViewLocator locator = new ViewLocator("action=SEARCH&entity=SAMPLE&code=CL1");
         OpenViewAction action = new OpenViewAction(registry, locator);
         action.execute();
 
@@ -255,7 +255,7 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
 
             });
 
-        ViewLocator locator = new ViewLocator("searchEntity=SAMPLE");
+        ViewLocator locator = new ViewLocator("action=SEARCH&entity=SAMPLE");
         OpenViewAction action = new OpenViewAction(registry, locator);
         action.execute();
 
@@ -275,7 +275,7 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
 
             });
 
-        ViewLocator locator = new ViewLocator("searchEntity=DATA_SET");
+        ViewLocator locator = new ViewLocator("action=SEARCH&entity=DATA_SET");
         OpenViewAction action = new OpenViewAction(registry, locator);
 
         try
