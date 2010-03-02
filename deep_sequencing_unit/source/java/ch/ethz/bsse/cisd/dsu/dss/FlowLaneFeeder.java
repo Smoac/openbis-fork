@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -155,10 +156,15 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             throw new EnvironmentFailureException("Only " + files.size()
                     + " flow lane files found instead of " + flowLaneSampleMap.size() + ".");
         }
+        Set<String> processedFlowLanes = new LinkedHashSet<String>();
         for (File file : files)
         {
             List<String> srfInfo = getSRFInfo(file);
             String flowLane = extractFlowLane(file);
+            if (processedFlowLanes.contains(flowLane))
+            {
+                throw new UserFailureException("Flow lane " + flowLane + " already registered.");
+            }
             Sample flowLaneSample = flowLaneSampleMap.get(flowLane);
             if (flowLaneSample == null)
             {
@@ -194,6 +200,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                         + "' successfully dropped into drop box '" + dropBox + "' as '"
                         + flowLaneDataSet.getName() + "'.");
             }
+            processedFlowLanes.add(flowLane);
         }
         return Status.OK;
     }

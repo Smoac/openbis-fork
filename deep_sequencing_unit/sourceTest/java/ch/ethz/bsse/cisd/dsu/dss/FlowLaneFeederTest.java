@@ -235,6 +235,38 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testFlowLaneTwice()
+    {
+        File flowCell = new File(workingDirectory, SAMPLE_CODE);
+        assertEquals(true, flowCell.mkdir());
+        File logs = new File(flowCell, "logs");
+        assertEquals(true, logs.mkdir());
+        FileUtilities.writeToFile(new File(logs, "basic.log"), "hello log");
+        File srfFolder = new File(flowCell, "SRF");
+        assertEquals(true, srfFolder.mkdir());
+        File originalFlowLane1 = new File(srfFolder, "s_1.srf");
+        FileUtilities.writeToFile(originalFlowLane1, "hello flow lane 1");
+        File originalFlowLane2 = new File(srfFolder, "1.srf");
+        FileUtilities.writeToFile(originalFlowLane2, "hello second flow lane 1");
+        prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
+        Sample fl1 = createFlowLaneSample(1);
+        Sample fl2 = createFlowLaneSample(1);
+        prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1, fl2));
+        prepareGetProperties(Arrays.asList(fl1));
+        
+        try
+        {
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Flow lane 1 already registered.", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testHappyCase()
