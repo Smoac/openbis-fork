@@ -31,10 +31,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorHandler;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorHandler;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry.IViewLocatorHandler;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.IViewLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
@@ -256,13 +256,13 @@ public class Client implements EntryPoint
     /**
      * Register any handlers for locators specified in the openBIS URL.
      */
-    protected void initializeLocatorHandlerRegistry(ViewLocatorHandlerRegistry handlerRegistry)
+    protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry)
     {
-        IViewLocatorHandler handler;
-        handler = new PermlinkLocatorHandler(viewContext);
+        IViewLocatorResolver handler;
+        handler = new PermlinkLocatorResolver(viewContext);
         handlerRegistry.registerHandler(handler);
         
-        handler = new SearchLocatorHandler(viewContext);
+        handler = new SearchLocatorResolver(viewContext);
         handlerRegistry.registerHandler(handler);
     }
 }

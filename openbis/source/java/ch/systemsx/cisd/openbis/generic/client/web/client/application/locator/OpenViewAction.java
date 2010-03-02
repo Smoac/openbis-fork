@@ -28,11 +28,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
  */
 public class OpenViewAction implements IDelegatedAction
 {
-    private final ViewLocatorHandlerRegistry registry;
+    private final ViewLocatorResolverRegistry registry;
 
     private final ViewLocator viewLocator;
 
-    public OpenViewAction(ViewLocatorHandlerRegistry registry, ViewLocator viewLocator)
+    public OpenViewAction(ViewLocatorResolverRegistry registry, ViewLocator viewLocator)
     {
         this.registry = registry;
         this.viewLocator = viewLocator;

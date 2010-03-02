@@ -15,7 +15,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry.AbstractViewLocatorHandler;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleSearchHitGrid;
@@ -37,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnectio
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class SearchLocatorHandler extends AbstractViewLocatorHandler
+public class SearchLocatorResolver extends AbstractViewLocatorResolver
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -45,13 +44,13 @@ public class SearchLocatorHandler extends AbstractViewLocatorHandler
 
     private static final String DEFAULT_SEARCH_STRING = "*";
 
-    public SearchLocatorHandler(IViewContext<ICommonClientServiceAsync> viewContext)
+    public SearchLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(SEARCH_ACTION);
         this.viewContext = viewContext;
     }
 
-    public void invoke(ViewLocator locator) throws UserFailureException
+    public void resolve(ViewLocator locator) throws UserFailureException
     {
         // If a searchlink has been specified, open a search on the specified object
         String searchEntityKindValueOrNull = locator.tryGetEntity();

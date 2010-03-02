@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -50,5 +50,5 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
 
     public ICommonClientServiceAsync getCommonService();
 
-    public ViewLocatorHandlerRegistry getLocatorHandlerRegistry();
+    public ViewLocatorResolverRegistry getLocatorHandlerRegistry();
 }

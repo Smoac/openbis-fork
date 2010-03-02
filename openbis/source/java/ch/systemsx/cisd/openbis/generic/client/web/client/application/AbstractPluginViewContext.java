@@ -22,7 +22,7 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -132,7 +132,7 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         commonViewContext.addMessageSource(messageSource);
     }
 
-    public ViewLocatorHandlerRegistry getLocatorHandlerRegistry()
+    public ViewLocatorResolverRegistry getLocatorHandlerRegistry()
     {
         // Delegate to the common view context
         return commonViewContext.getLocatorHandlerRegistry();
@@ -141,7 +141,7 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     /**
      * Register any handlers for locators specified in the openBIS URL.
      */
-    protected void initializeLocatorHandlerRegistry(ViewLocatorHandlerRegistry handlerRegistry)
+    protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry)
     {
 
     }

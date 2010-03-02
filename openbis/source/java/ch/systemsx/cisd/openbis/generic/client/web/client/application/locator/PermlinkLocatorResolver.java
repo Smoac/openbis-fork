@@ -2,7 +2,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry.AbstractViewLocatorHandler;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
@@ -13,17 +12,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class PermlinkLocatorHandler extends AbstractViewLocatorHandler
+public class PermlinkLocatorResolver extends AbstractViewLocatorResolver
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public PermlinkLocatorHandler(IViewContext<ICommonClientServiceAsync> viewContext)
+    public PermlinkLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(ViewLocator.PERMLINK_ACTION);
         this.viewContext = viewContext;
     }
 
-    public void invoke(ViewLocator locator) throws UserFailureException
+    public void resolve(ViewLocator locator) throws UserFailureException
     {
         // If a permlink has been specified, open a viewer on the specified
         // object

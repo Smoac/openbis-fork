@@ -26,13 +26,13 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.IViewLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorHandler;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorHandler;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry.AbstractViewLocatorHandler;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistry.IViewLocatorHandler;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -40,15 +40,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 /**
  * A test of the ViewLocatorHandlerRegistry functionality from the Java side. The JavaScript side is
  * tested by
- * {@link ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorHandlerRegistryTest}
+ * {@link ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistryTest}
  * .
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ViewLocatorHandlerRegistryTest extends AssertJUnit
+public class ViewLocatorResolverRegistryTest extends AssertJUnit
 {
 
-    private static class DummyViewLocatorHandler extends AbstractViewLocatorHandler
+    private static class DummyViewLocatorHandler extends AbstractViewLocatorResolver
     {
         boolean wasCalled = false;
 
@@ -57,13 +57,13 @@ public class ViewLocatorHandlerRegistryTest extends AssertJUnit
             super(handledAction);
         }
 
-        public void invoke(ViewLocator locator)
+        public void resolve(ViewLocator locator)
         {
             wasCalled = true;
         }
     }
 
-    private ViewLocatorHandlerRegistry registry;
+    private ViewLocatorResolverRegistry registry;
 
     private Mockery context;
 
@@ -75,7 +75,7 @@ public class ViewLocatorHandlerRegistryTest extends AssertJUnit
     @BeforeMethod
     public void setUp()
     {
-        registry = new ViewLocatorHandlerRegistry();
+        registry = new ViewLocatorResolverRegistry();
 
         context = new Mockery();
         viewContext = context.mock(IViewContext.class);
@@ -291,13 +291,13 @@ public class ViewLocatorHandlerRegistryTest extends AssertJUnit
     }
 
     // Helper method modeled after the implementation in Client
-    protected void initializeLocatorHandlerRegistry(ViewLocatorHandlerRegistry handlerRegistry)
+    protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry)
     {
-        IViewLocatorHandler handler;
-        handler = new PermlinkLocatorHandler(viewContext);
+        IViewLocatorResolver handler;
+        handler = new PermlinkLocatorResolver(viewContext);
         handlerRegistry.registerHandler(handler);
 
-        handler = new SearchLocatorHandler(viewContext);
+        handler = new SearchLocatorResolver(viewContext);
         handlerRegistry.registerHandler(handler);
     }
 }
