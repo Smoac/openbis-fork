@@ -46,7 +46,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  */
 public class TimeSeriesDataSetInfoExtractor implements IDataSetInfoExtractor
 {
-    private static final String[] TSV_EXTENSIONS =
+    private static final String LIST_SEPARATOR = ", ";
+
+	private static final String[] TSV_EXTENSIONS =
         { "tsv", "txt" };
 
     private final CifexDataSetInfoExtractor infoExtractor;
@@ -74,18 +76,18 @@ public class TimeSeriesDataSetInfoExtractor implements IDataSetInfoExtractor
         Collection<DataColumnHeader> headers = loadHeaders(incomingDataSetPath);
         Map<DataHeaderProperty, Set<String>> values =
                 TimeSeriesHeaderUtils.extractHeaderPropertyValues(headers);
-        addDataSetProperty(info, TimeSeriesPropertyType.TECHNICAL_REPLICATE_CODE, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.TECHNICAL_REPLICATE_CODE_LIST, values);
         addDataSetProperty(info, TimeSeriesPropertyType.BIOLOGICAL_REPLICATE_CODE, values);
         addDataSetProperty(info, TimeSeriesPropertyType.TIME_SERIES_DATA_SET_TYPE, values);
         addDataSetProperty(info, TimeSeriesPropertyType.CEL_LOC, values);
-        addDataSetProperty(info, TimeSeriesPropertyType.CG, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.CG_LIST, values);
         addDataSetProperty(info, TimeSeriesPropertyType.CULTIVATION_METHOD_EXPERIMENT_CODE, values);
         addDataSetProperty(info, TimeSeriesPropertyType.EXPERIMENT_CODE, values);
-        addDataSetProperty(info, TimeSeriesPropertyType.SCALE, values);
-        addDataSetProperty(info, TimeSeriesPropertyType.TIME_POINT, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.SCALE_LIST, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.TIME_POINT_LIST, values);
         addDataSetProperty(info, TimeSeriesPropertyType.TIME_POINT_TYPE, values);
         addDataSetProperty(info, TimeSeriesPropertyType.BI_ID, values);
-        addDataSetProperty(info, TimeSeriesPropertyType.VALUE_TYPE, values);
+        addDataSetProperty(info, TimeSeriesPropertyType.VALUE_TYPE_LIST, values);
         return info;
     }
 
@@ -106,14 +108,15 @@ public class TimeSeriesDataSetInfoExtractor implements IDataSetInfoExtractor
     private void addDataSetProperty(DataSetInformation info,
             TimeSeriesPropertyType timeSeriesPropertyType, Map<DataHeaderProperty, Set<String>> map)
     {
-        String propertyValue = getPropertyValue(timeSeriesPropertyType.getHeaderProperty(), map);
-        info.getDataSetProperties().add(
-                new NewProperty(timeSeriesPropertyType.name(), propertyValue));
+        String propertyValue = getPropertyValue(timeSeriesPropertyType.getHeaderProperty(), map,timeSeriesPropertyType.isMultipleValues());
+        NewProperty newProperty = new NewProperty(timeSeriesPropertyType.name(), propertyValue);
+		info.getDataSetProperties().add(
+                newProperty);
     }
-
+ 
     @Private
     static String getPropertyValue(DataHeaderProperty property,
-            Map<DataHeaderProperty, Set<String>> map)
+            Map<DataHeaderProperty, Set<String>> map, boolean multipleValuesAllowed)
     {
         Set<String> set = map.get(property);
         if (set == null || set.size() < 1)
@@ -125,7 +128,13 @@ public class TimeSeriesDataSetInfoExtractor implements IDataSetInfoExtractor
         {
             return set.iterator().next();
         }
-        return StringUtils.join(set, ",");
+        if (multipleValuesAllowed == false){
+        	String message = String.format("Inconsistent header values of '%s'. " +
+        			"Expected the same value in all the columns, found: [%s].", 
+        			property.name(), StringUtils.join(set, LIST_SEPARATOR));
+            throw new UserFailureException(message);
+        }
+        return StringUtils.join(set, LIST_SEPARATOR);
     }
 
     private Collection<DataColumnHeader> loadHeadersFromFile(boolean ignoreEmptyLines, File tsvFile)

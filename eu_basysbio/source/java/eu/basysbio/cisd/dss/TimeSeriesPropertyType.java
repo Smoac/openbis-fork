@@ -21,52 +21,62 @@ package eu.basysbio.cisd.dss;
  * 
  * @author Izabela Adamczyk
  */
-enum TimeSeriesPropertyType
-{
-    VALUE_TYPE(DataHeaderProperty.ValueType),
+enum TimeSeriesPropertyType {
+	VALUE_TYPE_LIST(DataHeaderProperty.ValueType, true),
 
-    CEL_LOC(DataHeaderProperty.CelLoc),
+	CEL_LOC(DataHeaderProperty.CelLoc),
 
-    CG(DataHeaderProperty.CG),
+	CG_LIST(DataHeaderProperty.CG, true),
 
-    CULTIVATION_METHOD_EXPERIMENT_CODE(DataHeaderProperty.CultivationMethodExperimentCode),
+	CULTIVATION_METHOD_EXPERIMENT_CODE(
+			DataHeaderProperty.CultivationMethodExperimentCode),
 
-    EXPERIMENT_CODE(DataHeaderProperty.ExperimentCode),
+	EXPERIMENT_CODE(DataHeaderProperty.ExperimentCode),
 
-    SCALE(DataHeaderProperty.Scale),
+	SCALE_LIST(DataHeaderProperty.Scale, true),
 
-    TIME_POINT(DataHeaderProperty.TimePoint),
+	TIME_POINT_LIST(DataHeaderProperty.TimePoint, true),
 
-    TIME_POINT_TYPE(DataHeaderProperty.TimePointType),
+	TIME_POINT_TYPE(DataHeaderProperty.TimePointType),
 
-    BI_ID(DataHeaderProperty.BiID),
+	BI_ID(DataHeaderProperty.BiID),
 
-    BIOLOGICAL_REPLICATE_CODE(DataHeaderProperty.BiologicalReplicatateCode),
+	BIOLOGICAL_REPLICATE_CODE(DataHeaderProperty.BiologicalReplicatateCode),
 
-    TECHNICAL_REPLICATE_CODE(DataHeaderProperty.TechnicalReplicateCode),
+	TECHNICAL_REPLICATE_CODE_LIST(DataHeaderProperty.TechnicalReplicateCode, true),
 
-    TIME_SERIES_DATA_SET_TYPE(DataHeaderProperty.DataSetType),
+	TIME_SERIES_DATA_SET_TYPE(DataHeaderProperty.DataSetType),
 
-    UPLOADER_EMAIL;
+	UPLOADER_EMAIL;
 
-    private final DataHeaderProperty headerPropertyOrNull;
+	private final DataHeaderProperty headerPropertyOrNull;
 
-    private TimeSeriesPropertyType()
-    {
-        this(null);
-    }
+	private final boolean multipleValues;
 
-    private TimeSeriesPropertyType(DataHeaderProperty headerPropertyOrNull)
-    {
-        this.headerPropertyOrNull = headerPropertyOrNull;
-    }
+	public boolean isMultipleValues() {
+		return multipleValues;
+	}
 
-    public DataHeaderProperty getHeaderProperty()
-    {
-        if (headerPropertyOrNull == null)
-        {
-            throw new UnsupportedOperationException(name() + " does not have header property.");
-        }
-        return headerPropertyOrNull;
-    }
+	private TimeSeriesPropertyType() {
+		this(null);
+	}
+
+	private TimeSeriesPropertyType(DataHeaderProperty headerPropertyOrNull) {
+		this(headerPropertyOrNull, false);
+	}
+
+	private TimeSeriesPropertyType(DataHeaderProperty headerPropertyOrNull,
+			boolean multipleValues) {
+		assert multipleValues==false || name().endsWith("_LIST") : "Inconsistent property: " + name();
+		this.headerPropertyOrNull = headerPropertyOrNull;
+		this.multipleValues = multipleValues;
+	}
+
+	public DataHeaderProperty getHeaderProperty() {
+		if (headerPropertyOrNull == null) {
+			throw new UnsupportedOperationException(name()
+					+ " does not have header property.");
+		}
+		return headerPropertyOrNull;
+	}
 }

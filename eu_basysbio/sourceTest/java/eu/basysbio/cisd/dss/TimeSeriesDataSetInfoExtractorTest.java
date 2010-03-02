@@ -48,7 +48,7 @@ public class TimeSeriesDataSetInfoExtractorTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            TimeSeriesDataSetInfoExtractor.getPropertyValue(property, map);
+            TimeSeriesDataSetInfoExtractor.getPropertyValue(property, map, true);
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -68,7 +68,7 @@ public class TimeSeriesDataSetInfoExtractorTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            TimeSeriesDataSetInfoExtractor.getPropertyValue(property, map);
+            TimeSeriesDataSetInfoExtractor.getPropertyValue(property, map, true);
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -86,7 +86,7 @@ public class TimeSeriesDataSetInfoExtractorTest extends AssertJUnit
         HashSet<String> set = new HashSet<String>();
         set.add(VAL1);
         map.put(property, set);
-        assertEquals(VAL1, TimeSeriesDataSetInfoExtractor.getPropertyValue(property, map));
+        assertEquals(VAL1, TimeSeriesDataSetInfoExtractor.getPropertyValue(property, map, true));
     }
 
     @Test
@@ -99,7 +99,29 @@ public class TimeSeriesDataSetInfoExtractorTest extends AssertJUnit
         set.add(VAL1);
         set.add(VAL2);
         map.put(property, set);
-        String result = TimeSeriesDataSetInfoExtractor.getPropertyValue(property, map);
-        assertTrue((VAL1 + "," + VAL2).equals(result) || (VAL2 + "," + VAL1).equals(result));
+        String result = TimeSeriesDataSetInfoExtractor.getPropertyValue(property, map, true);
+        assertTrue((VAL1 + ", " + VAL2).equals(result) || (VAL2 + ", " + VAL1).equals(result));
+    }
+    
+    @Test
+    public void testGetPropertyValuePropertyDefinedMoreThanOnceButOnlyOneExpected() throws Exception
+    {
+        HashMap<DataHeaderProperty, Set<String>> map =
+                new HashMap<DataHeaderProperty, Set<String>>();
+        DataHeaderProperty property = DataHeaderProperty.BiID;
+        HashSet<String> set = new HashSet<String>();
+        set.add(VAL1);
+        set.add(VAL2);
+        map.put(property, set);
+        boolean exceptionThrown = false;
+        try{
+        	TimeSeriesDataSetInfoExtractor.getPropertyValue(property, map, false);
+        }catch (UserFailureException e) 
+        {
+        	exceptionThrown=true;
+        	assertEquals("Inconsistent header values of 'BiID'. " +
+        			"Expected the same value in all the columns, found: [val1, val2].", e.getMessage());
+		}
+        assertTrue(exceptionThrown);
     }
 }
