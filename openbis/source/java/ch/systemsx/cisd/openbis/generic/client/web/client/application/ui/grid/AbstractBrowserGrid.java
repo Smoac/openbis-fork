@@ -55,6 +55,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -249,6 +250,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         pagingToolbar.bind(pagingLoader);
         this.filterToolbar =
                 new FilterToolbar<T>(viewContext, gridId, this, createApplyFiltersDelagator());
+
         bottomToolbars = createBottomToolbars(filterToolbar, pagingToolbar);
         this.contentPanel = createEmptyContentPanel();
         contentPanel.add(grid);
@@ -259,8 +261,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    // fixes problem of hidden paging toolbar
+                    // fixes for problems of:
+                    // - hidden paging toolbar
                     contentPanel.syncSize();
+                    // - no 'overflow' button when some buttons don't fit into pagingToolbar
+                    pagingToolbar.syncSize(); // this doesn't the problem with resize of the window
                 }
             });
         columnListener = new ColumnListener<T, M>(grid);
@@ -1480,8 +1485,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // creates filter and paging toolbars
-    private static <T> LayoutContainer createBottomToolbars(Component filterToolbar,
-            Component pagingToolbar)
+    private static <T> LayoutContainer createBottomToolbars(final ToolBar filterToolbar,
+            final ToolBar pagingToolbar)
     {
         LayoutContainer bottomToolbars = new LayoutContainer()
             {
