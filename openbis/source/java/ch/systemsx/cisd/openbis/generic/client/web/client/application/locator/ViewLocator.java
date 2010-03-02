@@ -147,5 +147,11 @@ public class ViewLocator
                 parameters.put(paramPair[0], paramPair[1]);
             }
         }
+
+        // If the entity is specified, but no action, default the action to Permlink
+        if (entityOrNull != null && actionOrNull == null)
+        {
+            actionOrNull = PERMLINK_ACTION;
+        }
     }
 }

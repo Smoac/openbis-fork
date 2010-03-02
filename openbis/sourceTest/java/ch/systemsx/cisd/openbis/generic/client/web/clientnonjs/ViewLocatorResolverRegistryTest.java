@@ -151,17 +151,17 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
         OpenViewAction action;
 
         // No permId supplied
-        // locator = new ViewLocator("entity=SAMPLE");
-        // action = new OpenViewAction(registry, locator);
-        //
-        // try
-        // {
-        // action.openInitialTabUnderExceptionHandlerForTest();
-        // fail("A URL with no permId should result in an exception.");
-        // } catch (UserFailureException expected)
-        // {
-        // // Do nothing -- this should happen
-        // }
+        locator = new ViewLocator("entity=SAMPLE");
+        action = new OpenViewAction(registry, locator);
+
+        try
+        {
+            action.openInitialTabUnderExceptionHandlerForTest();
+            fail("A URL with no permId should result in an exception.");
+        } catch (UserFailureException expected)
+        {
+            // Do nothing -- this should happen
+        }
 
         // No entity supplied
         locator = new ViewLocator("permId=20100104150239401-871");
