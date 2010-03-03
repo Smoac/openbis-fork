@@ -56,15 +56,15 @@
 	        description="Prepare, compile, and run the module test mode">
 	</target>
 	
-	<target name="compile-and-run-openbis-screening-from-eclipse" description="Compile and run the screening openbis from Eclipse">
+	<target name="compile-and-run-screening-test" description="Compile and run the screening openbis from Eclipse">
 		<antcall target="compile-module-test">
 			<param name="module-test.path" value="openbis-test-screening" />
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
 		</antcall>
-		<antcall target="run-openbis-screening-from-eclipse" />
+		<antcall target="run-screening-test" />
 	</target>
 	
-	<target name="run-openbis-screening-from-eclipse" description="run the screening openbis from Eclipse">
+	<target name="run-screening-test" description="run the screening openbis from Eclipse">
 		<antcall target="run-module-test">
 			<param name="module-test.path" value="openbis-test-screening" />
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
