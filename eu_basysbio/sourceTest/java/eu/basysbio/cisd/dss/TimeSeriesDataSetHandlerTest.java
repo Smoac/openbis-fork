@@ -695,9 +695,9 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         experiment.setPermId(EXP_PERM_ID);
         Project project = new Project();
         project.setCode(PROJECT_CODE);
-        Space group = new Space();
-        group.setIdentifier(GROUP_CODE);
-        project.setSpace(group);
+        Space space = new Space();
+        space.setIdentifier(GROUP_CODE);
+        project.setSpace(space);
         experiment.setProject(project);
         return experiment;
     }

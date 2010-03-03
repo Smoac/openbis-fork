@@ -178,12 +178,12 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ChooseTypeOfNewSample(sampleTypeCode));
         final String description = "A very nice control layout.";
         remoteConsole.prepare(new FillSampleRegistrationForm(
-                GroupSelectionWidget.SHARED_GROUP_CODE, SHARED_CL).addProperty(
+                GroupSelectionWidget.SHARED_SPACE_CODE, SHARED_CL).addProperty(
                 new PropertyField(getFormID() + "description", description)).addProperty(
                 new PropertyField(getFormID() + GWTUtils.escapeToFormId(PLATE_GEOMETRY),
                         "1536_WELLS_32X48")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE));
-        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,
+        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_SPACE_CODE,
                 sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
                 .identifier("CISD").withUserPropertyCell("DESCRIPTION", description)));

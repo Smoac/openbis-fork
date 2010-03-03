@@ -63,7 +63,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final IViewContext<?> viewContext;
 
-    private final GroupSelectionWidget homeGroupField;
+    private final GroupSelectionWidget homeSpaceField;
 
     private final CheckBoxField useWildcardSearchModeCheckbox;
 
@@ -88,7 +88,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         form.setFieldWidth(400);
         // setHeight(250);
 
-        addField(homeGroupField = createHomeGroupField());
+        addField(homeSpaceField = createHomeGroupField());
         addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
         formatingFields = createRealFormatingFieldSet();
         precisionField = createPrecisionField();
@@ -128,9 +128,9 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     @Override
     protected void save(AsyncCallback<Void> saveCallback)
     {
-        Space group = homeGroupField.tryGetSelected();
-        String groupCodeOrNull = group == null ? null : group.getCode();
-        TechId groupIdOrNull = TechId.create(group);
+        Space space = homeSpaceField.tryGetSelected();
+        String groupCodeOrNull = space == null ? null : space.getCode();
+        TechId groupIdOrNull = TechId.create(space);
         viewContext.getModel().getSessionContext().getUser().setHomeGroupCode(groupCodeOrNull);
         viewContext.getService().changeUserHomeGroup(groupIdOrNull, saveCallback);
 

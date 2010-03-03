@@ -332,12 +332,12 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             result.setEntityType(entityType);
 
             // group
-            Map<String, Space> groupsById = dataProvider.getGroupsById();
-            Field groupFieldOrNull = doc.getField(getGroupIdFieldName());
-            if (groupFieldOrNull != null)
+            Map<String, Space> spacesById = dataProvider.getGroupsById();
+            Field spaceFieldOrNull = doc.getField(getSpaceIdFieldName());
+            if (spaceFieldOrNull != null)
             {
-                Space group = groupsById.get(groupFieldOrNull.stringValue());
-                result.setSpace(group);
+                Space space = spacesById.get(spaceFieldOrNull.stringValue());
+                result.setSpace(space);
             }
 
             // registrator
@@ -364,7 +364,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             return fieldOrNull == null ? null : fieldOrNull.stringValue();
         }
 
-        private String getGroupIdFieldName()
+        private String getSpaceIdFieldName()
         {
             String groupId = SearchFieldConstants.PREFIX_GROUP + SearchFieldConstants.ID;
             if (searchableEntity.equals(SearchableEntity.EXPERIMENT))

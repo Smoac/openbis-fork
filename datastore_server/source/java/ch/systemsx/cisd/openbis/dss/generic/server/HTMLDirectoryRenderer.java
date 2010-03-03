@@ -110,8 +110,8 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         final String experimentCode = experiment.getCode();
         final Project project = experiment.getProject();
         final String projectCode = project.getCode();
-        final Space group = project.getSpace();
-        final String groupCode = group.getCode();
+        final Space space = project.getSpace();
+        final String groupCode = space.getCode();
         final Template template = HEADER_TEMPLATE.createFreshCopy();
         template.bind("dataset-description", renderDataSetDescription(dataSet));
         template.bind("group", groupCode);

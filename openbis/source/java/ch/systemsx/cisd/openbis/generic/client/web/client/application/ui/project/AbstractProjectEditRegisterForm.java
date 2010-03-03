@@ -53,7 +53,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     protected MultilineVarcharField projectDescriptionField;
 
-    protected GroupSelectionWidget groupField;
+    protected GroupSelectionWidget spaceField;
 
     private AttachmentsFileFieldManager attachmentsManager;
 
@@ -77,7 +77,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         sessionKey = createId(projectIdOrNull);
         attachmentsManager = new AttachmentsFileFieldManager(sessionKey, viewContext);
         projectCodeField = createProjectCodeField();
-        groupField = createGroupField();
+        spaceField = createGroupField();
         projectDescriptionField = createProjectDescriptionField();
         addUploadFeatures(sessionKey);
     }
@@ -90,7 +90,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     GroupSelectionWidget getGroupField()
     {
-        return groupField;
+        return spaceField;
     }
 
     private final CodeField createProjectCodeField()
@@ -123,7 +123,7 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
     private final void addFormFields()
     {
         formPanel.add(projectCodeField);
-        formPanel.add(groupField);
+        formPanel.add(spaceField);
         formPanel.add(projectDescriptionField);
         attachmentsManager.addAttachmentFieldSetsToPanel(formPanel);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)

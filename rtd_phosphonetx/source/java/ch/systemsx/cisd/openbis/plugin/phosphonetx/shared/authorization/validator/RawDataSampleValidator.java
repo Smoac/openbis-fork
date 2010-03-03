@@ -20,8 +20,8 @@ public final class RawDataSampleValidator implements IValidator<Sample>
         Sample parent = sample.getGeneratedFrom();
         if (parent != null)
         {
-            Space group = parent.getSpace();
-            if (group == null || validator.isValid(person, group))
+            Space space = parent.getSpace();
+            if (space == null || validator.isValid(person, space))
             {
                 return true;
             }

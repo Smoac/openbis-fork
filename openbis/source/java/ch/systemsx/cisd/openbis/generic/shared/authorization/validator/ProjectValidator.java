@@ -41,8 +41,8 @@ public final class ProjectValidator extends AbstractValidator<Project>
     @Override
     public final boolean doValidation(final PersonPE person, final Project value)
     {
-        final Space group = value.getSpace();
-        return groupValidator.isValid(person, group);
+        final Space space = value.getSpace();
+        return groupValidator.isValid(person, space);
     }
     
 }

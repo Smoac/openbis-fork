@@ -46,8 +46,8 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             @Override
             public String tryGetValue(Sample entity)
             {
-                final Space group = entity.getSpace();
-                return group == null ? "" : group.getCode();
+                final Space space = entity.getSpace();
+                return space == null ? "" : space.getCode();
             }
         }),
 

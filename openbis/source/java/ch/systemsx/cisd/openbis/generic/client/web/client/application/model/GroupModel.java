@@ -36,13 +36,13 @@ public class GroupModel extends NonHierarchicalBaseModelData
     {
     }
 
-    public GroupModel(final Space group)
+    public GroupModel(final Space space)
     {
-        set(ModelDataPropertyNames.CODE, group.getCode());
-        set(ModelDataPropertyNames.DESCRIPTION, group.getDescription());
-        set(ModelDataPropertyNames.REGISTRATOR, group.getRegistrator());
-        set(ModelDataPropertyNames.REGISTRATION_DATE, group.getRegistrationDate());
-        set(ModelDataPropertyNames.OBJECT, group);
+        set(ModelDataPropertyNames.CODE, space.getCode());
+        set(ModelDataPropertyNames.DESCRIPTION, space.getDescription());
+        set(ModelDataPropertyNames.REGISTRATOR, space.getRegistrator());
+        set(ModelDataPropertyNames.REGISTRATION_DATE, space.getRegistrationDate());
+        set(ModelDataPropertyNames.OBJECT, space);
     }
 
     public final static List<GroupModel> convert(final List<Space> groups)

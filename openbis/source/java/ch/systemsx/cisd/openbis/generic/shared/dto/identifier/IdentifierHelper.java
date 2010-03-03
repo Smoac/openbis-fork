@@ -99,11 +99,11 @@ public final class IdentifierHelper
     public static SampleIdentifier createSampleIdentifier(Sample sample)
     {
         assert sample != null : "Unspecified sample";
-        final Space group = sample.getSpace();
-        if (group != null)
+        final Space space = sample.getSpace();
+        if (space != null)
         {
             GroupIdentifier groupIdentifier =
-                    new GroupIdentifier(group.getInstance().getCode(), group.getCode());
+                    new GroupIdentifier(space.getInstance().getCode(), space.getCode());
             return new SampleIdentifier(groupIdentifier, sample.getCode());
         } else
         {

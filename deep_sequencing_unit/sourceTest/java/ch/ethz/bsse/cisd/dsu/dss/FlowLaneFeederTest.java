@@ -504,9 +504,9 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     {
         Sample sample = new Sample();
         sample.setCode(SAMPLE_CODE + ":" + flowLaneNumber);
-        Space group = new Space();
-        group.setCode("G" + flowLaneNumber);
-        sample.setSpace(group);
+        Space space = new Space();
+        space.setCode("G" + flowLaneNumber);
+        sample.setSpace(space);
         sample.setSubCode(Integer.toString(flowLaneNumber));
         sample.setGeneratedFrom(EXAMPLE_FLOW_CELL_SAMPLE);
         Person registrator = new Person();

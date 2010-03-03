@@ -156,7 +156,7 @@ final class SampleListingWorker
 
     private final Long2ObjectMap<Sample> sampleMap = new Long2ObjectOpenHashMap<Sample>();
 
-    private final Long2ObjectMap<Space> groupMap = new Long2ObjectOpenHashMap<Space>();
+    private final Long2ObjectMap<Space> spaceMap = new Long2ObjectOpenHashMap<Space>();
 
     public static SampleListingWorker create(ListOrSearchSampleCriteria criteria,
             String baseIndexURL, SampleListerDAO dao, SecondaryEntityDAO referencedEntityDAO)
@@ -267,11 +267,11 @@ final class SampleListingWorker
     private void loadGroups()
     {
         // all groups are needed for parent samples identifiers
-        final Space[] groups = referencedEntityDAO.getAllGroups(databaseInstanceId);
-        for (Space group : groups)
+        final Space[] spaces = referencedEntityDAO.getAllSpaces(databaseInstanceId);
+        for (Space space : spaces)
         {
-            group.setInstance(databaseInstance);
-            groupMap.put(group.getId(), group);
+            space.setInstance(databaseInstance);
+            spaceMap.put(space.getId(), space);
         }
     }
 
@@ -508,10 +508,10 @@ final class SampleListingWorker
             }
         } else
         {
-            final Space groupOrNull = groupMap.get(row.grou_id);
-            if (groupOrNull != null)
+            final Space spaceOrNull = spaceMap.get(row.grou_id);
+            if (spaceOrNull != null)
             {
-                setGroup(sample, groupMap.get(row.grou_id));
+                setSpace(sample, spaceMap.get(row.grou_id));
             } else
             // different db instance
             {
@@ -567,11 +567,11 @@ final class SampleListingWorker
         return sample;
     }
 
-    private void setGroup(final Sample sample, final Space group)
+    private void setSpace(final Sample sample, final Space space)
     {
-        sample.setSpace(group);
+        sample.setSpace(space);
         final GroupIdentifier groupId =
-                new GroupIdentifier(databaseInstance.getCode(), group.getCode());
+                new GroupIdentifier(databaseInstance.getCode(), space.getCode());
         sample.setIdentifier(new SampleIdentifier(groupId, sample.getCode()).toString());
     }
 

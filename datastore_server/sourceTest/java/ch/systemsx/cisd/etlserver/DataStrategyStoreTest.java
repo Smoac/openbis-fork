@@ -53,7 +53,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
 
     private static final String PROJECT_CODE = "P";
 
-    private static final String GROUP_CODE = "G";
+    private static final String SPACE_CODE = "G";
 
     private Mockery context;
 
@@ -79,9 +79,9 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         baseExperiment.setCode(EXPERIMENT_CODE);
         final Project project = new Project();
         project.setCode(PROJECT_CODE);
-        final Space group = new Space();
-        group.setCode(GROUP_CODE);
-        project.setSpace(group);
+        final Space space = new Space();
+        space.setCode(SPACE_CODE);
+        project.setSpace(space);
         baseExperiment.setProject(project);
         return baseExperiment;
     }

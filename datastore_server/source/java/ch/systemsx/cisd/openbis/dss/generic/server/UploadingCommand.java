@@ -474,8 +474,8 @@ class UploadingCommand implements IDataSetCommand
         {
             builder.sample("type_code", sample.getSampleType().getCode());
             builder.sample("code", sample.getCode());
-            Space group = sample.getSpace();
-            builder.sample("space_code", group == null ? "(shared)" : group.getCode());
+            Space space = sample.getSpace();
+            builder.sample("space_code", space == null ? "(shared)" : space.getCode());
             // group->space
             builder.sample("registration_timestamp", sample.getRegistrationDate());
             builder.sample("registrator", sample.getRegistrator());

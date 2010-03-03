@@ -63,8 +63,8 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         updates.setDescription(projectDescriptionField.getValue());
         updates.setProjectIdentifier(originalProject.getIdentifier());
         updates.setVersion(originalProject.getModificationDate());
-        Space group = groupField.tryGetSelected();
-        updates.setGroupCode(group == null ? null : group.getCode());
+        Space space = spaceField.tryGetSelected();
+        updates.setGroupCode(space == null ? null : space.getCode());
         viewContext.getCommonService().updateProject(updates, new ProjectEditCallback(viewContext));
     }
 
@@ -100,14 +100,14 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
                 .getDescription()));
         projectCodeField.setValue(originalProject.getCode());
         projectCodeField.setEnabled(false);
-        groupField.selectGroupAndUpdateOriginal(originalProject.getSpace().getCode());
+        spaceField.selectGroupAndUpdateOriginal(originalProject.getSpace().getCode());
     }
 
     public void updateOriginalValues()
     {
         projectDescriptionField.setOriginalValue(projectDescriptionField.getValue());
         projectCodeField.setOriginalValue(projectCodeField.getValue());
-        groupField.setOriginalValue(groupField.getValue());
+        spaceField.setOriginalValue(spaceField.getValue());
     }
 
     void setOriginalProject(Project project)

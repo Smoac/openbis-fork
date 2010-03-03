@@ -181,8 +181,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         parent =
                 SampleChooserField.create(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE),
-                        false, null, true, false, false, viewContext.getCommonViewContext(), getId()
-                                + ID_SUFFIX_PARENT);
+                        false, null, true, false, false, viewContext.getCommonViewContext(),
+                        getId() + ID_SUFFIX_PARENT);
         container =
                 SampleChooserField.create(viewContext.getMessage(Dict.PART_OF_SAMPLE), false, null,
                         true, false, false, viewContext.getCommonViewContext(), getId()
@@ -210,13 +210,13 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected final String createSampleIdentifier()
     {
-        final Space group = groupSelectionWidget.tryGetSelectedGroup();
-        final boolean shared = GroupSelectionWidget.isSharedGroup(group);
+        final Space space = groupSelectionWidget.tryGetSelectedGroup();
+        final boolean shared = GroupSelectionWidget.isSharedGroup(space);
         final String code = codeField.getValue();
         final StringBuilder builder = new StringBuilder("/");
         if (shared == false)
         {
-            builder.append(group.getCode() + "/");
+            builder.append(space.getCode() + "/");
         }
         builder.append(code);
         return builder.toString().toUpperCase();

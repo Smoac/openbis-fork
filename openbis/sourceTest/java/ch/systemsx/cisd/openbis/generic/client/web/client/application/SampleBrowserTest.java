@@ -121,7 +121,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testExportMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,
+        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_SPACE_CODE,
                 "MASTER_PLATE"));
         ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
         remoteConsole.prepare(exportCommand);
@@ -135,7 +135,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testListOnlySharedMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,
+        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_SPACE_CODE,
                 "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         Row expectedRow =

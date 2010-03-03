@@ -72,7 +72,7 @@ public final class ProjectSelectionWidget extends
 
     private final IViewContext<?> viewContext;
 
-    private final Space groupOrNull;
+    private final Space spaceOrNull;
 
     private String initialProjectIdentifierOrNull;
 
@@ -83,11 +83,11 @@ public final class ProjectSelectionWidget extends
         this(viewContext, idSuffix, null, null);
     }
 
-    /** @param groupOrNull if specified, only projects from that group will be presented */
-    public ProjectSelectionWidget(final IViewContext<?> viewContext, Space groupOrNull,
+    /** @param spaceOrNull if specified, only projects from that space will be presented */
+    public ProjectSelectionWidget(final IViewContext<?> viewContext, Space spaceOrNull,
             final String idSuffix)
     {
-        this(viewContext, idSuffix, groupOrNull, null);
+        this(viewContext, idSuffix, spaceOrNull, null);
     }
 
     public ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
@@ -97,12 +97,12 @@ public final class ProjectSelectionWidget extends
     }
 
     private ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            Space groupOrNull, String initialProjectIdentifier)
+            Space spaceOrNull, String initialProjectIdentifier)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.PROJECT, DISPLAY_COLUMN_ID, CHOOSE_SUFFIX,
                 EMPTY_RESULT_SUFFIX);
         this.viewContext = viewContext;
-        this.groupOrNull = groupOrNull;
+        this.spaceOrNull = spaceOrNull;
         this.initialProjectIdentifierOrNull = initialProjectIdentifier;
     }
 
@@ -176,12 +176,12 @@ public final class ProjectSelectionWidget extends
 
     private boolean matchesTheGroup(Project project)
     {
-        if (groupOrNull == null)
+        if (spaceOrNull == null)
         {
             return true;
         }
         Space projectGroup = project.getSpace();
-        return projectGroup.getCode().equals(groupOrNull.getCode());
+        return projectGroup.getCode().equals(spaceOrNull.getCode());
     }
 
     @Override

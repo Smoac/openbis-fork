@@ -586,12 +586,12 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                 new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment();
         experiment.setPermId(EXPERIMENT_PERM_ID);
         sample.setExperiment(experiment);
-        Space group = new Space();
+        Space space = new Space();
         DatabaseInstance databaseInstance = new DatabaseInstance();
         databaseInstance.setCode(DB_INSTANCE);
-        group.setInstance(databaseInstance);
-        group.setCode(GROUP_CODE);
-        sample.setSpace(group);
+        space.setInstance(databaseInstance);
+        space.setCode(GROUP_CODE);
+        sample.setSpace(space);
         info.setSample(sample);
         return info;
     }

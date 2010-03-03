@@ -92,7 +92,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
 
     private static final String EXAMPLE_INSTANCE_GLOBAL = "222-333";
 
-    private static final String EXAMPLE_GROUP = "G";
+    private static final String EXAMPLE_SPACE = "G";
 
     private static final String DATA_STRUCTURE_NAME = "originalData";
 
@@ -153,7 +153,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
         experimentIdentifier.setExperimentCode("E");
         experimentIdentifier.setProjectCode("P");
-        experimentIdentifier.setGroupCode(EXAMPLE_GROUP);
+        experimentIdentifier.setGroupCode(EXAMPLE_SPACE);
         dataSetInformation.setExperimentIdentifier(experimentIdentifier);
         dataSetInformation.setSampleCode("S");
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
@@ -221,10 +221,10 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         person.setFirstName("Joe");
         person.setLastName("Doe");
         person.setEmail(EXAMPLE_EMAIL);
-        final Space group = new Space();
-        group.setCode(EXAMPLE_GROUP);
+        final Space space = new Space();
+        space.setCode(EXAMPLE_SPACE);
         final Project project = new Project();
-        project.setSpace(group);
+        project.setSpace(space);
         baseExperiment.setProject(project);
         baseExperiment.setRegistrator(person);
         return baseExperiment;
@@ -404,7 +404,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals(new Version(1, 1), ds.getVersion());
         final ch.systemsx.cisd.bds.ExperimentIdentifier eid = ds.getExperimentIdentifier();
         assertEquals(EXAMPLE_INSTANCE, eid.getInstanceCode());
-        assertEquals(EXAMPLE_GROUP, eid.getSpaceCode());
+        assertEquals(EXAMPLE_SPACE, eid.getSpaceCode());
         assertEquals(dataSetInformation.getExperimentIdentifier().getProjectCode(), eid
                 .getProjectCode());
         assertEquals(dataSetInformation.getExperimentIdentifier().getExperimentCode(), eid

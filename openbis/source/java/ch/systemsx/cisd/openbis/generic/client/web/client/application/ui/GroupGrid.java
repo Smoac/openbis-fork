@@ -112,8 +112,8 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
                             {
                                 public void invoke(BaseEntityModel<Space> selectedItem)
                                 {
-                                    Space group = selectedItem.getBaseObject();
-                                    createEditDialog(group).show();
+                                    Space space = selectedItem.getBaseObject();
+                                    createEditDialog(space).show();
                                 }
                             });
         editButton.setId(EDIT_BUTTON_ID);
@@ -137,10 +137,10 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
         addEntityOperationsSeparator();
     }
 
-    private Window createEditDialog(final Space group)
+    private Window createEditDialog(final Space space)
     {
-        final String code = group.getCode();
-        final String description = group.getDescription();
+        final String code = space.getCode();
+        final String description = space.getDescription();
         final String title =
                 viewContext.getMessage(Dict.EDIT_TITLE, viewContext.getMessage(Dict.GROUP), code);
 
@@ -159,9 +159,9 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
                 @Override
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
-                    group.setDescription(descriptionField.getValue());
+                    space.setDescription(descriptionField.getValue());
 
-                    viewContext.getService().updateGroup(group, registrationCallback);
+                    viewContext.getService().updateGroup(space, registrationCallback);
                 }
             };
     }
@@ -203,7 +203,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
     }
 
     @Override
-    protected void showEntityViewer(final Space group, boolean editMode)
+    protected void showEntityViewer(final Space space, boolean editMode)
     {
         assert false : "not implemented";
     }

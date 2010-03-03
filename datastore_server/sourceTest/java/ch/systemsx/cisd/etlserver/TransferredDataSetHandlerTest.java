@@ -349,11 +349,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final ExperimentIdentifier experimentIdentifier =
                 dataSetInformation.getExperimentIdentifier();
         baseExperiment.setCode(experimentIdentifier.getExperimentCode());
-        final Space group = new Space();
-        group.setCode(experimentIdentifier.getGroupCode());
+        final Space space = new Space();
+        space.setCode(experimentIdentifier.getGroupCode());
         final Project project = new Project();
         project.setCode(experimentIdentifier.getProjectCode());
-        project.setSpace(group);
+        project.setSpace(space);
         baseExperiment.setProject(project);
         final Person person = new Person();
         person.setEmail("john.doe@somewhere.com");

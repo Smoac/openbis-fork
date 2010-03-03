@@ -129,14 +129,14 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
 
     private void initializeGroup()
     {
-        Space groupOrNull = originalSample.getSpace();
-        if (groupOrNull != null)
+        Space spaceOrNull = originalSample.getSpace();
+        if (spaceOrNull != null)
         {
-            groupSelectionWidget.selectGroupAndUpdateOriginal(groupOrNull.getCode());
+            groupSelectionWidget.selectGroupAndUpdateOriginal(spaceOrNull.getCode());
         } else
         {
             groupSelectionWidget
-                    .selectGroupAndUpdateOriginal(GroupSelectionWidget.SHARED_GROUP_CODE);
+                    .selectGroupAndUpdateOriginal(GroupSelectionWidget.SHARED_SPACE_CODE);
         }
     }
 

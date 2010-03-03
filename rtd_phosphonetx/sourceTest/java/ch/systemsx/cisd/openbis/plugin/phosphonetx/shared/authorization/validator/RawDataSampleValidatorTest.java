@@ -61,10 +61,10 @@ public class RawDataSampleValidatorTest extends AssertJUnit
             GroupIdentifier groupLevel = identifier.getGroupLevel();
             if (groupLevel != null)
             {
-                Space group = new Space();
-                group.setCode(groupLevel.getGroupCode());
-                group.setInstance(createDatabaseInstance(groupLevel.getDatabaseInstanceCode()));
-                parent.setSpace(group);
+                Space space = new Space();
+                space.setCode(groupLevel.getGroupCode());
+                space.setInstance(createDatabaseInstance(groupLevel.getDatabaseInstanceCode()));
+                parent.setSpace(space);
             }
             DatabaseInstanceIdentifier databaseInstanceLevel = identifier.getDatabaseInstanceLevel();
             if (databaseInstanceLevel != null)

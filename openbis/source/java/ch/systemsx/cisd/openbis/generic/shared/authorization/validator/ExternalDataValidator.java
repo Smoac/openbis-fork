@@ -41,7 +41,7 @@ public final class ExternalDataValidator extends AbstractValidator<ExternalData>
     @Override
     public final boolean doValidation(final PersonPE person, final ExternalData value)
     {
-        final Space group = value.getExperiment().getProject().getSpace();
-        return groupValidator.isValid(person, group);
+        final Space space = value.getExperiment().getProject().getSpace();
+        return groupValidator.isValid(person, space);
     }
 }

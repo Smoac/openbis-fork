@@ -92,9 +92,9 @@ class ResultDataSetUploader extends AbstractHandler
             if (dataSetInfoSample != null)
             {
                 sample = getOrCreateSample(experiment, dataSetInfoSample.getPermId());
-                Space group = dataSetInfoSample.getSpace();
+                Space space = dataSetInfoSample.getSpace();
                 groupIdentifier =
-                        new GroupIdentifier(group.getInstance().getCode(), group.getCode());
+                        new GroupIdentifier(space.getInstance().getCode(), space.getCode());
             } else
             {
                 ExperimentIdentifier experimentIdentifier = dataSetInfo.getExperimentIdentifier();

@@ -136,9 +136,9 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
                     ((RoleListBox) roleBox.getWidget()).getValue(), grantee, registrationCallback);
         } else
         {
-            Space groupOrNull = group.tryGetSelectedGroup();
+            Space spaceOrNull = group.tryGetSelectedGroup();
             viewContext.getService().registerGroupRole(
-                    ((RoleListBox) roleBox.getWidget()).getValue(), groupOrNull.getCode(), grantee,
+                    ((RoleListBox) roleBox.getWidget()).getValue(), spaceOrNull.getCode(), grantee,
                     registrationCallback);
         }
     }

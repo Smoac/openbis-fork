@@ -185,10 +185,10 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
                 private Widget createGroupWidget(GroupItemModel model)
                 {
-                    final Space group = (Space) model.get(ModelDataPropertyNames.OBJECT);
-                    final Widget result = new InlineHTML(group.getCode());
-                    result.setTitle(createTooltipText(viewContext.getMessage(Dict.GROUP), group
-                            .getCode(), group.getDescription()));
+                    final Space space = (Space) model.get(ModelDataPropertyNames.OBJECT);
+                    final Widget result = new InlineHTML(space.getCode());
+                    result.setTitle(createTooltipText(viewContext.getMessage(Dict.GROUP), space
+                            .getCode(), space.getDescription()));
                     return result;
                 }
 
@@ -335,14 +335,14 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     /** adds items for given <var>projects</var> to the tree */
     private void addToStore(List<Project> projects)
     {
-        for (Space group : getSortedGroups(projects))
+        for (Space space : getSortedSpaces(projects))
         {
-            GroupItemModel groupModel = new GroupItemModel(group);
+            GroupItemModel groupModel = new GroupItemModel(space);
             tree.getTreeStore().add(groupModel, true);
             tree.setLeaf(groupModel, false);
             for (Project project : projects)
             {
-                if (project.getSpace().equals(group))
+                if (project.getSpace().equals(space))
                 {
                     ProjectItemModel projectModel = new ProjectItemModel(project);
                     tree.getTreeStore().add(groupModel, projectModel, false);
@@ -354,7 +354,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     }
 
     /** @return a sorted set of groups of given <var>projects</var> */
-    private Set<Space> getSortedGroups(List<Project> projects)
+    private Set<Space> getSortedSpaces(List<Project> projects)
     {
         Set<Space> groups = new TreeSet<Space>();
         for (final Project project : projects)
@@ -489,9 +489,9 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     {
         private static final long serialVersionUID = 1L;
 
-        public GroupItemModel(Space group)
+        public GroupItemModel(Space space)
         {
-            super(group);
+            super(space);
         }
     }
 

@@ -106,7 +106,7 @@ public class DatasetDownloadServletTest
 
     private static final String EXPERIMENT_CODE = "EPERIMENT-E";
 
-    private static final String GROUP_CODE = "GROUP-G";
+    private static final String SPACE_CODE = "GROUP-G";
 
     private static final String PROJECT_CODE = "PROJECT-P";
 
@@ -734,11 +734,11 @@ public class DatasetDownloadServletTest
 
     private ExternalData createExternalData(boolean withSample)
     {
-        Space group = new Space();
-        group.setCode(GROUP_CODE);
+        Space space = new Space();
+        space.setCode(SPACE_CODE);
         Project project = new Project();
         project.setCode(PROJECT_CODE);
-        project.setSpace(group);
+        project.setSpace(space);
         Experiment experiment = new Experiment();
         experiment.setCode(EXPERIMENT_CODE);
         experiment.setProject(project);

@@ -41,10 +41,10 @@ public final class MatchingEntityValidator extends AbstractValidator<MatchingEnt
     @Override
     public boolean doValidation(final PersonPE person, final MatchingEntity entity)
     {
-        final Space groupOrNull = entity.tryGetSpace();
-        if (groupOrNull != null)
+        final Space spaceOrNull = entity.tryGetSpace();
+        if (spaceOrNull != null)
         {
-            return groupValidator.isValid(person, groupOrNull);
+            return groupValidator.isValid(person, spaceOrNull);
         } else
         {
             return true;

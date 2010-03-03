@@ -51,7 +51,7 @@ public class ProjectRegistrationForm extends AbstractProjectEditRegisterForm
     {
         final Project project = new Project();
         project.setDescription(projectDescriptionField.getValue());
-        project.setIdentifier(groupField.tryGetSelectedGroup().getIdentifier() + "/"
+        project.setIdentifier(spaceField.tryGetSelectedGroup().getIdentifier() + "/"
                 + projectCodeField.getValue());
         project.setNewAttachments(extractAttachments());
         return project;

@@ -104,19 +104,19 @@ public class SecondaryEntityDAO
         {
             return null; // experiment is connected (through group) with different db instance
         }
-        final Space group = new Space();
-        group.setCode(escapeHtml(record.g_code));
-        group.setInstance(databaseInstance);
+        final Space space = new Space();
+        space.setCode(escapeHtml(record.g_code));
+        space.setInstance(databaseInstance);
 
         final Experiment experiment = new Experiment();
         experiment.setId(experimentId);
         experiment.setCode(escapeHtml(record.e_code));
-        experiment.setIdentifier(new ExperimentIdentifier(null, group.getCode(), record.p_code,
+        experiment.setIdentifier(new ExperimentIdentifier(null, space.getCode(), record.p_code,
                 record.e_code).toString());
         final Project project = new Project();
         project.setId(record.p_id);
         project.setCode(escapeHtml(record.p_code));
-        project.setSpace(group);
+        project.setSpace(space);
         experiment.setProject(project);
         final ExperimentType experimentType = new ExperimentType();
         experimentType.setCode(escapeHtml(record.et_code));
@@ -150,7 +150,7 @@ public class SecondaryEntityDAO
         return id;
     }
 
-    public Space[] getAllGroups(long databaseInstanceId)
+    public Space[] getAllSpaces(long databaseInstanceId)
     {
         return query.getAllGroups(databaseInstanceId);
     }
@@ -210,10 +210,10 @@ public class SecondaryEntityDAO
             return null;
         } else
         {
-            Space group = new Space();
-            group.setCode(escapeHtml(codeOrNull));
-            group.setInstance(databaseInstance);
-            return group;
+            Space space = new Space();
+            space.setCode(escapeHtml(codeOrNull));
+            space.setInstance(databaseInstance);
+            return space;
         }
     }
 

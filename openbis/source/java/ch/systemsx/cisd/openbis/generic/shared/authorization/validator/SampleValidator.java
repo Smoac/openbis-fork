@@ -45,10 +45,10 @@ public final class SampleValidator extends AbstractValidator<Sample>
     @Override
     public final boolean doValidation(final PersonPE person, final Sample value)
     {
-        final Space group = value.getSpace();
-        if (group != null)
+        final Space space = value.getSpace();
+        if (space != null)
         {
-            return groupValidator.isValid(person, group);
+            return groupValidator.isValid(person, space);
         } else
         {
             return databaseInstanceValidator.isValid(person, value.getDatabaseInstance());

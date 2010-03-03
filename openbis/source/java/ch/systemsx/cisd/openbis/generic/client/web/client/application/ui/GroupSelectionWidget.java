@@ -52,17 +52,18 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
 
     public static final boolean isSharedGroup(Space g)
     {
-        return SHARED_GROUP_CODE.equals(g.getCode());
-    }
-    
-    public static final String tryToGetGroupCode(Space group)
-    {
-        String code = group.getCode();
-        return code.equals(ALL_GROUPS_CODE) ? null : code;
+        return SHARED_SPACE_CODE.equals(g.getCode());
     }
 
-    public static final String SHARED_GROUP_CODE = "(Shared)";
-    public static final String ALL_GROUPS_CODE = "(all)";
+    public static final String tryToGetGroupCode(Space space)
+    {
+        String code = space.getCode();
+        return code.equals(ALL_SPACES_CODE) ? null : code;
+    }
+
+    public static final String SHARED_SPACE_CODE = "(Shared)";
+
+    public static final String ALL_SPACES_CODE = "(all)";
 
     private final boolean addShared;
 
@@ -98,19 +99,19 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
         return super.tryGetSelected();
     }
 
-    private Space createSharedGroup()
+    private Space createSharedSpace()
     {
-        final Space group = new Space();
-        group.setCode(SHARED_GROUP_CODE);
-        group.setIdentifier("/");
-        return group;
+        final Space space = new Space();
+        space.setCode(SHARED_SPACE_CODE);
+        space.setIdentifier("/");
+        return space;
     }
-    
-    private Space createAllGroups()
+
+    private Space createAllSpaces()
     {
-        Space group = new Space();
-        group.setCode(ALL_GROUPS_CODE);
-        return group;
+        Space space = new Space();
+        space.setCode(ALL_SPACES_CODE);
+        return space;
     }
 
     private final class ListGroupsCallback extends AbstractAsyncCallback<ResultSet<Space>>
@@ -127,11 +128,11 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
             groupStore.removeAll();
             if (addShared)
             {
-                groupStore.add(new GroupModel(createSharedGroup()));
+                groupStore.add(new GroupModel(createSharedSpace()));
             }
             if (addAll)
             {
-                groupStore.add(new GroupModel(createAllGroups()));
+                groupStore.add(new GroupModel(createAllSpaces()));
             }
             groupStore.add(convertItems(result.getList().extractOriginalObjects()));
             if (groupStore.getCount() > 0)
