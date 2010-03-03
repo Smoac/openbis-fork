@@ -49,6 +49,8 @@ public final class VocabularyTranslator
         result.setManagedInternally(vocabulary.isManagedInternally());
         result.setChosenFromList(vocabulary.isChosenFromList());
         result.setURLTemplate(StringEscapeUtils.escapeHtml(vocabulary.getURLTemplate()));
+        result.setRegistrationDate(vocabulary.getRegistrationDate());
+        result.setRegistrator(PersonTranslator.translate(vocabulary.getRegistrator()));
         return result;
     }
 
