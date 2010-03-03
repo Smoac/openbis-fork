@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -160,10 +159,10 @@ public class DetailedSearchWindow extends Dialog
      * does not notify the listener of any changes -- the caller must keep the window and toolbar in
      * sync.
      */
-    public void setInitialSearchCriterion(DetailedSearchField initialField, String searchString)
+    public void setInitialSearchCriteria(DetailedSearchCriteria searchCriteria)
     {
         // Set the widget
-        criteriaWidget.setInitialSearchCriterion(initialField, searchString);
+        criteriaWidget.setInitialSearchCritera(searchCriteria);
     }
 
     private void onSearch()

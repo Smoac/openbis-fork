@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DetailedSearchFieldComboModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -229,15 +230,20 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
     }
 
     /**
-     * Set the search string to the argument.
+     * Set the parameters to be those specified in the searchCriterion
      */
-    public void setSearchCriterion(DetailedSearchField field, String searchString)
+    public void setSearchCriterion(DetailedSearchCriterion criterion)
     {
+        DetailedSearchField field = criterion.getField();
+        String searchString = criterion.getValue();
         String description = "";
         switch (field.getKind())
         {
             case ATTRIBUTE:
-                description = field.getAttributeCode();
+                description =
+                        AttributeSearchFieldKindProvider.getAttributeFieldKind(
+                                nameField.getEntityKind(), field.getAttributeCode())
+                                .getDescription();
                 break;
             case PROPERTY:
                 description = field.getPropertyCode();
@@ -249,6 +255,7 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
                 description = "Any Property";
                 break;
         }
+
         DetailedSearchFieldComboModel model = new DetailedSearchFieldComboModel(description, field);
         nameField.setValue(model);
         valueField.setValue(searchString);

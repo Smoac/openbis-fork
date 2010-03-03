@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.IDetailedSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -71,9 +70,7 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     }
 
     /**
-     * Create a search hit grid and initialize the search with the display criteria. N.b. The
-     * implementation of this method assumes that the display criteria has one and only one
-     * criterion.
+     * Create a search hit grid and initialize the search with the display criteria.
      */
     public static IDisposableComponent createWithInitialDisplayCriteria(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -81,21 +78,16 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     {
         assert displayCriteria.getSearchCriteria().getCriteria().size() == 1;
 
-        // User the caller-provided display criteria
+        // Use the caller-provided display criteria
         ISampleCriteriaProvider criteriaProvider =
                 new SampleCriteriaProvider(viewContext, displayCriteria);
         SampleSearchHitGrid grid = new SampleSearchHitGrid(viewContext, criteriaProvider);
         final DetailedSearchWindow searchWindow =
                 new DetailedSearchWindow(viewContext, EntityKind.SAMPLE);
 
-        // Extract the search criterion (it is assumed that there is only one -- see method comment)
-        DetailedSearchCriterion searchCriterion =
-                displayCriteria.getSearchCriteria().getCriteria().get(0);
-
         // Set the initial search string before creating the toolbar because the toolbar will use
         // the initial search string in its own initialization.
-        searchWindow.setInitialSearchCriterion(searchCriterion.getField(), searchCriterion
-                .getValue());
+        searchWindow.setInitialSearchCriteria(displayCriteria.getSearchCriteria());
 
         final DetailedSearchToolbar toolbar =
                 new DetailedSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),

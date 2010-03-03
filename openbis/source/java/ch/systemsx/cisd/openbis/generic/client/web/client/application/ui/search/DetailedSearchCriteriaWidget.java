@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -47,17 +46,20 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    private final EntityKind entityKind;
+
     public DetailedSearchCriteriaWidget(IViewContext<ICommonClientServiceAsync> viewContext,
             EntityKind entityKind)
     {
         this.viewContext = viewContext;
+        this.entityKind = entityKind;
         setLayoutOnChange(true);
         criteriaWidgets = new ArrayList<DetailedSearchCriterionWidget>();
         add(matchRadios =
                 new MatchCriteriaRadio(viewContext.getMessage(Dict.MATCH_ALL), viewContext
                         .getMessage(Dict.MATCH_ANY)));
         addCriterion(new DetailedSearchCriterionWidget(viewContext, this, FIRST_ID_SUFFIX,
-                entityKind));
+                this.entityKind));
     }
 
     private void enableRemovalIfOneExists(final boolean enable)
@@ -193,14 +195,30 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
     }
 
     /**
-     * Set the initial search string to the argument. This should be called after creation but
+     * Set the initial search criteria to the argument. This should be called after creation but
      * before the user has had a chance to use the window, otherwise user input may be overwritten.
      */
-    public void setInitialSearchCriterion(DetailedSearchField initialField,
-            String initialSearchString)
+    public void setInitialSearchCritera(DetailedSearchCriteria searchCriteria)
     {
-        DetailedSearchCriterionWidget widget = criteriaWidgets.get(0);
-        widget.setSearchCriterion(initialField, initialSearchString);
+        List<DetailedSearchCriterion> criterionList = searchCriteria.getCriteria();
+        int index = 0, size = criterionList.size();
+        // Populate the existing search criterion widgets
+        for (DetailedSearchCriterionWidget widget : criteriaWidgets)
+        {
+            DetailedSearchCriterion criterion = criterionList.get(index++);
+            widget.setSearchCriterion(criterion);
+        }
+
+        // Create any additional widgets required
+        for (; index < size; ++index)
+        {
+            DetailedSearchCriterion criterion = criterionList.get(index);
+            DetailedSearchCriterionWidget widget =
+                    new DetailedSearchCriterionWidget(viewContext, this, FIRST_ID_SUFFIX,
+                            entityKind);
+            widget.setSearchCriterion(criterion);
+            addCriterion(widget);
+        }
     }
 
     void onEnterKey()

@@ -46,4 +46,23 @@ public class AttributeSearchFieldKindProvider
         }
         return null; // cannot happen
     }
+
+    /**
+     * Return the attribute search field kind that matches the given entityKind / code combintation
+     */
+    public static IAttributeSearchFieldKind getAttributeFieldKind(EntityKind entityKind, String code)
+    {
+        switch (entityKind)
+        {
+            case DATA_SET:
+                return DataSetAttributeSearchFieldKind.valueOf(code);
+            case EXPERIMENT:
+                return ExperimentAttributeSearchFieldKind.valueOf(code);
+            case MATERIAL:
+                return MaterialAttributeSearchFieldKind.valueOf(code);
+            case SAMPLE:
+                return SampleAttributeSearchFieldKind.valueOf(code);
+        }
+        return null; // cannot happen
+    }
 }
