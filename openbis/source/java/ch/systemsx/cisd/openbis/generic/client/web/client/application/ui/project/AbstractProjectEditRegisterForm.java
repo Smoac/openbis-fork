@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 {
 
-    final IViewContext<ICommonClientServiceAsync> viewContext;
+    protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
     protected CodeField projectCodeField;
 

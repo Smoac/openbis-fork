@@ -30,7 +30,7 @@ public class SectionsPanel extends ContentPanel
 {
     public static final String POSTFIX_BUTTON_ID = "_button";
 
-    List<SectionElement> elements = new ArrayList<SectionElement>();
+    private List<SectionElement> elements = new ArrayList<SectionElement>();
 
     private final ToolBar toolbar;
 
