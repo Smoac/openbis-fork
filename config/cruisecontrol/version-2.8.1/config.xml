@@ -319,4 +319,16 @@
     </modificationset>
   </project>
   
+  <project name="rtd_cina">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <buildstatus logdir="logs/openbis"/>
+      <buildstatus logdir="logs/datastore_server"/>
+      <buildstatus logdir="logs/dbmigration"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
 </cruisecontrol>
