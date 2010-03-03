@@ -54,7 +54,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
 
     private static final String BRAND_NEW_BACTERIUM = "BRAND_NEW_BACTERIUM";
 
-    final int NUMBER_OF_BACTERIA = 4;
+    private final int NUMBER_OF_BACTERIA = 4;
 
     @Test
     public void testCreateMaterials() throws Exception

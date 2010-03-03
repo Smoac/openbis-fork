@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 @Friend(toClasses = AuthorizationGroupBO.class)
 public final class AuthorizationGroupBOTest extends AbstractBOTest
 {
-    IAuthorizationGroupFactory groupFactory;
+    private IAuthorizationGroupFactory groupFactory;
 
     @Override
     @BeforeMethod
