@@ -181,7 +181,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     @Test
     public void testLoadToStringResource() throws Exception
     {
-        final String resourceName = "/" + getClass().getCanonicalName().replaceAll("\\.", "/") + ".class";
+        final String resourceName =
+                "/" + getClass().getCanonicalName().replaceAll("\\.", "/") + ".class";
         final String thisFile = FileUtilities.loadToString(getClass(), resourceName);
         assert thisFile != null;
         assert thisFile.indexOf("FileUtilitiesTest") >= 0;
@@ -457,4 +458,28 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertEquals("1.01 KB", FileUtilities.byteCountToDisplaySize(1034));
         assertEquals("1.00 MB", FileUtilities.byteCountToDisplaySize(1024 * 1024));
     }
+
+    @Test(groups = "requires_unix")
+    public void testIsSymbolicLink() throws Exception
+    {
+        File original = new File(workingDirectory, "org-file");
+        assertTrue(original.createNewFile());
+
+        File linkFile = new File(workingDirectory, "link-file");
+        boolean ok = SoftLinkMaker.createSymbolicLink(original.getAbsoluteFile(), linkFile);
+        assertTrue("cannot create a symbolic link", ok);
+
+        assertTrue(FileUtilities.isSymbolicLink(linkFile));
+
+        File originalRelative =
+                new File(workingDirectory.getAbsoluteFile() + "/../" + workingDirectory.getName()
+                        + "/" + original.getName());
+        assertFalse(FileUtilities.isSymbolicLink(originalRelative));
+
+        File linkRelative =
+                new File(workingDirectory.getAbsoluteFile() + "/../" + workingDirectory.getName()
+                        + "/" + linkFile.getName());
+        assertTrue(FileUtilities.isSymbolicLink(linkRelative));
+    }
+
 }

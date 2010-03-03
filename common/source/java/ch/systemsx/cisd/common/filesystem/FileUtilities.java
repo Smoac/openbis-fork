@@ -48,6 +48,7 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
@@ -678,11 +679,18 @@ public final class FileUtilities
         return path.delete();
     }
 
-    private static boolean isSymbolicLink(File path)
+    /** @return true if file is a symbolic link */
+    public static boolean isSymbolicLink(File path)
     {
-        String canonical = getCanonicalPath(path);
-        String absolute = path.getAbsolutePath();
-        return canonical.equals(absolute) == false;
+        if (Unix.isOperational())
+        {
+            return Unix.isSymbolicLink(path.getAbsolutePath());
+        } else
+        {
+            // it is not Linux, Solaris or Mac. So it's probably Windows which does not support
+            // symbolic links
+            return false;
+        }
     }
 
     private static boolean deleteSymbolicLink(File path, ISimpleLogger loggerOrNull)

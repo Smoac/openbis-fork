@@ -179,7 +179,7 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
         return NodeFactory.createDirectoryNode(dir);
     }
 
-    @Test
+    @Test(groups = "requires_unix")
     public void testMoveSymbolicLink() throws IOException
     {
         final IDirectory directory = createDirectory("parent");

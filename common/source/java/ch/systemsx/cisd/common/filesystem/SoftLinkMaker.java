@@ -45,9 +45,14 @@ public class SoftLinkMaker
         return tokens;
     }
 
-    public static boolean createSymbolicLink(File sourceFile, File targetDir)
+    /**
+     * @param targetDirOrFile if directory, a file with the same name as the source file which links
+     *            to a source will be created. Specify a file to change the name of the symbolic
+     *            link file as well.
+     */
+    public static boolean createSymbolicLink(File sourceFile, File targetDirOrFile)
     {
         return ProcessExecutionHelper.runAndLog(new SoftLinkMaker().createCommand(sourceFile,
-                targetDir), operationLog, machineLog);
+                targetDirOrFile), operationLog, machineLog);
     }
 }

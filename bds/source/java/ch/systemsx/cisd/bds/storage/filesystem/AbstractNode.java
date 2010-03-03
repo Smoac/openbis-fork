@@ -26,6 +26,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFileBasedNode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
 
@@ -53,7 +54,7 @@ abstract class AbstractNode implements IFileBasedNode
         final File destination = new File(directory, newName);
         if (fileOperations.exists(destination) == false)
         {
-            if (isSymbolicLink(source, fileOperations))
+            if (FileUtilities.isSymbolicLink(source))
             {
                 moveSymbolicLink(source, destination);
             } else
@@ -96,11 +97,6 @@ abstract class AbstractNode implements IFileBasedNode
             throw EnvironmentFailureException.fromTemplate("Can not delete symbolic link '%s'.",
                     source.getPath());
         }
-    }
-
-    private static boolean isSymbolicLink(File file, IFileOperations fileOperations)
-    {
-        return fileOperations.getCanonicalPath(file).equals(file.getAbsolutePath()) == false;
     }
 
     protected final File nodeFile;
