@@ -86,6 +86,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         setValidateOnBlur(false);
         String label = filteredField.getHeader();
         setEmptyText(label);
+        setToolTip(label);
         setTemplate(GWTUtils.getTooltipTemplate(MODEL_DISPLAY_KEY, ModelDataPropertyNames.TOOLTIP));
     }
 

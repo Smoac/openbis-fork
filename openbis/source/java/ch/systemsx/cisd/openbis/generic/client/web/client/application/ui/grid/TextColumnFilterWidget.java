@@ -49,6 +49,7 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
         setWidth(100);
         String label = filteredField.getHeader();
         setEmptyText(label);
+        setToolTip(label);
     }
 
     public String getFilteredColumnId()
