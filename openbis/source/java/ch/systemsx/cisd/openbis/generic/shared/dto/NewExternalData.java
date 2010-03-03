@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
  * 
  * @author Christian Ribeaud
  */
-public final class NewExternalData
+public final class NewExternalData implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
