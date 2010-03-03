@@ -42,7 +42,6 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -58,7 +57,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabula
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -66,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -451,8 +450,6 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 "[BI_ID\tNB, CEL_LOC\tCE, CG\tNC, SCALE\tLOG10, TECHNICAL_REPLICATE_CODE\tT1, "
                         + "TIME_SERIES_DATA_SET_TYPE\tMetaboliteLCMS, VALUE_TYPE\tValue[mM], "
                         + "property\tvalue]", dataSetProperties.toString());
-        File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + DATA_SET_EX_200);
-        assertEquals(true, markerFile.exists());
 
         dataSet = new File(dropBox, DATA_SET_EX_7200);
         assertEquals(true, dataSet.isDirectory());
@@ -469,8 +466,6 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         assertEquals("[BI_ID\tNB, CEL_LOC\tCE, CG\tNC, SCALE\tLIN, TECHNICAL_REPLICATE_CODE\tT2, "
                 + "TIME_SERIES_DATA_SET_TYPE\tb, VALUE_TYPE\tValue[mM], " + "property\tvalue]",
                 dataSetProperties.toString());
-        markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + DATA_SET_EX_7200);
-        assertEquals(true, markerFile.exists());
 
         context.assertIsSatisfied();
     }

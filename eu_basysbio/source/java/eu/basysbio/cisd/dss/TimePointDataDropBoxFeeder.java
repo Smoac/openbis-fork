@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -148,13 +147,6 @@ class TimePointDataDropBoxFeeder implements IDropBoxFeeder
         columns.add(dataColumn);
         writeAsTSVFile(dataFile, columns);
         writeDataSetProperties(dataSetFolder, dataColumnHeader, dataSetType, userEmail);
-        File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + dataSetFolderName);
-        success = fileManager.getFileOperations().createNewFile(markerFile);
-        if (success == false)
-        {
-            throw new EnvironmentFailureException("Marker file '" + markerFile.getAbsolutePath()
-                    + "' couldn't be created.");
-        }
     }
 
     private void writeDataSetProperties(File dataSetFolder, DataColumnHeader dataColumnHeader,
