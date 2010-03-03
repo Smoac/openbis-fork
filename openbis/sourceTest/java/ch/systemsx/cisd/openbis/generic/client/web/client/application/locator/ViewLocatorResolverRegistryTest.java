@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.WaitForAllActiveCallbacksFinish;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -40,12 +41,18 @@ public class ViewLocatorResolverRegistryTest extends AbstractGWTTestCase
         ViewLocator locator = new ViewLocator("entity=SAMPLE&permId=20100104150239401-871");
         OpenViewAction action = new OpenViewAction(registry, locator);
         action.execute();
+        remoteConsole.prepare(new WaitForAllActiveCallbacksFinish());
+        
+        launchTest();
     }
-    
+
     public void testResolveSearchLocator()
     {
-        ViewLocator locator = new ViewLocator("searchEntity=SAMPLE&code=CL1");
+        ViewLocator locator = new ViewLocator("action=SEARCH&entity=SAMPLE&code=CL1");
         OpenViewAction action = new OpenViewAction(registry, locator);
         action.execute();
+        remoteConsole.prepare(new WaitForAllActiveCallbacksFinish());
+        
+        launchTest();
     }
 }
