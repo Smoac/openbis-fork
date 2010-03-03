@@ -69,7 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
@@ -119,12 +119,12 @@ public interface ICommonServer extends IServer
     /**
      * Returns all spaces which belong to the specified database instance. *
      * 
-     * @return a sorted list of {@link Group}.
+     * @return a sorted list of {@link Space}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = SpaceValidator.class)
-    public List<Group> listSpaces(String sessionToken, DatabaseInstanceIdentifier identifier);
+    public List<Space> listSpaces(String sessionToken, DatabaseInstanceIdentifier identifier);
 
     /**
      * Registers a new space with specified code and optional description.

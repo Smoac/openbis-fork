@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -185,7 +185,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
                 private Widget createGroupWidget(GroupItemModel model)
                 {
-                    final Group group = (Group) model.get(ModelDataPropertyNames.OBJECT);
+                    final Space group = (Space) model.get(ModelDataPropertyNames.OBJECT);
                     final Widget result = new InlineHTML(group.getCode());
                     result.setTitle(createTooltipText(viewContext.getMessage(Dict.GROUP), group
                             .getCode(), group.getDescription()));
@@ -335,14 +335,14 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     /** adds items for given <var>projects</var> to the tree */
     private void addToStore(List<Project> projects)
     {
-        for (Group group : getSortedGroups(projects))
+        for (Space group : getSortedGroups(projects))
         {
             GroupItemModel groupModel = new GroupItemModel(group);
             tree.getTreeStore().add(groupModel, true);
             tree.setLeaf(groupModel, false);
             for (Project project : projects)
             {
-                if (project.getGroup().equals(group))
+                if (project.getSpace().equals(group))
                 {
                     ProjectItemModel projectModel = new ProjectItemModel(project);
                     tree.getTreeStore().add(groupModel, projectModel, false);
@@ -354,12 +354,12 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     }
 
     /** @return a sorted set of groups of given <var>projects</var> */
-    private Set<Group> getSortedGroups(List<Project> projects)
+    private Set<Space> getSortedGroups(List<Project> projects)
     {
-        Set<Group> groups = new TreeSet<Group>();
+        Set<Space> groups = new TreeSet<Space>();
         for (final Project project : projects)
         {
-            groups.add(project.getGroup());
+            groups.add(project.getSpace());
         }
         return groups;
     }
@@ -451,7 +451,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
         private static String getProjectWithGroupCode(Project project)
         {
-            return project.getCode() + " (" + project.getGroup().getCode() + ")";
+            return project.getCode() + " (" + project.getSpace().getCode() + ")";
         }
 
         // equals is needed because of weird TreeGrid implementation in GXT
@@ -489,7 +489,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     {
         private static final long serialVersionUID = 1L;
 
-        public GroupItemModel(Group group)
+        public GroupItemModel(Space group)
         {
             super(group);
         }

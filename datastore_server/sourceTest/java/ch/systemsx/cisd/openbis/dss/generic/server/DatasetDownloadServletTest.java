@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -734,11 +734,11 @@ public class DatasetDownloadServletTest
 
     private ExternalData createExternalData(boolean withSample)
     {
-        Group group = new Group();
+        Space group = new Space();
         group.setCode(GROUP_CODE);
         Project project = new Project();
         project.setCode(PROJECT_CODE);
-        project.setGroup(group);
+        project.setSpace(group);
         Experiment experiment = new Experiment();
         experiment.setCode(EXPERIMENT_CODE);
         experiment.setProject(project);

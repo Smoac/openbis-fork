@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 
 /**
@@ -128,7 +128,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     @Override
     protected void save(AsyncCallback<Void> saveCallback)
     {
-        Group group = homeGroupField.tryGetSelected();
+        Space group = homeGroupField.tryGetSelected();
         String groupCodeOrNull = group == null ? null : group.getCode();
         TechId groupIdOrNull = TechId.create(group);
         viewContext.getModel().getSessionContext().getUser().setHomeGroupCode(groupCodeOrNull);

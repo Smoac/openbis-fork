@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
@@ -156,7 +156,7 @@ final class SampleListingWorker
 
     private final Long2ObjectMap<Sample> sampleMap = new Long2ObjectOpenHashMap<Sample>();
 
-    private final Long2ObjectMap<Group> groupMap = new Long2ObjectOpenHashMap<Group>();
+    private final Long2ObjectMap<Space> groupMap = new Long2ObjectOpenHashMap<Space>();
 
     public static SampleListingWorker create(ListOrSearchSampleCriteria criteria,
             String baseIndexURL, SampleListerDAO dao, SecondaryEntityDAO referencedEntityDAO)
@@ -267,8 +267,8 @@ final class SampleListingWorker
     private void loadGroups()
     {
         // all groups are needed for parent samples identifiers
-        final Group[] groups = referencedEntityDAO.getAllGroups(databaseInstanceId);
-        for (Group group : groups)
+        final Space[] groups = referencedEntityDAO.getAllGroups(databaseInstanceId);
+        for (Space group : groups)
         {
             group.setInstance(databaseInstance);
             groupMap.put(group.getId(), group);
@@ -508,7 +508,7 @@ final class SampleListingWorker
             }
         } else
         {
-            final Group groupOrNull = groupMap.get(row.grou_id);
+            final Space groupOrNull = groupMap.get(row.grou_id);
             if (groupOrNull != null)
             {
                 setGroup(sample, groupMap.get(row.grou_id));
@@ -567,9 +567,9 @@ final class SampleListingWorker
         return sample;
     }
 
-    private void setGroup(final Sample sample, final Group group)
+    private void setGroup(final Sample sample, final Space group)
     {
-        sample.setGroup(group);
+        sample.setSpace(group);
         final GroupIdentifier groupId =
                 new GroupIdentifier(databaseInstance.getCode(), group.getCode());
         sample.setIdentifier(new SampleIdentifier(groupId, sample.getCode()).toString());

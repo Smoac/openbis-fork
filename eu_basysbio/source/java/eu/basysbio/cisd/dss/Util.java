@@ -34,7 +34,7 @@ class Util
 
     static String createSampleIdentifier(Experiment experiment, String sampleCode)
     {
-        String groupIdentifier = experiment.getProject().getGroup().getIdentifier();
+        String groupIdentifier = experiment.getProject().getSpace().getIdentifier();
         String sampleIdentifier =
                 groupIdentifier + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR
                         + sampleCode;

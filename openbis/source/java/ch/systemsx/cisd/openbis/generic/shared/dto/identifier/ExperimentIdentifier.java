@@ -38,7 +38,7 @@ public final class ExperimentIdentifier extends ProjectIdentifier
     
     public ExperimentIdentifier(Experiment experiment)
     {
-        this(null, experiment.getProject().getGroup().getCode(), experiment.getProject().getCode(),
+        this(null, experiment.getProject().getSpace().getCode(), experiment.getProject().getCode(),
                 experiment.getCode());
     }
 

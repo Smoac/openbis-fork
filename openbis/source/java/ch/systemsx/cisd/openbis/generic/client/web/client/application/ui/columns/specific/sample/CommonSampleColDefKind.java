@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
@@ -35,7 +35,7 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
                 DatabaseInstance databaseInstance = entity.getDatabaseInstance();
                 if (databaseInstance == null)
                 {
-                    databaseInstance = entity.getGroup().getInstance();
+                    databaseInstance = entity.getSpace().getInstance();
                 }
                 return databaseInstance.getCode();
             }
@@ -46,7 +46,7 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             @Override
             public String tryGetValue(Sample entity)
             {
-                final Group group = entity.getGroup();
+                final Space group = entity.getSpace();
                 return group == null ? "" : group.getCode();
             }
         }),

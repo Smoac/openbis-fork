@@ -21,10 +21,10 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
- * {@link ModelData} for {@link Group}.
+ * {@link ModelData} for {@link Space}.
  * 
  * @author Izabela Adamczyk
  */
@@ -36,7 +36,7 @@ public class GroupModel extends NonHierarchicalBaseModelData
     {
     }
 
-    public GroupModel(final Group group)
+    public GroupModel(final Space group)
     {
         set(ModelDataPropertyNames.CODE, group.getCode());
         set(ModelDataPropertyNames.DESCRIPTION, group.getDescription());
@@ -45,17 +45,17 @@ public class GroupModel extends NonHierarchicalBaseModelData
         set(ModelDataPropertyNames.OBJECT, group);
     }
 
-    public final static List<GroupModel> convert(final List<Group> groups)
+    public final static List<GroupModel> convert(final List<Space> groups)
     {
         final List<GroupModel> result = new ArrayList<GroupModel>();
-        for (final Group g : groups)
+        for (final Space g : groups)
         {
             result.add(new GroupModel(g));
         }
         return result;
     }
 
-    public final Group getBaseObject()
+    public final Space getBaseObject()
     {
         return get(ModelDataPropertyNames.OBJECT);
     }

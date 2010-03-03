@@ -19,53 +19,53 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * @author Piotr Buczek
  */
-public enum GroupColDefKind implements IColumnDefinitionKind<Group>
+public enum GroupColDefKind implements IColumnDefinitionKind<Space>
 {
-    CODE(new AbstractColumnDefinitionKind<Group>(Dict.CODE)
+    CODE(new AbstractColumnDefinitionKind<Space>(Dict.CODE)
         {
             @Override
-            public String tryGetValue(Group entity)
+            public String tryGetValue(Space entity)
             {
                 return entity.getCode();
             }
         }),
 
-    DESCRIPTION(new AbstractColumnDefinitionKind<Group>(Dict.DESCRIPTION)
+    DESCRIPTION(new AbstractColumnDefinitionKind<Space>(Dict.DESCRIPTION)
         {
             @Override
-            public String tryGetValue(Group entity)
+            public String tryGetValue(Space entity)
             {
                 return entity.getDescription();
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<Group>(Dict.REGISTRATOR)
+    REGISTRATOR(new AbstractColumnDefinitionKind<Space>(Dict.REGISTRATOR)
         {
             @Override
-            public String tryGetValue(Group entity)
+            public String tryGetValue(Space entity)
             {
                 return renderRegistrator(entity);
             }
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Group>(Dict.REGISTRATION_DATE,
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Space>(Dict.REGISTRATION_DATE,
             AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH, false)
         {
             @Override
-            public String tryGetValue(Group entity)
+            public String tryGetValue(Space entity)
             {
                 return renderRegistrationDate(entity);
             }
         });
 
-    private final AbstractColumnDefinitionKind<Group> columnDefinitionKind;
+    private final AbstractColumnDefinitionKind<Space> columnDefinitionKind;
 
-    private GroupColDefKind(AbstractColumnDefinitionKind<Group> columnDefinitionKind)
+    private GroupColDefKind(AbstractColumnDefinitionKind<Space> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -75,7 +75,7 @@ public enum GroupColDefKind implements IColumnDefinitionKind<Group>
         return name();
     }
 
-    public AbstractColumnDefinitionKind<Group> getDescriptor()
+    public AbstractColumnDefinitionKind<Space> getDescriptor()
     {
         return columnDefinitionKind;
     }

@@ -41,7 +41,7 @@ public final class MatchingEntity implements IsSerializable, IEntityInformationH
 
     private EntityKind entityKind;
 
-    private Group groupOrNull;
+    private Space spaceOrNull;
 
     private String fieldDescription;
 
@@ -77,14 +77,14 @@ public final class MatchingEntity implements IsSerializable, IEntityInformationH
         this.entityType = entityType;
     }
 
-    public Group tryGetGroup()
+    public Space tryGetSpace()
     {
-        return groupOrNull;
+        return spaceOrNull;
     }
 
-    public void setGroup(Group groupOrNull)
+    public void setSpace(Space spaceOrNull)
     {
-        this.groupOrNull = groupOrNull;
+        this.spaceOrNull = spaceOrNull;
     }
 
     public String getFieldDescription()

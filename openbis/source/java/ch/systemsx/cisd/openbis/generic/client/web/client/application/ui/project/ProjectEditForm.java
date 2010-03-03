@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 
@@ -63,7 +63,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         updates.setDescription(projectDescriptionField.getValue());
         updates.setProjectIdentifier(originalProject.getIdentifier());
         updates.setVersion(originalProject.getModificationDate());
-        Group group = groupField.tryGetSelected();
+        Space group = groupField.tryGetSelected();
         updates.setGroupCode(group == null ? null : group.getCode());
         viewContext.getCommonService().updateProject(updates, new ProjectEditCallback(viewContext));
     }
@@ -100,7 +100,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
                 .getDescription()));
         projectCodeField.setValue(originalProject.getCode());
         projectCodeField.setEnabled(false);
-        groupField.selectGroupAndUpdateOriginal(originalProject.getGroup().getCode());
+        groupField.selectGroupAndUpdateOriginal(originalProject.getSpace().getCode());
     }
 
     public void updateOriginalValues()

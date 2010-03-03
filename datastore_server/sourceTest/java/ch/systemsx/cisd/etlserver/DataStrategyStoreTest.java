@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -79,9 +79,9 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         baseExperiment.setCode(EXPERIMENT_CODE);
         final Project project = new Project();
         project.setCode(PROJECT_CODE);
-        final Group group = new Group();
+        final Space group = new Space();
         group.setCode(GROUP_CODE);
-        project.setGroup(group);
+        project.setSpace(group);
         baseExperiment.setProject(project);
         return baseExperiment;
     }

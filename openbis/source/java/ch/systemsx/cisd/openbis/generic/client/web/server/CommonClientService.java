@@ -101,7 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
@@ -474,7 +474,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportGroups(TableExportCriteria<Group> criteria)
+    public String prepareExportGroups(TableExportCriteria<Space> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
@@ -617,26 +617,26 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<Group> listGroups(DefaultResultSetConfig<String, Group> criteria)
+    public ResultSet<Space> listGroups(DefaultResultSetConfig<String, Space> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<Group>()
+        return listEntities(criteria, new IOriginalDataProvider<Space>()
             {
-                public List<Group> getOriginalData() throws UserFailureException
+                public List<Space> getOriginalData() throws UserFailureException
                 {
                     return listGroups();
                 }
             });
     }
 
-    private List<Group> listGroups()
+    private List<Space> listGroups()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             final DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(null);
-            final List<Group> groups = commonServer.listSpaces(sessionToken, identifier);
+            final List<Space> groups = commonServer.listSpaces(sessionToken, identifier);
             return groups;
         } catch (final UserFailureException e)
         {

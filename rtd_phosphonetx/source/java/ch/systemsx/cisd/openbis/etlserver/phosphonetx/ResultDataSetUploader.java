@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryDataFilter;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ProbabilityToFDRCalculator;
@@ -92,7 +92,7 @@ class ResultDataSetUploader extends AbstractHandler
             if (dataSetInfoSample != null)
             {
                 sample = getOrCreateSample(experiment, dataSetInfoSample.getPermId());
-                Group group = dataSetInfoSample.getGroup();
+                Space group = dataSetInfoSample.getSpace();
                 groupIdentifier =
                         new GroupIdentifier(group.getInstance().getCode(), group.getCode());
             } else

@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -64,7 +64,7 @@ public final class ProjectSelectionWidget extends
 
         private String renderProjectWithGroup(final Project p)
         {
-            return p.getCode() + " (" + p.getGroup().getCode() + ")";
+            return p.getCode() + " (" + p.getSpace().getCode() + ")";
         }
     }
 
@@ -72,7 +72,7 @@ public final class ProjectSelectionWidget extends
 
     private final IViewContext<?> viewContext;
 
-    private final Group groupOrNull;
+    private final Space groupOrNull;
 
     private String initialProjectIdentifierOrNull;
 
@@ -84,7 +84,7 @@ public final class ProjectSelectionWidget extends
     }
 
     /** @param groupOrNull if specified, only projects from that group will be presented */
-    public ProjectSelectionWidget(final IViewContext<?> viewContext, Group groupOrNull,
+    public ProjectSelectionWidget(final IViewContext<?> viewContext, Space groupOrNull,
             final String idSuffix)
     {
         this(viewContext, idSuffix, groupOrNull, null);
@@ -97,7 +97,7 @@ public final class ProjectSelectionWidget extends
     }
 
     private ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            Group groupOrNull, String initialProjectIdentifier)
+            Space groupOrNull, String initialProjectIdentifier)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.PROJECT, DISPLAY_COLUMN_ID, CHOOSE_SUFFIX,
                 EMPTY_RESULT_SUFFIX);
@@ -180,7 +180,7 @@ public final class ProjectSelectionWidget extends
         {
             return true;
         }
-        Group projectGroup = project.getGroup();
+        Space projectGroup = project.getSpace();
         return projectGroup.getCode().equals(groupOrNull.getCode());
     }
 

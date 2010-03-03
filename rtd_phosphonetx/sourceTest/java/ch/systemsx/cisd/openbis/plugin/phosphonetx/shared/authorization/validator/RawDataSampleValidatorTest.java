@@ -23,7 +23,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -61,10 +61,10 @@ public class RawDataSampleValidatorTest extends AssertJUnit
             GroupIdentifier groupLevel = identifier.getGroupLevel();
             if (groupLevel != null)
             {
-                Group group = new Group();
+                Space group = new Space();
                 group.setCode(groupLevel.getGroupCode());
                 group.setInstance(createDatabaseInstance(groupLevel.getDatabaseInstanceCode()));
-                parent.setGroup(group);
+                parent.setSpace(group);
             }
             DatabaseInstanceIdentifier databaseInstanceLevel = identifier.getDatabaseInstanceLevel();
             if (databaseInstanceLevel != null)

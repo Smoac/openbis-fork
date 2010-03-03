@@ -19,17 +19,17 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
- * A {@link IValidator} implementation suitable for {@link Group}.
+ * A {@link IValidator} implementation suitable for {@link Space}.
  * 
  * @author Christian Ribeaud
  */
-public final class SpaceValidator extends AbstractValidator<Group>
+public final class SpaceValidator extends AbstractValidator<Space>
 {
     private final IValidator<DatabaseInstance> databaseInstanceValidator;
 
@@ -43,7 +43,7 @@ public final class SpaceValidator extends AbstractValidator<Group>
     //
 
     @Override
-    public final boolean doValidation(final PersonPE person, final Group value)
+    public final boolean doValidation(final PersonPE person, final Space value)
     {
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)

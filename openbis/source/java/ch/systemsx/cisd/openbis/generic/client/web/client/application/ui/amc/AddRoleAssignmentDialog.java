@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Dialo
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * {@link Window} containing role assignment registration form.
@@ -136,7 +136,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
                     ((RoleListBox) roleBox.getWidget()).getValue(), grantee, registrationCallback);
         } else
         {
-            Group groupOrNull = group.tryGetSelectedGroup();
+            Space groupOrNull = group.tryGetSelectedGroup();
             viewContext.getService().registerGroupRole(
                     ((RoleListBox) roleBox.getWidget()).getValue(), groupOrNull.getCode(), grantee,
                     registrationCallback);

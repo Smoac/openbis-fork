@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -40,12 +40,12 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
 {
     /**
      * Returns a stub of {@link MatchingEntity} with all information needed by
-     * {@link MatchingEntityValidator} set - currently only with {@link Group}.
+     * {@link MatchingEntityValidator} set - currently only with {@link Space}.
      */
     private static MatchingEntity asMatchingEntityStub(IMatchingEntity matchingEntity)
     {
         final MatchingEntity result = new MatchingEntity();
-        result.setGroup(GroupTranslator.translate(tryGetGroup(matchingEntity)));
+        result.setSpace(GroupTranslator.translate(tryGetGroup(matchingEntity)));
         return result;
     }
 

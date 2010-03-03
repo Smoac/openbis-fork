@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabula
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -695,9 +695,9 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         experiment.setPermId(EXP_PERM_ID);
         Project project = new Project();
         project.setCode(PROJECT_CODE);
-        Group group = new Group();
+        Space group = new Space();
         group.setIdentifier(GROUP_CODE);
-        project.setGroup(group);
+        project.setSpace(group);
         experiment.setProject(project);
         return experiment;
     }

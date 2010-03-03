@@ -40,7 +40,7 @@ public enum ProjectColDefKind implements IColumnDefinitionKind<Project>
             @Override
             public String tryGetValue(Project entity)
             {
-                return entity.getGroup().getCode();
+                return entity.getSpace().getCode();
             }
         }),
 

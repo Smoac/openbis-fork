@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -104,7 +104,7 @@ public class SecondaryEntityDAO
         {
             return null; // experiment is connected (through group) with different db instance
         }
-        final Group group = new Group();
+        final Space group = new Space();
         group.setCode(escapeHtml(record.g_code));
         group.setInstance(databaseInstance);
 
@@ -116,7 +116,7 @@ public class SecondaryEntityDAO
         final Project project = new Project();
         project.setId(record.p_id);
         project.setCode(escapeHtml(record.p_code));
-        project.setGroup(group);
+        project.setSpace(group);
         experiment.setProject(project);
         final ExperimentType experimentType = new ExperimentType();
         experimentType.setCode(escapeHtml(record.et_code));
@@ -150,7 +150,7 @@ public class SecondaryEntityDAO
         return id;
     }
 
-    public Group[] getAllGroups(long databaseInstanceId)
+    public Space[] getAllGroups(long databaseInstanceId)
     {
         return query.getAllGroups(databaseInstanceId);
     }
@@ -179,7 +179,7 @@ public class SecondaryEntityDAO
         sample.setCode(IdentifierHelper.convertCode(record.s_code, record.c_code));
         sample.setSampleType(createSampleType(record.st_code, databaseInstance));
         sample.setInvalidation(createInvalidation(record.inva_id));
-        sample.setGroup(tryCreateGroup(record.g_code, databaseInstance));
+        sample.setSpace(tryCreateGroup(record.g_code, databaseInstance));
         sample.setDatabaseInstance(tryGetDatabaseInstance(record.g_code, databaseInstance));
         sample.setPermId(escapeHtml(record.perm_id));
         sample.setIdentifier(escapeHtml(createIdentifier(sample).toString()));
@@ -203,14 +203,14 @@ public class SecondaryEntityDAO
         }
     }
 
-    private static Group tryCreateGroup(String codeOrNull, DatabaseInstance databaseInstance)
+    private static Space tryCreateGroup(String codeOrNull, DatabaseInstance databaseInstance)
     {
         if (codeOrNull == null)
         {
             return null;
         } else
         {
-            Group group = new Group();
+            Space group = new Space();
             group.setCode(escapeHtml(codeOrNull));
             group.setInstance(databaseInstance);
             return group;

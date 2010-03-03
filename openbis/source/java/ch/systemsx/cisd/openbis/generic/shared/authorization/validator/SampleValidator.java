@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public final class SampleValidator extends AbstractValidator<Sample>
 {
-    private final IValidator<Group> groupValidator;
+    private final IValidator<Space> groupValidator;
 
     private final IValidator<DatabaseInstance> databaseInstanceValidator;
 
@@ -45,7 +45,7 @@ public final class SampleValidator extends AbstractValidator<Sample>
     @Override
     public final boolean doValidation(final PersonPE person, final Sample value)
     {
-        final Group group = value.getGroup();
+        final Space group = value.getSpace();
         if (group != null)
         {
             return groupValidator.isValid(person, group);

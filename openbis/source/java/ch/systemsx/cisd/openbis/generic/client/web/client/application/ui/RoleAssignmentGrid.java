@@ -142,14 +142,14 @@ public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment
                             .createPerson(person.getUserId()) : Grantee
                             .createAuthorizationGroup(selectedRoleAssignment
                                     .getAuthorizationGroup().getCode());
-            if (selectedRoleAssignment.getGroup() == null)
+            if (selectedRoleAssignment.getSpace() == null)
             {
                 viewContext.getService().deleteInstanceRole(
                         selectedRoleAssignment.getRoleSetCode(), grantee, roleListRefreshCallback);
             } else
             {
                 viewContext.getService().deleteGroupRole(selectedRoleAssignment.getRoleSetCode(),
-                        selectedRoleAssignment.getGroup().getCode(), grantee,
+                        selectedRoleAssignment.getSpace().getCode(), grantee,
                         roleListRefreshCallback);
             }
         }

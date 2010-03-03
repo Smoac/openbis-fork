@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public final class MatchingEntityValidator extends AbstractValidator<MatchingEntity>
 {
-    private final IValidator<Group> groupValidator;
+    private final IValidator<Space> groupValidator;
 
     public MatchingEntityValidator()
     {
@@ -41,7 +41,7 @@ public final class MatchingEntityValidator extends AbstractValidator<MatchingEnt
     @Override
     public boolean doValidation(final PersonPE person, final MatchingEntity entity)
     {
-        final Group groupOrNull = entity.tryGetGroup();
+        final Space groupOrNull = entity.tryGetSpace();
         if (groupOrNull != null)
         {
             return groupValidator.isValid(person, groupOrNull);

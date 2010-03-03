@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Windo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -171,7 +171,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
     protected void save()
     {
         String defaultGroupIdentifier = null;
-        Group selectedGroup = groupSelector.tryGetSelectedGroup();
+        Space selectedGroup = groupSelector.tryGetSelectedGroup();
         if (generateCodesCheckbox.getValue() && selectedGroup != null)
         {
             defaultGroupIdentifier = selectedGroup.getIdentifier();

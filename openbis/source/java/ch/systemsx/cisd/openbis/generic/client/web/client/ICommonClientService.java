@@ -60,7 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
@@ -109,13 +109,13 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all groups.
      */
-    public ResultSet<Group> listGroups(DefaultResultSetConfig<String, Group> criteria)
+    public ResultSet<Space> listGroups(DefaultResultSetConfig<String, Space> criteria)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for groups.
      */
-    public String prepareExportGroups(final TableExportCriteria<Group> criteria)
+    public String prepareExportGroups(final TableExportCriteria<Space> criteria)
             throws UserFailureException;
 
     /**

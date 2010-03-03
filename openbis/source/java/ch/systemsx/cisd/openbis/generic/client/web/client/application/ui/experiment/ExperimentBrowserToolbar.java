@@ -112,7 +112,7 @@ class ExperimentBrowserToolbar extends ToolBar implements
         ListExperimentsCriteria criteria = new ListExperimentsCriteria();
         criteria.setExperimentType(selectedType);
         criteria.setProjectCode(selectedProject.getCode());
-        criteria.setGroupCode(selectedProject.getGroup().getCode());
+        criteria.setGroupCode(selectedProject.getSpace().getCode());
         return criteria;
     }
 

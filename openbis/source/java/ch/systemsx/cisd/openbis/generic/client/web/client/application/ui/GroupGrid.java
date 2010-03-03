@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Piotr Buczek
  */
-public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
+public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "group-browser";
@@ -108,11 +108,11 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
 
         Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new ISelectedEntityInvoker<BaseEntityModel<Group>>()
+                        new ISelectedEntityInvoker<BaseEntityModel<Space>>()
                             {
-                                public void invoke(BaseEntityModel<Group> selectedItem)
+                                public void invoke(BaseEntityModel<Space> selectedItem)
                                 {
-                                    Group group = selectedItem.getBaseObject();
+                                    Space group = selectedItem.getBaseObject();
                                     createEditDialog(group).show();
                                 }
                             });
@@ -124,7 +124,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<Group> groups,
+                                protected Dialog createDialog(List<Space> groups,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new GroupListDeletionConfirmationDialog(viewContext,
@@ -137,7 +137,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
         addEntityOperationsSeparator();
     }
 
-    private Window createEditDialog(final Group group)
+    private Window createEditDialog(final Space group)
     {
         final String code = group.getCode();
         final String description = group.getDescription();
@@ -167,43 +167,43 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
     }
 
     @Override
-    protected IColumnDefinitionKind<Group>[] getStaticColumnsDefinition()
+    protected IColumnDefinitionKind<Space>[] getStaticColumnsDefinition()
     {
         return GroupColDefKind.values();
     }
 
     @Override
-    protected ColumnDefsAndConfigs<Group> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<Space> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<Group> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<Space> schema = super.createColumnsDefinition();
         schema.setGridCellRendererFor(GroupColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
         return schema;
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, Group> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Group>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, Space> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<Space>> callback)
     {
         viewContext.getService().listGroups(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Group> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<Space> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportGroups(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<Group>> getInitialFilters()
+    protected List<IColumnDefinition<Space>> getInitialFilters()
     {
         return asColumnFilters(new GroupColDefKind[]
             { GroupColDefKind.CODE });
     }
 
     @Override
-    protected void showEntityViewer(final Group group, boolean editMode)
+    protected void showEntityViewer(final Space group, boolean editMode)
     {
         assert false : "not implemented";
     }
@@ -216,7 +216,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
     }
 
     private static final class GroupListDeletionConfirmationDialog extends
-            AbstractDataListDeletionConfirmationDialog<Group>
+            AbstractDataListDeletionConfirmationDialog<Space>
     {
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -224,7 +224,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
         private final AbstractAsyncCallback<Void> callback;
 
         public GroupListDeletionConfirmationDialog(
-                IViewContext<ICommonClientServiceAsync> viewContext, List<Group> data,
+                IViewContext<ICommonClientServiceAsync> viewContext, List<Space> data,
                 AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data);

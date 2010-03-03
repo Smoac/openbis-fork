@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -87,7 +87,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         {
             return null;
         }
-        final Group selectedGroup = selectGroupCombo.tryGetSelectedGroup();
+        final Space selectedGroup = selectGroupCombo.tryGetSelectedGroup();
         if (selectedGroup == null)
         {
             return null;

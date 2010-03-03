@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
@@ -100,11 +100,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void keepSessionAlive(final AsyncCallback<Boolean> asyncCallback);
 
     /** @see ICommonClientService#listGroups(DefaultResultSetConfig) */
-    public void listGroups(DefaultResultSetConfig<String, Group> criteria,
-            final AsyncCallback<ResultSet<Group>> asyncCallback);
+    public void listGroups(DefaultResultSetConfig<String, Space> criteria,
+            final AsyncCallback<ResultSet<Space>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportGroups(TableExportCriteria) */
-    public void prepareExportGroups(TableExportCriteria<Group> exportCriteria,
+    public void prepareExportGroups(TableExportCriteria<Space> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#registerGroup(String, String) */

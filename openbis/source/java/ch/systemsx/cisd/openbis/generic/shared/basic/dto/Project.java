@@ -32,7 +32,7 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private Group group;
+    private Space space;
 
     private String description;
 
@@ -64,14 +64,14 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
         return AttachmentHolderKind.PROJECT;
     }
 
-    public Group getGroup()
+    public Space getSpace()
     {
-        return group;
+        return space;
     }
 
-    public void setGroup(final Group group)
+    public void setSpace(final Space space)
     {
-        this.group = group;
+        this.space = space;
     }
 
     public String getDescription()

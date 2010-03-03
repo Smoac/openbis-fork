@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * 
  * @author Franz-Josef Elmer
  */
-public final class Group extends CodeWithRegistration<Group> implements IIdHolder, ISpaceUpdates
+public final class Space extends CodeWithRegistration<Space> implements IIdHolder, ISpaceUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -95,11 +95,11 @@ public final class Group extends CodeWithRegistration<Group> implements IIdHolde
         {
             return true;
         }
-        if (obj instanceof Group == false)
+        if (obj instanceof Space == false)
         {
             return false;
         }
-        final Group that = (Group) obj;
+        final Space that = (Space) obj;
         return this.toString().equals(that.toString());
     }
 

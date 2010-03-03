@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public final class ExperimentValidator extends AbstractValidator<Experiment>
 {
-    private final IValidator<Group> groupValidator;
+    private final IValidator<Space> groupValidator;
 
     public ExperimentValidator()
     {
@@ -41,7 +41,7 @@ public final class ExperimentValidator extends AbstractValidator<Experiment>
     @Override
     public final boolean doValidation(final PersonPE person, final Experiment value)
     {
-        final Group group = value.getProject().getGroup();
+        final Space group = value.getProject().getSpace();
         return groupValidator.isValid(person, group);
     }
 }

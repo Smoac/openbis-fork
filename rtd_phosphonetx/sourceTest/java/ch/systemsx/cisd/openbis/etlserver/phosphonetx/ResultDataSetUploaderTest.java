@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryHeader;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -586,12 +586,12 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                 new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment();
         experiment.setPermId(EXPERIMENT_PERM_ID);
         sample.setExperiment(experiment);
-        Group group = new Group();
+        Space group = new Space();
         DatabaseInstance databaseInstance = new DatabaseInstance();
         databaseInstance.setCode(DB_INSTANCE);
         group.setInstance(databaseInstance);
         group.setCode(GROUP_CODE);
-        sample.setGroup(group);
+        sample.setSpace(group);
         info.setSample(sample);
         return info;
     }

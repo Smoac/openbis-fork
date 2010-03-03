@@ -42,7 +42,7 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
 
     private SampleType sampleType;
 
-    private Group group;
+    private Space space;
 
     private DatabaseInstance databaseInstance;
 
@@ -117,15 +117,15 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         this.sampleType = sampleType;
     }
 
-    public void setGroup(final Group group)
+    public void setSpace(final Space space)
     {
-        this.group = group;
+        this.space = space;
 
     }
 
-    public Group getGroup()
+    public Space getSpace()
     {
-        return group;
+        return space;
     }
 
     public DatabaseInstance getDatabaseInstance()

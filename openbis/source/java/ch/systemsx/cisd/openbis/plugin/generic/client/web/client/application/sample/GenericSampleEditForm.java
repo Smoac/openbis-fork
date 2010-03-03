@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -129,7 +129,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
 
     private void initializeGroup()
     {
-        Group groupOrNull = originalSample.getGroup();
+        Space groupOrNull = originalSample.getSpace();
         if (groupOrNull != null)
         {
             groupSelectionWidget.selectGroupAndUpdateOriginal(groupOrNull.getCode());

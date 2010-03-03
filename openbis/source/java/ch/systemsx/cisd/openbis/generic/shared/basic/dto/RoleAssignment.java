@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * The DTO for authorization role assignments.
  * 
@@ -42,7 +41,7 @@ public final class RoleAssignment extends Code<RoleAssignment>
         this.authorizationGroup = authorizationGroup;
     }
 
-    private Group group;
+    private Space space;
 
     private DatabaseInstance instance;
 
@@ -61,14 +60,14 @@ public final class RoleAssignment extends Code<RoleAssignment>
         setCode(roleSetCode.toString());
     }
 
-    public Group getGroup()
+    public Space getSpace()
     {
-        return group;
+        return space;
     }
 
-    public void setGroup(final Group group)
+    public void setSpace(final Space space)
     {
-        this.group = group;
+        this.space = space;
     }
 
     public Person getPerson()

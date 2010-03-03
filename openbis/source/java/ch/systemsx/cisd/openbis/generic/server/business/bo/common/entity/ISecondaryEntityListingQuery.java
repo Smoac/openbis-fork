@@ -24,7 +24,7 @@ import net.lemnik.eodsql.TransactionQuery;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
@@ -89,7 +89,7 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      * @param databaseInstanceId The id of the ddatabase to get the groups for.
      */
     @Select("select id, code from groups where dbin_id=?{1}")
-    public Group[] getAllGroups(long databaseInstanceId);
+    public Space[] getAllGroups(long databaseInstanceId);
 
     /**
      * Returns the technical id of a group for given <var>groupCode</code>.

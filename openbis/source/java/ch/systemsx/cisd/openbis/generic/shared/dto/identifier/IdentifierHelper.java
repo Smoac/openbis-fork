@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -99,7 +99,7 @@ public final class IdentifierHelper
     public static SampleIdentifier createSampleIdentifier(Sample sample)
     {
         assert sample != null : "Unspecified sample";
-        final Group group = sample.getGroup();
+        final Space group = sample.getSpace();
         if (group != null)
         {
             GroupIdentifier groupIdentifier =

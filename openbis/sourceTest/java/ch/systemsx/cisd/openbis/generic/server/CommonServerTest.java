@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -337,7 +337,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        final List<Group> groups = createServer().listSpaces(SESSION_TOKEN, identifier);
+        final List<Space> groups = createServer().listSpaces(SESSION_TOKEN, identifier);
 
         assertEquals(GroupTranslator.translate(g1), groups.get(0));
         assertEquals(GroupTranslator.translate(g2), groups.get(1));

@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.At
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -210,7 +210,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected final String createSampleIdentifier()
     {
-        final Group group = groupSelectionWidget.tryGetSelectedGroup();
+        final Space group = groupSelectionWidget.tryGetSelectedGroup();
         final boolean shared = GroupSelectionWidget.isSharedGroup(group);
         final String code = codeField.getValue();
         final StringBuilder builder = new StringBuilder("/");

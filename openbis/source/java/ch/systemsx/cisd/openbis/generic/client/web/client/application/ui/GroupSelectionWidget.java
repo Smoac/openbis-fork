@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Izabela Adamczyk
  */
-public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
+public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
 {
 
     public static final String SUFFIX = "group-select";
@@ -50,12 +50,12 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
 
     private String initialGroupOrNull;
 
-    public static final boolean isSharedGroup(Group g)
+    public static final boolean isSharedGroup(Space g)
     {
         return SHARED_GROUP_CODE.equals(g.getCode());
     }
     
-    public static final String tryToGetGroupCode(Group group)
+    public static final String tryToGetGroupCode(Space group)
     {
         String code = group.getCode();
         return code.equals(ALL_GROUPS_CODE) ? null : code;
@@ -89,31 +89,31 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     }
 
     /**
-     * Returns the {@link Group} currently selected.
+     * Returns the {@link Space} currently selected.
      * 
      * @return <code>null</code> if nothing is selected yet.
      */
-    public final Group tryGetSelectedGroup()
+    public final Space tryGetSelectedGroup()
     {
         return super.tryGetSelected();
     }
 
-    private Group createSharedGroup()
+    private Space createSharedGroup()
     {
-        final Group group = new Group();
+        final Space group = new Space();
         group.setCode(SHARED_GROUP_CODE);
         group.setIdentifier("/");
         return group;
     }
     
-    private Group createAllGroups()
+    private Space createAllGroups()
     {
-        Group group = new Group();
+        Space group = new Space();
         group.setCode(ALL_GROUPS_CODE);
         return group;
     }
 
-    private final class ListGroupsCallback extends AbstractAsyncCallback<ResultSet<Group>>
+    private final class ListGroupsCallback extends AbstractAsyncCallback<ResultSet<Space>>
     {
         ListGroupsCallback(final IViewContext<?> viewContext)
         {
@@ -121,7 +121,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
         }
 
         @Override
-        protected final void process(final ResultSet<Group> result)
+        protected final void process(final ResultSet<Space> result)
         {
             final ListStore<GroupModel> groupStore = getStore();
             groupStore.removeAll();
@@ -186,15 +186,15 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     }
 
     @Override
-    protected List<GroupModel> convertItems(List<Group> result)
+    protected List<GroupModel> convertItems(List<Space> result)
     {
         return GroupModel.convert(result);
     }
 
     @Override
-    protected void loadData(AbstractAsyncCallback<List<Group>> callback)
+    protected void loadData(AbstractAsyncCallback<List<Space>> callback)
     {
-        DefaultResultSetConfig<String, Group> config = DefaultResultSetConfig.createFetchAll();
+        DefaultResultSetConfig<String, Space> config = DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listGroups(config, new ListGroupsCallback(viewContext));
         callback.ignore();
     }

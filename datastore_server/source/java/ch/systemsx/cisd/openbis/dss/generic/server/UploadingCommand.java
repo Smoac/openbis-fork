@@ -49,7 +49,7 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -474,7 +474,7 @@ class UploadingCommand implements IDataSetCommand
         {
             builder.sample("type_code", sample.getSampleType().getCode());
             builder.sample("code", sample.getCode());
-            Group group = sample.getGroup();
+            Space group = sample.getSpace();
             builder.sample("space_code", group == null ? "(shared)" : group.getCode());
             // group->space
             builder.sample("registration_timestamp", sample.getRegistrationDate());
@@ -483,7 +483,7 @@ class UploadingCommand implements IDataSetCommand
         }
         Experiment experiment = dataSet.getExperiment();
         Project project = experiment.getProject();
-        builder.experiment("space_code", project.getGroup().getCode());
+        builder.experiment("space_code", project.getSpace().getCode());
         builder.experiment("project_code", project.getCode());
         builder.experiment("experiment_code", experiment.getCode());
         builder.experiment("experiment_type_code", experiment.getExperimentType().getCode());
@@ -498,8 +498,7 @@ class UploadingCommand implements IDataSetCommand
         Sample sample = dataSet.getSample();
         Experiment experiment = dataSet.getExperiment();
         Project project = experiment.getProject();
-        project.getGroup().getCode();
-        return project.getGroup().getCode() + "/" + project.getCode() + "/" + experiment.getCode()
+        return project.getSpace().getCode() + "/" + project.getCode() + "/" + experiment.getCode()
                 + "/" + (sample == null ? "" : sample.getCode() + "/") + dataSet.getCode();
     }
 

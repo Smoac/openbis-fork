@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -349,11 +349,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final ExperimentIdentifier experimentIdentifier =
                 dataSetInformation.getExperimentIdentifier();
         baseExperiment.setCode(experimentIdentifier.getExperimentCode());
-        final Group group = new Group();
+        final Space group = new Space();
         group.setCode(experimentIdentifier.getGroupCode());
         final Project project = new Project();
         project.setCode(experimentIdentifier.getProjectCode());
-        project.setGroup(group);
+        project.setSpace(group);
         baseExperiment.setProject(project);
         final Person person = new Person();
         person.setEmail("john.doe@somewhere.com");

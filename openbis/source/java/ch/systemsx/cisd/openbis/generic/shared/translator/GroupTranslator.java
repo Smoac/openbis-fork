@@ -21,13 +21,13 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * A {@link Group} &lt;---&gt; {@link GroupPE} translator.
+ * A {@link Space} &lt;---&gt; {@link GroupPE} translator.
  * 
  * @author     Franz-Josef Elmer
  */
@@ -38,9 +38,9 @@ public final class GroupTranslator
         // Can not be instantiated.
     }
 
-    public final static List<Group> translate(final List<GroupPE> groups)
+    public final static List<Space> translate(final List<GroupPE> groups)
     {
-        final List<Group> result = new ArrayList<Group>();
+        final List<Space> result = new ArrayList<Space>();
         for (final GroupPE group : groups)
         {
             result.add(GroupTranslator.translate(group));
@@ -48,13 +48,13 @@ public final class GroupTranslator
         return result;
     }
 
-    public static Group translate(final GroupPE group)
+    public static Space translate(final GroupPE group)
     {
         if (group == null)
         {
             return null;
         }
-        final Group result = new Group();
+        final Space result = new Space();
         result.setId(HibernateUtils.getId(group));
         result.setCode(StringEscapeUtils.escapeHtml(group.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(group.getDescription()));

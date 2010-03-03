@@ -61,7 +61,7 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
             @Override
             public String tryGetValue(Experiment entity)
             {
-                return entity.getProject().getGroup().getInstance().getCode();
+                return entity.getProject().getSpace().getInstance().getCode();
             }
         }),
 
@@ -70,7 +70,7 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
             @Override
             public String tryGetValue(Experiment entity)
             {
-                return entity.getProject().getGroup().getCode();
+                return entity.getProject().getSpace().getCode();
             }
         }),
 

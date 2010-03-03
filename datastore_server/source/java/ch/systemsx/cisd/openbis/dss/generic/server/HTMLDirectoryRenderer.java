@@ -27,7 +27,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
@@ -110,7 +110,7 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         final String experimentCode = experiment.getCode();
         final Project project = experiment.getProject();
         final String projectCode = project.getCode();
-        final Group group = project.getGroup();
+        final Space group = project.getSpace();
         final String groupCode = group.getCode();
         final Template template = HEADER_TEMPLATE.createFreshCopy();
         template.bind("dataset-description", renderDataSetDescription(dataSet));
@@ -146,7 +146,7 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         template.bind("experiment", experiment.getCode());
         Project project = experiment.getProject();
         template.bind("project", project.getCode());
-        template.bind("group", project.getGroup().getCode());
+        template.bind("group", project.getSpace().getCode());
         template.bind("dataset", dataSet.getCode());
         return template.createText();
     }

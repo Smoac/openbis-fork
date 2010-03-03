@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Windo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -134,7 +134,7 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
 
     protected void save()
     {
-        final Group selectedGroup = groupSelector.tryGetSelectedGroup();
+        final Space selectedGroup = groupSelector.tryGetSelectedGroup();
         final String defaultGroupIdentifier =
                 selectedGroup != null ? selectedGroup.getIdentifier() : null;
         viewContext.getService().updateSamples(sampleType, SESSION_KEY, defaultGroupIdentifier,

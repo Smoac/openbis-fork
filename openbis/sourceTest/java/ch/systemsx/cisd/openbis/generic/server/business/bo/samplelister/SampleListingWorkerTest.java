@@ -67,8 +67,8 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         assertTrue(list.size() > 0);
         for (Sample s : list)
         {
-            assertNotNull("ID:" + s.getId(), s.getGroup());
-            assertNotNull("ID:" + s.getId(), s.getGroup().getInstance());
+            assertNotNull("ID:" + s.getId(), s.getSpace());
+            assertNotNull("ID:" + s.getId(), s.getSpace().getInstance());
         }
     }
 
@@ -84,8 +84,8 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         assertTrue(list.size() > 0);
         for (Sample s : list)
         {
-            assertNotNull("ID:" + s.getId(), s.getGroup());
-            assertNotNull("ID:" + s.getId(), s.getGroup().getInstance());
+            assertNotNull("ID:" + s.getId(), s.getSpace());
+            assertNotNull("ID:" + s.getId(), s.getSpace().getInstance());
         }
     }
 
@@ -101,8 +101,8 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         assertTrue(list.size() > 0);
         for (Sample s : list)
         {
-            assertNotNull("ID:" + s.getId(), s.getGroup());
-            assertNotNull("ID:" + s.getId(), s.getGroup().getInstance());
+            assertNotNull("ID:" + s.getId(), s.getSpace());
+            assertNotNull("ID:" + s.getId(), s.getSpace().getInstance());
         }
     }
 }

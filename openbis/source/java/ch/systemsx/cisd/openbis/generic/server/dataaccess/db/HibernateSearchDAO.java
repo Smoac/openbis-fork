@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -332,12 +332,12 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             result.setEntityType(entityType);
 
             // group
-            Map<String, Group> groupsById = dataProvider.getGroupsById();
+            Map<String, Space> groupsById = dataProvider.getGroupsById();
             Field groupFieldOrNull = doc.getField(getGroupIdFieldName());
             if (groupFieldOrNull != null)
             {
-                Group group = groupsById.get(groupFieldOrNull.stringValue());
-                result.setGroup(group);
+                Space group = groupsById.get(groupFieldOrNull.stringValue());
+                result.setSpace(group);
             }
 
             // registrator

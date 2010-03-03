@@ -32,6 +32,7 @@ public final class SearchableEntityTranslator
         // Can not be instantiated.
     }
 
+    // if null all possible entities are returned
     public final static SearchableEntity[] translate(
             final ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity searchableEntityOrNull)
     {

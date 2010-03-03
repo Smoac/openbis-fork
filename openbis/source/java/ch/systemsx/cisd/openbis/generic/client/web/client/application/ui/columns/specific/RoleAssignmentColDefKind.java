@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 
@@ -55,7 +55,7 @@ public enum RoleAssignmentColDefKind implements IColumnDefinitionKind<RoleAssign
             @Override
             public String tryGetValue(RoleAssignment entity)
             {
-                final Group group = entity.getGroup();
+                final Space group = entity.getSpace();
                 return group == null ? "" : group.getCode();
             }
         }),
@@ -77,7 +77,7 @@ public enum RoleAssignmentColDefKind implements IColumnDefinitionKind<RoleAssign
                 DatabaseInstance databaseInstance = entity.getInstance();
                 if (databaseInstance == null)
                 {
-                    databaseInstance = entity.getGroup().getInstance();
+                    databaseInstance = entity.getSpace().getInstance();
                 }
                 return databaseInstance.getCode();
             }

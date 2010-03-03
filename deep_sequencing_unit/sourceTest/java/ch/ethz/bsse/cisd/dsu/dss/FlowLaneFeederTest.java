@@ -44,7 +44,7 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -504,9 +504,9 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     {
         Sample sample = new Sample();
         sample.setCode(SAMPLE_CODE + ":" + flowLaneNumber);
-        Group group = new Group();
+        Space group = new Space();
         group.setCode("G" + flowLaneNumber);
-        sample.setGroup(group);
+        sample.setSpace(group);
         sample.setSubCode(Integer.toString(flowLaneNumber));
         sample.setGeneratedFrom(EXAMPLE_FLOW_CELL_SAMPLE);
         Person registrator = new Person();
