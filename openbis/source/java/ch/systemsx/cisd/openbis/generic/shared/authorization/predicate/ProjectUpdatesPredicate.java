@@ -34,16 +34,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  */
 public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO>
 {
-    private final GroupIdentifierPredicate groupPredicate;
+    private final SpaceIdentifierPredicate spacePredicate;
 
     public ProjectUpdatesPredicate()
     {
-        this.groupPredicate = new GroupIdentifierPredicate();
+        this.spacePredicate = new SpaceIdentifierPredicate();
     }
 
     public final void init(IAuthorizationDataProvider provider)
     {
-        groupPredicate.init(provider);
+        spacePredicate.init(provider);
     }
 
     @Override
@@ -56,9 +56,9 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final ProjectUpdatesDTO updates)
     {
-        assert groupPredicate.initialized : "Predicate has not been initialized";
+        assert spacePredicate.initialized : "Predicate has not been initialized";
         Status status;
-        status = groupPredicate.doEvaluation(person, allowedRoles, updates.getIdentifier());
+        status = spacePredicate.doEvaluation(person, allowedRoles, updates.getIdentifier());
         if (status.equals(Status.OK) == false)
         {
             return status;
@@ -69,7 +69,7 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
             GroupIdentifier newGroupIdentifier =
                     new GroupIdentifier(updates.getIdentifier().getDatabaseInstanceCode(),
                             newGroupCode);
-            status = groupPredicate.doEvaluation(person, allowedRoles, newGroupIdentifier);
+            status = spacePredicate.doEvaluation(person, allowedRoles, newGroupIdentifier);
         }
         return status;
     }

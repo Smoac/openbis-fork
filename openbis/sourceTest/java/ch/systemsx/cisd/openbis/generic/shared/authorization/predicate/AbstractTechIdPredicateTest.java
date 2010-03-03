@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * Test cases for corresponding {@link AbstractTechIdPredicate} class implementation.
  * 
- * @see GroupIdentifierPredicateTest
+ * @see SpaceIdentifierPredicateTest
  * @author Piotr Buczek
  */
 public final class AbstractTechIdPredicateTest extends AuthorizationTestCase

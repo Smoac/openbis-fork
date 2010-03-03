@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
 {
 
-    IPredicate<SampleOwnerIdentifier> delegate;
+    private IPredicate<SampleOwnerIdentifier> delegate;
 
     @Override
     @BeforeMethod

@@ -35,21 +35,21 @@ public class SampleUpdatesPredicate extends AbstractPredicate<SampleUpdatesDTO>
 {
     private final SampleTechIdPredicate sampleTechIdPredicate;
 
-    private final GroupIdentifierPredicate groupPredicate;
+    private final SpaceIdentifierPredicate spacePredicate;
 
     private final SampleOwnerIdentifierPredicate samplePredicate;
 
     public SampleUpdatesPredicate()
     {
         this.sampleTechIdPredicate = new SampleTechIdPredicate();
-        this.groupPredicate = new GroupIdentifierPredicate();
+        this.spacePredicate = new SpaceIdentifierPredicate();
         this.samplePredicate = new SampleOwnerIdentifierPredicate();
     }
 
     public final void init(IAuthorizationDataProvider provider)
     {
         sampleTechIdPredicate.init(provider);
-        groupPredicate.init(provider);
+        spacePredicate.init(provider);
         samplePredicate.init(provider);
     }
 
@@ -73,7 +73,7 @@ public class SampleUpdatesPredicate extends AbstractPredicate<SampleUpdatesDTO>
         if (updates.getExperimentIdentifierOrNull() != null)
         {
             status =
-                    groupPredicate.doEvaluation(person, allowedRoles, updates
+                    spacePredicate.doEvaluation(person, allowedRoles, updates
                             .getExperimentIdentifierOrNull());
             if (status.equals(Status.OK) == false)
                 return status;

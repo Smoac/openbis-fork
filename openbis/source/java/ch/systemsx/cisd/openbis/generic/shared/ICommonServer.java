@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
@@ -203,7 +203,7 @@ public interface ICommonServer extends IServer
     public void registerSpaceRole(
             String sessionToken,
             RoleCode roleCode,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) GroupIdentifier identifier,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) GroupIdentifier identifier,
             Grantee grantee);
 
     /**
@@ -223,7 +223,7 @@ public interface ICommonServer extends IServer
     public void deleteSpaceRole(
             String sessionToken,
             RoleCode roleCode,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) GroupIdentifier groupIdentifier,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) GroupIdentifier identifier,
             Grantee grantee);
 
     /**
@@ -265,7 +265,7 @@ public interface ICommonServer extends IServer
     public List<Experiment> listExperiments(
             final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier project);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier project);
 
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
@@ -498,7 +498,7 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     public void registerProject(
             String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier projectIdentifier,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier,
             String description, String leaderId, Collection<NewAttachment> attachments);
 
     /**

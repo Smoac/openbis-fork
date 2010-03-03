@@ -30,9 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
  * 
  * @author Christian Ribeaud
  */
-public class GroupIdentifierPredicate extends AbstractGroupPredicate<GroupIdentifier>
+public class SpaceIdentifierPredicate extends AbstractGroupPredicate<GroupIdentifier>
 {
-    public GroupIdentifierPredicate()
+    public SpaceIdentifierPredicate()
     {
     }
 

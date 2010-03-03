@@ -36,18 +36,18 @@ public class ExperimentUpdatesPredicate extends AbstractPredicate<ExperimentUpda
 {
     private final ExperimentTechIdPredicate experimentTechIdPredicate;
 
-    private final GroupIdentifierPredicate groupPredicate;
+    private final SpaceIdentifierPredicate spacePredicate;
 
     public ExperimentUpdatesPredicate()
     {
         this.experimentTechIdPredicate = new ExperimentTechIdPredicate();
-        this.groupPredicate = new GroupIdentifierPredicate();
+        this.spacePredicate = new SpaceIdentifierPredicate();
     }
 
     public final void init(IAuthorizationDataProvider provider)
     {
         experimentTechIdPredicate.init(provider);
-        groupPredicate.init(provider);
+        spacePredicate.init(provider);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ExperimentUpdatesPredicate extends AbstractPredicate<ExperimentUpda
         {
             return status;
         }
-        status = groupPredicate.doEvaluation(person, allowedRoles, updates.getProjectIdentifier());
+        status = spacePredicate.doEvaluation(person, allowedRoles, updates.getProjectIdentifier());
         return status;
     }
 }

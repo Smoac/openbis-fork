@@ -31,16 +31,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
- * Test cases for corresponding {@link GroupIdentifierPredicate} class.
+ * Test cases for corresponding {@link SpaceIdentifierPredicate} class.
  * 
  * @author Christian Ribeaud
  */
-public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
+public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
 {
     @Test
     public final void testDoEvaluationWithoutDAOFactory()
     {
-        final GroupIdentifierPredicate predicate = new GroupIdentifierPredicate();
+        final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
         boolean fail = true;
         try
         {
@@ -57,7 +57,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
     @Test(expectedExceptions = UserFailureException.class)
     public final void testExceptionBecauseInstanceDoesNotExist()
     {
-        final GroupIdentifierPredicate predicate = new GroupIdentifierPredicate();
+        final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
         prepareProvider(INSTANCE_CODE, null, Collections.<GroupPE> emptyList());
         predicate.init(provider);
         predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
@@ -68,7 +68,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
     @Test(expectedExceptions = UserFailureException.class)
     public final void testExceptionBecauseGroupDoesNotExist()
     {
-        final GroupIdentifierPredicate predicate = new GroupIdentifierPredicate();
+        final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), Collections.<GroupPE> emptyList());
         predicate.init(provider);
         predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
@@ -79,7 +79,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
     @Test
     public final void testSuccessfulEvaluation()
     {
-        final GroupIdentifierPredicate predicate = new GroupIdentifierPredicate();
+        final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
         final Status evaluation =
@@ -92,7 +92,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
     @Test
     public final void testSuccessfulEvaluationWithHomeGroup()
     {
-        final GroupIdentifierPredicate predicate = new GroupIdentifierPredicate();
+        final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
         final PersonPE person = createPerson();
@@ -108,7 +108,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
     @Test
     public final void testFailedEvaluation()
     {
-        final GroupIdentifierPredicate predicate = new GroupIdentifierPredicate();
+        final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
         final Status evaluation =
@@ -125,7 +125,7 @@ public final class GroupIdentifierPredicateTest extends AuthorizationTestCase
     public final void testAccessAnotherGroup()
     {
         final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
-        final GroupIdentifierPredicate predicate = new GroupIdentifierPredicate();
+        final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
         final List<GroupPE> groups = createGroups();
         groups.add(createGroup(ANOTHER_GROUP_CODE, homeDatabaseInstance));
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), groups);

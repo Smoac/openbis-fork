@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
  */
 public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<SampleOwnerIdentifier>
 {
-    private final GroupIdentifierPredicate groupIdentifierPredicate;
+    private final SpaceIdentifierPredicate spacePredicate;
 
     private final DatabaseInstanceIdentifierPredicate databaseInstanceIdentifierPredicate;
 
@@ -42,7 +42,7 @@ public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<Samp
 
     public SampleOwnerIdentifierPredicate(boolean isReadAccess)
     {
-        groupIdentifierPredicate = new GroupIdentifierPredicate();
+        spacePredicate = new SpaceIdentifierPredicate();
         databaseInstanceIdentifierPredicate = new DatabaseInstanceIdentifierPredicate(isReadAccess);
     }
 
@@ -52,7 +52,7 @@ public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<Samp
 
     public final void init(IAuthorizationDataProvider provider)
     {
-        groupIdentifierPredicate.init(provider);
+        spacePredicate.init(provider);
         databaseInstanceIdentifierPredicate.init(provider);
     }
 
@@ -72,7 +72,7 @@ public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<Samp
                     .getDatabaseInstanceLevel());
         } else
         {
-            return groupIdentifierPredicate.doEvaluation(person, allowedRoles, value
+            return spacePredicate.doEvaluation(person, allowedRoles, value
                     .getGroupLevel());
         }
     }

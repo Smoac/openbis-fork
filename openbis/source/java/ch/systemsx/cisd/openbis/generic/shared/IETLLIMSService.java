@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSamplesByPropertyPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
@@ -86,7 +86,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleSet.ETL_SERVER)
     public Experiment tryToGetExperiment(
             String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier)
             throws UserFailureException;
 
     /**
@@ -213,7 +213,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleSet.ETL_SERVER)
     public void registerDataSet(
             final String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) final ExperimentIdentifier experimentIdentifier,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) final ExperimentIdentifier experimentIdentifier,
             final NewExternalData externalData) throws UserFailureException;
 
     /**

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
- * An <code>IPredicate</code> implementation based on {@link GroupIdentifierPredicate} which allows
+ * An <code>IPredicate</code> implementation based on {@link SpaceIdentifierPredicate} which allows
  * the identifier to be null.
  * 
  * @author Tomasz Pylak
@@ -29,7 +29,7 @@ public class NullableGroupIdentifierPredicate extends
 {
     public NullableGroupIdentifierPredicate()
     {
-        super(new GroupIdentifierPredicate());
+        super(new SpaceIdentifierPredicate());
     }
 
     @Override

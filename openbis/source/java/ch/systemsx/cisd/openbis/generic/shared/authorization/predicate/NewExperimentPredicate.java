@@ -31,7 +31,7 @@ public final class NewExperimentPredicate extends
 {
     public NewExperimentPredicate()
     {
-        super(new GroupIdentifierPredicate());
+        super(new SpaceIdentifierPredicate());
     }
 
     //
