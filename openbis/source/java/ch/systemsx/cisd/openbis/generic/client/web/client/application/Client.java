@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
@@ -143,7 +144,7 @@ public class Client implements EntryPoint
             initializeControllers(openUrlController);
         }
 
-        final ViewLocator locator = new ViewLocator(GWTUtils.getParamString());
+        final ViewLocator locator = new ViewLocator(URL.decodeComponent(GWTUtils.getParamString()));
 
         final IClientServiceAsync service = getServiceForRetrievingApplicationInfo(viewContext);
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)

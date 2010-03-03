@@ -20,8 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gwt.http.client.URL;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 
 /**
@@ -120,7 +118,7 @@ public class ViewLocator
     {
         assert urlParams != null;
 
-        final String[] params = URL.decodeComponent(urlParams).split(PARAMETER_SEPARATOR);
+        final String[] params = urlParams.split(PARAMETER_SEPARATOR);
         for (int i = 0; i < params.length; i++)
         {
             final String[] paramPair = params[i].split(KEY_VALUE_SEPARATOR);
