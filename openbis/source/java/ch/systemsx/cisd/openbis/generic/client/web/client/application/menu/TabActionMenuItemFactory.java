@@ -57,8 +57,8 @@ public class TabActionMenuItemFactory
 
                 public ITabItem create()
                 {
-                    String menuItemText = viewContext.getMessage(tabLabelKey);
-                    return DefaultTabItem.create(menuItemText, definition
+                    String tabItemText = viewContext.getMessage(tabLabelKey);
+                    return DefaultTabItem.create(tabItemText, definition
                             .createComponent(viewContext), viewContext, false);
                 }
 

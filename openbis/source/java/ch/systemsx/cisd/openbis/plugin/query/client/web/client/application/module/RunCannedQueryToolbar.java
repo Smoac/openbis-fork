@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -49,7 +51,9 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
 {
 
     // 6 parameter fields fit into browser with 1024px width
-    private final static int MAX_PARAMETER_COLUMNS = 6;
+    private static final int MAX_PARAMETER_COLUMNS = 6;
+
+    private static final String INITIAL_PARAMETER_NAME_PREFIX = "_";
 
     private final ContentPanel parameterContainer;
 
@@ -59,20 +63,24 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
 
     private final Collection<ParameterField> parameterFields;
 
+    // <name, value> where name starts with additional INITIAL_PARAMETER_NAME_PREFIX
+    private final Map<String, String> initialParameterValues;
+
     public RunCannedQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
     {
-        this(viewContext, null);
+        this(viewContext, null, new HashMap<String, String>(0));
     }
 
     public RunCannedQueryToolbar(IViewContext<IQueryClientServiceAsync> viewContext,
-            String initialQueryNameOrNull)
+            String initialQueryNameOrNull, Map<String, String> initialParameterValues)
     {
         super(viewContext);
-        add(new LabelToolItem(viewContext.getMessage(Dict.QUERY) + ": "));
+        this.initialParameterValues = initialParameterValues;
         querySelectionWidget = new QuerySelectionWidget(viewContext, initialQueryNameOrNull);
         parameterContainer = new ButtonGroup(MAX_PARAMETER_COLUMNS);
         parameterFields = new HashSet<ParameterField>();
         resetButton = new Button(viewContext.getMessage(Dict.BUTTON_RESET));
+        add(new LabelToolItem(viewContext.getMessage(Dict.QUERY) + ": "));
         add(querySelectionWidget);
         add(parameterContainer);
         add(executeButton);
@@ -146,8 +154,15 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
             };
         for (String parameter : query.getParameters())
         {
-            addParameterField(new ParameterField(parameter, updateExecuteButtonAction));
+            final String initialValueOrNull = tryGetInitialValue(parameter);
+            addParameterField(new ParameterField(parameter, updateExecuteButtonAction,
+                    initialValueOrNull));
         }
+    }
+
+    private String tryGetInitialValue(String parameter)
+    {
+        return initialParameterValues.get(INITIAL_PARAMETER_NAME_PREFIX + parameter);
     }
 
     private void addParameterField(ParameterField parameterField)

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.modu
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -95,7 +96,13 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
 
     public void trySelectByName(String queryName)
     {
-        GWTUtils.setSelectedItem(this, ModelDataPropertyNames.NAME, queryName);
+        try
+        {
+            GWTUtils.setSelectedItem(this, ModelDataPropertyNames.NAME, queryName);
+        } catch (IllegalArgumentException ex)
+        {
+            MessageBox.alert("Error", "Query '" + queryName + "' doesn't exist.", null);
+        }
     }
 
     public void updateOriginalValue()

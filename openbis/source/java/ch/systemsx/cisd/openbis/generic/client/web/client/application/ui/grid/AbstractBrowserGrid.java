@@ -265,7 +265,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     // - hidden paging toolbar
                     contentPanel.syncSize();
                     // - no 'overflow' button when some buttons don't fit into pagingToolbar
-                    pagingToolbar.syncSize(); // this doesn't the problem with resize of the window
+                    pagingToolbar.syncSize(); // doesn't solve the problem with resize of the window
                 }
             });
         columnListener = new ColumnListener<T, M>(grid);

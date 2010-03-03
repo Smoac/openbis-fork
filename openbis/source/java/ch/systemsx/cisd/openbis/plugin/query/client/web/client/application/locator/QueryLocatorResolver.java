@@ -39,14 +39,14 @@ public class QueryLocatorResolver extends AbstractViewLocatorResolver
 
     public void resolve(ViewLocator locator) throws UserFailureException
     {
-        // opens a predefined query results viewer with optional query selection using query name
-        // TODO parameters
-
+        // opens a predefined query results viewer with optional:
+        // - query selection using query name
+        // - filling of parameter values using parameter names
         final String queryNameOrNull = locator.getParameters().get(QUERY_NAME_PARAMETER_KEY);
 
         final DatabaseModificationAwareComponent component =
                 QueryViewer.create(viewContext, new RunCannedQueryToolbar(viewContext,
-                        queryNameOrNull));
+                        queryNameOrNull, locator.getParameters()));
 
         final ITabActionMenuItemDefinition<IQueryClientServiceAsync> definition =
                 ActionMenuDefinition.RUN_CANNED_QUERY;

@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.widget.form.TriggerField;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
@@ -36,10 +37,19 @@ public class ParameterField extends TriggerField<ModelData>
 
     private final IDelegatedAction onValueChangeAction;
 
+    private final String initialValueOrNull;
+
     public ParameterField(String parameterName, IDelegatedAction onValueChangeAction)
+    {
+        this(parameterName, onValueChangeAction, null);
+    }
+
+    public ParameterField(String parameterName, IDelegatedAction onValueChangeAction,
+            String initialValueOrNull)
     {
         this.parameterName = parameterName;
         this.onValueChangeAction = onValueChangeAction;
+        this.initialValueOrNull = initialValueOrNull;
         setEmptyText(parameterName);
         setToolTip(parameterName);
         setTriggerStyle("x-form-clear-trigger");
@@ -52,6 +62,13 @@ public class ParameterField extends TriggerField<ModelData>
     public ParameterWithValue getParameterWithValue()
     {
         return new ParameterWithValue(parameterName, getRawValue());
+    }
+
+    @Override
+    protected void onRender(Element target, int index)
+    {
+        super.onRender(target, index);
+        setRawValue(initialValueOrNull);
     }
 
     @Override

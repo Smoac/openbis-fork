@@ -106,7 +106,7 @@ public final class GWTUtils
                 possibleValues.add(t.get(property));
             }
             throw new IllegalArgumentException("Given value '" + value + "' for property '"
-                    + property + "' not found in the combo box. Possible values are '"
+                    + property + "' not found in the combo box. Possible values are: '"
                     + possibleValues + "'.");
         }
         final List<T> selection = new ArrayList<T>();
