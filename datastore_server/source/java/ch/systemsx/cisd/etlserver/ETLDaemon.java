@@ -257,18 +257,9 @@ public final class ETLDaemon
             IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
-        final IETLServerPlugin plugin = threadParameters.getPlugin();
-        final Properties properties = parameters.getProperties();
-        final File storeRootDir = getStoreRootDir(properties);
-        migrateStoreRootDir(storeRootDir, authorizedLimsService.getHomeDatabaseInstance());
-        plugin.getStorageProcessor().setStoreRootDirectory(storeRootDir);
-        final Properties mailProperties = parameters.getMailProperties();
-        String dssCode = PropertyParametersUtil.getDataStoreCode(properties);
         final TransferredDataSetHandler pathHandler =
-                new TransferredDataSetHandler(dssCode, plugin, authorizedLimsService,
-                        mailProperties, dataSetValidator, notifySuccessfulRegistration,
-                        threadParameters.useIsFinishedMarkerFile(), threadParameters
-                                .deleteUnidentified());
+                createDataSetHandler(parameters.getProperties(), threadParameters,
+                        authorizedLimsService, dataSetValidator, notifySuccessfulRegistration);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
                         incomingDataDirectory, threadParameters.reprocessFaultyDatasets());
@@ -285,6 +276,23 @@ public final class ETLDaemon
         workerTimer.schedule(dataMonitorTask, 0L, parameters.getCheckIntervalMillis());
         addShutdownHookForCleanup(workerTimer, pathHandler, parameters.getShutdownTimeOutMillis(),
                 threadParameters.getThreadName());
+    }
+
+    public static TransferredDataSetHandler createDataSetHandler(final Properties properties,
+            final ThreadParameters threadParameters,
+            final IEncapsulatedOpenBISService openBISService,
+            IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
+    {
+        final IETLServerPlugin plugin = threadParameters.getPlugin();
+        final File storeRootDir = getStoreRootDir(properties);
+        migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
+        plugin.getStorageProcessor().setStoreRootDirectory(storeRootDir);
+        final Properties mailProperties = Parameters.createMailProperties(properties);
+        String dssCode = PropertyParametersUtil.getDataStoreCode(properties);
+        boolean deleteUnidentified = threadParameters.deleteUnidentified();
+        return new TransferredDataSetHandler(dssCode, plugin, openBISService,
+                mailProperties, dataSetValidator, notifySuccessfulRegistration,
+                threadParameters.useIsFinishedMarkerFile(), deleteUnidentified);
     }
 
     private static FileFilter createFileFilter(File incomingDataDirectory,

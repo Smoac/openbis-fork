@@ -171,7 +171,7 @@ public final class ThreadParameters
     /**
      * Returns The directory to monitor for incoming data.
      */
-    final File getIncomingDataDirectory()
+    public final File getIncomingDataDirectory()
     {
         return incomingDataDirectory;
     }

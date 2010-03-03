@@ -106,9 +106,6 @@ public class Parameters
     @Option(name = "p", longName = "password", usage = "User login password")
     private String password;
 
-    /** A subset of <code>service.properties</code> that are reserved for the <i>JavaMail API</i>. */
-    private final Properties mailProperties;
-
     /**
      * The command line parser.
      */
@@ -167,7 +164,6 @@ public class Parameters
             this.serviceProperties = PropertyParametersUtil.loadServiceProperties();
             PropertyUtils.trimProperties(serviceProperties);
             this.threads = createThreadParameters(serviceProperties);
-            this.mailProperties = createMailProperties(serviceProperties);
             this.timingParameters = TimingParameters.create(serviceProperties);
             this.maintenancePlugins = createMaintenancePlugins(serviceProperties);
 
@@ -267,7 +263,7 @@ public class Parameters
         return threadParameters;
     }
 
-    private final static Properties createMailProperties(final Properties serviceProperties)
+    final static Properties createMailProperties(final Properties serviceProperties)
     {
         final Properties properties =
                 ExtendedProperties.getSubset(serviceProperties, "mail", false);
@@ -344,12 +340,6 @@ public class Parameters
     public final Properties getProperties()
     {
         return serviceProperties;
-    }
-
-    /** Returns <code>mailProperties</code>. */
-    public final Properties getMailProperties()
-    {
-        return mailProperties;
     }
 
     /**
