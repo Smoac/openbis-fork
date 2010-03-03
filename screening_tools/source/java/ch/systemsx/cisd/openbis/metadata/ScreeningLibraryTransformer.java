@@ -60,7 +60,7 @@ public class ScreeningLibraryTransformer
             return;
         }
         String[] headers = csvReader.getValues();
-        IScreeningLibraryColumnExtractor extractor =
+        QiagenScreeningLibraryColumnExtractor extractor =
                 new QiagenScreeningLibraryColumnExtractor(headers);
         LibraryEntityRegistrator registrator =
                 new LibraryEntityRegistrator(extractor, experimentIdentifier, plateGeometry,

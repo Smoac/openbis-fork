@@ -54,7 +54,7 @@ public class LibraryEntityRegistrator
 
     private final PlateRegistrator plateRegistrator;
 
-    public LibraryEntityRegistrator(IScreeningLibraryColumnExtractor extractor,
+    public LibraryEntityRegistrator(QiagenScreeningLibraryColumnExtractor extractor,
             String experimentIdentifier, String plateGeometry, String groupCode) throws IOException
     {
         this.geneRegistrator = new GeneRegistrator(new File(GENES_FILE_NAME));
@@ -66,7 +66,7 @@ public class LibraryEntityRegistrator
                         plateGeometry, groupCode);
     }
 
-    public void register(IScreeningLibraryColumnExtractor extractor, String[] row)
+    public void register(QiagenScreeningLibraryColumnExtractor extractor, String[] row)
             throws IOException
     {
         String geneId = geneRegistrator.register(extractor, row);
@@ -153,7 +153,7 @@ public class LibraryEntityRegistrator
         }
 
         /** @return sampleIdentifier */
-        public String registerPlate(IScreeningLibraryColumnExtractor extractor, String[] row)
+        public String registerPlate(QiagenScreeningLibraryColumnExtractor extractor, String[] row)
                 throws IOException
         {
             String plateCode = extractor.getPlateCode(row);
@@ -171,7 +171,7 @@ public class LibraryEntityRegistrator
             return "/" + groupCode + "/" + plateCode;
         }
 
-        public void registerWell(IScreeningLibraryColumnExtractor extractor, String[] row,
+        public void registerWell(QiagenScreeningLibraryColumnExtractor extractor, String[] row,
                 String plateId, String oligoId) throws IOException
         {
             String wellCode = extractor.getWellCode(row);
@@ -210,7 +210,7 @@ public class LibraryEntityRegistrator
         }
 
         // / returns gene id
-        public String register(IScreeningLibraryColumnExtractor extractor, String[] row)
+        public String register(QiagenScreeningLibraryColumnExtractor extractor, String[] row)
                 throws IOException
         {
             String geneSymbol = extractor.getGeneCode(row);
@@ -253,7 +253,7 @@ public class LibraryEntityRegistrator
         }
 
         // / returns openbis id
-        public String register(IScreeningLibraryColumnExtractor extractor, String[] row,
+        public String register(QiagenScreeningLibraryColumnExtractor extractor, String[] row,
                 String inhibitedGeneCode) throws IOException
         {
             String geneSymbol = extractor.getGeneCode(row);

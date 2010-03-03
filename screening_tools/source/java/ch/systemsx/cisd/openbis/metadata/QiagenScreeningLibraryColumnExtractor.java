@@ -16,22 +16,14 @@
 
 package ch.systemsx.cisd.openbis.metadata;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Provides structured information from one row of the QIAGEN library.
  * 
  * @author Tomasz Pylak
  */
-public class QiagenScreeningLibraryColumnExtractor implements IScreeningLibraryColumnExtractor
+public class QiagenScreeningLibraryColumnExtractor extends AbstractColumnExtractor
 {
     // ----- column names
 
@@ -55,112 +47,19 @@ public class QiagenScreeningLibraryColumnExtractor implements IScreeningLibraryC
 
     private final static String OLIGO_ID = "productId";
 
-    private final static String[] ALL_COLUMNS = new String[]
+    private final static String[] EXPECTED_COLUMNS = new String[]
         { PLATE_NAME, WELL_ROW, WELL_COL, RNA_SEQUENCE, GENE_ID, GENE_SYMBOL, GENE_DESC, OLIGO_ID };
 
     // -------------
 
-    private final Map<String/* column name */, Integer/* index in the header table */> columnIndices;
-
-    private final Map<String/* column name */, Integer/* index in the header table */> unknownColumnIndices;
-
     public QiagenScreeningLibraryColumnExtractor(String[] headerTokens)
     {
-        this.columnIndices = createColumnIndex(headerTokens);
-        this.unknownColumnIndices = getOmittedIndices(columnIndices, headerTokens);
+        super(headerTokens, EXPECTED_COLUMNS);
     }
 
     public List<String> getAdditionalOligoPropertyNames()
     {
-        return new ArrayList<String>(unknownColumnIndices.keySet());
-    }
-
-    // ------------
-
-    private static Map<String, Integer> getOmittedIndices(Map<String, Integer> columnIndex,
-            String[] headers)
-    {
-        Map<String, Integer> omittedIndices = new HashMap<String, Integer>();
-        Set<Integer> knownIndices = new HashSet<Integer>(columnIndex.values());
-        for (int i = 0; i < headers.length; i++)
-        {
-            if (knownIndices.contains(i) == false)
-            {
-                omittedIndices.put(headers[i], i);
-            }
-        }
-        return omittedIndices;
-    }
-
-    private static Map<String, Integer> createColumnIndex(String[] headers)
-    {
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        for (String columnName : ALL_COLUMNS)
-        {
-            findAndPut(map, headers, columnName);
-        }
-        return map;
-    }
-
-    private static void findAndPut(Map<String, Integer> map, String[] headers, String columnName)
-    {
-        int ix = findIndexOrDie(headers, columnName);
-        map.put(columnName, ix);
-    }
-
-    private static int findIndexOrDie(String[] headers, String columnName)
-    {
-        for (int i = 0; i < headers.length; i++)
-        {
-            if (headers[i].equalsIgnoreCase(columnName))
-            {
-                return i;
-            }
-        }
-        throw new UserFailureException("Column " + columnName + " does not exist in "
-                + CollectionUtils.abbreviate(headers, -1));
-    }
-
-    private String getValue(String[] row, String columnName)
-    {
-        Integer ix = columnIndices.get(columnName);
-        return valueAt(row, ix);
-    }
-
-    private static String valueAt(String[] row, Integer ix)
-    {
-        if (ix >= row.length)
-        {
-            return "";
-        } else
-        {
-            return row[ix];
-        }
-    }
-
-    private String asCode(String value)
-    {
-        String code = "";
-        for (int i = 0; i < value.length(); i++)
-        {
-            char ch = value.charAt(i);
-            if (isValidCodeCharacter(ch) == false)
-            {
-                ch = '_';
-            }
-            code += ch;
-        }
-        return code;
-    }
-
-    private boolean isValidCodeCharacter(char ch)
-    {
-        return Character.isLetterOrDigit(ch) || ch == '.' || ch == '-' || ch == '_';
-    }
-
-    private String getCodeValue(String[] row, String columnName)
-    {
-        return asCode(getValue(row, columnName));
+        return getUnknownColumnNames();
     }
 
     // ------------
@@ -172,9 +71,19 @@ public class QiagenScreeningLibraryColumnExtractor implements IScreeningLibraryC
 
     public String getWellCode(String[] row)
     {
-        String wellRow = getValue(row, WELL_ROW);
-        String wellCol = getValue(row, WELL_COL);
+        String wellRow = getWellRow(row);
+        String wellCol = getWellCol(row);
         return wellRow + wellCol;
+    }
+
+    private String getWellCol(String[] row)
+    {
+        return getValue(row, WELL_COL);
+    }
+
+    private String getWellRow(String[] row)
+    {
+        return getValue(row, WELL_ROW);
     }
 
     public String getRNASequence(String[] row)
@@ -204,13 +113,47 @@ public class QiagenScreeningLibraryColumnExtractor implements IScreeningLibraryC
 
     public List<String> getAdditionalOligoPropertyValues(String[] row, List<String> columnNames)
     {
-        List<String> values = new ArrayList<String>();
-        for (String columnName : columnNames)
+        return getUnknownColumnValues(row, columnNames);
+    }
+
+    public WellLocation getWellLocation(String[] row)
+    {
+        return new WellLocation(getPlateCode(row), getWellRow(row), getWellCol(row));
+    }
+
+    public GeneDetails getGeneDetails(String[] row)
+    {
+        return new GeneDetails(getGeneCode(row), getGeneDescription(row));
+    }
+
+    public static class GeneDetails
+    {
+        private String symbol, description;
+
+        public GeneDetails(String symbol, String description)
         {
-            Integer ix = unknownColumnIndices.get(columnName);
-            String value = valueAt(row, ix);
-            values.add(value);
+            this.symbol = symbol;
+            this.description = description;
         }
-        return values;
+
+        public String getSymbol()
+        {
+            return symbol;
+        }
+
+        public void setSymbol(String symbol)
+        {
+            this.symbol = symbol;
+        }
+
+        public String getDescription()
+        {
+            return description;
+        }
+
+        public void setDescription(String description)
+        {
+            this.description = description;
+        }
     }
 }
