@@ -57,15 +57,15 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     private final static String EMAIL_FIELD_CONFIG = "EMAIL";
 
-    private final List<UserInfoDTO> existingUsers;
+    protected final List<UserInfoDTO> existingUsers;
 
-    private final List<UserInfoDTO> newUsers;
+    protected final List<UserInfoDTO> newUsers;
 
-    private final ViewContext viewContext;
+    protected final ViewContext viewContext;
 
-    private final GridWidget<FileShareUserGridModel> existingUserGrid;
+    protected final GridWidget<FileShareUserGridModel> existingUserGrid;
 
-    private final GridWidget<FileShareUserGridModel> newUserGrid;
+    protected final GridWidget<FileShareUserGridModel> newUserGrid;
 
     public AbstractFileShareUserDialog(final ViewContext context,
             final UserInfoDTO[] existingUsers, final UserInfoDTO[] newUsers, final String name)
