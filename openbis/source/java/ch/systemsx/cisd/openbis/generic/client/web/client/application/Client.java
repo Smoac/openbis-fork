@@ -144,7 +144,7 @@ public class Client implements EntryPoint
             initializeControllers(openUrlController);
         }
 
-        final ViewLocator locator = new ViewLocator(URL.decodeComponent(GWTUtils.getParamString()));
+        final ViewLocator locator = createViewLocator(GWTUtils.getParamString());
 
         final IClientServiceAsync service = getServiceForRetrievingApplicationInfo(viewContext);
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
@@ -167,6 +167,11 @@ public class Client implements EntryPoint
                     service.tryToGetCurrentSessionContext(sessionContextCallback);
                 }
             });
+    }
+
+    public static ViewLocator createViewLocator(String urlParams)
+    {
+        return new ViewLocator(URL.decodeComponent(urlParams));
     }
 
     protected IClientServiceAsync getServiceForRetrievingApplicationInfo(

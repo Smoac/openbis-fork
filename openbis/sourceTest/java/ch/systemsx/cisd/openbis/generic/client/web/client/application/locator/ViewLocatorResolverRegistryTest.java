@@ -16,43 +16,32 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.WaitForAllActiveCallbacksFinish;
 
 /**
  * @author Chandrasekhar Ramakrishnan
+ * @author Piotr Buczek
  */
 public class ViewLocatorResolverRegistryTest extends AbstractGWTTestCase
 {
-    ViewLocatorResolverRegistry registry;
-
-    @Override
-    protected void setUpTest() throws Exception
-    {
-        client.onModuleLoad();
-        IViewContext<ICommonClientServiceAsync> viewContext = client.tryToGetViewContext();
-        registry = viewContext.getLocatorResolverRegistry();
-    }
-
     public void testResolvePermlinkLocator()
     {
-        ViewLocator locator = new ViewLocator("entity=SAMPLE&permId=20100104150239401-871");
-        OpenViewAction action = new OpenViewAction(registry, locator);
-        action.execute();
-        remoteConsole.prepare(new WaitForAllActiveCallbacksFinish());
-        
+        loginAndOpenView("entity=SAMPLE&permId=200811050919915-8");
         launchTest();
     }
 
     public void testResolveSearchLocator()
     {
-        ViewLocator locator = new ViewLocator("action=SEARCH&entity=SAMPLE&code=CL1");
-        OpenViewAction action = new OpenViewAction(registry, locator);
-        action.execute();
-        remoteConsole.prepare(new WaitForAllActiveCallbacksFinish());
-        
+        loginAndOpenView("action=SEARCH&entity=SAMPLE&code=CL1");
         launchTest();
+    }
+
+    private void loginAndOpenView(String urlParams)
+    {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new OpenViewCommand(client, urlParams));
+        remoteConsole.prepare(new WaitForAllActiveCallbacksFinish());
     }
 }
