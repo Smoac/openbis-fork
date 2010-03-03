@@ -125,9 +125,8 @@ public class DatabaseInstanceIdentifier implements Serializable
         // empty
     }
 
-    /** Do not use this constructor. It exists just to make automatic bean conversion possible */
-    @Deprecated
-    public DatabaseInstanceIdentifier()
+    // GWT only
+    protected DatabaseInstanceIdentifier()
     {
     }
 

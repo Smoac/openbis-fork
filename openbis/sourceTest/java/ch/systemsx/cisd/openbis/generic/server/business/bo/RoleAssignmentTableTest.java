@@ -51,7 +51,7 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
         final String groupCode = "cisd";
         final GroupIdentifier groupIdentifier =
                 new GroupIdentifier(databaseInstanceCode, groupCode);
-        newRoleAssignment.setGroupIdentifier(groupIdentifier);
+        newRoleAssignment.setSpaceIdentifier(groupIdentifier);
         newRoleAssignment.setRole(RoleCode.OBSERVER);
         final String userId = "test";
         // TODO 2009-07-31,IA: add test for auth group

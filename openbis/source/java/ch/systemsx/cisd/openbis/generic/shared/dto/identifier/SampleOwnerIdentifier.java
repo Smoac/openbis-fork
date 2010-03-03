@@ -73,7 +73,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     /** @return if sample is connected to its home group */
     public boolean isInsideHomeGroup()
     {
-        return isGroupLevel() && groupIdentOrNull.isHomeGroup();
+        return isGroupLevel() && groupIdentOrNull.isHomeSpace();
     }
 
     /**

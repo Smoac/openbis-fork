@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation based on {@link SpaceIdentifierPredicate} which allows
@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * @author Tomasz Pylak
  */
 public class NullableGroupIdentifierPredicate extends
-        DelegatedNullableAbstractPredicate<GroupIdentifier>
+        DelegatedNullableAbstractPredicate<SpaceIdentifier>
 {
     public NullableGroupIdentifierPredicate()
     {

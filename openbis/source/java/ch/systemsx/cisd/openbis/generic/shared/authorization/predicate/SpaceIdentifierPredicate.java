@@ -22,15 +22,15 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 
 /**
- * An <code>IPredicate</code> implementation based on {@link GroupIdentifier}.
+ * An <code>IPredicate</code> implementation based on {@link SpaceIdentifier}.
  * 
  * @author Christian Ribeaud
  */
-public class SpaceIdentifierPredicate extends AbstractGroupPredicate<GroupIdentifier>
+public class SpaceIdentifierPredicate extends AbstractGroupPredicate<SpaceIdentifier>
 {
     public SpaceIdentifierPredicate()
     {
@@ -48,10 +48,10 @@ public class SpaceIdentifierPredicate extends AbstractGroupPredicate<GroupIdenti
 
     @Override
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final GroupIdentifier groupIdentifierOrNull)
+            final SpaceIdentifier groupIdentifierOrNull)
     {
         assert initialized : "Predicate has not been initialized";
-        final String groupCode = GroupCodeHelper.getGroupCode(person, groupIdentifierOrNull);
+        final String groupCode = SpaceCodeHelper.getSpaceCode(person, groupIdentifierOrNull);
         final DatabaseInstancePE databaseInstance = getDatabaseInstance(groupIdentifierOrNull);
         return evaluate(person, allowedRoles, databaseInstance, groupCode);
     }

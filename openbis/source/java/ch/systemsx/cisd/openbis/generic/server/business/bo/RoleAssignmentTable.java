@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * The only productive implementation of {@link IRoleAssignmentTable}. We are using an interface
@@ -111,7 +111,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
             roleAssignment.setDatabaseInstance(databaseInstance);
         } else
         {
-            final GroupIdentifier groupIdentifier = newRoleAssignment.getGroupIdentifier();
+            final SpaceIdentifier groupIdentifier = newRoleAssignment.getSpaceIdentifier();
             final GroupPE group =
                     GroupIdentifierHelper
                             .tryGetGroup(groupIdentifier, session.tryGetPerson(), this);

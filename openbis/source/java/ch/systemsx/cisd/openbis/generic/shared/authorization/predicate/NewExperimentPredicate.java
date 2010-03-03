@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation for {@link NewExperiment}.
@@ -27,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * @author Christian Ribeaud
  */
 public final class NewExperimentPredicate extends
-        DelegatedPredicate<GroupIdentifier, NewExperiment>
+        DelegatedPredicate<SpaceIdentifier, NewExperiment>
 {
     public NewExperimentPredicate()
     {

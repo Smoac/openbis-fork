@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupException;
-import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
+import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 
 /**
  * An <code>IPredicate</code> abstract implementation based on {@link TechId} and
@@ -113,9 +113,9 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
             throw new UndefinedGroupException();
         }
 
-        final String groupCode = GroupCodeHelper.getGroupCode(person, groupOrNull);
+        final String spaceCode = SpaceCodeHelper.getSpaceCode(person, groupOrNull);
         final DatabaseInstancePE databaseInstance = groupOrNull.getDatabaseInstance();
-        return evaluate(person, allowedRoles, databaseInstance, groupCode);
+        return evaluate(person, allowedRoles, databaseInstance, spaceCode);
     }
 
 }

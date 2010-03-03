@@ -19,67 +19,67 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
-public class GroupCodeHelper
+public class SpaceCodeHelper
 {
-    private GroupCodeHelper()
+    private SpaceCodeHelper()
     {
     }
 
     public static final String HOME_SPACE_CODE = null;
 
-    public static boolean isHomeGroup(String groupCodeOrNull)
+    public static boolean isHomeSpace(String spaceCodeOrNull)
     {
-        return groupCodeOrNull == HOME_SPACE_CODE;
+        return spaceCodeOrNull == HOME_SPACE_CODE;
     }
 
     /**
-     * Tries to find out the group.
+     * Tries to find out the space.
      * <p>
-     * If not specified in given {@link GroupIdentifier} the real group must be specified as home
-     * group in given {@link PersonPE}.
+     * If not specified in given {@link SpaceIdentifier} the real space must be specified as home
+     * space in given {@link PersonPE}.
      * </p>
      * 
-     * @throws UndefinedGroupException if no group could be found.
+     * @throws UndefinedGroupException if no space could be found.
      */
-    public final static String getGroupCode(final PersonPE person,
-            final GroupIdentifier groupIdentifier) throws UndefinedGroupException
+    public final static String getSpaceCode(final PersonPE person,
+            final SpaceIdentifier spaceIdentifier) throws UndefinedGroupException
     {
-        return getGroupCode(person, groupIdentifier.getGroupCode());
+        return getSpaceCode(person, spaceIdentifier.getGroupCode());
     }
 
     /**
-     * Tries to find out the group.
+     * Tries to find out the space.
      * <p>
-     * If not specified in given {@link GroupPE} the real group must be specified as home group in
+     * If not specified in given {@link GroupPE} the real space must be specified as home space in
      * given {@link PersonPE}.
      * </p>
      * 
-     * @throws UndefinedGroupException if no group could be found.
+     * @throws UndefinedGroupException if no space could be found.
      */
-    public final static String getGroupCode(final PersonPE person, final GroupPE group)
+    public final static String getSpaceCode(final PersonPE person, final GroupPE group)
             throws UndefinedGroupException
     {
-        return getGroupCode(person, group.getCode());
+        return getSpaceCode(person, group.getCode());
     }
 
     /**
-     * Tries to find out the group.
+     * Tries to find out the space.
      * <p>
-     * If given <var>groupCode</var> is a home group the real group must be specified as home group
+     * If given <var>spaceCode</var> is a home space, the real space must be specified as home space
      * in given {@link PersonPE}.
      * </p>
      * 
-     * @throws UndefinedGroupException if no group could be found.
+     * @throws UndefinedGroupException if no space could be found.
      */
-    private final static String getGroupCode(final PersonPE person, final String groupCode)
+    private final static String getSpaceCode(final PersonPE person, final String spaceCode)
             throws UndefinedGroupException
     {
-        if (isHomeGroup(groupCode))
+        if (isHomeSpace(spaceCode))
         {
             final GroupPE homeGroup = person.getHomeGroup();
             if (homeGroup == null)
@@ -89,7 +89,7 @@ public class GroupCodeHelper
             return homeGroup.getCode();
         } else
         {
-            return groupCode;
+            return spaceCode;
         }
     }
 

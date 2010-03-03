@@ -92,7 +92,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
@@ -116,6 +115,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -154,8 +154,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
@@ -268,13 +268,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     }
 
     public final void registerSpaceRole(final String sessionToken, final RoleCode roleCode,
-            final GroupIdentifier groupIdentifier, final Grantee grantee)
+            final SpaceIdentifier spaceIdentifier, final Grantee grantee)
     {
         final Session session = getSession(sessionToken);
 
         final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
         newRoleAssignment.setGrantee(grantee);
-        newRoleAssignment.setGroupIdentifier(groupIdentifier);
+        newRoleAssignment.setSpaceIdentifier(spaceIdentifier);
         newRoleAssignment.setRole(roleCode);
 
         final IRoleAssignmentTable table = businessObjectFactory.createRoleAssignmentTable(session);
@@ -301,13 +301,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     }
 
     public final void deleteSpaceRole(final String sessionToken, final RoleCode roleCode,
-            final GroupIdentifier groupIdentifier, final Grantee grantee)
+            final SpaceIdentifier spaceIdentifier, final Grantee grantee)
     {
         final Session session = getSession(sessionToken);
 
         final RoleAssignmentPE roleAssignment =
                 getDAOFactory().getRoleAssignmentDAO().tryFindGroupRoleAssignment(roleCode,
-                        groupIdentifier.getGroupCode(), grantee);
+                        spaceIdentifier.getGroupCode(), grantee);
         if (roleAssignment == null)
         {
             throw new UserFailureException("Given space role does not exist.");

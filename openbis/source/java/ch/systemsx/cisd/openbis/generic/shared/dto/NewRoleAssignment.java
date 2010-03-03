@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * <i>Bean</i> for registering new role assignments.
@@ -41,7 +41,7 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
 
     private DatabaseInstanceIdentifier databaseInstanceIdentifier;
 
-    private GroupIdentifier groupIdentifier;
+    private SpaceIdentifier spaceIdentifier;
 
     private Grantee grantee;
 
@@ -70,15 +70,15 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
         this.databaseInstanceIdentifier = databaseInstanceIdentifier;
     }
 
-    public final GroupIdentifier getGroupIdentifier()
+    public final SpaceIdentifier getSpaceIdentifier()
     {
-        return groupIdentifier;
+        return spaceIdentifier;
     }
 
     @BeanProperty(label = "space")
-    public final void setGroupIdentifier(final GroupIdentifier groupIdentifier)
+    public final void setSpaceIdentifier(final SpaceIdentifier spaceIdentifier)
     {
-        this.groupIdentifier = groupIdentifier;
+        this.spaceIdentifier = spaceIdentifier;
     }
 
     public final Grantee getGrantee()
@@ -101,12 +101,12 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
     {
         final StringBuilder builder = new StringBuilder();
         builder.append(grantee).append("=").append(role).append("@");
-        if (getGroupIdentifier() == null)
+        if (getSpaceIdentifier() == null)
         {
             builder.append(getDatabaseInstanceIdentifier());
         } else
         {
-            builder.append(getGroupIdentifier());
+            builder.append(getSpaceIdentifier());
         }
         return builder.toString();
     }

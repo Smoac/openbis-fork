@@ -49,10 +49,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
@@ -71,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -86,9 +86,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Logger class for {@link CommonServer} which creates readable logs of method invocations.
@@ -156,10 +156,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void registerSpaceRole(final String sessionToken, final RoleCode roleCode,
-            final GroupIdentifier groupIdentifier, final Grantee grantee)
+            final SpaceIdentifier spaceIdentifier, final Grantee grantee)
     {
         logTracking(sessionToken, "register_role", "ROLE(%s) SPACE(%s) GRANTEE(%s)", roleCode,
-                groupIdentifier, grantee);
+                spaceIdentifier, grantee);
 
     }
 
@@ -171,10 +171,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void deleteSpaceRole(final String sessionToken, final RoleCode roleCode,
-            final GroupIdentifier groupIdentifier, final Grantee grantee)
+            final SpaceIdentifier spaceIdentifier, final Grantee grantee)
     {
         logTracking(sessionToken, "delete_role", "ROLE(%s) SPACE(%s) GRANTEE(%s)", roleCode,
-                groupIdentifier, grantee);
+                spaceIdentifier, grantee);
 
     }
 

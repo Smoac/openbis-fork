@@ -30,8 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.DatabaseInstanceIdentifierHelper;
-import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
+import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 
 /**
  * Some useful identifier methods on the <i>server</i> side.
@@ -40,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
  * {@link DatabaseInstanceIdentifier} into a {@link DatabaseInstancePE}!
  * </p>
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class GroupIdentifierHelper
 {
@@ -132,7 +133,9 @@ public final class GroupIdentifierHelper
         return new DatabaseInstanceIdentifier(code.toUpperCase());
     }
 
-    /** Creates database instance finder which caches all existing database instance at the begining. */
+    /**
+     * Creates database instance finder which caches all existing database instance at the begining.
+     */
     public final static IDatabaseInstanceFinder createCachedInstanceFinder(
             final IAuthorizationDAOFactory daoFactory)
     {
@@ -199,14 +202,14 @@ public final class GroupIdentifierHelper
     }
 
     /** finds a group in the database for the given identifier */
-    public static final GroupPE tryGetGroup(final GroupIdentifier groupIdentifier,
+    public static final GroupPE tryGetGroup(final SpaceIdentifier spaceIdentifier,
             final PersonPE person, final IAuthorizationDAOFactory daoFactory)
     {
-        final String groupCode = GroupCodeHelper.getGroupCode(person, groupIdentifier);
+        final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
         final DatabaseInstancePE databaseInstance =
-                getDatabaseInstance(groupIdentifier, daoFactory);
+                getDatabaseInstance(spaceIdentifier, daoFactory);
         final IGroupDAO groupDAO = daoFactory.getGroupDAO();
-        return groupDAO.tryFindGroupByCodeAndDatabaseInstance(groupCode, databaseInstance);
+        return groupDAO.tryFindGroupByCodeAndDatabaseInstance(spaceCode, databaseInstance);
     }
 
     public final static DatabaseInstancePE getDatabaseInstance(
