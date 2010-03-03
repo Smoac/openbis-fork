@@ -25,8 +25,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ComparableCellValueHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 
 /**
  * Row object used in jython expressions to access column values.
@@ -72,7 +74,14 @@ final class Row<T>
             throw new IllegalArgumentException("Undefined column: " + columnID);
         }
 
-        return columnDefinition.tryGetComparableValue(row);
+        Comparable<?> value = columnDefinition.tryGetComparableValue(row);
+        if (value instanceof ISerializableComparable)
+        {
+            return ComparableCellValueHelper.unwrap((ISerializableComparable) value);
+        } else
+        {
+            return value;
+        }
     }
 
     /**

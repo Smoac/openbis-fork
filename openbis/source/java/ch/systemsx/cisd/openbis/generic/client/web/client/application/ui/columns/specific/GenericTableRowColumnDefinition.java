@@ -46,8 +46,7 @@ public class GenericTableRowColumnDefinition implements IColumnDefinition<Generi
 
     public Comparable<?> tryGetComparableValue(GridRowModel<GenericTableRow> rowModel)
     {
-        ISerializableComparable value = getCellValue(rowModel);
-        return ComparableCellValueHelper.unwrap(value);
+        return getCellValue(rowModel);
     }
 
     public String getHeader()
