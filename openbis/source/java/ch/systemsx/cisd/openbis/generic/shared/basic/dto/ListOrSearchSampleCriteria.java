@@ -100,9 +100,9 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     }
 
     @Override
-    public String getGroupCode()
+    public String getSpaceCode()
     {
-        return listCriteria == null ? null : listCriteria.getGroupCode();
+        return listCriteria == null ? null : listCriteria.getSpaceCode();
     }
 
     @Override
@@ -118,9 +118,9 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     }
 
     @Override
-    public boolean isIncludeGroup()
+    public boolean isIncludeSpace()
     {
-        return listCriteria == null ? false : listCriteria.isIncludeGroup();
+        return listCriteria == null ? false : listCriteria.isIncludeSpace();
     }
 
     @Override

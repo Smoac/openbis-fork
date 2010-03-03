@@ -193,11 +193,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public List<Sample> listSamples(String sessionToken, ListSampleCriteria criteria)
     {
-        if (criteria.isIncludeGroup())
+        if (criteria.isIncludeSpace())
         {
             logAccess(sessionToken, "list_samples",
                     "TYPE(%s) OWNERS(space=%s) CONTAINER(%s) EXPERIMENT(%s)", criteria
-                            .getSampleType(), criteria.getGroupCode(), criteria
+                            .getSampleType(), criteria.getSpaceCode(), criteria
                             .getContainerSampleId(), criteria.getExperimentId());
         } else if (criteria.isIncludeInstance())
         {

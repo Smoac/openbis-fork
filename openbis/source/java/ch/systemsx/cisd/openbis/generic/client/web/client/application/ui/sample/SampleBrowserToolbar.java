@@ -93,12 +93,12 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
             return null;
         }
         final boolean includeInstance = GroupSelectionWidget.isSharedGroup(selectedGroup);
-        final boolean includeGroup = includeInstance == false;
+        final boolean includeSpace = includeInstance == false;
 
         ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSampleType(selectedType);
-        criteria.setGroupCode(GroupSelectionWidget.tryToGetGroupCode(selectedGroup));
-        criteria.setIncludeGroup(includeGroup);
+        criteria.setSpaceCode(GroupSelectionWidget.tryToGetGroupCode(selectedGroup));
+        criteria.setIncludeSpace(includeSpace);
         criteria.setIncludeInstance(includeInstance);
         criteria.setExcludeWithoutExperiment(excludeWithoutExperiment);
         return new ListSampleDisplayCriteria(criteria);

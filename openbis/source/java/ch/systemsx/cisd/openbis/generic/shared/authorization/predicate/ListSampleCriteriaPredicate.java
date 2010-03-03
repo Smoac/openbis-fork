@@ -73,9 +73,9 @@ public class ListSampleCriteriaPredicate extends AbstractGroupPredicate<ListSamp
                     sampleTechIdPredicate.doEvaluation(person, allowedRoles, value
                             .getContainerSampleId());
         }
-        if (value.isIncludeGroup() && status == Status.OK)
+        if (value.isIncludeSpace() && status == Status.OK)
         {
-            status = evaluate(person, allowedRoles, homeDatabase, value.getGroupCode());
+            status = evaluate(person, allowedRoles, homeDatabase, value.getSpaceCode());
         }
         return status;
     }

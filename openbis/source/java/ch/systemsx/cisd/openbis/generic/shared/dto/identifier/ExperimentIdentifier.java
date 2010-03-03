@@ -56,7 +56,7 @@ public final class ExperimentIdentifier extends ProjectIdentifier
 
     public ExperimentIdentifier(final String projectCode, final String experimentCode)
     {
-        this(DatabaseInstanceIdentifier.HOME, getHomeGroupCode(), projectCode, experimentCode);
+        this(DatabaseInstanceIdentifier.HOME, getHomeSpaceCode(), projectCode, experimentCode);
     }
 
     public ExperimentIdentifier(final String databaseInstanceCode, final String groupCode,

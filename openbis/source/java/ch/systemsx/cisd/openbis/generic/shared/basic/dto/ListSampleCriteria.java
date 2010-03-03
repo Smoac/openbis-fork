@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  * Criteria for listing <i>samples</i>. This class offers 3 kinds of filters, but only one can be
  * used at the same time:
  * <ol>
- * <li>samples of particular type in a specified group and/or shared
+ * <li>samples of particular type in a specified space and/or shared
  * <li>samples belonging to a container sample
  * <li>samples from the experiment
  * </ol>
@@ -42,9 +42,9 @@ public class ListSampleCriteria implements IsSerializable, Serializable
     // --------- filter 1 fields
     private SampleType sampleType;
 
-    private String groupCode;
+    private String spaceCode;
 
-    private boolean includeGroup;
+    private boolean includeSpace;
 
     private boolean includeInstance;
 
@@ -92,24 +92,24 @@ public class ListSampleCriteria implements IsSerializable, Serializable
         this.sampleType = sampleType;
     }
 
-    public String getGroupCode()
+    public String getSpaceCode()
     {
-        return groupCode;
+        return spaceCode;
     }
 
-    public void setGroupCode(final String groupCode)
+    public void setSpaceCode(final String spaceCode)
     {
-        this.groupCode = groupCode;
+        this.spaceCode = spaceCode;
     }
 
-    public boolean isIncludeGroup()
+    public boolean isIncludeSpace()
     {
-        return includeGroup;
+        return includeSpace;
     }
 
-    public void setIncludeGroup(final boolean includeGroup)
+    public void setIncludeSpace(final boolean includeSpace)
     {
-        this.includeGroup = includeGroup;
+        this.includeSpace = includeSpace;
     }
 
     public boolean isIncludeInstance()

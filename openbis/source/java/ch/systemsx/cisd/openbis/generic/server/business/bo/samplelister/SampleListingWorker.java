@@ -337,7 +337,7 @@ final class SampleListingWorker
 
     private Iterable<SampleRecord> tryGetIteratorForGroupSamples()
     {
-        if (criteria.isIncludeGroup() == false)
+        if (criteria.isIncludeSpace() == false)
         {
             return null;
         }
@@ -364,7 +364,7 @@ final class SampleListingWorker
 
     private DataIterator<SampleRecord> getGroupSamples()
     {
-        String groupCode = criteria.getGroupCode();
+        String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
             return query.getAllGroupSamples(databaseInstanceId);
@@ -375,7 +375,7 @@ final class SampleListingWorker
     private Iterable<SampleRecord> getGroupSamplesForSampleType()
     {
         final long sampleTypeId = getSampleTypeId();
-        String groupCode = criteria.getGroupCode();
+        String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
             return query.getAllGroupSamplesForSampleType(databaseInstanceId, sampleTypeId);
@@ -385,7 +385,7 @@ final class SampleListingWorker
 
     private DataIterator<SampleRecord> getGroupSamplesWithExperiment()
     {
-        String groupCode = criteria.getGroupCode();
+        String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
             return query.getAllGroupSamplesWithExperiment(databaseInstanceId);
@@ -396,7 +396,7 @@ final class SampleListingWorker
     private DataIterator<SampleRecord> getGroupSampleForSampleTypeWithExperiment()
     {
         final long sampleTypeId = getSampleTypeId();
-        String groupCode = criteria.getGroupCode();
+        String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
             return query.getAllGroupSamplesForSampleTypeWithExperiment(databaseInstanceId,

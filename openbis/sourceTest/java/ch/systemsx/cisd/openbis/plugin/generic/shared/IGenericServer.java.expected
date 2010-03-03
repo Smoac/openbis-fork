@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplesWithTypePredicate;
@@ -98,7 +98,7 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public Experiment getExperimentInfo(
             String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier identifier);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier identifier);
 
     /**
      * For given {@link TechId} returns the corresponding {@link Experiment}.

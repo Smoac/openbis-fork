@@ -30,11 +30,11 @@ public class GroupCodeHelper
     {
     }
 
-    public static final String HOME_GROUP_CODE = null;
+    public static final String HOME_SPACE_CODE = null;
 
     public static boolean isHomeGroup(String groupCodeOrNull)
     {
-        return groupCodeOrNull == HOME_GROUP_CODE;
+        return groupCodeOrNull == HOME_SPACE_CODE;
     }
 
     /**

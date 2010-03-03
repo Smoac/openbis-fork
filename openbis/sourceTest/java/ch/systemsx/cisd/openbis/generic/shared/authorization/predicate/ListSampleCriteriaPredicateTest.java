@@ -60,8 +60,8 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         prepareProvider(createDatabaseInstance(), Collections.<GroupPE> emptyList());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setGroupCode(SPACE_CODE);
-        criteria.setIncludeGroup(true);
+        criteria.setSpaceCode(SPACE_CODE);
+        criteria.setIncludeSpace(true);
         predicate.doEvaluation(createPerson(), createRoles(false), criteria);
         context.assertIsSatisfied();
     }
@@ -72,8 +72,8 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         prepareProvider(createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setGroupCode(ANOTHER_GROUP_CODE);
-        criteria.setIncludeGroup(true);
+        criteria.setSpaceCode(ANOTHER_GROUP_CODE);
+        criteria.setIncludeSpace(true);
         assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), criteria).isError());
         context.assertIsSatisfied();
     }
@@ -85,8 +85,8 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         prepareProvider(createDatabaseInstance(), createGroups());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setGroupCode(SPACE_CODE);
-        criteria.setIncludeGroup(true);
+        criteria.setSpaceCode(SPACE_CODE);
+        criteria.setIncludeSpace(true);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), criteria);
         assertEquals(Status.OK, evaluation);

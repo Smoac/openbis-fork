@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
 
 /**
- * Identifies a group.
+ * Identifies a space (aka group).
  * 
  * @author Izabela Adamczyk
  */
@@ -34,33 +34,33 @@ public class GroupIdentifier extends DatabaseInstanceIdentifier implements
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private String groupCodeOrNull;
+    private String spaceCodeOrNull;
 
     public static GroupIdentifier createHome()
     {
-        return new GroupIdentifier(getHomeGroupCode(), DatabaseInstanceIdentifier.HOME);
+        return new GroupIdentifier(getHomeSpaceCode(), DatabaseInstanceIdentifier.HOME);
     }
 
     public GroupIdentifier(final DatabaseInstanceIdentifier databaseInstanceIdentifier,
-            final String groupCode)
+            final String spaceCode)
     {
-        this(databaseInstanceIdentifier.getDatabaseInstanceCode(), groupCode);
+        this(databaseInstanceIdentifier.getDatabaseInstanceCode(), spaceCode);
     }
 
-    public GroupIdentifier(final String databaseInstanceCode, final String groupCode)
+    public GroupIdentifier(final String databaseInstanceCode, final String spaceCode)
     {
         super(databaseInstanceCode);
-        setGroupCode(groupCode);
+        setGroupCode(spaceCode);
     }
 
     public final String getGroupCode()
     {
-        return StringUtils.upperCase(groupCodeOrNull);
+        return StringUtils.upperCase(spaceCodeOrNull);
     }
 
-    public final void setGroupCode(final String groupCode)
+    public final void setGroupCode(final String spaceCode)
     {
-        this.groupCodeOrNull = groupCode;
+        this.spaceCodeOrNull = spaceCode;
     }
 
     //
@@ -99,22 +99,22 @@ public class GroupIdentifier extends DatabaseInstanceIdentifier implements
     {
         if (getDatabaseInstanceCode() == null)
         {
-            return Constants.IDENTIFIER_SEPARATOR + groupCodeOrNull;
+            return Constants.IDENTIFIER_SEPARATOR + spaceCodeOrNull;
         } else
         {
             return super.toString() + Constants.DATABASE_INSTANCE_SEPARATOR
-                    + Constants.IDENTIFIER_SEPARATOR + groupCodeOrNull;
+                    + Constants.IDENTIFIER_SEPARATOR + spaceCodeOrNull;
         }
     }
 
-    protected static String getHomeGroupCode()
+    protected static String getHomeSpaceCode()
     {
-        return GroupCodeHelper.HOME_GROUP_CODE;
+        return GroupCodeHelper.HOME_SPACE_CODE;
     }
 
     public boolean isHomeGroup()
     {
-        return GroupCodeHelper.isHomeGroup(groupCodeOrNull);
+        return GroupCodeHelper.isHomeGroup(spaceCodeOrNull);
     }
 
     /** Do not use this constructor. It exists just to make automatic bean conversion possible */
@@ -126,7 +126,7 @@ public class GroupIdentifier extends DatabaseInstanceIdentifier implements
 
     /** this method exists just to make automatic bean conversion possible */
     @Deprecated
-    public void setHomeGroup(final boolean isHomeGroup)
+    public void setHomeGroup(final boolean isHomeSpace)
     {
         // empty
     }

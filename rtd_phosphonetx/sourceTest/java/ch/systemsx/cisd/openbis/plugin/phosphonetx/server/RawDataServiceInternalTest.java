@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.PROCESSING;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.QUERIES;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.GROUP_CODE;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.SPACE_CODE;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.RAW_DATA_SAMPLE_TYPE;
 
 import java.util.ArrayList;
@@ -157,8 +157,8 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
                                 {
                                     ListOrSearchSampleCriteria criteria =
                                             (ListOrSearchSampleCriteria) item;
-                                    assertEquals(GROUP_CODE, criteria.getGroupCode());
-                                    assertEquals(true, criteria.isIncludeGroup());
+                                    assertEquals(SPACE_CODE, criteria.getSpaceCode());
+                                    assertEquals(true, criteria.isIncludeSpace());
                                     SampleType type = criteria.getSampleType();
                                     assertEquals(RAW_DATA_SAMPLE_TYPE, type.getCode());
                                     assertEquals(sampleType.getId(), type.getId());

@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validato
  */
 public class RawDataServiceInternal extends AbstractServer<IRawDataServiceInternal> implements IRawDataServiceInternal
 {
-     @Private static final String GROUP_CODE = "MS_DATA";
+     @Private static final String SPACE_CODE = "MS_DATA";
 
     @Private static final String RAW_DATA_SAMPLE_TYPE = "MS_INJECTION";
     
@@ -139,8 +139,8 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         SampleTypePE sampleTypePE =
             getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(RAW_DATA_SAMPLE_TYPE);
         criteria.setSampleType(SampleTypeTranslator.translate(sampleTypePE, null));
-        criteria.setIncludeGroup(true);
-        criteria.setGroupCode(GROUP_CODE);
+        criteria.setIncludeSpace(true);
+        criteria.setSpaceCode(SPACE_CODE);
         ListOrSearchSampleCriteria criteria2 = new ListOrSearchSampleCriteria(criteria);
         criteria2.setEnrichDependentSamplesWithProperties(true);
         return sampleLister.list(criteria2);
