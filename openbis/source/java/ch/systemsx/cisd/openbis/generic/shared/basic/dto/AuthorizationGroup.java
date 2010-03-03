@@ -28,11 +28,11 @@ public class AuthorizationGroup extends AbstractRegistrationHolder implements
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    String code;
+    private String code;
 
-    String description;
+    private String description;
 
-    DatabaseInstance databaseInstance;
+    private DatabaseInstance databaseInstance;
 
     private Long id;
 
