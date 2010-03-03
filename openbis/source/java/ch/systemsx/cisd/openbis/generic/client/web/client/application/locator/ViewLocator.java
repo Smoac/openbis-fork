@@ -46,8 +46,6 @@ public class ViewLocator
 
     public static final String PERMLINK_ACTION = "VIEW";
 
-    public static final String SEARCH_ACTION = "SEARCH";
-
     // Instance Variables
     private String actionOrNull;
 

@@ -14,11 +14,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnectio
  */
 public class SearchLocatorResolver extends AbstractViewLocatorResolver
 {
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-    private final static String SEARCH_ACTION = ViewLocator.SEARCH_ACTION;
+    public static final String SEARCH_ACTION = "SEARCH";
 
     protected static final String DEFAULT_SEARCH_STRING = "*";
+
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     protected static final String MATCH_KEY = "searchmatch";
 
@@ -50,11 +50,10 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
             resolver.openInitialEntitySearch();
         } else
         {
-            throw new UserFailureException(
-                    "URLs for searching openBIS only support SAMPLE searches. Entity " + entityKind
-                            + " is not supported.");
+            throw new UserFailureException("URLs for searching openBIS only support "
+                    + EntityKind.SAMPLE.getDescription() + " searches. "
+                    + entityKind.getDescription() + "s are not supported.");
         }
-
     }
 
     private EntityKind getEntityKind(String entityKindValueOrNull)

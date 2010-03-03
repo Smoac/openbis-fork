@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -33,7 +34,8 @@ public class SearchlinkUtilities
             final EntityKind entityKind, final String searchString)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
-        ulrWithParameters.addParameter(ViewLocator.ACTION_PARAMETER, ViewLocator.SEARCH_ACTION);
+        ulrWithParameters.addParameter(ViewLocator.ACTION_PARAMETER,
+                SearchLocatorResolver.SEARCH_ACTION);
         ulrWithParameters.addParameter(ViewLocator.ENTITY_PARAMETER, entityKind.name());
         ulrWithParameters.addParameter(CODE_PARAMETER_KEY, searchString);
         return ulrWithParameters.toString();

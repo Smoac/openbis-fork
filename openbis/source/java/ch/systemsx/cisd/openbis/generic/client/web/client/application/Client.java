@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.IViewLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.BrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
@@ -268,11 +268,8 @@ public class Client implements EntryPoint
     protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry,
             IViewContext<ICommonClientServiceAsync> context)
     {
-        IViewLocatorResolver handler;
-        handler = new PermlinkLocatorResolver(context);
-        handlerRegistry.registerHandler(handler);
-
-        handler = new SearchLocatorResolver(context);
-        handlerRegistry.registerHandler(handler);
+        handlerRegistry.registerHandler(new PermlinkLocatorResolver(context));
+        handlerRegistry.registerHandler(new SearchLocatorResolver(context));
+        handlerRegistry.registerHandler(new BrowserLocatorResolver(context));
     }
 }
