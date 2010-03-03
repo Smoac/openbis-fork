@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
+import ij.io.Opener;
+
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -24,9 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
 
 /**
  * Utility function on images.
@@ -71,8 +70,7 @@ public class ImageUtil
         }
         try
         {
-            PlanarImage planarImage = JAI.create("fileload", file.getAbsolutePath());
-            return planarImage.getAsBufferedImage();
+            return new Opener().openImage(file.getAbsolutePath()).getBufferedImage();
         } catch (RuntimeException ex)
         {
             throw new IllegalArgumentException("Isn't a valid image file: "
