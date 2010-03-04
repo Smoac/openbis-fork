@@ -103,6 +103,14 @@ public class FieldUtil
         }
     }
 
+    /** sets field value without invoking any events (especially Events.Change event) */
+    public static <T> void setValueWithoutEvents(Field<T> field, T value)
+    {
+        field.enableEvents(false);
+        field.setValue(value);
+        field.enableEvents(true);
+    }
+
     /**
      * Adds '?' to the field and allows to display chosen message in the info box.
      * 

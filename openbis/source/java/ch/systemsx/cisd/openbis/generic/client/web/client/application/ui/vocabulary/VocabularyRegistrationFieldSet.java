@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -127,15 +126,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
                 CommonVocabularyRegistrationAndEditionFieldsFactory
                         .createChosenFromListCheckbox(messageProvider);
         checkBox.setId(idPrefix + "_chosen-from-list");
-        setValueWithoutEvents(checkBox, true);
+        FieldUtil.setValueWithoutEvents(checkBox, false);
         return checkBox;
-    }
-
-    private static <D> void setValueWithoutEvents(Field<D> field, D value)
-    {
-        field.enableEvents(false);
-        field.setValue(value);
-        field.enableEvents(true);
     }
 
     public final NewVocabulary createVocabulary()
@@ -198,7 +190,6 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
                             .getMessage(Dict.VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS), false);
 
             // If user changes value of this checkbox to true a confirmation window will be shown.
-            // Programatic change of the value with setValue(true) doesn't fire Events.Change event.
             result.addListener(Events.Change, new Listener<FieldEvent>()
                 {
                     public void handleEvent(FieldEvent be)
@@ -220,7 +211,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
                                     protected void onNo()
                                     {
                                         // revert value to false
-                                        setValueWithoutEvents(result, false);
+                                        FieldUtil.setValueWithoutEvents(result, false);
                                     }
                                 }.show();
                         }
@@ -306,14 +297,14 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             fromFile = createRadio("load terms from a file");
             result.add(freeText);
             result.add(fromFile);
-            setValueWithoutEvents(result, freeText);
+            FieldUtil.setValueWithoutEvents(result, freeText);
             result.setLabelSeparator("");
             result.addListener(Events.Change, new Listener<BaseEvent>()
                 {
                     public void handleEvent(BaseEvent be)
                     {
                         Boolean useFreeText = freeText.getValue();
-                        setValueWithoutEvents(chosenFromListCheckbox, useFreeText);
+                        FieldUtil.setValueWithoutEvents(chosenFromListCheckbox, useFreeText);
                         updateSection();
                     }
                 });

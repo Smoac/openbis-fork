@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationFieldSet.CommonVocabularyRegistrationAndEditionFieldsFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -277,7 +278,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                     addField(urlTemplateField);
 
                     chosenFromList = createChosenFromListCheckbox();
-                    chosenFromList.setValue(vocabulary.isChosenFromList());
+                    FieldUtil.setValueWithoutEvents(chosenFromList, vocabulary.isChosenFromList());
                     addField(chosenFromList);
 
                 }
