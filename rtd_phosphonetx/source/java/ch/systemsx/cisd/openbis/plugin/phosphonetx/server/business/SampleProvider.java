@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 class SampleProvider implements ISampleProvider
 {
-    private final IBusinessObjectFactory boFactory;
     private final Session session;
+    private final IBusinessObjectFactory boFactory;
     
     private Map<String, Sample> samplesByPermIDs;
     
@@ -55,7 +55,10 @@ class SampleProvider implements ISampleProvider
         samplesByPermIDs = new HashMap<String, Sample>();
         for (Sample sample : list)
         {
-            samplesByPermIDs.put(sample.getPermId(), sample);
+            for (Sample s = sample; s != null; s = s.getGeneratedFrom())
+            {
+                samplesByPermIDs.put(s.getPermId(), s);
+            }
         }
 
     }
