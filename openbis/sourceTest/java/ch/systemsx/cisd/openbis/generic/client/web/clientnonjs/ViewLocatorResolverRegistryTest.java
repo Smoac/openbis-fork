@@ -33,8 +33,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Pe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -275,17 +277,13 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
 
             });
 
-        ViewLocator locator = new ViewLocator("action=SEARCH&entity=DATA_SET");
+        ViewLocator locator =
+                new ViewLocator("action=SEARCH&entity=DATA_SET&data_set_type=HCS_IMAGE");
         OpenViewAction action = new OpenViewAction(registry, locator);
+        action.execute();
 
-        try
-        {
-            action.openInitialTabUnderExceptionHandlerForTest();
-            fail("Only SAMPLE is supported by the search link mechanism right now.");
-        } catch (UserFailureException expected)
-        {
-            // Do nothing -- this should happen
-        }
+        // Can't test this any further because the request to open the search disappears into
+        // GWT/GXT land.
 
         context.assertIsSatisfied();
     }
