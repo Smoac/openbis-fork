@@ -63,6 +63,10 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
         {
             SampleSearchLocatorResolver resolver = new SampleSearchLocatorResolver(viewContext);
             resolver.openEntitySearch(searchCriteria);
+        } else if (EntityKind.DATA_SET == entityKind)
+        {
+            DataSetSearchLocatorResolver resolver = new DataSetSearchLocatorResolver(viewContext);
+            resolver.openEntitySearch(searchCriteria);
         } else
         {
             throw new UserFailureException(

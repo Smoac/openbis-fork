@@ -65,6 +65,28 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
         return grid.asDisposableWithToolbar(toolbar);
     }
 
+    public static IDisposableComponent createWithInitialSearchCriteria(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            DetailedSearchCriteria searchCriteria)
+    {
+        DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext);
+
+        grid.chosenSearchCriteria = searchCriteria;
+
+        final DetailedSearchWindow searchWindow =
+                new DetailedSearchWindow(viewContext, EntityKind.DATA_SET);
+
+        // Set the initial search string before creating the toolbar because the toolbar will use
+        // the initial search string in its own initialization.
+        searchWindow.setInitialSearchCriteria(searchCriteria);
+
+        final DetailedSearchToolbar toolbar =
+                new DetailedSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),
+                        searchWindow, true);
+        searchWindow.setUpdateListener(toolbar);
+        return grid.asDisposableWithToolbar(toolbar);
+    }
+
     private DetailedSearchCriteria chosenSearchCriteria;
 
     private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)

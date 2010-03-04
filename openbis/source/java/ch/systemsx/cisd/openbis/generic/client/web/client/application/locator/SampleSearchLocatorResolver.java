@@ -58,6 +58,8 @@ public class SampleSearchLocatorResolver
         ListSampleDisplayCriteria displayCriteria = ListSampleDisplayCriteria.createForSearch();
         displayCriteria.updateSearchCriteria(searchCriteria);
 
+        // Do a search first and based on the results of the search, open either the details view or
+        // the search view
         viewContext.getCommonService().listSamples(displayCriteria,
                 new OpenEntitySearchTabCallback(displayCriteria));
     }
@@ -80,6 +82,8 @@ public class SampleSearchLocatorResolver
 
         public final void onSuccess(ResultSetWithEntityTypes<Sample> result)
         {
+            // If the search found just one sample, show it in the details view. If many samples
+            // were found, open the search view.
             switch (result.getResultSet().getTotalLength())
             {
                 // Nothing found -- notify the user
