@@ -24,16 +24,18 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
-import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -47,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
 {
     private static final String CIFEX_DIR_ENDING = ".dir";
-    private static final String HELPDESK_EMAIL = "helpdesk.openbis.basysbio@bsse.ethz.ch";
+    @Private static final String HELPDESK_EMAIL = "helpdesk.openbis.basysbio@bsse.ethz.ch";
 
     private static final IDataSetValidator DUMMY_DATA_SET_VALIDATOR = new IDataSetValidator()
         {
@@ -58,18 +60,20 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
 
     private static final class MessageBuilder
     {
-        
         private final String userEMail;
 
+        private final ITimeProvider timeProvider;
+        
         private String dataSetFileName;
 
         private int numberOfTimePoints;
 
         private int count;
 
-        MessageBuilder(String userEMail)
+        MessageBuilder(String userEMail, ITimeProvider timeProvider)
         {
             this.userEMail = userEMail;
+            this.timeProvider = timeProvider;
         }
 
         void setTimeSeriesDataSetFileName(File dataSet)
@@ -101,7 +105,9 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
                 String subject =
                         "BaSysBio: Failed uploading of time series data set '" + dataSetFileName
                                 + "'";
-                String timeStamp = Constants.DATE_FORMAT.get().format(new Date());
+                String timeStamp =
+                        Constants.DATE_FORMAT.get().format(
+                                new Date(timeProvider.getTimeInMilliseconds()));
                 String message =
                         "Uploading of time series data set '" + dataSetFileName
                                 + "' failed because only " + count + " of " + numberOfTimePoints
@@ -135,9 +141,11 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
 
     private final IMailClient mailClient;
 
-    private final TransferredDataSetHandler timePointDataSetHandler;
+    private final IDataSetHandler timePointDataSetHandler;
 
     private final File timePointDataSetFolder;
+    
+    private final ITimeProvider timeProvider;
 
     public TimeSeriesAndTimePointDataSetHandler(Properties parentProperties,
             IDataSetHandler delegator, IEncapsulatedOpenBISService openbisService)
@@ -152,6 +160,18 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
         timePointDataSetHandler =
                 ETLDaemon.createDataSetHandler(parentProperties, threadParameters, openbisService,
                         DUMMY_DATA_SET_VALIDATOR, false);
+        timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
+    }
+    
+    @Private
+    TimeSeriesAndTimePointDataSetHandler(IDataSetHandler delegator, IMailClient mailClient,
+            IDataSetHandler timePointDataSetHandler, File timePointDataSetFolder, ITimeProvider timeProvider)
+    {
+        this.delegator = delegator;
+        this.mailClient = mailClient;
+        this.timePointDataSetHandler = timePointDataSetHandler;
+        this.timePointDataSetFolder = timePointDataSetFolder;
+        this.timeProvider = timeProvider;
     }
 
     public List<DataSetInformation> handleDataSet(File dataSet)
@@ -162,7 +182,8 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
         boolean successful = result.isEmpty() == false;
         if (successful)
         {
-            MessageBuilder builder = new MessageBuilder(result.get(0).tryGetUploadingUserEmail());
+            MessageBuilder builder =
+                    new MessageBuilder(result.get(0).tryGetUploadingUserEmail(), timeProvider);
             builder.setTimeSeriesDataSetFileName(dataSet);
             File[] files = timePointDataSetFolder.listFiles();
             if (operationLog.isInfoEnabled())
