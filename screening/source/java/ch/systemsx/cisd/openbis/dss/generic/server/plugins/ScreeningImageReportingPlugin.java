@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asNum;
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asText;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -36,7 +39,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableMode
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -134,16 +136,6 @@ public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin imple
                 }
             }
         }
-    }
-
-    private StringTableCell asText(String datasetCode)
-    {
-        return new StringTableCell(datasetCode);
-    }
-
-    private static ISerializableComparable asNum(int num)
-    {
-        return new IntegerTableCell(num);
     }
 
     private static class GeometryIterable implements Iterable<Location>
