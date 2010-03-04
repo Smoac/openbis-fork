@@ -38,6 +38,7 @@
           class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.BusinessObjectFactory">
         <constructor-arg ref="dao-factory"/>
         <constructor-arg ref="phosphonetx-dao-factory"/>
+        <constructor-arg value="${type-of-caching}"/>
     </bean>      
     
     <!-- 

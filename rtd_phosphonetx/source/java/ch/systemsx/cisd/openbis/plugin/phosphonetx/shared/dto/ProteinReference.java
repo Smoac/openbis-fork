@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
+import java.io.Serializable;
+
 import net.lemnik.eodsql.ResultColumn;
 
 /**
@@ -23,8 +25,10 @@ import net.lemnik.eodsql.ResultColumn;
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinReference extends AbstractDTOWithID
+public class ProteinReference extends AbstractDTOWithID implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     @ResultColumn("accession_number")
     private String accessionNumber;
     

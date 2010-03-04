@@ -32,10 +32,10 @@ public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory 
     private final IDAOFactory daoFactory;
     private final IPhosphoNetXDAOFactory specificDAOFactory;
 
-    public BusinessObjectFactory(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory)
+    public BusinessObjectFactory(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory, String typeOfCaching)
     {
         this.daoFactory = daoFactory;
-        this.specificDAOFactory = specificDAOFactory;
+        this.specificDAOFactory = new DAOFactoryWithCache(specificDAOFactory, typeOfCaching);
     }
 
     public ISampleLister createSampleLister(Session session)

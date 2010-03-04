@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
+import java.io.Serializable;
+
 import net.lemnik.eodsql.ResultColumn;
 
 /**
@@ -23,8 +25,10 @@ import net.lemnik.eodsql.ResultColumn;
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinReferenceWithProbability extends ProteinReference
+public class ProteinReferenceWithProbability extends ProteinReference implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     @ResultColumn("data_set_id")
     private long dataSetID;
     
