@@ -26,8 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.comparators.NullComparator;
-import org.apache.commons.collections.comparators.ReverseComparator;
+import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.lang.text.StrMatcher;
 import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.log4j.Logger;
@@ -266,8 +265,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
             };
 
-        // null values will be treated as smallestte
-        return applySortDir(sortDir, new NullComparator(comparator, false));
+        // null values will be treated as smallest
+        return applySortDir(sortDir, ComparatorUtils.nullLowComparator(comparator));
     }
 
     @SuppressWarnings("unchecked")
@@ -275,7 +274,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         if (sortDir == SortDir.DESC)
         {
-            return new ReverseComparator(comparator);
+            return ComparatorUtils.reversedComparator(comparator);
         } else
         {
             return comparator;
