@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -39,111 +36,30 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 
-class SampleSearchLocatorResolver
+/**
+ * A resolver that takes search critera, executes a sample search, and displays the results.
+ * 
+ * @author Chandrasekhar Ramakrishnan
+ */
+public class SampleSearchLocatorResolver
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final ViewLocator locator;
-
-    SampleSearchLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext,
-            ViewLocator locator)
+    public SampleSearchLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
-        this.locator = locator;
     }
 
-    void openInitialEntitySearch() throws UserFailureException
+    public void openEntitySearch(DetailedSearchCriteria searchCriteria) throws UserFailureException
     {
-        openEntitySearch();
-    }
-
-    private void openEntitySearch()
-    {
-        ListSampleDisplayCriteria displayCriteria = getListSampleDisplayCriteria();
-
-        viewContext.getCommonService().listSamples(displayCriteria,
-                new OpenEntitySearchTabCallback(displayCriteria));
-    }
-
-    /**
-     * Convert the locator parameters into a ListSampleDisplayCriteria -- a LSDC is used to pass the
-     * search parameters to the server.
-     */
-    private ListSampleDisplayCriteria getListSampleDisplayCriteria()
-    {
-        // Loop over the parameters and create a detailed search criteria for each parameter
-        // -- a parameter key could refer to an attribute (valid options known at compile time)
-        // -- or a property (valid options must be retrieved from server)
-        Map<String, String> parameters = locator.getParameters();
-        ArrayList<DetailedSearchCriterion> criterionList = new ArrayList<DetailedSearchCriterion>();
-
-        DetailedSearchCriteria searchCriteria = new DetailedSearchCriteria();
-        // Default to match all
-        searchCriteria.setConnection(SearchLocatorResolver.DEFAULT_MATCH_CONNECTION);
-
-        for (String key : parameters.keySet())
-        {
-            String value = parameters.get(key);
-            // The match key is handled separately
-            if (key.equals(SearchLocatorResolver.MATCH_KEY))
-            {
-                if (value.equalsIgnoreCase(SearchLocatorResolver.MATCH_ANY_VALUE))
-                {
-                    searchCriteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
-                }
-            } else if (key.equals("gwt.codesvr"))
-            {
-                // ignore this gwt keyword
-            } else
-            {
-                DetailedSearchCriterion searchCriterion = getSearchCriterionForKeyValue(key, value);
-                criterionList.add(searchCriterion);
-            }
-        }
-
-        // Default the search criteria if none is provided
-        if (criterionList.isEmpty())
-        {
-            DetailedSearchCriterion searchCriterion =
-                    new DetailedSearchCriterion(DetailedSearchField
-                            .createAttributeField(SampleAttributeSearchFieldKind.CODE),
-                            SearchLocatorResolver.DEFAULT_SEARCH_STRING);
-            criterionList.add(searchCriterion);
-        }
-
-        searchCriteria.setCriteria(criterionList);
-
         // Create a display criteria object for the search string
         ListSampleDisplayCriteria displayCriteria = ListSampleDisplayCriteria.createForSearch();
         displayCriteria.updateSearchCriteria(searchCriteria);
-        return displayCriteria;
-    }
 
-    /**
-     * Convert the key/value to a search criterion. The kind of field depends on whether the key
-     * refers to an attribute or property.
-     */
-    private DetailedSearchCriterion getSearchCriterionForKeyValue(String key, String value)
-    {
-        DetailedSearchField field;
-
-        try
-        {
-            SampleAttributeSearchFieldKind attributeKind =
-                    SampleAttributeSearchFieldKind.valueOf(key.toUpperCase());
-            field = DetailedSearchField.createAttributeField(attributeKind);
-        } catch (IllegalArgumentException ex)
-        {
-            // this is not an attribute
-            field = DetailedSearchField.createPropertyField(key.toUpperCase());
-        }
-        return new DetailedSearchCriterion(field, value);
+        viewContext.getCommonService().listSamples(displayCriteria,
+                new OpenEntitySearchTabCallback(displayCriteria));
     }
 
     private class OpenEntitySearchTabCallback implements
@@ -218,8 +134,6 @@ class SampleSearchLocatorResolver
 
         public ITabItem create()
         {
-            // CRDEBUG
-            System.err.println(displayCriteria.getSearchCriteria().toString());
             IDisposableComponent browser =
                     SampleSearchHitGrid.createWithInitialDisplayCriteria(viewContext,
                             displayCriteria);

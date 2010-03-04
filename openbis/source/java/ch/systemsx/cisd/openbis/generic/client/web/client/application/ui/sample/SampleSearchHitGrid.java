@@ -76,8 +76,6 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
             final IViewContext<ICommonClientServiceAsync> viewContext,
             ListSampleDisplayCriteria displayCriteria)
     {
-        assert displayCriteria.getSearchCriteria().getCriteria().size() == 1;
-
         // Use the caller-provided display criteria
         ISampleCriteriaProvider criteriaProvider =
                 new SampleCriteriaProvider(viewContext, displayCriteria);

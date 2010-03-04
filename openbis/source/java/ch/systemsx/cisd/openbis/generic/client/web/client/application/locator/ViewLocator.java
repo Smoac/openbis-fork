@@ -46,6 +46,8 @@ public class ViewLocator
 
     public static final String PERMLINK_ACTION = "VIEW";
 
+    private static final String GWT_PARAMETER = "gwt.codesvr";
+
     // Instance Variables
     private String actionOrNull;
 
@@ -122,7 +124,10 @@ public class ViewLocator
             final String[] paramPair = params[i].split(KEY_VALUE_SEPARATOR);
             assert paramPair.length == 2 : "Incorrectly formatted URL parameters";
 
-            if (ACTION_PARAMETER.equalsIgnoreCase(paramPair[0]))
+            if (GWT_PARAMETER.equals(paramPair[0]))
+            {
+                // skip GWT parameters -- only relevant during testing
+            } else if (ACTION_PARAMETER.equalsIgnoreCase(paramPair[0]))
             {
                 actionOrNull = paramPair[1];
             } else if (ENTITY_PARAMETER.equalsIgnoreCase(paramPair[0]))
