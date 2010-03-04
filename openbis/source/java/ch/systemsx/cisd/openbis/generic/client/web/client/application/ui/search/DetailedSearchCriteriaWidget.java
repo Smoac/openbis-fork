@@ -219,6 +219,8 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
             widget.setSearchCriterion(criterion);
             addCriterion(widget);
         }
+
+        matchRadios.setValue(searchCriteria.getConnection());
     }
 
     void onEnterKey()

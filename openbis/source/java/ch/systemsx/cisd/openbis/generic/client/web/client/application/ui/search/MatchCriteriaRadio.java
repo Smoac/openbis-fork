@@ -71,6 +71,17 @@ public class MatchCriteriaRadio extends HorizontalPanel
         orRadio.setValue(true);
     }
 
+    public void setValue(SearchCriteriaConnection connection)
+    {
+        if (connection == SearchCriteriaConnection.MATCH_ALL)
+        {
+            andRadio.setValue(true);
+        } else
+        {
+            orRadio.setValue(true);
+        }
+    }
+
     String getSelectedLabel()
     {
         return isAndSelected() ? andRadio.getBoxLabel() : orRadio.getBoxLabel();
