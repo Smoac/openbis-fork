@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
@@ -49,7 +50,7 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
     private static final String CHROMATOGRAM_SERVLET = "chromatogram";
 
     private static final int THUMBNAIL_WIDTH = 150;
-    
+
     private static final int THUMBNAIL_HEIGHT = 150;
 
     private static final int IMAGE_WIDTH = 1066;
@@ -61,7 +62,7 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
     private final IEICMSRunDAO query;
 
     /**
-     * An internal helper class for storing the information for the query paramters to the image
+     * An internal helper class for storing the information for the query parameters to the image
      * servlet.
      * 
      * @author Chandrasekhar Ramakrishnan
@@ -169,12 +170,68 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
         imageCell.addParameter(EICMLChromatogramGeneratorServlet.CHROMATOGRAM_CODE_PARAM,
                 chromatogram.getId());
 
+        String chromatogramLabel = chromatogram.getLabel();
+        row.add(SimpleTableModelBuilder.asText(chromatogramLabel));
+        int mz1 = getMz1(chromatogramLabel);
+        row.add(SimpleTableModelBuilder.asNum(mz1));
+        int mz2 = getMz2(chromatogramLabel);
+        row.add(SimpleTableModelBuilder.asNum(mz2));
         row.add(imageCell);
         return row;
     }
 
+    // All eic_chromatograms.label values have a format [-]EIC mz1[>mz2].
+    @Private
+    static int getMz1(String chromatogramLabel)
+    {
+        String textBefore = "EIC ";
+        int ixEic = chromatogramLabel.indexOf(textBefore);
+        if (ixEic == -1)
+        {
+            return -1;
+        }
+        int ixGt = chromatogramLabel.indexOf(">");
+        if (ixGt == -1)
+        {
+            ixGt = chromatogramLabel.length();
+        }
+        if (ixGt < ixEic)
+        {
+            return -1;
+        }
+        String text = chromatogramLabel.substring(ixEic + textBefore.length(), ixGt);
+        return parseNumber(text, -1);
+    }
+
+    // All eic_chromatograms.label values have a format [-]EIC mz1[>mz2].
+    @Private
+    static int getMz2(String chromatogramLabel)
+    {
+        int ixGt = chromatogramLabel.indexOf(">");
+        if (ixGt == -1)
+        {
+            return -1;
+        }
+        String text = chromatogramLabel.substring(ixGt + 1);
+        return parseNumber(text, -1);
+    }
+
+    private static int parseNumber(String text, int defaultValue)
+    {
+        try
+        {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException ex)
+        {
+            return defaultValue;
+        }
+    }
+
     private static void addReportHeaders(SimpleTableModelBuilder builder)
     {
+        builder.addHeader("Label");
+        builder.addHeader("m/z 1");
+        builder.addHeader("m/z 2");
         builder.addHeader("Chromatogram");
     }
 }
