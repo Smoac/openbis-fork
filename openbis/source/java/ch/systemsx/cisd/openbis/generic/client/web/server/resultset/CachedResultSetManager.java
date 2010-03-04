@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.comparators.NullComparator;
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.commons.lang.text.StrMatcher;
 import org.apache.commons.lang.text.StrTokenizer;
@@ -248,31 +249,25 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         Collections.sort(data, comparator);
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> Comparator<GridRowModel<T>> createComparator(final SortDir sortDir,
             final IColumnDefinition<T> sortField)
     {
         Comparator<GridRowModel<T>> comparator = new Comparator<GridRowModel<T>>()
             {
 
-                @SuppressWarnings("unchecked")
                 public int compare(GridRowModel<T> o1, GridRowModel<T> o2)
                 {
                     Comparable v1 = sortField.tryGetComparableValue(o1);
                     Comparable v2 = sortField.tryGetComparableValue(o2);
-                    // treat null as minimal value
-                    if (v1 == null)
-                    {
-                        return -1;
-                    } else if (v2 == null)
-                    {
-                        return 1;
-                    } else
-                    {
-                        return v1.compareTo(v2);
-                    }
+                    // NullComparator wrapper is dealing with nulls (see below)
+                    return v1.compareTo(v2);
                 }
+
             };
-        return applySortDir(sortDir, comparator);
+
+        // null values will be treated as smallestte
+        return applySortDir(sortDir, new NullComparator(comparator, false));
     }
 
     @SuppressWarnings("unchecked")

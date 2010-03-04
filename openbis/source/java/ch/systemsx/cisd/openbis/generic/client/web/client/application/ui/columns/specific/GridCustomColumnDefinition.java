@@ -60,7 +60,7 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
 
     public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
     {
-        return getPrimitiveValue(rowModel).getComparableValue();
+        return getPrimitiveValue(rowModel);
     }
 
     private PrimitiveValue getPrimitiveValue(GridRowModel<T> rowModel)

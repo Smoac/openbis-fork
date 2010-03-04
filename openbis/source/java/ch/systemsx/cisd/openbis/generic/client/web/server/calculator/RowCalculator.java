@@ -65,6 +65,10 @@ class RowCalculator<T>
     public PrimitiveValue getTypedResult()
     {
         Object value = evaluator.eval();
+        if (value == null)
+        {
+            return PrimitiveValue.NULL;
+        }
         if (value instanceof Long)
         {
             return new PrimitiveValue((Long) value);
@@ -73,7 +77,7 @@ class RowCalculator<T>
             return new PrimitiveValue((Double) value);
         } else
         {
-            return new PrimitiveValue(value == null ? (String) null : value.toString());
+            return new PrimitiveValue(value.toString());
         }
     }
 
