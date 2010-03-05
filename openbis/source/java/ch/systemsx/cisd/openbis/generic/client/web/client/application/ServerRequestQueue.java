@@ -118,6 +118,7 @@ public class ServerRequestQueue
                 request.onInvoke();
             }
         }
+        requests.clear();
     }
 
     // Internal API

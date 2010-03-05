@@ -147,30 +147,30 @@ public class SectionsPanel extends ContentPanel
             });
         elements.add(element);
         addToToolbar(element.getButton());
-        if (element.getButton().isPressed())
-        {
-            element.getPanel().setContentVisible(true);
-            internalAdd(element);
-        } else
-        {
-            element.getPanel().setContentVisible(false);
-        }
+        updateElementVisibility(element);
     }
 
     /** removes all sections and adds them once again with with refreshed state */
     private void refreshLayout()
     {
+        // NOTE: changing visibility of only those sections that changed state doesn't improve
+        // performance but makes code more complex
         removeAll();
         for (SectionElement el : elements)
         {
-            boolean isVisible = el.getButton().isPressed();
-            el.getPanel().setContentVisible(isVisible);
-            if (isVisible)
-            {
-                internalAdd(el);
-            }
+            updateElementVisibility(el);
         }
         layout();
+    }
+
+    private void updateElementVisibility(SectionElement element)
+    {
+        boolean visible = element.getButton().isPressed();
+        element.getPanel().setContentVisible(visible);
+        if (visible)
+        {
+            internalAdd(element);
+        }
     }
 
     private void addToToolbar(ToggleButton bb)
@@ -178,35 +178,9 @@ public class SectionsPanel extends ContentPanel
         toolbar.add(bb);
     }
 
-    public void removePanel(final SingleSectionPanel panel)
-    {
-        int index = elements.indexOf(panel);
-        if (index > -1)
-        {
-            internalRemove(panel);
-            elements.remove(index);
-            toolbar.remove(toolbar.getItem(index));
-        }
-    }
-
     private void internalAdd(final SectionElement element)
     {
         super.add(element.getPanel());
-    }
-
-    private void internalRemove(final ContentPanel panel)
-    {
-        super.remove(panel);
-    }
-
-    /**
-     * Use {@link #removePanel(SingleSectionPanel)}
-     */
-    @Deprecated
-    @Override
-    protected boolean remove(Component item)
-    {
-        return super.remove(item);
     }
 
     /**

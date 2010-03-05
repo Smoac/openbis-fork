@@ -22,7 +22,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 
 /**
- * {@link ContentPanel} configured for Experiment Viewer.
+ * {@link ContentPanel} for sections with deferred request handling.
  * 
  * @author Izabela Adamczyk
  */
@@ -30,7 +30,7 @@ public class SingleSectionPanel extends ContentPanel
 {
     private String displayId;
 
-    private boolean isContentVisible;
+    private boolean isContentVisible = false;
 
     /**
      * A queue used to store requests for data when the selection panel is hidden to avoid
@@ -47,7 +47,6 @@ public class SingleSectionPanel extends ContentPanel
         setAnimCollapse(false);
         setBodyBorder(true);
         setLayout(new FitLayout());
-        isContentVisible = false;
         serverRequestQueue = new ServerRequestQueue();
     }
 
@@ -73,23 +72,22 @@ public class SingleSectionPanel extends ContentPanel
         }
     }
 
-    public boolean isContentVisible()
+    public void setContentVisible(boolean visible)
     {
-        return isContentVisible;
-    }
-
-    public void setContentVisible(boolean isContentVisible)
-    {
-        this.isContentVisible = isContentVisible;
-        if (this.isContentVisible)
+        if (this.isContentVisible != visible)
         {
-            serverRequestQueue.processUniqueRequests();
+            this.isContentVisible = visible;
+            if (visible)
+            {
+                serverRequestQueue.processUniqueRequests();
+            }
+            serverRequestQueue.setProcessImmediately(visible);
         }
-        serverRequestQueue.setProcessImmediately(this.isContentVisible);
     }
 
     protected ServerRequestQueue getServerRequestQueue()
     {
         return serverRequestQueue;
     }
+
 }
