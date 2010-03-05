@@ -19,6 +19,10 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
 
     public final static String BROWSE_ACTION = "BROWSE";
 
+    public final static String TYPE_PARAMETER_KEY = "type";
+
+    public final static String PROJECT_PARAMETER_KEY = "project";
+
     public BrowserLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(BROWSE_ACTION);
@@ -31,7 +35,9 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
         switch (entityKind)
         {
             case EXPERIMENT:
-                openExperimentBrowser();
+                final String projectOrNull = locator.getParameters().get(PROJECT_PARAMETER_KEY);
+                final String experimentTypeOrNull = locator.getParameters().get(TYPE_PARAMETER_KEY);
+                openExperimentBrowser(projectOrNull, experimentTypeOrNull);
                 break;
             case SAMPLE:
                 openSampleBrowser();
@@ -45,21 +51,23 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
         }
     }
 
-    private void openMaterialBrowser()
+    private void openExperimentBrowser(String initialProjectOrNull,
+            String initialExperimentTypeOrNull)
     {
-        // TODO select experiment type and project
-        DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getMaterialBrowser());
+        DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getExperimentBrowser(
+                initialProjectOrNull, initialExperimentTypeOrNull));
     }
 
     private void openSampleBrowser()
     {
+        // TODO select sample type and group
         DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getSampleBrowser());
     }
 
-    private void openExperimentBrowser()
+    private void openMaterialBrowser()
     {
-        DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext)
-                .getExperimentBrowser());
+        // TODO select material type
+        DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getMaterialBrowser());
     }
 
     private EntityKind getEntityKind(ViewLocator locator)

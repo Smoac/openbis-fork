@@ -63,8 +63,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -81,6 +81,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private final IViewContext<?> viewContext;
 
+    private final String initialIdentifierOrNull;
+
     private Project selectedProjectOrNull;
 
     private SelectionChangedListener<?> selectionChangedListener;
@@ -91,10 +93,12 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private final Map<Project, Widget> projectLinks = new HashMap<Project, Widget>();
 
-    public ProjectSelectionTreeGridContainer(final IViewContext<?> viewContext)
+    public ProjectSelectionTreeGridContainer(final IViewContext<?> viewContext,
+            String initialIdentifierOrNull)
     {
         super(new FitLayout());
         this.viewContext = viewContext;
+        this.initialIdentifierOrNull = initialIdentifierOrNull;
 
         ColumnConfig codeColumn = createCodeColumn();
         ColumnModel columnModel = new ColumnModel(Arrays.asList(codeColumn));
@@ -108,6 +112,11 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         add(cp);
 
         refreshTree();
+    }
+
+    public ProjectSelectionTreeGridContainer(final IViewContext<?> viewContext)
+    {
+        this(viewContext, null);
     }
 
     /** @return tree grid with empty store and specified column model */
@@ -134,6 +143,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                         @Override
                         public void selectionChanged(SelectionChangedEvent<ModelData> se)
                         {
+
                             if (selectedProjectOrNull != null)
                             {
                                 selectedProjectLinkOrNull.setVisible(false);
@@ -411,11 +421,19 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
             List<Project> projects = result.getList().extractOriginalObjects();
             rebuildTree(projects);
 
-            if (selectedProjectOrNull != null)
+            String identifierOrNull = tryGetProjectIdentifierToSelect();
+            if (identifierOrNull != null)
             {
-                selectByIdentifierIfPossible(selectedProjectOrNull.getIdentifier());
+                selectByIdentifierIfPossible(identifierOrNull);
             }
         }
+
+        private String tryGetProjectIdentifierToSelect()
+        {
+            return selectedProjectOrNull != null ? selectedProjectOrNull.getIdentifier()
+                    : initialIdentifierOrNull;
+        }
+
     }
 
     private static class BaseModelDataWithCode extends NonHierarchicalBaseModelData

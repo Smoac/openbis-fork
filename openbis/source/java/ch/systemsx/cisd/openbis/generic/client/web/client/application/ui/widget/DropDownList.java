@@ -468,4 +468,9 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         dataRefreshCallbacks.add(callback);
     }
 
+    protected void updateOriginalValue()
+    {
+        setOriginalValue(getValue());
+    }
+
 }

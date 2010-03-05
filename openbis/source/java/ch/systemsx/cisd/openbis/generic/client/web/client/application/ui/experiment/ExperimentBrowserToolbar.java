@@ -59,12 +59,20 @@ class ExperimentBrowserToolbar extends ToolBar implements
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public ExperimentBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
-            ProjectSelectionTreeGridContainer tree)
+            ProjectSelectionTreeGridContainer tree, String initialExperimentTypeOrNull)
     {
         this.viewContext = viewContext;
-        selectExperimentTypeCombo = new ExperimentTypeSelectionWidget(viewContext, ID, true);
+        selectExperimentTypeCombo =
+                new ExperimentTypeSelectionWidget(viewContext, ID, true,
+                        initialExperimentTypeOrNull);
         selectProjectTree = tree;
         display();
+    }
+
+    public ExperimentBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
+            ProjectSelectionTreeGridContainer tree)
+    {
+        this(viewContext, tree, null);
     }
 
     public void setCriteriaChangedListeners(final IDelegatedAction refreshAction)

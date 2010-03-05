@@ -72,7 +72,7 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
     @Override
     protected void loadData(AbstractAsyncCallback<List<QueryExpression>> callback)
     {
-        viewContext.getService().listQueries(new ListTermsCallback(viewContext));
+        viewContext.getService().listQueries(new ListQueriesCallback(viewContext));
         callback.ignore();
     }
 
@@ -85,7 +85,7 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
     // initial value support
     //
 
-    public void selectInitialValue()
+    private void selectInitialValue()
     {
         if (initialQueryNameOrNull != null)
         {
@@ -94,7 +94,7 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
         }
     }
 
-    public void trySelectByName(String queryName)
+    private void trySelectByName(String queryName)
     {
         try
         {
@@ -105,15 +105,10 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
         }
     }
 
-    public void updateOriginalValue()
-    {
-        setOriginalValue(getValue());
-    }
-
-    private class ListTermsCallback extends QuerySelectionWidget.ListItemsCallback
+    private class ListQueriesCallback extends QuerySelectionWidget.ListItemsCallback
     {
 
-        protected ListTermsCallback(IViewContext<?> viewContext)
+        protected ListQueriesCallback(IViewContext<?> viewContext)
         {
             super(viewContext);
         }

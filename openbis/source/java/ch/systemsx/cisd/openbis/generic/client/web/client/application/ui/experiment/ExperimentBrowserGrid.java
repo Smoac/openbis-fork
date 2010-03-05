@@ -98,17 +98,29 @@ public class ExperimentBrowserGrid extends
         return browserGrid.asDisposableWithToolbarAndTree(toolbar, tree);
     }
 
-    /** Create a grid with the toolbar and a tree. */
+    /**
+     * Create a grid with the toolbar and a tree and optional initial selection of experiment type
+     * and project.
+     */
     public static DisposableEntityChooser<Experiment> create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, String initialProjectOrNull,
+            String initialExperimentTypeOrNull)
     {
         final ProjectSelectionTreeGridContainer tree =
-                new ProjectSelectionTreeGridContainer(viewContext);
-        final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
+                new ProjectSelectionTreeGridContainer(viewContext, initialProjectOrNull);
+        final ExperimentBrowserToolbar toolbar =
+                new ExperimentBrowserToolbar(viewContext, tree, initialExperimentTypeOrNull);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithToolbarAndTree(toolbar, tree);
+    }
+
+    /** Create a grid with the toolbar and a tree with no initial selection. */
+    public static DisposableEntityChooser<Experiment> create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        return create(viewContext, null, null);
     }
 
     private final ICriteriaProvider<ListExperimentsCriteria> criteriaProvider;

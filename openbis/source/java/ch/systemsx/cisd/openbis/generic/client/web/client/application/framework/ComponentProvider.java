@@ -446,13 +446,16 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getExperimentBrowser()
+    public ITabItemFactory getExperimentBrowser(final String initialProjectOrNull,
+            final String initialExperimentTypeOrNull)
     {
         return new ITabItemFactory()
             {
                 public ITabItem create()
                 {
-                    IDisposableComponent browser = ExperimentBrowserGrid.create(viewContext);
+                    IDisposableComponent browser =
+                            ExperimentBrowserGrid.create(viewContext, initialProjectOrNull,
+                                    initialExperimentTypeOrNull);
                     return createTab(Dict.EXPERIMENT_BROWSER, browser);
                 }
 
@@ -466,6 +469,11 @@ public final class ComponentProvider
                     return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT, HelpPageAction.BROWSE);
                 }
             };
+    }
+
+    public ITabItemFactory getExperimentBrowser()
+    {
+        return getExperimentBrowser(null, null);
     }
 
     public ITabItemFactory getPropertyTypeBrowser()

@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -49,14 +50,17 @@ public final class ExperimentTypeSelectionWidget extends
 
     private final boolean withAll;
 
+    private final String initialCodeOrNull;
+
     public ExperimentTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String idSuffix, final boolean withAll)
+            final String idSuffix, final boolean withAll, final String initialCodeOrNull)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.EXPERIMENT_TYPE, ModelDataPropertyNames.CODE,
                 "experiment type", "experiment types");
         this.viewContext = viewContext;
         this.withAll = withAll;
-        setAutoSelectFirst(withAll);
+        this.initialCodeOrNull = initialCodeOrNull;
+        setAutoSelectFirst(withAll && initialCodeOrNull == null);
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
                 ModelDataPropertyNames.TOOLTIP));
     }
@@ -64,7 +68,7 @@ public final class ExperimentTypeSelectionWidget extends
     public ExperimentTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String idSuffix)
     {
-        this(viewContext, idSuffix, false);
+        this(viewContext, idSuffix, false, null);
     }
 
     /**
@@ -86,7 +90,8 @@ public final class ExperimentTypeSelectionWidget extends
     @Override
     protected void loadData(AbstractAsyncCallback<List<ExperimentType>> callback)
     {
-        viewContext.getService().listExperimentTypes(callback);
+        viewContext.getService().listExperimentTypes(new ListExperimentTypesCallback(viewContext));
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -97,4 +102,44 @@ public final class ExperimentTypeSelectionWidget extends
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
+    // 
+    // initial value support
+    //
+
+    private void selectInitialValue()
+    {
+        if (initialCodeOrNull != null)
+        {
+            trySelectByCode(initialCodeOrNull);
+            updateOriginalValue();
+        }
+    }
+
+    private void trySelectByCode(String code)
+    {
+        try
+        {
+            GWTUtils.setSelectedItem(this, ModelDataPropertyNames.CODE, code);
+        } catch (IllegalArgumentException ex)
+        {
+            MessageBox.alert("Error", "Experiment Type '" + code + "' doesn't exist.", null);
+        }
+    }
+
+    private class ListExperimentTypesCallback extends
+            ExperimentTypeSelectionWidget.ListItemsCallback
+    {
+
+        protected ListExperimentTypesCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(List<ExperimentType> result)
+        {
+            super.process(result);
+            selectInitialValue();
+        }
+    }
 }
