@@ -35,7 +35,7 @@ function restore_loginHeader {
   	cp ~openbis/config/index.html  ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
   fi  
   if  [ -f ~openbis/config/datastore_log.xml ]; then
-  	cp ~openbis/config/datastore_log.xml   ~openbis/sprint/datastore_server/etc/
+  	cp ~openbis/config/datastore_log.xml ~openbis/sprint/datastore_server/etc/log.xml
   fi
 }
 
