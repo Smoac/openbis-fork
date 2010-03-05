@@ -61,7 +61,7 @@ public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSe
         this.columnDistinctValues = arrayList;
     }
 
-    /** Used when items are not displayed in a grid (usually we need the values for comboboxes */
+    /** Used when items are not displayed in a grid (usually we need the values for comboboxes) */
     // TODO 2009-10-08, Tomasz Pylak: this method is a source of many anti-patterns where the
     // existance of server cache is simply forgotten and cache is never cleared.
     // Possible solution is to add an

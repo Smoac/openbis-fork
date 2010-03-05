@@ -1186,7 +1186,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void postRefresh(boolean wasSuccessful)
                 {
-                    if (customColumnsMetadataProvider.getUnsettingHasChanged())
+                    if (customColumnsMetadataProvider.getHasChangedAndSetFalse())
                     {
                         recreateColumnModelAndRefreshColumnsWithFilters();
                     }
@@ -1275,11 +1275,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                                         .setCustomColumnsMetadata(newCustomColumns);
                             }
                             boolean customColumnsChanged =
-                                    customColumnsMetadataProvider.getUnsettingHasChanged();
+                                    customColumnsMetadataProvider.getHasChangedAndSetFalse();
                             if (customColumnsChanged)
                             {
                                 recreateColumnModelAndRefreshColumnsWithFilters();
                             }
+
                             boolean columnFiltersChanged =
                                     rebuildFiltersFromIds(getFilteredColumnIds(newColumnDataModels));
                             saveColumnDisplaySettings();

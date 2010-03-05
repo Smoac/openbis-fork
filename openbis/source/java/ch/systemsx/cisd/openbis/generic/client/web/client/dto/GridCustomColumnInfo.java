@@ -21,7 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
- * Basic metadata about a grid custom column: code (column identifier), label and description.
+ * Basic metadata about a grid custom column: code (column identifier), label, description and type.
  * 
  * @author Tomasz Pylak
  */
@@ -63,7 +63,7 @@ public class GridCustomColumnInfo implements IsSerializable
     {
         return description;
     }
-    
+
     public DataTypeCode getDataType()
     {
         return dataType;
@@ -77,12 +77,12 @@ public class GridCustomColumnInfo implements IsSerializable
             return false;
         }
         GridCustomColumnInfo that = (GridCustomColumnInfo) obj;
-        return code.equals(that.code) && label.equals(that.label);
+        return code.equals(that.code) && label.equals(that.label) && dataType == that.dataType;
     }
 
     @Override
     public int hashCode()
     {
-        return ((17 * 59) + code.hashCode()) * 59 + label.hashCode(); 
+        return ((17 * 59) + code.hashCode()) * 59 + label.hashCode();
     }
 }

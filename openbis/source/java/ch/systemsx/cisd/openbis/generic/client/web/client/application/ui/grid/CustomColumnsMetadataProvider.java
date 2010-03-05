@@ -34,7 +34,7 @@ class CustomColumnsMetadataProvider
     private boolean hasChanged;
 
     /** true if the value has changed. Subsequent calls will return false. */
-    public boolean getUnsettingHasChanged()
+    public boolean getHasChangedAndSetFalse()
     {
         boolean result = hasChanged;
         this.hasChanged = false;
