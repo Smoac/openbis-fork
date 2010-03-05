@@ -18,7 +18,7 @@ export BASYSBIO_TEST=openbis-test
 function create_individual_greeting_message {
 # Creates an individual greeting message
 	if [ -f ~/config/openbis_instance.txt ]; then
-	   export OPENBIS_DICT=~/sprint/openBIS-server/apache-tomcat/webapps/openbis/common-dictionary.js
+	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/common-dictionary.js
 	   export SERVER_INSTANCE_NAME=`cat ~/config/openbis_instance.txt`
 	   perl -pe 's/openbis_instance: "",/openbis_instance: "$ENV{SERVER_INSTANCE_NAME}",/' -i $OPENBIS_DICT
 	fi
@@ -26,11 +26,19 @@ function create_individual_greeting_message {
 
 function restore_loginHeader {
   if [ -f ~/config/loginHeader.html ]; then
-    echo restoring loginHeader.html
+    echo restoring loginHeader.html...
     cp -r ~/config/images ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
     cp ~/config/loginHeader.html ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
     cp ~/config/help.html ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
   fi
+}
+
+function add_yeastx_plugin {
+	 echo copying yeastx...
+	 unzip ~openbis/config/datastore_server_plugin*.zip
+	 mv ~openbis/config/lib/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
+	 rmdir ~openbis/config/lib
+	 rm ~/config/datastore_server_plugin*.zip
 }
 
 case "$SERVER" in
@@ -68,13 +76,15 @@ case "$SERVER" in
 	echo AGRONOMICS:$AGRONOMICS;
 	restore_loginHeader
 	create_individual_greeting_message
-	mv ~openbis/config/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
+	add_yeastx_plugin
 	$BIN/sprint_post_install_agronomics.sh
 	;;
 	$DSU)
 	echo DSU:$DSU;
 	restore_loginHeader
 	create_individual_greeting_message
+	DSU_SERVER_HOME=~openbis/sprint/openBIS-server/apache-tomcat-5.5.26/webapps/openbis
+    cp ~/config/openBIS_for_DSU.pdf $DSU_SERVER_HOME
 	;;
 	$SCU)
 	echo SCU:$SCU;
@@ -85,14 +95,14 @@ case "$SERVER" in
 	echo BASYSBIO:$BASYSBIO;
 	restore_loginHeader
 	create_individual_greeting_message
-	mv ~openbis/config/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
+	add_yeastx_plugin
 	$BIN/sprint_post_install_basysbio.sh
 	;;
 	$BASYSBIO_TEST)
 	echo BASYSBIO_TEST:$BASYSBIO_TEST;
 	restore_loginHeader
 	create_individual_greeting_message
-	mv ~openbis/config/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
+	add_yeastx_plugin
 	$BIN/sprint_post_install_basysbio.sh
 	;;
 	*)
