@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -40,9 +41,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPr
 public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPhosphoNetXServer
 {
     PhosphoNetXServerLogger(final ISessionManager<Session> sessionManager,
-            final boolean invocationSuccessful, final long elapsedTime)
+            IInvocationLoggerContext context)
     {
-        super(sessionManager, invocationSuccessful, elapsedTime);
+        super(sessionManager, context);
     }
 
     public Vocabulary getTreatmentTypeVocabulary(String sessionToken) throws UserFailureException

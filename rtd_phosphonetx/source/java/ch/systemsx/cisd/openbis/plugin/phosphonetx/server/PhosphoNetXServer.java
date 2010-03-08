@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
@@ -91,9 +92,9 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         this.specificBOFactory = specificBOFactory;
     }
 
-    public IPhosphoNetXServer createLogger(boolean invocationSuccessful, long elapsedTime)
+    public IPhosphoNetXServer createLogger(IInvocationLoggerContext context)
     {
-        return new PhosphoNetXServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+        return new PhosphoNetXServerLogger(getSessionManager(), context);
     }
 
     public Vocabulary getTreatmentTypeVocabulary(String sessionToken) throws UserFailureException

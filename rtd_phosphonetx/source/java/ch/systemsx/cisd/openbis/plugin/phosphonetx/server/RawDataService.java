@@ -22,6 +22,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -55,9 +56,9 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         this.service = service;
     }
     
-    public IRawDataService createLogger(boolean invocationSuccessful, long elapsedTime)
+    public IRawDataService createLogger(IInvocationLoggerContext context)
     {
-        return new RawDataServiceLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+        return new RawDataServiceLogger(getSessionManager(), context);
     }
 
     public List<Sample> listRawDataSamples(String sessionToken, String userID)

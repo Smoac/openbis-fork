@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -88,10 +89,9 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    public final IScreeningServer createLogger(final boolean invocationSuccessful,
-            final long elapsedTime)
+    public final IScreeningServer createLogger(IInvocationLoggerContext context)
     {
-        return new ScreeningServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+        return new ScreeningServerLogger(getSessionManager(), context);
     }
 
     //

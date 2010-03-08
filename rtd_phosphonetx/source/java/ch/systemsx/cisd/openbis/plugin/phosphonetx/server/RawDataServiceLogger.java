@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -34,9 +35,9 @@ class RawDataServiceLogger extends AbstractServerLogger implements IRawDataServi
 {
 
     RawDataServiceLogger(ISessionManager<Session> sessionManager,
-            boolean invocationSuccessful, long elapsedTime)
+            IInvocationLoggerContext context)
     {
-        super(sessionManager, invocationSuccessful, elapsedTime);
+        super(sessionManager, context);
     }
 
     public List<Sample> listRawDataSamples(String sessionToken, String userID)

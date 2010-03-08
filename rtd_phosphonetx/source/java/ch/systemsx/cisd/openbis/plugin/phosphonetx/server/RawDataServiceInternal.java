@@ -25,6 +25,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
@@ -83,9 +84,9 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         sessionManager = sessionManagerFromConstructor;
     }
 
-    public IRawDataServiceInternal createLogger(boolean invocationSuccessful, long elapsedTime)
+    public IRawDataServiceInternal createLogger(IInvocationLoggerContext context)
     {
-        return new RawDataServiceInternalLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+        return new RawDataServiceInternalLogger(getSessionManager(), context);
     }
     
     public List<Sample> listRawDataSamples(String sessionToken)
