@@ -60,6 +60,10 @@
         <!-- The time after which an inactive session is expired by the service (in minutes). -->
         <constructor-arg value="${session-timeout}" />
     </bean>
+    
+    <bean id="remote-host-validator" class="ch.systemsx.cisd.openbis.generic.server.WhiteListBasedRemoteHostValidator">
+        <constructor-arg value="${accepted-remote-hosts-for-identity-change}"/>
+    </bean>
 
     <bean id="common-business-object-factory"
         class="ch.systemsx.cisd.openbis.generic.server.CommonBusinessObjectFactory">

@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import org.apache.log4j.Level;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -28,6 +29,9 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.openbis.generic.server.WhiteListBasedRemoteHostValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -38,8 +42,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 @Test(groups = "system test")
 public class SetSessionUserTest extends SystemTestCase
 {
+    @Autowired
+    public WhiteListBasedRemoteHostValidator remoteHostValidator; 
+    
     private BufferedAppender logRecorder;
-
+    
     @BeforeMethod
     public void setUp()
     {
@@ -49,6 +56,7 @@ public class SetSessionUserTest extends SystemTestCase
     @AfterMethod
     public void tearDown()
     {
+        remoteHostValidator.addRemoteHost("localhost");
         logRecorder.reset();
     }
 
@@ -66,6 +74,22 @@ public class SetSessionUserTest extends SystemTestCase
         {
             assertEquals("Authorization failure: None of method roles '[INSTANCE.ADMIN]' " +
             		"could be found in roles of user 'observer'.", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testUnkownRemoteHost()
+    {
+        remoteHostValidator.removeRemoteHost("localhost");
+        SessionContextDTO session = commonServer.tryToAuthenticate("test", "a");
+        String sessionToken = session.getSessionToken();
+        try
+        {
+            commonServer.setSessionUser(sessionToken, "observer");
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("It is not allowed to change the user from remote host localhost", ex.getMessage());
         }
     }
     
@@ -88,7 +112,6 @@ public class SetSessionUserTest extends SystemTestCase
     @Test
     public void testLogging()
     {
-        
         SessionContextDTO session = commonServer.tryToAuthenticate("test", "a");
         String sessionToken = session.getSessionToken();
         
@@ -104,7 +127,6 @@ public class SetSessionUserTest extends SystemTestCase
         
         commonServer.logout(sessionToken);
         
-        System.out.println(logRecorder.getLogContent());
         logContent = logRecorder.getLogContent().split("\n");
         assertEquals(5, logContent.length);
         logLine = logContent[4];
@@ -115,15 +137,25 @@ public class SetSessionUserTest extends SystemTestCase
     @Test
     public void testAuthorization()
     {
-        
         SessionContextDTO session = commonServer.tryToAuthenticate("test", "a");
         String sessionToken = session.getSessionToken();
+        ListSampleCriteria criteria = new ListSampleCriteria();
+        SampleType sampleType = new SampleType();
+        sampleType.setId(3l);
+        criteria.setSampleType(sampleType);
+        criteria.setIncludeSpace(true);
+        // INSTANCE ADMIN sees all samples
+        assertEquals(15, commonServer.listSamples(sessionToken, criteria).size()); 
+        
         commonServer.setSessionUser(sessionToken, "test");
         commonServer.setSessionUser(sessionToken, "observer"); // allowed because still user 'test'
+        // Observer of another space sees nothing
+        assertEquals(0, commonServer.listSamples(sessionToken, criteria).size());
+        
         try
         {
             // not allowed because user 'observer' has no INSTANCE ADMIN rights
-            commonServer.setSessionUser(sessionToken, "observer");
+            commonServer.setSessionUser(sessionToken, "test");
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {

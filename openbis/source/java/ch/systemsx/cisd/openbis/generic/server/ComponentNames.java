@@ -40,4 +40,6 @@ public final class ComponentNames
     public static final String DSS_FACTORY = "dss-factory";
 
     public static final String COMMON_BUSINESS_OBJECT_FACTORY = "common-business-object-factory";
+
+    public static final String REMOTE_HOST_VALIDATOR = "remote-host-validator";
 }

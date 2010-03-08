@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistr
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
+import ch.systemsx.cisd.openbis.generic.shared.IRemoteHostValidator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
@@ -74,6 +75,9 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
 
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
+    
+    @Resource(name = ComponentNames.REMOTE_HOST_VALIDATOR)
+    private IRemoteHostValidator remoteHostValidator;
 
     // NOTE: we use the fact that the COMMON_SERVICE configured in XML implements provider interface
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVICE)
@@ -375,6 +379,11 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
     public void setSessionUser(String sessionToken, String userID)
     {
         Session session = getSession(sessionToken);
+        String remoteHost = session.getRemoteHost();
+        if (remoteHostValidator.isValidRemoteHost(remoteHost) == false)
+        {
+            throw new UserFailureException("It is not allowed to change the user from remote host " + remoteHost);
+        }
         PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);
         if (person == null)
         {
