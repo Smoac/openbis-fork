@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -81,9 +82,9 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         this.dao = dao;
     }
 
-    public IQueryServer createLogger(boolean invocationSuccessful, long elapsedTime)
+    public IQueryServer createLogger(IInvocationLoggerContext context)
     {
-        return new QueryServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+        return new QueryServerLogger(getSessionManager(), context);
     }
 
     public String tryToGetQueryDatabaseLabel(String sessionToken)

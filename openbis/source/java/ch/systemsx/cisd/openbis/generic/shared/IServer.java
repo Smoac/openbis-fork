@@ -20,8 +20,11 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -84,4 +87,16 @@ public interface IServer extends ISessionProvider
      * Logout the session with the specified session token.
      */
     public void logout(final String sessionToken) throws UserFailureException;
+    
+    /**
+     * Sets the user that owns this session. All methods called after this method are called with
+     * the privileges of the user specified by <var>userCode</code>.
+     * <p>
+     * This method may only be called by an administrator and only from an explicitly allowed IP
+     * address or else it will throw an {@link AuthorizationFailureException}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    public void setSessionUser(String sessionToken, String userID);
+
 }

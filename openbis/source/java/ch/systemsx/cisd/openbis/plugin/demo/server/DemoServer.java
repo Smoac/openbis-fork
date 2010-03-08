@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -74,9 +75,9 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    public final IDemoServer createLogger(final boolean invocationSuccessful, final long elapsedTime)
+    public final IDemoServer createLogger(IInvocationLoggerContext context)
     {
-        return new DemoServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+        return new DemoServerLogger(getSessionManager(), context);
     }
 
     //

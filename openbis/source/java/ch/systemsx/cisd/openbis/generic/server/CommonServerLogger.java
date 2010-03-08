@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -103,9 +104,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
      * message.
      */
     CommonServerLogger(final ISessionManager<Session> sessionManager,
-            final boolean invocationSuccessful, final long elapsedTime)
+            IInvocationLoggerContext context)
     {
-        super(sessionManager, invocationSuccessful, elapsedTime);
+        super(sessionManager, context);
     }
 
     //

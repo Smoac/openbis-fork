@@ -27,6 +27,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -111,9 +112,9 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         this.dssFactory = dssFactory;
     }
 
-    public IETLService createLogger(final boolean invocationSuccessful, final long elapsedTime)
+    public IETLService createLogger(IInvocationLoggerContext context)
     {
-        return new ETLServiceLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+        return new ETLServiceLogger(getSessionManager(), context);
     }
 
     @Override

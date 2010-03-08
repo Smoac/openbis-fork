@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -58,10 +59,9 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    public final ITrackingServer createLogger(final boolean invocationSuccessful,
-            final long elapsedTime)
+    public final ITrackingServer createLogger(IInvocationLoggerContext context)
     {
-        return new TrackingServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+        return new TrackingServerLogger(getSessionManager(), context);
     }
 
     //

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.demo.server;
 import java.util.Collection;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -36,9 +37,9 @@ import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 final class DemoServerLogger extends AbstractServerLogger implements IDemoServer
 {
     DemoServerLogger(final ISessionManager<Session> sessionManager,
-            final boolean invocationSuccessful, final long elapsedTime)
+            IInvocationLoggerContext context)
     {
-        super(sessionManager, invocationSuccessful, elapsedTime);
+        super(sessionManager, context);
     }
 
     //

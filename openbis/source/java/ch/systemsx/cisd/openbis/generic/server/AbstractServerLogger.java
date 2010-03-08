@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -45,27 +46,74 @@ public abstract class AbstractServerLogger implements IServer
 
     private static final String RESULT_FAILURE = " ...FAILED";
 
+    private final Logger authLog;
+    
     private final Logger accessLog;
 
     private final Logger trackingLog;
 
-    protected final ISessionManager<Session> sessionManager;
-
-    protected final boolean invocationSuccessful;
-
-    protected final long elapsedTime;
-
     protected final LogMessagePrefixGenerator logMessagePrefixGenerator;
 
+    private final ISessionManager<Session> sessionManager;
+    
+    private final IInvocationLoggerContext context;
+
+    private final String prefixOrNull;
+
     public AbstractServerLogger(final ISessionManager<Session> sessionManager,
-            final boolean invocationSuccessful, final long elapsedTime)
+            IInvocationLoggerContext context)
     {
         this.sessionManager = sessionManager;
-        this.invocationSuccessful = invocationSuccessful;
-        this.elapsedTime = elapsedTime;
+        this.context = context;
         logMessagePrefixGenerator = new LogMessagePrefixGenerator();
+        String sessionTokenOrNull = context.tryToGetSessionToken();
+        prefixOrNull = tryToCreatePrefix(sessionTokenOrNull);
+        
+        authLog = LogFactory.getLogger(LogCategory.AUTH, getClass());
         accessLog = LogFactory.getLogger(LogCategory.ACCESS, getClass());
         trackingLog = LogFactory.getLogger(LogCategory.TRACKING, getClass());
+    }
+
+    private String tryToCreatePrefix(String sessionTokenOrNull)
+    {
+        if (sessionTokenOrNull == null)
+        {
+            return null;
+        }
+        return tryToCreatePrefixFromSession(sessionTokenOrNull);
+    }
+
+    private String tryToCreatePrefixSecondTime(String sessionToken)
+    {
+        if (prefixOrNull != null)
+        {
+            return prefixOrNull;
+        }
+        return tryToCreatePrefixFromSession(sessionToken);
+    }
+
+    private String tryToCreatePrefixFromSession(String sessionToken)
+    {
+        if (sessionManager.isAWellFormedSessionToken(sessionToken) == false)
+        {
+            return null;
+        }
+        try
+        {
+            Session session = sessionManager.getSession(sessionToken);
+            return logMessagePrefixGenerator.createPrefix(session);
+        } catch (InvalidSessionException e)
+        {
+            // ignore the situation when session is not available
+            return null;
+        }
+    }
+    
+    protected final void logAuth(final String sessionToken, final String commandName,
+            final String parameterDisplayFormat, final Object... parameters)
+    {
+        logMessage(authLog, Level.INFO, sessionToken, commandName, parameterDisplayFormat,
+                parameters);
     }
 
     protected final void logAccess(final String sessionToken, final String commandName)
@@ -102,15 +150,6 @@ public abstract class AbstractServerLogger implements IServer
         {
             return;
         }
-        Session sessionOrNull = null;
-        try
-        {
-            sessionOrNull = sessionManager.getSession(sessionToken);
-        } catch (InvalidSessionException e)
-        {
-            // ignore the situation when session is not available
-        }
-        final String prefix = logMessagePrefixGenerator.createPrefix(sessionOrNull);
         for (int i = 0; i < parameters.length; i++)
         {
             final Object parameter = parameters[i];
@@ -127,19 +166,19 @@ public abstract class AbstractServerLogger implements IServer
         final String elapsedTimeMessage = getElapsedTimeMessage();
         // We put on purpose 2 spaces between the command and the message derived from the
         // parameters.
-        logger.log(level, prefix
+        logger.log(level, tryToCreatePrefixSecondTime(sessionToken)
                 + String.format(": (%s) %s  %s%s", elapsedTimeMessage, commandName, message,
                         invocationStatusMessage));
     }
 
     private String getInvocationStatusMessage()
     {
-        return invocationSuccessful ? RESULT_SUCCESS : RESULT_FAILURE;
+        return context.invocationWasSuccessful() ? RESULT_SUCCESS : RESULT_FAILURE;
     }
 
     private String getElapsedTimeMessage()
     {
-        return elapsedTime + "ms";
+        return context.getElapsedTime() + "ms";
     }
 
     //
@@ -203,5 +242,11 @@ public abstract class AbstractServerLogger implements IServer
     public void setBaseIndexURL(String sessionToken, String baseURL)
     {
         logAccess(sessionToken, "set_base_url", "BASE_URL(%s)", baseURL);
+    }
+
+    public void setSessionUser(String sessionToken, String userID)
+    {
+        logMessage(authLog, Level.INFO, sessionToken, "set_session_user", "USER(%s)", new Object[]
+            { userID });
     }
 }

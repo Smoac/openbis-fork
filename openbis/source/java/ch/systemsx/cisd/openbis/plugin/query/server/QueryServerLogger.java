@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.query.server;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
@@ -35,9 +36,9 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 class QueryServerLogger extends AbstractServerLogger implements IQueryServer
 {
     QueryServerLogger(final ISessionManager<Session> sessionManager,
-            final boolean invocationSuccessful, final long elapsedTime)
+            IInvocationLoggerContext context)
     {
-        super(sessionManager, invocationSuccessful, elapsedTime);
+        super(sessionManager, context);
     }
 
     public String tryToGetQueryDatabaseLabel(String sessionToken)

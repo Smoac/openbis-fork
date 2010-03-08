@@ -31,6 +31,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
@@ -123,9 +124,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    public IGenericServer createLogger(final boolean invocationSuccessful, final long elapsedTime)
+    public IGenericServer createLogger(IInvocationLoggerContext context)
     {
-        return new GenericServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+        return new GenericServerLogger(getSessionManager(), context);
     }
 
     //

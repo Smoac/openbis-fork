@@ -35,6 +35,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
@@ -209,10 +210,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    public final ICommonServer createLogger(final boolean invocationSuccessful,
-            final long elapsedTime)
+    public final ICommonServer createLogger(IInvocationLoggerContext context)
     {
-        return new CommonServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+        return new CommonServerLogger(getSessionManager(), context);
     }
 
     //

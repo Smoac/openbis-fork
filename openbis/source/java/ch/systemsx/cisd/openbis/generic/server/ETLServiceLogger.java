@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -51,9 +52,9 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
 {
 
     public ETLServiceLogger(final ISessionManager<Session> sessionManager,
-            final boolean invocationSuccessful, final long elapsedTime)
+            IInvocationLoggerContext context)
     {
-        super(sessionManager, invocationSuccessful, elapsedTime);
+        super(sessionManager, context);
     }
 
     public String createDataSetCode(String sessionToken) throws UserFailureException

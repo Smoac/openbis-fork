@@ -117,6 +117,12 @@ public final class Session extends BasicSession implements IAuthSession
         return personOrNull;
     }
 
+    @Override
+    public String getUserName()
+    {
+        return personOrNull == null ? super.getUserName() : personOrNull.getUserId();
+    }
+
     //
     // Object
     //

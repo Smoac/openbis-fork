@@ -371,4 +371,16 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         }
         return result;
     }
+
+    public void setSessionUser(String sessionToken, String userID)
+    {
+        Session session = getSession(sessionToken);
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);
+        if (person == null)
+        {
+            throw new UserFailureException("Unknown user: " + userID);
+        }
+        HibernateUtils.initialize(person.getAllPersonRoles());
+        session.setPerson(person);
+    }
 }
