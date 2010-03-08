@@ -81,7 +81,7 @@ public class BasicSession implements Serializable
     /**
      * Returns the owner of the session.
      */
-    public final String getUserName()
+    public String getUserName()
     {
         return userName;
     }

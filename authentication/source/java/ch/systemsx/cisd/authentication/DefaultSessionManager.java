@@ -244,6 +244,32 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
     }
 
+    public boolean isAWellFormedSessionToken(String sessionTokenOrNull)
+    {
+        if (sessionTokenOrNull == null)
+        {
+            return false;
+        }
+        final String[] splittedToken = StringUtils.split(sessionTokenOrNull, SESSION_TOKEN_SEPARATOR);
+        if (splittedToken.length < 2)
+        {
+            return false;
+        }
+        String[] splittedTimeStampToken = StringUtils.split(splittedToken[1], TIMESTAMP_TOKEN_SEPARATOR);
+        if (splittedTimeStampToken.length < 2)
+        {
+            return false;
+        }
+        try
+        {
+            Long.parseLong(splittedTimeStampToken[0]);
+        } catch (NumberFormatException ex)
+        {
+            return false;
+        }
+        return splittedTimeStampToken[1].length() == 32;
+    }
+
     public T getSession(final String sessionToken) throws InvalidSessionException
     {
         checkIfNotBlank(sessionToken, "sessionToken");
