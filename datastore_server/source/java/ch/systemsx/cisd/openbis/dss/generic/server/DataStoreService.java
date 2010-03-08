@@ -29,6 +29,7 @@ import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
@@ -148,9 +149,9 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         commandExecuter.start();
     }
 
-    public IDataStoreService createLogger(final boolean invocationSuccessful, final long elapsedTime)
+    public IDataStoreService createLogger(IInvocationLoggerContext context)
     {
-        return new DataStoreServiceLogger(operationLog, invocationSuccessful, elapsedTime);
+        return new DataStoreServiceLogger(operationLog, context);
     }
 
     public int getVersion(String sessionToken)

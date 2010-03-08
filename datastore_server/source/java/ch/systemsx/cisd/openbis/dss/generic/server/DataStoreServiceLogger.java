@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -38,15 +39,12 @@ class DataStoreServiceLogger implements IDataStoreService
 
     private final Logger operationLog;
 
-    private final boolean invocationSuccessful;
+    private final IInvocationLoggerContext loggerContext;
 
-    private final long elapsedTime;
-
-    DataStoreServiceLogger(Logger operationLog, boolean invocationSuccessful, long elapsedTime)
+    DataStoreServiceLogger(Logger operationLog, IInvocationLoggerContext context)
     {
         this.operationLog = operationLog;
-        this.invocationSuccessful = invocationSuccessful;
-        this.elapsedTime = elapsedTime;
+        this.loggerContext = context;
     }
 
     private final void log(final String commandName, final String parameterDisplayFormat,
@@ -65,11 +63,11 @@ class DataStoreServiceLogger implements IDataStoreService
         }
         final String message = String.format(parameterDisplayFormat, parameters);
         final String invocationStatusMessage =
-                invocationSuccessful ? RESULT_SUCCESS : RESULT_FAILURE;
+                loggerContext.invocationWasSuccessful() ? RESULT_SUCCESS : RESULT_FAILURE;
         // We put on purpose 2 spaces between the command and the message derived from the
         // parameters.
         operationLog.info(String.format("%s  %s%s (%s ms)", commandName, message,
-                invocationStatusMessage, elapsedTime));
+                invocationStatusMessage, loggerContext.getElapsedTime()));
     }
 
     public int getVersion(String sessionToken)
