@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
@@ -28,7 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnIn
 class CustomColumnsMetadataProvider
 {
     // what custom columns are present in the grid. Used to build column definitions.
-    private List<GridCustomColumnInfo> customColumnsMetadata;
+    private List<GridCustomColumnInfo> customColumnsMetadata =
+            new ArrayList<GridCustomColumnInfo>();
 
     // has the last setter call changed the matadata?
     private boolean hasChanged;
@@ -41,16 +43,14 @@ class CustomColumnsMetadataProvider
         return result;
     }
 
-    public List<GridCustomColumnInfo> tryGetCustomColumnsMetadata()
+    public List<GridCustomColumnInfo> getCustomColumnsMetadata()
     {
         return customColumnsMetadata;
     }
 
     public void setCustomColumnsMetadata(List<GridCustomColumnInfo> customColumnsMetadata)
     {
-        this.hasChanged =
-                (this.customColumnsMetadata == null && customColumnsMetadata != null)
-                        || this.customColumnsMetadata.equals(customColumnsMetadata) == false;
+        this.hasChanged = this.customColumnsMetadata.equals(customColumnsMetadata) == false;
         this.customColumnsMetadata = customColumnsMetadata;
     }
 }

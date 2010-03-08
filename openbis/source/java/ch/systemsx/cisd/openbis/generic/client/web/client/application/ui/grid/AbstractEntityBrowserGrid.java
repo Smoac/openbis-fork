@@ -165,13 +165,14 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         Boolean refreshColumnsNeeded = updateCriteria();
         if (refreshColumnsNeeded != null && refreshColumnsNeeded.booleanValue())
         {
+        	// TODO layout of grid with filters is invoked second time here 
             super.recreateColumnModelAndRefreshColumnsWithFilters();
         }
     }
 
     /**
-     * Updates criteria, returns null if bew criteria are not yet known, otherwise a boolean which
-     * tells if columns definition changed.
+     * Updates criteria, returns null if criteria are not yet known, otherwise a boolean which tells
+     * if columns definition changed.
      */
     private Boolean updateCriteria()
     {

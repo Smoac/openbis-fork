@@ -265,7 +265,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     // - hidden paging toolbar
                     contentPanel.syncSize();
                     // - no 'overflow' button when some buttons don't fit into pagingToolbar
-                    pagingToolbar.syncSize(); // doesn't solve the problem with resize of the window
+                    pagingToolbar.syncSize();
                 }
             });
         columnListener = new ColumnListener<T, M>(grid);
@@ -1008,12 +1008,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         ColumnDefsAndConfigs<T> defsAndConfigs = createColumnsDefinition();
         // add custom columns
         List<GridCustomColumnInfo> customColumnsMetadata =
-                customColumnsMetadataProvider.tryGetCustomColumnsMetadata();
-        List<IColumnDefinitionUI<T>> customColumnsDefs =
-                createCustomColumnDefinitions(customColumnsMetadata);
-        defsAndConfigs.addColumns(customColumnsDefs);
-        if (customColumnsMetadata != null)
+                customColumnsMetadataProvider.getCustomColumnsMetadata();
+        if (customColumnsMetadata.size() > 0)
         {
+            List<IColumnDefinitionUI<T>> customColumnsDefs =
+                    createCustomColumnDefinitions(customColumnsMetadata);
+            defsAndConfigs.addColumns(customColumnsDefs);
+
             RealNumberRenderer renderer =
                     new RealNumberRenderer(viewContext.getDisplaySettingsManager()
                             .getRealNumberFormatingParameters());
@@ -1033,14 +1034,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     private static <T> List<IColumnDefinitionUI<T>> createCustomColumnDefinitions(
-            List<GridCustomColumnInfo> customColumnsMetadataOrNull)
+            List<GridCustomColumnInfo> customColumnsMetadata)
     {
         List<IColumnDefinitionUI<T>> defs = new ArrayList<IColumnDefinitionUI<T>>();
-        if (customColumnsMetadataOrNull == null)
-        {
-            return defs;
-        }
-        for (GridCustomColumnInfo columnMetadata : customColumnsMetadataOrNull)
+        for (GridCustomColumnInfo columnMetadata : customColumnsMetadata)
         {
             IColumnDefinitionUI<T> colDef = new GridCustomColumnDefinition<T>(columnMetadata);
             defs.add(colDef);
