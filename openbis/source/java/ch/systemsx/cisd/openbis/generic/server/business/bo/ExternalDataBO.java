@@ -290,6 +290,16 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 externalData.getDataSetType());
     }
 
+    public void updateSomeProperties(String dataSetCode, List<NewProperty> properties)
+    {
+        // FIXME add keeping properties not mentioned
+        loadByCode(dataSetCode);
+        updateProperties(Arrays.asList(convertToDataSetProperties(properties)));
+        entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
+                externalData.getDataSetType());
+        validateAndSave();
+    }
+
     public void update(DataSetUpdatesDTO updates)
     {
         loadDataByTechId(updates.getDatasetId());
@@ -300,9 +310,9 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         final SampleIdentifier sampleIdentifierOrNull = updates.getSampleIdentifierOrNull();
         if (sampleIdentifierOrNull != null)
         {
-        	// update sample and indirectly experiment
-            updateSample(updates.getSampleIdentifierOrNull()); 
-            // remove connections with parents 
+            // update sample and indirectly experiment
+            updateSample(updates.getSampleIdentifierOrNull());
+            // remove connections with parents
             // (new colelction is needed bacause old one will be removed)
             removeParents(new ArrayList<DataPE>(externalData.getParents()));
         } else
@@ -313,7 +323,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             externalData.setSample(null);
         }
         updateFileFormatType(updates.getFileFormatTypeCode());
-		updateProperties(updates.getProperties());
+        updateProperties(updates.getProperties());
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
                 externalData.getDataSetType());
         validateAndSave();

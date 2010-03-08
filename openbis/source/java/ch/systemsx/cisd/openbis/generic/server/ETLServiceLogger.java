@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -203,6 +204,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 (lastSeenDeletionEventIdOrNull == null ? "all" : "id > "
                         + lastSeenDeletionEventIdOrNull));
         return null;
+    }
+
+    public void updateDataSet(String sessionToken, List<NewProperty> properties, String dataSetCode)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "updateDataSet", "DATA_SET_CODE(%s) PROPERTIES(%s)", dataSetCode,
+                properties.size());
     }
 
 }

@@ -19,11 +19,15 @@ package eu.basysbio.cisd.dss;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -31,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * 
  * @author Izabela Adamczyk
  */
+@Friend(toClasses = TimeSeriesHeaderUtils.class)
 public class TimeSeriesHeaderUtilsTest extends AssertJUnit
 {
     private static final String CG_NEW1 = "CG1";
@@ -221,6 +226,99 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
             return StringUtils.join(header, "::");
         }
 
+    }
+
+    private static final String VAL1 = "val1";
+
+    private static final String VAL2 = "val2";
+
+    @Test
+    public void testGetPropertyValuePropertyNotDefined() throws Exception
+    {
+        HashMap<DataHeaderProperty, Set<String>> map =
+                new HashMap<DataHeaderProperty, Set<String>>();
+        DataHeaderProperty property = DataHeaderProperty.BiID;
+        boolean exceptionThrown = false;
+        try
+        {
+            TimeSeriesHeaderUtils.getPropertyValue(property, map, true);
+        } catch (UserFailureException ex)
+        {
+            exceptionThrown = true;
+            assertEquals("BiID not defined", ex.getMessage());
+        }
+        assertTrue(exceptionThrown);
+    }
+
+    @Test
+    public void testGetPropertyValuePropertyDefinedButEmpty() throws Exception
+    {
+        HashMap<DataHeaderProperty, Set<String>> map =
+                new HashMap<DataHeaderProperty, Set<String>>();
+        DataHeaderProperty property = DataHeaderProperty.BiID;
+        HashSet<String> set = new HashSet<String>();
+        map.put(property, set);
+        boolean exceptionThrown = false;
+        try
+        {
+            TimeSeriesHeaderUtils.getPropertyValue(property, map, true);
+        } catch (UserFailureException ex)
+        {
+            exceptionThrown = true;
+            assertEquals("BiID not defined", ex.getMessage());
+        }
+        assertTrue(exceptionThrown);
+    }
+
+    @Test
+    public void testGetPropertyValuePropertyDefinedOnce() throws Exception
+    {
+        HashMap<DataHeaderProperty, Set<String>> map =
+                new HashMap<DataHeaderProperty, Set<String>>();
+        DataHeaderProperty property = DataHeaderProperty.BiID;
+        HashSet<String> set = new HashSet<String>();
+        set.add(VAL1);
+        map.put(property, set);
+        assertEquals(VAL1, TimeSeriesHeaderUtils.getPropertyValue(property, map, true));
+    }
+
+    @Test
+    public void testGetPropertyValuePropertyDefinedMoreThanOnce() throws Exception
+    {
+        HashMap<DataHeaderProperty, Set<String>> map =
+                new HashMap<DataHeaderProperty, Set<String>>();
+        DataHeaderProperty property = DataHeaderProperty.BiID;
+        HashSet<String> set = new HashSet<String>();
+        set.add(VAL1);
+        set.add(VAL2);
+        map.put(property, set);
+        String result = TimeSeriesHeaderUtils.getPropertyValue(property, map, true);
+        assertTrue((VAL1 + ", " + VAL2).equals(result) || (VAL2 + ", " + VAL1).equals(result));
+    }
+
+    @Test
+    public void testGetPropertyValuePropertyDefinedMoreThanOnceButOnlyOneExpected()
+            throws Exception
+    {
+        HashMap<DataHeaderProperty, Set<String>> map =
+                new HashMap<DataHeaderProperty, Set<String>>();
+        DataHeaderProperty property = DataHeaderProperty.BiID;
+        HashSet<String> set = new HashSet<String>();
+        set.add(VAL1);
+        set.add(VAL2);
+        map.put(property, set);
+        boolean exceptionThrown = false;
+        try
+        {
+            TimeSeriesHeaderUtils.getPropertyValue(property, map, false);
+        } catch (UserFailureException e)
+        {
+            exceptionThrown = true;
+            assertEquals("Inconsistent header values of 'BiID'. "
+                    + "Expected the same value in all the columns, found: [val1, val2].", e
+                    .getMessage());
+        }
+        assertTrue(exceptionThrown);
     }
 
 }

@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -430,7 +431,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
                 new HashMap<PropertyTypePE, PropertyType>());
     }
-    
+
     public long registerExperiment(String sessionToken, NewExperiment experiment)
             throws UserFailureException
     {
@@ -460,7 +461,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         sampleBO.save();
         return sampleBO.getSample().getId();
     }
-    
+
     private PersonPE getOrCreatePerson(String sessionToken, String userID)
     {
         PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userID);
@@ -521,6 +522,15 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         externalDataBO.save();
         final String dataSetCode = externalDataBO.getExternalData().getCode();
         assert dataSetCode != null : "Data set code not specified.";
+    }
+
+    public void updateDataSet(String sessionToken, List<NewProperty> properties, String dataSetCode)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        final Session session = getSession(sessionToken);
+        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        externalDataBO.updateSomeProperties(dataSetCode, properties);
     }
 
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)

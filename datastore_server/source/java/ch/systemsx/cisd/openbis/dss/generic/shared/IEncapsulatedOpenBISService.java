@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -105,14 +106,15 @@ public interface IEncapsulatedOpenBISService
      * @return the technical ID of the new experiment
      */
     public long registerExperiment(final NewExperiment experiment) throws UserFailureException;
-    
+
     /**
      * Registers the specified sample.
-     * @param userIDOrNull TODO
      * 
+     * @param userIDOrNull TODO
      * @return the technical ID of the new sample
      */
-    public long registerSample(final NewSample newSample, String userIDOrNull) throws UserFailureException;
+    public long registerSample(final NewSample newSample, String userIDOrNull)
+            throws UserFailureException;
 
     /**
      * Registers the specified data.
@@ -160,4 +162,10 @@ public interface IEncapsulatedOpenBISService
      * datasets will be returned.
      */
     public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull);
+
+    /**
+     * Updates specified properties of given data set.
+     */
+    public void updateDataSet(String code, List<NewProperty> properties)
+            throws UserFailureException;
 }

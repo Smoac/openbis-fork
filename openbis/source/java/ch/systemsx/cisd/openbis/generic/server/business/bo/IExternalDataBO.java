@@ -16,15 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IExternalDataBO extends IEntityBusinessObject
 {
@@ -55,6 +58,11 @@ public interface IExternalDataBO extends IEntityBusinessObject
      * Changes given data set. Currently allowed changes: properties, sample.
      */
     public void update(DataSetUpdatesDTO updates);
+
+    /**
+     * Updates chosen properties of given data set.
+     */
+    public void updateSomeProperties(String dataSetCode, List<NewProperty> properties);
 
     /**
      * Loads the external data item with specified code.

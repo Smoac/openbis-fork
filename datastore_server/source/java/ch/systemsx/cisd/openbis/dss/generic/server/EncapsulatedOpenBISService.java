@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -93,7 +94,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private DatabaseInstance homeDatabaseInstance;
 
-    private DatastoreServiceDescriptions pluginTaskDescriptions;
+    private final DatastoreServiceDescriptions pluginTaskDescriptions;
 
     public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager, String serverURL,
             PluginTaskProviders pluginTaskParameters)
@@ -341,7 +342,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public long registerExperiment(NewExperiment experiment) throws UserFailureException
     {
         assert experiment != null : "Unspecified experiment.";
-        
+
         checkSessionToken();
         try
         {
@@ -389,6 +390,33 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             operationLog.info("Registered in openBIS: data set " + dataSetInformation.describe()
                     + ".");
         }
+    }
+
+    synchronized public final void updateDataSet(String code, List<NewProperty> properties)
+            throws UserFailureException
+
+    {
+        assert code != null : "missing data set code";
+        assert properties != null : "missing data";
+
+        checkSessionToken();
+        try
+        {
+            primUpdateDataSet(code, properties);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            primUpdateDataSet(code, properties);
+        }
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Registered in openBIS: data set " + code + ".");
+        }
+    }
+
+    private void primUpdateDataSet(String code, List<NewProperty> properties)
+    {
+        service.updateDataSet(sessionToken, properties, code);
     }
 
     synchronized public final IEntityProperty[] getPropertiesOfTopSampleRegisteredFor(
