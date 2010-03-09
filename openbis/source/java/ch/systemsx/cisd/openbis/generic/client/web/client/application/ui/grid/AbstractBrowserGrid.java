@@ -1507,6 +1507,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         ColumnModel columnModel = createColumnModel(new ArrayList<ColumnConfig>());
         final Grid<T> grid = new Grid<T>(listStore, columnModel)
             {
+
                 // Fixes the problem with mask appearing during window resize
                 @Override
                 protected void onResize(int w, int h)
@@ -1521,6 +1522,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         grid.setId(gridId);
         grid.setLoadMask(true);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        grid.setView(new ExtendedGridView());
         return grid;
     }
 
