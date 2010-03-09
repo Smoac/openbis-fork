@@ -52,7 +52,14 @@ public class SimpleTableModelBuilder
 
     public void addHeader(String title)
     {
-        headers.add(new TableModelColumnHeader(title, headers.size()));
+        addHeader(title, 150);
+    }
+    
+    public void addHeader(String title, int defaultColumnWidth)
+    {
+        TableModelColumnHeader header = new TableModelColumnHeader(title, headers.size());
+        header.setDefaultColumnWidth(defaultColumnWidth);
+        headers.add(header);
     }
 
     public void addRow(List<ISerializableComparable> values)
