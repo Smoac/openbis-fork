@@ -20,9 +20,13 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 
 /**
  * {@link ContentPanel} for sections with deferred request handling.
+ * <p>
+ * If this panel is used outside of {@link SectionsPanel} one needs call
+ * {@link #setContentVisible(boolean)} to process requests coming from this section.
  * 
  * @author Izabela Adamczyk
  */

@@ -106,7 +106,7 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
         viewContext.getService().getProjectInfo(projectId, callback);
     }
 
-    private AttachmentVersionsSection<Project> createAttachmentsSection(final Project project)
+    private SingleSectionPanel createAttachmentsSection(final Project project)
     {
         return new AttachmentVersionsSection<Project>(viewContext.getCommonViewContext(), project);
     }
@@ -161,7 +161,9 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
 
     public Component createCenterPanel(Project result)
     {
-        final ContentPanel panel = createAttachmentsSection(result);
+        final SingleSectionPanel panel = createAttachmentsSection(result);
+        // need to set content visibility here as this section is not added to SectionPanel
+        panel.setContentVisible(true);
         return panel;
     }
 
