@@ -144,8 +144,11 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
         sb.append(now.get(Calendar.YEAR));
         sb.append(String.format("%02d", now.get(Calendar.MONTH) + 1));
         sb.append(String.format("%02d", now.get(Calendar.DAY_OF_MONTH)));
+        sb.append("-");
         sb.append(now.get(Calendar.HOUR_OF_DAY));
         sb.append(now.get(Calendar.MINUTE));
+        sb.append("-");
+        sb.append(now.get(Calendar.MILLISECOND));
         return sb.toString();
     }
 
