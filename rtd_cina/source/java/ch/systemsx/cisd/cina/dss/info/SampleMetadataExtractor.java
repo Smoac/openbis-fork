@@ -18,9 +18,11 @@ package ch.systemsx.cisd.cina.dss.info;
 
 import java.util.Map;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -102,19 +104,35 @@ class SampleMetadataExtractor
 
     private void extractMetadata()
     {
-        experimentIdentifier =
-                new ExperimentIdentifierFactory(sampleMetadata.get(EXPERIMENT_IDENTIFIER_KEY))
-                        .createIdentifier();
+        String experimentIdString = sampleMetadata.get(EXPERIMENT_IDENTIFIER_KEY);
+        if (experimentIdString != null)
+            experimentIdentifier =
+                    new ExperimentIdentifierFactory(experimentIdString).createIdentifier();
         sampleCodePrefix = sampleMetadata.get(SAMPLE_CODE_PREFIX_KEY);
         emailAddress = sampleMetadata.get(EXPERIMENT_OWNER_EMAIL_KEY);
     }
 
     /**
-     * Create a new experiment. If a sample already exists, alter the identifier to make a unique
-     * one.
+     * Create a new sample attached to the experiment identified by the identifier.
+     * <p>
+     * <ul>
+     * <li>If the experiment the sample is supposed to be attached to does not exist, raise an
+     * error.</li>
+     * <li>If a sample with the desired identifier already exists, raise an error.</li>
+     * </ul>
      */
-    private SampleIdentifier createSample()
+    private SampleIdentifier createSample() throws UserFailureException,
+            EnvironmentFailureException
     {
+        Experiment experiment = openbisService.tryToGetExperiment(experimentIdentifier);
+        if (null == experiment)
+        {
+            throw new UserFailureException(
+                    "The experiment with identifier ("
+                            + experimentIdentifier.toString()
+                            + ") does not exist. Please select an experiment to be the container for registered samples.");
+        }
+
         SampleIdentifier sampleId =
                 SampleIdentifier.createOwnedBy(new SampleOwnerIdentifier(experimentIdentifier),
                         sampleCodePrefix + "-" + sampleCodeSuffix);
@@ -127,10 +145,14 @@ class SampleMetadataExtractor
         sample.setIdentifier(sampleId.toString());
 
         Sample dbSample = openbisService.tryGetSampleWithExperiment(sampleId);
-        if (dbSample == null)
+        if (dbSample != null)
         {
-            openbisService.registerSample(sample, null);
+            throw new EnvironmentFailureException(
+                    "The generated sample identifer, which must be unique, is already in the database. This should not happen: Please contact the administrator.");
         }
+
+        openbisService.registerSample(sample, null);
+
         return sampleId;
     }
 

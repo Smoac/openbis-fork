@@ -115,7 +115,7 @@ class ExperimentMetadataExtractor
         if (experiment != null)
         {
             throw new EnvironmentFailureException(
-                    "The generated expriment identifer, which must be unique, is already in the database. This should not happen: Please contact the administrator.");
+                    "The generated experiment identifer, which must be unique, is already in the database. This should not happen: Please contact the administrator.");
         }
 
         openbisService.registerExperiment(new NewExperiment(identifier.toString(),

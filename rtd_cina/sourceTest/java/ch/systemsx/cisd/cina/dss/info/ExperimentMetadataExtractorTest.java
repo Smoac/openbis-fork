@@ -25,9 +25,11 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
@@ -84,7 +86,7 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
                 {
                     one(openbisService).tryToGetExperiment(identifier);
                     will(returnValue(null));
-                    one(openbisService).registerExperiment(with(newExperiment));
+                    one(openbisService).registerExperiment(newExperiment);
                 }
             });
 
@@ -117,21 +119,26 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
         final ExperimentIdentifier identifier =
                 new ExperimentIdentifier(null, "CINA", projectCode, experimentCode + "-"
                         + experimentCodeSuffix);
-        final NewExperiment newExperiment =
-                new NewExperiment(identifier.toString(), "CINA_EXP_TYPE");
+        final Experiment existingExperiment = new Experiment();
         context.checking(new Expectations()
             {
                 {
                     one(openbisService).tryToGetExperiment(identifier);
-                    will(returnValue(null));
-                    one(openbisService).registerExperiment(with(newExperiment));
+                    will(returnValue(existingExperiment));
                 }
             });
 
         ExperimentMetadataExtractor extractor =
                 new ExperimentMetadataExtractor(dataSetInformation, experimentMetadata,
                         experimentCodeSuffix, openbisService);
-        extractor.processMetadataAndFillDataSetInformation();
+        try
+        {
+            extractor.processMetadataAndFillDataSetInformation();
+            fail("Registering a duplicate experiment should throw an exception.");
+        } catch (EnvironmentFailureException ex)
+        {
+            // this should happen
+        }
         assertTrue(ownerEmail.equals(dataSetInformation.tryGetUploadingUserEmail()));
 
         context.assertIsSatisfied();
@@ -168,7 +175,7 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
      * Tries to register an experiment where required metadata is missing.
      */
     @Test
-    public void testRegisterExperimentWithMissingExperimentCode()
+    public void testRegisterExperimentWithMissingExperimentCodePrefix()
     {
         final String projectCode = "CINA1";
         final String experimentCodeSuffix = "SUFFIX";
@@ -184,7 +191,7 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
         try
         {
             extractor.processMetadataAndFillDataSetInformation();
-            fail("Experiment code was not specified -- this should result in an exception");
+            fail("Experiment code prefix was not specified -- this should result in an exception");
         } catch (UserFailureException ex)
         {
             // This should happen
