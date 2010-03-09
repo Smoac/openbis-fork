@@ -53,7 +53,7 @@ class ExperimentMetadataExtractor
     // Internal state used during extraction
     private String projectCode;
 
-    private String experimentCode;
+    private String experimentCodePrefix;
 
     private String emailAddress;
 
@@ -97,7 +97,7 @@ class ExperimentMetadataExtractor
     private void extractMetadata()
     {
         projectCode = experimentMetadata.get(PROJECT_CODE_KEY);
-        experimentCode = experimentMetadata.get(EXPERIMENT_CODE_KEY);
+        experimentCodePrefix = experimentMetadata.get(EXPERIMENT_CODE_KEY);
         emailAddress = experimentMetadata.get(EXPERIMENT_OWNER_EMAIL_KEY);
     }
 
@@ -107,7 +107,7 @@ class ExperimentMetadataExtractor
     private ExperimentIdentifier createExperiment() throws EnvironmentFailureException
     {
         ExperimentIdentifier identifier =
-                new ExperimentIdentifier(null, SPACE_CODE, projectCode, experimentCode + "-"
+                new ExperimentIdentifier(null, SPACE_CODE, projectCode, experimentCodePrefix + "-"
                         + experimentCodeSuffix);
 
         // Check that the identifier is unique
@@ -136,7 +136,7 @@ class ExperimentMetadataExtractor
                     "A project code must be specified to register an experiment.");
         }
 
-        if (null == experimentCode)
+        if (null == experimentCodePrefix)
         {
             throw new UserFailureException(
                     "An experiment code must be specified to register an experiment.");

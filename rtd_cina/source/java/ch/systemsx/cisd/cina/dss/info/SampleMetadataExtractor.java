@@ -25,47 +25,55 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * Package-visible helper class to extract information from the XML metadata file and register a new
  * sample using this data.
+ * <p>
+ * This class assumes that the sample type CINA_SAMPLE_TYPE has been registered.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 class SampleMetadataExtractor
 {
     // Keys expected in metadata properties file
-    public static final String SAMPLE_CODE_KEY = "sample";
+
+    public static final String PROJECT_CODE_KEY = ExperimentMetadataExtractor.PROJECT_CODE_KEY;
+
+    public static final String EXPERIMENT_IDENTIFIER_KEY = "experiment.identifier";
+
+    public static final String EXPERIMENT_OWNER_EMAIL_KEY =
+            ExperimentMetadataExtractor.EXPERIMENT_OWNER_EMAIL_KEY;
+
+    public static final String SAMPLE_CODE_PREFIX_KEY = "sample.code-prefix";
 
     // Instance state
     private final DataSetInformation dataSetInformation;
 
     private final Map<String, String> sampleMetadata;
 
+    private final String sampleCodeSuffix;
+
     private final IEncapsulatedOpenBISService openbisService;
 
-    // Internal state used during extraction
-    private String projectCode;
+    private ExperimentIdentifier experimentIdentifier;
 
-    private String experimentCode;
-
-    private String sampleCode;
+    private String sampleCodePrefix;
 
     private String emailAddress;
 
-    static final String SPACE_CODE = "CINA";
-
-    static final String EXPERIMENT_TYPE_CODE = "CINA_EXP_TYPE";
-
-    static final String SAMPLE_TYPE_CODE = "CINA_SAMPLE_TYPE";
+    private static final String SAMPLE_TYPE_CODE = "CINA_SAMPLE_TYPE";
 
     SampleMetadataExtractor(DataSetInformation dataSetInformation,
-            Map<String, String> sampleMetadata, IEncapsulatedOpenBISService openbisService)
+            Map<String, String> sampleMetadata, String sampleCodeSuffix,
+            IEncapsulatedOpenBISService openbisService)
     {
         this.dataSetInformation = dataSetInformation;
         this.sampleMetadata = sampleMetadata;
+        this.sampleCodeSuffix = sampleCodeSuffix;
         this.openbisService = openbisService;
     }
 
@@ -79,20 +87,26 @@ class SampleMetadataExtractor
     {
         extractMetadata();
 
+        // Set the email address as early as possible because it will be used later to notify the
+        // user.
+        dataSetInformation.setUploadingUserEmail(emailAddress);
+
         // Check that that the required data was specified in the properties file.
         verifyRequiredMetadataDataHasBeenProvided();
 
-        this.createSample();
-        dataSetInformation.setSampleCode(sampleCode);
+        SampleIdentifier sampleId = this.createSample();
+        dataSetInformation.setExperimentIdentifier(experimentIdentifier);
+        dataSetInformation.setSampleCode(sampleId.getSampleCode());
         dataSetInformation.setUploadingUserEmail(emailAddress);
     }
 
     private void extractMetadata()
     {
-        projectCode = sampleMetadata.get(ExperimentMetadataExtractor.PROJECT_CODE_KEY);
-        experimentCode = sampleMetadata.get(ExperimentMetadataExtractor.EXPERIMENT_CODE_KEY);
-        sampleCode = sampleMetadata.get(SAMPLE_CODE_KEY);
-        emailAddress = sampleMetadata.get(ExperimentMetadataExtractor.EXPERIMENT_OWNER_EMAIL_KEY);
+        experimentIdentifier =
+                new ExperimentIdentifierFactory(sampleMetadata.get(EXPERIMENT_IDENTIFIER_KEY))
+                        .createIdentifier();
+        sampleCodePrefix = sampleMetadata.get(SAMPLE_CODE_PREFIX_KEY);
+        emailAddress = sampleMetadata.get(EXPERIMENT_OWNER_EMAIL_KEY);
     }
 
     /**
@@ -101,17 +115,15 @@ class SampleMetadataExtractor
      */
     private SampleIdentifier createSample()
     {
-        ExperimentIdentifier experimentId =
-                new ExperimentIdentifier(null, SPACE_CODE, projectCode, experimentCode);
-
         SampleIdentifier sampleId =
-                new SampleIdentifier(new GroupIdentifier((String) null, SPACE_CODE), sampleCode);
+                SampleIdentifier.createOwnedBy(new SampleOwnerIdentifier(experimentIdentifier),
+                        sampleCodePrefix + "-" + sampleCodeSuffix);
 
         NewSample sample = new NewSample();
         SampleType sampleType = new SampleType();
         sampleType.setCode(SAMPLE_TYPE_CODE);
         sample.setSampleType(sampleType);
-        sample.setExperimentIdentifier(experimentId.toString());
+        sample.setExperimentIdentifier(experimentIdentifier.toString());
         sample.setIdentifier(sampleId.toString());
 
         Sample dbSample = openbisService.tryGetSampleWithExperiment(sampleId);
@@ -128,19 +140,13 @@ class SampleMetadataExtractor
      */
     private void verifyRequiredMetadataDataHasBeenProvided() throws UserFailureException
     {
-        if (null == projectCode)
-        {
-            throw new UserFailureException(
-                    "A project code must be specified to register an experiment.");
-        }
-
-        if (null == experimentCode)
+        if (null == experimentIdentifier)
         {
             throw new UserFailureException(
                     "An experiment code must be specified to register an experiment.");
         }
 
-        if (null == sampleCode)
+        if (null == sampleCodePrefix)
         {
             throw new UserFailureException(
                     "An sample code must be specified to register an experiment.");

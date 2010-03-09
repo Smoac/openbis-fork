@@ -65,7 +65,7 @@ class FolderOracle
             return type;
         }
 
-        File tryMetadataFile()
+        File tryGetMetadataFile()
         {
             return metadataFileOrNull;
         }
@@ -73,11 +73,11 @@ class FolderOracle
 
     // The known conventions for naming metadata files. If a new metadata file is created, cases
     // should be added to getFilenameFilter() and getFolderMetadataForFile() as well.
-    private static String EXPERIMENT_METADATA_FILENAME = "experiment.properties";
+    static String EXPERIMENT_METADATA_FILENAME = "experiment.properties";
 
-    private static String SAMPLE_METADATA_FILENAME = "sample.properties";
+    static String SAMPLE_METADATA_FILENAME = "sample.properties";
 
-    private static String DATA_SET_METADATA_FILENAME = "dataset.properties";
+    static String DATA_SET_METADATA_FILENAME = "dataset.properties";
 
     FolderOracle()
     {

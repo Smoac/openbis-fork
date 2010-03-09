@@ -70,14 +70,14 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
         switch (folderType)
         {
             case DATA_SET:
-                processDataSetFolder(metadata.tryMetadataFile(), dataSetInformation, openbisService);
+                processDataSetFolder(metadata.tryGetMetadataFile(), dataSetInformation, openbisService);
                 break;
             case EXPERIMENT:
-                processExperimentFolder(metadata.tryMetadataFile(), dataSetInformation,
+                processExperimentFolder(metadata.tryGetMetadataFile(), dataSetInformation,
                         openbisService);
                 break;
             case SAMPLE:
-                processSampleFolder(metadata.tryMetadataFile(), dataSetInformation, openbisService);
+                processSampleFolder(metadata.tryGetMetadataFile(), dataSetInformation, openbisService);
                 break;
             case UNKNOWN:
                 break;

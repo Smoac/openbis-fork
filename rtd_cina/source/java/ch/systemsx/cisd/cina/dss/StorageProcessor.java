@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cina.dss;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.cina.dss.info.EntityRegistrationSuccessEmail;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
@@ -58,6 +59,11 @@ public class StorageProcessor extends AbstractDelegatingStorageProcessor
             final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDir)
     {
+        // Create the email first because the email looks into the directory to determine its
+        // content.
+        EntityRegistrationSuccessEmail successEmail =
+                new EntityRegistrationSuccessEmail(dataSetInformation, incomingDataSetDirectory);
+
         File answer =
                 super.storeData(dataSetInformation, typeExtractor, mailClient,
                         incomingDataSetDirectory, rootDir);
@@ -68,9 +74,8 @@ public class StorageProcessor extends AbstractDelegatingStorageProcessor
             emailAddress = defaultEmailAddress;
         }
 
-        mailClient.sendMessage("[CINA] Registered Experiment",
-                "Experment was successfully registered. Use the following properties file : experiment.code="
-                        + dataSetInformation.getExperimentIdentifier(), null, null, emailAddress);
+        mailClient.sendMessage(successEmail.getSubject(), successEmail.getContent(), null, null,
+                emailAddress);
 
         return answer;
     }
