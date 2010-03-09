@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -86,7 +87,6 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
         this.addShared = addShared;
         this.addAll = addAll;
         this.initialGroupOrNull = initialGroupCodeOrNull;
-
     }
 
     /**
@@ -135,16 +135,23 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
                 groupStore.add(new GroupModel(createAllSpaces()));
             }
             groupStore.add(convertItems(result.getList().extractOriginalObjects()));
+            dataLoaded = true;
             if (groupStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, viewContext
                         .getMessage(Dict.GROUP)));
                 setReadOnly(false);
-                final int homeGroupIndex = getHomeGroupIndex(groupStore);
-                if (homeGroupIndex > -1)
+                if (initialGroupOrNull != null)
                 {
-                    setValue(groupStore.getAt(homeGroupIndex));
-                    setOriginalValue(getValue());
+                    selectGroupAndUpdateOriginal(initialGroupOrNull);
+                } else
+                {
+                    final int homeGroupIndex = getHomeGroupIndex(groupStore);
+                    if (homeGroupIndex > -1)
+                    {
+                        setValue(groupStore.getAt(homeGroupIndex));
+                        setOriginalValue(getValue());
+                    }
                 }
             } else
             {
@@ -152,8 +159,6 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
                         .getMessage(Dict.GROUPS)));
                 setReadOnly(true);
             }
-            dataLoaded = true;
-            selectGroupAndUpdateOriginal(initialGroupOrNull);
         }
 
         int getHomeGroupIndex(ListStore<GroupModel> groupStore)
@@ -180,9 +185,15 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
         initialGroupOrNull = group;
         if (dataLoaded && initialGroupOrNull != null)
         {
-            GWTUtils.setSelectedItem(GroupSelectionWidget.this, ModelDataPropertyNames.CODE,
-                    initialGroupOrNull);
-            setOriginalValue(getValue());
+            try
+            {
+                GWTUtils.setSelectedItem(GroupSelectionWidget.this, ModelDataPropertyNames.CODE,
+                        initialGroupOrNull);
+            } catch (IllegalArgumentException ex)
+            {
+                MessageBox.alert("Error", "Space '" + group + "' doesn't exist.", null);
+            }
+            updateOriginalValue();
         }
     }
 

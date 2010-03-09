@@ -120,11 +120,16 @@ public class SampleBrowserGrid extends
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
-    public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+    /**
+     * Create a grid with a toolbar with no initial selection and optional initial selection of
+     * sample type and group.
+     */
+    public static IDisposableComponent create(IViewContext<ICommonClientServiceAsync> viewContext,
+            String initialGroupOrNull, String initialSampleTypeOrNull)
     {
         final SampleBrowserToolbar toolbar =
-                new SampleBrowserToolbar(viewContext, true, true, false);
+                new SampleBrowserToolbar(viewContext, true, true, false, initialGroupOrNull,
+                        initialSampleTypeOrNull);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, false,
@@ -132,6 +137,13 @@ public class SampleBrowserGrid extends
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithToolbar(toolbar);
+    }
+
+    /** Create a grid with a toolbar with no initial selection. */
+    public static IDisposableComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        return create(viewContext, null, null);
     }
 
     public static IDisposableComponent createGridForContainerSamples(

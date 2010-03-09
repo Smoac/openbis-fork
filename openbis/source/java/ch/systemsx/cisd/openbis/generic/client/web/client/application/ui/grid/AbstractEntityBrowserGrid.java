@@ -165,7 +165,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         Boolean refreshColumnsNeeded = updateCriteria();
         if (refreshColumnsNeeded != null && refreshColumnsNeeded.booleanValue())
         {
-        	// TODO layout of grid with filters is invoked second time here 
+            // TODO 2010-03-09, Piotr Buczek: layout of grid with filters is invoked second time
             super.recreateColumnModelAndRefreshColumnsWithFilters();
         }
     }

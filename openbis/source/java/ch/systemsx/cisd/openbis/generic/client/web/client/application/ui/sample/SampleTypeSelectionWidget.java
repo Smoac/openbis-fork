@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -52,8 +53,11 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
 
     private final boolean withTypeInFile;
 
+    private final String initialCodeOrNull;
+
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            final boolean onlyListable, final boolean withAll, final boolean withTypeInFile)
+            final boolean onlyListable, final boolean withAll, final boolean withTypeInFile,
+            final String initialCodeOrNull)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.SAMPLE_TYPE, ModelDataPropertyNames.CODE,
                 "sample type", "sample types");
@@ -61,9 +65,16 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
         this.onlyListable = onlyListable;
         this.withAll = withAll;
         this.withTypeInFile = withTypeInFile;
-        setAutoSelectFirst(withAll);
+        this.initialCodeOrNull = initialCodeOrNull;
+        setAutoSelectFirst(withAll && initialCodeOrNull == null);
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
                 ModelDataPropertyNames.TOOLTIP));
+    }
+
+    public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
+            final boolean onlyListable, final boolean withAll, final boolean withTypeInFile)
+    {
+        this(viewContext, idSuffix, onlyListable, withAll, withTypeInFile, null);
     }
 
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
@@ -108,7 +119,8 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
     @Override
     protected void loadData(AbstractAsyncCallback<List<SampleType>> callback)
     {
-        viewContext.getCommonService().listSampleTypes(callback);
+        viewContext.getCommonService().listSampleTypes(new ListSampleTypesCallback(viewContext));
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -117,5 +129,45 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
             { createOrDelete(ObjectKind.SAMPLE_TYPE), edit(ObjectKind.SAMPLE_TYPE),
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+    }
+
+    // 
+    // initial value support
+    //
+
+    private void selectInitialValue()
+    {
+        if (initialCodeOrNull != null)
+        {
+            trySelectByCode(initialCodeOrNull);
+            updateOriginalValue();
+        }
+    }
+
+    private void trySelectByCode(String code)
+    {
+        try
+        {
+            GWTUtils.setSelectedItem(this, ModelDataPropertyNames.CODE, code);
+        } catch (IllegalArgumentException ex)
+        {
+            MessageBox.alert("Error", "Sample Type '" + code + "' doesn't exist.", null);
+        }
+    }
+
+    private class ListSampleTypesCallback extends SampleTypeSelectionWidget.ListItemsCallback
+    {
+
+        protected ListSampleTypesCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(List<SampleType> result)
+        {
+            super.process(result);
+            selectInitialValue();
+        }
     }
 }

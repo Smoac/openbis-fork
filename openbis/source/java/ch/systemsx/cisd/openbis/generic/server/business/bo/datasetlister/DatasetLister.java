@@ -321,7 +321,6 @@ public class DatasetLister implements IDatasetLister
     private ExternalData createPrimaryDataset(DatasetRecord record)
     {
         ExternalData dataset = createBasicDataset(record);
-        // TODO data set type
         dataset.setId(record.id);
         dataset.setComplete(resolve(record.is_complete));
         dataset.setDataProducerCode(escapeHtml(record.data_producer_code));

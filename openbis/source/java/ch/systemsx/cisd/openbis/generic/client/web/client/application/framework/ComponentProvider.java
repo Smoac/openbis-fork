@@ -102,13 +102,18 @@ public final class ComponentProvider
                 isCloseConfirmationNeeded);
     }
 
-    public final ITabItemFactory getSampleBrowser()
+    public ITabItemFactory getSampleBrowser(final String initialGroupOrNull,
+            final String initialSampleTypeOrNull)
     {
         return new ITabItemFactory()
             {
                 public ITabItem create()
                 {
-                    IDisposableComponent browser = SampleBrowserGrid.create(viewContext);
+                    System.err.println(initialGroupOrNull + " " + initialSampleTypeOrNull);
+
+                    IDisposableComponent browser =
+                            SampleBrowserGrid.create(viewContext, initialGroupOrNull,
+                                    initialSampleTypeOrNull);
                     return createTab(Dict.SAMPLE_BROWSER, browser);
                 }
 
@@ -122,6 +127,11 @@ public final class ComponentProvider
                     return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.BROWSE);
                 }
             };
+    }
+
+    public final ITabItemFactory getSampleBrowser()
+    {
+        return getSampleBrowser(null, null);
     }
 
     public final ITabItemFactory getMaterialBrowser()
@@ -783,4 +793,5 @@ public final class ComponentProvider
     {
         this.mainTabPanelOrNull = mainTabPanel;
     }
+
 }

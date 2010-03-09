@@ -21,6 +21,8 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
 
     public final static String TYPE_PARAMETER_KEY = "type";
 
+    public final static String GROUP_PARAMETER_KEY = "space";
+
     public final static String PROJECT_PARAMETER_KEY = "project";
 
     public BrowserLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
@@ -32,15 +34,16 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         EntityKind entityKind = getEntityKind(locator);
+        final String entityTypeOrNull = locator.getParameters().get(TYPE_PARAMETER_KEY);
         switch (entityKind)
         {
             case EXPERIMENT:
                 final String projectOrNull = locator.getParameters().get(PROJECT_PARAMETER_KEY);
-                final String experimentTypeOrNull = locator.getParameters().get(TYPE_PARAMETER_KEY);
-                openExperimentBrowser(projectOrNull, experimentTypeOrNull);
+                openExperimentBrowser(projectOrNull, entityTypeOrNull);
                 break;
             case SAMPLE:
-                openSampleBrowser();
+                final String groupOrNull = locator.getParameters().get(GROUP_PARAMETER_KEY);
+                openSampleBrowser(groupOrNull, entityTypeOrNull);
                 break;
             case MATERIAL:
                 openMaterialBrowser();
@@ -58,15 +61,15 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
                 initialProjectOrNull, initialExperimentTypeOrNull));
     }
 
-    private void openSampleBrowser()
+    private void openSampleBrowser(String initialGroupOrNull, String initialSampleTypeOrNull)
     {
-        // TODO select sample type and group
-        DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getSampleBrowser());
+        DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getSampleBrowser(
+                initialGroupOrNull, initialSampleTypeOrNull));
     }
 
     private void openMaterialBrowser()
     {
-        // TODO select material type
+        // TODO 2010-03-09, Piotr Buczek: optionally select material type
         DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getMaterialBrowser());
     }
 

@@ -33,7 +33,7 @@ public class GridRowModel<T> implements IsSerializable
 {
     private T originalObject;
 
-    // TODO Now that we use GWT 2.0 it should be possible to use map here.
+    // TODO 2010-03-09, Piotr Buczek: Now that we use GWT 2.0 it should be possible to use map here.
     // We would like to have a Map field, but we cannot do it because of a bug in
     // displaying serialization warnings in GWT 1.5. It was fixed in GWT 1.6
     private List<GridCustomColumnValue> calculatedColumnValues;

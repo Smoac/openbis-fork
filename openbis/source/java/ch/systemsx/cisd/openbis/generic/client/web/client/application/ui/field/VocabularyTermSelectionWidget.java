@@ -142,11 +142,6 @@ public class VocabularyTermSelectionWidget extends
         GWTUtils.setSelectedItem(this, ModelDataPropertyNames.CODE, termCode);
     }
 
-    public void updateOriginalValue()
-    {
-        setOriginalValue(getValue());
-    }
-
     private class ListTermsCallback extends VocabularyTermSelectionWidget.ListItemsCallback
     {
 

@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
@@ -191,7 +192,6 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        // TODO Auto-generated method stub
-        return new DatabaseModificationKind[] {};
+        return DatabaseModificationKind.any(ObjectKind.QUERY);
     }
 }

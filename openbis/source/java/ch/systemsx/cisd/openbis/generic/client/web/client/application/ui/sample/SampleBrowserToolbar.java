@@ -41,10 +41,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -71,13 +71,23 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
     private final boolean excludeWithoutExperiment;
 
     public SampleBrowserToolbar(final IViewContext<?> viewContext, final boolean addShared,
-            boolean addAll, final boolean excludeWithoutExperiment)
+            boolean addAll, final boolean excludeWithoutExperiment, String initialGroupOrNull,
+            String initialSampleTypeOrNull)
     {
         this.viewContext = viewContext;
         this.excludeWithoutExperiment = excludeWithoutExperiment;
-        selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID, true, true, false);
-        selectGroupCombo = new GroupSelectionWidget(viewContext, ID, addShared, addAll);
+        selectSampleTypeCombo =
+                new SampleTypeSelectionWidget(viewContext, ID, true, true, false,
+                        initialSampleTypeOrNull);
+        selectGroupCombo =
+                new GroupSelectionWidget(viewContext, ID, addShared, addAll, initialGroupOrNull);
         display();
+    }
+
+    public SampleBrowserToolbar(final IViewContext<?> viewContext, final boolean addShared,
+            boolean addAll, final boolean excludeWithoutExperiment)
+    {
+        this(viewContext, addShared, addAll, excludeWithoutExperiment, null, null);
     }
 
     public ListSampleDisplayCriteria tryGetCriteria()
