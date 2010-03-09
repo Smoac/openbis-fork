@@ -89,7 +89,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ex
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
@@ -281,9 +280,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         add(contentPanel);
 
         addRefreshDisplaySettingsListener();
-
-        WidgetUtils.setVisibleByStyle(bottomToolbars, false);
-
     }
 
     protected void showEntityInformationHolderViewer(IEntityInformationHolder entity,
@@ -715,7 +711,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             pendingFetchConfigOrNull = null;
             refreshCallback.postRefresh(wasSuccessful);
-            WidgetUtils.setVisibleByStyle(bottomToolbars, true);
         }
 
         @Override

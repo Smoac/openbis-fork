@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
@@ -82,18 +81,4 @@ public class WidgetUtils
         }
     }
 
-    /** Allows to hide a component before rendering and render correctly later */
-    public static void setVisibleByStyle(Component component, boolean visible)
-    {
-        if (visible)
-        {
-            component.removeStyleName("cisd-hidden");
-            component.addStyleName("cisd-visible");
-        } else
-        {
-            component.removeStyleName("cisd-visible");
-            component.addStyleName("cisd-hidden");
-        }
-
-    }
 }
