@@ -41,11 +41,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * <p>
  * In the case of data representing experiments and samples, the extractor may need to register the
  * experiment/sample with openBIS before continuing to process the data set.
- * <p>
- * The extractor expects that certain things have been set up in the database. In particular:
- * <ul>
- * <li>A space called CINA</li>
- * </ul>
  * 
  * @author Chandrasekhar Ramakrishnan
  */

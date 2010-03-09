@@ -59,9 +59,7 @@ class ExperimentMetadataExtractor
 
     private String emailAddress;
 
-    static final String EXPERIMENT_TYPE_CODE = "CINA_EXP_TYPE";
-
-    static final String SAMPLE_TYPE_CODE = "CINA_SAMPLE_TYPE";
+    private static final String EXPERIMENT_TYPE_CODE = "CINA_EXP_TYPE";
 
     ExperimentMetadataExtractor(DataSetInformation dataSetInformation,
             Map<String, String> experimentMetadata, String experimentCodeSuffix,
