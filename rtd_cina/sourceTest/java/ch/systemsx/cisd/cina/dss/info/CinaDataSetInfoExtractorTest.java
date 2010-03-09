@@ -29,8 +29,11 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -79,25 +82,30 @@ public class CinaDataSetInfoExtractorTest extends AssertJUnit
         assertTrue("no-one@nowhere.ch".equals(dataSetInformation.tryGetUploadingUserEmail()));
     }
 
-    // @Test
-    // public void testRegisterSample()
-    // {
-    // context.checking(new Expectations()
-    // {
-    // {
-    // one(openbisService).tryToGetExperiment(with(any(ExperimentIdentifier.class)));
-    // will(returnValue(null));
-    // one(openbisService).registerExperiment(with(any(NewExperiment.class)));
-    // }
-    // });
-    //
-    // File sampleFolder =
-    // new File("sourceTest/java/ch/systemsx/cisd/cina/dss/info/sample-data-folder");
-    // DataSetInformation dataSetInformation =
-    // extractor.getDataSetInformation(sampleFolder, openbisService);
-    //
-    // assertTrue("no-one@nowhere.ch".equals(dataSetInformation.tryGetUploadingUserEmail()));
-    // }
+    @Test
+    public void testRegisterSample()
+    {
+        final Experiment existingExperiment = new Experiment();
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbisService).tryToGetExperiment(with(any(ExperimentIdentifier.class)));
+                    will(returnValue(existingExperiment));
+                    one(openbisService).tryGetSampleWithExperiment(
+                            with(any(SampleIdentifier.class)));
+                    will(returnValue(null));
+                    one(openbisService).registerSample(with(any(NewSample.class)),
+                            with(aNull(String.class)));
+                }
+            });
+
+        File sampleFolder =
+                new File("sourceTest/java/ch/systemsx/cisd/cina/dss/info/sample-data-folder");
+        DataSetInformation dataSetInformation =
+                extractor.getDataSetInformation(sampleFolder, openbisService);
+
+        assertTrue("no-one@nowhere.ch".equals(dataSetInformation.tryGetUploadingUserEmail()));
+    }
 
     @Test
     public void testRegisterAmbiguousFolder()

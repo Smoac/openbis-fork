@@ -70,14 +70,16 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
         switch (folderType)
         {
             case DATA_SET:
-                processDataSetFolder(metadata.tryGetMetadataFile(), dataSetInformation, openbisService);
+                processDataSetFolder(metadata.tryGetMetadataFile(), dataSetInformation,
+                        openbisService);
                 break;
             case EXPERIMENT:
                 processExperimentFolder(metadata.tryGetMetadataFile(), dataSetInformation,
                         openbisService);
                 break;
             case SAMPLE:
-                processSampleFolder(metadata.tryGetMetadataFile(), dataSetInformation, openbisService);
+                processSampleFolder(metadata.tryGetMetadataFile(), dataSetInformation,
+                        openbisService);
                 break;
             case UNKNOWN:
                 break;
@@ -114,7 +116,19 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
     private void processSampleFolder(final File metadataFile,
             final DataSetInformation dataSetInformation, IEncapsulatedOpenBISService openbisService)
     {
-
+        try
+        {
+            HashMap<String, String> sampleMetadata = convertMetadataFileToMap(metadataFile);
+            SampleMetadataExtractor extractor =
+                    new SampleMetadataExtractor(dataSetInformation, sampleMetadata,
+                            getEntityCodeSuffix(), openbisService);
+            extractor.processMetadataAndFillDataSetInformation();
+        } catch (IOException ex)
+        {
+            UserFailureException userFailure =
+                    new UserFailureException("Could not register sample", ex);
+            throw userFailure;
+        }
     }
 
     /**
