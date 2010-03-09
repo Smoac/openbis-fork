@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -62,6 +64,10 @@ public class GenericTableRowColumnDefinition implements IColumnDefinition<Generi
     public String getValue(GridRowModel<GenericTableRow> rowModel)
     {
         ISerializableComparable value = getCellValue(rowModel);
+        if (value instanceof DateTableCell)
+        {
+            return SimpleDateRenderer.renderDate(((DateTableCell) value).getDateTime());
+        }
         return value == null ? "" : value.toString();
     }
 

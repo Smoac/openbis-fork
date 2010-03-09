@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * {@link AbstractColumnDefinitionKind#tryGetValue(Object)}.
  * <p>
  * Usually this class is extended anonymously in {@link IColumnDefinitionKind} implementation and
- * used as a data holder. It is usefull because all {@link IColumnDefinitionKind} implementations
+ * used as a data holder. It is useful because all {@link IColumnDefinitionKind} implementations
  * are similar, but cannot extend a class directly (they are enums, not classes).
  * </p>
  * 

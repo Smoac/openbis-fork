@@ -24,7 +24,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 
 /**
  * Tests of {@link SimpleDateRenderer}. The test is in the different package than the tested class
