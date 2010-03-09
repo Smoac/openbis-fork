@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -66,18 +68,21 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
     @Test
     public void testSuccessfulExperimentRegistration()
     {
-        final String projectCode = "CINA1";
-        final String experimentCode = "EXP";
+        final String projectIdString = "/CINA/CINA1";
+        final String experimentCodePrefix = "EXP";
         final String experimentCodeSuffix = "SUFFIX";
         final String ownerEmail = "no-one@nowhere.ch";
 
         final HashMap<String, String> experimentMetadata = new HashMap<String, String>();
-        experimentMetadata.put("project.code", projectCode);
-        experimentMetadata.put("experiment.code", experimentCode);
+        experimentMetadata.put("project.identifier", projectIdString);
+        experimentMetadata.put("experiment.code-prefix", experimentCodePrefix);
         experimentMetadata.put("experiment.owner-email", ownerEmail);
 
+        final ProjectIdentifier projectIdentifier =
+                new ProjectIdentifierFactory(projectIdString).createIdentifier();
+
         final ExperimentIdentifier identifier =
-                new ExperimentIdentifier(null, "CINA", projectCode, experimentCode + "-"
+                new ExperimentIdentifier(projectIdentifier, experimentCodePrefix + "-"
                         + experimentCodeSuffix);
         final NewExperiment newExperiment =
                 new NewExperiment(identifier.toString(), "CINA_EXP_TYPE");
@@ -94,7 +99,7 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
                 new ExperimentMetadataExtractor(dataSetInformation, experimentMetadata,
                         experimentCodeSuffix, openbisService);
         extractor.processMetadataAndFillDataSetInformation();
-        assertTrue(ownerEmail.equals(dataSetInformation.tryGetUploadingUserEmail()));
+        assertEquals(ownerEmail, dataSetInformation.tryGetUploadingUserEmail());
 
         context.assertIsSatisfied();
     }
@@ -106,18 +111,21 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
     @Test
     public void testDuplicateExperimentRegistration()
     {
-        final String projectCode = "CINA1";
-        final String experimentCode = "EXP";
+        final String projectIdString = "/CINA/CINA1";
+        final String experimentCodePrefix = "EXP";
         final String experimentCodeSuffix = "SUFFIX";
         final String ownerEmail = "no-one@nowhere.ch";
 
         final HashMap<String, String> experimentMetadata = new HashMap<String, String>();
-        experimentMetadata.put("project.code", projectCode);
-        experimentMetadata.put("experiment.code", experimentCode);
+        experimentMetadata.put("project.identifier", projectIdString);
+        experimentMetadata.put("experiment.code-prefix", experimentCodePrefix);
         experimentMetadata.put("experiment.owner-email", ownerEmail);
 
+        final ProjectIdentifier projectIdentifier =
+                new ProjectIdentifierFactory(projectIdString).createIdentifier();
+
         final ExperimentIdentifier identifier =
-                new ExperimentIdentifier(null, "CINA", projectCode, experimentCode + "-"
+                new ExperimentIdentifier(projectIdentifier, experimentCodePrefix + "-"
                         + experimentCodeSuffix);
         final Experiment existingExperiment = new Experiment();
         context.checking(new Expectations()
@@ -139,7 +147,7 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
         {
             // this should happen
         }
-        assertTrue(ownerEmail.equals(dataSetInformation.tryGetUploadingUserEmail()));
+        assertEquals(ownerEmail, dataSetInformation.tryGetUploadingUserEmail());
 
         context.assertIsSatisfied();
     }

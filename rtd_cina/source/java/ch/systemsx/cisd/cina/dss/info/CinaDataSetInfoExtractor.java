@@ -147,8 +147,8 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
         Calendar now = GregorianCalendar.getInstance();
         StringBuffer sb = new StringBuffer();
         sb.append(now.get(Calendar.YEAR));
-        sb.append(now.get(Calendar.MONTH));
-        sb.append(now.get(Calendar.DAY_OF_MONTH));
+        sb.append(String.format("%02d", now.get(Calendar.MONTH) + 1));
+        sb.append(String.format("%02d", now.get(Calendar.DAY_OF_MONTH)));
         sb.append(now.get(Calendar.HOUR_OF_DAY));
         sb.append(now.get(Calendar.MINUTE));
         return sb.toString();

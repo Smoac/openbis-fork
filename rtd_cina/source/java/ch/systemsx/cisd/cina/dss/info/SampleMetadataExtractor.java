@@ -28,8 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * Package-visible helper class to extract information from the XML metadata file and register a new
@@ -42,8 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 class SampleMetadataExtractor
 {
     // Keys expected in metadata properties file
-
-    public static final String PROJECT_CODE_KEY = ExperimentMetadataExtractor.PROJECT_CODE_KEY;
 
     public static final String EXPERIMENT_IDENTIFIER_KEY = "experiment.identifier";
 
@@ -98,6 +96,7 @@ class SampleMetadataExtractor
 
         SampleIdentifier sampleId = this.createSample();
         dataSetInformation.setExperimentIdentifier(experimentIdentifier);
+        dataSetInformation.setGroupCode(sampleId.getGroupLevel().getGroupCode());
         dataSetInformation.setSampleCode(sampleId.getSampleCode());
         dataSetInformation.setUploadingUserEmail(emailAddress);
     }
@@ -134,8 +133,8 @@ class SampleMetadataExtractor
         }
 
         SampleIdentifier sampleId =
-                SampleIdentifier.createOwnedBy(new SampleOwnerIdentifier(experimentIdentifier),
-                        sampleCodePrefix + "-" + sampleCodeSuffix);
+                new SampleIdentifier(new GroupIdentifier((String) null, experimentIdentifier
+                        .getGroupCode()), sampleCodePrefix + "-" + sampleCodeSuffix);
 
         NewSample sample = new NewSample();
         SampleType sampleType = new SampleType();
@@ -165,13 +164,13 @@ class SampleMetadataExtractor
         if (null == experimentIdentifier)
         {
             throw new UserFailureException(
-                    "An experiment code must be specified to register an experiment.");
+                    "An experiment identifier must be specified to register an experiment.");
         }
 
         if (null == sampleCodePrefix)
         {
             throw new UserFailureException(
-                    "An sample code must be specified to register an experiment.");
+                    "An sample code prefix must be specified to register an experiment.");
         }
 
         if (null == emailAddress)

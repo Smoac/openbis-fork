@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
@@ -87,8 +88,8 @@ public class SampleMetadataExtractorTest extends AssertJUnit
         experiment.setIdentifier(experimentIdentifier.toString());
 
         final SampleIdentifier sampleIdentifier =
-                SampleIdentifier.createOwnedBy(new SampleOwnerIdentifier(experimentIdentifier),
-                        sampleCodePrefix + "-" + sampleCodeSuffix);
+                new SampleIdentifier(new GroupIdentifier((String) null, "CINA"), sampleCodePrefix
+                        + "-" + sampleCodeSuffix);
 
         final NewSample newSample = new NewSample();
         SampleType sampleType = new SampleType();
@@ -111,7 +112,8 @@ public class SampleMetadataExtractorTest extends AssertJUnit
                 new SampleMetadataExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
                         openbisService);
         extractor.processMetadataAndFillDataSetInformation();
-        assertTrue(ownerEmail.equals(dataSetInformation.tryGetUploadingUserEmail()));
+        assertEquals(ownerEmail, dataSetInformation.tryGetUploadingUserEmail());
+        assertEquals("/CINA/S-SUFFIX", dataSetInformation.getSampleIdentifier().toString());
 
         context.assertIsSatisfied();
     }
@@ -139,8 +141,8 @@ public class SampleMetadataExtractorTest extends AssertJUnit
         experiment.setIdentifier(experimentIdentifier.toString());
 
         final SampleIdentifier sampleIdentifier =
-                SampleIdentifier.createOwnedBy(new SampleOwnerIdentifier(experimentIdentifier),
-                        sampleCodePrefix + "-" + sampleCodeSuffix);
+                new SampleIdentifier(new GroupIdentifier((String) null, "CINA"), sampleCodePrefix
+                        + "-" + sampleCodeSuffix);
 
         final Sample existingSample = new Sample();
         context.checking(new Expectations()
@@ -165,7 +167,7 @@ public class SampleMetadataExtractorTest extends AssertJUnit
         {
             // this should happen
         }
-        assertTrue(ownerEmail.equals(dataSetInformation.tryGetUploadingUserEmail()));
+        assertEquals(ownerEmail, dataSetInformation.tryGetUploadingUserEmail());
 
         context.assertIsSatisfied();
     }
@@ -274,7 +276,7 @@ public class SampleMetadataExtractorTest extends AssertJUnit
         {
             // This should happen
         }
-        assertTrue(ownerEmail.equals(dataSetInformation.tryGetUploadingUserEmail()));
+        assertEquals(ownerEmail, dataSetInformation.tryGetUploadingUserEmail());
 
         context.assertIsSatisfied();
     }

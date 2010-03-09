@@ -25,6 +25,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
  * Package-visible helper class to extract information from the XML metadata file and register a new
@@ -35,9 +37,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 class ExperimentMetadataExtractor
 {
     // Keys expected in metadata properties file
-    public static final String PROJECT_CODE_KEY = "project.code";
+    public static final String PROJECT_IDENTIFIER_KEY = "project.identifier";
 
-    public static final String EXPERIMENT_CODE_KEY = "experiment.code";
+    public static final String EXPERIMENT_CODE_KEY = "experiment.code-prefix";
 
     public static final String EXPERIMENT_OWNER_EMAIL_KEY = "experiment.owner-email";
 
@@ -51,13 +53,11 @@ class ExperimentMetadataExtractor
     private final IEncapsulatedOpenBISService openbisService;
 
     // Internal state used during extraction
-    private String projectCode;
+    private ProjectIdentifier projectIdentifier;
 
     private String experimentCodePrefix;
 
     private String emailAddress;
-
-    static final String SPACE_CODE = "CINA";
 
     static final String EXPERIMENT_TYPE_CODE = "CINA_EXP_TYPE";
 
@@ -96,7 +96,11 @@ class ExperimentMetadataExtractor
 
     private void extractMetadata()
     {
-        projectCode = experimentMetadata.get(PROJECT_CODE_KEY);
+        String projectIdString = experimentMetadata.get(PROJECT_IDENTIFIER_KEY);
+        if (projectIdString != null)
+        {
+            projectIdentifier = new ProjectIdentifierFactory(projectIdString).createIdentifier();
+        }
         experimentCodePrefix = experimentMetadata.get(EXPERIMENT_CODE_KEY);
         emailAddress = experimentMetadata.get(EXPERIMENT_OWNER_EMAIL_KEY);
     }
@@ -106,22 +110,22 @@ class ExperimentMetadataExtractor
      */
     private ExperimentIdentifier createExperiment() throws EnvironmentFailureException
     {
-        ExperimentIdentifier identifier =
-                new ExperimentIdentifier(null, SPACE_CODE, projectCode, experimentCodePrefix + "-"
+        ExperimentIdentifier experimentIdentifier =
+                new ExperimentIdentifier(projectIdentifier, experimentCodePrefix + "-"
                         + experimentCodeSuffix);
 
         // Check that the identifier is unique
-        Experiment experiment = openbisService.tryToGetExperiment(identifier);
+        Experiment experiment = openbisService.tryToGetExperiment(experimentIdentifier);
         if (experiment != null)
         {
             throw new EnvironmentFailureException(
                     "The generated experiment identifer, which must be unique, is already in the database. This should not happen: Please contact the administrator.");
         }
 
-        openbisService.registerExperiment(new NewExperiment(identifier.toString(),
+        openbisService.registerExperiment(new NewExperiment(experimentIdentifier.toString(),
                 EXPERIMENT_TYPE_CODE));
 
-        return identifier;
+        return experimentIdentifier;
     }
 
     /**
@@ -130,16 +134,16 @@ class ExperimentMetadataExtractor
      */
     private void verifyRequiredMetadataDataHasBeenProvided() throws UserFailureException
     {
-        if (null == projectCode)
+        if (null == projectIdentifier)
         {
             throw new UserFailureException(
-                    "A project code must be specified to register an experiment.");
+                    "A project identifier must be specified to register an experiment.");
         }
 
         if (null == experimentCodePrefix)
         {
             throw new UserFailureException(
-                    "An experiment code must be specified to register an experiment.");
+                    "An experiment code prefix must be specified to register an experiment.");
         }
 
         if (null == emailAddress)
