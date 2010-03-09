@@ -17,12 +17,14 @@
 package ch.systemsx.cisd.yeastx.eicml;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -229,9 +231,13 @@ public class EICMLChromatogramImageGenerator
      */
     private XYPlot configureChart(JFreeChart chart)
     {
+        Font font = JFreeChart.DEFAULT_TITLE_FONT;
+        chart.getTitle().setFont(cloneFontWithNewSize(font, Math.max(11, imageHeight / 30)));
         chart.setBackgroundPaint(Color.WHITE);
 
         XYPlot plot = (XYPlot) chart.getPlot();
+        setAxisLabelFontSize(plot.getDomainAxis());
+        setAxisLabelFontSize(plot.getRangeAxis());
         plot.setBackgroundPaint(Color.WHITE);
         plot.setDomainGridlinesVisible(false);
         plot.setRangeGridlinesVisible(true);
@@ -243,5 +249,16 @@ public class EICMLChromatogramImageGenerator
         axis.setAutoRange(true);
 
         return plot;
+    }
+    
+    private void setAxisLabelFontSize(Axis axis)
+    {
+        Font labelFont = axis.getLabelFont();
+        axis.setLabelFont(cloneFontWithNewSize(labelFont, Math.max(10, imageHeight / 40)));
+    }
+    
+    private Font cloneFontWithNewSize(Font font, int newSize)
+    {
+        return new Font(font.getName(), font.getStyle(), newSize);
     }
 }

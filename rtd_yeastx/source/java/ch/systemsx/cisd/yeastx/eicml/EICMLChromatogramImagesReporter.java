@@ -18,6 +18,8 @@ package ch.systemsx.cisd.yeastx.eicml;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
@@ -36,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
 
@@ -48,8 +51,10 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
         IReportingPluginTask
 {
     private static final String CHROMATOGRAM_SERVLET = "chromatogram";
+    
+    private static final int MZ_1_COLUMN_INDEX = 1;
 
-    private static final int THUMBNAIL_WIDTH = 150;
+    private static final int THUMBNAIL_WIDTH = 300;
 
     private static final int THUMBNAIL_HEIGHT = 150;
 
@@ -127,7 +132,18 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
             datasetRun.setChromatograms(chromatograms);
             addRun(builder, datasetRun);
         }
-        return builder.getTableModel();
+        TableModel tableModel = builder.getTableModel();
+        List<TableModelRow> rows = tableModel.getRows();
+        Collections.sort(rows, new Comparator<TableModelRow>()
+            {
+                public int compare(TableModelRow r1, TableModelRow r2)
+                {
+                    ISerializableComparable v1 = r1.getValues().get(MZ_1_COLUMN_INDEX);
+                    ISerializableComparable v2 = r2.getValues().get(MZ_1_COLUMN_INDEX);
+                    return v1.compareTo(v2);
+                }
+            });
+        return tableModel;
     }
 
     private List<DatasetRun> fetchRuns(List<DatasetDescription> datasets)
@@ -229,9 +245,9 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
 
     private static void addReportHeaders(SimpleTableModelBuilder builder)
     {
-        builder.addHeader("Label");
-        builder.addHeader("m/z 1");
-        builder.addHeader("m/z 2");
-        builder.addHeader("Chromatogram");
+        builder.addHeader("Label", 100);
+        builder.addHeader("m/z 1", 50);
+        builder.addHeader("m/z 2", 50);
+        builder.addHeader("Chromatogram", THUMBNAIL_WIDTH);
     }
 }
