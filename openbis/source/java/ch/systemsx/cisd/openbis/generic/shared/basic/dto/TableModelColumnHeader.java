@@ -38,6 +38,8 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
 
     // if column values contain permIds of certain entities entity kind is stored here
     private EntityKind entityKindOrNull;
+    
+    private int defaultColumnWidth = 150;
 
     public TableModelColumnHeader(String title, int index)
     {
@@ -63,6 +65,16 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     public int getIndex()
     {
         return index;
+    }
+    
+    public void setDefaultColumnWidth(int width)
+    {
+        this.defaultColumnWidth = width;
+    }
+    
+    public int getDefaultColumnWidth()
+    {
+        return defaultColumnWidth;
     }
 
     public boolean isNumeric()

@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetReportColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
@@ -87,17 +86,19 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
             IColumnDefinitionUI<TableModelRow>
     {
         private boolean isHidden;
+        private int defaultColumnWidth;
 
         public ReportColumnUI(TableModelColumnHeader columnHeader, String downloadURL,
-                String sessionID, boolean isHidden)
+                String sessionID, int defaultColumnWidth, boolean isHidden)
         {
             super(columnHeader, downloadURL, sessionID);
             this.isHidden = isHidden;
+            this.defaultColumnWidth = defaultColumnWidth;
         }
 
         public int getWidth()
         {
-            return AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
+            return defaultColumnWidth;
         }
 
         public boolean isHidden()
@@ -114,7 +115,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
         @SuppressWarnings("unused")
         private ReportColumnUI()
         {
-            this(null, null, null, false);
+            this(null, null, null, 0, false);
         }
     }
 
@@ -259,12 +260,13 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
     {
         String sessionID = viewContext.getModel().getSessionContext().getSessionID();
         List<ReportColumnUI> columns = new ArrayList<ReportColumnUI>();
-        int i = 0;
-        for (TableModelColumnHeader columnHeader : tableHeader)
+        for (int i = 0; i < tableHeader.size(); i++)
         {
+            TableModelColumnHeader columnHeader = tableHeader.get(i);
             boolean isHidden = (i > MAX_SHOWN_COLUMNS);
-            columns.add(new ReportColumnUI(columnHeader, downloadURL, sessionID, isHidden));
-            i++;
+            int defaultColumnWidth = columnHeader.getDefaultColumnWidth();
+            columns.add(new ReportColumnUI(columnHeader, downloadURL, sessionID,
+                    defaultColumnWidth, isHidden));
         }
         return columns;
     }
