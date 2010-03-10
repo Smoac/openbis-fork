@@ -97,4 +97,4 @@ alias 'cp=cp -ipR'
 echo Running ~openbis/bin/sprint_post_install.sh
 ~openbis/bin/sprint_post_install.sh
 
-echo Done, now start the servers (all-up.sh)!
+echo "Done, now start the servers using all-up.sh"
