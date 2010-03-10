@@ -652,6 +652,8 @@
 			</classpath>
 			<jvmarg value="-Xmx512M" />
 			<jvmarg value="-ea" />
+			<sysproperty key="log4j.configuration" file="etc/log.xml" />
+			<sysproperty key="javax.net.ssl.trustStore" file="dist/server/openBIS.keystore" />
 
 			<!-- Arguments to com.google.gwt.dev.DevMode -->
 			<!-- Provide two startup urls : one for the compiled version, one for the normal dev version -->
