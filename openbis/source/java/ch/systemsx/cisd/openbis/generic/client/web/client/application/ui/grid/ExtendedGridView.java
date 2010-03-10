@@ -69,17 +69,14 @@ class ExtendedGridView extends GridView
 
     protected void onHeaderClickWithShift(Grid<ModelData> pGrid, int column)
     {
-        // WORKAROUND: getHeaderCell takes into account only visible columns
-        int headerCellIndex = column;
-        for (int i = 0; i < column; i++)
-        {
-            if (pGrid.getColumnModel().getColumn(i).isHidden())
-            {
-                headerCellIndex--;
-            }
-        }
+        int margin = 50;
+        pGrid.getColumnModel().setColumnWidth(column, calculateWidth(pGrid, column) + margin);
+    }
+
+    private int calculateWidth(Grid<ModelData> pGrid, int column)
+    {
         GridView view = pGrid.getView();
-        Element headerCell = (Element) view.getHeaderCell(headerCellIndex);
+        Element headerCell = (Element) view.getHeaderCell(calculateHeaderCellIndex(pGrid, column));
         TextMetrics tm = TextMetrics.get();
         tm.bind(headerCell);
         // TODO 2010-03-09, IA: line breaks are ignored
@@ -95,8 +92,21 @@ class ExtendedGridView extends GridView
                 max = width;
             }
         }
-        int margin = 50;
-        pGrid.getColumnModel().setColumnWidth(column, max + margin);
+        return max;
+    }
+
+    private int calculateHeaderCellIndex(Grid<ModelData> pGrid, int column)
+    {
+        // WORKAROUND: getHeaderCell takes into account only visible columns
+        int headerCellIndex = column;
+        for (int i = 0; i < column; i++)
+        {
+            if (pGrid.getColumnModel().getColumn(i).isHidden())
+            {
+                headerCellIndex--;
+            }
+        }
+        return headerCellIndex;
     }
 
 }
