@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
 {
-
     public CinaDataSetInfoExtractor(final Properties globalProperties)
     {
 
@@ -77,11 +76,26 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
                         openbisService);
                 break;
             case UNKNOWN:
+                // Ignore it
                 break;
         }
 
         return dataSetInformation;
     }
+
+    // Not currently used, may be used in the future
+    // private static final String NON_EXISTENT_SAMPLE_CODE = "JUNK";
+    // /**
+    // * Configure the dataset information to be recognized as something to be deleted -- this is
+    // * possible by giving it a non-existent sample code
+    // */
+    // private void configureFolderForDeletion(final DataSetInformation dataSetInformation)
+    // {
+    // // Configure the data set information to be recognized as something to be deleted -- this is
+    // // possible by giving it a non-existent sample code
+    // dataSetInformation.setSampleCode(NON_EXISTENT_SAMPLE_CODE);
+    // dataSetInformation.setGroupCode("CINA");
+    // }
 
     /**
      * See if the incoming data set folder is contains an experiment and, if so, register the
