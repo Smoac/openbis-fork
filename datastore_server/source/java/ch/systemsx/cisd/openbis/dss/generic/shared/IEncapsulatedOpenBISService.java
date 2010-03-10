@@ -111,7 +111,6 @@ public interface IEncapsulatedOpenBISService
     /**
      * Registers the specified sample.
      * 
-     * @param userIDOrNull TODO
      * @return the technical ID of the new sample
      */
     public long registerSample(final NewSample newSample, String userIDOrNull)

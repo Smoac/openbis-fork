@@ -46,7 +46,7 @@ public class File2GBDownloadServlet extends AbstractFileDownloadServlet
 {
     private static final long serialVersionUID = 1L;
 
-    // TODO: 2009-12-01 CR: There is much commonality between this class and the
+    // TODO 2009-12-01, CR: There is much commonality between this class and the
     // File2GBUploadServlet, refactoring needed
 
     @Private

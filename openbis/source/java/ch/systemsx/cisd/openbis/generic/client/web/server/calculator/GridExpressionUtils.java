@@ -41,12 +41,12 @@ import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 
 /**
  * Utility class containing functions helpful with dealing with grid custom filters or columns.
- * TODO: (CR) Instead of a bunch of static methods, this should be refactored using the Command
- * pattern to GridExpressionFilterCommand and GridExpressionColumnCommand. The arguments to the
- * functions should become ivars.
  * 
  * @author Izabela Adamczyk
  */
+// TODO 2010-02-16, CR: Instead of a bunch of static methods, this should be refactored using the
+// Command pattern to GridExpressionFilterCommand and GridExpressionColumnCommand. The arguments to
+// the functions should become ivars.
 public class GridExpressionUtils
 {
     private static final Logger operationLog =
