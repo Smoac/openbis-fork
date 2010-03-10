@@ -3,7 +3,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.util.TextMetrics;
 import com.extjs.gxt.ui.client.widget.grid.ColumnHeader;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridView;
@@ -69,24 +68,25 @@ class ExtendedGridView extends GridView
 
     protected void onHeaderClickWithShift(Grid<ModelData> pGrid, int column)
     {
-        int margin = 50;
-        pGrid.getColumnModel().setColumnWidth(column, calculateWidth(pGrid, column) + margin);
+        int margin = 10;
+        pGrid.getColumnModel().setColumnWidth(column,
+                calculateWidthWithScroll(pGrid, column) + margin);
     }
 
-    private int calculateWidth(Grid<ModelData> pGrid, int column)
+    private int calculateWidthWithScroll(Grid<ModelData> pGrid, int column)
     {
         GridView view = pGrid.getView();
         Element headerCell = (Element) view.getHeaderCell(calculateHeaderCellIndex(pGrid, column));
-        TextMetrics tm = TextMetrics.get();
-        tm.bind(headerCell);
-        // TODO 2010-03-09, IA: line breaks are ignored
-        String innerText = headerCell.getInnerText();
-        int max = tm.getWidth(innerText);
+        headerCell = (Element) headerCell.getFirstChildElement();
+        headerCell.getStyle().setWidth(0, com.google.gwt.dom.client.Style.Unit.PX);
+        int max = headerCell.getScrollWidth();
+        headerCell.getStyle().setProperty("width", "auto");
         for (int i = 0; i < pGrid.getStore().getCount(); i++)
         {
-            Element cell = (Element) view.getCell(i, column);
-            String text = cell.getInnerText();
-            int width = tm.getWidth(text);
+            Element cell = (Element) view.getCell(i, column).getFirstChildElement();
+            cell.getStyle().setWidth(0, com.google.gwt.dom.client.Style.Unit.PX);
+            int width = cell.getScrollWidth();
+            cell.getStyle().setProperty("width", "auto");
             if (width > max)
             {
                 max = width;
