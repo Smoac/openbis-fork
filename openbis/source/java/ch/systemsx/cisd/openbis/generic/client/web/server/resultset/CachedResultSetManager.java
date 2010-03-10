@@ -363,7 +363,11 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private <T> Set<String> gatherAllColumnIDs(final IResultSetConfig<K, T> resultConfig)
     {
         Set<String> ids = new HashSet<String>();
-        ids.addAll(resultConfig.getIDsOfPresentedColumns());
+        Set<String> idsOfPresentedColumns = resultConfig.getIDsOfPresentedColumns();
+        if (idsOfPresentedColumns != null)
+        {
+            ids.addAll(idsOfPresentedColumns);
+        }
         GridFilters<T> filters = resultConfig.getFilters();
         List<GridColumnFilterInfo<T>> filterInfos = filters.tryGetFilterInfos();
         if (filterInfos != null)
