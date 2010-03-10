@@ -210,6 +210,7 @@ public final class CommonClientService extends AbstractClientService implements
         criteria.setCacheConfig(ResultSetFetchConfig.createFetchFromCache(exportCriteria
                 .getResultSetKey()));
         criteria.setAvailableColumns(exportCriteria.getAvailableColumns());
+        criteria.setPresentedColumns(exportCriteria.getColumnDefs());
         criteria.setGridDisplayId(exportCriteria.getGridDisplayId());
         return criteria;
     }

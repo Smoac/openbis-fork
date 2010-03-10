@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -39,6 +41,8 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     private ResultSetFetchConfig<K> cacheConfig = ResultSetFetchConfig.createComputeAndCache();
 
     private Set<IColumnDefinition<T>> availableColumns;
+    
+    private Set<String> idsOfPresentedColumns;
 
     private GridFilters<T> filters = GridFilters.createEmptyFilter();
 
@@ -87,11 +91,32 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         this.availableColumns = availableColumns;
     }
 
+    public Set<String> getIDsOfPresentedColumns()
+    {
+        return idsOfPresentedColumns;
+    }
+    
+    public void setPresentedColumns(List<IColumnDefinition<T>> presentedColumns)
+    {
+        Set<String> ids = new HashSet<String>();
+        for (IColumnDefinition<T> columnDefinition : presentedColumns)
+        {
+            ids.add(columnDefinition.getIdentifier());
+        }
+        setIDsOfPresentedColumns(ids);
+    }
+
+    private void setIDsOfPresentedColumns(Set<String> idsOfPresentedColumns)
+    {
+        this.idsOfPresentedColumns = idsOfPresentedColumns;
+    }
+    
     public final void copyPagingConfig(DefaultResultSetConfig<K, T> resultSetConfig)
     {
         setLimit(resultSetConfig.getLimit());
         setOffset(resultSetConfig.getOffset());
         setAvailableColumns(resultSetConfig.getAvailableColumns());
+        setIDsOfPresentedColumns(resultSetConfig.getIDsOfPresentedColumns());
         setSortInfo(resultSetConfig.getSortInfo());
         setFilters(resultSetConfig.getFilters());
         setCacheConfig(resultSetConfig.getCacheConfig());

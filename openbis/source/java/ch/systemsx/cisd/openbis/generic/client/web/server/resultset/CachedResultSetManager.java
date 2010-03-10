@@ -323,6 +323,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         assert resultConfig != null : "Unspecified result configuration";
         assert dataProvider != null : "Unspecified data retriever";
+        Set<String> ids = gatherAllColumnIDs(resultConfig);
+        debug("All columns needed:"+ids);
         ResultSetFetchConfig<K> cacheConfig = resultConfig.getCacheConfig();
         ResultSetFetchMode mode = cacheConfig.getMode();
         debug("getResultSet(cache config = " + cacheConfig + ")");
@@ -356,6 +358,36 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 throw new IllegalStateException("unexpected mode " + mode);
             }
         }
+    }
+
+    private <T> Set<String> gatherAllColumnIDs(final IResultSetConfig<K, T> resultConfig)
+    {
+        Set<String> ids = new HashSet<String>();
+        ids.addAll(resultConfig.getIDsOfPresentedColumns());
+        GridFilters<T> filters = resultConfig.getFilters();
+        List<GridColumnFilterInfo<T>> filterInfos = filters.tryGetFilterInfos();
+        if (filterInfos != null)
+        {
+            for (GridColumnFilterInfo<T> filterInfo : filterInfos)
+            {
+                ids.add(filterInfo.getFilteredField().getIdentifier());
+            }
+        }
+        CustomFilterInfo<T> customFilterInfo = filters.tryGetCustomFilterInfo();
+        if (customFilterInfo != null)
+        {
+            String expression = customFilterInfo.getExpression();
+            Set<IColumnDefinition<T>> availableColumns = resultConfig.getAvailableColumns();
+            for (IColumnDefinition<T> columnDefinition : availableColumns)
+            {
+                String identifier = columnDefinition.getIdentifier();
+                if (expression.indexOf(identifier) >= 0)
+                {
+                    ids.add(identifier);
+                }
+            }
+        }
+        return ids;
     }
 
     private <T> IResultSet<K, T> calculateResultSetAndSave(final String sessionToken,

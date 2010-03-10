@@ -528,8 +528,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     ResultSetFetchConfig.createFetchFromCache(resultSetKeyOrNull);
         }
         final DefaultResultSetConfig<String, T> resultSetConfig =
-                createPagingConfig(loadConfig, columnDefinitions, filterToolbar.getFilters(),
-                        pendingFetchConfigOrNull, getGridDisplayTypeID(), viewContext);
+                createPagingConfig(loadConfig, filterToolbar.getFilters(), getGridDisplayTypeID());
         debug("create a refresh callback " + pendingFetchConfigOrNull);
         final ListEntitiesCallback listCallback =
                 new ListEntitiesCallback(viewContext, callback, resultSetConfig);
@@ -582,10 +581,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return filters;
     }
 
-    private static <T> DefaultResultSetConfig<String, T> createPagingConfig(
-            PagingLoadConfig loadConfig, Set<IColumnDefinition<T>> availableColumns,
-            GridFilters<T> filters, ResultSetFetchConfig<String> cacheConfig, String gridDisplayId,
-            IViewContext<ICommonClientServiceAsync> viewContext)
+    private DefaultResultSetConfig<String, T> createPagingConfig(
+            PagingLoadConfig loadConfig, GridFilters<T> filters,
+            String gridDisplayId)
     {
         int limit = loadConfig.getLimit();
         int offset = loadConfig.getOffset();
@@ -594,11 +592,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         DefaultResultSetConfig<String, T> resultSetConfig = new DefaultResultSetConfig<String, T>();
         resultSetConfig.setLimit(limit);
         resultSetConfig.setOffset(offset);
-        SortInfo<T> translatedSortInfo = translateSortInfo(sortInfo, availableColumns);
-        resultSetConfig.setAvailableColumns(availableColumns);
+        SortInfo<T> translatedSortInfo = translateSortInfo(sortInfo, columnDefinitions);
+        resultSetConfig.setAvailableColumns(columnDefinitions);
+        resultSetConfig.setPresentedColumns(getVisibleColumns(columnDefinitions));
         resultSetConfig.setSortInfo(translatedSortInfo);
         resultSetConfig.setFilters(filters);
-        resultSetConfig.setCacheConfig(cacheConfig);
+        resultSetConfig.setCacheConfig(pendingFetchConfigOrNull);
         resultSetConfig.setGridDisplayId(gridDisplayId);
         resultSetConfig.setCustomColumnErrorMessageLong(viewContext.getDisplaySettingsManager()
                 .isDisplayCustomColumnDebuggingErrorMessages());

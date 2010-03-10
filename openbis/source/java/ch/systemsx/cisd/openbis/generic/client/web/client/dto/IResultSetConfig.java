@@ -54,6 +54,11 @@ public interface IResultSetConfig<K, T>
      * include custom columns only if this information was already fetched.
      */
     public Set<IColumnDefinition<T>> getAvailableColumns();
+    
+    /**
+     * Returns the IDs of those columns which will be shown at the client.
+     */
+    public Set<String> getIDsOfPresentedColumns();
 
     /**
      * Returns the sort info.
