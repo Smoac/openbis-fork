@@ -199,6 +199,9 @@ public final class CachedResultSetManagerTest
                     allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
                     
+                    allowing(resultSetConfig).getIDsOfPresentedColumns();
+                    will(returnValue(Collections.emptySet()));
+                    
                     allowing(resultSetConfig).isCustomColumnErrorMessageLong();
                     will(returnValue(false));
 
@@ -230,7 +233,10 @@ public final class CachedResultSetManagerTest
 
                     allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
-
+                    
+                    allowing(resultSetConfig).getIDsOfPresentedColumns();
+                    will(returnValue(Collections.emptySet()));
+                    
                     allowResultSetCreation(this);
                 }
             });
@@ -254,6 +260,9 @@ public final class CachedResultSetManagerTest
 
                     allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
+                    
+                    allowing(resultSetConfig).getIDsOfPresentedColumns();
+                    will(returnValue(Collections.emptySet()));
                     
                     allowing(resultSetConfig).isCustomColumnErrorMessageLong();
                     will(returnValue(false));
