@@ -25,6 +25,7 @@ import net.lemnik.eodsql.ResultColumn;
  */
 public class ProteinReferenceWithProbabilityAndPeptide extends ProteinReferenceWithProbability
 {
+    private static final long serialVersionUID = 1L;
     @ResultColumn("sequence")
     private String peptideSequence;
 

@@ -26,6 +26,8 @@ import net.lemnik.eodsql.ResultColumn;
  */
 public class SampleAbundance extends AbstractDTOWithID
 {
+    private static final long serialVersionUID = 1L;
+
     @ResultColumn("perm_id")
     private String samplePermID;
 

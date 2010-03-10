@@ -26,6 +26,8 @@ import net.lemnik.eodsql.ResultColumn;
  */
 public class Sequence extends AbstractDTOWithID
 {
+    private static final long serialVersionUID = 1L;
+
     @ResultColumn("amino_acid_sequence")
     private String sequence;
     

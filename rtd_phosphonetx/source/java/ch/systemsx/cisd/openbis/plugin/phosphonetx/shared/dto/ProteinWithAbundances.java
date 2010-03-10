@@ -27,6 +27,8 @@ import java.util.Set;
  */
 public class ProteinWithAbundances extends ProteinReference
 {
+    private static final long serialVersionUID = 1L;
+
     private static final double[] EMPTY_ARRAY = new double[0];
     
     private final Map<Long, double[]> abundances = new LinkedHashMap<Long, double[]>();

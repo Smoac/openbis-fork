@@ -25,6 +25,8 @@ import net.lemnik.eodsql.ResultColumn;
  */
 public class IdentifiedProtein extends AbstractDTOWithID
 {
+    private static final long serialVersionUID = 1L;
+
     @ResultColumn("data_set_id")
     private long dataSetID;
     

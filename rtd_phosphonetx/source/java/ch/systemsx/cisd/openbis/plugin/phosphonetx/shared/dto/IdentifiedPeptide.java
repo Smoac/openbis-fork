@@ -26,6 +26,8 @@ import net.lemnik.eodsql.ResultColumn;
  */
 public class IdentifiedPeptide extends AbstractDTOWithID
 {
+    private static final long serialVersionUID = 1L;
+
     @ResultColumn("sequence")
     private String sequence;
     
