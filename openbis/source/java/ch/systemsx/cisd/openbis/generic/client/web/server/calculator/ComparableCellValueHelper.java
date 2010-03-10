@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 public class ComparableCellValueHelper
 {
 
-    // TODO CR --This code should be a method on ISerializableComparable and implemented using
-    // polymorphism.
+    // TODO 2010-03-10, CR: This code should be a method on ISerializableComparable and implemented
+    // using polymorphism.
     public static Comparable<?> unwrap(ISerializableComparable cellValue)
     {
         if (cellValue instanceof DateTableCell)

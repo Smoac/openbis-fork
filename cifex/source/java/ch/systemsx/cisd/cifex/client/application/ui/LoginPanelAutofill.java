@@ -37,15 +37,16 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
  * This class uses a variant of a trick described in the GWT discussion forum to support autofill.
  * Browsers do not support autofill on input fields that are generated on the client by javascript,
  * so it is necessary for the page to statically contain the input fields we want to autofill. These
- * fields are unhidden and used on the login page. TODO This implementation currently supports
- * Firefox, but not Safari or Chrome. To support Safari, we cannot use javascript in the action,
- * instead we need to have the login post data to a server.
+ * fields are unhidden and used on the login page.
  * 
  * @see <a href
  *      ="http://groups.google.com/group/Google-Web-Toolkit/browse%5Fthread/thread/2b2ce0b6aaa82461">GWT
  *      Discussion Forum</a>
  * @author Chandrasekhar Ramakrishnan
  */
+// TODO 2010-03-10, CR: This implementation currently supports Firefox, but not Safari or Chrome. To
+// support Safari, we cannot use javascript in the action, instead we need to have the login post
+// data to a server.
 public class LoginPanelAutofill extends VerticalPanel
 {
     private final ViewContext context;
