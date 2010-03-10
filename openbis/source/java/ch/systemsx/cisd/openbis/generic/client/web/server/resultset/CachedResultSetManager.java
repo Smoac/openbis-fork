@@ -259,8 +259,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 {
                     Comparable v1 = sortField.tryGetComparableValue(o1);
                     Comparable v2 = sortField.tryGetComparableValue(o2);
-                    // NullComparator wrapper is dealing with nulls (see below)
-                    return v1.compareTo(v2);
+                    // treat null as minimal value
+                    if (v1 == null)
+                    {
+                        return -1;
+                    } else if (v2 == null)
+                    {
+                        return 1;
+                    } else
+                    {
+                        return v1.compareTo(v2);
+                    }
                 }
 
             };
@@ -324,7 +333,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         assert resultConfig != null : "Unspecified result configuration";
         assert dataProvider != null : "Unspecified data retriever";
         Set<String> ids = gatherAllColumnIDs(resultConfig);
-        debug("All columns needed:"+ids);
+        debug("All columns needed:" + ids);
         ResultSetFetchConfig<K> cacheConfig = resultConfig.getCacheConfig();
         ResultSetFetchMode mode = cacheConfig.getMode();
         debug("getResultSet(cache config = " + cacheConfig + ")");
