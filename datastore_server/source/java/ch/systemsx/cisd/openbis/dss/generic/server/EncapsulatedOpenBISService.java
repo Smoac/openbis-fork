@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * A class that encapsulates the {@link IETLLIMSService} and handles (re-)authentication
@@ -392,21 +393,22 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    synchronized public final void updateDataSet(String code, List<NewProperty> properties)
-            throws UserFailureException
+    synchronized public final void updateDataSet(String code, List<NewProperty> properties,
+            SpaceIdentifier space) throws UserFailureException
 
     {
         assert code != null : "missing data set code";
         assert properties != null : "missing data";
+        assert space != null : "space missing";
 
         checkSessionToken();
         try
         {
-            primUpdateDataSet(code, properties);
+            primUpdateDataSet(code, properties, space);
         } catch (final InvalidSessionException ex)
         {
             authenticate();
-            primUpdateDataSet(code, properties);
+            primUpdateDataSet(code, properties, space);
         }
         if (operationLog.isInfoEnabled())
         {
@@ -414,9 +416,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    private void primUpdateDataSet(String code, List<NewProperty> properties)
+    private void primUpdateDataSet(String code, List<NewProperty> properties,
+            final SpaceIdentifier space)
     {
-        service.updateDataSet(sessionToken, properties, code);
+        service.addPropertiesToDataSet(sessionToken, properties, code, space);
     }
 
     synchronized public final IEntityProperty[] getPropertiesOfTopSampleRegisteredFor(

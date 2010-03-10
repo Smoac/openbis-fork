@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * <b>LIMS</b> <i>Web Service</i> interface for the <b>ETL</b> (<i>Extract, Transform, Load</i>)
@@ -271,12 +272,15 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             Long lastSeenDeletionEventIdOrNull);
 
     /**
-     * Updates specified properties of given data set.
+     * Adds specified properties of given data set. Properties defined before will not be updated.
      */
-    // FIXME: check access (experiment or sample)
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public void updateDataSet(String sessionToken, List<NewProperty> properties, String dataSetCode)
+    public void addPropertiesToDataSet(
+            String sessionToken,
+            List<NewProperty> properties,
+            String dataSetCode,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) final SpaceIdentifier identifier)
             throws UserFailureException;
 
 }

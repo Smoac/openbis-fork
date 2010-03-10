@@ -128,7 +128,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
     private DatasetDescription createDatasetDescription(String location)
     {
         return new DatasetDescription("datasetCode-" + location, location, "", "", "", "", null,
-                null);
+                null, "");
     }
 
 }

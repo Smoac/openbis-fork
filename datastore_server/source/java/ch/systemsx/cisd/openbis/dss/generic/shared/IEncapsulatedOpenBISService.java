@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * This interface is very similar to {@link IETLLIMSService} but <code>sessionToken</code> has been
@@ -166,6 +167,6 @@ public interface IEncapsulatedOpenBISService
     /**
      * Updates specified properties of given data set.
      */
-    public void updateDataSet(String code, List<NewProperty> properties)
+    public void updateDataSet(String code, List<NewProperty> properties, SpaceIdentifier space)
             throws UserFailureException;
 }

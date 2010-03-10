@@ -101,7 +101,7 @@ public class IterativeTableModelBuilderTest
     private DatasetDescription createDatasetDescription()
     {
         return new DatasetDescription("code", "location", "sampleCode", "groupCode", "projCode",
-                "expCode", null, null);
+                "expCode", null, null, "instance");
     }
 
     @Test

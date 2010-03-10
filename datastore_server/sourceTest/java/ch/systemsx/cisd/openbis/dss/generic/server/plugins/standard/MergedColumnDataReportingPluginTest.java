@@ -92,10 +92,10 @@ public class MergedColumnDataReportingPluginTest extends AssertJUnit
         assertTrue(values.get(2).getClass().getName(), values.get(2) instanceof IntegerTableCell);
         assertTrue(values.get(3).getClass().getName(), values.get(3) instanceof DoubleTableCell);
     }
-    
+
     private DatasetDescription createDatasetDescription(String location)
     {
-        return new DatasetDescription("", location, "", "", "", "", null, null);
+        return new DatasetDescription("", location, "", "", "", "", null, null, "");
     }
 
 }

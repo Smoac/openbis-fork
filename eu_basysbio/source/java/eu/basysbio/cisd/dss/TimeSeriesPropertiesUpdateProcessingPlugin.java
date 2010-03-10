@@ -25,10 +25,10 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Extracts header properties from TSV file belonging to data set and updates data set properties.
@@ -38,13 +38,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 public class TimeSeriesPropertiesUpdateProcessingPlugin extends AbstractDatastorePlugin implements
         IProcessingPluginTask
 {
-    private final IEncapsulatedOpenBISService service;
 
     public TimeSeriesPropertiesUpdateProcessingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        //FIXME: NPE  
-        service = ServiceProvider.getOpenBISService();
     }
 
     private static final long serialVersionUID = 1L;
@@ -68,9 +65,12 @@ public class TimeSeriesPropertiesUpdateProcessingPlugin extends AbstractDatastor
             File file = getDataSubDir(dataset);
             List<NewProperty> newProperties =
                     TimeSeriesHeaderUtils.extractHeaderProperties(file, true);
-            service.updateDataSet(dataset.getDatasetCode(), newProperties);
+            SpaceIdentifier space =
+                    new SpaceIdentifier(dataset.getDatabaseInstanceCode(), dataset.getGroupCode());
+            ServiceProvider.getOpenBISService().updateDataSet(dataset.getDatasetCode(),
+                    newProperties, space);
             return Status.OK;
-        } catch (UserFailureException ex)// FIXME what should happen in case of other exception
+        } catch (UserFailureException ex)
         {
             return Status.createError(ex.getMessage());
         }

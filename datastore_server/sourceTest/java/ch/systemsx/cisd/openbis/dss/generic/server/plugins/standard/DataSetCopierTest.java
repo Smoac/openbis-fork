@@ -109,22 +109,22 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         properties = new Properties();
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
-        ds1 = new DatasetDescription("ds1", DS1_LOCATION, "s", "g", "p", "e", null, null);
+        ds1 = new DatasetDescription("ds1", DS1_LOCATION, "s", "g", "p", "e", null, null, "i");
         File ds1Folder = new File(storeRoot, DS1_LOCATION + "/original");
         ds1Folder.mkdirs();
         ds1Data = new File(ds1Folder, "data.txt");
         ds1Data.createNewFile();
-        ds2 = new DatasetDescription("ds2", DS2_LOCATION, "s", "g", "p", "e", null, null);
+        ds2 = new DatasetDescription("ds2", DS2_LOCATION, "s", "g", "p", "e", null, null, "i");
         File ds2Folder = new File(storeRoot, DS2_LOCATION + "/original");
         ds2Folder.mkdirs();
         ds2Data = new File(ds2Folder, "images");
         ds2Data.mkdirs();
-        ds3 = new DatasetDescription("ds3", DS3_LOCATION, "s", "g", "p", "e", null, null);
+        ds3 = new DatasetDescription("ds3", DS3_LOCATION, "s", "g", "p", "e", null, null, "i");
         File ds3Folder = new File(storeRoot, DS3_LOCATION + "/original");
         ds3Folder.mkdirs();
         ds3Data = new File(ds3Folder, "existing");
         ds3Data.createNewFile();
-        ds4 = new DatasetDescription("ds4", DS4_LOCATION, "s", "g", "p", "e", null, null);
+        ds4 = new DatasetDescription("ds4", DS4_LOCATION, "s", "g", "p", "e", null, null, "i");
         File ds4Folder = new File(storeRoot, DS4_LOCATION + "/original");
         ds4Folder.mkdirs();
         ds4Data = new File(ds4Folder, "existing");
@@ -223,7 +223,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCopyTwoDataSetsLocally()
     {
@@ -232,9 +232,11 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test"), null, null, null);
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test"), null, null,
+                            null);
                     will(returnValue(Status.OK));
-                    one(copier).copyToRemote(ds2Data, getCanonicalFile("tmp/test"), null, null, null);
+                    one(copier).copyToRemote(ds2Data, getCanonicalFile("tmp/test"), null, null,
+                            null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -260,10 +262,12 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test"), null, null, null);
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test"), null, null,
+                            null);
                     will(returnValue(Status.createError("error message")));
 
-                    one(copier).copyToRemote(ds2Data, getCanonicalFile("tmp/test"), null, null, null);
+                    one(copier).copyToRemote(ds2Data, getCanonicalFile("tmp/test"), null, null,
+                            null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -477,7 +481,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals(expectedDatasets.length, actualDatasets.size());
         assertTrue(actualDatasets.containsAll(Arrays.asList(expectedDatasets)));
     }
-    
+
     private File getCanonicalFile(String fileName)
     {
         try

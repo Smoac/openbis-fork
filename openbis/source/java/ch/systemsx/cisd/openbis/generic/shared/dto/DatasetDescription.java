@@ -39,6 +39,8 @@ public class DatasetDescription implements Serializable
 
     private final String projectCode;
 
+    private final String instanceCode;
+
     private final String experimentCode;
 
     private final String mainDataSetPattern;
@@ -46,8 +48,8 @@ public class DatasetDescription implements Serializable
     private final String mainDataSetPath;
 
     public DatasetDescription(String datasetCode, String dataSetLocation, String sampleCode,
-            String groupCode, String projectCode, String experimentCode,
-            String mainDataSetPattern, String mainDataSetPath)
+            String groupCode, String projectCode, String experimentCode, String mainDataSetPattern,
+            String mainDataSetPath, String instanceCode)
     {
         this.datasetCode = datasetCode;
         this.dataSetLocation = dataSetLocation;
@@ -57,6 +59,7 @@ public class DatasetDescription implements Serializable
         this.experimentCode = experimentCode;
         this.mainDataSetPattern = mainDataSetPattern;
         this.mainDataSetPath = mainDataSetPath;
+        this.instanceCode = instanceCode;
     }
 
     public String getDataSetLocation()
@@ -101,6 +104,11 @@ public class DatasetDescription implements Serializable
     public String getProjectCode()
     {
         return projectCode;
+    }
+
+    public String getDatabaseInstanceCode()
+    {
+        return instanceCode;
     }
 
     public String getExperimentCode()

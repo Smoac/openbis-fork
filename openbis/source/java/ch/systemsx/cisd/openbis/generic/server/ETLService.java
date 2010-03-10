@@ -84,6 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -525,13 +526,13 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         assert dataSetCode != null : "Data set code not specified.";
     }
 
-    public void updateDataSet(String sessionToken, List<NewProperty> properties, String dataSetCode)
-            throws UserFailureException
+    public void addPropertiesToDataSet(String sessionToken, List<NewProperty> properties,
+            String dataSetCode, SpaceIdentifier space) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
         final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        externalDataBO.updateSomeProperties(dataSetCode, properties);
+        externalDataBO.addPropertiesToDataSet(dataSetCode, properties);
     }
 
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)

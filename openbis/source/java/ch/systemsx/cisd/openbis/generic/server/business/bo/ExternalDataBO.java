@@ -290,14 +290,55 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 externalData.getDataSetType());
     }
 
-    public void updateSomeProperties(String dataSetCode, List<NewProperty> properties)
+    public void addPropertiesToDataSet(String dataSetCode, List<NewProperty> properties)
     {
-        // FIXME add keeping properties not mentioned
         loadByCode(dataSetCode);
-        updateProperties(Arrays.asList(convertToDataSetProperties(properties)));
+        updatePropertiesPreservingExisting(properties);
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
                 externalData.getDataSetType());
         validateAndSave();
+    }
+
+    private void updatePropertiesPreservingExisting(List<NewProperty> properties)
+    {
+        final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
+        Set<String> propertyUpdatesCodes = extractPropertyCodesToUpdate(properties, existingProperties);
+        List<NewProperty> propertyUpdates =
+                extractNewPropertiesToUpdate(properties, propertyUpdatesCodes);
+        final EntityTypePE type = externalData.getDataSetType();
+        final PersonPE registrator = findRegistrator();
+        externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
+                type, Arrays.asList(convertToDataSetProperties(propertyUpdates)),
+                registrator, propertyUpdatesCodes));
+    }
+
+    private List<NewProperty> extractNewPropertiesToUpdate(List<NewProperty> properties,
+            Set<String> propertiesToUpdate)
+    {
+        List<NewProperty> newPropertiesToUpdate = new ArrayList<NewProperty>();
+        for (NewProperty np : properties)
+        {
+            if (propertiesToUpdate.contains(np.getPropertyCode()))
+            {
+                newPropertiesToUpdate.add(np);
+            }
+        }
+        return newPropertiesToUpdate;
+    }
+
+    private Set<String> extractPropertyCodesToUpdate(List<NewProperty> properties,
+            final Set<DataSetPropertyPE> existingProperties)
+    {
+        Set<String> propertiesToUpdate = new HashSet<String>();
+        for (NewProperty np : properties)
+        {
+            propertiesToUpdate.add(np.getPropertyCode());
+        }
+        for (DataSetPropertyPE ep : existingProperties)
+        {
+            propertiesToUpdate.remove(ep.getEntityTypePropertyType().getPropertyType().getCode());
+        }
+        return propertiesToUpdate;
     }
 
     public void update(DataSetUpdatesDTO updates)
@@ -334,13 +375,13 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         getExternalDataDAO().validateAndSaveUpdatedEntity(externalData);
     }
 
-    private void updateProperties(List<IEntityProperty> properties)
+    private void updateProperties(List<IEntityProperty> newProperties)
     {
         final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
         final EntityTypePE type = externalData.getDataSetType();
         final PersonPE registrator = findRegistrator();
         externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
-                type, properties, registrator));
+                type, newProperties, registrator));
     }
 
     private void updateParents(String[] modifiedParentDatasetCodesOrNull)

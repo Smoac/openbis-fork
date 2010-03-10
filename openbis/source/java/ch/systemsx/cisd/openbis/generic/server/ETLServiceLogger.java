@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -207,8 +208,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public void updateDataSet(String sessionToken, List<NewProperty> properties, String dataSetCode)
-            throws UserFailureException
+    public void addPropertiesToDataSet(String sessionToken, List<NewProperty> properties,
+            String dataSetCode, SpaceIdentifier space) throws UserFailureException
     {
         logTracking(sessionToken, "updateDataSet", "DATA_SET_CODE(%s) PROPERTIES(%s)", dataSetCode,
                 properties.size());

@@ -60,9 +60,10 @@ public interface IExternalDataBO extends IEntityBusinessObject
     public void update(DataSetUpdatesDTO updates);
 
     /**
-     * Updates chosen properties of given data set.
+     * Adds chosen properties to given data set. If given property has been already defined, the
+     * value is not updated.
      */
-    public void updateSomeProperties(String dataSetCode, List<NewProperty> properties);
+    public void addPropertiesToDataSet(String dataSetCode, List<NewProperty> properties);
 
     /**
      * Loads the external data item with specified code.
