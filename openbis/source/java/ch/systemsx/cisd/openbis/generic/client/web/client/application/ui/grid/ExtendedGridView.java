@@ -62,7 +62,7 @@ class ExtendedGridView extends GridView
             };
         header.setSplitterWidth(splitterWidth);
         header.setMinColumnWidth(grid.getMinColumnWidth());
-        header.setTitle("[Click] to sort, [SHIFT+Click] to adjust width");
+        header.setTitle("[Click] to sort, [SHIFT+Click] to adjust the width");
         return header;
     }
 
