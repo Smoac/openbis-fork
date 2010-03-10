@@ -79,10 +79,12 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
         {
             materials = new ArrayList<MaterialPE>();
         }
+        setBatchUpdateMode(true);
         for (NewMaterial newMaterial : newMaterials)
         {
             materials.add(createMaterial(newMaterial, materialTypePE));
         }
+        setBatchUpdateMode(false);
         dataChanged = true;
     }
 

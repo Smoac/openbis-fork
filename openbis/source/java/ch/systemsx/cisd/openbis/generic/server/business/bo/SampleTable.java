@@ -263,7 +263,23 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         dataChanged = true;
     }
 
-    public void add(final NewSample newSample, final Map<String, SampleTypePE> sampleTypeCache,
+    public void add(List<NewSample> newSamples) throws UserFailureException
+    {
+        setBatchUpdateMode(true);
+
+        final Map<String, SampleTypePE> sampleTypeCache = new HashMap<String, SampleTypePE>();
+        final Map<String, ExperimentPE> experimentCache = new HashMap<String, ExperimentPE>();
+        final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
+                new HashMap<SampleOwnerIdentifier, SampleOwner>();
+        for (NewSample sample : newSamples)
+        {
+            add(sample, sampleTypeCache, sampleOwnerCache, experimentCache);
+        }
+
+        setBatchUpdateMode(false);
+    }
+
+    private void add(final NewSample newSample, final Map<String, SampleTypePE> sampleTypeCache,
             final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
             Map<String, ExperimentPE> experimentCache) throws UserFailureException
     {

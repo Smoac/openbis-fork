@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -31,16 +30,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -54,6 +49,8 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, GenericSampleTypeSlaveServerPlugin.class);
+
+    private static final int REGISTRATION_BATCH_SIZE = 10000;
 
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
@@ -88,28 +85,30 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert session != null : "Unspecified session.";
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 
-        daoFactory.disableSecondLevelCacheForSession();
-        ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
-        final Map<String, SampleTypePE> sampleTypeCache = new HashMap<String, SampleTypePE>();
-        final Map<String, ExperimentPE> experimentCache = new HashMap<String, ExperimentPE>();
-        final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
-                new HashMap<SampleOwnerIdentifier, SampleOwner>();
-        int batch = 0;
+        List<NewSample> batch = new ArrayList<NewSample>();
         int counter = 0;
-        for (final NewSample newSample : newSamples)
+        for (NewSample newSample : newSamples)
         {
-            if (batch == 1000)
+            batch.add(newSample);
+            if (batch.size() >= REGISTRATION_BATCH_SIZE)
             {
-                operationLog.info("Progress of registering samples: " + counter + " out of "
+                doRegisterSamples(session, batch);
+                counter += batch.size();
+                operationLog.info("Sample registration progress: " + counter + "/"
                         + newSamples.size());
-                sampleTable.save();
-                sampleTable = businessObjectFactory.createSampleTable(session);
-                batch = 0;
+                batch.clear();
             }
-            sampleTable.add(newSample, sampleTypeCache, sampleOwnerCache, experimentCache);
-            batch++;
-            counter++;
         }
+        if (batch.size() > 0)
+        {
+            doRegisterSamples(session, batch);
+        }
+    }
+
+    private void doRegisterSamples(Session session, List<NewSample> newSamples)
+    {
+        ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        sampleTable.add(newSamples);
         sampleTable.save();
     }
 }

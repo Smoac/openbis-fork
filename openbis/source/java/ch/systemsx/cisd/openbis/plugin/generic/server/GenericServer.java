@@ -25,12 +25,15 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -95,7 +98,10 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 public final class GenericServer extends AbstractServer<IGenericServer> implements
         ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer
 {
-    private static final int MATERIAL_REGISTRATION_BATCH_SIZE = 1000;
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, GenericServer.class);
+
+    private static final int REGISTRATION_BATCH_SIZE = 10000;
 
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
@@ -426,15 +432,16 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
         final Session session = getSession(sessionToken);
 
-        // hibernate slows down significantly after registration of many objects, so we have to do
-        // it in batch
         List<NewMaterial> batch = new ArrayList<NewMaterial>();
+        int counter = 0;
         for (NewMaterial newMaterial : newMaterials)
         {
             batch.add(newMaterial);
-            if (batch.size() >= MATERIAL_REGISTRATION_BATCH_SIZE)
+            if (batch.size() >= REGISTRATION_BATCH_SIZE)
             {
                 doRegisterMaterials(materialTypePE, session, batch);
+                counter += batch.size();
+                operationLog.info("Material registration progress: " + counter + "/" + newMaterials.size());
                 batch.clear();
             }
         }

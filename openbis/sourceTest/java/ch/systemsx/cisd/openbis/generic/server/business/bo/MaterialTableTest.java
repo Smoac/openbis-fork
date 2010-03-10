@@ -66,6 +66,9 @@ public final class MaterialTableTest extends AbstractBOTest
                 {
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(CommonTestUtils.createHomeDatabaseInstance()));
+                    
+                    one(daoFactory).setBatchUpdateMode(true);
+                    one(daoFactory).setBatchUpdateMode(false);
                 }
             });
         createMaterialTable().add(newMaterials, materialType);

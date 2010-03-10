@@ -36,9 +36,13 @@ public interface IAuthorizationDAOFactory
     public DatabaseInstancePE getHomeDatabaseInstance();
 
     /**
-     * Disables interaction with the second level cache for the current Hibernate session.
+     * @param batchMode should be set to true if it is foreseen that many write operations
+     *            interleaved with read operations will be executed in one block. Note that it
+     *            causes that read operations will not see any changes made to the database in this
+     *            session. It will bring big performance improvement. The batch mode should be set
+     *            to false as soon as it is no longer needed.
      */
-    public void disableSecondLevelCacheForSession();
+    public void setBatchUpdateMode(boolean batchMode);
 
     /**
      * Returns the Hibernate session factory.
@@ -64,6 +68,6 @@ public interface IAuthorizationDAOFactory
     public IGridCustomFilterDAO getGridCustomFilterDAO();
 
     public IGridCustomColumnDAO getGridCustomColumnDAO();
-    
+
     public IQueryDAO getQueryDAO();
 }

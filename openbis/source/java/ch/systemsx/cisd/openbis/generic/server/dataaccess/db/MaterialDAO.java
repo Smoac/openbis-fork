@@ -91,11 +91,6 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
             internalCreateMaterial(materialPE, hibernateTemplate);
         }
         hibernateTemplate.flush();
-        // TODO 2010-02-16, Tomasz Pylak: can this be avoided by changing hibernate configuration?
-        // Now registration time increases nonlinearly with the number of registered materials, so
-        // we have to do it in batches and clear the session in between (requirement: 150.000
-        // materials registered, each with one material property and 3 others).
-        hibernateTemplate.clear();
     }
 
     private void internalCreateMaterial(MaterialPE material, HibernateTemplate hibernateTemplate)
