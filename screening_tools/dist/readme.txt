@@ -46,7 +46,8 @@ You can build the package using ant 'metadata-jar' target (build/build.xml).
 II. Register genes and oligos
 ------
 1. Register genes: go to "Material -> Import" menu and select material type "GENE". Then select a genes.txt file and click "Save".
-2. Register oligos: as above but select material type "OLIGO" and file oligos.txt.
+   It can take few minutes to register 10.000 genes.
+2. Register oligos: as above but select material type "OLIGO" and file oligos.txt. It takes around 10 min for 30.000 oligos.
 
 III. Register the experiment with plates
 ------
@@ -63,7 +64,7 @@ III. Register the experiment with plates
 - go to "Sample -> Import"
 - for "Sample Type" choose "(multiple)"
 - choose a "plates.txt" file generated in the step I. and click "Save"
-It takes around 20 sec to register one 384 wells plate.
+It takes around 20 min to register 100 plates with 384 wells in each.
 
 IV. Register images
 ------
