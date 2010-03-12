@@ -456,9 +456,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         final IPropertyTypeTable propertyTypeTable =
                 businessObjectFactory.createPropertyTypeTable(session);
         if (withRelations)
+        {
             propertyTypeTable.loadWithRelations();
-        else
+        } else
+        {
             propertyTypeTable.load();
+        }
         final List<PropertyTypePE> propertyTypes = propertyTypeTable.getPropertyTypes();
         Collections.sort(propertyTypes);
         return PropertyTypeTranslator.translate(propertyTypes,
