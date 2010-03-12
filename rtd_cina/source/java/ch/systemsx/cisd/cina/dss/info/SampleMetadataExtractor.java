@@ -96,7 +96,7 @@ class SampleMetadataExtractor
 
         SampleIdentifier sampleId = this.createSample();
         dataSetInformation.setExperimentIdentifier(experimentIdentifier);
-        dataSetInformation.setGroupCode(sampleId.getGroupLevel().getGroupCode());
+        dataSetInformation.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
         dataSetInformation.setSampleCode(sampleId.getSampleCode());
         dataSetInformation.setUploadingUserEmail(emailAddress);
     }
@@ -134,7 +134,7 @@ class SampleMetadataExtractor
 
         SampleIdentifier sampleId =
                 new SampleIdentifier(new GroupIdentifier((String) null, experimentIdentifier
-                        .getGroupCode()), sampleCodePrefix + "-" + sampleCodeSuffix);
+                        .getSpaceCode()), sampleCodePrefix + "-" + sampleCodeSuffix);
 
         NewSample sample = new NewSample();
         SampleType sampleType = new SampleType();

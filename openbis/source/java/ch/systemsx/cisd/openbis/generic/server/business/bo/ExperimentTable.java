@@ -54,7 +54,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         fillGroupIdentifier(projectIdentifier);
         final ProjectPE project =
                 getProjectDAO().tryFindProject(projectIdentifier.getDatabaseInstanceCode(),
-                        projectIdentifier.getGroupCode(), projectIdentifier.getProjectCode());
+                        projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode());
         checkNotNull(projectIdentifier, project);
         if (EntityType.isAllTypesCode(experimentTypeCode))
         {

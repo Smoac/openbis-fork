@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -90,23 +90,23 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return registrator;
     }
 
-    protected void fillGroupIdentifier(final GroupIdentifier groupIdentifier)
+    protected void fillGroupIdentifier(final SpaceIdentifier spaceIdentifier)
     {
-        if (org.apache.commons.lang.StringUtils.isBlank(groupIdentifier.getGroupCode()))
+        if (org.apache.commons.lang.StringUtils.isBlank(spaceIdentifier.getSpaceCode()))
         {
             final GroupPE group =
-                    GroupIdentifierHelper.tryGetGroup(groupIdentifier, findRegistrator(), this);
-            checkNotNull(groupIdentifier, group);
-            groupIdentifier.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
-            groupIdentifier.setGroupCode(group.getCode());
+                    GroupIdentifierHelper.tryGetGroup(spaceIdentifier, findRegistrator(), this);
+            checkNotNull(spaceIdentifier, group);
+            spaceIdentifier.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
+            spaceIdentifier.setSpaceCode(group.getCode());
         }
     }
 
-    private static void checkNotNull(final GroupIdentifier groupIdentifier, final GroupPE group)
+    private static void checkNotNull(final SpaceIdentifier spaceIdentifier, final GroupPE group)
     {
         if (group == null)
         {
-            throw new UserFailureException("Unknown space '" + groupIdentifier + "'.");
+            throw new UserFailureException("Unknown space '" + spaceIdentifier + "'.");
         }
     }
 

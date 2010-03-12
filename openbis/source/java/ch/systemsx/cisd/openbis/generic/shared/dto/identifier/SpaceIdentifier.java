@@ -50,15 +50,15 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
     public SpaceIdentifier(final String databaseInstanceCode, final String spaceCode)
     {
         super(databaseInstanceCode);
-        setGroupCode(spaceCode);
+        setSpaceCode(spaceCode);
     }
 
-    public final String getGroupCode()
+    public final String getSpaceCode()
     {
         return StringUtils.upperCase(spaceCodeOrNull);
     }
 
-    public final void setGroupCode(final String spaceCode)
+    public final void setSpaceCode(final String spaceCode)
     {
         this.spaceCodeOrNull = spaceCode;
     }
@@ -81,7 +81,7 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
         final SpaceIdentifier that = (SpaceIdentifier) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
-        builder.append(getGroupCode(), that.getGroupCode());
+        builder.append(getSpaceCode(), that.getSpaceCode());
         return builder.isEquals();
     }
 
@@ -90,7 +90,7 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getDatabaseInstanceCode());
-        builder.append(getGroupCode());
+        builder.append(getSpaceCode());
         return builder.toHashCode();
     }
 
@@ -124,13 +124,6 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
         super();
     }
 
-    /** this method exists just to make automatic bean conversion possible */
-    @Deprecated
-    public void setHomeGroup(final boolean isHomeSpace)
-    {
-        // empty
-    }
-
     //
     // Comparable
     //
@@ -140,7 +133,7 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
         final int dbCompare = super.compareTo(other);
         if (dbCompare == 0)
         {
-            return StringUtilities.compareNullable(getGroupCode(), other.getGroupCode());
+            return StringUtilities.compareNullable(getSpaceCode(), other.getSpaceCode());
         } else
         {
             return dbCompare;

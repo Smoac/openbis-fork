@@ -113,7 +113,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     public final void loadSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
     {
         onlyNewSamples = false;
-        GroupPE group = findGroup(criteria.getGroupCode());
+        GroupPE group = findGroup(criteria.getSpaceCode());
         List<SamplePE> foundSamples =
                 getSampleDAO().listSamplesByGroupAndProperty(criteria.getPropertyCode(),
                         criteria.getPropertyValue(), group);

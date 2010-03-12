@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
 
 /**
- * Identifies an owner of a sample: group or database instance.
+ * Identifies an owner of a sample: space or database instance.
  * 
  * @author Tomasz Pylak
  */
@@ -32,17 +32,17 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    // if not null, sample is defined on the group level
-    private GroupIdentifier groupIdentOrNull;
+    // if not null, sample is defined on the space level
+    private SpaceIdentifier spaceIdentOrNull;
 
     // if not null, sample is defined on the database instance level
     private DatabaseInstanceIdentifier databaseInstanceIdentOrNull;
 
     protected SampleOwnerIdentifier(final DatabaseInstanceIdentifier databaseInstanceIdentOrNull,
-            final GroupIdentifier groupIdentOrNull)
+            final SpaceIdentifier spaceIdentOrNull)
     {
         this.databaseInstanceIdentOrNull = databaseInstanceIdentOrNull;
-        this.groupIdentOrNull = groupIdentOrNull;
+        this.spaceIdentOrNull = spaceIdentOrNull;
     }
 
     /** Database-instance level {@link SampleOwnerIdentifier}. */
@@ -58,13 +58,13 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
         return identifier;
     }
 
-    /** Group level {@link SampleOwnerIdentifier}. */
-    public SampleOwnerIdentifier(final GroupIdentifier groupIdentifier)
+    /** Space level {@link SampleOwnerIdentifier}. */
+    public SampleOwnerIdentifier(final SpaceIdentifier groupIdentifier)
     {
         this(null, checkNotNull(groupIdentifier));
     }
 
-    private static GroupIdentifier checkNotNull(final GroupIdentifier identifier)
+    private static SpaceIdentifier checkNotNull(final SpaceIdentifier identifier)
     {
         assert identifier != null : "space identifier cannot be null";
         return identifier;
@@ -73,20 +73,20 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     /** @return if sample is connected to its home group */
     public boolean isInsideHomeGroup()
     {
-        return isGroupLevel() && groupIdentOrNull.isHomeSpace();
+        return isSpaceLevel() && spaceIdentOrNull.isHomeSpace();
     }
 
     /**
      * true if sample belongs to the group. {@link #isDatabaseInstanceLevel()} will return false in
      * such a case.
      */
-    public boolean isGroupLevel()
+    public boolean isSpaceLevel()
     {
-        return groupIdentOrNull != null;
+        return spaceIdentOrNull != null;
     }
 
     /**
-     * true if sample belongs to the database instance. {@link #isGroupLevel()} will return false in
+     * true if sample belongs to the database instance. {@link #isSpaceLevel()} will return false in
      * such a case.
      */
     public boolean isDatabaseInstanceLevel()
@@ -97,14 +97,14 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     @Override
     public String toString()
     {
-        if (isGroupLevel())
+        if (isSpaceLevel())
         {
             if (isInsideHomeGroup())
             {
                 return "";
             } else
             {
-                return groupIdentOrNull.toString() + Constants.IDENTIFIER_SEPARATOR;
+                return spaceIdentOrNull.toString() + Constants.IDENTIFIER_SEPARATOR;
             }
         } else if (isDatabaseInstanceLevel())
         {
@@ -134,29 +134,14 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     }
 
     /**
-     * It is a good pattern to use {@link #isGroupLevel()} before calling this method.
+     * It is a good pattern to use {@link #isSpaceLevel()} before calling this method.
      * 
-     * @return The group which is the owner or null if the owner is not a group, but database
+     * @return The space which is the owner or null if the owner is not a space, but database
      *         instance.
      */
-    public GroupIdentifier getGroupLevel()
+    public SpaceIdentifier getSpaceLevel()
     {
-        return groupIdentOrNull;
-    }
-
-    // for bean conversion only!
-    @Deprecated
-    public void setGroupLevel(final GroupIdentifier groupIdentOrNull)
-    {
-        this.groupIdentOrNull = groupIdentOrNull;
-    }
-
-    // for bean conversion only!
-    @Deprecated
-    public void setDatabaseInstanceLevel(
-            final DatabaseInstanceIdentifier databaseInstanceIdentOrNull)
-    {
-        this.databaseInstanceIdentOrNull = databaseInstanceIdentOrNull;
+        return spaceIdentOrNull;
     }
 
     //
@@ -165,18 +150,18 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
 
     public int compareTo(final SampleOwnerIdentifier other)
     {
-        if (isGroupLevel())
+        if (isSpaceLevel())
         {
-            if (other.isGroupLevel())
+            if (other.isSpaceLevel())
             {
-                return getGroupLevel().compareTo(other.getGroupLevel());
+                return getSpaceLevel().compareTo(other.getSpaceLevel());
             } else
             {
                 return 1;
             }
         } else if (isDatabaseInstanceLevel())
         {
-            if (other.isGroupLevel())
+            if (other.isSpaceLevel())
             {
                 return -1;
             } else

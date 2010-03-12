@@ -65,7 +65,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         final DataSetInformation dsInfo =
                 extractor.getDataSetInformation(new File("bla.XY&123.bla"), null);
 
-        assertEquals("MY-GROUP", dsInfo.getExperimentIdentifier().getGroupCode());
+        assertEquals("MY-GROUP", dsInfo.getExperimentIdentifier().getSpaceCode());
         assertEquals("XY", dsInfo.getExperimentIdentifier().getProjectCode());
         assertEquals("123", dsInfo.getExperimentIdentifier().getExperimentCode());
         assertEquals(null, dsInfo.getSampleIdentifier());
@@ -81,7 +81,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         final DataSetInformation dsInfo =
             extractor.getDataSetInformation(new File("bla.abc&xy&123.bla"), null);
         
-        assertEquals("ABC", dsInfo.getExperimentIdentifier().getGroupCode());
+        assertEquals("ABC", dsInfo.getExperimentIdentifier().getSpaceCode());
         assertEquals("XY", dsInfo.getExperimentIdentifier().getProjectCode());
         assertEquals("123", dsInfo.getExperimentIdentifier().getExperimentCode());
         assertEquals(null, dsInfo.getSampleIdentifier());
@@ -135,7 +135,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
 
         final DataSetInformation dsInfo = extractDatasetInfo(properties, "sampleCode");
 
-        assertEquals(globalGroupCode, dsInfo.getGroupCode());
+        assertEquals(globalGroupCode, dsInfo.getSpaceCode());
     }
 
     private static String asPropertyName(String propertyName)
@@ -159,7 +159,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
                         + "sampleCode";
         final DataSetInformation dsInfo = extractDatasetInfo(properties, fileName);
 
-        assertEquals(localGroupCode, dsInfo.getGroupCode());
+        assertEquals(localGroupCode, dsInfo.getSpaceCode());
     }
 
     @Test(expectedExceptions = UserFailureException.class)

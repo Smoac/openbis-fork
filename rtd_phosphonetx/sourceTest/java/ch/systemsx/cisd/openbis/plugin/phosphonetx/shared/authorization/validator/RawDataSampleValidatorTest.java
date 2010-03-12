@@ -23,31 +23,32 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class RawDataSampleValidatorTest extends AssertJUnit
 {
     private static final Sample NO_PARENT = create("no-parent", null);
+
     private static final Sample WITH_INSTANCE_PARENT = create("with-instance-parent", "t:/parent");
+
     private static final Sample WITH_PARENT_IN_G1 = create("with-parent-in-g1", "t:/g1/parent");
+
     private static final Sample WITH_PARENT_IN_G2 = create("with-parent-in-g2", "t:/g2/parent");
-    
+
     private RawDataSampleValidator validator = new RawDataSampleValidator();
-    
+
     private static Sample create(String sampleCode, String parentSampleIdentifierOrNull)
     {
         Sample sample = new Sample();
@@ -56,17 +57,19 @@ public class RawDataSampleValidatorTest extends AssertJUnit
         {
             Sample parent = new Sample();
             parent.setIdentifier(parentSampleIdentifierOrNull);
-            SampleIdentifier identifier = SampleIdentifierFactory.parse(parentSampleIdentifierOrNull);
+            SampleIdentifier identifier =
+                    SampleIdentifierFactory.parse(parentSampleIdentifierOrNull);
             parent.setCode(identifier.getSampleCode());
-            GroupIdentifier groupLevel = identifier.getGroupLevel();
-            if (groupLevel != null)
+            SpaceIdentifier spaceLevel = identifier.getSpaceLevel();
+            if (spaceLevel != null)
             {
                 Space space = new Space();
-                space.setCode(groupLevel.getGroupCode());
-                space.setInstance(createDatabaseInstance(groupLevel.getDatabaseInstanceCode()));
+                space.setCode(spaceLevel.getSpaceCode());
+                space.setInstance(createDatabaseInstance(spaceLevel.getDatabaseInstanceCode()));
                 parent.setSpace(space);
             }
-            DatabaseInstanceIdentifier databaseInstanceLevel = identifier.getDatabaseInstanceLevel();
+            DatabaseInstanceIdentifier databaseInstanceLevel =
+                    identifier.getDatabaseInstanceLevel();
             if (databaseInstanceLevel != null)
             {
                 String code = databaseInstanceLevel.getDatabaseInstanceCode();
@@ -85,80 +88,80 @@ public class RawDataSampleValidatorTest extends AssertJUnit
         databaseInstance.setUuid(code);
         return databaseInstance;
     }
-    
+
     @Test
     public void testUserWithNoRights()
     {
         PersonPE person = createPersonWithRoles();
-        
+
         assertEquals(false, validator.isValid(person, NO_PARENT));
         assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
         assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G1));
         assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G2));
     }
-    
+
     @Test
     public void testUserWithRightsForGroupG1()
     {
         PersonPE person = createPersonWithRoles(createRole("G1", "T"));
-        
+
         assertEquals(false, validator.isValid(person, NO_PARENT));
         assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
         assertEquals(true, validator.isValid(person, WITH_PARENT_IN_G1));
         assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G2));
     }
-    
+
     @Test
     public void testUserWithRightsForGroupG1AndG2()
     {
         PersonPE person = createPersonWithRoles(createRole("G1", "T"), createRole("G2", "T"));
-        
+
         assertEquals(false, validator.isValid(person, NO_PARENT));
         assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
         assertEquals(true, validator.isValid(person, WITH_PARENT_IN_G1));
         assertEquals(true, validator.isValid(person, WITH_PARENT_IN_G2));
     }
-    
+
     @Test
     public void testUserWithRightsForGroupG1ButWrongInstance()
     {
         PersonPE person = createPersonWithRoles(createRole("G1", "X"));
-        
+
         assertEquals(false, validator.isValid(person, NO_PARENT));
         assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
         assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G1));
         assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G2));
     }
-    
+
     @Test
     public void testUserWithRightsForForInstanceT()
     {
         PersonPE person = createPersonWithRoles(createRole(null, "T"));
-        
+
         assertEquals(false, validator.isValid(person, NO_PARENT));
         assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
         assertEquals(true, validator.isValid(person, WITH_PARENT_IN_G1));
         assertEquals(true, validator.isValid(person, WITH_PARENT_IN_G2));
     }
-    
+
     @Test
     public void testUserWithRightsForForInstanceX()
     {
         PersonPE person = createPersonWithRoles(createRole(null, "X"));
-        
+
         assertEquals(false, validator.isValid(person, NO_PARENT));
         assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
         assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G1));
         assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G2));
     }
-    
+
     private PersonPE createPersonWithRoles(RoleAssignmentPE... roles)
     {
         PersonPE person = new PersonPE();
         person.setRoleAssignments(new LinkedHashSet<RoleAssignmentPE>(Arrays.asList(roles)));
         return person;
     }
-    
+
     private RoleAssignmentPE createRole(String groupCodeOrNull, String dataBaseInstanceUUID)
     {
         RoleAssignmentPE role = new RoleAssignmentPE();

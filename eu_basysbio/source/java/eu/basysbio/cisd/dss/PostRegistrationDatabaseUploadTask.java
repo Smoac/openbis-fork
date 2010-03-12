@@ -137,7 +137,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
         dataSetType.setCode(dataSet.getDataSetType());
         dataSetInformation.setDataSetType(dataSetType);
         String groupCode = dataSet.getGroupCode();
-        dataSetInformation.setGroupCode(groupCode);
+        dataSetInformation.setSpaceCode(groupCode);
         String databaseInstanceCode = dataSet.getDatabaseInstanceCode();
         String projectCode = dataSet.getProjectCode();
         String experimentCode = dataSet.getExperimentCode();

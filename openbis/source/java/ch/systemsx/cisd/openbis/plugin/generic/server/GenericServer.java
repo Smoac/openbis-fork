@@ -351,7 +351,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 newSampleIdentifier =
                         new SampleIdentifier(new GroupIdentifier(experimentIdentifierOrNull
                                 .getDatabaseInstanceCode(), experimentIdentifierOrNull
-                                .getGroupCode()), oldSampleIdentifier.getSampleCode());
+                                .getSpaceCode()), oldSampleIdentifier.getSampleCode());
             } else
             {
                 // no experiment - leave sample identifier unchanged

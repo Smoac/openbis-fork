@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * A DTO which describes the samples search criteria: the value of a chosen property. We look for
- * samples in a specified group. If the experiment identifier is specified, the search is restricted
+ * samples in a specified space. If the experiment identifier is specified, the search is restricted
  * to samples in that experiment.
  * 
  * @author Tomasz Pylak
@@ -38,16 +38,16 @@ public class ListSamplesByPropertyCriteria implements Serializable
 
     private final String samplePropertyValue;
 
-    private final String groupCode;
+    private final String spaceCode;
 
     private final LocalExperimentIdentifier experimentIdentifierOrNull;
 
     public ListSamplesByPropertyCriteria(String propertyCode, String propertyValue,
-            String groupCode, LocalExperimentIdentifier experimentIdentifierOrNull)
+            String spaceCode, LocalExperimentIdentifier experimentIdentifierOrNull)
     {
         this.samplePropertyCode = propertyCode;
         this.samplePropertyValue = propertyValue;
-        this.groupCode = groupCode;
+        this.spaceCode = spaceCode;
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
     }
 
@@ -64,14 +64,14 @@ public class ListSamplesByPropertyCriteria implements Serializable
     public ProjectIdentifier getProjectIdentifier()
     {
         ProjectIdentifier projectIdentifier =
-                new ProjectIdentifier(getGroupIdentifier(), experimentIdentifierOrNull
+                new ProjectIdentifier(getSpaceIdentifier(), experimentIdentifierOrNull
                         .getProjectCode());
         return projectIdentifier;
     }
 
-    public GroupIdentifier getGroupIdentifier()
+    public SpaceIdentifier getSpaceIdentifier()
     {
-        return new GroupIdentifier((String) null, groupCode);
+        return new SpaceIdentifier((String) null, spaceCode);
     }
 
     public LocalExperimentIdentifier tryGetLocalExperimentIdentifier()
@@ -86,11 +86,11 @@ public class ListSamplesByPropertyCriteria implements Serializable
                 (experimentIdentifierOrNull == null ? "any experiment" : experimentIdentifierOrNull
                         .toString());
         return String.format("Samples from the space '%s' with property '%s' set to '%s' in %s",
-                groupCode, samplePropertyCode, samplePropertyValue, expDesc);
+                spaceCode, samplePropertyCode, samplePropertyValue, expDesc);
     }
 
-    public String getGroupCode()
+    public String getSpaceCode()
     {
-        return groupCode;
+        return spaceCode;
     }
 }

@@ -307,7 +307,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
 
         final RoleAssignmentPE roleAssignment =
                 getDAOFactory().getRoleAssignmentDAO().tryFindGroupRoleAssignment(roleCode,
-                        spaceIdentifier.getGroupCode(), grantee);
+                        spaceIdentifier.getSpaceCode(), grantee);
         if (roleAssignment == null)
         {
             throw new UserFailureException("Given space role does not exist.");

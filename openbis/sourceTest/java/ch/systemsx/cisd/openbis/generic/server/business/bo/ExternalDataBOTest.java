@@ -395,7 +395,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
                     one(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
-                            GROUP_IDENTIFIER.getGroupCode(),
+                            GROUP_IDENTIFIER.getSpaceCode(),
                             ManagerTestTool.EXAMPLE_DATABASE_INSTANCE);
                     will(returnValue(ManagerTestTool.EXAMPLE_GROUP));
 
@@ -419,7 +419,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                     one(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
                     one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
-                            identifier.getGroupCode(), identifier.getProjectCode());
+                            identifier.getSpaceCode(), identifier.getProjectCode());
                     will(returnValue(ManagerTestTool.EXAMPLE_PROJECT));
 
                     one(daoFactory).getExperimentDAO();

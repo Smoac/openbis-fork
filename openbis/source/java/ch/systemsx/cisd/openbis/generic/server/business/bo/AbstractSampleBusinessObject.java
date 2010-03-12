@@ -231,22 +231,22 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         {
             throw UserFailureException.fromTemplate(
                     "No experiment '%s' could be found in the '%s/%s' project!", experimentCode,
-                    identifier.getGroupCode(), identifier.getProjectCode());
+                    identifier.getSpaceCode(), identifier.getProjectCode());
         }
         return experiment;
     }
 
     protected ProjectPE findProject(ProjectIdentifier projectIdentifier)
     {
-        String groupCode = projectIdentifier.getGroupCode();
+        String spaceCode = projectIdentifier.getSpaceCode();
         String projectCode = projectIdentifier.getProjectCode();
         String databaseInstanceCode = projectIdentifier.getDatabaseInstanceCode();
         ProjectPE project =
-                getProjectDAO().tryFindProject(databaseInstanceCode, groupCode, projectCode);
+                getProjectDAO().tryFindProject(databaseInstanceCode, spaceCode, projectCode);
         if (project == null)
         {
             throw UserFailureException.fromTemplate(
-                    "No project '%s' could be found in the '%s' space!", projectCode, groupCode);
+                    "No project '%s' could be found in the '%s' space!", projectCode, spaceCode);
         }
         return project;
     }

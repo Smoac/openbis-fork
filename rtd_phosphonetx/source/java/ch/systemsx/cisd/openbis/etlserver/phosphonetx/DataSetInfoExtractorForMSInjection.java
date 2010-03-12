@@ -55,7 +55,7 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
     static final String SAMPLE_CODE_KEY = "SAMPLE_CODE";
     static final String USER_KEY = "USER";
     
-    static final String GROUP_CODE = "MS_DATA";
+    static final String SPACE_CODE = "MS_DATA";
     static final String EXPERIMENT_TYPE_CODE = "MS_INJECT";
 
     static final String SAMPLE_TYPE_CODE = "MS_INJECTION";
@@ -86,7 +86,7 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
         Properties properties =
                 loadMSInjectionProperties(incomingDataSetPath);
         DataSetInformation info = new DataSetInformation();
-        info.setGroupCode(GROUP_CODE);
+        info.setSpaceCode(SPACE_CODE);
         info.setSampleCode(PropertyUtils.getMandatoryProperty(properties, SAMPLE_CODE_KEY));
         NewSample sample = new NewSample();
         SampleType sampleType = new SampleType();
@@ -106,7 +106,7 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, PROJECT_CODE_KEY);
         String experimentCode =
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, EXPERIMENT_CODE_KEY);
-        ExperimentIdentifier identifier = new ExperimentIdentifier(null, GROUP_CODE, projectCode, experimentCode);
+        ExperimentIdentifier identifier = new ExperimentIdentifier(null, SPACE_CODE, projectCode, experimentCode);
         Experiment experiment = service.tryToGetExperiment(identifier);
         if (experiment == null)
         {

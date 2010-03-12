@@ -38,9 +38,9 @@ public class SampleIdentifier extends SampleOwnerIdentifier
     private String sampleSubCode;
 
     private SampleIdentifier(final DatabaseInstanceIdentifier databaseInstanceIdentOrNull,
-            final GroupIdentifier groupIdentOrNull, final String sampleCode)
+            final SpaceIdentifier spaceIdentOrNull, final String sampleCode)
     {
-        super(databaseInstanceIdentOrNull, groupIdentOrNull);
+        super(databaseInstanceIdentOrNull, spaceIdentOrNull);
         setSampleCode(sampleCode);
     }
 
@@ -50,9 +50,9 @@ public class SampleIdentifier extends SampleOwnerIdentifier
         if (owner.isDatabaseInstanceLevel())
         {
             return new SampleIdentifier(owner.getDatabaseInstanceLevel(), sampleCode);
-        } else if (owner.isGroupLevel())
+        } else if (owner.isSpaceLevel())
         {
-            return new SampleIdentifier(owner.getGroupLevel(), sampleCode);
+            return new SampleIdentifier(owner.getSpaceLevel(), sampleCode);
         } else
         {
             throw InternalErr.error();
@@ -67,9 +67,9 @@ public class SampleIdentifier extends SampleOwnerIdentifier
     }
 
     /** Group level {@link SampleIdentifier}. */
-    public SampleIdentifier(final GroupIdentifier groupIdentifier, final String sampleCode)
+    public SampleIdentifier(final SpaceIdentifier spaceIdentifier, final String sampleCode)
     {
-        this(null, groupIdentifier, sampleCode);
+        this(null, spaceIdentifier, sampleCode);
     }
 
     /** Home group level {@link SampleIdentifier} with type. */
@@ -94,7 +94,7 @@ public class SampleIdentifier extends SampleOwnerIdentifier
      */
     public SampleOwnerIdentifier createSampleOwnerIdentifier()
     {
-        return new SampleOwnerIdentifier(getDatabaseInstanceLevel(), getGroupLevel());
+        return new SampleOwnerIdentifier(getDatabaseInstanceLevel(), getSpaceLevel());
     }
 
     @Override

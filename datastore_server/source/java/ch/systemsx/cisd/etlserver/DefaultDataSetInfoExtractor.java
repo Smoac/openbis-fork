@@ -330,7 +330,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         dataSetInformation.setProductionDate(tryGetDataProductionDate(entitiesProvider));
         dataSetInformation.setDataSetProperties(extractDataSetProperties(incomingDataSetPath,
                 dataSetPropertiesFileNameOrNull));
-        dataSetInformation.setGroupCode(groupCode);
+        dataSetInformation.setSpaceCode(groupCode);
         return dataSetInformation;
     }
 
@@ -354,7 +354,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         {
             identifier.setProjectCode(codes[codes.length - 2]);
         }
-        identifier.setGroupCode(codes.length > 2 ? codes[codes.length - 3] : groupCode);
+        identifier.setSpaceCode(codes.length > 2 ? codes[codes.length - 3] : groupCode);
         return identifier;
     }
 

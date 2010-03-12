@@ -57,6 +57,6 @@ public class ListSamplesByPropertyPredicate extends
             final ListSamplesByPropertyCriteria criteria)
     {
         assert spacePredicate.initialized : "Predicate has not been initialized";
-        return spacePredicate.doEvaluation(person, allowedRoles, criteria.getGroupIdentifier());
+        return spacePredicate.doEvaluation(person, allowedRoles, criteria.getSpaceIdentifier());
     }
 }

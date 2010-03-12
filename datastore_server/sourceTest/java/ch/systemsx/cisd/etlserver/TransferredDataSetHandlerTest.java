@@ -271,7 +271,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
         experimentIdentifier.setExperimentCode("experiment1".toUpperCase());
         experimentIdentifier.setProjectCode("project1".toUpperCase());
-        experimentIdentifier.setGroupCode("group1".toUpperCase());
+        experimentIdentifier.setSpaceCode("group1".toUpperCase());
         homeDatabaseInstance = new DatabaseInstance();
         homeDatabaseInstance.setCode("my-instance");
         homeDatabaseInstance.setUuid("1111-2222");
@@ -350,7 +350,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 dataSetInformation.getExperimentIdentifier();
         baseExperiment.setCode(experimentIdentifier.getExperimentCode());
         final Space space = new Space();
-        space.setCode(experimentIdentifier.getGroupCode());
+        space.setCode(experimentIdentifier.getSpaceCode());
         final Project project = new Project();
         project.setCode(experimentIdentifier.getProjectCode());
         project.setSpace(space);

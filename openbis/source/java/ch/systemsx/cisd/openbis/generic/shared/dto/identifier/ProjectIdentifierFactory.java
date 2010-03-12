@@ -73,7 +73,7 @@ public final class ProjectIdentifierFactory extends AbstractIdentifierFactory
             final String projectCode)
     {
         return new ProjectIdentifier(groupIdentifier.getDatabaseInstanceCode(), groupIdentifier
-                .getGroupCode(), projectCode);
+                .getSpaceCode(), projectCode);
     }
 
     public static String getSchema()

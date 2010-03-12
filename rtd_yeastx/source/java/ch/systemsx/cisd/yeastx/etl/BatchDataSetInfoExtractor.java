@@ -58,7 +58,7 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             info.setComplete(true);
             info.setDataSetProperties(plainInfo.getProperties());
             setSampleOrExperiment(openbisService, log, plainInfo, info);
-            info.setGroupCode(plainInfo.getSpaceOrGroupCode());
+            info.setSpaceCode(plainInfo.getSpaceOrGroupCode());
             MLConversionType conversion = getConversion(plainInfo.getConversion());
             info.setConversion(conversion);
             String parentDataSetCodes = plainInfo.getParentDataSetCodes();

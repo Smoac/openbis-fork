@@ -140,9 +140,9 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     public void loadByProjectIdentifier(ProjectIdentifier identifier)
     {
         String databaseInstanceCode = identifier.getDatabaseInstanceCode();
-        String groupCode = identifier.getGroupCode();
+        String spaceCode = identifier.getSpaceCode();
         String projectCode = identifier.getProjectCode();
-        project = getProjectDAO().tryFindProject(databaseInstanceCode, groupCode, projectCode);
+        project = getProjectDAO().tryFindProject(databaseInstanceCode, spaceCode, projectCode);
         if (project == null)
         {
             throw new UserFailureException(String

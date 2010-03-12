@@ -58,7 +58,7 @@ public class AbundanceHandlerTest extends AssertJUnit
     private static final String PROTEIN_NAME = "my protein";
     private static final ListSamplesByPropertyCriteria CRITERIA =
             new ListSamplesByPropertyCriteria(AbundanceHandler.MZXML_FILENAME, PARAMETER_NAME,
-                    GROUP_IDENTIFIER.getGroupCode(), null);
+                    GROUP_IDENTIFIER.getSpaceCode(), null);
 
     private Mockery context;
 

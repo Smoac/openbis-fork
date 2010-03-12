@@ -581,7 +581,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         assert identifier != null : "Experiment identifier unspecified.";
         final ProjectPE project =
                 getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
-                        identifier.getGroupCode(), identifier.getProjectCode());
+                        identifier.getSpaceCode(), identifier.getProjectCode());
         if (project == null)
         {
             throw new UserFailureException("Unkown experiment because of unkown project: "

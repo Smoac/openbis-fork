@@ -186,7 +186,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     private ProjectPE tryGetProject(final ExperimentIdentifier identifier)
     {
         return getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
-                identifier.getGroupCode(), identifier.getProjectCode());
+                identifier.getSpaceCode(), identifier.getProjectCode());
     }
 
     public final void enrichWithProperties()
@@ -570,7 +570,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         ProjectPE project =
                 getProjectDAO().tryFindProject(newProjectIdentifier.getDatabaseInstanceCode(),
-                        newProjectIdentifier.getGroupCode(), newProjectIdentifier.getProjectCode());
+                        newProjectIdentifier.getSpaceCode(), newProjectIdentifier.getProjectCode());
         if (project == null)
         {
             throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newProjectIdentifier);

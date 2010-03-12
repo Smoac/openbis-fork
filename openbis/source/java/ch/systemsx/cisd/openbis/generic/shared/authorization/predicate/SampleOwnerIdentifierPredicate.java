@@ -73,7 +73,7 @@ public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<Samp
         } else
         {
             return spacePredicate.doEvaluation(person, allowedRoles, value
-                    .getGroupLevel());
+                    .getSpaceLevel());
         }
     }
 

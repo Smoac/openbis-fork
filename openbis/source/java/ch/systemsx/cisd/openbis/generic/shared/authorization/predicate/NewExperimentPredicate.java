@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -40,7 +39,7 @@ public final class NewExperimentPredicate extends
     //
 
     @Override
-    public final GroupIdentifier convert(final NewExperiment value)
+    public final SpaceIdentifier convert(final NewExperiment value)
     {
         ExperimentIdentifier identifier =
                 new ExperimentIdentifierFactory(value.getIdentifier()).createIdentifier();

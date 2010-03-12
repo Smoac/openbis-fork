@@ -58,7 +58,7 @@ public class IdentifiedDataStrategyTest extends AbstractFileSystemTestCase
         final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
         experimentIdentifier.setExperimentCode(EXAMPLE_EXPERIMENT_CODE);
         experimentIdentifier.setProjectCode(EXAMPLE_PROJECT_CODE);
-        experimentIdentifier.setGroupCode(EXAMPLE_GROUP_CODE);
+        experimentIdentifier.setSpaceCode(EXAMPLE_GROUP_CODE);
         dataSetInfo.setExperimentIdentifier(experimentIdentifier);
         dataSetInfo.setSampleCode("S");
         dataSetInfo.setInstanceCode("my-instance");

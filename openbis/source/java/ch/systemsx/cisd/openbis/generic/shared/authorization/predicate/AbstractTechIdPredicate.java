@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedSpaceException;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 
 /**
@@ -110,7 +110,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
         GroupPE groupOrNull = authorizationDataProvider.tryToGetGroup(entityKind, techId);
         if (groupOrNull == null)
         {
-            throw new UndefinedGroupException();
+            throw new UndefinedSpaceException();
         }
 
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, groupOrNull);

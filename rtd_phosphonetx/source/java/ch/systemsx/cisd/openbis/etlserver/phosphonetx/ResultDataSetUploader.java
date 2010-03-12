@@ -105,7 +105,7 @@ class ResultDataSetUploader extends AbstractHandler
                 }
                 groupIdentifier =
                         new GroupIdentifier(experimentIdentifier.getDatabaseInstanceCode(),
-                                experimentIdentifier.getGroupCode());
+                                experimentIdentifier.getSpaceCode());
             }
             String referenceDatabase = summary.getSummaryHeader().getReferenceDatabase();
             Database database = getOrGreateDatabase(referenceDatabase);

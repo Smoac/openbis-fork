@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedSpaceException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -44,12 +44,12 @@ public class SpaceCodeHelper
      * space in given {@link PersonPE}.
      * </p>
      * 
-     * @throws UndefinedGroupException if no space could be found.
+     * @throws UndefinedSpaceException if no space could be found.
      */
     public final static String getSpaceCode(final PersonPE person,
-            final SpaceIdentifier spaceIdentifier) throws UndefinedGroupException
+            final SpaceIdentifier spaceIdentifier) throws UndefinedSpaceException
     {
-        return getSpaceCode(person, spaceIdentifier.getGroupCode());
+        return getSpaceCode(person, spaceIdentifier.getSpaceCode());
     }
 
     /**
@@ -59,10 +59,10 @@ public class SpaceCodeHelper
      * given {@link PersonPE}.
      * </p>
      * 
-     * @throws UndefinedGroupException if no space could be found.
+     * @throws UndefinedSpaceException if no space could be found.
      */
     public final static String getSpaceCode(final PersonPE person, final GroupPE group)
-            throws UndefinedGroupException
+            throws UndefinedSpaceException
     {
         return getSpaceCode(person, group.getCode());
     }
@@ -74,17 +74,17 @@ public class SpaceCodeHelper
      * in given {@link PersonPE}.
      * </p>
      * 
-     * @throws UndefinedGroupException if no space could be found.
+     * @throws UndefinedSpaceException if no space could be found.
      */
     private final static String getSpaceCode(final PersonPE person, final String spaceCode)
-            throws UndefinedGroupException
+            throws UndefinedSpaceException
     {
         if (isHomeSpace(spaceCode))
         {
             final GroupPE homeGroup = person.getHomeGroup();
             if (homeGroup == null)
             {
-                throw new UndefinedGroupException();
+                throw new UndefinedSpaceException();
             }
             return homeGroup.getCode();
         } else

@@ -244,8 +244,8 @@ public final class IdentifierHelper
             return;
         } else if (sample.isInsideHomeGroup())
         {
-            sample.getGroupLevel().setGroupCode(expectedGroupCode);
-        } else if (sample.getGroupLevel().getGroupCode().equalsIgnoreCase(expectedGroupCode))
+            sample.getSpaceLevel().setSpaceCode(expectedGroupCode);
+        } else if (sample.getSpaceLevel().getSpaceCode().equalsIgnoreCase(expectedGroupCode))
         {
             return;
         } else

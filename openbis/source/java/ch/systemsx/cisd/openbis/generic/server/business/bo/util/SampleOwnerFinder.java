@@ -23,10 +23,10 @@ import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedSpaceException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Finds a group or database instance for a given owner identifier.
@@ -66,7 +66,7 @@ public class SampleOwnerFinder
             final DatabaseInstanceIdentifier databaseInstanceIdentifier =
                     owner.getDatabaseInstanceLevel();
             return tryFigureSampleDatabaseOwner(databaseInstanceIdentifier);
-        } else if (owner.isGroupLevel())
+        } else if (owner.isSpaceLevel())
         {
             return tryFigureSampleGroupOwner(owner);
         } else
@@ -80,8 +80,8 @@ public class SampleOwnerFinder
             return createHomeGroupOwner(owner);
         } else
         {
-            final GroupIdentifier groupIdentifier = owner.getGroupLevel();
-            return tryFindAbsoluteGroupOwner(groupIdentifier);
+            final SpaceIdentifier spaceIdentifier = owner.getSpaceLevel();
+            return tryFindAbsoluteGroupOwner(spaceIdentifier);
         }
     }
 
@@ -98,10 +98,10 @@ public class SampleOwnerFinder
         return SampleOwner.createDatabaseInstance(databaseInstance);
     }
 
-    private SampleOwner tryFindAbsoluteGroupOwner(final GroupIdentifier groupIdentifier)
+    private SampleOwner tryFindAbsoluteGroupOwner(final SpaceIdentifier spaceIdentifier)
     {
         final GroupPE group =
-                GroupIdentifierHelper.tryGetGroup(groupIdentifier, personPE, daoFactory);
+                GroupIdentifierHelper.tryGetGroup(spaceIdentifier, personPE, daoFactory);
         if (group == null)
         {
             return null;
@@ -114,7 +114,7 @@ public class SampleOwnerFinder
         final GroupPE homeGroup = personPE.getHomeGroup();
         if (homeGroup == null)
         {
-            throw new UndefinedGroupException();
+            throw new UndefinedSpaceException();
         }
         return SampleOwner.createGroup(homeGroup);
     }

@@ -46,7 +46,7 @@ public class SampleGenericBusinessRules
         // new identifier of a child is needed for comparison
         SampleIdentifier childId = IdentifierHelper.createSampleIdentifier(child);
 
-        if (parentId.isGroupLevel())
+        if (parentId.isSpaceLevel())
         {
             if (childId.isDatabaseInstanceLevel())
             {
@@ -65,7 +65,7 @@ public class SampleGenericBusinessRules
         // new identifier of a parent is needed for comparison
         SampleIdentifier parentId = IdentifierHelper.createSampleIdentifier(parent);
 
-        if (parentId.isGroupLevel())
+        if (parentId.isSpaceLevel())
         {
             for (SamplePE child : children)
             {

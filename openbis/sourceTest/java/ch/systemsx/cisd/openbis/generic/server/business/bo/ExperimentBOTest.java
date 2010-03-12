@@ -132,7 +132,7 @@ public final class ExperimentBOTest extends AbstractBOTest
             {
                 {
                     one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
-                            identifier.getGroupCode(), identifier.getProjectCode());
+                            identifier.getSpaceCode(), identifier.getProjectCode());
                     will(Expectations.returnValue(foundProject));
                 }
             });
@@ -154,7 +154,7 @@ public final class ExperimentBOTest extends AbstractBOTest
             {
                 {
                     one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
-                            identifier.getGroupCode(), identifier.getProjectCode());
+                            identifier.getSpaceCode(), identifier.getProjectCode());
                     will(returnValue(project));
 
                     one(experimentDAO).tryFindByCodeAndProject(project,

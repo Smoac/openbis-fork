@@ -91,7 +91,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         final DatabaseInstancePE databaseInstance =
                 GroupIdentifierHelper.getDatabaseInstance(groupIdentifier, this);
         group.setDatabaseInstance(databaseInstance);
-        group.setCode(groupIdentifier.getGroupCode());
+        group.setCode(groupIdentifier.getSpaceCode());
         group.setDescription(descriptionOrNull);
         group.setRegistrator(findRegistrator());
     }

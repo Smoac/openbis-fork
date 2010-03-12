@@ -227,10 +227,10 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
                 dataSetInformation.getExperimentIdentifier();
         final String projectCode = experimentIdentifier.getProjectCode();
         final String experimentCode = experimentIdentifier.getExperimentCode();
-        final String groupCode = experimentIdentifier.getGroupCode();
+        final String spaceCode = experimentIdentifier.getSpaceCode();
         final String instanceCode = dataSetInformation.getInstanceCode();
         return new ExperimentIdentifierWithUUID(instanceCode, dataSetInformation.getInstanceUUID(),
-                groupCode, projectCode, experimentCode);
+                spaceCode, projectCode, experimentCode);
     }
 
     private final static void checkDataSetInformation(final DataSetInformation dataSetInformation)
@@ -246,7 +246,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
     private final static void checkExperimentIdentifier(
             final ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier experimentIdentifier)
     {
-        assert experimentIdentifier.getGroupCode() != null : "Space code is null";
+        assert experimentIdentifier.getSpaceCode() != null : "Space code is null";
         assert experimentIdentifier.getExperimentCode() != null : "Experiment code is null";
         assert experimentIdentifier.getProjectCode() != null : "Project code is null";
     }
@@ -297,14 +297,14 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
 
     private final Sample createSample(final DataSetInformation dataSetInformation)
     {
-        final String groupCode = StringUtils.defaultString(dataSetInformation.getGroupCode());
+        final String spaceCode = StringUtils.defaultString(dataSetInformation.getSpaceCode());
         final String instanceCode = dataSetInformation.getInstanceCode();
         final String instanceUUID = dataSetInformation.getInstanceUUID();
         assert instanceCode != null : "Unspecified database instance code";
         assert instanceUUID != null : "Unspecified database instance UUID";
         // TODO 2009-09-15, Tomasz Pylak: deal with the case when sample is null
         return new SampleWithOwner(dataSetInformation.getSampleCode(), sampleTypeCode,
-                sampleTypeDescription, instanceUUID, instanceCode, groupCode);
+                sampleTypeDescription, instanceUUID, instanceCode, spaceCode);
     }
 
     private final static DataSet createDataSet(final DataSetInformation dataSetInformation,

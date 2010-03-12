@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.DatabaseInstanceIdentifierHelper;
@@ -53,70 +52,70 @@ public final class GroupIdentifierHelper
 
     /**
      * Class which transforms identifiers to the canonical form. Normalized database identifier
-     * always has a code, never UUID. Normalized group identifier has always group code, even when
-     * it is a home group. It also has normalized database identifier.
+     * always has a code, never UUID. Normalized space identifier has always space code, even when
+     * it is a home space. It also has normalized database identifier.
      */
-    public static class GroupIdentifierNormalizer
+    public static class SpaceIdentifierNormalizer
     {
-        public static GroupIdentifierNormalizer create(final IAuthorizationDAOFactory daoFactory,
-                final String homeGroupCodeOrNull)
+        public static SpaceIdentifierNormalizer create(final IAuthorizationDAOFactory daoFactory,
+                final String homeSpaceCodeOrNull)
         {
             final IDatabaseInstanceFinder instanceFinder =
                     GroupIdentifierHelper.createCachedInstanceFinder(daoFactory);
-            return new GroupIdentifierNormalizer(instanceFinder, homeGroupCodeOrNull);
+            return new SpaceIdentifierNormalizer(instanceFinder, homeSpaceCodeOrNull);
         }
 
         private final IDatabaseInstanceFinder databaseInstanceFinder;
 
-        private final String homeGroupCodeOrNull;
+        private final String homeSpaceCodeOrNull;
 
-        private GroupIdentifierNormalizer(final IDatabaseInstanceFinder databaseInstanceFinder,
-                final String homeGroupCodeOrNull)
+        private SpaceIdentifierNormalizer(final IDatabaseInstanceFinder databaseInstanceFinder,
+                final String homeSpaceCodeOrNull)
         {
             this.databaseInstanceFinder = databaseInstanceFinder;
-            this.homeGroupCodeOrNull = homeGroupCodeOrNull;
+            this.homeSpaceCodeOrNull = homeSpaceCodeOrNull;
         }
 
-        public final GroupIdentifier normalize(final GroupIdentifier identifier)
+        public final SpaceIdentifier normalize(final SpaceIdentifier identifier)
         {
-            return GroupIdentifierHelper.normalize(identifier, homeGroupCodeOrNull,
+            return GroupIdentifierHelper.normalize(identifier, homeSpaceCodeOrNull,
                     databaseInstanceFinder);
         }
 
         public final SampleIdentifier normalize(final SampleIdentifier identifier)
         {
-            return GroupIdentifierHelper.normalize(identifier, homeGroupCodeOrNull,
+            return GroupIdentifierHelper.normalize(identifier, homeSpaceCodeOrNull,
                     databaseInstanceFinder);
         }
     }
 
-    /** Transforms given group identifier to the canonical form. */
-    private final static GroupIdentifier normalize(final GroupIdentifier groupIdentifier,
-            final String homeGroupCodeOrNull, final IDatabaseInstanceFinder instanceFinder)
+    /** Transforms given space identifier to the canonical form. */
+    private final static SpaceIdentifier normalize(final SpaceIdentifier spaceIdentifier,
+            final String homeSpaceCodeOrNull, final IDatabaseInstanceFinder instanceFinder)
     {
-        final DatabaseInstanceIdentifier instance = normalize(groupIdentifier, instanceFinder);
-        String groupCode = groupIdentifier.getGroupCode();
-        if (groupCode == null)
+        final DatabaseInstanceIdentifier instance = normalize(spaceIdentifier, instanceFinder);
+        String spaceCode = spaceIdentifier.getSpaceCode();
+        if (spaceCode == null)
         {
-            groupCode = homeGroupCodeOrNull;
+            spaceCode = homeSpaceCodeOrNull;
         }
-        return new GroupIdentifier(instance, groupCode.toUpperCase());
+        return new SpaceIdentifier(instance, spaceCode.toUpperCase());
     }
 
     /** Transforms given sample identifier to the canonical form. */
     private final static SampleIdentifier normalize(final SampleIdentifier sampleIdentifier,
-            final String homeGroupCodeOrNull, final IDatabaseInstanceFinder instanceFinder)
+            final String homeSpaceCodeOrNull, final IDatabaseInstanceFinder instanceFinder)
     {
         if (sampleIdentifier.isDatabaseInstanceLevel())
         {
             final DatabaseInstanceIdentifier instanceIdentifier =
                     normalize(sampleIdentifier.getDatabaseInstanceLevel(), instanceFinder);
             return new SampleIdentifier(instanceIdentifier, sampleIdentifier.getSampleCode());
-        } else if (sampleIdentifier.isGroupLevel())
+        } else if (sampleIdentifier.isSpaceLevel())
         {
-            final GroupIdentifier groupIdentifier =
-                    normalize(sampleIdentifier.getGroupLevel(), homeGroupCodeOrNull, instanceFinder);
-            return new SampleIdentifier(groupIdentifier, sampleIdentifier.getSampleCode());
+            final SpaceIdentifier spaceIdentifier =
+                    normalize(sampleIdentifier.getSpaceLevel(), homeSpaceCodeOrNull, instanceFinder);
+            return new SampleIdentifier(spaceIdentifier, sampleIdentifier.getSampleCode());
         } else
         {
             throw InternalErr.error(sampleIdentifier);
@@ -201,7 +200,7 @@ public final class GroupIdentifierHelper
             };
     }
 
-    /** finds a group in the database for the given identifier */
+    /** finds a space in the database for the given identifier */
     public static final GroupPE tryGetGroup(final SpaceIdentifier spaceIdentifier,
             final PersonPE person, final IAuthorizationDAOFactory daoFactory)
     {

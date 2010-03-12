@@ -70,17 +70,17 @@ public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
         if (sampleIdentifierOrNull != null)
         {
             dataSetInformation.setSampleCode(sampleIdentifierOrNull.getSampleCode());
-            if (sampleIdentifierOrNull.isGroupLevel())
+            if (sampleIdentifierOrNull.isSpaceLevel())
             {
-                dataSetInformation.setGroupCode(sampleIdentifierOrNull.getGroupLevel()
-                        .getGroupCode());
+                dataSetInformation.setSpaceCode(sampleIdentifierOrNull.getSpaceLevel()
+                        .getSpaceCode());
             }
         } else
         {
             ExperimentIdentifier experimentIdentifier =
                     new ExperimentIdentifierFactory(info.getExperiment()).createIdentifier();
             dataSetInformation.setExperimentIdentifier(experimentIdentifier);
-            dataSetInformation.setGroupCode(experimentIdentifier.getGroupCode());
+            dataSetInformation.setSpaceCode(experimentIdentifier.getSpaceCode());
             String[] parents = info.getParents() != null ? info.getParents() : new String[0];
             dataSetInformation.setParentDataSetCodes(Arrays.asList(parents));
         }

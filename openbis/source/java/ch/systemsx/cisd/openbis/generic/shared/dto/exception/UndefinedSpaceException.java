@@ -19,17 +19,17 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.exception;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * This <code>UserFailureException</code> extension signals that no group has been specified.
+ * This <code>UserFailureException</code> extension signals that no space has been specified.
  * 
  * @author Christian Ribeaud
  */
-public final class UndefinedGroupException extends UserFailureException
+public final class UndefinedSpaceException extends UserFailureException
 {
     private static final long serialVersionUID = 1L;
 
     private final static String MESSAGE = "Space not specified, home space unknown";
 
-    public UndefinedGroupException()
+    public UndefinedSpaceException()
     {
         super(MESSAGE);
     }

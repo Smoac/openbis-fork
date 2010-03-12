@@ -98,7 +98,7 @@ class AbundanceHandler extends AbstractHandler
                         openbisService
                                 .listSamplesByCriteria(new ListSamplesByPropertyCriteria(
                                         MZXML_FILENAME, parameterName, groupIdentifier
-                                                .getGroupCode(), null));
+                                                .getSpaceCode(), null));
                 if (list == null || list.size() == 0)
                 {
                     sampleOrError.error = "an unidentified sample: " + parameterName;

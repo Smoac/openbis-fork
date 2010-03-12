@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Container class for data extracted from the data set directory.
@@ -50,7 +50,7 @@ public class DataSetInformation implements Serializable
     private String sampleCode;
 
     private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
-    
+
     private DataSetType dataSetType;
 
     /**
@@ -63,10 +63,7 @@ public class DataSetInformation implements Serializable
      */
     private String instanceCode;
 
-    /**
-     * The group code.
-     */
-    private String groupCode;
+    private String spaceCode;
 
     /** An object that uniquely identifies the experiment. Can be <code>null</code>. */
     private ExperimentIdentifier experimentIdentifier;
@@ -140,7 +137,7 @@ public class DataSetInformation implements Serializable
     {
         this.dataSetType = dataSetType;
     }
-    
+
     public final String getInstanceCode()
     {
         return instanceCode;
@@ -214,11 +211,11 @@ public class DataSetInformation implements Serializable
         }
         final DatabaseInstanceIdentifier databaseInstanceIdentifier =
                 new DatabaseInstanceIdentifier(instanceCode);
-        if (groupCode == null)
+        if (spaceCode == null)
         {
             return new SampleIdentifier(databaseInstanceIdentifier, sampleCode);
         }
-        return new SampleIdentifier(new GroupIdentifier(databaseInstanceIdentifier, groupCode),
+        return new SampleIdentifier(new SpaceIdentifier(databaseInstanceIdentifier, spaceCode),
                 sampleCode);
     }
 
@@ -282,14 +279,14 @@ public class DataSetInformation implements Serializable
         extractableData.setParentDataSetCodes(parentDataSetCodes);
     }
 
-    public final void setGroupCode(final String groupCode)
+    public final void setSpaceCode(final String spaceCode)
     {
-        this.groupCode = groupCode;
+        this.spaceCode = spaceCode;
     }
 
-    public final String getGroupCode()
+    public final String getSpaceCode()
     {
-        return groupCode;
+        return spaceCode;
     }
 
     public void setDataSetProperties(List<NewProperty> dataSetProperties)

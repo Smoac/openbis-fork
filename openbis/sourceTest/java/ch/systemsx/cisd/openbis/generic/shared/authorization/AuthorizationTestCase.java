@@ -77,7 +77,7 @@ public class AuthorizationTestCase extends AssertJUnit
     protected RoleWithIdentifier createGroupRole(RoleCode roleCode, GroupIdentifier spaceIdentifier)
     {
         GroupPE groupPE = new GroupPE();
-        groupPE.setCode(spaceIdentifier.getGroupCode());
+        groupPE.setCode(spaceIdentifier.getSpaceCode());
         DatabaseInstancePE instance = createDatabaseInstancePE(spaceIdentifier);
         groupPE.setDatabaseInstance(instance);
         return new RoleWithIdentifier(RoleLevel.SPACE, roleCode, null, groupPE);
@@ -188,7 +188,7 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         final String databaseInstanceCode = identifier.getDatabaseInstanceCode();
         final DatabaseInstancePE instance = createDatabaseInstance(databaseInstanceCode);
-        return createGroup(identifier.getGroupCode(), instance);
+        return createGroup(identifier.getSpaceCode(), instance);
     }
 
     /**

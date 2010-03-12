@@ -50,7 +50,7 @@ public final class ExperimentIdentifier extends ProjectIdentifier
     public ExperimentIdentifier(final ProjectIdentifier projectIdentifier,
             final String experimentCode)
     {
-        this(projectIdentifier.getDatabaseInstanceCode(), projectIdentifier.getGroupCode(),
+        this(projectIdentifier.getDatabaseInstanceCode(), projectIdentifier.getSpaceCode(),
                 projectIdentifier.getProjectCode(), experimentCode);
     }
 
@@ -112,7 +112,7 @@ public final class ExperimentIdentifier extends ProjectIdentifier
         final ExperimentIdentifier that = (ExperimentIdentifier) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
-        builder.append(getGroupCode(), that.getGroupCode());
+        builder.append(getSpaceCode(), that.getSpaceCode());
         builder.append(getProjectCode(), that.getProjectCode());
         builder.append(getExperimentCode(), that.getExperimentCode());
         return builder.isEquals();
@@ -123,7 +123,7 @@ public final class ExperimentIdentifier extends ProjectIdentifier
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getDatabaseInstanceCode());
-        builder.append(getGroupCode());
+        builder.append(getSpaceCode());
         builder.append(getProjectCode());
         builder.append(getExperimentCode());
         return builder.toHashCode();

@@ -41,9 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Contains methods and constants which may be used by many tests.
@@ -93,8 +93,8 @@ public class CommonTestUtils
     {
 
         public static PropertyTypePE INFECTED_ORGAN =
-                createPropertyType("USER.INFECTED_ORGAN", DataTypeCode.CONTROLLEDVOCABULARY,
-                        ORGAN, null);
+                createPropertyType("USER.INFECTED_ORGAN", DataTypeCode.CONTROLLEDVOCABULARY, ORGAN,
+                        null);
 
         public static PropertyTypePE INFECTING_VIRUS =
                 createPropertyType("USER.INFECTING_VIRUS", DataTypeCode.MATERIAL, null, VIRUS);
@@ -181,10 +181,10 @@ public class CommonTestUtils
         return group;
     }
 
-    public static GroupPE createGroup(GroupIdentifier projectIdentifier)
+    public static GroupPE createGroup(SpaceIdentifier identifier)
     {
-        DatabaseInstancePE db = createDatabaseInstance(projectIdentifier.getDatabaseInstanceCode());
-        return createGroup(projectIdentifier.getGroupCode(), db);
+        DatabaseInstancePE db = createDatabaseInstance(identifier.getDatabaseInstanceCode());
+        return createGroup(identifier.getSpaceCode(), db);
     }
 
     public static final ExperimentTypePE createExperimentType()
@@ -246,7 +246,7 @@ public class CommonTestUtils
     {
         final ProjectPE project = new ProjectPE();
         project.setCode(pi.getProjectCode());
-        project.setGroup(createGroup(pi.getGroupCode(), createDatabaseInstance(pi
+        project.setGroup(createGroup(pi.getSpaceCode(), createDatabaseInstance(pi
                 .getDatabaseInstanceCode())));
         return project;
     }
@@ -294,7 +294,7 @@ public class CommonTestUtils
         exp.setExperimentType(expType);
         exp.setCode(ei.getExperimentCode());
         exp.setProject(createProject(new ProjectIdentifier(ei.getDatabaseInstanceCode(), ei
-                .getGroupCode(), ei.getProjectCode())));
+                .getSpaceCode(), ei.getProjectCode())));
         return exp;
     }
 

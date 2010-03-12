@@ -106,7 +106,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
     {
         DataSetInformation datasetInfo = new DataSetInformation();
         datasetInfo.setSampleCode(dataset.getSampleCode());
-        datasetInfo.setGroupCode(dataset.getGroupCode());
+        datasetInfo.setSpaceCode(dataset.getGroupCode());
         datasetInfo.setDataSetCode(dataset.getDatasetCode());
         ExperimentIdentifier expIdent =
                 new ExperimentIdentifier(null, dataset.getGroupCode(), dataset.getProjectCode(),

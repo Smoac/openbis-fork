@@ -381,7 +381,7 @@ public final class SampleBOTest extends AbstractBOTest
         final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
         experimentIdentifier.setExperimentCode("exp1");
         experimentIdentifier.setProjectCode(project.getCode());
-        experimentIdentifier.setGroupCode(project.getGroup().getCode());
+        experimentIdentifier.setSpaceCode(project.getGroup().getCode());
         experimentIdentifier.setDatabaseInstanceCode(project.getGroup().getDatabaseInstance()
                 .getCode());
 
@@ -406,7 +406,7 @@ public final class SampleBOTest extends AbstractBOTest
                     one(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
                     one(projectDAO).tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
-                            experimentIdentifier.getGroupCode(),
+                            experimentIdentifier.getSpaceCode(),
                             experimentIdentifier.getProjectCode());
                     will(returnValue(project));
 
@@ -951,7 +951,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(databaseInstance));
 
                     one(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
-                            sampleIdentifier.getGroupLevel().getGroupCode(), databaseInstance);
+                            sampleIdentifier.getSpaceLevel().getSpaceCode(), databaseInstance);
                     GroupPE group = new GroupPE();
                     will(returnValue(group));
 

@@ -264,7 +264,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             BatchSamplesOperation result =
                     parseSamples(experiment.getSampleType(), samplesSessionKey,
                             new GroupIdentifier(identifier.getDatabaseInstanceCode(), identifier
-                                    .getGroupCode()).toString(), experiment.isGenerateCodes(),
+                                    .getSpaceCode()).toString(), experiment.isGenerateCodes(),
                             false, BatchOperationKind.REGISTRATION);
             experiment.setNewSamples(result.getSamples());
             experiment.setSamples(result.getCodes());
@@ -450,7 +450,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             BatchSamplesOperation info =
                     parseSamples(updates.getSampleType(), updates.getSamplesSessionKey(),
                             new GroupIdentifier(newProject.getDatabaseInstanceCode(), newProject
-                                    .getGroupCode()).toString(), updates.isGenerateCodes(), false,
+                                    .getSpaceCode()).toString(), updates.isGenerateCodes(), false,
                             BatchOperationKind.REGISTRATION);
             updates.setNewSamples(info.getSamples());
             updates.setSampleCodes(info.getCodes());

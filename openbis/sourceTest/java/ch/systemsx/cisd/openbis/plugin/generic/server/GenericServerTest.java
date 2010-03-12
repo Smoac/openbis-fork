@@ -288,7 +288,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         final String sampleIdentifier2 = "SAMPLE2";
         final SampleIdentifier sampleIdentifier2WithGroup =
                 SampleIdentifierFactory.parse(sampleIdentifier2);
-        sampleIdentifier2WithGroup.getGroupLevel().setGroupCode(groupCode);
+        sampleIdentifier2WithGroup.getSpaceLevel().setSpaceCode(groupCode);
         final SampleIdentifier sampleIdentifier1 = SampleIdentifierFactory.parse(sample1);
         final String[] samples =
             { sample1, sampleIdentifier2 };

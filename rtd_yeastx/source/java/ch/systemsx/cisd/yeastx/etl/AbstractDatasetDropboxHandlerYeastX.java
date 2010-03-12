@@ -45,7 +45,7 @@ abstract class AbstractDatasetDropboxHandlerYeastX extends AbstractDatasetDropbo
         String subSep = "&";
         ExperimentIdentifier expIdent = dataSetInformation.getExperimentIdentifier();
         String expIdentText =
-                expIdent.getGroupCode() + subSep + expIdent.getProjectCode() + subSep
+                expIdent.getSpaceCode() + subSep + expIdent.getProjectCode() + subSep
                         + expIdent.getExperimentCode();
         String newFileName =
                 expIdentText + datasetCodeSeparator + dataSetCode

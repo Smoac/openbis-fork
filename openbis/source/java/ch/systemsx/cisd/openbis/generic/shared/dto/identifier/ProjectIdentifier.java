@@ -27,27 +27,27 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * 
  * @author Izabela Adamczyk
  */
-public class ProjectIdentifier extends GroupIdentifier
+public class ProjectIdentifier extends SpaceIdentifier
 {
     private static final long serialVersionUID = IServer.VERSION;
 
     private String projectCode;
 
-    public ProjectIdentifier(final String instanceCode, final String groupCode,
+    public ProjectIdentifier(final String instanceCode, final String spaceCode,
             final String projectCode)
     {
-        super(instanceCode, groupCode);
+        super(instanceCode, spaceCode);
         setProjectCode(projectCode);
     }
 
-    public ProjectIdentifier(final String groupCode, final String projectCode)
+    public ProjectIdentifier(final String spaceCode, final String projectCode)
     {
-        this(null, groupCode, projectCode);
+        this(null, spaceCode, projectCode);
     }
 
-    public ProjectIdentifier(GroupIdentifier groupIdentifier, String projectCode)
+    public ProjectIdentifier(SpaceIdentifier spaceIdentifier, String projectCode)
     {
-        this(groupIdentifier.getDatabaseInstanceCode(), groupIdentifier.getGroupCode(), projectCode);
+        this(spaceIdentifier.getDatabaseInstanceCode(), spaceIdentifier.getSpaceCode(), projectCode);
     }
 
     public String getProjectCode()
@@ -59,10 +59,6 @@ public class ProjectIdentifier extends GroupIdentifier
     {
         this.projectCode = projectCode;
     }
-
-    //
-    // GroupIdentifier
-    //
 
     @Override
     public boolean equals(final Object obj)
@@ -78,7 +74,7 @@ public class ProjectIdentifier extends GroupIdentifier
         final ProjectIdentifier that = (ProjectIdentifier) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
-        builder.append(getGroupCode(), that.getGroupCode());
+        builder.append(getSpaceCode(), that.getSpaceCode());
         builder.append(getProjectCode(), that.getProjectCode());
         return builder.isEquals();
     }
@@ -88,7 +84,7 @@ public class ProjectIdentifier extends GroupIdentifier
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getDatabaseInstanceCode());
-        builder.append(getGroupCode());
+        builder.append(getSpaceCode());
         builder.append(getProjectCode());
         return builder.toHashCode();
     }
@@ -96,7 +92,7 @@ public class ProjectIdentifier extends GroupIdentifier
     @Override
     public String toString()
     {
-        if (getGroupCode() == null)
+        if (getSpaceCode() == null)
         {
             return projectCode;
         } else

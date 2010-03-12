@@ -153,7 +153,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
         experimentIdentifier.setExperimentCode("E");
         experimentIdentifier.setProjectCode("P");
-        experimentIdentifier.setGroupCode(EXAMPLE_SPACE);
+        experimentIdentifier.setSpaceCode(EXAMPLE_SPACE);
         dataSetInformation.setExperimentIdentifier(experimentIdentifier);
         dataSetInformation.setSampleCode("S");
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
