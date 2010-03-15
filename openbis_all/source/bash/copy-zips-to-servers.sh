@@ -19,7 +19,7 @@ export ZIPS_DSU="openBIS-server-S*.zip datastore_server-dsu*.zip"
 export ZIPS_BASYSBIO="*basysbio*.zip openBIS-server-S*.zip"
 
 # Special plugin
-export DATASTORE_PLUGIN="datastore_server-plugins.jar"
+export DATASTORE_PLUGIN="datastore_server-plugin*.jar"
 
 echo -e "\nCopying default openBIS/DSS to servers...\n"
 for i in $ZIPS; do
