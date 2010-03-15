@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -97,22 +98,36 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
             TechId experimentID, String treatmentTypeOrNull)
     {
-        final String sessionToken = getSessionToken();
-        return server.getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken,
-                experimentID, treatmentTypeOrNull);
+        StopWatch stopWatch = new StopWatch();
+        try
+        {
+            final String sessionToken = getSessionToken();
+            return server.getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken,
+                    experimentID, treatmentTypeOrNull);
+        } finally
+        {
+            operationLog.info(stopWatch.getTime() + " msec for getAbundanceColumnDefinitionsForProteinByExperiment");
+        }
     }
 
     public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        final String sessionToken = getSessionToken();
-        TechId experimentID = criteria.getExperimentID();
-        double fdr = criteria.getFalseDiscoveryRate();
-        AggregateFunction aggregateFunction = criteria.getAggregateFunction();
-        String treatmentTypeCode = criteria.getTreatmentTypeCode();
-        boolean aggregateOnOriginal = criteria.isAggregateOriginal();
-        return listEntities(criteria, new ListProteinOriginalDataProvider(server, sessionToken,
-                experimentID, fdr, aggregateFunction, treatmentTypeCode, aggregateOnOriginal));
+        StopWatch stopWatch = new StopWatch();
+        try
+        {
+            final String sessionToken = getSessionToken();
+            TechId experimentID = criteria.getExperimentID();
+            double fdr = criteria.getFalseDiscoveryRate();
+            AggregateFunction aggregateFunction = criteria.getAggregateFunction();
+            String treatmentTypeCode = criteria.getTreatmentTypeCode();
+            boolean aggregateOnOriginal = criteria.isAggregateOriginal();
+            return listEntities(criteria, new ListProteinOriginalDataProvider(server, sessionToken,
+                    experimentID, fdr, aggregateFunction, treatmentTypeCode, aggregateOnOriginal));
+        } finally
+        {
+            operationLog.info(stopWatch.getTime() + " msec for listProteinsByExperiment");
+        }
     }
 
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
@@ -121,11 +136,20 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return prepareExportEntities(exportCriteria);
     }
 
-    public ResultSet<ProteinSummary> listProteinSummariesByExperiment(ListProteinSummaryByExperimentCriteria criteria)
-    throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    public ResultSet<ProteinSummary> listProteinSummariesByExperiment(
+            ListProteinSummaryByExperimentCriteria criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        final String sessionToken = getSessionToken();
-        return listEntities(criteria, new ListProteinSummaryProvider(server, sessionToken, criteria.getExperimentID()));
+        StopWatch stopWatch = new StopWatch();
+        try
+        {
+            final String sessionToken = getSessionToken();
+            return listEntities(criteria, new ListProteinSummaryProvider(server, sessionToken,
+                    criteria.getExperimentID()));
+        } finally
+        {
+            operationLog.info(stopWatch.getTime() + " msec for listProteinSummariesByExperiment");
+        }
     }
     
     public String prepareExportProteinSummary(TableExportCriteria<ProteinSummary> exportCriteria)
