@@ -17,19 +17,19 @@ export BASYSBIO_TEST=openbis-test
 
 function create_individual_greeting_message {
 # Creates an individual greeting message
-	if [ -f ~/config/openbis_instance.txt ]; then
+	if [ -f ~openbis/config/openbis_instance.txt ]; then
 	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/common-dictionary.js
-	   export SERVER_INSTANCE_NAME=`cat ~/config/openbis_instance.txt`
+	   export SERVER_INSTANCE_NAME=`cat ~openbis/config/openbis_instance.txt`
 	   perl -pe 's/openbis_instance: "",/openbis_instance: "$ENV{SERVER_INSTANCE_NAME}",/' -i $OPENBIS_DICT
 	fi
 }
 
 function restore_loginHeader {
-  if [ -f ~/config/loginHeader.html ]; then
+  if [ -f ~openbis/config/loginHeader.html ]; then
     echo restoring loginHeader.html...
-    cp -r ~/config/images ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
-    cp ~/config/loginHeader.html ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
-    cp ~/config/help.html ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp ~openbis/config/loginHeader.html ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp ~openbis/config/help.html ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
   fi
   if [ -f ~openbis/config/index.html ]; then
   	cp ~openbis/config/index.html  ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
@@ -44,7 +44,7 @@ function add_yeastx_plugin {
 	 unzip ~openbis/config/datastore_server_plugin*.zip
 	 mv ~openbis/config/lib/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
 	 rmdir ~openbis/config/lib
-	 rm ~/config/datastore_server_plugin*.zip
+	 rm ~openbis/config/datastore_server_plugin*.zip
 }
 
 case "$SERVER" in
@@ -90,7 +90,7 @@ case "$SERVER" in
 	restore_loginHeader
 	create_individual_greeting_message
 	DSU_SERVER_HOME=~openbis/sprint/openBIS-server/apache-tomcat-5.5.26/webapps/openbis
-    cp ~/config/openBIS_for_DSU.pdf $DSU_SERVER_HOME
+    cp ~openbis/config/openBIS_for_DSU.pdf $DSU_SERVER_HOME
 	;;
 	$SCU)
 	echo SCU:$SCU;
