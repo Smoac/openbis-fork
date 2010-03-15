@@ -100,11 +100,11 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
             FileBasedDataSetLoader(File store)
             {
                 this.store = store;
-                store.mkdirs();
             }
             
             void save(String experimentPermID, DataSet<T> dataSet)
             {
+                store.mkdirs();
                 File file = new File(store, experimentPermID);
                 ObjectOutputStream outputStream = null;
                 try
@@ -123,6 +123,7 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
             @SuppressWarnings("unchecked")
             public DataSet<T> load(String experimentPermID)
             {
+                store.mkdirs();
                 File file = new File(store, experimentPermID);
                 if (file.exists() == false)
                 {
@@ -217,7 +218,6 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
 
         ProteinQueryDAO(final IProteinQueryDAO dao, String typeOfCaching)
         {
-            System.getProperties().list(System.out);
             this.dao = dao;
             listProteinsByExperimentCache =
                     new ResultSetCache<ProteinReferenceWithProbability>("listProteinsByExperiment", typeOfCaching, 
