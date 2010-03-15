@@ -49,7 +49,7 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
     private static final String SQL_FILE_TYPE = ".sql";
 
     private static final String CREATE_DATABASE_SQL_TEMPLATE =
-            "create database %1$s with owner = %2$s encoding = 'utf8' template = template0 tablespace = pg_default; "
+            "create database %1$s with owner = \"%2$s\" encoding = 'utf8' template = template0 tablespace = pg_default; "
                     + "alter database %1$s set default_with_oids = off;";
 
     private static final String CREATE_PLPGSQL = "create language plpgsql;";
@@ -262,7 +262,7 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("Searching for mass upload files in directory '"
-                    + dumpFolder.getAbsolutePath() + "'.");
+                    + dumpFolder.getAbsolutePath() + "'."); 
         }
         String[] csvFiles = dumpFolder.list(new FilenameFilter()
             {
