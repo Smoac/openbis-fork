@@ -103,6 +103,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
@@ -1270,6 +1271,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         return ProjectTranslator.translate(project);
     }
 
+    public IEntityInformationHolder getMaterialInformationHolder(String sessionToken,
+            final MaterialIdentifier identifier)
+    {
+        checkSession(sessionToken);
+        return createMaterialInformationHolder(identifier, getDAOFactory().getMaterialDAO()
+                .tryFindMaterial(identifier));
+    }
+
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
             final EntityKind entityKind, final String permId)
     {
@@ -1296,13 +1305,33 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     {
         if (entityOrNull == null)
         {
-            throw UserFailureException.fromTemplate("There is no %s with permId '%s'", kind
+            throw UserFailureException.fromTemplate("There is no %s with permId '%s'.", kind
                     .getDescription(), permId);
         }
+        return createInformationHolder(kind, entityOrNull);
+    }
+
+    private IEntityInformationHolder createMaterialInformationHolder(
+            final MaterialIdentifier identifier, IEntityInformationHolderDTO entityOrNull)
+    {
+        if (entityOrNull == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "There is no Material of type '%s' with code '%s'.", identifier.getTypeCode(),
+                    identifier.getCode());
+        }
+        return createInformationHolder(EntityKind.MATERIAL, entityOrNull);
+    }
+
+    private IEntityInformationHolder createInformationHolder(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind,
+            IEntityInformationHolderDTO entity)
+    {
+        assert entity != null;
         final EntityType entityType =
-                EntityHelper.createEntityType(kind, entityOrNull.getEntityType().getCode());
-        final String code = entityOrNull.getCode();
-        final Long id = HibernateUtils.getId(entityOrNull);
+                EntityHelper.createEntityType(kind, entity.getEntityType().getCode());
+        final String code = entity.getCode();
+        final Long id = HibernateUtils.getId(entity);
         return new BasicEntityInformationHolder(kind, entityType, code, id);
     }
 

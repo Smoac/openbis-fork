@@ -62,15 +62,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -83,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -571,6 +572,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<IEntityInformationHolder> callback);
 
     /**
+     * @see ICommonClientService#getMaterialInformationHolder(MaterialIdentifier)
+     */
+    public void getMaterialInformationHolder(MaterialIdentifier materialIdentifier,
+            AsyncCallback<IEntityInformationHolder> openEntityDetailsTabCallback);
+
+    /**
      * @see ICommonClientService#getTemplate(EntityKind, String, boolean,boolean,BatchOperationKind)
      */
     public void getTemplate(EntityKind kind, String type, boolean autoGenerate,
@@ -703,8 +710,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deleteFilters(List<TechId> filterIds, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#updateFilter(IExpressionUpdates) */
-    public void updateFilter(IExpressionUpdates updates,
-            AsyncCallback<Void> registrationCallback);
+    public void updateFilter(IExpressionUpdates updates, AsyncCallback<Void> registrationCallback);
 
     // -- custom grid columns
 
@@ -733,8 +739,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deleteColumns(List<TechId> columnIds, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#updateColumn(IExpressionUpdates) */
-    public void updateColumn(IExpressionUpdates updates,
-            AsyncCallback<Void> registrationCallback);
+    public void updateColumn(IExpressionUpdates updates, AsyncCallback<Void> registrationCallback);
 
     /** @see ICommonClientService#deleteMaterials(DisplayedOrSelectedIdHolderCriteria, String) */
     public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> uploadCriteria,

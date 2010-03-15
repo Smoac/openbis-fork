@@ -274,8 +274,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
             };
 
-        // null values will be treated as smallest
-        return applySortDir(sortDir, ComparatorUtils.nullLowComparator(comparator));
+        return applySortDir(sortDir, comparator);
     }
 
     @SuppressWarnings("unchecked")

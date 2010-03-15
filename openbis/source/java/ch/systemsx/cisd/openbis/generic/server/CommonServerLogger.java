@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
@@ -602,10 +603,16 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, String permId)
     {
-
         final String entityTypeFormat = entityKind.name() + "_TYPE(%S)";
         logTracking(sessionToken, "get_entity_information_holder", entityTypeFormat
                 + " PERM_ID(%S) ", entityKind, permId);
+        return null;
+    }
+
+    public IEntityInformationHolder getMaterialInformationHolder(String sessionToken,
+            MaterialIdentifier identifier)
+    {
+        logTracking(sessionToken, "get_material_information_holder", " IDENTIFIER(%S) ", identifier);
         return null;
     }
 
@@ -822,4 +829,5 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "delete_materials", "IDS(%s) REASON(%s)", materialIds, reason);
     }
+
 }
