@@ -83,19 +83,18 @@ public class Compressor
         return NUMBER_OF_PROCESSORS * threadsPerProcessor;
     }
 
-    private static void startUpWorkerThreads(int threadsPerProcessor, Queue<File> workerQueue,
+    private static void startUpWorkerThreads(AtomicInteger workersCounter, Queue<File> workerQueue,
             Collection<FailureRecord> failed, ICompressionMethod compressor)
     {
-        int workers = getInitialNumberOfWorkers(threadsPerProcessor);
-        AtomicInteger activeWorkers = new AtomicInteger(workers);
-        for (int i = 0; i < workers; ++i)
+        int counter = workersCounter.get();
+        for (int i = 0; i < counter; ++i)
         {
-            new Thread(new CompressionWorker(workerQueue, failed, compressor, activeWorkers),
+            new Thread(new CompressionWorker(workerQueue, failed, compressor, workersCounter),
                     "Compressor " + i).start();
         }
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Started up %d worker threads.", workers));
+            operationLog.info(String.format("Started up %d worker threads.", counter));
         }
     }
 
@@ -116,10 +115,15 @@ public class Compressor
             System.out.println("No files to compress.");
             return failed;
         }
-        startUpWorkerThreads(threadsPerProcessor, workerQueue, failed, compressionMethod);
+        AtomicInteger workersCounter =
+                new AtomicInteger(getInitialNumberOfWorkers(threadsPerProcessor));
+        startUpWorkerThreads(workersCounter, workerQueue, failed, compressionMethod);
         synchronized (failed)
         {
-            failed.wait();
+            while (workersCounter.get() > 0)
+            {
+                failed.wait();
+            }
         }
         return failed;
     }
