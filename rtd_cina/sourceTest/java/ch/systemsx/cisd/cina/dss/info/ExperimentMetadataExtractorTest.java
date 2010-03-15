@@ -91,6 +91,8 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
                 {
                     one(openbisService).tryToGetExperiment(identifier);
                     will(returnValue(null));
+                    // TODO: This does not check the type of the new experiment -- it only tests
+                    // that the identifier of the new experiment is the one specified above.
                     one(openbisService).registerExperiment(newExperiment);
                 }
             });
