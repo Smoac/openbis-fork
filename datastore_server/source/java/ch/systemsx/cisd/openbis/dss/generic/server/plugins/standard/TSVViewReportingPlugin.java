@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.AutoResolveUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -36,9 +37,14 @@ public class TSVViewReportingPlugin extends AbstractFileTableReportingPlugin
 {
     private static final long serialVersionUID = 1L;
 
+    private static final String TRANSPOSE_KEY = "transpose";
+
+    private final boolean transpose;
+
     public TSVViewReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, TAB_SEPARATOR);
+        this.transpose = PropertyUtils.getBoolean(properties, TRANSPOSE_KEY, false);
     }
 
     public TableModel createReport(List<DatasetDescription> datasets)
@@ -52,7 +58,7 @@ public class TSVViewReportingPlugin extends AbstractFileTableReportingPlugin
         if (fileToOpenOrNull != null && fileToOpenOrNull.isFile() && fileToOpenOrNull.exists())
         {
             DatasetFileLines lines = loadFromFile(dataset, fileToOpenOrNull);
-            return createTableModel(lines);
+            return transpose ? createTransposedTableModel(lines) : createTableModel(lines);
         }
         throw UserFailureException.fromTemplate("Main TSV file could not be found.");
     }

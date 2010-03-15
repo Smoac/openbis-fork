@@ -161,4 +161,34 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
         }
         return tableBuilder.getTableModel();
     }
+
+    protected static TableModel createTransposedTableModel(DatasetFileLines lines)
+    {
+        int columns = lines.getHeaderTokens().length;
+        int rows = lines.getDataLines().size() + 1;
+        String[][] all = new String[columns][rows];
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < columns; c++)
+            {
+                all[c][r] =
+                        (r == 0) ? lines.getHeaderTokens()[c] : lines.getDataLines().get(r - 1)[c];
+            }
+        }
+        SimpleTableModelBuilder tableBuilder = new SimpleTableModelBuilder();
+        for (int r = 0; r < rows; r++)
+        {
+            tableBuilder.addHeader(all[0][r]);
+        }
+        for (int c = 1; c < columns; c++)
+        {
+            List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
+            for (int r = 0; r < rows; r++)
+            {
+                row.add(TableCellUtil.createTableCell(all[c][r]));
+            }
+            tableBuilder.addRow(row);
+        }
+        return tableBuilder.getTableModel();
+    }
 }
