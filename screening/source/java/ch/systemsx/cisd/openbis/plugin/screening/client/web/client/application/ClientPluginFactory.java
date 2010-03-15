@@ -133,26 +133,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         @Override
         public final ITabItemFactory createEntityViewer(final IIdentifiable materialId)
         {
-            return new ITabItemFactory()
-                {
-                    public ITabItem create()
-                    {
-                        IViewContext<IScreeningClientServiceAsync> viewContext = getViewContext();
-                        final DatabaseModificationAwareComponent viewer =
-                                GeneMaterialViewer.create(viewContext, materialId, null);
-                        return createMaterialViewerTab(materialId, viewer, viewContext);
-                    }
-
-                    public String getId()
-                    {
-                        return GeneMaterialViewer.createId(materialId);
-                    }
-
-                    public HelpPageIdentifier getHelpPageIdentifier()
-                    {
-                        return GeneMaterialViewer.getHelpPageIdentifier();
-                    }
-                };
+            return createGeneMaterialViewerTabFactory(materialId, null, getViewContext());
         }
     }
 
@@ -161,13 +142,22 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             final ExperimentIdentifier experimentIdentifier,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        ITabItemFactory tab = new ITabItemFactory()
+        ITabItemFactory tab =
+                createGeneMaterialViewerTabFactory(materialId, experimentIdentifier, viewContext);
+        DispatcherHelper.dispatchNaviEvent(tab);
+    }
+
+    private static final ITabItemFactory createGeneMaterialViewerTabFactory(
+            final IIdentifiable materialId, final ExperimentIdentifier experimentIdentifierOrNull,
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        return new ITabItemFactory()
             {
                 public ITabItem create()
                 {
                     final DatabaseModificationAwareComponent viewer =
-                            GeneMaterialViewer
-                                    .create(viewContext, materialId, experimentIdentifier);
+                            GeneMaterialViewer.create(viewContext, materialId,
+                                    experimentIdentifierOrNull);
                     return createMaterialViewerTab(materialId, viewer, viewContext);
                 }
 
@@ -181,7 +171,6 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     return GeneMaterialViewer.getHelpPageIdentifier();
                 }
             };
-        DispatcherHelper.dispatchNaviEvent(tab);
     }
 
     private static ITabItem createMaterialViewerTab(final IIdentifiable materialId,

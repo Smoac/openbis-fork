@@ -19,9 +19,9 @@ public class MaterialLocatorResolver extends AbstractViewLocatorResolver
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public final static String CODE_PARAMETER_KEY = "code";
+    private final static String CODE_PARAMETER_KEY = "code";
 
-    public final static String TYPE_PARAMETER_KEY = "type";
+    protected final static String TYPE_PARAMETER_KEY = "type";
 
     public MaterialLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -43,22 +43,26 @@ public class MaterialLocatorResolver extends AbstractViewLocatorResolver
         // otherwise show an error message.
         assert (EntityKind.MATERIAL.name().equals(locator.tryGetEntity()));
 
+        openInitialMaterialViewer(extractMaterialIdentifier(locator));
+    }
+
+    protected MaterialIdentifier extractMaterialIdentifier(ViewLocator locator)
+    {
         String codeValueOrNull = locator.getParameters().get(CODE_PARAMETER_KEY);
         String materialTypeValueOrNull = locator.getParameters().get(TYPE_PARAMETER_KEY);
         checkRequiredParameter(codeValueOrNull, codeValueOrNull);
         checkRequiredParameter(materialTypeValueOrNull, TYPE_PARAMETER_KEY);
-
-        openInitialMaterialViewer(codeValueOrNull, materialTypeValueOrNull);
+        
+        return new MaterialIdentifier(codeValueOrNull, materialTypeValueOrNull);
     }
 
     /**
-     * Open the material details tab for the specified code and material type.
+     * Open the material details tab for the specified identifier.
      */
-    private void openInitialMaterialViewer(String code, String materialType)
+    protected void openInitialMaterialViewer(MaterialIdentifier identifier)
             throws UserFailureException
     {
-        viewContext.getService().getMaterialInformationHolder(
-                new MaterialIdentifier(code, materialType),
+        viewContext.getService().getMaterialInformationHolder(identifier,
                 new OpenEntityDetailsTabCallback(viewContext));
     }
 
