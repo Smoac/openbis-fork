@@ -216,7 +216,7 @@ public interface ICommonServer extends IServer
     public void registerInstanceRole(String sessionToken, RoleCode roleCode, Grantee grantee);
 
     /**
-     * Deletes role described by given role code, group identifier and user id.
+     * Deletes role described by given role code, space identifier and grantee.
      */
     @Transactional
     @RolesAllowed(RoleSet.SPACE_ADMIN)
