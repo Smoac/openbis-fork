@@ -99,6 +99,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             TechId experimentID, String treatmentTypeOrNull)
     {
         StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         try
         {
             final String sessionToken = getSessionToken();
@@ -114,6 +115,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         try
         {
             final String sessionToken = getSessionToken();
@@ -141,6 +143,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         try
         {
             final String sessionToken = getSessionToken();
