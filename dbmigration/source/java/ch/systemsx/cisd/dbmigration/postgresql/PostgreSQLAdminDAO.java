@@ -88,7 +88,7 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
     {
         try
         {
-            getJdbcTemplate().execute("create user " + owner);
+            getJdbcTemplate().execute("create user \"" + owner + "\"");
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Created role '" + owner + "'.");
@@ -113,52 +113,36 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
     {
         if (StringUtils.isNotBlank(readOnlyGroupOrNull))
         {
-            try
-            {
-                getJdbcTemplate().execute("create role " + readOnlyGroupOrNull);
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info("Created role '" + readOnlyGroupOrNull + "'.");
-                }
-            } catch (DataAccessException ex)
-            {
-                if (DBUtilities.isDuplicateObjectException(ex))
-                {
-                    if (operationLog.isInfoEnabled())
-                    {
-                        operationLog.info("Role '" + readOnlyGroupOrNull + "' already exists.");
-                    }
-                } else
-                {
-                    operationLog.error("Database role '" + readOnlyGroupOrNull
-                            + "' couldn't be created:", ex);
-                    throw ex;
-                }
-            }
+            createRole(readOnlyGroupOrNull);
         }
         if (StringUtils.isNotBlank(readWriteGroupOrNull))
         {
-            try
+            createRole(readWriteGroupOrNull);
+        }
+    }
+
+    private void createRole(String role)
+    {
+        try
+        {
+            getJdbcTemplate().execute("create role \"" + role + "\"");
+            if (operationLog.isInfoEnabled())
             {
-                getJdbcTemplate().execute("create role " + readWriteGroupOrNull);
+                operationLog.info("Created role '" + role + "'.");
+            }
+        } catch (DataAccessException ex)
+        {
+            if (DBUtilities.isDuplicateObjectException(ex))
+            {
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Created role '" + readWriteGroupOrNull + "'.");
+                    operationLog.info("Role '" + role + "' already exists.");
                 }
-            } catch (DataAccessException ex)
+            } else
             {
-                if (DBUtilities.isDuplicateObjectException(ex))
-                {
-                    if (operationLog.isInfoEnabled())
-                    {
-                        operationLog.info("Role '" + readWriteGroupOrNull + "' already exists.");
-                    }
-                } else
-                {
-                    operationLog.error("Database role '" + readWriteGroupOrNull
-                            + "' couldn't be created:", ex);
-                    throw ex;
-                }
+                operationLog.error("Database role '" + role
+                        + "' couldn't be created:", ex);
+                throw ex;
             }
         }
     }
