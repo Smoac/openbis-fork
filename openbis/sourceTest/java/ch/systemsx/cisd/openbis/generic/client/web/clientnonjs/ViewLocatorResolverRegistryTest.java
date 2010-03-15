@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.IViewLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Vi
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 
 /**
  * A test of the ViewLocatorHandlerRegistry functionality from the Java side. The JavaScript side is
@@ -214,6 +216,33 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
 
     @SuppressWarnings("unchecked")
     @Test
+    public void testResolveMaterialLocator()
+    {
+        initializeLocatorHandlerRegistry(registry);
+        final MaterialIdentifier identifier = new MaterialIdentifier("CODE", "TYPE");
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(viewContext).getService();
+                    will(returnValue(commonService));
+
+                    one(commonService).getMaterialInformationHolder(with(identifier),
+                            with(Expectations.any(AbstractAsyncCallback.class)));
+                }
+
+            });
+
+        ViewLocator locator =
+                new ViewLocator("entity=MATERIAL&code=" + identifier.getCode() + "&type="
+                        + identifier.getTypeCode());
+        OpenViewAction action = new OpenViewAction(registry, locator);
+        action.execute();
+
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
     public void testResolveSearchLocator()
     {
         initializeLocatorHandlerRegistry(registry);
@@ -290,6 +319,9 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
     protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry)
     {
         IViewLocatorResolver handler;
+        handler = new MaterialLocatorResolver(viewContext);
+        handlerRegistry.registerHandler(handler);
+
         handler = new PermlinkLocatorResolver(viewContext);
         handlerRegistry.registerHandler(handler);
 
