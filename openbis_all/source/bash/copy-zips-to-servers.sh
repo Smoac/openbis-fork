@@ -15,11 +15,11 @@ export BASYSBIO_TEST=bs-dsvr28-openbis-test.ethz.ch.
 # Currently there are three different types of server specific zips we distinguish
 export ZIPS="openBIS-server-S*.zip  datastore_server-S*.zip"
 export ZIPS_PHOSPHONETX="*phosphonetx*.zip"
-export ZIPS_DSU="openBIS-server-S*.zip datastore_server-dsu*.zip"
+export ZIPS_DSU="openBIS-server-S*.zip datastore_server-dsu*.zip openbis-tracking-client*.zip"
 export ZIPS_BASYSBIO="*basysbio*.zip openBIS-server-S*.zip"
 
 # Special plugin
-export DATASTORE_PLUGIN="datastore_server-plugin*.jar"
+export DATASTORE_PLUGIN="datastore_server_plugin*.zip"
 
 echo -e "\nCopying default openBIS/DSS to servers...\n"
 for i in $ZIPS; do
