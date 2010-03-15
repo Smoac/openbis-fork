@@ -19,6 +19,8 @@ package ch.systemsx.cisd.common.mail;
 import java.io.File;
 import java.util.Arrays;
 
+import javax.activation.DataHandler;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
@@ -76,4 +78,44 @@ public final class MailClientTest extends AbstractFileSystemTestCase
 
     }
 
+    @Test
+    public final void testAttachments()
+    {
+        String path = workingDirectory.getPath() + "/emails";
+        File emailFolder = new File(path);
+        assert emailFolder.exists() == false;
+
+        MailClient mailClient = new MailClient("sender", "file://" + path);
+
+        DataHandler attachment =
+                new DataHandler("name.first = First Name\nname.last = Last Name",
+                        "application/octet-stream");
+        mailClient.sendMessageWithAttachment("some message", "Hello world\nHow are you today?",
+                "file.properties", attachment, "user@reply.com", null, "a@b.c", "d@e.f");
+
+        assert emailFolder.exists();
+        assert emailFolder.isDirectory();
+        File[] files = emailFolder.listFiles();
+        assertEquals(1, files.length);
+        assertEquals("email", files[0].getName());
+        String fileContent = FileUtilities.loadToString(files[0]);
+
+        // Split the file into lines and check one line at a time
+        String[] lines = fileContent.split("\n+");
+        assertEquals(lines.length, 13);
+        assertEquals(lines[0], "Subj: some message");
+        assertEquals(lines[1], "From: sender");
+        assertEquals(lines[2], "To:   a@b.c, d@e.f");
+        assertEquals(lines[3], "Reply-To: user@reply.com");
+        assertEquals(lines[4], "Content:");
+        assertTrue(lines[5].startsWith("------=_Part_0"));
+        assertEquals(lines[6], "Hello world");
+        assertEquals(lines[7], "How are you today?");
+
+        assertTrue(lines[8].startsWith("------=_Part_0"));
+        assertEquals(lines[9], "Content-Disposition: attachment; filename=file.properties");
+        assertEquals(lines[10], "name.first = First Name");
+        assertEquals(lines[11], "name.last = Last Name");
+        assertTrue(lines[12].startsWith("------=_Part_0"));
+    }
 }

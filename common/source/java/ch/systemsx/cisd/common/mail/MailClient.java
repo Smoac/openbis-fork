@@ -16,22 +16,27 @@
 
 package ch.systemsx.cisd.common.mail;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
 import javax.mail.Address;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
 
@@ -159,8 +164,63 @@ public final class MailClient extends Authenticator implements IMailClient
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
-    public final void sendMessage(String subject, String content, String replyTo, From fromOrNull,
-            String... recipients) throws EnvironmentFailureException
+    public final void sendMessage(final String subject, final String content, final String replyTo,
+            final From fromOrNull, final String... recipients) throws EnvironmentFailureException
+    {
+        IMessagePreparer messagePreparer = new IMessagePreparer()
+            {
+                public void prepareMessage(MimeMessage msg) throws MessagingException
+                {
+                    msg.setText(content);
+                }
+            };
+        privateSendMessage(messagePreparer, subject, content, replyTo, fromOrNull, recipients);
+    }
+
+    /**
+     * Sends a mail with given <var>subject</var> and <var>content</var> to given
+     * <var>recipients</var>, includig the given <var>attachment</var>
+     * 
+     * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
+     */
+    public final void sendMessageWithAttachment(final String subject, final String content,
+            final String filename, final DataHandler attachmentContent, final String replyTo,
+            final From fromOrNull, final String... recipients) throws EnvironmentFailureException
+    {
+        IMessagePreparer messagePreparer = new IMessagePreparer()
+            {
+
+                public void prepareMessage(MimeMessage msg) throws MessagingException
+                {
+                    // Create a MIME message with 2 parts: text + attachments
+                    Multipart multipart = new MimeMultipart();
+
+                    // Create the text
+                    MimeBodyPart messageText = new MimeBodyPart();
+                    messageText.setText(content);
+                    multipart.addBodyPart(messageText);
+
+                    // Create the attachment
+                    MimeBodyPart messageAttachment = new MimeBodyPart();
+                    messageAttachment.setDataHandler(attachmentContent);
+                    messageAttachment.setFileName(filename);
+                    multipart.addBodyPart(messageAttachment);
+
+                    msg.setContent(multipart);
+                }
+            };
+        privateSendMessage(messagePreparer, subject, content, replyTo, fromOrNull, recipients);
+    }
+
+    /**
+     * Sends a mail with given <var>subject</var> and <var>content</var> to given
+     * <var>recipients</var>.
+     * 
+     * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
+     */
+    private final void privateSendMessage(IMessagePreparer messagePreparerOrNull, String subject,
+            String content, String replyTo, From fromOrNull, String[] recipients)
+            throws EnvironmentFailureException
     {
         String fromPerMail = fromOrNull != null ? fromOrNull.getValue() : from;
         if (operationLog.isInfoEnabled())
@@ -186,7 +246,10 @@ public final class MailClient extends Authenticator implements IMailClient
             }
             msg.addRecipients(Message.RecipientType.TO, internetAddresses);
             msg.setSubject(subject, UNICODE_CHARSET);
-            msg.setText(content, UNICODE_CHARSET);
+            if (null != messagePreparerOrNull)
+            {
+                messagePreparerOrNull.prepareMessage(msg);
+            }
             send(msg);
         } catch (MessagingException ex)
         {
@@ -220,43 +283,60 @@ public final class MailClient extends Authenticator implements IMailClient
     {
         if (smtpHost.startsWith(FILE_PREFIX))
         {
-            File emailFolder = new File(smtpHost.substring(FILE_PREFIX.length()));
-            if (emailFolder.exists())
-            {
-                if (emailFolder.isDirectory() == false)
-                {
-                    throw new EnvironmentFailureException(
-                            "There exists already a file but not a folder with path '"
-                                    + emailFolder.getAbsolutePath() + "'.");
-                }
-            } else
-            {
-                if (emailFolder.mkdirs() == false)
-                {
-                    throw new EnvironmentFailureException("Couldn't create email folder '"
-                            + emailFolder.getAbsolutePath() + "'.");
-                }
-            }
-            File file = FileUtilities.createNextNumberedFile(new File(emailFolder, "email"), null);
-            StringBuilder builder = new StringBuilder();
-            builder.append("Subj: ").append(msg.getSubject()).append('\n');
-            builder.append("From: ").append(renderAddresses(msg.getFrom())).append('\n');
-            builder.append("To:   ").append(renderAddresses(msg.getAllRecipients())).append('\n');
-            builder.append("Reply-To: ").append(renderAddresses(msg.getReplyTo())).append('\n');
-            builder.append("Content:\n");
-            try
-            {
-                Object content = msg.getContent();
-                builder.append(content);
-            } catch (IOException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
-            FileUtilities.writeToFile(file, builder.toString());
+            // We don't have a real SMTP server
+            writeMessageToFile(msg);
         } else
         {
+            // We are dealing with a real SMTP server -- use the Transport
             Transport.send(msg);
         }
+    }
+
+    private void writeMessageToFile(MimeMessage msg) throws MessagingException
+    {
+        File emailFolder = new File(smtpHost.substring(FILE_PREFIX.length()));
+        if (emailFolder.exists())
+        {
+            if (emailFolder.isDirectory() == false)
+            {
+                throw new EnvironmentFailureException(
+                        "There exists already a file but not a folder with path '"
+                                + emailFolder.getAbsolutePath() + "'.");
+            }
+        } else
+        {
+            if (emailFolder.mkdirs() == false)
+            {
+                throw new EnvironmentFailureException("Couldn't create email folder '"
+                        + emailFolder.getAbsolutePath() + "'.");
+            }
+        }
+        File file = FileUtilities.createNextNumberedFile(new File(emailFolder, "email"), null);
+        StringBuilder builder = new StringBuilder();
+        builder.append("Subj: ").append(msg.getSubject()).append('\n');
+        builder.append("From: ").append(renderAddresses(msg.getFrom())).append('\n');
+        builder.append("To:   ").append(renderAddresses(msg.getAllRecipients())).append('\n');
+        builder.append("Reply-To: ").append(renderAddresses(msg.getReplyTo())).append('\n');
+        builder.append("Content:\n");
+        try
+        {
+            Object content = msg.getContent();
+            // If this is a mime message, handle the printing a bit differently
+            if (content instanceof Multipart)
+            {
+                Multipart multipart = (Multipart) content;
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                multipart.writeTo(os);
+                builder.append(os.toString());
+            } else
+            {
+                builder.append(content);
+            }
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+        FileUtilities.writeToFile(file, builder.toString());
     }
 
     private String renderAddresses(Address[] addresses)
@@ -284,5 +364,15 @@ public final class MailClient extends Authenticator implements IMailClient
     protected final PasswordAuthentication getPasswordAuthentication()
     {
         return new PasswordAuthentication(smtpUsername, smtpPassword);
+    }
+
+    /**
+     * Interface for closures that prepare and email messages.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    private static interface IMessagePreparer
+    {
+        void prepareMessage(MimeMessage msg) throws MessagingException;
     }
 }
