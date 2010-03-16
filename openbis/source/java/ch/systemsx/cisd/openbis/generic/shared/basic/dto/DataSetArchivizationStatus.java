@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * Status of data set archivization.
  * 
  * @author Piotr Buczek
  */
-public enum DataSetArchivizationStatus
+public enum DataSetArchivizationStatus implements IsSerializable
 {
     ACTIVE, ARCHIVED, ACTIVATION_IN_PROGRESS, ARCHIVIZATION_IN_PROGRESS;
+
 }
