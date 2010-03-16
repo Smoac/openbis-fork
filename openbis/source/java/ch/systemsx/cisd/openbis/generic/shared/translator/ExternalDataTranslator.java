@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.L
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class ExternalDataTranslator
 {
@@ -83,6 +83,8 @@ public class ExternalDataTranslator
         externalData.setId(HibernateUtils.getId(externalDataPE));
         externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
+        externalData.setLocked(externalDataPE.isLocked());
+        externalData.setStatus(externalDataPE.getStatus());
         externalData.setDataProducerCode(StringEscapeUtils.escapeHtml(externalDataPE
                 .getDataProducerCode()));
         externalData.setDataSetType(DataSetTypeTranslator.translate(

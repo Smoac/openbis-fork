@@ -202,6 +202,8 @@ public final class ValidationMessages
 
     public static final String ENTITY_TYPE_NOT_NULL_MESSAGE = "Entity Type" + CAN_NOT_BE_NULL;
 
+    public static final String STATUS_NOT_NULL_MESSAGE = "Status" + CAN_NOT_BE_NULL;
+
     public static final String IDENTIFIER_NOT_NULL_MESSAGE = "Identifier" + CAN_NOT_BE_NULL;
 
     public static final String IDENTIFIER_LENGTH_MESSAGE =

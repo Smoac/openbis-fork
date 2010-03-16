@@ -42,4 +42,8 @@ public class DatasetRecord extends CodeRecord
     public Long loty_id;
 
     public String is_complete; // maps to BooleanOrUnknown
+
+    public boolean is_locked;
+
+    public String status;
 }

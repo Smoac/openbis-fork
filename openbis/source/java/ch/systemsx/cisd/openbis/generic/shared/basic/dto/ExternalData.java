@@ -39,6 +39,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private boolean derived;
 
+    private boolean locked;
+
     private Boolean complete;
 
     private Long id;
@@ -78,6 +80,8 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     private DataStore dataStore;
 
     private String permlink;
+
+    private DataSetArchivizationStatus status;
 
     public String getPermlink()
     {
@@ -157,6 +161,26 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public final void setDerived(boolean derived)
     {
         this.derived = derived;
+    }
+
+    public final boolean isLocked()
+    {
+        return locked;
+    }
+
+    public final void setLocked(boolean locked)
+    {
+        this.locked = locked;
+    }
+
+    public DataSetArchivizationStatus getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus(DataSetArchivizationStatus status)
+    {
+        this.status = status;
     }
 
     public final Boolean getComplete()

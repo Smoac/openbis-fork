@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -130,6 +131,8 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         externalData.setPlaceholder(true);
         externalData.setDataStore(pickADataStore());
+        externalData.setLocked(false);
+        externalData.setStatus(DataSetArchivizationStatus.ACTIVE);
         return externalData;
     }
 
@@ -176,6 +179,8 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setComplete(BooleanOrUnknown.U);
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         externalData.setPlaceholder(true);
+        externalData.setLocked(false);
+        externalData.setStatus(DataSetArchivizationStatus.ACTIVE);
         final Date modificationTimestamp = data.getModificationDate();
         externalData.setModificationDate(modificationTimestamp);
         externalDataDAO.updateDataSet(externalData);

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -326,6 +327,8 @@ public class DatasetLister implements IDatasetLister
         dataset.setDataProducerCode(escapeHtml(record.data_producer_code));
         dataset.setDataStore(dataStores.get(record.dast_id));
         dataset.setDerived(record.is_derived);
+        dataset.setLocked(record.is_locked);
+        dataset.setStatus(DataSetArchivizationStatus.valueOf(record.status));
 
         dataset.setFileFormatType(fileFormatTypes.get(record.ffty_id));
         dataset.setLocation(escapeHtml(record.location));
