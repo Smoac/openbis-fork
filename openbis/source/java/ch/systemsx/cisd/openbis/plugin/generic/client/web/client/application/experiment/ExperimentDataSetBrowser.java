@@ -45,7 +45,7 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
         ExperimentDataSetBrowser browser =
-                new ExperimentDataSetBrowser(commonViewContext, experimentId)
+                new ExperimentDataSetBrowser(commonViewContext, experimentId, requestQueueOrNull)
                     {
                         @Override
                         public String getGridDisplayTypeID()
@@ -53,17 +53,16 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
                             return super.getGridDisplayTypeID() + "-" + experimentType.getCode();
                         }
                     };
-        browser.setServerRequestQueue(requestQueueOrNull);
         return browser.asDisposableWithoutToolbar();
     }
 
     private final TechId experimentId;
 
     private ExperimentDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            TechId experimentId)
+            TechId experimentId, ServerRequestQueue requestQueueOrNull)
     {
         super(viewContext, createBrowserId(experimentId), createGridId(experimentId),
-                DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
+                DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID, requestQueueOrNull);
         this.experimentId = experimentId;
     }
 

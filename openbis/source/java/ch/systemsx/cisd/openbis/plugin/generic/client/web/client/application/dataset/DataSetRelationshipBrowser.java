@@ -50,7 +50,8 @@ public class DataSetRelationshipBrowser extends AbstractExternalDataGrid
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
         DataSetRelationshipBrowser browser =
-                new DataSetRelationshipBrowser(commonViewContext, datasetId, role)
+                new DataSetRelationshipBrowser(commonViewContext, datasetId, role,
+                        requestQueueOrNull)
                     {
                         @Override
                         public String getGridDisplayTypeID()
@@ -60,7 +61,6 @@ public class DataSetRelationshipBrowser extends AbstractExternalDataGrid
                         }
 
                     };
-        browser.setServerRequestQueue(requestQueueOrNull);
         return browser.asDisposableWithoutToolbar();
     }
 
@@ -69,10 +69,10 @@ public class DataSetRelationshipBrowser extends AbstractExternalDataGrid
     private final DataSetRelationshipRole role;
 
     private DataSetRelationshipBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            TechId datasetId, DataSetRelationshipRole role)
+            TechId datasetId, DataSetRelationshipRole role, ServerRequestQueue requestQueueOrNull)
     {
         super(viewContext, createBrowserId(datasetId, role), createGridId(datasetId, role),
-                DisplayTypeIDGenerator.DATA_SET_DETAILS_GRID);
+                DisplayTypeIDGenerator.DATA_SET_DETAILS_GRID, requestQueueOrNull);
         this.datasetId = datasetId;
         this.role = role;
     }

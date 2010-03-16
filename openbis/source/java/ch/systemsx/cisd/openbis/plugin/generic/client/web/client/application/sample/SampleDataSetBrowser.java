@@ -52,7 +52,8 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
                 viewContext.getCommonViewContext();
 
         SampleDataSetBrowser browser =
-                new SampleDataSetBrowser(commonViewContext, sampleId, connectionTypeProvider)
+                new SampleDataSetBrowser(commonViewContext, sampleId, connectionTypeProvider,
+                        requestQueueOrNull)
                     {
                         @Override
                         public String getGridDisplayTypeID()
@@ -61,17 +62,17 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
                         }
 
                     };
-        browser.setServerRequestQueue(requestQueueOrNull);
         return browser.asDisposableWithoutToolbar();
     }
 
     private final TechId sampleId;
 
     private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            TechId sampleId, DataSetConnectionTypeProvider connectionTypeProvider)
+            TechId sampleId, DataSetConnectionTypeProvider connectionTypeProvider,
+            ServerRequestQueue requestQueueOrNull)
     {
         super(viewContext, createBrowserId(sampleId), createGridId(sampleId),
-                DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
+                DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID, requestQueueOrNull);
         this.sampleId = sampleId;
         this.connectionTypeProvider = connectionTypeProvider;
         // refresh data when connection type provider value changes
