@@ -28,6 +28,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -372,7 +374,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         {
             throw createUnknownDataStoreServerException();
         }
-        List<DatasetDescription> locations = loadDatasetDescriptions(datasetCodes);
+        List<DatasetDescription> locations = loadActiveDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
         service.processDatasets(sessionToken, datastoreServiceKey, locations,
                 tryGetLoggedUserEmail());
@@ -399,36 +401,60 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         {
             throw createUnknownDataStoreServerException();
         }
-        List<DatasetDescription> locations = loadDatasetDescriptions(datasetCodes);
+        List<DatasetDescription> locations = loadActiveDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
         return service.createReportFromDatasets(sessionToken, datastoreServiceKey, locations);
     }
 
-    private List<DatasetDescription> loadDatasetDescriptions(List<String> datasetCodes)
+    private List<DatasetDescription> loadActiveDatasetDescriptions(List<String> datasetCodes)
     {
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
         List<DatasetDescription> result = new ArrayList<DatasetDescription>();
+        List<String> nonActiveDatasets = new ArrayList<String>();
         for (String datasetCode : datasetCodes)
         {
             ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(datasetCode, false);
             if (dataSet != null)
             {
-                String location = dataSet.getLocation();
-                SamplePE sample = dataSet.tryGetSample();
-                String sampleCode = sample == null ? null : sample.getCode();
-                ExperimentPE experiment = dataSet.getExperiment();
-                ProjectPE project = experiment.getProject();
-                String groupCode = project.getGroup().getCode();
-                String projectCode = project.getCode();
-                String experimentCode = experiment.getCode();
-                String spaceCode = project.getGroup().getDatabaseInstance().getCode();
-                result.add(new DatasetDescription(datasetCode, location, sampleCode, groupCode,
-                        projectCode, experimentCode, dataSet.getDataSetType()
-                                .getMainDataSetPattern(), dataSet.getDataSetType()
-                                .getMainDataSetPath(), spaceCode));
+                if (dataSet.getStatus() != DataSetArchivizationStatus.ACTIVE)
+                {
+                    nonActiveDatasets.add(datasetCode);
+                } else
+                {
+                    result.add(createDatasetDescription(dataSet));
+                }
             }
         }
+        if (nonActiveDatasets.isEmpty() == false)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Operation failed because following data sets are not available "
+                            + "(they are archived or their status is pending): %s. "
+                            + "Unarchive these data sets or filter them out using data set status "
+                            + "before performing the operation once again.", CollectionUtils
+                            .abbreviate(nonActiveDatasets, 10));
+        }
         return result;
+    }
+
+    private DatasetDescription createDatasetDescription(ExternalDataPE dataSet)
+    {
+        assert dataSet != null;
+
+        String datasetCode = dataSet.getCode();
+        String location = dataSet.getLocation();
+        SamplePE sample = dataSet.tryGetSample();
+        String sampleCode = sample == null ? null : sample.getCode();
+        ExperimentPE experiment = dataSet.getExperiment();
+        ProjectPE project = experiment.getProject();
+        String groupCode = project.getGroup().getCode();
+        String projectCode = project.getCode();
+        String experimentCode = experiment.getCode();
+        String spaceCode = project.getGroup().getDatabaseInstance().getCode();
+
+        return new DatasetDescription(datasetCode, location, sampleCode, groupCode, projectCode,
+                experimentCode, dataSet.getDataSetType().getMainDataSetPattern(), dataSet
+                        .getDataSetType().getMainDataSetPath(), spaceCode);
     }
 
     private DataStorePE findDataStore(String datastoreCode)
