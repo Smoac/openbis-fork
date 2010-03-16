@@ -18,6 +18,8 @@ package ch.systemsx.cisd.cina.dss.info;
 
 import java.io.File;
 
+import javax.activation.DataHandler;
+
 import ch.systemsx.cisd.cina.dss.info.FolderOracle.FolderType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -29,6 +31,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class EntityRegistrationSuccessEmail
 {
+    private static final String MARKER_FILE_MIME_TYPE = "application/octet-stream";
+
     private final DataSetInformation dataSetInformation;
 
     private final EntityEmailDetails entityEmailDetails;
@@ -63,11 +67,17 @@ public class EntityRegistrationSuccessEmail
         }
     }
 
+    /**
+     * Return true if the incoming data set requires that an email be sent on registration.
+     */
     public boolean shouldSendEmail()
     {
         return entityEmailDetails.shouldSendEmail();
     }
 
+    /**
+     * Return the subject of the email
+     */
     public String getSubject()
     {
         StringBuffer subject = new StringBuffer();
@@ -79,7 +89,11 @@ public class EntityRegistrationSuccessEmail
         return subject.toString();
     }
 
-    public String getContent()
+    /**
+     * Return the body of the email for a text-only (no attachments) email. Used if the mail client
+     * does no support sending attachments.
+     */
+    public String getContentTextOnly()
     {
         StringBuffer content = new StringBuffer();
         entityEmailDetails.appendEntityName(content);
@@ -93,6 +107,40 @@ public class EntityRegistrationSuccessEmail
         entityEmailDetails.appendMetadataFileContent(content);
 
         return content.toString();
+    }
+
+    /**
+     * Return the body of the email for a MIME email. In a MIME email, the marker file is sent as a
+     * file attachment, not part of the text body of the email.
+     */
+    public String getContentMimeText()
+    {
+        StringBuffer content = new StringBuffer();
+        entityEmailDetails.appendEntityName(content);
+        content.append(" was successfully registered. Use the attached metadata file to register ");
+        entityEmailDetails.appendFollowOnEntityName(content);
+
+        return content.toString();
+    }
+
+    /**
+     * Return the file name of the MIME file attachment.
+     */
+    public String getContentMimeAttachmentFileName()
+    {
+        StringBuffer content = new StringBuffer();
+        entityEmailDetails.appendMetadataFileName(content);
+
+        return content.toString();
+    }
+
+    public DataHandler getContentMimeAttachmentContent()
+    {
+        StringBuffer content = new StringBuffer();
+        entityEmailDetails.appendMetadataFileContent(content);
+        DataHandler attachment = new DataHandler(content.toString(), MARKER_FILE_MIME_TYPE);
+
+        return attachment;
     }
 
     private abstract class EntityEmailDetails
