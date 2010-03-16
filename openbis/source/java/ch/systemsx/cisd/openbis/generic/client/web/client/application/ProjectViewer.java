@@ -174,7 +174,8 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
         return panel;
     }
 
-    private String getOriginalDataDescription()
+    @Override
+    protected String getOriginalDataDescription()
     {
         return viewContext.getMessage(Dict.PROJECT) + " " + originalProject.getIdentifier();
     }

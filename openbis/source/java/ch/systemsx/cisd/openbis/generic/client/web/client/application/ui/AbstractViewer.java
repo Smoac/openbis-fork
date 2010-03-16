@@ -202,7 +202,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         }
     }
 
-    private String getOriginalDataDescription()
+    protected String getOriginalDataDescription()
     {
         return originalData.getEntityKind().getDescription() + " " + originalData.getCode() + " ["
                 + originalData.getEntityType().getCode() + "]";

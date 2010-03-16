@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -237,6 +238,11 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         {
             genericDataSetViewer.updateOriginalData(result);
             genericDataSetViewer.removeAll();
+            if (result.getStatus() != DataSetArchivizationStatus.ACTIVE)
+            {
+                genericDataSetViewer.setupNonActiveDataSetView(result);
+                return;
+            }
 
             // Left panel
             final Component leftPanel = genericDataSetViewer.createLeftPanel(result);
@@ -253,6 +259,32 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         {
             genericDataSetViewer.setupRemovedEntityView();
         }
+    }
+
+    /** Updates data displayed in the browser when shown dataset is not active. */
+    public void setupNonActiveDataSetView(final ExternalData result)
+    {
+        setToolBarButtonsEnabled(false);
+        updateTitle(getOriginalDataDescription() + " is not available.");
+        MessageBox.info("Data not available", "Data Set " + result.getCode() + " is "
+                + getStatusDescription(result.getStatus()) + " and because of it you can not "
+                + "access its data", null);
+    }
+
+    private String getStatusDescription(DataSetArchivizationStatus status)
+    {
+        switch (status)
+        {
+            case ACTIVE:
+                return "active";
+            case ARCHIVED:
+                return "archived";
+            case ACTIVATION_IN_PROGRESS:
+                return "being activated";
+            case ARCHIVIZATION_IN_PROGRESS:
+                return "being archivized";
+        }
+        return null; // not possible
     }
 
     @Override
