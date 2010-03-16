@@ -21,7 +21,6 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.cina.dss.info.EntityRegistrationSuccessEmail;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
@@ -75,21 +74,9 @@ public class StorageProcessor extends AbstractDelegatingStorageProcessor
             emailAddress = defaultEmailAddress;
         }
 
-        // WORKAROUND: The IMailClient interface is used in many places. I added the
-        // sendMessageWithAttachment method to the MailClient class, but I don't want to make a
-        // large, global change to introduce the method into the interface, so I do an instanceof
-        // test here.
-        if (mailClient instanceof MailClient)
-        {
-            ((MailClient) mailClient).sendMessageWithAttachment(successEmail.getSubject(),
-                    successEmail.getContentMimeText(), successEmail
-                            .getContentMimeAttachmentFileName(), successEmail
-                            .getContentMimeAttachmentContent(), null, null, emailAddress);
-        } else
-        {
-            mailClient.sendMessage(successEmail.getSubject(), successEmail.getContentTextOnly(),
-                    null, null, emailAddress);
-        }
+        mailClient.sendMessageWithAttachment(successEmail.getSubject(), successEmail
+                .getContentMimeText(), successEmail.getContentMimeAttachmentFileName(),
+                successEmail.getContentMimeAttachmentContent(), null, null, emailAddress);
 
         return answer;
     }

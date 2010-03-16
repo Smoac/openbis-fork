@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
+import javax.activation.DataHandler;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -163,6 +165,15 @@ class TriggerManager implements ITriggerManager
                 String... recipients) throws EnvironmentFailureException
         {
             mailClient.sendMessage(subject, content, replyTo, null, recipients);
+        }
+
+        public void sendMessageWithAttachment(final String subject, final String content,
+                final String filename, final DataHandler attachmentContent,
+                final String replyToOrNull, final From fromOrNull, final String... recipients)
+                throws EnvironmentFailureException
+        {
+            mailClient.sendMessageWithAttachment(subject, content, filename, attachmentContent,
+                    replyToOrNull, fromOrNull, recipients);
         }
 
         void deleteDismissables()
@@ -516,8 +527,7 @@ class TriggerManager implements ITriggerManager
         final TriggerDescription triggerDesc = triggerMap.get(triggerUser.getUserCode());
         final ITrigger trigger = triggerDesc.getTrigger();
         final TriggerConsole console =
-                new TriggerConsole(trigger, fileManager, request, fileDTO.getOwner(),
-                        triggerUser);
+                new TriggerConsole(trigger, fileManager, request, fileDTO.getOwner(), triggerUser);
         if (triggerDesc.isAsync())
         {
             if (triggerDesc.getPermitsNeeded() > maxTriggerPermits)
