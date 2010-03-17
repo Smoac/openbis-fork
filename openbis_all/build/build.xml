@@ -11,6 +11,7 @@
 		<antcall target="_dist"><param name="project" value="rtd_yeastx"/></antcall>
 		<antcall target="_dist"><param name="project" value="screening"/></antcall>
 		<antcall target="_dist"><param name="project" value="eu_basysbio"/></antcall>
+		<antcall target="_dist"><param name="project" value="rtd_cina"/></antcall>
 	</target>
 	
 	<target name="_dist">
@@ -35,6 +36,7 @@
 		<antcall target="_clean"><param name="project" value="rtd_yeastx"/></antcall>
 		<antcall target="_clean"><param name="project" value="screening"/></antcall>
 		<antcall target="_clean"><param name="project" value="eu_basysbio"/></antcall>
+		<antcall target="_clean"><param name="project" value="rtd_cina"/></antcall>
 	</target>
 
 	<target name="_clean">
