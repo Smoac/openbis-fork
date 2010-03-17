@@ -22,9 +22,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.lang.text.StrMatcher;
@@ -44,8 +47,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig.ResultSetFetchMode;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.IColumnCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
@@ -60,33 +65,291 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 {
     private static final long serialVersionUID = 1L;
 
+    /** how many values can one column have to consider it reasonably distinct */
+    @Private static final int MAX_DISTINCT_COLUMN_VALUES_SIZE = 50;
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CachedResultSetManager.class);
+    
+    private static final GridCustomColumnInfo translate(GridCustomColumn columnDefinition)
+    {
+        return new GridCustomColumnInfo(columnDefinition.getCode(), columnDefinition.getName(),
+                columnDefinition.getDescription(), columnDefinition.getDataType());
+    }
+    
+    private static final class Column
+    {
+        private final GridCustomColumn columnDefinition;
 
-    /** how many values can one column have to consider it reasonably distinct */
-    @Private
-    static final int MAX_DISTINCT_COLUMN_VALUES_SIZE = 50;
+        private List<PrimitiveValue> values;
+
+        Column(GridCustomColumn columnDefinition)
+        {
+            this.columnDefinition = columnDefinition;
+        }
+
+        GridCustomColumnInfo getInfo()
+        {
+            return translate(columnDefinition);
+        }
+        
+        boolean hasSameExpression(GridCustomColumn column)
+        {
+            return columnDefinition.getExpression().equals(column.getExpression());
+        }
+
+        public void setValues(List<PrimitiveValue> values)
+        {
+            this.values = values;
+        }
+
+        public List<PrimitiveValue> getValues()
+        {
+            return values;
+        }
+    }
+    
+    private static class TableData<T>
+    {
+        private final List<T> originalData;
+        private final ICustomColumnsProvider customColumnsProvider;
+        private final IColumnCalculator columnCalculator;
+        
+        private Map<String, Column> calculatedColumns = new HashMap<String, Column>();
+        
+        TableData(List<T> originalData, ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator)
+        {
+            this.originalData = originalData;
+            this.customColumnsProvider = customColumnsProvider;
+            this.columnCalculator = columnCalculator;
+        }
+        
+        GridRowModels<T> getRows(String sessionToken, IResultSetConfig<?, T> config)
+        {
+            Set<Entry<String, Column>> cachedColumns = calculatedColumns.entrySet();
+            List<GridCustomColumn> allCustomColumnDefinitions =
+                    loadAllCustomColumnDefinitions(sessionToken, config);
+            List<GridCustomColumn> neededCustomColumns =
+                    filterNeededCustomColumnDefinitions(allCustomColumnDefinitions, config);
+            removedColumnsNoLongerNeeded(cachedColumns, neededCustomColumns);
+            
+            for (GridCustomColumn customColumn : neededCustomColumns)
+            {
+                String code = customColumn.getCode();
+                Column column = calculatedColumns.get(code);
+                if (column == null)
+                {
+                    Set<IColumnDefinition<T>> availableColumns = config.getAvailableColumns();
+                    boolean errorMessageLong = config.isCustomColumnErrorMessageLong();
+                    List<PrimitiveValue> values =
+                            columnCalculator.evalCustomColumn(originalData, customColumn,
+                                    availableColumns, errorMessageLong);
+                    column = new Column(customColumn);
+                    column.setValues(values);
+                    calculatedColumns.put(code, column);
+                }
+            }
+            
+            List<GridRowModel<T>> rows = new ArrayList<GridRowModel<T>>();
+            for (int i = 0; i < originalData.size(); i++)
+            {
+                T rowData = originalData.get(i);
+                HashMap<String, PrimitiveValue> customColumnValues =
+                        new HashMap<String, PrimitiveValue>();
+                for (Entry<String, Column> entry : cachedColumns)
+                {
+                    String columnCode = entry.getKey();
+                    customColumnValues.put(columnCode, entry.getValue().getValues().get(i));
+                }
+                rows.add(new GridRowModel<T>(rowData, customColumnValues));
+            }
+
+            List<ColumnDistinctValues> columnDistinctValues =
+                    calculateColumnDistinctValues(rows, config.getFilters());
+            List<GridCustomColumnInfo> customColumnInfos = extractColumnInfos(allCustomColumnDefinitions);
+
+            return new GridRowModels<T>(rows, customColumnInfos, columnDistinctValues);
+        }
+        
+        private List<GridCustomColumn> loadAllCustomColumnDefinitions(String sessionToken,
+                IResultSetConfig<?, T> resultConfig)
+        {
+            String gridId = resultConfig.tryGetGridDisplayId();
+            ArrayList<GridCustomColumn> result = new ArrayList<GridCustomColumn>();
+            if (gridId != null)
+            {
+                List<GridCustomColumn> columns =
+                        customColumnsProvider.getGridCustomColumn(sessionToken, gridId);
+                for (GridCustomColumn column : columns)
+                {
+                    result.add(column);
+                }
+            }
+            return result;
+        }
+
+        private List<GridCustomColumn> filterNeededCustomColumnDefinitions(List<GridCustomColumn> allDefinitions,
+                IResultSetConfig<?, T> resultConfig)
+        {
+            Set<String> ids = gatherAllColumnIDs(resultConfig);
+            ArrayList<GridCustomColumn> result = new ArrayList<GridCustomColumn>();
+            for (GridCustomColumn column : allDefinitions)
+            {
+                if (ids.contains(column.getCode()))
+                {
+                    result.add(column);
+                }
+            }
+            return result;
+        }
+
+        private Set<String> gatherAllColumnIDs(final IResultSetConfig<?, T> resultConfig)
+        {
+            Set<String> ids = new HashSet<String>();
+            Set<String> idsOfPresentedColumns = resultConfig.getIDsOfPresentedColumns();
+            if (idsOfPresentedColumns != null)
+            {
+                ids.addAll(idsOfPresentedColumns);
+            }
+            GridFilters<T> filters = resultConfig.getFilters();
+            List<GridColumnFilterInfo<T>> filterInfos = filters.tryGetFilterInfos();
+            if (filterInfos != null)
+            {
+                for (GridColumnFilterInfo<T> filterInfo : filterInfos)
+                {
+                    ids.add(filterInfo.getFilteredField().getIdentifier());
+                }
+            }
+            CustomFilterInfo<T> customFilterInfo = filters.tryGetCustomFilterInfo();
+            if (customFilterInfo != null)
+            {
+                String expression = customFilterInfo.getExpression();
+                Set<IColumnDefinition<T>> availableColumns = resultConfig.getAvailableColumns();
+                for (IColumnDefinition<T> columnDefinition : availableColumns)
+                {
+                    String identifier = columnDefinition.getIdentifier();
+                    if (expression.indexOf(identifier) >= 0)
+                    {
+                        ids.add(identifier);
+                    }
+                }
+            }
+            return ids;
+        }
+        
+        private void removedColumnsNoLongerNeeded(Set<Entry<String, Column>> cachedColumns,
+                List<GridCustomColumn> neededCustomColumns)
+        {
+            Map<String, GridCustomColumn> map = new HashMap<String, GridCustomColumn>();
+            for (GridCustomColumn customColumn : neededCustomColumns)
+            {
+                map.put(customColumn.getCode(), customColumn);
+            }
+            
+            for (Iterator<Entry<String, Column>> iterator = cachedColumns.iterator(); iterator
+                    .hasNext();)
+            {
+                Entry<String, Column> entry = iterator.next();
+                String code = entry.getKey();
+                GridCustomColumn customColumn = map.get(code);
+                if (customColumn == null)
+                {
+                    iterator.remove();
+                } else if (entry.getValue().hasSameExpression(customColumn) == false)
+                {
+                    iterator.remove();
+                }
+            }
+        }
+        
+        private List<ColumnDistinctValues> calculateColumnDistinctValues(
+                List<GridRowModel<T>> rowModels, GridFilters<T> gridFilters)
+        {
+            List<ColumnDistinctValues> result = new ArrayList<ColumnDistinctValues>();
+            List<GridColumnFilterInfo<T>> filterInfos = gridFilters.tryGetFilterInfos();
+            if (filterInfos == null)
+            {
+                return result;
+            }
+            for (GridColumnFilterInfo<T> column : filterInfos)
+            {
+                ColumnDistinctValues distinctValues =
+                        tryCalculateColumnDistinctValues(rowModels, column.getFilteredField());
+                if (distinctValues != null)
+                {
+                    result.add(distinctValues);
+                }
+            }
+            return result;
+        }
+        
+        /** @return null if values are not from a small set */
+        private ColumnDistinctValues tryCalculateColumnDistinctValues(
+                List<GridRowModel<T>> rowModels, IColumnDefinition<T> column)
+        {
+            Set<String> distinctValues = new LinkedHashSet<String>();
+            for (GridRowModel<T> rowModel : rowModels)
+            {
+                String value = column.getValue(rowModel);
+                distinctValues.add(value);
+                if (distinctValues.size() > MAX_DISTINCT_COLUMN_VALUES_SIZE)
+                {
+                    return null;
+                }
+            }
+            ArrayList<String> distinctValuesList = new ArrayList<String>(distinctValues);
+            return new ColumnDistinctValues(column.getIdentifier(), distinctValuesList);
+        }
+
+        private List<GridCustomColumnInfo> extractColumnInfos(List<GridCustomColumn> allCustomColumnDefinitions)
+        {
+            List<GridCustomColumnInfo> result = new ArrayList<GridCustomColumnInfo>();
+            for (GridCustomColumn definition : allCustomColumnDefinitions)
+            {
+                Column column = calculatedColumns.get(definition.getCode());
+                if (column != null)
+                {
+                    result.add(column.getInfo());
+                } else
+                {
+                    result.add(translate(definition));
+                }
+            }
+            return result;
+        }
+    }
 
     private final IResultSetKeyGenerator<K> resultSetKeyProvider;
 
     private final ICustomColumnsProvider customColumnsProvider;
 
-    @Private
-    final Map<K, List<?>> results = new HashMap<K, List<?>>();
+    private final Map<K, TableData<?>> cache = new HashMap<K, TableData<?>>();
 
-    public interface ICustomColumnsProvider
-    {
-        // used to fetch grid custom columns definition for the specified grid id
-        List<GridCustomColumn> getGridCustomColumn(String sessionToken, String gridDisplayId);
-    }
+    private final IColumnCalculator columnCalculator;
 
     public CachedResultSetManager(final IResultSetKeyGenerator<K> resultSetKeyProvider,
             ICustomColumnsProvider customColumnsProvider)
     {
-        this.resultSetKeyProvider = resultSetKeyProvider;
-        this.customColumnsProvider = customColumnsProvider;
+        this(resultSetKeyProvider, customColumnsProvider, new IColumnCalculator()
+            {
+                public <T> List<PrimitiveValue> evalCustomColumn(List<T> data,
+                        GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
+                        boolean errorMessagesAreLong)
+                {
+                    return GridExpressionUtils.evalCustomColumn(data, customColumn,
+                            availableColumns, errorMessagesAreLong);
+                }
+            });
     }
 
+    public CachedResultSetManager(final IResultSetKeyGenerator<K> resultSetKeyProvider,
+            ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator)
+    {
+        this.resultSetKeyProvider = resultSetKeyProvider;
+        this.customColumnsProvider = customColumnsProvider;
+        this.columnCalculator = columnCalculator;
+    }
+    
     @SuppressWarnings("unchecked")
     private final <T> T cast(final Object object)
     {
@@ -289,8 +552,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         }
     }
 
-    @Private
-    final static int getLimit(final int size, final int limit, final int offset)
+    private static int getLimit(final int size, final int limit, final int offset)
     {
         assert size > -1 : "Size can not be negative";
         if (limit < 0)
@@ -300,8 +562,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return Math.min(size - offset, limit);
     }
 
-    @Private
-    final static int getOffset(final int size, final int offset)
+    private static int getOffset(final int size, final int offset)
     {
         assert size > -1 : "Size can not be negative";
         if (size == 0)
@@ -331,75 +592,21 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         assert resultConfig != null : "Unspecified result configuration";
         assert dataProvider != null : "Unspecified data retriever";
-        Set<String> ids = gatherAllColumnIDs(resultConfig);
-        debug("All columns needed:" + ids);
         ResultSetFetchConfig<K> cacheConfig = resultConfig.getCacheConfig();
         ResultSetFetchMode mode = cacheConfig.getMode();
         debug("getResultSet(cache config = " + cacheConfig + ")");
 
-        if (mode == ResultSetFetchMode.CLEAR_COMPUTE_AND_CACHE)
-        {
-            removeResultSet(cacheConfig.tryGetResultSetKey());
-        }
         if (mode == ResultSetFetchMode.COMPUTE_AND_CACHE
                 || mode == ResultSetFetchMode.CLEAR_COMPUTE_AND_CACHE)
         {
+            if (mode == ResultSetFetchMode.CLEAR_COMPUTE_AND_CACHE)
+            {
+                removeResultSet(cacheConfig.tryGetResultSetKey());
+            }
             return calculateResultSetAndSave(sessionToken, resultConfig, dataProvider);
-        } else
-        {
-            K dataKey = cacheConfig.tryGetResultSetKey();
-            GridRowModels<T> data = fetchCachedData(dataKey);
-            if (data == null) // Really shoudn't happen, but these cases have been observed.
-            {
-                return calculateResultSetAndSave(sessionToken, resultConfig, dataProvider);
-            }
-
-            if (mode == ResultSetFetchMode.FETCH_FROM_CACHE)
-            {
-                return filterLimitAndSort(resultConfig, data, dataKey);
-            } else if (mode == ResultSetFetchMode.FETCH_FROM_CACHE_AND_RECOMPUTE)
-            {
-                List<T> rows = extractRows(data);
-                return calculateResult(sessionToken, resultConfig, dataKey, rows);
-            } else
-            {
-                throw new IllegalStateException("unexpected mode " + mode);
-            }
         }
-    }
-
-    private <T> Set<String> gatherAllColumnIDs(final IResultSetConfig<K, T> resultConfig)
-    {
-        Set<String> ids = new HashSet<String>();
-        Set<String> idsOfPresentedColumns = resultConfig.getIDsOfPresentedColumns();
-        if (idsOfPresentedColumns != null)
-        {
-            ids.addAll(idsOfPresentedColumns);
-        }
-        GridFilters<T> filters = resultConfig.getFilters();
-        List<GridColumnFilterInfo<T>> filterInfos = filters.tryGetFilterInfos();
-        if (filterInfos != null)
-        {
-            for (GridColumnFilterInfo<T> filterInfo : filterInfos)
-            {
-                ids.add(filterInfo.getFilteredField().getIdentifier());
-            }
-        }
-        CustomFilterInfo<T> customFilterInfo = filters.tryGetCustomFilterInfo();
-        if (customFilterInfo != null)
-        {
-            String expression = customFilterInfo.getExpression();
-            Set<IColumnDefinition<T>> availableColumns = resultConfig.getAvailableColumns();
-            for (IColumnDefinition<T> columnDefinition : availableColumns)
-            {
-                String identifier = columnDefinition.getIdentifier();
-                if (expression.indexOf(identifier) >= 0)
-                {
-                    ids.add(identifier);
-                }
-            }
-        }
-        return ids;
+        K dataKey = cacheConfig.tryGetResultSetKey();
+        return calculateSortAndFilterResult(sessionToken, resultConfig, dataKey);
     }
 
     private <T> IResultSet<K, T> calculateResultSetAndSave(final String sessionToken,
@@ -408,42 +615,27 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         K dataKey = resultSetKeyProvider.createKey();
         debug("retrieving the data with a new key " + dataKey);
         List<T> rows = dataProvider.getOriginalData();
-        return calculateResult(sessionToken, resultConfig, dataKey, rows);
+        cache.put(dataKey, new TableData<T>(rows, customColumnsProvider, columnCalculator));
+        return calculateSortAndFilterResult(sessionToken, resultConfig, dataKey);
     }
 
-    private <T> IResultSet<K, T> calculateResult(final String sessionToken,
-            final IResultSetConfig<K, T> resultConfig, K dataKey, List<T> rows)
+    private <T> IResultSet<K, T> calculateSortAndFilterResult(final String sessionToken,
+            final IResultSetConfig<K, T> resultConfig, K dataKey)
     {
         GridRowModels<T> data =
-                calculateRowModelsAndSave(rows, sessionToken, resultConfig, dataKey);
+                calculateRowModels(sessionToken, resultConfig, dataKey);
         return filterLimitAndSort(resultConfig, data, dataKey);
     }
 
-    private <T> GridRowModels<T> fetchCachedData(K dataKey)
-    {
-        debug(String.format("Fetching the result from the specifed result set key '%s'.", dataKey));
-        GridRowModels<T> data = cast(results.get(dataKey));
-        assert data != null : String.format("Invalid result set key '%s'. This should not happen.",
-                dataKey);
-        return data;
-    }
-
-    private <T> GridRowModels<T> calculateRowModelsAndSave(List<T> rows, final String sessionToken,
+    private <T> GridRowModels<T> calculateRowModels(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, K dataKey)
     {
-        GridRowModels<T> data = calculateRowModels(sessionToken, rows, resultConfig);
-        results.put(dataKey, data);
-        return data;
-    }
-
-    private static <T> List<T> extractRows(ArrayList<GridRowModel<T>> rowModels)
-    {
-        List<T> result = new ArrayList<T>();
-        for (GridRowModel<T> rowModel : rowModels)
+        TableData<T> tableData = cast(cache.get(dataKey));
+        if (tableData == null)
         {
-            result.add(rowModel.getOriginalObject());
+            throw new IllegalArgumentException("Invalid result set key: " + dataKey);
         }
-        return result;
+        return tableData.getRows(sessionToken, resultConfig);
     }
 
     private <T> IResultSet<K, T> filterLimitAndSort(final IResultSetConfig<K, T> resultConfig,
@@ -460,81 +652,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return new DefaultResultSet<K, T>(dataKey, list, size);
     }
 
-    private <T> GridRowModels<T> calculateRowModels(String sessionToken, List<T> rows,
-            IResultSetConfig<?, T> resultConfig)
-    {
-        List<GridCustomColumn> customColumns =
-                fetchCustomColumnsMetadata(sessionToken, resultConfig);
-        List<GridRowModel<T>> rowModels =
-                GridExpressionUtils.evalCustomColumns(rows, customColumns, resultConfig
-                        .getAvailableColumns(), resultConfig.isCustomColumnErrorMessageLong());
-
-        List<ColumnDistinctValues> columnDistinctValues =
-                calculateColumnDistinctValues(rowModels, resultConfig.getFilters());
-
-        List<GridCustomColumnInfo> customColumnInfos =
-                GridExpressionUtils.extractColumnInfos(customColumns);
-
-        return new GridRowModels<T>(rowModels, customColumnInfos, columnDistinctValues);
-    }
-
-    @Private
-    static <T> List<ColumnDistinctValues> calculateColumnDistinctValues(
-            List<GridRowModel<T>> rowModels, GridFilters<T> gridFilters)
-    {
-        List<ColumnDistinctValues> result = new ArrayList<ColumnDistinctValues>();
-        List<GridColumnFilterInfo<T>> filterInfos = gridFilters.tryGetFilterInfos();
-        if (filterInfos == null)
-        {
-            return result;
-        }
-        for (GridColumnFilterInfo<T> column : filterInfos)
-        {
-            ColumnDistinctValues distinctValues =
-                    tryCalculateColumnDistinctValues(rowModels, column.getFilteredField());
-            if (distinctValues != null)
-            {
-                result.add(distinctValues);
-            }
-        }
-        return result;
-    }
-
-    /** @return null if values are not from a small set */
-    private static <T> ColumnDistinctValues tryCalculateColumnDistinctValues(
-            List<GridRowModel<T>> rowModels, IColumnDefinition<T> column)
-    {
-        Set<String> distinctValues = new HashSet<String>();
-        for (GridRowModel<T> rowModel : rowModels)
-        {
-            String value = column.getValue(rowModel);
-            distinctValues.add(value);
-            if (distinctValues.size() > MAX_DISTINCT_COLUMN_VALUES_SIZE)
-            {
-                return null;
-            }
-        }
-        ArrayList<String> distinctValuesList = new ArrayList<String>(distinctValues);
-        return new ColumnDistinctValues(column.getIdentifier(), distinctValuesList);
-    }
-
-    private List<GridCustomColumn> fetchCustomColumnsMetadata(String sessionToken,
-            IResultSetConfig<?, ?> resultConfig)
-    {
-        String gridId = resultConfig.tryGetGridDisplayId();
-        if (gridId == null)
-        {
-            return new ArrayList<GridCustomColumn>();
-        } else
-        {
-            return customColumnsProvider.getGridCustomColumn(sessionToken, gridId);
-        }
-    }
-
     public final synchronized void removeResultSet(final K resultSetKey)
     {
         assert resultSetKey != null : "Unspecified data key holder.";
-        if (results.remove(resultSetKey) != null)
+        if (cache.remove(resultSetKey) != null)
         {
             debug(String.format("Result set for key '%s' has been removed.", resultSetKey));
         } else

@@ -44,7 +44,7 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
 
     public boolean isHidden()
     {
-        return false;
+        return true;
     }
 
     public boolean isNumeric()

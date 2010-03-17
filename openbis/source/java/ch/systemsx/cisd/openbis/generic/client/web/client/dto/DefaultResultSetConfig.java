@@ -106,7 +106,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         setIDsOfPresentedColumns(ids);
     }
 
-    private void setIDsOfPresentedColumns(Set<String> idsOfPresentedColumns)
+    public void setIDsOfPresentedColumns(Set<String> idsOfPresentedColumns)
     {
         this.idsOfPresentedColumns = idsOfPresentedColumns;
     }

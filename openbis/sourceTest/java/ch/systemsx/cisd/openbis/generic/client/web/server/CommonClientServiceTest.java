@@ -39,11 +39,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManagerTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ICustomColumnsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager.ICustomColumnsProvider;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;

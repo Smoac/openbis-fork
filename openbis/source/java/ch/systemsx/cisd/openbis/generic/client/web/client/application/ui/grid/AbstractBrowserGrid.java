@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequ
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowRelatedDatasetsDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
@@ -103,6 +104,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -594,7 +596,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         resultSetConfig.setOffset(offset);
         SortInfo<T> translatedSortInfo = translateSortInfo(sortInfo, columnDefinitions);
         resultSetConfig.setAvailableColumns(columnDefinitions);
-        resultSetConfig.setPresentedColumns(getVisibleColumns(columnDefinitions));
+        Set<String> columnIDs = getIDsOfColumnsToBeShown();
+        resultSetConfig.setIDsOfPresentedColumns(columnIDs);
         resultSetConfig.setSortInfo(translatedSortInfo);
         resultSetConfig.setFilters(filters);
         resultSetConfig.setCacheConfig(pendingFetchConfigOrNull);
@@ -602,6 +605,29 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         resultSetConfig.setCustomColumnErrorMessageLong(viewContext.getDisplaySettingsManager()
                 .isDisplayCustomColumnDebuggingErrorMessages());
         return resultSetConfig;
+    }
+
+    private Set<String> getIDsOfColumnsToBeShown()
+    {
+        Set<String> columnIDs = new HashSet<String>();
+        DisplaySettingsManager manager = viewContext.getDisplaySettingsManager();
+        List<ColumnSetting> columnSettings = manager.getColumnSettings(getGridDisplayTypeID());
+        if (columnSettings != null)
+        {
+            for (ColumnSetting columnSetting : columnSettings)
+            {
+                if (columnSetting.isHidden() == false)
+                {
+                    columnIDs.add(columnSetting.getColumnID());
+                }
+            }
+        }
+        List<IColumnDefinition<T>> visibleColumns = getVisibleColumns(columnDefinitions);
+        for (IColumnDefinition<T> definition : visibleColumns)
+        {
+            columnIDs.add(definition.getIdentifier());
+        }
+        return columnIDs;
     }
 
     private static <T> SortInfo<T> translateSortInfo(

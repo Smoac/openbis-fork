@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -147,6 +146,28 @@ public class GridExpressionUtils
         }
         return result;
     }
+    
+    // Side effect: data type of customColumn is set
+    public static <T> List<PrimitiveValue> evalCustomColumn(List<T> rows,
+            GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
+            boolean errorMessagesAreLong)
+    {
+        RowCalculator<T> calculator =
+                createRowCalculator(availableColumns, customColumn, errorMessagesAreLong);
+        List<PrimitiveValue> values = new ArrayList<PrimitiveValue>();
+        for (T rowData : rows)
+        {
+            PrimitiveValue value =
+                    evalCustomColumn(rowData, customColumn, calculator, errorMessagesAreLong);
+            if (value != PrimitiveValue.NULL)
+            {
+                customColumn.setDataType(DataTypeUtils.getCompatibleDataType(customColumn
+                        .getDataType(), value.getDataType()));
+            }
+            values.add(value);
+        }
+        return values;
+    }
 
     private static <T> RowCalculator<T> createRowCalculator(
             Set<IColumnDefinition<T>> availableColumns, GridCustomColumn customColumn,
@@ -165,19 +186,6 @@ public class GridExpressionUtils
                             "'", "\\'");
             return new RowCalculator<T>(availableColumns, "'" + msg + "'");
         }
-    }
-
-    public static List<GridCustomColumnInfo> extractColumnInfos(List<GridCustomColumn> customColumns)
-    {
-        List<GridCustomColumnInfo> result = new ArrayList<GridCustomColumnInfo>();
-        for (GridCustomColumn column : customColumns)
-        {
-            GridCustomColumnInfo columnInfo =
-                    new GridCustomColumnInfo(column.getCode(), column.getName(), column
-                            .getDescription(), column.getDataType());
-            result.add(columnInfo);
-        }
-        return result;
     }
 
     private static <T> PrimitiveValue evalCustomColumn(T rowData, GridCustomColumn customColumn,
