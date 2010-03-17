@@ -900,6 +900,22 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
     /**
+     * Schedules archivization of specified data sets.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    public void archiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
+    /**
+     * Schedules unarchivization of specified data sets.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    public void unarchiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
+    /**
      * Returns all authorization groups.
      */
     @Transactional(readOnly = true)

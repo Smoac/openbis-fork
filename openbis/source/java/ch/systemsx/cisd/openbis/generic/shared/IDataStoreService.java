@@ -87,4 +87,24 @@ public interface IDataStoreService
      */
     public void processDatasets(String sessionToken, String serviceKey,
             List<DatasetDescription> datasets, String userEmailOrNull);
+
+    /**
+     * Schedules archivization of provided datasets.
+     * 
+     * @param userEmailOrNull Email of user who initiated archivization and will get a message after
+     *            the task is finished. It may be null if the user doesn't have email and no message
+     *            will be send in such case.
+     */
+    public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+            String userEmailOrNull);
+
+    /**
+     * Schedules unarchivization of provided datasets.
+     * 
+     * @param userEmailOrNull Email of user who initiated unarchivization and will get a message
+     *            after the task is finished. It may be null if the user doesn't have email and no
+     *            message will be send in such case.
+     */
+    public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+            String userEmailOrNull);
 }

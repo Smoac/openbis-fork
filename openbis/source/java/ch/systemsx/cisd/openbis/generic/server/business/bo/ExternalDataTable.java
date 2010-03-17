@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
@@ -437,6 +440,16 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return result;
     }
 
+    private List<DatasetDescription> createDatasetDescriptions(List<ExternalDataPE> datasets)
+    {
+        List<DatasetDescription> result = new ArrayList<DatasetDescription>();
+        for (ExternalDataPE dataset : datasets)
+        {
+            result.add(createDatasetDescription(dataset));
+        }
+        return result;
+    }
+
     private DatasetDescription createDatasetDescription(ExternalDataPE dataSet)
     {
         assert dataSet != null;
@@ -450,11 +463,11 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         String groupCode = project.getGroup().getCode();
         String projectCode = project.getCode();
         String experimentCode = experiment.getCode();
-        String spaceCode = project.getGroup().getDatabaseInstance().getCode();
+        String instanceCode = project.getGroup().getDatabaseInstance().getCode();
 
         return new DatasetDescription(datasetCode, location, sampleCode, groupCode, projectCode,
                 experimentCode, dataSet.getDataSetType().getMainDataSetPattern(), dataSet
-                        .getDataSetType().getMainDataSetPath(), spaceCode);
+                        .getDataSetType().getMainDataSetPath(), instanceCode);
     }
 
     private DataStorePE findDataStore(String datastoreCode)
@@ -474,4 +487,123 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         externalData = new ArrayList<ExternalDataPE>();
         externalData.addAll(getExternalDataDAO().listExternalData(dataStore));
     }
+
+    //
+    // Archivization
+    //
+
+    public void unarchiveDatasets(List<String> datasetCodes)
+    {
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore =
+                loadDatasetsAndGroupByStore(datasetCodes);
+        filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.ARCHIVED,
+                DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
+        performUnarchivization(datasetsByStore);
+    }
+
+    public void archiveDatasets(List<String> datasetCodes)
+    {
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore =
+                loadDatasetsAndGroupByStore(datasetCodes);
+        filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.ACTIVE,
+                DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS);
+        performArchivization(datasetsByStore);
+    }
+
+    private Map<DataStorePE, List<ExternalDataPE>> loadDatasetsAndGroupByStore(
+            List<String> datasetCodes)
+    {
+        IExternalDataDAO externalDataDAO = getExternalDataDAO();
+        Map<DataStorePE, List<ExternalDataPE>> result =
+                new HashMap<DataStorePE, List<ExternalDataPE>>();
+        for (String datasetCode : datasetCodes)
+        {
+            ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(datasetCode, false);
+            if (dataSet != null)
+            {
+                DataStorePE store = dataSet.getDataStore();
+                List<ExternalDataPE> dataSets = result.get(store);
+                if (dataSets == null)
+                {
+                    dataSets = new ArrayList<ExternalDataPE>();
+                    result.put(store, dataSets);
+                }
+                dataSets.add(dataSet);
+            }
+        }
+        return result;
+    }
+
+    private void filterByStatusAndUpdate(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
+            DataSetArchivizationStatus oldStatus, DataSetArchivizationStatus newStatus)
+    {
+        IExternalDataDAO externalDataDAO = getExternalDataDAO();
+        for (List<ExternalDataPE> dataSets : datasetsByStore.values())
+        {
+            Iterator<ExternalDataPE> iterator = dataSets.iterator();
+            while (iterator.hasNext())
+            {
+                ExternalDataPE dataSet = iterator.next();
+                if (dataSet.getStatus() != oldStatus)
+                {
+                    iterator.remove();
+                } else
+                {
+                    dataSet.setStatus(newStatus);
+                    externalDataDAO.validateAndSaveUpdatedEntity(dataSet);
+                }
+            }
+        }
+    }
+
+    private interface IArchivizationAction
+    {
+        public void execute(String sessionToken, IDataStoreService service,
+                List<DatasetDescription> descriptions, String userEmailOrNull);
+    }
+
+    private void performUnarchivization(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore)
+    {
+        performArchivizationAction(datasetsByStore, new IArchivizationAction()
+            {
+                public void execute(String sessionToken, IDataStoreService service,
+                        List<DatasetDescription> descriptions, String userEmailOrNull)
+                {
+                    service.unarchiveDatasets(sessionToken, descriptions, userEmailOrNull);
+                }
+            });
+
+    }
+
+    private void performArchivization(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore)
+    {
+        performArchivizationAction(datasetsByStore, new IArchivizationAction()
+            {
+                public void execute(String sessionToken, IDataStoreService service,
+                        List<DatasetDescription> descriptions, String userEmailOrNull)
+                {
+                    service.archiveDatasets(sessionToken, descriptions, userEmailOrNull);
+                }
+            });
+    }
+
+    private void performArchivizationAction(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
+            IArchivizationAction archivizationAction)
+    {
+        for (Entry<DataStorePE, List<ExternalDataPE>> entry : datasetsByStore.entrySet())
+        {
+            DataStorePE dataStore = entry.getKey();
+            IDataStoreService service = tryGetDataStoreService(dataStore);
+            if (service == null)
+            {
+                throw createUnknownDataStoreServerException();
+            }
+            List<ExternalDataPE> datasets = entry.getValue();
+            List<DatasetDescription> descriptions = createDatasetDescriptions(datasets);
+            String sessionToken = dataStore.getSessionToken();
+            String userEmailOrNull = tryGetLoggedUserEmail();
+            archivizationAction.execute(sessionToken, service, descriptions, userEmailOrNull);
+        }
+    }
+
 }

@@ -2062,6 +2062,35 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void archiveDatasets(
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> datasetCodes =
+                    extractDatasetCodes(displayedOrSelectedDatasetCriteria, null);
+            commonServer.archiveDatasets(sessionToken, datasetCodes);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void unarchiveDatasets(
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
+            commonServer.unarchiveDatasets(sessionToken, datasetCodes);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public void deleteAuthorizationGroups(List<TechId> groupIds, String reason)
     {
         try

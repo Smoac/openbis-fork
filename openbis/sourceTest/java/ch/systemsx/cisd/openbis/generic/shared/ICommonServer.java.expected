@@ -216,7 +216,7 @@ public interface ICommonServer extends IServer
     public void registerInstanceRole(String sessionToken, RoleCode roleCode, Grantee grantee);
 
     /**
-     * Deletes role described by given role code, group identifier and user id.
+     * Deletes role described by given role code, space identifier and grantee.
      */
     @Transactional
     @RolesAllowed(RoleSet.SPACE_ADMIN)
@@ -897,6 +897,22 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.USER)
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
+    /**
+     * Schedules archivization of specified data sets.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    public void archiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
+    /**
+     * Schedules unarchivization of specified data sets.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    public void unarchiveDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
     /**

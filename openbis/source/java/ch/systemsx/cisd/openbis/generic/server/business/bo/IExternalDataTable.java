@@ -76,6 +76,12 @@ public interface IExternalDataTable
     /** Schedules processing of specified datasets using the specified datastore service. */
     void processDatasets(String datastoreServiceKey, String datastoreCode, List<String> datasetCodes);
 
+    /** Schedules archivization of specified datasets. Only active datasets will be archived. */
+    void archiveDatasets(List<String> datasetCodes);
+
+    /** Schedules unarchivization of specified datasets. Only archived datasets will be unarchived. */
+    void unarchiveDatasets(List<String> datasetCodes);
+
     /**
      * Loads data sets that belong to chosen data store.
      */
