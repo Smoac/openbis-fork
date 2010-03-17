@@ -29,7 +29,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.BrowserSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -170,11 +171,28 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         BorderLayoutData layoutData = createBorderLayoutData(LayoutRegion.WEST);
         layoutData.setSize(400);
         add(propertyPanel, layoutData);
-        add(new BrowserSectionPanel(viewContext.getMessage(Dict.SEQUENCES), ProteinSequenceGrid
-                .create(viewContext, proteinReferenceID)), createRightBorderLayoutData());
-        add(new BrowserSectionPanel(viewContext.getMessage(Dict.DATA_SET_PROTEINS),
-                DataSetProteinGrid.create(viewContext, experimentOrNull, proteinReferenceID)),
-                createBorderLayoutData(LayoutRegion.SOUTH));
+        DisposableSectionPanel sequencesSection =
+                new DisposableSectionPanel(viewContext.getMessage(Dict.SEQUENCES), viewContext)
+                    {
+                        @Override
+                        protected IDisposableComponent createDisposableContent()
+                        {
+                            return ProteinSequenceGrid.create(ProteinViewer.this.viewContext,
+                                    proteinReferenceID);
+                        }
+                    };
+        add(sequencesSection, createRightBorderLayoutData());
+        DisposableSectionPanel proteinsSection =
+                new DisposableSectionPanel(viewContext.getMessage(Dict.DATA_SET_PROTEINS), viewContext)
+                    {
+                        @Override
+                        protected IDisposableComponent createDisposableContent()
+                        {
+                            return DataSetProteinGrid.create(ProteinViewer.this.viewContext,
+                                    experimentOrNull, proteinReferenceID);
+                        }
+                    };
+        add(proteinsSection, createBorderLayoutData(LayoutRegion.SOUTH));
         layout();
     }
 
@@ -313,7 +331,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
                 new CompositeDatabaseModificationObserver();
         if (proteinSamplesSection != null)
         {
-            observer.addObserver(proteinSamplesSection.getDatabaseModificationObserver());
+            observer.addObserver(proteinSamplesSection.tryGetDatabaseModificationObserver());
         }
         // TODO 2009-07-31, Piotr Buczek: refresh properties panel?
         return observer;

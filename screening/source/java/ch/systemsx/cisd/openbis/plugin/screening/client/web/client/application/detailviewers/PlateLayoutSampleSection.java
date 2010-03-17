@@ -30,15 +30,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
@@ -55,27 +52,23 @@ public class PlateLayoutSampleSection extends SingleSectionPanel
 {
     public static final String ID_SUFFIX = "PlateLayoutSection";
 
+    private final ScreeningViewContext viewContext;
+
+    private final TechId sampleId;
+
     public PlateLayoutSampleSection(final ScreeningViewContext viewContext, final TechId sampleId)
     {
-        super("Plate Layout");
-        add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
-
-        // Don't get data immediately -- queue the request and let the panel decide when data needs
-        // to be retrieved
-        ServerRequestQueue.ServerRequestAction requestAction =
-                new ServerRequestQueue.ServerRequestAction(this)
-                    {
-
-                        public void onInvoke()
-                        {
-                            viewContext.getService().getPlateContent(sampleId,
-                                    createDisplayPlateCallback(viewContext));
-                        }
-                    };
-
-        getServerRequestQueue().addRequestToQueue(requestAction);
-
+        super("Plate Layout", viewContext);
+        this.viewContext = viewContext;
+        this.sampleId = sampleId;
         setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
+    }
+
+    @Override
+    protected void showContent()
+    {
+        add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
+        viewContext.getService().getPlateContent(sampleId, createDisplayPlateCallback(viewContext));
     }
 
     private AsyncCallback<PlateContent> createDisplayPlateCallback(
@@ -90,18 +83,17 @@ public class PlateLayoutSampleSection extends SingleSectionPanel
                     setLayout(new RowLayout());
                     setScrollMode(Scroll.AUTO);
 
-                    renderPlate(plateContent, context);
-                    addImageAnalysisButton(plateContent, viewContext);
+                    renderPlate(plateContent);
+                    addImageAnalysisButton(plateContent);
 
-                    addMetadataTable(plateContent, context);
+                    addMetadataTable(plateContent);
 
                     layout();
                 }
             };
     }
 
-    private void addImageAnalysisButton(final PlateContent plateContent,
-            final IViewContext<?> viewContext)
+    private void addImageAnalysisButton(final PlateContent plateContent)
     {
         Component analysisPanel;
         int datasetsNumber = plateContent.getImageAnalysisDatasetsNumber();
@@ -116,7 +108,7 @@ public class PlateLayoutSampleSection extends SingleSectionPanel
                             @Override
                             public void componentSelected(ButtonEvent ce)
                             {
-                                generateImageAnalysisReport(viewContext, dataset, plateContent);
+                                generateImageAnalysisReport(dataset, plateContent);
                             }
                         });
             analysisPanel = generateButton;
@@ -136,8 +128,7 @@ public class PlateLayoutSampleSection extends SingleSectionPanel
         add(analysisPanel, PlateLayouter.createRowLayoutMarginData());
     }
 
-    private void generateImageAnalysisReport(IViewContext<?> viewContext, DatasetReference dataset,
-            PlateContent plateContent)
+    private void generateImageAnalysisReport(DatasetReference dataset, PlateContent plateContent)
     {
         DatastoreServiceDescription service = createImageAnalysisReporter(dataset, plateContent);
         DisplayedOrSelectedDatasetCriteria criteria =
@@ -154,10 +145,10 @@ public class PlateLayoutSampleSection extends SingleSectionPanel
                 reportLabel, new String[] {}, dataset.getDatastoreCode());
     }
 
-    private void renderPlate(PlateContent plateContent, ScreeningViewContext viewContext)
+    private void renderPlate(PlateContent plateContent)
     {
         LayoutContainer container = new LayoutContainer();
-        Widget datasetNumberLegend = tryRenderImageDatasetsNumberLegend(plateContent, viewContext);
+        Widget datasetNumberLegend = tryRenderImageDatasetsNumberLegend(plateContent);
         if (datasetNumberLegend != null)
         {
             container.add(datasetNumberLegend);
@@ -168,8 +159,7 @@ public class PlateLayoutSampleSection extends SingleSectionPanel
         add(container, PlateLayouter.createRowLayoutMarginData());
     }
 
-    private Widget tryRenderImageDatasetsNumberLegend(PlateContent plateContent,
-            IViewContext<?> viewContext)
+    private Widget tryRenderImageDatasetsNumberLegend(PlateContent plateContent)
     {
         int datasetsNumber = plateContent.getImageDatasetsNumber();
         if (datasetsNumber == 0)
@@ -186,8 +176,7 @@ public class PlateLayoutSampleSection extends SingleSectionPanel
         }
     }
 
-    private void addMetadataTable(final PlateContent plateContent,
-            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    private void addMetadataTable(final PlateContent plateContent)
     {
         Button generateButton =
                 PlateLayouter.createPlateMetadataButton(plateContent.getPlate(), viewContext);

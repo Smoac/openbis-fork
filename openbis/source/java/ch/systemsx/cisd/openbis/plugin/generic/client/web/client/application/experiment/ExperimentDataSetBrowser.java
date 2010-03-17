@@ -20,7 +20,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -40,12 +39,12 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     static IDisposableComponent create(IViewContext<?> viewContext, TechId experimentId,
-            final ExperimentType experimentType, ServerRequestQueue requestQueueOrNull)
+            final ExperimentType experimentType)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
         ExperimentDataSetBrowser browser =
-                new ExperimentDataSetBrowser(commonViewContext, experimentId, requestQueueOrNull)
+                new ExperimentDataSetBrowser(commonViewContext, experimentId)
                     {
                         @Override
                         public String getGridDisplayTypeID()
@@ -59,10 +58,10 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     private final TechId experimentId;
 
     private ExperimentDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            TechId experimentId, ServerRequestQueue requestQueueOrNull)
+            TechId experimentId)
     {
         super(viewContext, createBrowserId(experimentId), createGridId(experimentId),
-                DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID, requestQueueOrNull);
+                DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         this.experimentId = experimentId;
     }
 

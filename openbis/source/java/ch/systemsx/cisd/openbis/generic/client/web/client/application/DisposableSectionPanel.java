@@ -20,45 +20,45 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 
 /**
- * Panel of a details view showing data in a browser (i.e. table).
+ * Panel of a details view showing a component which should be disposed at the end (i.e. browser
+ * grid).
  * 
  * @author Franz-Josef Elmer
  */
-public class BrowserSectionPanel extends SingleSectionPanel
+abstract public class DisposableSectionPanel extends SingleSectionPanel
 {
-    IDisposableComponent disposableBrowser;
+    abstract protected IDisposableComponent createDisposableContent();
+
+    // null if the section has not been shown yet
+    private IDisposableComponent disposableComponentOrNull = null;
 
     /**
-     * Creates section with specified header and disposable browser. Subclasses need to invoke
-     * initializeDisposableBrowser in their constructors -- instances are not usable until the
-     * disposableBrowser has been initialized
+     * Creates section with specified header.
      */
-    public BrowserSectionPanel(String header)
+    public DisposableSectionPanel(String header, IViewContext<?> viewContext)
     {
-        super(header);
+        super(header, viewContext);
     }
 
-    public BrowserSectionPanel(String header, IDisposableComponent browser)
+    public IDatabaseModificationObserver tryGetDatabaseModificationObserver()
     {
-        super(header);
-        initializeDisposableBrowser(browser);
-    }
-
-    public IDatabaseModificationObserver getDatabaseModificationObserver()
-    {
-        return disposableBrowser;
+        return disposableComponentOrNull;
     }
 
     @Override
     protected void onDetach()
     {
-        disposableBrowser.dispose();
+        if (disposableComponentOrNull != null)
+        {
+            disposableComponentOrNull.dispose();
+        }
         super.onDetach();
     }
 
-    protected void initializeDisposableBrowser(IDisposableComponent browser)
+    @Override
+    protected void showContent()
     {
-        this.disposableBrowser = browser;
-        add(disposableBrowser.getComponent());
+        this.disposableComponentOrNull = createDisposableContent();
+        add(disposableComponentOrNull.getComponent());
     }
 }

@@ -91,8 +91,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
 
     private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID,
-                null);
+        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
     }
 
     @Override

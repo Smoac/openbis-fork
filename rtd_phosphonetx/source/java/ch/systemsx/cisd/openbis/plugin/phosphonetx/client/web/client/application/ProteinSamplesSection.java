@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -30,28 +30,25 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNet
  * 
  * @author Piotr Buczek
  */
-public class ProteinSamplesSection extends SingleSectionPanel
+public class ProteinSamplesSection extends DisposableSectionPanel
 {
     private static final String PREFIX = "protein-samples-section_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private IDisposableComponent sampleDisposableGrid;
+    private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
+
+    private final TechId proteinReferenceID;
+
+    private final IIdentifiable experimentOrNull;
 
     public ProteinSamplesSection(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             final TechId proteinReferenceID, IIdentifiable experimentOrNull)
     {
-        super("Samples");
-        Long experimentID = experimentOrNull == null ? null : experimentOrNull.getId();
-        sampleDisposableGrid =
-                SampleAbundanceBrowserGrid.createGridForProteinSamples(viewContext,
-                        proteinReferenceID, experimentID, createGridId(proteinReferenceID));
-        add(sampleDisposableGrid.getComponent());
-    }
-
-    public IDatabaseModificationObserver getDatabaseModificationObserver()
-    {
-        return sampleDisposableGrid;
+        super("Samples", viewContext);
+        this.viewContext = viewContext;
+        this.experimentOrNull = experimentOrNull;
+        this.proteinReferenceID = proteinReferenceID;
     }
 
     // @Private
@@ -61,10 +58,11 @@ public class ProteinSamplesSection extends SingleSectionPanel
     }
 
     @Override
-    protected void onDetach()
+    protected IDisposableComponent createDisposableContent()
     {
-        sampleDisposableGrid.dispose();
-        super.onDetach();
+        Long experimentID = experimentOrNull == null ? null : experimentOrNull.getId();
+        return SampleAbundanceBrowserGrid.createGridForProteinSamples(viewContext,
+                proteinReferenceID, experimentID, createGridId(proteinReferenceID));
     }
 
 }

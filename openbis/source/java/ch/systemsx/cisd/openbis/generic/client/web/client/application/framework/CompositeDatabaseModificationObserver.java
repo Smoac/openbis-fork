@@ -47,9 +47,12 @@ public class CompositeDatabaseModificationObserver implements IDatabaseModificat
         }
     }
 
-    public void addObserver(IDatabaseModificationObserver observer)
+    public void addObserver(IDatabaseModificationObserver observerOrNull)
     {
-        registeredObservers.add(observer);
+        if (observerOrNull != null)
+        {
+            registeredObservers.add(observerOrNull);
+        }
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

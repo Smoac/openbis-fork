@@ -35,6 +35,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -48,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
@@ -103,11 +103,11 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
 
     protected final TechId sampleId;
 
-    private AttachmentVersionsSection<Sample> attachmentsSection;
+    private DisposableSectionPanel attachmentsSection;
 
-    private ContainerSamplesSection containerSamplesSection;
+    private DisposableSectionPanel containerSamplesSection;
 
-    private IDisposableComponent dataSetBrowser;
+    private DisposableSectionPanel dataSetBrowser;
 
     private PropertyGrid propertyGrid;
 
@@ -189,19 +189,17 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         }
 
         // 'Part of' samples
-        containerSamplesSection = new ContainerSamplesSection(viewContext);
+        containerSamplesSection = new ContainerSamplesSection(viewContext, generator);
         containerSamplesSection
                 .setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, displayIdSuffix);
-        containerSamplesSection.addSamplesGrid(generator);
         container.addPanel(containerSamplesSection);
         // Data Sets
-        final SampleDataSetsSection externalDataPanel = new SampleDataSetsSection(viewContext);
-        externalDataPanel.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, displayIdSuffix);
         CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
-        externalDataPanel.addDataSetGrid(showOnlyDirectlyConnectedCheckBox, sampleId, generator
-                .getSampleType());
-        dataSetBrowser = externalDataPanel.getDataSetBrowser();
-        container.addPanel(externalDataPanel);
+        dataSetBrowser =
+                new SampleDataSetsSection(viewContext, showOnlyDirectlyConnectedCheckBox, sampleId,
+                        generator.getSampleType());
+        dataSetBrowser.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, displayIdSuffix);
+        container.addPanel(dataSetBrowser);
 
         // Attachments
         attachmentsSection = createAttachmentsSection(generator);
@@ -233,16 +231,6 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
     private AttachmentVersionsSection<Sample> createAttachmentsSection(final Sample sample)
     {
         return new AttachmentVersionsSection<Sample>(viewContext.getCommonViewContext(), sample);
-    }
-
-    @Override
-    protected void onDetach()
-    {
-        if (dataSetBrowser != null)
-        {
-            dataSetBrowser.dispose();
-        }
-        super.onDetach();
     }
 
     private final static Map<String, Object> createProperties(
@@ -458,15 +446,15 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
                         new PropertyGridDatabaseModificationObserver());
         if (dataSetBrowser != null)
         {
-            observer.addObserver(dataSetBrowser);
+            observer.addObserver(dataSetBrowser.tryGetDatabaseModificationObserver());
         }
         if (attachmentsSection != null)
         {
-            observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
+            observer.addObserver(attachmentsSection.tryGetDatabaseModificationObserver());
         }
         if (containerSamplesSection != null)
         {
-            observer.addObserver(containerSamplesSection.getDatabaseModificationObserver());
+            observer.addObserver(containerSamplesSection.tryGetDatabaseModificationObserver());
         }
         return observer;
     }

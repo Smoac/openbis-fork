@@ -54,18 +54,14 @@ public class MaterialPropertiesSection extends SingleSectionPanel
 
     private final Material material;
 
-    private final IViewContext<?> viewContext;
-
     public MaterialPropertiesSection(final Material material, final IViewContext<?> viewContext)
     {
-        super("Material Properties");
+        super("Material Properties", viewContext);
         this.material = material;
-        this.viewContext = viewContext;
-        final PropertyGrid propertyGrid = createPropertyGrid();
-        add(propertyGrid);
     }
 
-    private final PropertyGrid createPropertyGrid()
+    @Override
+    protected void showContent()
     {
         final Map<String, Object> properties = createProperties(viewContext);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
@@ -86,7 +82,7 @@ public class MaterialPropertiesSection extends SingleSectionPanel
         propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class,
                 propertyRenderer);
         propertyGrid.setProperties(properties);
-        return propertyGrid;
+        add(propertyGrid);
     }
 
     private final Map<String, Object> createProperties(final IMessageProvider messageProvider)
@@ -111,4 +107,5 @@ public class MaterialPropertiesSection extends SingleSectionPanel
         }
         return properties;
     }
+
 }

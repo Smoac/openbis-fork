@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -30,29 +30,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentSamplesSection extends SingleSectionPanel
+public class ExperimentSamplesSection extends DisposableSectionPanel
 {
     private static final String PREFIX = "experiment-samples-section_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private IDisposableComponent sampleDisposableGrid;
+    private final Experiment experiment;
 
     public ExperimentSamplesSection(final IViewContext<?> viewContext, final Experiment experiment)
     {
-        super("Samples");
-        TechId experimentId = TechId.create(experiment);
-        sampleDisposableGrid =
-                SampleBrowserGrid.createGridForExperimentSamples(
-                        viewContext.getCommonViewContext(), experimentId,
-                        createGridId(experimentId), experiment.getExperimentType(),
-                        getServerRequestQueue());
-        add(sampleDisposableGrid.getComponent());
-    }
-
-    public IDatabaseModificationObserver getDatabaseModificationObserver()
-    {
-        return sampleDisposableGrid;
+        super("Samples", viewContext);
+        this.experiment = experiment;
     }
 
     // @Private
@@ -62,10 +51,11 @@ public class ExperimentSamplesSection extends SingleSectionPanel
     }
 
     @Override
-    protected void onDetach()
+    protected IDisposableComponent createDisposableContent()
     {
-        sampleDisposableGrid.dispose();
-        super.onDetach();
+        TechId experimentId = TechId.create(experiment);
+        return SampleBrowserGrid.createGridForExperimentSamples(viewContext.getCommonViewContext(),
+                experimentId, createGridId(experimentId), experiment.getExperimentType());
     }
 
 }

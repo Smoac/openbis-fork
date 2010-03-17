@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment.AttachmentBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 
@@ -26,12 +27,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
  * 
  * @author Piotr Buczek
  */
-public class AttachmentVersionsSection<T extends IAttachmentHolder> extends BrowserSectionPanel
+public class AttachmentVersionsSection<T extends IAttachmentHolder> extends DisposableSectionPanel
 {
+    private final T attachmentHolder;
+
     public AttachmentVersionsSection(final IViewContext<ICommonClientServiceAsync> viewContext,
             final T attachmentHolder)
     {
-        super(viewContext.getMessage(Dict.ATTACHMENTS));
-        initializeDisposableBrowser(AttachmentBrowser.create(viewContext, attachmentHolder, getServerRequestQueue()));
+        super(viewContext.getMessage(Dict.ATTACHMENTS), viewContext);
+        this.attachmentHolder = attachmentHolder;
+    }
+
+    @Override
+    protected IDisposableComponent createDisposableContent()
+    {
+        return AttachmentBrowser.create(viewContext.getCommonViewContext(), attachmentHolder);
     }
 }

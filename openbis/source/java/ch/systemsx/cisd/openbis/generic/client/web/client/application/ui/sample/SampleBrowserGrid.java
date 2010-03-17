@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
@@ -148,8 +147,7 @@ public class SampleBrowserGrid extends
 
     public static IDisposableComponent createGridForContainerSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final TechId containerSampleId, final String gridId, final SampleType sampleType,
-            final ServerRequestQueue requestQueueOrNull)
+            final TechId containerSampleId, final String gridId, final SampleType sampleType)
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForContainer(containerSampleId);
@@ -157,7 +155,6 @@ public class SampleBrowserGrid extends
         final SampleBrowserGrid browserGrid =
                 createGridAsComponent(viewContext, gridId, criteria, entityTypeCode,
                         DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
-        browserGrid.setServerRequestQueue(requestQueueOrNull);
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();
@@ -165,8 +162,7 @@ public class SampleBrowserGrid extends
 
     public static IDisposableComponent createGridForExperimentSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId experimentId,
-            final String gridId, final ExperimentType experimentType,
-            ServerRequestQueue requestQueueOrNull)
+            final String gridId, final ExperimentType experimentType)
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForExperiment(experimentId);
@@ -175,7 +171,6 @@ public class SampleBrowserGrid extends
         final SampleBrowserGrid browserGrid =
                 createGridAsComponent(viewContext, gridId, criteria, entityTypeCode,
                         DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
-        browserGrid.setServerRequestQueue(requestQueueOrNull);
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();

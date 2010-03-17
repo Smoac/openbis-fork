@@ -57,10 +57,9 @@ public class CompositeDatabaseModificationObserverWithMainObserver extends
     }
 
     @Override
-    public void addObserver(IDatabaseModificationObserver observer)
+    public void addObserver(IDatabaseModificationObserver observerOrNull)
     {
-        assert mainObserver != null : "main observer cannot be null";
-        super.addObserver(observer);
+        super.addObserver(observerOrNull);
     }
 
     @Override

@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -29,32 +29,29 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class SampleDataSetsSection extends SingleSectionPanel
+public class SampleDataSetsSection extends DisposableSectionPanel
 {
-    final IViewContext<?> viewContext;
+    private final CheckBox showOnlyDirectlyConnectedCheckBox;
 
-    private IDisposableComponent dataSetBrowser;
+    private final TechId sampleId;
 
-    public SampleDataSetsSection(final IViewContext<?> viewContext)
+    private final SampleType sampleType;
+
+    public SampleDataSetsSection(final IViewContext<?> viewContext,
+            CheckBox showOnlyDirectlyConnectedCheckBox, TechId sampleId, SampleType sampleType)
     {
-        super(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
-        this.viewContext = viewContext;
+        super(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING), viewContext);
+        this.showOnlyDirectlyConnectedCheckBox = showOnlyDirectlyConnectedCheckBox;
+        this.sampleId = sampleId;
+        this.sampleType = sampleType;
     }
 
-    public void addDataSetGrid(CheckBox showOnlyDirectlyConnectedCheckBox, TechId sampleId,
-            SampleType sampleType)
+    @Override
+    protected IDisposableComponent createDisposableContent()
     {
         getHeader().addTool(showOnlyDirectlyConnectedCheckBox);
-        dataSetBrowser =
-                SampleDataSetBrowser.create(viewContext, sampleId, sampleType,
-                        new DataSetConnectionTypeProvider(showOnlyDirectlyConnectedCheckBox),
-                        getServerRequestQueue());
-        add(dataSetBrowser.getComponent());
-    }
-
-    IDisposableComponent getDataSetBrowser()
-    {
-        return dataSetBrowser;
+        return SampleDataSetBrowser.create(viewContext, sampleId, sampleType,
+                new DataSetConnectionTypeProvider(showOnlyDirectlyConnectedCheckBox));
     }
 
 }

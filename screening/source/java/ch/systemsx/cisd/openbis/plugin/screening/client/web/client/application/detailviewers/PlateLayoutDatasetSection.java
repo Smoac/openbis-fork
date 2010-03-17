@@ -24,13 +24,10 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -45,27 +42,25 @@ public class PlateLayoutDatasetSection extends SingleSectionPanel
 {
     public static final String ID_SUFFIX = "PlateLayoutDatasetSection";
 
+    private final ScreeningViewContext viewContext;
+
+    private final TechId datasetId;
+
     public PlateLayoutDatasetSection(final ScreeningViewContext viewContext, final TechId datasetId)
     {
-        super("Plate Layout");
+        super("Plate Layout", viewContext);
+        this.viewContext = viewContext;
+        this.datasetId = datasetId;
+        setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
+    }
+
+    @Override
+    protected void showContent()
+    {
         add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
 
-        // Don't get data immediately -- queue the request and let the panel decide when data needs
-        // to be retrieved
-        ServerRequestQueue.ServerRequestAction requestAction =
-                new ServerRequestQueue.ServerRequestAction(this)
-                    {
-
-                        public void onInvoke()
-                        {
-                            viewContext.getService().getPlateContentForDataset(datasetId,
-                                    createDisplayPlateCallback(viewContext));
-                        }
-                    };
-
-        getServerRequestQueue().addRequestToQueue(requestAction);
-
-        setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
+        viewContext.getService().getPlateContentForDataset(datasetId,
+                createDisplayPlateCallback(viewContext));
     }
 
     private AsyncCallback<PlateImages> createDisplayPlateCallback(final ScreeningViewContext context)
@@ -79,26 +74,24 @@ public class PlateLayoutDatasetSection extends SingleSectionPanel
                     setLayout(new RowLayout());
                     setScrollMode(Scroll.AUTO);
 
-                    renderPlate(plateContent, context);
-                    addMetadataTable(plateContent.getPlate(), context);
+                    renderPlate(plateContent);
+                    addMetadataTable(plateContent.getPlate());
 
                     layout();
                 }
             };
     }
 
-    private void renderPlate(PlateImages plateImages, ScreeningViewContext viewContext)
+    private void renderPlate(PlateImages plateImages)
     {
         LayoutContainer container = new LayoutContainer();
         container.add(PlateLayouter.createVisualization(plateImages, viewContext));
         add(container, PlateLayouter.createRowLayoutMarginData());
     }
 
-    private void addMetadataTable(final Sample plate,
-            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    private void addMetadataTable(final Sample plate)
     {
         Button generateButton = PlateLayouter.createPlateMetadataButton(plate, viewContext);
         add(generateButton, PlateLayouter.createRowLayoutMarginData());
     }
-
 }

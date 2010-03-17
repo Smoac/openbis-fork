@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -83,6 +84,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
         this.viewer = viewer;
         this.grid = createPropertyGrid();
         add(grid);
+        setScrollMode(Scroll.AUTOY);
     }
 
     private final PropertyGrid createPropertyGrid()

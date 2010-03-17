@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.BrowserSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -25,14 +26,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 /**
  * @author Piotr Buczek
  */
-class DataSetParentsSection extends BrowserSectionPanel
+class DataSetParentsSection extends DisposableSectionPanel
 {
+    private final ExternalData dataset;
+
     DataSetParentsSection(IViewContext<?> viewContext, ExternalData dataset)
     {
-        super("Parents (Data Sets)");
-        initializeDisposableBrowser(DataSetRelationshipBrowser.create(viewContext, TechId
-                .create(dataset), DataSetRelationshipRole.CHILD, dataset.getDataSetType(),
-                getServerRequestQueue()));
+        super("Parents (Data Sets)", viewContext);
+        this.dataset = dataset;
+    }
+
+    @Override
+    protected IDisposableComponent createDisposableContent()
+    {
+        return DataSetRelationshipBrowser.create(viewContext, TechId.create(dataset),
+                DataSetRelationshipRole.CHILD, dataset.getDataSetType());
     }
 
 }

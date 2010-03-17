@@ -63,20 +63,41 @@ public class DataViewSection extends SingleSectionPanel
 
     private static String FILES_HOME_VIEW = "Files (Home)";
 
+    private final ExternalData dataset;
+
+    private IDisposableComponent currentReportOrNull = null;
+
     public DataViewSection(final IViewContext<?> viewContext, final ExternalData dataset)
     {
-        super(viewContext.getMessage(Dict.DATA_VIEW));
+        super(viewContext.getMessage(Dict.DATA_VIEW), viewContext);
+        this.dataset = dataset;
+    }
 
+    @Override
+    protected void onDetach()
+    {
+        disposeCurrentReport();
+    }
+
+    private void disposeCurrentReport()
+    {
+        if (currentReportOrNull != null)
+        {
+            currentReportOrNull.dispose();
+        }
+    }
+
+    @Override
+    protected void showContent()
+    {
         final DatastoreServiceSelectionWidget serviceSelectionWidget =
                 new DatastoreServiceSelectionWidget(viewContext, dataset);
         getHeader().addTool(new LabelToolItem(serviceSelectionWidget.getFieldLabel() + ":&nbsp;"));
         getHeader().addTool(serviceSelectionWidget);
-        serviceSelectionWidget.addSelectionChangedListener(createServiceSelectionChangedListener(
-                viewContext, dataset));
+        serviceSelectionWidget.addSelectionChangedListener(createServiceSelectionChangedListener());
     }
 
-    private SelectionChangedListener<DatastoreServiceDescriptionModel> createServiceSelectionChangedListener(
-            final IViewContext<?> viewContext, final ExternalData dataset)
+    private SelectionChangedListener<DatastoreServiceDescriptionModel> createServiceSelectionChangedListener()
     {
         return new SelectionChangedListener<DatastoreServiceDescriptionModel>()
             {
@@ -110,20 +131,20 @@ public class DataViewSection extends SingleSectionPanel
                     IOnReportComponentGeneratedAction action =
                             new IOnReportComponentGeneratedAction()
                                 {
-
                                     public void execute(IDisposableComponent reportComponent)
                                     {
+                                        disposeCurrentReport();
                                         // replace current viewer with report grid
                                         Widget reportGrid = reportComponent.getComponent();
                                         if (currentViewerOrNull != null)
                                         {
                                             remove(currentViewerOrNull);
                                         }
+                                        currentReportOrNull = reportComponent;
                                         currentViewerOrNull = reportGrid;
                                         add(reportGrid);
                                         layout();
                                     }
-
                                 };
 
                     DisplayedOrSelectedDatasetCriteria criteria =

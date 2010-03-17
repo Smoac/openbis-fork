@@ -30,28 +30,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
  * 
  * @author Izabela Adamczyk
  */
-public class SingleSectionPanel extends ContentPanel
+abstract public class SingleSectionPanel extends ContentPanel
 {
+    /** creates a section content, called when the section is shown for the first time */
+    abstract protected void showContent();
+
+    protected final IViewContext<?> viewContext;
+
     private String displayId;
 
     private boolean isContentVisible = false;
 
-    /**
-     * A queue used to store requests for data when the selection panel is hidden to avoid
-     * retrieving data while the panel is not visible. Subclasses that use abstract browser grids
-     * should set the grid's queue to this queue
-     */
-    private final ServerRequestQueue serverRequestQueue;
-
-    public SingleSectionPanel(final String header)
+    public SingleSectionPanel(final String header, IViewContext<?> viewContext)
     {
+        this.viewContext = viewContext;
         setHeaderVisible(true);
         setHeading(header);
         setCollapsible(true);
         setAnimCollapse(false);
         setBodyBorder(true);
         setLayout(new FitLayout());
-        serverRequestQueue = new ServerRequestQueue();
     }
 
     public void setDisplayID(IDisplayTypeIDGenerator generator, String suffix)
@@ -78,20 +76,10 @@ public class SingleSectionPanel extends ContentPanel
 
     public void setContentVisible(boolean visible)
     {
-        if (this.isContentVisible != visible)
+        if (visible && isContentVisible == false)
         {
-            this.isContentVisible = visible;
-            if (visible)
-            {
-                serverRequestQueue.processUniqueRequests();
-            }
-            serverRequestQueue.setProcessImmediately(visible);
+            showContent();
+            isContentVisible = true;
         }
     }
-
-    protected ServerRequestQueue getServerRequestQueue()
-    {
-        return serverRequestQueue;
-    }
-
 }

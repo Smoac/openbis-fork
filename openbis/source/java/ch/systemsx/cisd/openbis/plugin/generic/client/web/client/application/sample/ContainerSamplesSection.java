@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -31,35 +31,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  * 
  * @author Piotr Buczek
  */
-public class ContainerSamplesSection extends SingleSectionPanel
+public class ContainerSamplesSection extends DisposableSectionPanel
 {
     private static final String PREFIX = "container-samples-section_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IViewContext<?> viewContext;
+    private final Sample container;
 
-    private IDisposableComponent sampleDisposableGrid;
-
-    public ContainerSamplesSection(final IViewContext<?> viewContext)
+    public ContainerSamplesSection(final IViewContext<?> viewContext, final Sample container)
     {
-        super(viewContext.getMessage(Dict.PART_OF_HEADING));
-        this.viewContext = viewContext;
-    }
-
-    public void addSamplesGrid(final Sample container)
-    {
-        TechId containerId = TechId.create(container);
-        sampleDisposableGrid =
-                SampleBrowserGrid.createGridForContainerSamples(viewContext.getCommonViewContext(),
-                        containerId, createGridId(containerId), container.getSampleType(), getServerRequestQueue());
-        
-        add(sampleDisposableGrid.getComponent());
-    }
-
-    public IDatabaseModificationObserver getDatabaseModificationObserver()
-    {
-        return sampleDisposableGrid;
+        super(viewContext.getMessage(Dict.PART_OF_HEADING), viewContext);
+        this.container = container;
     }
 
     // @Private
@@ -69,10 +52,11 @@ public class ContainerSamplesSection extends SingleSectionPanel
     }
 
     @Override
-    protected void onDetach()
+    protected IDisposableComponent createDisposableContent()
     {
-        sampleDisposableGrid.dispose();
-        super.onDetach();
+        TechId containerId = TechId.create(container);
+        return SampleBrowserGrid.createGridForContainerSamples(viewContext.getCommonViewContext(),
+                containerId, createGridId(containerId), container.getSampleType());
     }
 
 }

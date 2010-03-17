@@ -418,7 +418,7 @@ public class DisplaySettingsManager
     }
 
     /**
-     * @returns section settings for given display id<br>
+     * @returns section settings for given display id - is the section visible or not<br>
      * <br>
      *          NOTE: Returned value should be used read only, or modification time should be set
      *          manually after a modification.

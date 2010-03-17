@@ -20,7 +20,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -44,14 +43,12 @@ public class DataSetRelationshipBrowser extends AbstractExternalDataGrid
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     public static IDisposableComponent create(IViewContext<?> viewContext, TechId datasetId,
-            final DataSetRelationshipRole role, final DataSetType datasetType,
-            ServerRequestQueue requestQueueOrNull)
+            final DataSetRelationshipRole role, final DataSetType datasetType)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
         DataSetRelationshipBrowser browser =
-                new DataSetRelationshipBrowser(commonViewContext, datasetId, role,
-                        requestQueueOrNull)
+                new DataSetRelationshipBrowser(commonViewContext, datasetId, role)
                     {
                         @Override
                         public String getGridDisplayTypeID()
@@ -69,10 +66,10 @@ public class DataSetRelationshipBrowser extends AbstractExternalDataGrid
     private final DataSetRelationshipRole role;
 
     private DataSetRelationshipBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            TechId datasetId, DataSetRelationshipRole role, ServerRequestQueue requestQueueOrNull)
+            TechId datasetId, DataSetRelationshipRole role)
     {
         super(viewContext, createBrowserId(datasetId, role), createGridId(datasetId, role),
-                DisplayTypeIDGenerator.DATA_SET_DETAILS_GRID, requestQueueOrNull);
+                DisplayTypeIDGenerator.DATA_SET_DETAILS_GRID);
         this.datasetId = datasetId;
         this.role = role;
     }

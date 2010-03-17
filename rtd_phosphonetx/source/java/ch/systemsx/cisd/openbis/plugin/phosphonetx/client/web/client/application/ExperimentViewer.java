@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 import java.util.Collections;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.BrowserSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -30,8 +30,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExperimentViewer extends GenericExperimentViewer
@@ -43,7 +41,7 @@ public class ExperimentViewer extends GenericExperimentViewer
         ExperimentViewer viewer =
                 new ExperimentViewer(new GenericViewContext(viewContext.getCommonViewContext()),
                         viewContext, identifiable);
-        return new DatabaseModificationAwareComponent(viewer, viewer.getModificationObserver());
+        return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
@@ -57,16 +55,21 @@ public class ExperimentViewer extends GenericExperimentViewer
     }
 
     @Override
-    protected List<BrowserSectionPanel> createAdditionalBrowserSectionPanels(String displyIdSuffix)
+    protected List<DisposableSectionPanel> createAdditionalBrowserSectionPanels(String displyIdSuffix)
     {
-        IDisposableComponent grid =
-                ProteinByExperimentBrowserGrid.create(specificViewContext, experimentOrNull);
-        BrowserSectionPanel section =
-                new BrowserSectionPanel(specificViewContext.getMessage(Dict.PROTEINS_SECTION), grid);
+        DisposableSectionPanel section =
+                new DisposableSectionPanel(specificViewContext.getMessage(Dict.PROTEINS_SECTION),
+                        specificViewContext)
+                    {
+                        @Override
+                        protected IDisposableComponent createDisposableContent()
+                        {
+                            return ProteinByExperimentBrowserGrid.create(specificViewContext,
+                                    experimentOrNull);
+                        }
+                    };
         section.setDisplayID(DisplayTypeIDGenerator.PROTEIN_SECTION, displyIdSuffix);
-        return Collections.<BrowserSectionPanel> singletonList(section);
+        return Collections.<DisposableSectionPanel> singletonList(section);
     }
-    
-    
 
 }

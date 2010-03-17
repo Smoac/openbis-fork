@@ -16,21 +16,29 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.BrowserSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
  * @author Franz-Josef Elmer
  */
-class ExperimentDataSetSection extends BrowserSectionPanel
+class ExperimentDataSetSection extends DisposableSectionPanel
 {
+    private final Experiment experiment;
+
     ExperimentDataSetSection(Experiment experiment, IViewContext<?> viewContext)
     {
-        super("Data Sets");
-        initializeDisposableBrowser(ExperimentDataSetBrowser.create(viewContext, TechId
-                .create(experiment), experiment.getExperimentType(), getServerRequestQueue()));
+        super("Data Sets", viewContext);
+        this.experiment = experiment;
     }
 
+    @Override
+    protected IDisposableComponent createDisposableContent()
+    {
+        return ExperimentDataSetBrowser.create(viewContext, TechId.create(experiment), experiment
+                .getExperimentType());
+    }
 }

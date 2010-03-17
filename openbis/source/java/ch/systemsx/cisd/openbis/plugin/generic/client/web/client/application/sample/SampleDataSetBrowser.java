@@ -20,7 +20,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ServerRequestQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -45,15 +44,13 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
 
     public static IDisposableComponent create(IViewContext<?> viewContext, TechId sampleId,
             final SampleType sampleType,
-            final DataSetConnectionTypeProvider connectionTypeProvider,
-            final ServerRequestQueue requestQueueOrNull)
+            final DataSetConnectionTypeProvider connectionTypeProvider)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
 
         SampleDataSetBrowser browser =
-                new SampleDataSetBrowser(commonViewContext, sampleId, connectionTypeProvider,
-                        requestQueueOrNull)
+                new SampleDataSetBrowser(commonViewContext, sampleId, connectionTypeProvider)
                     {
                         @Override
                         public String getGridDisplayTypeID()
@@ -68,11 +65,10 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     private final TechId sampleId;
 
     private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            TechId sampleId, DataSetConnectionTypeProvider connectionTypeProvider,
-            ServerRequestQueue requestQueueOrNull)
+            TechId sampleId, DataSetConnectionTypeProvider connectionTypeProvider)
     {
         super(viewContext, createBrowserId(sampleId), createGridId(sampleId),
-                DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID, requestQueueOrNull);
+                DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         this.sampleId = sampleId;
         this.connectionTypeProvider = connectionTypeProvider;
         // refresh data when connection type provider value changes
