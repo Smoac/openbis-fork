@@ -25,8 +25,6 @@ import java.util.TreeSet;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -281,17 +279,16 @@ public class DataSetComputeMenu extends TextToolItem
 
         private static final int DIALOG_WIDTH = 4 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH + 30;
 
-        private Radio computeOnSelectedRadio;
-
-        private Radio computeOnAllRadio;
-
         private final IViewContext<ICommonClientServiceAsync> viewContext;
+
+        private final ComputationDataSetsRadioProvider radioProvider;
 
         protected PerformArchivizationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
                 ComputationData data, String title)
         {
             super(viewContext, data, title);
             this.viewContext = viewContext;
+            this.radioProvider = new ComputationDataSetsRadioProvider(data);
 
             setWidth(DIALOG_WIDTH);
         }
@@ -351,39 +348,14 @@ public class DataSetComputeMenu extends TextToolItem
             confirmButton.setText("Run");
         }
 
-        // FIXME PTR: copy & paste
-        private boolean getComputeOnSelected()
-        {
-            if (computeOnSelectedRadio == null)
-            {
-                return false;
-            } else
-            {
-                return computeOnSelectedRadio.getValue();
-            }
-        }
-
         private final RadioGroup createComputationDataSetsRadio()
         {
-            final RadioGroup result = new RadioGroup();
-            result.setFieldLabel("Data Sets");
-            result.setSelectionRequired(true);
-            result.setOrientation(Orientation.HORIZONTAL);
-            computeOnAllRadio = createRadio("all");
-            computeOnSelectedRadio =
-                    createRadio("selected (" + data.getSelectedDataSets().size() + ")");
-            result.add(computeOnSelectedRadio);
-            result.add(computeOnAllRadio);
-            result.setValue(computeOnSelectedRadio);
-            result.setAutoHeight(true);
-            return result;
+            return radioProvider.createComputationDataSetsRadio();
         }
 
-        private final Radio createRadio(final String label)
+        private boolean getComputeOnSelected()
         {
-            Radio result = new Radio();
-            result.setBoxLabel(label);
-            return result;
+            return radioProvider.getComputeOnSelected();
         }
 
     }
@@ -407,9 +379,7 @@ public class DataSetComputeMenu extends TextToolItem
         // not null only if all selected datasets come from the same datastore
         private final DataStore dataStoreOrNull;
 
-        private Radio computeOnSelectedRadio;
-
-        private Radio computeOnAllRadio;
+        private ComputationDataSetsRadioProvider radioProvider;
 
         private Html selectedDataSetTypesText;
 
@@ -420,6 +390,7 @@ public class DataSetComputeMenu extends TextToolItem
         {
             super(viewContext, data, title);
             this.viewContext = viewContext;
+            this.radioProvider = new ComputationDataSetsRadioProvider(data);
 
             this.dataStoreOrNull = tryGetSingleDatastore(data);
             setWidth(DIALOG_WIDTH);
@@ -537,17 +508,6 @@ public class DataSetComputeMenu extends TextToolItem
             return servicesGrid.tryGetSelectedItem();
         }
 
-        private boolean getComputeOnSelected()
-        {
-            if (computeOnSelectedRadio == null)
-            {
-                return false;
-            } else
-            {
-                return computeOnSelectedRadio.getValue();
-            }
-        }
-
         @Override
         protected void extendForm()
         {
@@ -623,40 +583,18 @@ public class DataSetComputeMenu extends TextToolItem
 
         private final RadioGroup createComputationDataSetsRadio()
         {
-            final RadioGroup result = new RadioGroup();
-            result.setFieldLabel("Data Sets");
-            result.setSelectionRequired(true);
-            result.setOrientation(Orientation.HORIZONTAL);
-            computeOnAllRadio = createRadio("all");
-            computeOnSelectedRadio =
-                    createRadio("selected (" + data.getSelectedDataSets().size() + ")");
-            result.add(computeOnSelectedRadio);
-            result.add(computeOnAllRadio);
-            result.setValue(computeOnSelectedRadio);
-            result.setAutoHeight(true);
-            result.addListener(Events.Change, new Listener<BaseEvent>()
-                {
-                    public void handleEvent(BaseEvent be)
-                    {
-                        updateAvailablePlugins();
-                        updateComputationDataSetsState();
-                        updateOkButtonState();
-                    }
-                });
-            return result;
+            return radioProvider.createComputationDataSetsRadio();
+        }
+
+        private boolean getComputeOnSelected()
+        {
+            return radioProvider.getComputeOnSelected();
         }
 
         private final void updateComputationDataSetsState()
         {
             boolean showSelectedDataSetTypes = getComputeOnSelected();
             selectedDataSetTypesText.setVisible(showSelectedDataSetTypes);
-        }
-
-        private final Radio createRadio(final String label)
-        {
-            Radio result = new Radio();
-            result.setBoxLabel(label);
-            return result;
         }
 
         private void updateAvailablePlugins()
@@ -710,6 +648,54 @@ public class DataSetComputeMenu extends TextToolItem
     private static interface IComputationAction
     {
         void execute(DatastoreServiceDescription pluginTask, boolean computeOnSelected);
+    }
+
+    private static class ComputationDataSetsRadioProvider
+    {
+        private Radio computeOnSelectedRadio;
+
+        private Radio computeOnAllRadio;
+
+        private ComputationData data;
+
+        public ComputationDataSetsRadioProvider(ComputationData data)
+        {
+            this.data = data;
+        }
+
+        public boolean getComputeOnSelected()
+        {
+            if (computeOnSelectedRadio == null)
+            {
+                return false;
+            } else
+            {
+                return computeOnSelectedRadio.getValue();
+            }
+        }
+
+        public final RadioGroup createComputationDataSetsRadio()
+        {
+            final RadioGroup result = new RadioGroup();
+            result.setFieldLabel("Data Sets");
+            result.setSelectionRequired(true);
+            result.setOrientation(Orientation.HORIZONTAL);
+            computeOnAllRadio = createRadio("all");
+            computeOnSelectedRadio =
+                    createRadio("selected (" + data.getSelectedDataSets().size() + ")");
+            result.add(computeOnSelectedRadio);
+            result.add(computeOnAllRadio);
+            result.setValue(computeOnSelectedRadio);
+            result.setAutoHeight(true);
+            return result;
+        }
+
+        private final Radio createRadio(final String label)
+        {
+            Radio result = new Radio();
+            result.setBoxLabel(label);
+            return result;
+        }
     }
 
 }
