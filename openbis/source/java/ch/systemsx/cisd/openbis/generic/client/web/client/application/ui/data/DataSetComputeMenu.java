@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -73,37 +74,45 @@ public class DataSetComputeMenu extends TextToolItem
 
     private final IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedDataSetsGetter;
 
+    private final IDelegatedAction postArchivizationAction;
+
     public DataSetComputeMenu(IViewContext<ICommonClientServiceAsync> viewContext,
-            IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedDataSetsGetter)
+            IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedDataSetsGetter,
+            IDelegatedAction postArchivizationAction)
     {
         super(viewContext.getMessage(Dict.MENU_COMPUTE));
         this.viewContext = viewContext;
         this.selectedDataSetsGetter = selectedDataSetsGetter;
+        this.postArchivizationAction = postArchivizationAction;
 
         Menu submenu = new Menu();
-        addMenuItem(submenu, PluginTaskActionMenuKind.COMPUTE_MENU_QUERIES);
-        addMenuItem(submenu, PluginTaskActionMenuKind.COMPUTE_MENU_PROCESSING);
+        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_QUERIES);
+        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_PROCESSING);
+        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_ARCHIVIZATION);
+        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_UNARCHIVIZATION);
         setMenu(submenu);
     }
 
     //
 
     /** {@link ActionMenu} kind enum with names matching dictionary keys */
-    private static enum PluginTaskActionMenuKind implements IActionMenuItem
+    private static enum DssTaskActionMenuKind implements IActionMenuItem
     {
         COMPUTE_MENU_QUERIES(DataStoreServiceKind.QUERIES), COMPUTE_MENU_PROCESSING(
-                DataStoreServiceKind.PROCESSING);
+                DataStoreServiceKind.PROCESSING), COMPUTE_MENU_ARCHIVIZATION(
+                DataStoreServiceKind.ARCHIVIZATION), COMPUTE_MENU_UNARCHIVIZATION(
+                DataStoreServiceKind.UNARCHIVIZATION);
 
-        private final DataStoreServiceKind pluginTaskKind;
+        private final DataStoreServiceKind dssTaskKind;
 
-        PluginTaskActionMenuKind(DataStoreServiceKind pluginTaskKind)
+        DssTaskActionMenuKind(DataStoreServiceKind dssTaskKind)
         {
-            this.pluginTaskKind = pluginTaskKind;
+            this.dssTaskKind = dssTaskKind;
         }
 
-        public DataStoreServiceKind getPluginTaskKind()
+        public DataStoreServiceKind getDssTaskKind()
         {
-            return pluginTaskKind;
+            return dssTaskKind;
         }
 
         public String getMenuId()
@@ -117,14 +126,14 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private final void addMenuItem(Menu submenu, PluginTaskActionMenuKind menuItemKind)
+    private final void addMenuItem(Menu submenu, DssTaskActionMenuKind menuItemKind)
     {
         final IDelegatedAction menuItemAction =
-                createComputeMenuAction(menuItemKind.getPluginTaskKind());
+                createComputeMenuAction(menuItemKind.getDssTaskKind());
         submenu.add(new ActionMenu(menuItemKind, viewContext, menuItemAction));
     }
 
-    private IDelegatedAction createComputeMenuAction(final DataStoreServiceKind pluginTaskKind)
+    private IDelegatedAction createComputeMenuAction(final DataStoreServiceKind dssTaskKind)
     {
         return new IDelegatedAction()
             {
@@ -133,25 +142,31 @@ public class DataSetComputeMenu extends TextToolItem
                     final SelectedAndDisplayedItems selectedAndDisplayedItems =
                             selectedDataSetsGetter.execute();
                     final IComputationAction computationAction =
-                            createComputationAction(selectedAndDisplayedItems, pluginTaskKind);
+                            createComputationAction(selectedAndDisplayedItems, dssTaskKind);
                     final ComputationData data =
-                            new ComputationData(pluginTaskKind, computationAction,
+                            new ComputationData(dssTaskKind, computationAction,
                                     selectedAndDisplayedItems);
                     createPerformComputationDialog(data).show();
                 }
 
                 private Window createPerformComputationDialog(ComputationData data)
                 {
-                    final String title =
-                            "Perform " + pluginTaskKind.getDescription() + " Computation";
-                    return new PerformComputationDialog(viewContext, data, title);
+                    final String title = "Perform " + dssTaskKind.getDescription();
+                    switch (dssTaskKind)
+                    {
+                        case ARCHIVIZATION:
+                        case UNARCHIVIZATION:
+                            return new PerformArchivizationDialog(viewContext, data, title);
+                        default:
+                            return new PerformComputationDialog(viewContext, data, title);
+                    }
                 }
             };
     }
 
     private IComputationAction createComputationAction(
             final SelectedAndDisplayedItems selectedAndDisplayedItems,
-            final DataStoreServiceKind pluginTaskKind)
+            final DataStoreServiceKind dssTaskKind)
     {
         return new IComputationAction()
             {
@@ -159,13 +174,27 @@ public class DataSetComputeMenu extends TextToolItem
                 {
                     DisplayedOrSelectedDatasetCriteria criteria =
                             createCriteria(selectedAndDisplayedItems, computeOnSelected);
-                    if (pluginTaskKind == DataStoreServiceKind.QUERIES)
+                    switch (dssTaskKind)
                     {
-                        DataSetReportGenerator.generate(viewContext, service, criteria);
-                    } else
-                    {
-                        viewContext.getService().processDatasets(service, criteria,
-                                new ProcessingDisplayCallback(viewContext));
+                        case QUERIES:
+                            DataSetReportGenerator.generate(viewContext, service, criteria);
+                            break;
+                        case PROCESSING:
+                            viewContext.getService().processDatasets(service, criteria,
+                                    new ProcessingDisplayCallback(viewContext));
+                            break;
+                        case ARCHIVIZATION:
+                            viewContext.getService().archiveDatasets(
+                                    criteria,
+                                    new ArchivizationDisplayCallback(viewContext, dssTaskKind
+                                            .getDescription()));
+                            break;
+                        case UNARCHIVIZATION:
+                            viewContext.getService().unarchiveDatasets(
+                                    criteria,
+                                    new ArchivizationDisplayCallback(viewContext, dssTaskKind
+                                            .getDescription()));
+                            break;
                     }
                 }
             };
@@ -191,27 +220,45 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
+    private final class ArchivizationDisplayCallback extends AbstractAsyncCallback<Void>
+    {
+        private final String actionName;
+
+        private ArchivizationDisplayCallback(IViewContext<?> viewContext, String actionName)
+        {
+            super(viewContext);
+            this.actionName = actionName;
+        }
+
+        @Override
+        public final void process(final Void result)
+        {
+            MessageBox.info(actionName, actionName + " has been scheduled successfully.", null);
+            postArchivizationAction.execute();
+        }
+    }
+
     private static class ComputationData
     {
-        private final DataStoreServiceKind pluginTaskKind;
+        private final DataStoreServiceKind dssTaskKind;
 
         private final IComputationAction computationAction;
 
         private final SelectedAndDisplayedItems selectedAndDisplayedItems;
 
-        public ComputationData(DataStoreServiceKind pluginTaskKind,
+        public ComputationData(DataStoreServiceKind dssTaskKind,
                 IComputationAction computationAction,
                 SelectedAndDisplayedItems selectedAndDisplayedItems)
         {
             super();
-            this.pluginTaskKind = pluginTaskKind;
+            this.dssTaskKind = dssTaskKind;
             this.computationAction = computationAction;
             this.selectedAndDisplayedItems = selectedAndDisplayedItems;
         }
 
-        public DataStoreServiceKind getPluginTaskKind()
+        public DataStoreServiceKind getDssTaskKind()
         {
-            return pluginTaskKind;
+            return dssTaskKind;
         }
 
         public IComputationAction getComputationAction()
@@ -223,6 +270,122 @@ public class DataSetComputeMenu extends TextToolItem
         {
             return selectedAndDisplayedItems.getSelectedItems();
         }
+    }
+
+    private static class PerformArchivizationDialog extends
+            AbstractDataConfirmationDialog<ComputationData>
+    {
+        private static final int LABEL_WIDTH = ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 20;
+
+        private static final int FIELD_WIDTH = 2 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 20;
+
+        private static final int DIALOG_WIDTH = 4 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH + 30;
+
+        private Radio computeOnSelectedRadio;
+
+        private Radio computeOnAllRadio;
+
+        private final IViewContext<ICommonClientServiceAsync> viewContext;
+
+        protected PerformArchivizationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
+                ComputationData data, String title)
+        {
+            super(viewContext, data, title);
+            this.viewContext = viewContext;
+
+            setWidth(DIALOG_WIDTH);
+        }
+
+        @Override
+        protected String createMessage()
+        {
+            int size = data.getSelectedDataSets().size();
+            String computationName = data.getDssTaskKind().getDescription();
+            String requiredStatusName = getRequiredStatus(data.getDssTaskKind()).getDescription();
+            if (size == 0)
+            {
+                final String msgIntroduction = viewContext.getMessage(Dict.NO_DATASETS_SELECTED);
+                String dictKey = Dict.PERFORM_ARCHIVIZATION_ON_ALL_DATASETS_MSG_TEMPLATE;
+                return viewContext.getMessage(dictKey, msgIntroduction, computationName,
+                        requiredStatusName);
+            } else
+            {
+                String dictKey =
+                        Dict.PERFORM_ARCHIVIZATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE;
+                return viewContext.getMessage(dictKey, computationName, size, requiredStatusName);
+            }
+        }
+
+        private DataSetArchivizationStatus getRequiredStatus(DataStoreServiceKind dssTaskKind)
+        {
+            switch (dssTaskKind)
+            {
+                case ARCHIVIZATION:
+                    return DataSetArchivizationStatus.ACTIVE;
+                case UNARCHIVIZATION:
+                    return DataSetArchivizationStatus.ARCHIVED;
+                default:
+                    return null; // not possible
+            }
+        }
+
+        @Override
+        protected void executeConfirmedAction()
+        {
+            final IComputationAction computationAction = data.getComputationAction();
+            final boolean computeOnSelected = getComputeOnSelected();
+            computationAction.execute(null, computeOnSelected);
+        }
+
+        @Override
+        protected void extendForm()
+        {
+            formPanel.setLabelWidth(LABEL_WIDTH);
+            formPanel.setFieldWidth(FIELD_WIDTH);
+
+            if (data.getSelectedDataSets().size() > 0)
+            {
+                formPanel.add(createComputationDataSetsRadio());
+            }
+            Button confirmButton = getButtonById(Dialog.OK);
+            confirmButton.setText("Run");
+        }
+
+        // FIXME PTR: copy & paste
+        private boolean getComputeOnSelected()
+        {
+            if (computeOnSelectedRadio == null)
+            {
+                return false;
+            } else
+            {
+                return computeOnSelectedRadio.getValue();
+            }
+        }
+
+        private final RadioGroup createComputationDataSetsRadio()
+        {
+            final RadioGroup result = new RadioGroup();
+            result.setFieldLabel("Data Sets");
+            result.setSelectionRequired(true);
+            result.setOrientation(Orientation.HORIZONTAL);
+            computeOnAllRadio = createRadio("all");
+            computeOnSelectedRadio =
+                    createRadio("selected (" + data.getSelectedDataSets().size() + ")");
+            result.add(computeOnSelectedRadio);
+            result.add(computeOnAllRadio);
+            result.setValue(computeOnSelectedRadio);
+            result.setAutoHeight(true);
+            return result;
+        }
+
+        private final Radio createRadio(final String label)
+        {
+            Radio result = new Radio();
+            result.setBoxLabel(label);
+            return result;
+        }
+
     }
 
     private static class PerformComputationDialog extends
@@ -291,7 +454,7 @@ public class DataSetComputeMenu extends TextToolItem
         protected String createMessage()
         {
             int size = data.getSelectedDataSets().size();
-            String computationName = data.getPluginTaskKind().getDescription();
+            String computationName = data.getDssTaskKind().getDescription();
             if (size == 0)
             {
                 final String msgIntroduction = viewContext.getMessage(Dict.NO_DATASETS_SELECTED);
@@ -416,7 +579,7 @@ public class DataSetComputeMenu extends TextToolItem
 
         private void loadAvailableServices()
         {
-            viewContext.getService().listDataStoreServices(data.getPluginTaskKind(),
+            viewContext.getService().listDataStoreServices(data.getDssTaskKind(),
                     new ListServicesDescriptionsCallback(viewContext));
         }
 

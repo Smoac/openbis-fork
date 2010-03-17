@@ -237,13 +237,11 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         protected final void process(final ExternalData result)
         {
             genericDataSetViewer.updateOriginalData(result);
-            genericDataSetViewer.removeAll();
             if (result.getStatus() != DataSetArchivizationStatus.ACTIVE)
             {
                 genericDataSetViewer.setupNonActiveDataSetView(result);
-                return;
             }
-
+            genericDataSetViewer.removeAll();
             // Left panel
             final Component leftPanel = genericDataSetViewer.createLeftPanel(result);
             genericDataSetViewer.add(leftPanel, createLeftBorderLayoutData());
@@ -252,6 +250,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
             genericDataSetViewer.add(rightPanel, createRightBorderLayoutData());
 
             genericDataSetViewer.layout();
+
         }
 
         @Override
@@ -265,26 +264,11 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     public void setupNonActiveDataSetView(final ExternalData result)
     {
         setToolBarButtonsEnabled(false);
-        updateTitle(getOriginalDataDescription() + " is not available.");
-        MessageBox.info("Data not available", "Data Set " + result.getCode() + " is "
-                + getStatusDescription(result.getStatus()) + " and because of it you can not "
-                + "access its data", null);
-    }
-
-    private String getStatusDescription(DataSetArchivizationStatus status)
-    {
-        switch (status)
-        {
-            case ACTIVE:
-                return "active";
-            case ARCHIVED:
-                return "archived";
-            case ACTIVATION_IN_PROGRESS:
-                return "being activated";
-            case ARCHIVIZATION_IN_PROGRESS:
-                return "being archivized";
-        }
-        return null; // not possible
+        updateTitle(getOriginalDataDescription() + " (not available)");
+        String msg =
+                viewContext.getMessage(Dict.DATASET_NOT_AVAILABLE_MSG, result.getCode(), result
+                        .getStatus().getDescription().toLowerCase());
+        MessageBox.info("Data not available", msg, null);
     }
 
     @Override

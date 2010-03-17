@@ -263,6 +263,12 @@ public abstract class Dict
     public static final String PERFORM_COMPUTATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE =
             "perform_computation_on_selected_or_all_datasets_msg_template";
 
+    public static final String PERFORM_ARCHIVIZATION_ON_ALL_DATASETS_MSG_TEMPLATE =
+            "perform_archivization_on_all_datasets_msg_template";
+
+    public static final String PERFORM_ARCHIVIZATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE =
+            "perform_archivization_on_selected_or_all_datasets_msg_template";
+
     //
     // Entity Type Browser
     //
@@ -442,6 +448,12 @@ public abstract class Dict
 
     public static final String IS_COMPLETE = "is_complete";
 
+    public static final String STATUS = "status";
+
+    public static final String LOCKED = "locked";
+
+    public static final String IS_LOCKED = "is_locked";
+
     public static final String PRODUCTION_DATE = "production_date";
 
     public static final String DATA_PRODUCER_CODE = "data_producer_code";
@@ -471,6 +483,8 @@ public abstract class Dict
 
     public static final String CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD =
             "confirm_dataset_upload_password_field";
+
+    public static final String DATASET_NOT_AVAILABLE_MSG = "dataset_not_available_msg";
 
     //
     // Sample Registration

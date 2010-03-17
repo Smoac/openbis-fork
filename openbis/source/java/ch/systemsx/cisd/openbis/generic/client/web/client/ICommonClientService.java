@@ -721,6 +721,18 @@ public interface ICommonClientService extends IClientService
             DisplayedOrSelectedDatasetCriteria criteria) throws UserFailureException;
 
     /**
+     * Schedules archivization of the specified datasets.
+     */
+    public void archiveDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+            throws UserFailureException;
+
+    /**
+     * Schedules unarchivization of the specified datasets.
+     */
+    public void unarchiveDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+            throws UserFailureException;
+
+    /**
      * Deletes selected authorization groups.
      */
     public void deleteAuthorizationGroups(List<TechId> createList, String reason)

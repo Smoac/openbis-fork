@@ -625,6 +625,18 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             DisplayedOrSelectedDatasetCriteria criteria, AsyncCallback<Void> callback);
 
     /**
+     * @see ICommonClientService#archiveDatasets(DisplayedOrSelectedDatasetCriteria)
+     */
+    public void archiveDatasets(DisplayedOrSelectedDatasetCriteria criteria,
+            AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#unarchiveDatasets(DisplayedOrSelectedDatasetCriteria)
+     */
+    public void unarchiveDatasets(DisplayedOrSelectedDatasetCriteria criteria,
+            AsyncCallback<Void> callback);
+
+    /**
      * @see ICommonClientService#deleteAuthorizationGroups(List, String)
      */
     public void deleteAuthorizationGroups(List<TechId> createList, String reason,

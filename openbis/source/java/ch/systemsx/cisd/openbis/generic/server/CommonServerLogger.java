@@ -725,7 +725,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void unarchiveDatasets(String sessionToken, List<String> datasetCodes)
     {
-        logTracking(sessionToken, "activateDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
+        logTracking(sessionToken, "unarchiveDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
     }
 
     public void archiveDatasets(String sessionToken, List<String> datasetCodes)

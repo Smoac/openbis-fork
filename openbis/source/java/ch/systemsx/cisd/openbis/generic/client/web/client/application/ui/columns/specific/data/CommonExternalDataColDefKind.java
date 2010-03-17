@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<ExternalData>
 {
@@ -156,6 +156,24 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             public String tryGetValue(ExternalData entity)
             {
                 return entity.getLocation();
+            }
+        }),
+
+    STATUS(new AbstractColumnDefinitionKind<ExternalData>(Dict.STATUS, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getStatus().getDescription();
+            }
+        }),
+
+    IS_LOCKED(new AbstractColumnDefinitionKind<ExternalData>(Dict.IS_LOCKED, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return SimpleYesNoRenderer.render(entity.isLocked());
             }
         }),
 

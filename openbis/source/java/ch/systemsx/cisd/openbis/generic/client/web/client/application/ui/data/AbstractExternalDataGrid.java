@@ -225,7 +225,8 @@ public abstract class AbstractExternalDataGrid
 
     private final Component createComputeMenu()
     {
-        return new DataSetComputeMenu(viewContext, getSelectedAndDisplayedItemsAction());
+        return new DataSetComputeMenu(viewContext, getSelectedAndDisplayedItemsAction(),
+                createRefreshGridAction());
     }
 
     public final static class SelectedAndDisplayedItems

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -189,7 +190,13 @@ public class DataViewSection extends SingleSectionPanel
                     ModelDataPropertyNames.LABEL, "viewer", "viewers");
             this.viewContext = viewContext;
             this.dataset = dataset;
-            addPostRefreshCallback(createDefaultServiceSelectionAction());
+            if (dataset.getStatus() != DataSetArchivizationStatus.ACTIVE)
+            {
+                disable();
+            } else
+            {
+                addPostRefreshCallback(createDefaultServiceSelectionAction());
+            }
         }
 
         private IDataRefreshCallback createDefaultServiceSelectionAction()
