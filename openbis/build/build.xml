@@ -2,6 +2,7 @@
 	<import file="../../server-common/build/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 	<project-classpath name="eclipse.cp" classes="${targets}/classes" />
+	<project-classpath name="ecp.plus" classes="${targets}/www/WEB-INF/classes" />
 
 	<property name="mainfolder" value="openbis" />
 
@@ -616,7 +617,7 @@
 			-->
 	<target name="compile-module-test" description="Compile the module test mode">
 		<delete dir="${targets.www}/${module-test.path}" />
-		<java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
+		<java classpath="${ecp}:${ecp.plus}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
 		      classname="com.google.gwt.dev.Compiler"
 		      fork="true">
 			<jvmarg value="-Xmx512M" />
@@ -647,6 +648,7 @@
 				<pathelement location="${sources}" />
 				<pathelement location="../openbis/${sources}" />
 				<pathelement path="${ecp}" />
+				<pathelement path="${ecp.plus}" />
 				<pathelement location="${gwt.lib}/gwt-dev.jar" />
 				<pathelement location="${gwt.lib}/gwt-user.jar" />
 			</classpath>
