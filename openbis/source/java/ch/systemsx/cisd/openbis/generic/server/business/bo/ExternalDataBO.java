@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -302,14 +303,15 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     private void updatePropertiesPreservingExisting(List<NewProperty> properties)
     {
         final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
-        Set<String> propertyUpdatesCodes = extractPropertyCodesToUpdate(properties, existingProperties);
+        Set<String> propertyUpdatesCodes =
+                extractPropertyCodesToUpdate(properties, existingProperties);
         List<NewProperty> propertyUpdates =
                 extractNewPropertiesToUpdate(properties, propertyUpdatesCodes);
         final EntityTypePE type = externalData.getDataSetType();
         final PersonPE registrator = findRegistrator();
         externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
-                type, Arrays.asList(convertToDataSetProperties(propertyUpdates)),
-                registrator, propertyUpdatesCodes));
+                type, Arrays.asList(convertToDataSetProperties(propertyUpdates)), registrator,
+                propertyUpdatesCodes));
     }
 
     private List<NewProperty> extractNewPropertiesToUpdate(List<NewProperty> properties,
@@ -644,6 +646,14 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         propertyType.setCode(newProperty.getPropertyCode());
         result.setPropertyType(propertyType);
         return result;
+    }
+
+    public void updateStatus(String dataSetCode, DataSetArchivizationStatus newStatus)
+    {
+        loadByCode(dataSetCode);
+        // TODO 2010-03-17, Piotr Buczek: check old status and modify status only if old one was pending?
+        externalData.setStatus(newStatus);
+        validateAndSave();
     }
 
 }

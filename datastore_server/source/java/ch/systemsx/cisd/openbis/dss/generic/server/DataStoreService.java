@@ -234,4 +234,26 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 mailClientParameters);
     }
 
+    public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+            String userEmailOrNull)
+    {
+        // TODO implement (code below is just for testing)
+        System.err.println("Unarchiving:");
+        for (DatasetDescription d : datasets)
+        {
+            System.err.println(d.getDatasetCode() + " " + d.getDataSetLocation());
+        }
+    }
+
+    public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+            String userEmailOrNull)
+    {
+        // TODO implement (code below is just for testing)
+        System.err.println("Archiving:");
+        for (DatasetDescription d : datasets)
+        {
+            System.err.println(d.getDatasetCode() + " " + d.getDataSetLocation());
+        }
+    }
+
 }

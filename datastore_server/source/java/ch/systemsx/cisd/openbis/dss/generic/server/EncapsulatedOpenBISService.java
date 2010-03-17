@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -412,7 +413,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Registered in openBIS: data set " + code + ".");
+            operationLog.info("Updated in openBIS: data set " + code + ".");
         }
     }
 
@@ -420,6 +421,33 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             final SpaceIdentifier space)
     {
         service.addPropertiesToDataSet(sessionToken, properties, code, space);
+    }
+
+    synchronized public final void updateDataSetStatus(String code,
+            DataSetArchivizationStatus newStatus) throws UserFailureException
+
+    {
+        assert code != null : "missing data set code";
+        assert newStatus != null : "missing status";
+
+        checkSessionToken();
+        try
+        {
+            primUpdateDataSetStatus(code, newStatus);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            primUpdateDataSetStatus(code, newStatus);
+        }
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Updated in openBIS: data set " + code + ", status=" + newStatus);
+        }
+    }
+
+    private void primUpdateDataSetStatus(String code, DataSetArchivizationStatus newStatus)
+    {
+        service.updateDataSetStatus(sessionToken, code, newStatus);
     }
 
     synchronized public final IEntityProperty[] getPropertiesOfTopSampleRegisteredFor(

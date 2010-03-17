@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -533,6 +534,15 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         final Session session = getSession(sessionToken);
         final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
         externalDataBO.addPropertiesToDataSet(dataSetCode, properties);
+    }
+
+    public void updateDataSetStatus(String sessionToken, String dataSetCode,
+            DataSetArchivizationStatus newStatus) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        final Session session = getSession(sessionToken);
+        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        externalDataBO.updateStatus(dataSetCode, newStatus);
     }
 
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)

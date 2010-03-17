@@ -22,6 +22,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -213,6 +214,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     {
         logTracking(sessionToken, "updateDataSet", "DATA_SET_CODE(%s) PROPERTIES(%s)", dataSetCode,
                 properties.size());
+    }
+
+    public void updateDataSetStatus(String sessionToken, String dataSetCode,
+            DataSetArchivizationStatus newStatus) throws UserFailureException
+    {
+        logTracking(sessionToken, "updateDataSetStatus", "DATA_SET_CODE(%s) STATUS(%s)",
+                dataSetCode, newStatus);
     }
 
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -167,5 +168,11 @@ public interface IEncapsulatedOpenBISService
      * Updates specified properties of given data set.
      */
     public void updateDataSet(String code, List<NewProperty> properties, SpaceIdentifier space)
+            throws UserFailureException;
+
+    /**
+     * Updates status of given data set.
+     */
+    public void updateDataSetStatus(String code, DataSetArchivizationStatus newStatus)
             throws UserFailureException;
 }

@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTec
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -282,5 +284,17 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             String dataSetCode,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) final SpaceIdentifier identifier)
             throws UserFailureException;
+
+    // FIXME all methods modifying openbis db should use @DatabaseUpdate/CreateOrDeleteModification
+
+    /**
+     * Adds specified properties of given data set. Properties defined before will not be updated.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void updateDataSetStatus(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode,
+            final DataSetArchivizationStatus newStatus) throws UserFailureException;
 
 }

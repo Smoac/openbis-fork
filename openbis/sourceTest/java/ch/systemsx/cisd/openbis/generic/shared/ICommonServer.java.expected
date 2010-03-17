@@ -904,6 +904,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void archiveDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
@@ -912,6 +913,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void unarchiveDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 

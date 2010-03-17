@@ -116,4 +116,18 @@ class DataStoreServiceLogger implements IDataStoreService
                 datasets.size(), userEmailOrNull);
     }
 
+    public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+            String userEmailOrNull)
+    {
+        log("activateDatasets", "NO_OF_DATASETS(%s) USER_EMAIL(%s)", datasets.size(),
+                userEmailOrNull);
+    }
+
+    public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+            String userEmailOrNull)
+    {
+        log("archiveDatasets", "NO_OF_DATASETS(%s) USER_EMAIL(%s)", datasets.size(),
+                userEmailOrNull);
+    }
+
 }

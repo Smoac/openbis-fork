@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -58,6 +59,11 @@ public interface IExternalDataBO extends IEntityBusinessObject
      * Changes given data set. Currently allowed changes: properties, sample.
      */
     public void update(DataSetUpdatesDTO updates);
+
+    /**
+     * Updates status of given data set.
+     */
+    public void updateStatus(String dataSetCode, DataSetArchivizationStatus newStatus);
 
     /**
      * Adds chosen properties to given data set. If given property has been already defined, the
