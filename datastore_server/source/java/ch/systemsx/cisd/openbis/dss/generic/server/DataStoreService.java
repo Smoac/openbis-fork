@@ -66,7 +66,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private File commandQueueDirOrNull;
 
-    private IDataSetCommandExecutor commandExecuter;
+    private IDataSetCommandExecutor commandExecutor;
 
     public DataStoreService(SessionTokenManager sessionTokenManager,
             MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters)
@@ -145,8 +145,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             commandQueueDirOrNull = storeRoot;
         }
-        commandExecuter = commandExecutorFactory.create(storeRoot, commandQueueDirOrNull);
-        commandExecuter.start();
+        commandExecutor = commandExecutorFactory.create(storeRoot, commandQueueDirOrNull);
+        commandExecutor.start();
     }
 
     public IDataStoreService createLogger(IInvocationLoggerContext context)
@@ -182,7 +182,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
-        commandExecuter.scheduleDeletionOfDataSets(dataSetLocations);
+        commandExecutor.scheduleDeletionOfDataSets(dataSetLocations);
     }
 
     public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,
@@ -200,7 +200,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             throw new InvalidSessionException("User failed to be authenticated by CIFEX.");
         }
-        commandExecuter.scheduleUploadingDataSetsToCIFEX(serviceFactory, mailClientParameters,
+        commandExecutor.scheduleUploadingDataSetsToCIFEX(serviceFactory, mailClientParameters,
                 dataSets, context, cifexAdminUserOrNull, cifexAdminPasswordOrNull);
     }
 
@@ -230,7 +230,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         IProcessingPluginTask task = plugins.createPluginInstance(serviceKey, storeRoot);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
-        commandExecuter.scheduleProcessDatasets(task, datasets, userEmailOrNull, pluginDescription,
+        commandExecutor.scheduleProcessDatasets(task, datasets, userEmailOrNull, pluginDescription,
                 mailClientParameters);
     }
 
