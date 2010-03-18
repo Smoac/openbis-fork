@@ -169,6 +169,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public long registerExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class) NewExperiment experiment)
             throws UserFailureException;
@@ -180,6 +181,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public long registerSample(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample,
             String userIDOrNull) throws UserFailureException;
@@ -197,6 +199,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void registerDataSet(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier,
@@ -215,6 +218,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void registerDataSet(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) final ExperimentIdentifier experimentIdentifier,
@@ -224,7 +228,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * Does nothing besides checking that the current user has rights to access the content of the
      * dataset.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public void checkDataSetAccess(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
@@ -233,7 +237,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     /**
      * Tries to return the data set specified by its code.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public ExternalData tryGetDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
@@ -278,14 +282,13 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void addPropertiesToDataSet(
             String sessionToken,
             List<NewProperty> properties,
             String dataSetCode,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) final SpaceIdentifier identifier)
             throws UserFailureException;
-
-    // FIXME all methods modifying openbis db should use @DatabaseUpdate/CreateOrDeleteModification
 
     /**
      * Adds specified properties of given data set. Properties defined before will not be updated.
