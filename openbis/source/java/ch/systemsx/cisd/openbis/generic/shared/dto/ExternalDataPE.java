@@ -71,9 +71,9 @@ public final class ExternalDataPE extends DataPE
 
     private BooleanOrUnknown complete = BooleanOrUnknown.U;
 
-    private boolean locked;
+    private boolean locked = false;
 
-    private DataSetArchivizationStatus status;
+    private DataSetArchivizationStatus status = DataSetArchivizationStatus.ACTIVE;
 
     /**
      * Returns the id of the locator type of the location of this external data, or
