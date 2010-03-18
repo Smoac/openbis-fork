@@ -165,7 +165,7 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
             {
                 this.name = name;
                 cachingType = resolve(typeOfCaching);
-                fileBasedDataSetLoader = new FileBasedDataSetLoader<T>(new File(name));
+                fileBasedDataSetLoader = new FileBasedDataSetLoader<T>(new File("cache/" + name));
                 this.dataSetLoader = dataSetLoader;
                 cache = new HashMap<String, DataSet<T>>();
             }

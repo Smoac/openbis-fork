@@ -16,6 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +29,9 @@ import java.util.Set;
 
 import net.lemnik.eodsql.DataSet;
 
+import org.apache.commons.io.IOUtils;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -33,18 +42,21 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSumma
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbabilityAndPeptide;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSummaryTable
 {
-    static final double[] FDR_LEVELS = new double[] {0, 0.01, 0.025, 0.05, 0.1};
-    
+    private final static File STORE = new File("cache/proteinSummaryTables");
+
+    static final double[] FDR_LEVELS = new double[]
+        { 0, 0.01, 0.025, 0.05, 0.1 };
+
     private static final class Counter
     {
         private final double fdrLevel;
+
         private final Set<Long> proteins;
+
         private final Set<String> peptides;
 
         Counter(double fdrLevel)
@@ -53,7 +65,7 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
             proteins = new HashSet<Long>();
             peptides = new HashSet<String>();
         }
-        
+
         public ProteinSummary getProteinSummary()
         {
             ProteinSummary proteinSummary = new ProteinSummary();
@@ -72,9 +84,9 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
             }
         }
     }
-    
+
     private List<ProteinSummary> summaries;
-    
+
     ProteinSummaryTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
             Session session)
     {
@@ -88,6 +100,11 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
 
     public void load(TechId experimentID)
     {
+        summaries = tryLoadFromCache(experimentID);
+        if (summaries != null)
+        {
+            return;
+        }
         IExperimentDAO experimentDAO = getDaoFactory().getExperimentDAO();
         String permID = experimentDAO.getByTechId(experimentID).getPermId();
         IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
@@ -116,10 +133,54 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
             {
                 summaries.add(counter.getProteinSummary());
             }
+            saveToCache(experimentID, summaries);
         } finally
         {
             resultSet.close();
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ProteinSummary> tryLoadFromCache(TechId experimentID)
+    {
+        final File file = new File(STORE, experimentID.toString());
+        if (file.exists())
+        {
+            ObjectInputStream inputStream = null;
+            try
+            {
+                inputStream = new ObjectInputStream(new FileInputStream(file));
+                return (List<ProteinSummary>) inputStream.readObject();
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            } finally
+            {
+                IOUtils.closeQuietly(inputStream);
+            }
+        } else
+        {
+            return null;
+        }
+    }
+
+    private void saveToCache(TechId experimentID, List<ProteinSummary> summary)
+    {
+        STORE.mkdirs();
+        final File file = new File(STORE, experimentID.toString());
+        ObjectOutputStream outputStream = null;
+        try
+        {
+            outputStream = new ObjectOutputStream(new FileOutputStream(file));
+            outputStream.writeObject(summary);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(outputStream);
+        }
+
     }
 
 }
