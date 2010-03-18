@@ -39,6 +39,12 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 public class PreprocessingExecutor
 {
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, PreprocessingExecutor.class);
+
+    private final static Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, PreprocessingExecutor.class);
+
     /**
      * A path to a script which should be called from command line for every dataset batch before it
      * is processed. Can be used e.g. to change file permissions. The script gets one parameter, the
@@ -100,16 +106,14 @@ public class PreprocessingExecutor
 
     public boolean executeOnce(final String filePath)
     {
-        return callScript(preprocessingScriptPath, getClass(), filePath);
+        return callScript(preprocessingScriptPath, filePath);
     }
 
-    private static boolean callScript(String scriptPath, Class<?> logClass, String... args)
+    private static boolean callScript(String scriptPath, String... args)
     {
         List<String> cmd = new ArrayList<String>();
         cmd.add(scriptPath);
         cmd.addAll(Arrays.asList(args));
-        Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, logClass);
-        Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, logClass);
         return ProcessExecutionHelper.runAndLog(cmd, operationLog, machineLog);
     }
 
