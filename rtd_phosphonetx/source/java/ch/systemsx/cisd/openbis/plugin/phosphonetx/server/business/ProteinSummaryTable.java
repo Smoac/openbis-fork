@@ -180,7 +180,15 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
         {
             IOUtils.closeQuietly(outputStream);
         }
-
+    }
+    
+    void clearCache(TechId experimentID)
+    {
+        final File file = new File(STORE, experimentID.toString());
+        if (file.exists())
+        {
+            file.delete();
+        }
     }
 
 }
