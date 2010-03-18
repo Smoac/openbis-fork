@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -264,7 +265,7 @@ public abstract class AbstractExternalDataGrid
             if (selected)
             {
                 List<ExternalData> items = getSelectedItems();
-                List<String> datasetCodes = ExternalData.extractCodes(items);
+                List<String> datasetCodes = Code.extractCodes(items);
                 return DisplayedOrSelectedDatasetCriteria.createSelectedItems(datasetCodes);
             } else
             {

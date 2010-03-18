@@ -1627,7 +1627,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.archiveDatasets(datasetCodes);
+        externalDataTable.loadByDataSetCodes(datasetCodes);
+        externalDataTable.archiveDatasets();
     }
 
     public void unarchiveDatasets(String sessionToken, List<String> datasetCodes)
@@ -1635,7 +1636,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.unarchiveDatasets(datasetCodes);
+        externalDataTable.loadByDataSetCodes(datasetCodes);
+        externalDataTable.unarchiveDatasets();
     }
 
     public void registerAuthorizationGroup(String sessionToken,

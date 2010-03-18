@@ -82,6 +82,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -2019,7 +2020,7 @@ public final class CommonClientService extends AbstractClientService implements
             {
                 datasets = filterDatasets(datasets, serviceDescriptionOrNull);
             }
-            return ExternalData.extractCodes(datasets);
+            return Code.extractCodes(datasets);
         }
     }
 
@@ -2068,8 +2069,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            List<String> datasetCodes =
-                    extractDatasetCodes(displayedOrSelectedDatasetCriteria, null);
+            List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
             commonServer.archiveDatasets(sessionToken, datasetCodes);
         } catch (final UserFailureException e)
         {

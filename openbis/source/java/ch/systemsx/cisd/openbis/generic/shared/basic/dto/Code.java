@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -99,6 +101,16 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
     //
     // Helper classes
     //
+
+    public final static List<String> extractCodes(List<? extends ICodeProvider> codeProviders)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (ICodeProvider codeProvider : codeProviders)
+        {
+            codes.add(codeProvider.getCode());
+        }
+        return codes;
+    }
 
     public final static class CodeProviderComparator implements Comparator<ICodeProvider>,
             Serializable

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -492,46 +491,20 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     // Archivization
     //
 
-    public void unarchiveDatasets(List<String> datasetCodes)
+    public void archiveDatasets()
     {
-        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore =
-                loadDatasetsAndGroupByStore(datasetCodes);
-        filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.ARCHIVED,
-                DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
-        performUnarchivization(datasetsByStore);
-    }
-
-    public void archiveDatasets(List<String> datasetCodes)
-    {
-        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore =
-                loadDatasetsAndGroupByStore(datasetCodes);
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
         filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.ACTIVE,
                 DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS);
         performArchivization(datasetsByStore);
     }
 
-    private Map<DataStorePE, List<ExternalDataPE>> loadDatasetsAndGroupByStore(
-            List<String> datasetCodes)
+    public void unarchiveDatasets()
     {
-        IExternalDataDAO externalDataDAO = getExternalDataDAO();
-        Map<DataStorePE, List<ExternalDataPE>> result =
-                new HashMap<DataStorePE, List<ExternalDataPE>>();
-        for (String datasetCode : datasetCodes)
-        {
-            ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(datasetCode, false);
-            if (dataSet != null)
-            {
-                DataStorePE store = dataSet.getDataStore();
-                List<ExternalDataPE> dataSets = result.get(store);
-                if (dataSets == null)
-                {
-                    dataSets = new ArrayList<ExternalDataPE>();
-                    result.put(store, dataSets);
-                }
-                dataSets.add(dataSet);
-            }
-        }
-        return result;
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.ARCHIVED,
+                DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
+        performUnarchivization(datasetsByStore);
     }
 
     private void filterByStatusAndUpdate(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
