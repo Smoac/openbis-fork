@@ -31,8 +31,11 @@ import java.util.Map;
 import net.lemnik.eodsql.DataSet;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
@@ -147,6 +150,9 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
 
         private static final class ResultSetCache<T> 
         {
+            private static final Logger operationLog =
+                    LogFactory.getLogger(LogCategory.OPERATION, ResultSetCache.class);
+
             private enum CachingType { MEMORY, FILE_SYSTEM }
             
             private final String name;
@@ -203,7 +209,7 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
                 {
                     dataSet = new ListBasedDataSet<T>(dataSetLoader.load(experimentPermID));
                 }
-                System.out.println(System.currentTimeMillis() - time + "msec for " + name);
+                operationLog.info("(" + (System.currentTimeMillis() - time) + "ms) " + name);
                 return dataSet;
             }
         }
