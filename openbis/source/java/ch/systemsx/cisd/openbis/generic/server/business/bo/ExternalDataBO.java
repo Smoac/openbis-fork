@@ -92,7 +92,13 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     public void loadByCode(String dataSetCode)
     {
-        externalData = getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode, true);
+        loadByCode(dataSetCode, true);
+    }
+
+    public void loadByCode(String dataSetCode, boolean withPropertyTypes)
+    {
+        externalData =
+                getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode, withPropertyTypes);
     }
 
     static final String PROPERTY_TYPES = "dataSetType.dataSetTypePropertyTypesInternal";
@@ -650,8 +656,9 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     public void updateStatus(String dataSetCode, DataSetArchivizationStatus newStatus)
     {
-        loadByCode(dataSetCode);
-        // TODO 2010-03-17, Piotr Buczek: check old status and modify status only if old one was pending?
+        loadByCode(dataSetCode, false);
+        // TODO 2010-03-17, Piotr Buczek: check old status and modify status only if old one was
+        // pending?
         externalData.setStatus(newStatus);
         validateAndSave();
     }

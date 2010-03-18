@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -281,6 +282,28 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(1, externalData.getParents().size());
         assertEquals(parentData, externalData.getParents().iterator().next());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateStatus()
+    {
+        final SamplePE sample = new SamplePE();
+        sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
+        final ExternalDataPE dataSet = createDataSet(sample, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(externalDataDAO).tryToFindFullDataSetByCode(dataSet.getCode(), false);
+                    will(returnValue(dataSet));
+                    one(externalDataDAO).validateAndSaveUpdatedEntity(dataSet);
+                }
+            });
+
+        IExternalDataBO dataBO = createExternalDataBO();
+        dataBO.updateStatus(dataSet.getCode(), DataSetArchivizationStatus.ARCHIVED);
+        assertEquals(DataSetArchivizationStatus.ARCHIVED, dataSet.getStatus());
+
         context.assertIsSatisfied();
     }
 
