@@ -103,11 +103,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 
@@ -285,17 +285,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         final EntityKind entityKind = entity.getEntityKind();
         final ITabItemFactory tabView;
+        BasicEntityType entityType = entity.getEntityType();
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        entity.getEntityType());
-        final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
+                        entityType);
+        final IClientPlugin<BasicEntityType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         if (editMode)
         {
-            tabView = createClientPlugin.createEntityEditor(entity);
+            tabView = createClientPlugin.createEntityEditor(entityType, entity);
         } else
         {
-            tabView = createClientPlugin.createEntityViewer(entity);
+            tabView = createClientPlugin.createEntityViewer(entityType, entity);
         }
         DispatcherHelper.dispatchNaviEvent(tabView);
     }

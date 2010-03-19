@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -34,46 +33,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 public class CompositeDatabaseModificationObserverWithMainObserver extends
         CompositeDatabaseModificationObserver
 {
-
-    private IDatabaseModificationObserverWithCallback mainObserver;
-
-    /** if this constructor is used main observer has to be added before other observers */
-    public CompositeDatabaseModificationObserverWithMainObserver()
-    {
-        super();
-    }
+    private final IDatabaseModificationObserverWithCallback mainObserver;
 
     public CompositeDatabaseModificationObserverWithMainObserver(
             IDatabaseModificationObserverWithCallback mainObserver)
     {
         super();
-        this.addMainObserver(mainObserver);
-    }
-
-    public void addMainObserver(IDatabaseModificationObserverWithCallback observer)
-    {
-        assert observer != null : "main observer cannot be null";
-        this.mainObserver = observer;
-    }
-
-    @Override
-    public void addObserver(IDatabaseModificationObserver observerOrNull)
-    {
-        super.addObserver(observerOrNull);
-    }
-
-    @Override
-    public void addObservers(List<? extends IDatabaseModificationObserver> observers)
-    {
         assert mainObserver != null : "main observer cannot be null";
-        super.addObservers(observers);
+        this.mainObserver = mainObserver;
     }
 
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        assert mainObserver != null : "main observer cannot be null";
-
         Set<DatabaseModificationKind> relevantModifications =
                 new HashSet<DatabaseModificationKind>();
         SetUtils.addAll(relevantModifications, mainObserver.getRelevantModifications());
@@ -84,8 +56,6 @@ public class CompositeDatabaseModificationObserverWithMainObserver extends
     @Override
     public void update(final Set<DatabaseModificationKind> observedModifications)
     {
-        assert mainObserver != null : "main observer cannot be null";
-
         if (SetUtils.containsAny(observedModifications, mainObserver.getRelevantModifications()))
         {
             mainObserver.setSuccessfulUpdateCallback(new IDelegatedAction()

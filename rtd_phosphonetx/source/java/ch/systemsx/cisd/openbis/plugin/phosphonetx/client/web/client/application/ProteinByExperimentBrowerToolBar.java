@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
@@ -159,14 +159,15 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     private ProteinByExperimentBrowserGrid browserGrid;
 
-    private Experiment experiment;
+    private IIdentifiable experimentId;
 
     private ProteinSummaryGrid summaryGrid;
 
-    ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext, Experiment experiment)
+    ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
+            IIdentifiable experimentId)
     {
         this.viewContext = viewContext;
-        this.experiment = experiment;
+        this.experimentId = experimentId;
         setBorders(true);
         // WORKAROUND to get all elements in the toolbar present independent of the original width
         // of the parent
@@ -273,9 +274,9 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         return comboBox;
     }
 
-    Experiment getExperimentOrNull()
+    IIdentifiable getExperimentOrNull()
     {
-        return experiment;
+        return experimentId;
     }
 
     void setBrowserGrid(ProteinByExperimentBrowserGrid browserGrid)
@@ -290,9 +291,9 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     void update()
     {
-        if (experiment != null)
+        if (experimentId != null)
         {
-            TechId experimentID = TechId.create(experiment);
+            TechId experimentID = TechId.create(experimentId);
             summaryGrid.setLoadMaskImmediately(true);
             summaryGrid.update(experimentID);
             browserGrid.setLoadMaskImmediately(true);

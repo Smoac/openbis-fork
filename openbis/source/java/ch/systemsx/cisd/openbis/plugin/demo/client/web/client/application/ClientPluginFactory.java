@@ -39,8 +39,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
@@ -87,7 +87,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
+    public <T extends BasicEntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
@@ -112,7 +112,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         // IViewClientPlugin
         //
 
-        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public final ITabItemFactory createEntityViewer(final SampleType sampleType,
+                final IIdentifiable identifiable)
         {
             final TechId sampleId = TechId.create(identifiable);
             return new ITabItemFactory()
@@ -156,7 +157,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
             return new DummyComponent();
         }
 
-        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
+        public ITabItemFactory createEntityEditor(final SampleType sampleType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -188,7 +190,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         //
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public final ITabItemFactory createEntityViewer(final ExperimentType experimentType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {

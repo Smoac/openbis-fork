@@ -28,9 +28,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.DataSetProteinColDefKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
@@ -48,15 +48,15 @@ class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
     public static final String GRID_ID = PREFIX + "_grid";
 
     static IDisposableComponent create(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            Experiment experimentOrNull, TechId proteinReferenceID)
+            IIdentifiable experimentIdOrNull, TechId proteinReferenceID)
     {
-        return new DataSetProteinGrid(viewContext, experimentOrNull, proteinReferenceID)
+        return new DataSetProteinGrid(viewContext, experimentIdOrNull, proteinReferenceID)
                 .asDisposableWithoutToolbar();
     }
 
-    private static String createWidgetID(Experiment experimentOrNull, TechId proteinReferenceID)
+    private static String createWidgetID(IIdentifiable experimentIdOrNull, TechId proteinReferenceID)
     {
-        return "-" + (experimentOrNull == null ? "" : experimentOrNull.getIdentifier() + "-")
+        return "-" + (experimentIdOrNull == null ? "" : experimentIdOrNull.getId() + "-")
                 + proteinReferenceID;
     }
 
@@ -65,17 +65,17 @@ class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
     private ListProteinByExperimentAndReferenceCriteria criteria;
 
     private DataSetProteinGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            Experiment experimentOrNull, TechId proteinReferenceID)
+            IIdentifiable experimentIdOrNull, TechId proteinReferenceID)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID
-                + createWidgetID(experimentOrNull, proteinReferenceID), GRID_ID
-                + createWidgetID(experimentOrNull, proteinReferenceID), true,
+                + createWidgetID(experimentIdOrNull, proteinReferenceID), GRID_ID
+                + createWidgetID(experimentIdOrNull, proteinReferenceID), true,
                 PhosphoNetXDisplayTypeIDGenerator.DATA_SET_PROTEIN_BROWSER_GRID);
         specificViewContext = viewContext;
         criteria = new ListProteinByExperimentAndReferenceCriteria();
-        if (experimentOrNull != null)
+        if (experimentIdOrNull != null)
         {
-            criteria.setExperimentID(new TechId(experimentOrNull.getId()));
+            criteria.setExperimentID(new TechId(experimentIdOrNull));
         }
         criteria.setProteinReferenceID(proteinReferenceID);
     }

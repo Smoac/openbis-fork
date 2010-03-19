@@ -65,9 +65,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
 
     private final TechId experimentId;
 
-    private Experiment experiment;
-
-    private PropertyGrid grid;
+    private final PropertyGrid grid;
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
@@ -78,19 +76,22 @@ public class ExperimentPropertiesPanel extends ContentPanel
             final GenericExperimentViewer viewer)
     {
         setHeading("Experiment Properties");
-        this.experimentId = TechId.create(experiment);
-        this.experiment = experiment;
+        this.experimentId = new TechId(experiment);
         this.viewContext = viewContext;
         this.viewer = viewer;
-        this.grid = createPropertyGrid();
+        this.grid = createPropertyGrid(experiment);
         add(grid);
         setScrollMode(Scroll.AUTOY);
     }
 
-    private final PropertyGrid createPropertyGrid()
+    private PropertyGrid createPropertyGrid(Experiment experiment)
+    {
+        return createPropertyGrid(createProperties(experiment, viewContext));
+    }
+
+    private final PropertyGrid createPropertyGrid(Map<String, Object> properties)
     {
         IMessageProvider messageProvider = viewContext;
-        final Map<String, Object> properties = createProperties(messageProvider);
         final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + experimentId);
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
@@ -110,7 +111,8 @@ public class ExperimentPropertiesPanel extends ContentPanel
         return propertyGrid;
     }
 
-    private final Map<String, Object> createProperties(final IMessageProvider messageProvider)
+    private static Map<String, Object> createProperties(Experiment experiment,
+            IMessageProvider messageProvider)
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final ExperimentType experimentType = experiment.getExperimentType();
@@ -141,22 +143,11 @@ public class ExperimentPropertiesPanel extends ContentPanel
     // auto-refresh
     // 
 
-    private final void updateProperties()
+    private final void updateProperties(Experiment experiment)
     {
-        final Map<String, Object> properties = createProperties(viewContext);
+        final Map<String, Object> properties = createProperties(experiment, viewContext);
         grid.resizeRows(properties.size());
         grid.setProperties(properties);
-    }
-
-    private void setExperiment(Experiment experiment)
-    {
-        this.experiment = experiment;
-    }
-
-    private void updateData(Experiment newExperiment)
-    {
-        setExperiment(newExperiment);
-        updateProperties();
     }
 
     private void reloadData(AbstractAsyncCallback<Experiment> callback)
@@ -209,7 +200,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
             protected final void process(final Experiment result)
             {
                 viewer.updateOriginalData(result);
-                section.updateData(result);
+                section.updateProperties(result);
                 executeSuccessfulUpdateCallback();
             }
 

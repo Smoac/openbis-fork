@@ -39,9 +39,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -99,7 +99,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
+    public <T extends BasicEntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind)
     {
         ScreeningViewContext viewContext = getViewContext();
@@ -131,7 +131,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdentifiable materialId)
+        public final ITabItemFactory createEntityViewer(final MaterialType materialType,
+                final IIdentifiable materialId)
         {
             return createGeneMaterialViewerTabFactory(materialId, null, getViewContext());
         }
@@ -190,7 +191,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public final ITabItemFactory createEntityViewer(final DataSetType dataSetType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -227,7 +229,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public final ITabItemFactory createEntityViewer(final SampleType sampleType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -270,7 +273,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
      * delegates all operations to generic plugin, should be subclasssed and the needed
      * functionality can override the default behaviour
      */
-    private static class DelegatedClientPlugin<T extends EntityType> implements
+    private static class DelegatedClientPlugin<T extends BasicEntityType> implements
             IClientPlugin<T, IIdentifiable>
     {
         private final IClientPlugin<T, IIdentifiable> delegator;
@@ -289,9 +292,10 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             return clientPluginFactory;
         }
 
-        public ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public ITabItemFactory createEntityViewer(final T entityType,
+                final IIdentifiable identifiable)
         {
-            return delegator.createEntityViewer(identifiable);
+            return delegator.createEntityViewer(entityType, identifiable);
         }
 
         public Widget createBatchRegistrationForEntityType(final T entityType)
@@ -304,9 +308,10 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             return delegator.createBatchUpdateForEntityType(entityType);
         }
 
-        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
+        public ITabItemFactory createEntityEditor(final T entityType,
+                final IIdentifiable identifiable)
         {
-            return delegator.createEntityEditor(identifiable);
+            return delegator.createEntityEditor(entityType, identifiable);
         }
 
         public DatabaseModificationAwareWidget createRegistrationForEntityType(T entityType)

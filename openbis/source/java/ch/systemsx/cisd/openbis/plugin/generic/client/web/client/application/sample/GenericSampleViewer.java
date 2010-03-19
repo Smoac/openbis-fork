@@ -35,8 +35,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
@@ -228,9 +228,9 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         return result;
     }
 
-    private AttachmentVersionsSection<Sample> createAttachmentsSection(final Sample sample)
+    private AttachmentVersionsSection createAttachmentsSection(final Sample sample)
     {
-        return new AttachmentVersionsSection<Sample>(viewContext.getCommonViewContext(), sample);
+        return new AttachmentVersionsSection(viewContext.getCommonViewContext(), sample);
     }
 
     private final static Map<String, Object> createProperties(
@@ -439,7 +439,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         createDatabaseModificationObserver().update(observedModifications);
     }
 
-    private CompositeDatabaseModificationObserver createDatabaseModificationObserver()
+    private IDatabaseModificationObserver createDatabaseModificationObserver()
     {
         CompositeDatabaseModificationObserver observer =
                 new CompositeDatabaseModificationObserverWithMainObserver(

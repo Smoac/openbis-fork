@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
  * A {@link IDelegatedAction} that opens entity details tab.
@@ -48,12 +48,13 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
     public void execute()
     {
         final EntityKind entityKind = entity.getEntityKind();
+        BasicEntityType entityType = entity.getEntityType();
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        entity.getEntityType());
-        final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
+                        entityType);
+        final IClientPlugin<BasicEntityType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
-        final ITabItemFactory tabView = createClientPlugin.createEntityViewer(entity);
+        final ITabItemFactory tabView = createClientPlugin.createEntityViewer(entityType, entity);
 
         DispatcherHelper.dispatchNaviEvent(tabView);
     }

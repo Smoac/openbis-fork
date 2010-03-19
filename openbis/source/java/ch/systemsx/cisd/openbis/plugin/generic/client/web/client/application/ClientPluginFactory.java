@@ -39,9 +39,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -87,7 +87,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
     //
 
     @SuppressWarnings("unchecked")
-    public final <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
+    public final <T extends BasicEntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
@@ -139,7 +139,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         // IViewClientPlugin
         //
 
-        public ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public ITabItemFactory createEntityViewer(final SampleType sampleType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -181,7 +182,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
             return new GenericSampleBatchUpdateForm(getViewContext(), sampleType);
         }
 
-        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
+        public ITabItemFactory createEntityEditor(final SampleType sampleType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -218,7 +220,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public final ITabItemFactory createEntityViewer(final MaterialType materialType,
+                final IIdentifiable identifiable)
         {
             final TechId techId = TechId.create(identifiable);
             return new ITabItemFactory()
@@ -244,7 +247,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
+        public ITabItemFactory createEntityEditor(final MaterialType materialType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -279,21 +283,23 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         //
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public final ITabItemFactory createEntityViewer(final ExperimentType experimentType,
+                final IIdentifiable experimentId)
         {
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent experimentViewer =
-                                GenericExperimentViewer.create(getViewContext(), identifiable);
-                        return DefaultTabItem.create(getViewerTitle(Dict.EXPERIMENT, identifiable),
+                                GenericExperimentViewer.create(getViewContext(), experimentType,
+                                        experimentId);
+                        return DefaultTabItem.create(getViewerTitle(Dict.EXPERIMENT, experimentId),
                                 experimentViewer, getViewContext(), false);
                     }
 
                     public String getId()
                     {
-                        return GenericExperimentViewer.createId(identifiable);
+                        return GenericExperimentViewer.createId(experimentId);
                     }
 
                     public HelpPageIdentifier getHelpPageIdentifier()
@@ -314,7 +320,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
+        public ITabItemFactory createEntityEditor(final ExperimentType entityType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -345,7 +352,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
     {
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public final ITabItemFactory createEntityViewer(final DataSetType dataSetType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
@@ -370,7 +378,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
+        public ITabItemFactory createEntityEditor(final DataSetType dataSetType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {

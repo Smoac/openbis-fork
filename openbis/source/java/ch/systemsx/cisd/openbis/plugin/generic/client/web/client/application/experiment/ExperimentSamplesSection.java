@@ -22,8 +22,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 
 /**
  * {@link SingleSectionPanel} containing experiment samples.
@@ -36,12 +37,16 @@ public class ExperimentSamplesSection extends DisposableSectionPanel
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final Experiment experiment;
+    private final ExperimentType experimentType;
 
-    public ExperimentSamplesSection(final IViewContext<?> viewContext, final Experiment experiment)
+    private final TechId experimentId;
+
+    public ExperimentSamplesSection(IViewContext<?> viewContext, ExperimentType experimentType,
+            IIdentifiable experimentId)
     {
         super("Samples", viewContext);
-        this.experiment = experiment;
+        this.experimentType = experimentType;
+        this.experimentId = new TechId(experimentId.getId());
     }
 
     // @Private
@@ -53,9 +58,8 @@ public class ExperimentSamplesSection extends DisposableSectionPanel
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        TechId experimentId = TechId.create(experiment);
         return SampleBrowserGrid.createGridForExperimentSamples(viewContext.getCommonViewContext(),
-                experimentId, createGridId(experimentId), experiment.getExperimentType());
+                experimentId, createGridId(experimentId), experimentType);
     }
 
 }

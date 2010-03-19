@@ -27,12 +27,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
  * 
  * @author Piotr Buczek
  */
-public class AttachmentVersionsSection<T extends IAttachmentHolder> extends DisposableSectionPanel
+public class AttachmentVersionsSection extends DisposableSectionPanel
 {
-    private final T attachmentHolder;
+    private final IAttachmentHolder attachmentHolder;
 
     public AttachmentVersionsSection(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final T attachmentHolder)
+            final IAttachmentHolder attachmentHolder)
     {
         super(viewContext.getMessage(Dict.ATTACHMENTS), viewContext);
         this.attachmentHolder = attachmentHolder;

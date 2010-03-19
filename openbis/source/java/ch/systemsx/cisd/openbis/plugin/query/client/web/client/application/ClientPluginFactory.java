@@ -25,12 +25,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ClientPluginFactory extends AbstractClientPluginFactory<QueryViewContext>
@@ -48,7 +46,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<QueryViewCo
         return new QueryViewContext(originalViewContext);
     }
 
-    public <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
+    public <T extends BasicEntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind

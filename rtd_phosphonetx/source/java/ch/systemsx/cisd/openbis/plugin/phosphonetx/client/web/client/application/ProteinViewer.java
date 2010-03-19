@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -73,24 +74,23 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
 
     static ITabItemFactory createTabItemFactory(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            final Experiment experimentOrNull, final ProteinInfo proteinInfo)
+            final IIdentifiable experimentId, final ProteinInfo proteinInfo)
     {
         return new ITabItemFactory()
             {
                 public String getId()
                 {
-                    return createWidgetID(experimentOrNull, proteinInfo.getId());
+                    return createWidgetID(experimentId, proteinInfo.getId());
                 }
 
                 public ITabItem create()
                 {
                     ProteinViewer viewer =
-                            new ProteinViewer(viewContext, experimentOrNull, proteinInfo.getId());
+                            new ProteinViewer(viewContext, experimentId, proteinInfo.getId());
                     DatabaseModificationAwareComponent c =
                             new DatabaseModificationAwareComponent(viewer, viewer);
                     String description = getAbbreviatedDescription(proteinInfo);
-                    String identifier =
-                            experimentOrNull == null ? "?" : experimentOrNull.getIdentifier();
+                    String identifier = experimentId == null ? "?" : experimentId.getCode();
                     return DefaultTabItem.create(viewContext.getMessage(
                             Dict.PROTEIN_IN_EXPERIMENT_TAB_LABEL, description, identifier), c,
                             viewContext, false);
@@ -113,35 +113,35 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         return StringUtils.abbreviate(info, 30);
     }
 
-    static String createWidgetID(Experiment experimentOrNull, TechId proteinReferenceID)
+    static String createWidgetID(IIdentifiable experimentIdOrNull, TechId proteinReferenceID)
     {
-        Long experimentID = experimentOrNull == null ? null : experimentOrNull.getId();
+        Long experimentID = experimentIdOrNull == null ? null : experimentIdOrNull.getId();
         return ID_PREFIX + experimentID + "_" + proteinReferenceID.getId();
     }
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
 
-    private final Experiment experimentOrNull;
+    private final IIdentifiable experimentIdOrNull;
 
     private final TechId proteinReferenceID;
 
     private ProteinSamplesSection proteinSamplesSection;
 
     private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            Experiment experimentOrNull, TechId proteinReferenceID)
+            IIdentifiable experimentId, TechId proteinReferenceID)
     {
-        super(viewContext, "", createWidgetID(experimentOrNull, proteinReferenceID), false);
+        super(viewContext, "", createWidgetID(experimentId, proteinReferenceID), false);
         this.viewContext = viewContext;
-        this.experimentOrNull = experimentOrNull;
+        this.experimentIdOrNull = experimentId;
         this.proteinReferenceID = proteinReferenceID;
         reloadAllData();
     }
 
     private void reloadAllData()
     {
-        if (experimentOrNull != null)
+        if (experimentIdOrNull != null)
         {
-            viewContext.getService().getProteinByExperiment(new TechId(experimentOrNull.getId()),
+            viewContext.getService().getProteinByExperiment(new TechId(experimentIdOrNull.getId()),
                     proteinReferenceID, new ProteinByExperimentCallback(viewContext, this));
         }
     }
@@ -160,7 +160,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         {
             add(propertyPanel, createBorderLayoutData(LayoutRegion.CENTER));
             proteinSamplesSection =
-                    new ProteinSamplesSection(viewContext, proteinReferenceID, experimentOrNull);
+                    new ProteinSamplesSection(viewContext, proteinReferenceID, experimentIdOrNull);
             add(proteinSamplesSection, createBorderLayoutData(LayoutRegion.SOUTH));
             layout();
         }
@@ -183,13 +183,14 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
                     };
         add(sequencesSection, createRightBorderLayoutData());
         DisposableSectionPanel proteinsSection =
-                new DisposableSectionPanel(viewContext.getMessage(Dict.DATA_SET_PROTEINS), viewContext)
+                new DisposableSectionPanel(viewContext.getMessage(Dict.DATA_SET_PROTEINS),
+                        viewContext)
                     {
                         @Override
                         protected IDisposableComponent createDisposableContent()
                         {
                             return DataSetProteinGrid.create(ProteinViewer.this.viewContext,
-                                    experimentOrNull, proteinReferenceID);
+                                    experimentIdOrNull, proteinReferenceID);
                         }
                     };
         add(proteinsSection, createBorderLayoutData(LayoutRegion.SOUTH));
@@ -209,9 +210,9 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         PropertyGrid propertyGrid = new PropertyGrid(viewContext, 0);
-        if (experimentOrNull != null)
+        if (experimentIdOrNull != null)
         {
-            properties.put(viewContext.getMessage(Dict.EXPERIMENT_LABEL), experimentOrNull);
+            properties.put(viewContext.getMessage(Dict.EXPERIMENT_LABEL), experimentIdOrNull);
             propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
                     .createExperimentPropertyValueRenderer(viewContext));
         }

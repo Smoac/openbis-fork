@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
@@ -35,12 +36,12 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNet
 public class ExperimentViewer extends GenericExperimentViewer
 {
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            final IIdentifiable identifiable)
+            IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
+            ExperimentType experimentType, IIdentifiable experimentId)
     {
         ExperimentViewer viewer =
                 new ExperimentViewer(new GenericViewContext(viewContext.getCommonViewContext()),
-                        viewContext, identifiable);
+                        viewContext, experimentType, experimentId);
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
@@ -48,14 +49,15 @@ public class ExperimentViewer extends GenericExperimentViewer
 
     protected ExperimentViewer(IViewContext<IGenericClientServiceAsync> viewContext,
             IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext,
-            IIdentifiable experiment)
+            ExperimentType experimentType, IIdentifiable experimentId)
     {
-        super(viewContext, experiment);
+        super(viewContext, experimentType, experimentId);
         this.specificViewContext = specificViewContext;
     }
 
     @Override
-    protected List<DisposableSectionPanel> createAdditionalBrowserSectionPanels(String displyIdSuffix)
+    protected List<DisposableSectionPanel> createAdditionalBrowserSectionPanels(
+            String displyIdSuffix)
     {
         DisposableSectionPanel section =
                 new DisposableSectionPanel(specificViewContext.getMessage(Dict.PROTEINS_SECTION),
@@ -65,7 +67,7 @@ public class ExperimentViewer extends GenericExperimentViewer
                         protected IDisposableComponent createDisposableContent()
                         {
                             return ProteinByExperimentBrowserGrid.create(specificViewContext,
-                                    experimentOrNull);
+                                    experimentType, experimentId);
                         }
                     };
         section.setDisplayID(DisplayTypeIDGenerator.PROTEIN_SECTION, displyIdSuffix);

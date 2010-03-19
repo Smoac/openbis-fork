@@ -28,18 +28,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Attachment
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -58,30 +63,33 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    protected final IIdentifiable identifiable;
+    protected final IIdentifiable experimentId;
 
-    protected Experiment experimentOrNull;
+    protected final ExperimentType experimentType;
 
-    private List<DisposableSectionPanel> rightPanelSections;
+    private ExperimentPropertiesPanel propertiesPanelOrNull;
 
-    private ExperimentPropertiesPanel propertiesPanel;
+    private List<DisposableSectionPanel> rightPanelSectionsOrNull;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
-            final IIdentifiable identifiable)
+            final ExperimentType experimentType, final IIdentifiable identifiable)
     {
-        GenericExperimentViewer viewer = new GenericExperimentViewer(viewContext, identifiable);
+        GenericExperimentViewer viewer =
+                new GenericExperimentViewer(viewContext, experimentType, identifiable);
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
     protected GenericExperimentViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
-            final IIdentifiable experiment)
+            final ExperimentType experimentType, final IIdentifiable experimentId)
     {
-        super(viewContext, createId(experiment));
-        this.identifiable = experiment;
+        super(viewContext, createId(experimentId));
+        this.experimentId = experimentId;
+        this.experimentType = experimentType;
         this.viewContext = viewContext;
         setLayout(new BorderLayout());
         extendToolBar();
+
         reloadAllData();
     }
 
@@ -100,7 +108,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
     private void reloadAllData()
     {
-        reloadData(new AbstractAsyncCallback<Experiment>(viewContext)
+        reloadExperiment(new AbstractAsyncCallback<Experiment>(viewContext)
             {
                 @Override
                 protected final void process(final Experiment result)
@@ -108,6 +116,25 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
                     layoutExperimentDetailView(result);
                 }
             });
+    }
+
+    protected void reloadExperiment(AbstractAsyncCallback<Experiment> callback)
+    {
+        viewContext.getService().getExperimentInfo(new TechId(experimentId), callback);
+    }
+
+    private void layoutExperimentDetailView(Experiment experiment)
+    {
+        updateOriginalData(experiment);
+        removeAll();
+        
+        this.propertiesPanelOrNull = new ExperimentPropertiesPanel(experiment, viewContext, this);
+        add(propertiesPanelOrNull, createLeftBorderLayoutData());
+
+        this.rightPanelSectionsOrNull = createRightPanel();
+        SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
+        add(rightPanel, createRightBorderLayoutData());
+        layout();
     }
 
     public static final String createId(final IIdentifiable identifiable)
@@ -120,54 +147,37 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return ID_PREFIX + experimentId;
     }
 
-    /**
-     * Load the experiment information.
-     */
-    protected void reloadData(AbstractAsyncCallback<Experiment> callback)
-    {
-        TechId experimentId = TechId.create(identifiable);
-        viewContext.getService().getExperimentInfo(experimentId, callback);
-    }
-
     @Override
     public void updateOriginalData(Experiment newData)
     {
         super.updateOriginalData(newData);
     }
 
-    private ExperimentPropertiesPanel createExperimentPropertiesPanel(final Experiment newExperiment)
+    private AttachmentVersionsSection createAttachmentsSection()
     {
-        return new ExperimentPropertiesPanel(newExperiment, viewContext, this);
+        final IAttachmentHolder newExperiment = asExperimentAttachmentHolder(experimentId);
+        return new AttachmentVersionsSection(viewContext.getCommonViewContext(), newExperiment);
     }
 
-    private AttachmentVersionsSection<Experiment> createAttachmentsSection(
-            final Experiment newExperiment)
+    private static IAttachmentHolder asExperimentAttachmentHolder(final IIdentifiable identifiable)
     {
-        return new AttachmentVersionsSection<Experiment>(viewContext.getCommonViewContext(),
-                newExperiment);
-    }
+        return new IAttachmentHolder()
+            {
+                public AttachmentHolderKind getAttachmentHolderKind()
+                {
+                    return AttachmentHolderKind.EXPERIMENT;
+                }
 
-    /**
-     * Sets the {@link Experiment} for this <var>generic</var> experiment viewer.
-     * <p>
-     * This method triggers the whole <i>GUI</i> construction.
-     * </p>
-     */
-    private void layoutExperimentDetailView(final Experiment result)
-    {
-        this.experimentOrNull = result;
-        this.updateOriginalData(result);
-        this.removeAll();
+                public Long getId()
+                {
+                    return identifiable.getId();
+                }
 
-        // Left panel
-        this.propertiesPanel = createExperimentPropertiesPanel(result);
-        add(this.propertiesPanel, createLeftBorderLayoutData());
-        // Right panel
-        this.rightPanelSections = createRightPanel(result);
-        SectionsPanel rightPanel = layoutSections(this.rightPanelSections);
-        add(rightPanel, createRightBorderLayoutData());
-
-        layout();
+                public String getCode()
+                {
+                    return identifiable.getCode();
+                }
+            };
     }
 
     private static final String getDisplayIdSuffix(String suffix)
@@ -175,29 +185,40 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return GENERIC_EXPERIMENT_VIEWER + "-" + suffix;
     }
 
-    private List<DisposableSectionPanel> createRightPanel(Experiment result)
+    private List<DisposableSectionPanel> createRightPanel()
     {
-        final String displayIdSuffix = getDisplayIdSuffix(result.getExperimentType().getCode());
+        final String displayIdSuffix = getDisplayIdSuffix(experimentType.getCode());
         List<DisposableSectionPanel> allPanels = new ArrayList<DisposableSectionPanel>();
 
         allPanels.addAll(createAdditionalBrowserSectionPanels(displayIdSuffix));
 
         final ExperimentSamplesSection sampleSection =
-                new ExperimentSamplesSection(viewContext, result);
+                new ExperimentSamplesSection(viewContext, experimentType, experimentId);
         sampleSection.setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, displayIdSuffix);
         allPanels.add(sampleSection);
 
-        final ExperimentDataSetSection dataSection =
-                new ExperimentDataSetSection(result, viewContext);
+        final DisposableSectionPanel dataSection = createExperimentDataSetSection();
         dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, displayIdSuffix);
         allPanels.add(dataSection);
 
-        final AttachmentVersionsSection<Experiment> attachmentsSection =
-                createAttachmentsSection(result);
+        final AttachmentVersionsSection attachmentsSection = createAttachmentsSection();
         attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION, displayIdSuffix);
         allPanels.add(attachmentsSection);
 
         return allPanels;
+    }
+
+    private DisposableSectionPanel createExperimentDataSetSection()
+    {
+        return new DisposableSectionPanel("Data Sets", viewContext)
+            {
+                @Override
+                protected IDisposableComponent createDisposableContent()
+                {
+                    return ExperimentDataSetBrowser.create(viewContext, new TechId(experimentId),
+                            experimentType);
+                }
+            };
     }
 
     private SectionsPanel layoutSections(List<DisposableSectionPanel> allPanels)
@@ -211,7 +232,8 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return container;
     }
 
-    protected List<DisposableSectionPanel> createAdditionalBrowserSectionPanels(String displyIdSuffix)
+    protected List<DisposableSectionPanel> createAdditionalBrowserSectionPanels(
+            String displyIdSuffix)
     {
         return Collections.emptyList();
     }
@@ -219,14 +241,22 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
     // this observer should not be cached - some sections may become visible in the future
     private IDatabaseModificationObserver createModificationObserver()
     {
-        CompositeDatabaseModificationObserverWithMainObserver modificationObserver =
-                new CompositeDatabaseModificationObserverWithMainObserver();
-        modificationObserver.addMainObserver(propertiesPanel.getDatabaseModificationObserver());
-        for (DisposableSectionPanel panel : rightPanelSections)
+        if (propertiesPanelOrNull != null)
         {
-            modificationObserver.addObserver(panel.tryGetDatabaseModificationObserver());
+            assert rightPanelSectionsOrNull != null : "right panel not layouted";
+            CompositeDatabaseModificationObserverWithMainObserver modificationObserver =
+                    new CompositeDatabaseModificationObserverWithMainObserver(propertiesPanelOrNull
+                            .getDatabaseModificationObserver());
+            for (DisposableSectionPanel panel : rightPanelSectionsOrNull)
+            {
+                modificationObserver.addObserver(panel.tryGetDatabaseModificationObserver());
+            }
+            return modificationObserver;
+        } else
+        {
+            return new CompositeDatabaseModificationObserver();
         }
-        return modificationObserver;
+
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

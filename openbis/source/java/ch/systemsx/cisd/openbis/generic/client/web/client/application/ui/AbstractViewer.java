@@ -47,7 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * @author Franz-Josef Elmer
@@ -165,9 +164,9 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         type);
-        final IClientPlugin<SampleType, IIdentifiable> createClientPlugin =
+        final IClientPlugin<BasicEntityType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
-        tabView = createClientPlugin.createEntityEditor(identifiable);
+        tabView = createClientPlugin.createEntityEditor(type, identifiable);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 

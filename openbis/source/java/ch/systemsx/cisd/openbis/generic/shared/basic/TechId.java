@@ -52,6 +52,11 @@ public class TechId implements IIdHolder, IsSerializable, Serializable
         this.id = id.longValue();
     }
 
+    public TechId(IIdentifiable identifiable)
+    {
+        this(identifiable.getId());
+    }
+
     /**
      * @return Technical id with id from given <var>idHolder</var> or null if the holder does not
      *         provide any id.

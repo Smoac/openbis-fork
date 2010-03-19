@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 
 /**
  * The client plugin.
@@ -35,12 +35,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  * 
  * @author Christian Ribeaud
  */
-public interface IClientPlugin<T extends EntityType, I extends IIdentifiable>
+public interface IClientPlugin<T extends BasicEntityType, I extends IIdentifiable>
 {
     /**
      * Shows a detailed view of the entity specified by its <var>identifier</var>.
      */
-    public ITabItemFactory createEntityViewer(final I identifiable);
+    public ITabItemFactory createEntityViewer(final T entityType, final I identifiable);
 
     /**
      * Shows a registration form for entities of given <var>entityType</var>.
@@ -60,5 +60,5 @@ public interface IClientPlugin<T extends EntityType, I extends IIdentifiable>
     /**
      * Shows a editor of the specified entity..
      */
-    public ITabItemFactory createEntityEditor(final I identifiable);
+    public ITabItemFactory createEntityEditor(final T entityType, final I identifiable);
 }

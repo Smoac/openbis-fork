@@ -108,7 +108,7 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
 
     private SingleSectionPanel createAttachmentsSection(final Project project)
     {
-        return new AttachmentVersionsSection<Project>(viewContext.getCommonViewContext(), project);
+        return new AttachmentVersionsSection(viewContext.getCommonViewContext(), project);
     }
 
     private static final class ProjectInfoCallback extends AbstractAsyncCallback<Project>

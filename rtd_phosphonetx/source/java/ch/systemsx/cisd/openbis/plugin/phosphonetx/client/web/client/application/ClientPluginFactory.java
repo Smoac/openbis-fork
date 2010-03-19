@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IMo
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
@@ -80,7 +80,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
+    public <T extends BasicEntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
@@ -103,14 +103,16 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
         //
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public final ITabItemFactory createEntityViewer(final ExperimentType experimentType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent experimentViewer =
-                                ExperimentViewer.create(getViewContext(), identifiable);
+                                ExperimentViewer.create(getViewContext(), experimentType,
+                                        identifiable);
                         return DefaultTabItem.create(getViewerTitle(Dict.EXPERIMENT, identifiable),
                                 experimentViewer, getViewContext(), false);
                     }
@@ -138,7 +140,8 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
+        public ITabItemFactory createEntityEditor(final ExperimentType experimentType,
+                final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
