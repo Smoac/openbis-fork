@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
+import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,9 +32,12 @@ public class DemoArchiver implements IArchiverTask
 {
     private static final long serialVersionUID = 1L;
 
-    public DemoArchiver(Properties properties)
+    @SuppressWarnings("unused")
+    private File storeRoot;
+
+    public DemoArchiver(Properties properties, File storeRoot)
     {
-        // TODO PTR: storeRoot
+        this.storeRoot = storeRoot;
     }
 
     public ProcessingStatus archive(List<DatasetDescription> datasets)

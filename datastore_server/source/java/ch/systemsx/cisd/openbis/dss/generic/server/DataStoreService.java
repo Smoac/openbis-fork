@@ -263,7 +263,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
         ArchiverTaskFactory factory = pluginTaskParameters.getArchiverTaskFactory();
-        final IArchiverTask archiverTask = factory.createInstance();
+        final IArchiverTask archiverTask = factory.createInstance(storeRoot);
         IProcessingPluginTask processingTask = new ArchiverProcessingTask(archiverTask, archive);
         DatastoreServiceDescription pluginDescription =
                 new DatastoreServiceDescription(description, description, null, null);

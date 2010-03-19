@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
+import java.io.File;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -52,7 +53,7 @@ public class ArchiverTaskFactory
         this.archiverProperties = sectionProperties.getProperties();
     }
 
-    public IArchiverTask createInstance()
+    public IArchiverTask createInstance(File storeRoot)
     {
         if (className == null)
         {
@@ -60,7 +61,7 @@ public class ArchiverTaskFactory
         }
         try
         {
-            return ClassUtils.create(IArchiverTask.class, className, archiverProperties);
+            return ClassUtils.create(IArchiverTask.class, className, archiverProperties, storeRoot);
         } catch (ConfigurationFailureException ex)
         {
             throw ex; // rethrow the exception without changing the message
