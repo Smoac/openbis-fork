@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -596,8 +597,17 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             List<DatasetDescription> descriptions = createDatasetDescriptions(datasets);
             String sessionToken = dataStore.getSessionToken();
             String userEmailOrNull = tryGetLoggedUserEmail();
-            archivizationAction.execute(sessionToken, service, descriptions, userEmailOrNull);
+            try
+            {
+                archivizationAction.execute(sessionToken, service, descriptions, userEmailOrNull);
+            } catch (Exception e)
+            {
+                throw UserFailureException
+                        .fromTemplate(
+                                "Operation couldn't be performed for following datasets: %s. "
+                                        + "Archiver may not be configured properly. Please contact your administrator.",
+                                CollectionUtils.abbreviate(Code.extractCodes(datasets), 10));
+            }
         }
     }
-
 }
