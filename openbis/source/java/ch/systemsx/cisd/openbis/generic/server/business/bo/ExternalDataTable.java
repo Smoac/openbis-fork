@@ -103,6 +103,33 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return builder.toString();
     }
 
+    private static void assertDatasetsAreAvailable(List<ExternalDataPE> datasets)
+    {
+        List<String> notAvailableDatasets = new ArrayList<String>();
+        for (ExternalDataPE dataSet : datasets)
+        {
+            if (dataSet.getStatus().isAvailable() == false)
+            {
+                notAvailableDatasets.add(dataSet.getCode());
+            }
+        }
+        throwUnavailableOperationExceptionIfNecessary(notAvailableDatasets);
+    }
+
+    private static void throwUnavailableOperationExceptionIfNecessary(
+            List<String> unavailableDatasets)
+    {
+        if (unavailableDatasets.isEmpty() == false)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Operation failed because following data sets are not available "
+                            + "(they are archived or their status is pending): %s. "
+                            + "Unarchive these data sets or filter them out using data set status "
+                            + "before performing the operation once again.", CollectionUtils
+                            .abbreviate(unavailableDatasets, 10));
+        }
+    }
+
     private final IDataStoreServiceFactory dssFactory;
 
     private List<ExternalDataPE> externalData;
@@ -162,6 +189,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     public void deleteLoadedDataSets(String reason)
     {
+        assertDatasetsAreAvailable(externalData);
         Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
         assertDataSetsAreKnown(map);
         for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
@@ -218,6 +246,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     public String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext)
     {
+        assertDatasetsAreAvailable(externalData);
         Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
         assertDataSetsAreKnown(map);
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
@@ -427,15 +456,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 }
             }
         }
-        if (notAvailableDatasets.isEmpty() == false)
-        {
-            throw UserFailureException.fromTemplate(
-                    "Operation failed because following data sets are not available "
-                            + "(they are archived or their status is pending): %s. "
-                            + "Unarchive these data sets or filter them out using data set status "
-                            + "before performing the operation once again.", CollectionUtils
-                            .abbreviate(notAvailableDatasets, 10));
-        }
+        throwUnavailableOperationExceptionIfNecessary(notAvailableDatasets);
         return result;
     }
 
