@@ -25,19 +25,28 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public enum DataSetArchivizationStatus implements IsSerializable
 {
-    ACTIVE("AVAILABLE"), ARCHIVED("ARCHIVED"), ACTIVATION_IN_PROGRESS("PENDING UNARCHIVIZATION"),
-    ARCHIVIZATION_IN_PROGRESS("PENDING ARCHIVIZATION");
+    ACTIVE("AVAILABLE", true), LOCKED("AVAILABLE (LOCKED)", true), ARCHIVED("ARCHIVED", false),
+    ACTIVATION_IN_PROGRESS("PENDING UNARCHIVIZATION", false), ARCHIVIZATION_IN_PROGRESS(
+            "PENDING ARCHIVIZATION", false);
 
     private final String description;
 
-    DataSetArchivizationStatus(String description)
+    private final boolean available;
+
+    DataSetArchivizationStatus(String description, boolean available)
     {
         this.description = description;
+        this.available = available;
     }
 
     public String getDescription()
     {
         return description;
+    }
+
+    public boolean isAvailable()
+    {
+        return available;
     }
 
 }

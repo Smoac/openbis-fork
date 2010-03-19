@@ -159,21 +159,12 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    STATUS(new AbstractColumnDefinitionKind<ExternalData>(Dict.STATUS, true)
+    STATUS(new AbstractColumnDefinitionKind<ExternalData>(Dict.ARCHIVIZATION_STATUS, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)
             {
                 return entity.getStatus().getDescription();
-            }
-        }),
-
-    IS_LOCKED(new AbstractColumnDefinitionKind<ExternalData>(Dict.IS_LOCKED, true)
-        {
-            @Override
-            public String tryGetValue(ExternalData entity)
-            {
-                return SimpleYesNoRenderer.render(entity.isLocked());
             }
         }),
 

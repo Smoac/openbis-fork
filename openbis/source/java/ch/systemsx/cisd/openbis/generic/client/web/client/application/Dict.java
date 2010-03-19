@@ -448,11 +448,7 @@ public abstract class Dict
 
     public static final String IS_COMPLETE = "is_complete";
 
-    public static final String STATUS = "status";
-
-    public static final String LOCKED = "locked";
-
-    public static final String IS_LOCKED = "is_locked";
+    public static final String ARCHIVIZATION_STATUS = "archivization_status";
 
     public static final String PRODUCTION_DATE = "production_date";
 

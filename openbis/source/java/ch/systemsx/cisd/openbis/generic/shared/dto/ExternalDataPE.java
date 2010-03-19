@@ -71,8 +71,6 @@ public final class ExternalDataPE extends DataPE
 
     private BooleanOrUnknown complete = BooleanOrUnknown.U;
 
-    private boolean locked = false;
-
     private DataSetArchivizationStatus status = DataSetArchivizationStatus.ACTIVE;
 
     /**
@@ -181,17 +179,6 @@ public final class ExternalDataPE extends DataPE
     public void setStatus(DataSetArchivizationStatus status)
     {
         this.status = status;
-    }
-
-    @Column(name = ColumnNames.IS_LOCKED)
-    public boolean isLocked()
-    {
-        return locked;
-    }
-
-    public void setLocked(boolean locked)
-    {
-        this.locked = locked;
     }
 
 }

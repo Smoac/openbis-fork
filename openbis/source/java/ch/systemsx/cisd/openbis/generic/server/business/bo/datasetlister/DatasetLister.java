@@ -327,7 +327,6 @@ public class DatasetLister implements IDatasetLister
         dataset.setDataProducerCode(escapeHtml(record.data_producer_code));
         dataset.setDataStore(dataStores.get(record.dast_id));
         dataset.setDerived(record.is_derived);
-        dataset.setLocked(record.is_locked);
         dataset.setStatus(DataSetArchivizationStatus.valueOf(record.status));
 
         dataset.setFileFormatType(fileFormatTypes.get(record.ffty_id));

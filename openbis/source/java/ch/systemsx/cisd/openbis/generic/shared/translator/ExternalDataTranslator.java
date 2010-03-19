@@ -83,7 +83,6 @@ public class ExternalDataTranslator
         externalData.setId(HibernateUtils.getId(externalDataPE));
         externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
-        externalData.setLocked(externalDataPE.isLocked());
         externalData.setStatus(externalDataPE.getStatus());
         externalData.setDataProducerCode(StringEscapeUtils.escapeHtml(externalDataPE
                 .getDataProducerCode()));

@@ -52,7 +52,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -237,9 +236,9 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         protected final void process(final ExternalData result)
         {
             genericDataSetViewer.updateOriginalData(result);
-            if (result.getStatus() != DataSetArchivizationStatus.ACTIVE)
+            if (result.getStatus().isAvailable() == false)
             {
-                genericDataSetViewer.setupNonActiveDataSetView(result);
+                genericDataSetViewer.setupUnavailableDataSetView(result);
             }
             genericDataSetViewer.removeAll();
             // Left panel
@@ -261,7 +260,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     }
 
     /** Updates data displayed in the browser when shown dataset is not active. */
-    public void setupNonActiveDataSetView(final ExternalData result)
+    public void setupUnavailableDataSetView(final ExternalData result)
     {
         setToolBarButtonsEnabled(false);
         updateTitle(getOriginalDataDescription() + " (not available)");

@@ -132,8 +132,6 @@ public final class ColumnNames
 
     public static final String IS_DELETED_COLUMN = "is_deleted";
 
-    public static final String IS_LOCKED = "is_locked";
-
     public static final String LABEL_COLUMN = "label";
 
     public final static String LAST_NAME_COLUMN = "last_name";

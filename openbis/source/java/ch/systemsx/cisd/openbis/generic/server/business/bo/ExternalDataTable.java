@@ -376,7 +376,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         {
             throw createUnknownDataStoreServerException();
         }
-        List<DatasetDescription> locations = loadActiveDatasetDescriptions(datasetCodes);
+        List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
         service.processDatasets(sessionToken, datastoreServiceKey, locations,
                 tryGetLoggedUserEmail());
@@ -403,38 +403,38 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         {
             throw createUnknownDataStoreServerException();
         }
-        List<DatasetDescription> locations = loadActiveDatasetDescriptions(datasetCodes);
+        List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
         return service.createReportFromDatasets(sessionToken, datastoreServiceKey, locations);
     }
 
-    private List<DatasetDescription> loadActiveDatasetDescriptions(List<String> datasetCodes)
+    private List<DatasetDescription> loadAvailableDatasetDescriptions(List<String> datasetCodes)
     {
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
         List<DatasetDescription> result = new ArrayList<DatasetDescription>();
-        List<String> nonActiveDatasets = new ArrayList<String>();
+        List<String> notAvailableDatasets = new ArrayList<String>();
         for (String datasetCode : datasetCodes)
         {
             ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(datasetCode, false);
             if (dataSet != null)
             {
-                if (dataSet.getStatus() != DataSetArchivizationStatus.ACTIVE)
-                {
-                    nonActiveDatasets.add(datasetCode);
-                } else
+                if (dataSet.getStatus().isAvailable())
                 {
                     result.add(createDatasetDescription(dataSet));
+                } else
+                {
+                    notAvailableDatasets.add(datasetCode);
                 }
             }
         }
-        if (nonActiveDatasets.isEmpty() == false)
+        if (notAvailableDatasets.isEmpty() == false)
         {
             throw UserFailureException.fromTemplate(
                     "Operation failed because following data sets are not available "
                             + "(they are archived or their status is pending): %s. "
                             + "Unarchive these data sets or filter them out using data set status "
                             + "before performing the operation once again.", CollectionUtils
-                            .abbreviate(nonActiveDatasets, 10));
+                            .abbreviate(notAvailableDatasets, 10));
         }
         return result;
     }

@@ -611,9 +611,8 @@ CREATE TABLE external_data (
     cvte_id_stor_fmt tech_id NOT NULL,
     is_complete boolean_char_or_unknown DEFAULT 'U'::bpchar NOT NULL,
     cvte_id_store tech_id,
-    is_locked boolean DEFAULT false NOT NULL,
     status character varying(100) DEFAULT 'ACTIVE'::character varying NOT NULL,
-    CONSTRAINT exda_status_enum_ck CHECK (((status)::text = ANY ((ARRAY['ACTIVE'::character varying, 'ARCHIVED'::character varying, 'ACTIVATION_IN_PROGRESS'::character varying, 'ARCHIVIZATION_IN_PROGRESS'::character varying])::text[])))
+    CONSTRAINT exda_status_enum_ck CHECK (((status)::text = ANY ((ARRAY['LOCKED'::character varying, 'ACTIVE'::character varying, 'ARCHIVED'::character varying, 'ACTIVATION_IN_PROGRESS'::character varying, 'ARCHIVIZATION_IN_PROGRESS'::character varying])::text[])))
 );
 CREATE SEQUENCE file_format_type_id_seq
     START WITH 1

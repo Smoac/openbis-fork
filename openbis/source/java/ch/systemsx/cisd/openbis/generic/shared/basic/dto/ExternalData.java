@@ -38,8 +38,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private boolean derived;
 
-    private boolean locked;
-
     private Boolean complete;
 
     private Long id;
@@ -160,16 +158,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public final void setDerived(boolean derived)
     {
         this.derived = derived;
-    }
-
-    public final boolean isLocked()
-    {
-        return locked;
-    }
-
-    public final void setLocked(boolean locked)
-    {
-        this.locked = locked;
     }
 
     public DataSetArchivizationStatus getStatus()

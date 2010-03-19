@@ -43,7 +43,5 @@ public class DatasetRecord extends CodeRecord
 
     public String is_complete; // maps to BooleanOrUnknown
 
-    public boolean is_locked;
-
     public String status;
 }

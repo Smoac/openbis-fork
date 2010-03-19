@@ -131,8 +131,6 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         externalData.setPlaceholder(true);
         externalData.setDataStore(pickADataStore());
-        externalData.setLocked(false);
-        externalData.setStatus(DataSetArchivizationStatus.ACTIVE);
         return externalData;
     }
 
@@ -179,7 +177,6 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setComplete(BooleanOrUnknown.U);
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         externalData.setPlaceholder(true);
-        externalData.setLocked(false);
         externalData.setStatus(DataSetArchivizationStatus.ACTIVE);
         final Date modificationTimestamp = data.getModificationDate();
         externalData.setModificationDate(modificationTimestamp);

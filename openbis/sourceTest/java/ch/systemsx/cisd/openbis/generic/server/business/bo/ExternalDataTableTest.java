@@ -457,12 +457,15 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 createDataSet("d2n1", dss2, DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
         final ExternalDataPE d2NonActive2 =
                 createDataSet("d2n2", dss2, DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS);
+        final ExternalDataPE d2NonActive3 =
+                createDataSet("d2n3", dss2, DataSetArchivizationStatus.LOCKED);
         final ExternalDataPE d3Active =
                 createDataSet("d3a", dss3, DataSetArchivizationStatus.ACTIVE);
         final ExternalDataPE d3NonActive =
                 createDataSet("d3n", dss3, DataSetArchivizationStatus.ARCHIVED);
         final ExternalDataPE[] allDataSets =
-            { d2Active1, d2Active2, d2NonActive1, d2NonActive2, d3Active, d3NonActive };
+                    { d2Active1, d2Active2, d2NonActive1, d2NonActive2, d3Active, d3NonActive,
+                            d2NonActive3 };
         context.checking(new Expectations()
             {
                 {
@@ -501,12 +504,15 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 createDataSet("d2n1", dss2, DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
         final ExternalDataPE d2NonArchived2 =
                 createDataSet("d2n2", dss2, DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS);
+        final ExternalDataPE d2NonActive3 =
+                createDataSet("d2n3", dss2, DataSetArchivizationStatus.LOCKED);
         final ExternalDataPE d3Archived =
                 createDataSet("d3a", dss3, DataSetArchivizationStatus.ARCHIVED);
         final ExternalDataPE d3NonArchived =
                 createDataSet("d3n", dss3, DataSetArchivizationStatus.ACTIVE);
         final ExternalDataPE[] allDataSets =
-            { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived, d3NonArchived };
+                    { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
+                            d3NonArchived, d2NonActive3 };
         context.checking(new Expectations()
             {
                 {
