@@ -17,6 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus.ACTIVE;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus.ARCHIVED;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus.LOCKED;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -259,10 +264,47 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     @Test
+    public void testDeleteLoadedDataSetsButNotAllAreAvailable()
+    {
+        final ExternalDataPE d1 = createDataSet("d1", dss1, ACTIVE);
+        final ExternalDataPE d2 = createDataSet("d2", dss2, LOCKED);
+        final ExternalDataPE d3 = createDataSet("d3n", dss2, ARCHIVED);
+        final ExternalDataPE d4 = createDataSet("d4n", dss2, ARCHIVIZATION_IN_PROGRESS);
+        final ExternalDataPE d5 = createDataSet("d5n", dss2, ACTIVATION_IN_PROGRESS);
+        final ExternalDataPE[] allDataSets =
+            { d1, d2, d3, d4, d5 };
+        context.checking(new Expectations()
+            {
+                {
+                    for (ExternalDataPE dataset : allDataSets)
+                    {
+                        prepareFindFullDataset(dataset, true);
+                    }
+                }
+            });
+
+        ExternalDataTable externalDataTable = createExternalDataTable();
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)));
+        try
+        {
+            externalDataTable.deleteLoadedDataSets("");
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Operation failed because following data sets are not available "
+                    + "(they are archived or their status is pending): [d3n, d4n, d5n]. "
+                    + "Unarchive these data sets or filter them out using data set status "
+                    + "before performing the operation once again.", e.getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testDeleteLoadedDataSets()
     {
-        final ExternalDataPE d1 = createDataSet("d1", dss1);
-        final ExternalDataPE d2 = createDataSet("d2", dss2);
+        final ExternalDataPE d1 = createDataSet("d1", dss1, ACTIVE);
+        final ExternalDataPE d2 = createDataSet("d2", dss2, LOCKED);
         final String reason = "reason";
         context.checking(new Expectations()
             {
@@ -300,8 +342,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
     @Test
     public void testUploadDataSets()
     {
-        final ExternalDataPE d1PE = createDataSet("d1", dss1);
-        final ExternalDataPE d2PE = createDataSet("d2", dss2);
+        final ExternalDataPE d1PE = createDataSet("d1", dss1, ACTIVE);
+        final ExternalDataPE d2PE = createDataSet("d2", dss2, LOCKED);
         final DataSetUploadContext uploadContext = new DataSetUploadContext();
         uploadContext.setCifexURL("cifexURL");
         uploadContext.setUserID(EXAMPLE_SESSION.getUserName());
@@ -348,6 +390,50 @@ public final class ExternalDataTableTest extends AbstractBOTest
         assertEquals(
                 "The following data sets couldn't been uploaded because of unkown data store: d1",
                 message);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUploadDataSetsButNotAllAreAvailable()
+    {
+        final ExternalDataPE d1 = createDataSet("d1", dss1, ACTIVE);
+        final ExternalDataPE d2 = createDataSet("d2", dss2, LOCKED);
+        final ExternalDataPE d3 = createDataSet("d3n", dss2, ARCHIVED);
+        final ExternalDataPE d4 = createDataSet("d4n", dss2, ARCHIVIZATION_IN_PROGRESS);
+        final ExternalDataPE d5 = createDataSet("d5n", dss2, ACTIVATION_IN_PROGRESS);
+        final ExternalDataPE[] allDataSets =
+            { d1, d2, d3, d4, d5 };
+        final DataSetUploadContext uploadContext = new DataSetUploadContext();
+        uploadContext.setCifexURL("cifexURL");
+        uploadContext.setUserID(EXAMPLE_SESSION.getUserName());
+        uploadContext.setPassword("pwd");
+        uploadContext.setUserEMail(EXAMPLE_SESSION.getPrincipal().getEmail());
+        uploadContext.setComment(ExternalDataTable.createUploadComment(Arrays.asList(d1, d2, d3,
+                d4, d5)));
+        context.checking(new Expectations()
+            {
+                {
+                    for (ExternalDataPE dataset : allDataSets)
+                    {
+                        prepareFindFullDataset(dataset, true);
+                    }
+                }
+            });
+
+        ExternalDataTable externalDataTable = createExternalDataTable();
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)));
+        try
+        {
+            externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Operation failed because following data sets are not available "
+                    + "(they are archived or their status is pending): [d3n, d4n, d5n]. "
+                    + "Unarchive these data sets or filter them out using data set status "
+                    + "before performing the operation once again.", e.getMessage());
+        }
+
         context.assertIsSatisfied();
     }
 
@@ -449,20 +535,13 @@ public final class ExternalDataTableTest extends AbstractBOTest
     @Test
     public void testArchiveDataSets()
     {
-        final ExternalDataPE d2Active1 =
-                createDataSet("d2a1", dss2, DataSetArchivizationStatus.ACTIVE);
-        final ExternalDataPE d2Active2 =
-                createDataSet("d2a2", dss2, DataSetArchivizationStatus.ACTIVE);
-        final ExternalDataPE d2NonActive1 =
-                createDataSet("d2n1", dss2, DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
-        final ExternalDataPE d2NonActive2 =
-                createDataSet("d2n2", dss2, DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS);
-        final ExternalDataPE d2NonActive3 =
-                createDataSet("d2n3", dss2, DataSetArchivizationStatus.LOCKED);
-        final ExternalDataPE d3Active =
-                createDataSet("d3a", dss3, DataSetArchivizationStatus.ACTIVE);
-        final ExternalDataPE d3NonActive =
-                createDataSet("d3n", dss3, DataSetArchivizationStatus.ARCHIVED);
+        final ExternalDataPE d2Active1 = createDataSet("d2a1", dss2, ACTIVE);
+        final ExternalDataPE d2Active2 = createDataSet("d2a2", dss2, ACTIVE);
+        final ExternalDataPE d2NonActive1 = createDataSet("d2n1", dss2, ACTIVATION_IN_PROGRESS);
+        final ExternalDataPE d2NonActive2 = createDataSet("d2n2", dss2, ARCHIVIZATION_IN_PROGRESS);
+        final ExternalDataPE d2NonActive3 = createDataSet("d2n3", dss2, LOCKED);
+        final ExternalDataPE d3Active = createDataSet("d3a", dss3, ACTIVE);
+        final ExternalDataPE d3NonActive = createDataSet("d3n", dss3, ARCHIVED);
         final ExternalDataPE[] allDataSets =
                     { d2Active1, d2Active2, d2NonActive1, d2NonActive2, d3Active, d3NonActive,
                             d2NonActive3 };
@@ -474,12 +553,9 @@ public final class ExternalDataTableTest extends AbstractBOTest
                         prepareFindFullDataset(dataSet, true);
                     }
 
-                    prepareUpdateDatasetStatus(d2Active1,
-                            DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS);
-                    prepareUpdateDatasetStatus(d2Active2,
-                            DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS);
-                    prepareUpdateDatasetStatus(d3Active,
-                            DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS);
+                    prepareUpdateDatasetStatus(d2Active1, ARCHIVIZATION_IN_PROGRESS);
+                    prepareUpdateDatasetStatus(d2Active2, ARCHIVIZATION_IN_PROGRESS);
+                    prepareUpdateDatasetStatus(d3Active, ARCHIVIZATION_IN_PROGRESS);
 
                     prepareArchivization(dataStoreService2, dss2, d2Active1, d2Active2);
                     prepareArchivization(dataStoreService3, dss3, d3Active);
@@ -496,20 +572,14 @@ public final class ExternalDataTableTest extends AbstractBOTest
     @Test
     public void testUnarchiveDataSets()
     {
-        final ExternalDataPE d2Archived1 =
-                createDataSet("d2a1", dss2, DataSetArchivizationStatus.ARCHIVED);
-        final ExternalDataPE d2Archived2 =
-                createDataSet("d2a2", dss2, DataSetArchivizationStatus.ARCHIVED);
-        final ExternalDataPE d2NonArchived1 =
-                createDataSet("d2n1", dss2, DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
+        final ExternalDataPE d2Archived1 = createDataSet("d2a1", dss2, ARCHIVED);
+        final ExternalDataPE d2Archived2 = createDataSet("d2a2", dss2, ARCHIVED);
+        final ExternalDataPE d2NonArchived1 = createDataSet("d2n1", dss2, ACTIVATION_IN_PROGRESS);
         final ExternalDataPE d2NonArchived2 =
-                createDataSet("d2n2", dss2, DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS);
-        final ExternalDataPE d2NonActive3 =
-                createDataSet("d2n3", dss2, DataSetArchivizationStatus.LOCKED);
-        final ExternalDataPE d3Archived =
-                createDataSet("d3a", dss3, DataSetArchivizationStatus.ARCHIVED);
-        final ExternalDataPE d3NonArchived =
-                createDataSet("d3n", dss3, DataSetArchivizationStatus.ACTIVE);
+                createDataSet("d2n2", dss2, ARCHIVIZATION_IN_PROGRESS);
+        final ExternalDataPE d2NonActive3 = createDataSet("d2n3", dss2, LOCKED);
+        final ExternalDataPE d3Archived = createDataSet("d3a", dss3, ARCHIVED);
+        final ExternalDataPE d3NonArchived = createDataSet("d3n", dss3, ACTIVE);
         final ExternalDataPE[] allDataSets =
                     { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
                             d3NonArchived, d2NonActive3 };
@@ -521,12 +591,9 @@ public final class ExternalDataTableTest extends AbstractBOTest
                         prepareFindFullDataset(dataSet, true);
                     }
 
-                    prepareUpdateDatasetStatus(d2Archived1,
-                            DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
-                    prepareUpdateDatasetStatus(d2Archived2,
-                            DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
-                    prepareUpdateDatasetStatus(d3Archived,
-                            DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
+                    prepareUpdateDatasetStatus(d2Archived1, ACTIVATION_IN_PROGRESS);
+                    prepareUpdateDatasetStatus(d2Archived2, ACTIVATION_IN_PROGRESS);
+                    prepareUpdateDatasetStatus(d3Archived, ACTIVATION_IN_PROGRESS);
 
                     prepareUnarchivization(dataStoreService2, dss2, d2Archived1, d2Archived2);
                     prepareUnarchivization(dataStoreService3, dss3, d3Archived);
