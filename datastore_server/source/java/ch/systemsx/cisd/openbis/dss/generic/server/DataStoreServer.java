@@ -113,9 +113,8 @@ public class DataStoreServer
         assert server == null : "Server already started";
         final ConfigParameters configParameters = getConfigParameters();
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        final ApplicationContext applicationContext1 =
+        final ApplicationContext applicationContext =
                 new ApplicationContext(openBISService, configParameters);
-        final ApplicationContext applicationContext = applicationContext1;
         server = createServer(applicationContext);
         try
         {

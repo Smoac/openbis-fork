@@ -30,10 +30,13 @@ import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverTaskFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -237,23 +240,82 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
             String userEmailOrNull)
     {
-        // TODO implement (code below is just for testing)
-        System.err.println("Unarchiving:");
-        for (DatasetDescription d : datasets)
-        {
-            System.err.println(d.getDatasetCode() + " " + d.getDataSetLocation());
-        }
+        scheduleArchiverTask(sessionToken, datasets, userEmailOrNull, false);
     }
 
     public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
             String userEmailOrNull)
     {
-        // TODO implement (code below is just for testing)
-        System.err.println("Archiving:");
+        scheduleArchiverTask(sessionToken, datasets, userEmailOrNull, true);
+    }
+
+    private void scheduleArchiverTask(String sessionToken, List<DatasetDescription> datasets,
+            String userEmailOrNull, boolean archive)
+    {
+        String description = archive ? "Archivization" : "Unarchivization";
+        // TODO PTR: remove debug
+        System.err.println(description + ":");
         for (DatasetDescription d : datasets)
         {
             System.err.println(d.getDatasetCode() + " " + d.getDataSetLocation());
         }
+
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+
+        ArchiverTaskFactory factory = pluginTaskParameters.getArchiverTaskFactory();
+        final IArchiverTask archiverTask = factory.createInstance();
+        IProcessingPluginTask processingTask = new ArchiverProcessingTask(archiverTask, archive);
+        DatastoreServiceDescription pluginDescription =
+                new DatastoreServiceDescription(description, description, null, null);
+        commandExecutor.scheduleProcessDatasets(processingTask, datasets, userEmailOrNull,
+                pluginDescription, mailClientParameters);
     }
 
+    private static class ArchiverProcessingTask implements IProcessingPluginTask
+    {
+
+        private static final long serialVersionUID = 1L;
+
+        private boolean archive;
+
+        private IArchiverTask archiverTask;
+
+        public ArchiverProcessingTask(final IArchiverTask archiverTask, final boolean archive)
+        {
+            this.archiverTask = archiverTask;
+            this.archive = archive;
+        }
+
+        public ProcessingStatus process(List<DatasetDescription> datasets)
+        {
+            if (archive)
+            {
+                return archiverTask.archive(datasets);
+            } else
+            {
+                return archiverTask.unarchive(datasets);
+            }
+        }
+
+        public boolean isArchive()
+        {
+            return archive;
+        }
+
+        public void setArchive(boolean archive)
+        {
+            this.archive = archive;
+        }
+
+        public IArchiverTask getArchiverTask()
+        {
+            return archiverTask;
+        }
+
+        public void setArchiverTask(IArchiverTask archiverTask)
+        {
+            this.archiverTask = archiverTask;
+        }
+
+    }
 }

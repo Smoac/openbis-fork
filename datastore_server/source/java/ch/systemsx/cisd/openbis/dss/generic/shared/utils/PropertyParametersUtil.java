@@ -111,6 +111,27 @@ public class PropertyParametersUtil
     }
 
     /**
+     * Extracts properties of the specified section.
+     * 
+     * @param properties list of all properties
+     * @param sectionName section name
+     * @param attachGeneralProperties if true, section will also have global properties attached
+     *            (those which do not belong to any section)
+     */
+    public static SectionProperties extractSingleSectionProperties(final Properties properties,
+            String sectionName, boolean attachGeneralProperties)
+    {
+        final String[] names =
+            { sectionName };
+        SectionProperties[] sectionProperties = extractSectionProperties(names, properties);
+        if (attachGeneralProperties)
+        {
+            attachGeneralProperties(properties, names, sectionProperties);
+        }
+        return sectionProperties[0];
+    }
+
+    /**
      * takes a value of a specified property and treats it as a list of tokens separated by a
      * delimiter.
      */

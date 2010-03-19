@@ -28,17 +28,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
  */
 public class PluginTaskProviders
 {
+    /** property with repotring plugins names separated by delimiter */
     @Private
-    /* * property with repotring plugins names separated by delimiter */
     static final String REPORTING_PLUGIN_NAMES = "reporting-plugins";
 
+    /** property with processing plugins names separated by delimiter */
     @Private
-    /* * property with processing plugins names separated by delimiter */
     static final String PROCESSING_PLUGIN_NAMES = "processing-plugins";
+
+    /** name of archiver properties section */
+    @Private
+    static final String ARCHIVER_SECTION_NAME = "archiver";
 
     private final PluginTaskProvider<IReportingPluginTask> reportingPlugins;
 
     private final PluginTaskProvider<IProcessingPluginTask> processingPlugins;
+
+    private final ArchiverTaskFactory archiverTaskFactory;
 
     /** for external injections */
     public static PluginTaskProviders create()
@@ -57,6 +63,7 @@ public class PluginTaskProviders
         String datastoreCode = PropertyParametersUtil.getDataStoreCode(serviceProperties);
         this.reportingPlugins = createReportingPluginsFactories(serviceProperties, datastoreCode);
         this.processingPlugins = createProcessingPluginsFactories(serviceProperties, datastoreCode);
+        this.archiverTaskFactory = createArchiverTaskFactory(serviceProperties, datastoreCode);
     }
 
     public PluginTaskProvider<IReportingPluginTask> getReportingPluginsProvider()
@@ -69,6 +76,11 @@ public class PluginTaskProviders
         return processingPlugins;
     }
 
+    public ArchiverTaskFactory getArchiverTaskFactory()
+    {
+        return archiverTaskFactory;
+    }
+
     private void check()
     {
         processingPlugins.check(true);
@@ -79,6 +91,7 @@ public class PluginTaskProviders
     {
         processingPlugins.logConfigurations();
         reportingPlugins.logConfigurations();
+        archiverTaskFactory.logConfiguration();
     }
 
     @Private
@@ -111,11 +124,26 @@ public class PluginTaskProviders
         return new PluginTaskProvider<IProcessingPluginTask>(factories);
     }
 
+    private ArchiverTaskFactory createArchiverTaskFactory(Properties serviceProperties,
+            String datastoreCode)
+    {
+        SectionProperties sectionsProperties =
+                extractSingleSectionProperties(serviceProperties, ARCHIVER_SECTION_NAME);
+        return new ArchiverTaskFactory(sectionsProperties);
+    }
+
     private static SectionProperties[] extractSectionProperties(Properties serviceProperties,
             String namesListPropertyKey)
     {
         return PropertyParametersUtil.extractSectionProperties(serviceProperties,
                 namesListPropertyKey, false);
+    }
+
+    private static SectionProperties extractSingleSectionProperties(Properties serviceProperties,
+            String sectionName)
+    {
+        return PropertyParametersUtil.extractSingleSectionProperties(serviceProperties,
+                sectionName, false);
     }
 
     public DatastoreServiceDescriptions getPluginTaskDescriptions()
