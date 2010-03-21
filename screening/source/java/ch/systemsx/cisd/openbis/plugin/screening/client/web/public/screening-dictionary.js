@@ -17,6 +17,12 @@ var screening = {
   openbis_plate_metadata_browser_INHIBITED_GENE: "Inhibited Gene",
   openbis_plate_metadata_browser_GENE_DETAILS: "Gene Details",
   openbis_plate_metadata_browser_THUMBNAIL: "Thumbnail",
+
+
+	//
+	// Sample import
+	//
+  import_scheduled: "Import started successfully. Notification will be sent to '{0}' upon completion.",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

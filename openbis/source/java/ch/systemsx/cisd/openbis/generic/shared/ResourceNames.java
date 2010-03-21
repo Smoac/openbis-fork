@@ -50,4 +50,5 @@ public final class ResourceNames
     public final static String COMMON_SERVER = "common-server";
 
     public final static String TRACKING_SERVER = "tracking-server";
+
 }

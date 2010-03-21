@@ -16,42 +16,32 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
-
 import java.util.List;
 
 import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -59,22 +49,10 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSampleBatchRegistrationForm extends AbstractRegistrationForm
+public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatchRegistrationForm
 {
 
-    private static final String PREFIX = "sample-batch-registration";
-
-    public final static String ID = GenericConstants.ID_PREFIX + PREFIX;
-
-    private static final String SESSION_KEY = PREFIX;
-
-    private static final String FIELD_LABEL_TEMPLATE = "File";
-
-    private static final int DEFAULT_NUMBER_OF_FILES = 1;
-
-    private final BasicFileFieldManager fileFieldsManager;
-
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private static final String SESSION_KEY = "sample-batch-registration";
 
     private final SampleType sampleType;
 
@@ -82,17 +60,14 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
 
     private final GroupSelectionWidget groupSelector;
 
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
+
     public GenericSampleBatchRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
-        super(viewContext.getCommonViewContext(), ID);
+        super(viewContext.getCommonViewContext(), SESSION_KEY);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
-        fileFieldsManager =
-                new BasicFileFieldManager(SESSION_KEY, DEFAULT_NUMBER_OF_FILES,
-                        FIELD_LABEL_TEMPLATE);
-        fileFieldsManager.setMandatory();
-        setScrollMode(Scroll.AUTO);
         generateCodesCheckbox = new CheckBoxField("Generate codes automatically", false);
         groupSelector =
                 createGroupField(viewContext.getCommonViewContext(), "" + getId(), true,
@@ -105,7 +80,53 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
                     FieldUtil.setVisibility(selected, groupSelector);
                 }
             });
-        addUploadFeatures(SESSION_KEY);
+    }
+
+    @Override
+    protected void save()
+    {
+        String defaultGroupIdentifier = null;
+        Space selectedGroup = groupSelector.tryGetSelectedGroup();
+        if (generateCodesCheckbox.getValue() && selectedGroup != null)
+        {
+            defaultGroupIdentifier = selectedGroup.getIdentifier();
+        }
+        viewContext.getService().registerSamples(sampleType, getSessionKey(),
+                defaultGroupIdentifier, new RegisterSamplesCallback(viewContext));
+    }
+
+    @Override
+    protected void addSpecificFormFields(FormPanel form)
+    {
+        form.add(generateCodesCheckbox);
+        form.add(groupSelector);
+        form.add(createTemplateField());
+    }
+
+    @Override
+    protected void resetPanel()
+    {
+        super.resetPanel();
+        groupSelector.setVisible(false);
+        groupSelector.setEnabled(false);
+    }
+
+    private LabelField createTemplateField()
+    {
+        LabelField result =
+                new LabelField(LinkRenderer.renderAsLink(viewContext
+                        .getMessage(Dict.FILE_TEMPLATE_LABEL)));
+        result.sinkEvents(Event.ONCLICK);
+        result.addListener(Events.OnClick, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
+                            sampleType, generateCodesCheckbox.getValue(), true,
+                            BatchOperationKind.REGISTRATION));
+                }
+            });
+        return result;
     }
 
     private final GroupSelectionWidget createGroupField(
@@ -133,76 +154,6 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
         return field;
     }
 
-    @Override
-    protected void resetFieldsAfterSave()
-    {
-        for (FileUploadField attachmentField : fileFieldsManager.getFields())
-        {
-            attachmentField.reset();
-        }
-    }
-
-    private final void addFormFields()
-    {
-        formPanel.add(generateCodesCheckbox);
-        formPanel.add(groupSelector);
-        for (FileUploadField attachmentField : fileFieldsManager.getFields())
-        {
-            formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
-        }
-        formPanel.add(createTemplateField());
-        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
-            {
-                @Override
-                protected void onSuccessfullUpload()
-                {
-                    save();
-                }
-
-                @Override
-                protected void setUploadEnabled()
-                {
-                    GenericSampleBatchRegistrationForm.this.setUploadEnabled(true);
-                }
-            });
-        redefineSaveListeners();
-    }
-
-    protected void save()
-    {
-        String defaultGroupIdentifier = null;
-        Space selectedGroup = groupSelector.tryGetSelectedGroup();
-        if (generateCodesCheckbox.getValue() && selectedGroup != null)
-        {
-            defaultGroupIdentifier = selectedGroup.getIdentifier();
-        }
-        viewContext.getService().registerSamples(sampleType, SESSION_KEY, defaultGroupIdentifier,
-                new RegisterSamplesCallback(viewContext));
-    }
-
-    void redefineSaveListeners()
-    {
-        saveButton.removeAllListeners();
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    if (formPanel.isValid())
-                    {
-                        if (fileFieldsManager.filesDefined() > 0)
-                        {
-                            setUploadEnabled(false);
-                            formPanel.submit();
-                        } else
-                        {
-                            save();
-                        }
-                    }
-                }
-            });
-    }
-
     private final class RegisterSamplesCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<List<BatchRegistrationResult>>
     {
@@ -225,44 +176,6 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
             return builder.toString();
         }
 
-    }
-
-    @Override
-    protected void resetPanel()
-    {
-        super.resetPanel();
-        groupSelector.setVisible(false);
-        groupSelector.setEnabled(false);
-    }
-
-    @Override
-    protected final void submitValidForm()
-    {
-    }
-
-    @Override
-    protected final void onRender(final Element target, final int index)
-    {
-        super.onRender(target, index);
-        addFormFields();
-    }
-
-    private LabelField createTemplateField()
-    {
-        LabelField result =
-                new LabelField(LinkRenderer.renderAsLink(viewContext
-                        .getMessage(Dict.FILE_TEMPLATE_LABEL)));
-        result.sinkEvents(Event.ONCLICK);
-        result.addListener(Events.OnClick, new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
-                            sampleType, generateCodesCheckbox.getValue(), true,
-                            BatchOperationKind.REGISTRATION));
-                }
-            });
-        return result;
     }
 
 }

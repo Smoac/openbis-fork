@@ -21,7 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * User information to be shown in Web client.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class User implements IsSerializable
 {
@@ -29,14 +29,17 @@ public final class User implements IsSerializable
 
     private String homeGroupCode;
 
+    private String userEmail;
+
     public User()
     {
     }
 
-    public User(String userName, String homeGroupCodeOrNull)
+    public User(String userName, String homeGroupCodeOrNull, String userEmail)
     {
         this.userName = userName;
         this.homeGroupCode = homeGroupCodeOrNull;
+        this.userEmail = userEmail;
     }
 
     /** can be null */
@@ -58,6 +61,16 @@ public final class User implements IsSerializable
     public final void setUserName(final String userName)
     {
         this.userName = userName;
+    }
+
+    public void setUserEmail(String userEmail)
+    {
+        this.userEmail = userEmail;
+    }
+
+    public String getUserEmail()
+    {
+        return userEmail;
     }
 
 }

@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.AbstractSampleServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * The {@link ISampleServerPlugin} implementation for plates and wells.
@@ -56,7 +56,7 @@ public final class ScreeningSampleServerPlugin extends AbstractSampleServerPlugi
         {
             Set<String> types = new HashSet<String>();
             types.add(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
-            types.add(ScreeningConstants.WELL_PLUGIN_TYPE_CODE);
+            types.add(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE);
             return types;
         }
         return Collections.emptySet();

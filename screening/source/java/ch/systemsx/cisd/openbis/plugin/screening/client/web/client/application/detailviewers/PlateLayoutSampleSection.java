@@ -36,11 +36,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * A section of plate detail view which shows where the oligo and gene samples are located on the

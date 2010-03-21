@@ -26,6 +26,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 {
     public static final String GENE_LIBRARY_URL = "GENE_LIBRARY_URL";
 
+    public static final String IMPORT_SCHEDULED_MESSAGE = "import_scheduled";
+
     private Dict()
     {
         // Can not be instantiated.

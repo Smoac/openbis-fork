@@ -24,9 +24,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * Loads content of datasets by contacting DSS.

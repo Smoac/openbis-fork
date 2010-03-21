@@ -112,4 +112,8 @@ public final class GenericConstants
 
     public static final String CODES_TEXTAREA_REGEX = "\n|\r\n|, *";
 
+    /** A regular expression that match email addresses. */
+    public static final String EMAIL_REGEX =
+            "^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$";
+
 }

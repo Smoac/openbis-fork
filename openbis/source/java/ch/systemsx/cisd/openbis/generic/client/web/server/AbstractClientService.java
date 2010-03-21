@@ -264,6 +264,7 @@ public abstract class AbstractClientService implements IClientService,
         final User user = new User();
         user.setUserName(session.getUserName());
         user.setHomeGroupCode(session.tryGetHomeGroupCode());
+        user.setUserEmail(session.getUserEmail());
         sessionContext.setUser(user);
 
         return sessionContext;
@@ -520,4 +521,26 @@ public abstract class AbstractClientService implements IClientService,
             // Just ignore it because we are logging out anyway.
         }
     }
+
+    protected static void cleanUploadedFiles(final String sessionKey, HttpSession session,
+            UploadedFilesBean uploadedFiles)
+    {
+        if (uploadedFiles != null)
+        {
+            uploadedFiles.deleteTransferredFiles();
+        }
+        if (session != null)
+        {
+            session.removeAttribute(sessionKey);
+        }
+    }
+
+    protected static UploadedFilesBean getUploadedFiles(String sessionKey, HttpSession session)
+    {
+        assert session.getAttribute(sessionKey) != null
+                && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String.format(
+                "No UploadedFilesBean object as session attribute '%s' found.", sessionKey);
+        return (UploadedFilesBean) session.getAttribute(sessionKey);
+    }
+
 }

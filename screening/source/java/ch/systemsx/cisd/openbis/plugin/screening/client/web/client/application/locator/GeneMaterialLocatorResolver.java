@@ -10,8 +10,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * {@link MaterialLocatorResolver} for genes.

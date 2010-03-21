@@ -135,4 +135,9 @@ public final class Session extends BasicSession implements IAuthSession
                 + "}";
     }
 
+    public String getUserEmail()
+    {
+        return personOrNull == null ? getPrincipal().getEmail() : personOrNull.getEmail();
+    }
+
 }

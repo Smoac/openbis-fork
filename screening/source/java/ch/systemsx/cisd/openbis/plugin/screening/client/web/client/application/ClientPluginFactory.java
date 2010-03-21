@@ -45,10 +45,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.GeneMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * {@link IClientPluginFactory} implementation for <i>screening</i> plugin.
@@ -87,7 +88,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         if (entityKind == EntityKind.SAMPLE)
         {
             types.add(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
-            types.add(ScreeningConstants.WELL_PLUGIN_TYPE_CODE);
+            types.add(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE);
         } else if (entityKind == EntityKind.MATERIAL)
         {
             types.add(ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
@@ -182,7 +183,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
 
     private final class DatasetClientPlugin extends DelegatedClientPlugin<DataSetType>
     {
-        private ScreeningViewContext screeningViewContext;
+        private final ScreeningViewContext screeningViewContext;
 
         private DatasetClientPlugin(ScreeningViewContext viewContext)
         {
@@ -220,7 +221,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
 
     private final class SampleClientPlugin extends DelegatedClientPlugin<SampleType>
     {
-        private ScreeningViewContext screeningViewContext;
+        private final ScreeningViewContext screeningViewContext;
 
         private SampleClientPlugin(ScreeningViewContext viewContext)
         {
@@ -253,6 +254,18 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                         return HelpPageIdentifier.createSpecific("Plate Sample Viewer");
                     }
                 };
+        }
+
+        @Override
+        public Widget createBatchRegistrationForEntityType(SampleType type)
+        {
+            if (type.getCode().equals(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE))
+            {
+                return new LibrarySampleBatchRegistrationForm(getViewContext());
+            } else
+            {
+                return super.createBatchRegistrationForEntityType(type);
+            }
         }
     }
 

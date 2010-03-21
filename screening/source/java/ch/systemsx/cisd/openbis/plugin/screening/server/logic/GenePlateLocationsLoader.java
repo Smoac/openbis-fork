@@ -39,12 +39,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 

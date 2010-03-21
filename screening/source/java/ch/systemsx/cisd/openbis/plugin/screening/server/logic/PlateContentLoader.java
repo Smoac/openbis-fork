@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -46,6 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 

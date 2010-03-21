@@ -19,13 +19,19 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.MailClientParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
@@ -34,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -44,10 +51,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -64,6 +73,16 @@ public final class ScreeningClientService extends AbstractClientService implemen
 
     @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVER)
     private IScreeningServer server;
+
+    @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
+    private IGenericServer genericServer;
+
+    @Resource(name = ResourceNames.MAIL_CLIENT_PARAMETERS)
+    private MailClientParameters mailClientParameters;
+
+    private static ThreadPoolExecutor executor =
+            new ThreadPoolExecutor(1, 10, 360, TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<Runnable>());
 
     public ScreeningClientService()
     {
@@ -217,4 +236,38 @@ public final class ScreeningClientService extends AbstractClientService implemen
     {
         return prepareExportEntities(criteria);
     }
+
+    public void registerLibrary(LibraryRegistrationInfo details) throws UserFailureException
+
+    {
+        final String sessionToken = getSessionToken();
+        HttpSession session = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
+        String sessionKey = details.getSessionKey();
+        String experiment = details.getExperiment();
+        try
+        {
+            String space =
+                    new ExperimentIdentifierFactory(experiment).createIdentifier().getSpaceCode();
+            uploadedFiles = getUploadedFiles(sessionKey, session);
+            for (IUncheckedMultipartFile file : uploadedFiles.iterable())
+            {
+                LibraryExtractor extractor =
+                        new LibraryExtractor(file.getInputStream(), experiment, space, details
+                                .getPlateGeometry(), details.getScope());
+                extractor.extract();
+                executor.submit(new LibraryRegistrationTask(sessionToken, details.getUserEmail(),
+                        extractor.getNewGenes(), extractor.getNewOligos(), extractor
+                                .getNewSamplesWithType(), genericServer, mailClientParameters));
+            }
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        } finally
+        {
+            cleanUploadedFiles(sessionKey, session, uploadedFiles);
+        }
+
+    }
+
 }

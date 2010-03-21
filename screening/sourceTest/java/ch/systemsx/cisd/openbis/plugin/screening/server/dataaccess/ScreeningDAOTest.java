@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -26,23 +28,29 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOWithoutContextTest;
 
 /**
  * Tests for {@link IScreeningQuery}.
  * 
  * @author Tomasz Pylak
  */
+@ContextConfiguration(locations = "classpath:screening-applicationContext.xml")
+// In 'commonContext.xml', our transaction manager is called 'transaction-manager' (by default
+// Spring looks for 'transactionManager').
+@TransactionConfiguration(transactionManager = "transaction-manager")
 @Friend(toClasses =
     { IScreeningQuery.class, WellContent.class })
 @Test(groups =
     { "db", "screening" })
-public class ScreeningDAOTest extends AbstractDAOTest
+public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
 {
+
     static
     {
         System.setProperty("script-folder", "../openbis/sourceTest");
         System.setProperty("mass-upload-folder", "../openbis/sourceTest/sql/postgresql");
+
     }
 
     private IScreeningQuery query;

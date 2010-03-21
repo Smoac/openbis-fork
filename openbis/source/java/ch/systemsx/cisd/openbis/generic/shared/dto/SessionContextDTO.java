@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 public class SessionContextDTO implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
-    
+
     private String sessionToken;
 
     private String userName;
@@ -39,6 +39,8 @@ public class SessionContextDTO implements Serializable
     private String homeGroupCodeOrNull;
 
     private int sessionExpirationTime;
+
+    private String userEmail;
 
     public void setSessionToken(String sessionToken)
     {
@@ -53,6 +55,11 @@ public class SessionContextDTO implements Serializable
     public void setDisplaySettings(DisplaySettings displaySettings)
     {
         this.displaySettings = displaySettings;
+    }
+
+    public void setUserEmail(String userEmail)
+    {
+        this.userEmail = userEmail;
     }
 
     public void setHomeGroupCode(String homeGroupCodeOrNull)
@@ -88,6 +95,11 @@ public class SessionContextDTO implements Serializable
     public int getSessionExpirationTime()
     {
         return sessionExpirationTime;
+    }
+
+    public String getUserEmail()
+    {
+        return userEmail;
     }
 
 }

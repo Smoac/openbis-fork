@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -77,4 +78,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      */
     public void prepareExportPlateMetadata(TableExportCriteria<GenericTableRow> exportCriteria,
             AsyncCallback<String> callback);
+
+    /**
+     * @see IScreeningClientService#registerLibrary(LibraryRegistrationInfo)
+     */
+    public void registerLibrary(LibraryRegistrationInfo newLibraryInfo,
+            AsyncCallback<Void> registerSamplesCallback);
 }

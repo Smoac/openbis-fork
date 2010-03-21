@@ -38,11 +38,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**

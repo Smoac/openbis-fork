@@ -41,4 +41,6 @@ public final class ResourceNames
             "screening-business-object-factory";
 
     public final static String SCREENING_SAMPLE_SERVER_PLUGIN = "screening-sample-server-plugin";
+
+    public static final String MAIL_CLIENT_PARAMETERS = "mail-client-parameters";
 }

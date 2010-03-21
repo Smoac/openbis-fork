@@ -75,7 +75,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
 
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
-    
+
     @Resource(name = ComponentNames.REMOTE_HOST_VALIDATOR)
     private IRemoteHostValidator remoteHostValidator;
 
@@ -290,6 +290,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         result.setSessionExpirationTime(session.getSessionExpirationTime());
         result.setSessionToken(session.getSessionToken());
         result.setUserName(session.getUserName());
+        result.setUserEmail(session.getUserEmail());
         return result;
     }
 
@@ -382,7 +383,8 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         String remoteHost = session.getRemoteHost();
         if (remoteHostValidator.isValidRemoteHost(remoteHost) == false)
         {
-            throw new UserFailureException("It is not allowed to change the user from remote host " + remoteHost);
+            throw new UserFailureException("It is not allowed to change the user from remote host "
+                    + remoteHost);
         }
         PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);
         if (person == null)

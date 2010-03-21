@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 /**
  * Constants which are specific for screening. Here some assumptions are made about:
@@ -39,7 +39,8 @@ public class ScreeningConstants
     public static final String PLATE_IMAGE_PARAMS_REPORT_KEY = "plate-image-params-reporter";
 
     // id of the DSS screening reporting plugin to get the images of the plate
-    public static final String PLATE_IMAGE_ANALYSIS_REPORT_KEY = "default-plate-image-analysis-merger";
+    public static final String PLATE_IMAGE_ANALYSIS_REPORT_KEY =
+            "default-plate-image-analysis-merger";
 
     // ---- required entity types
 
@@ -51,10 +52,13 @@ public class ScreeningConstants
 
     public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
 
-    public static final String WELL_PLUGIN_TYPE_CODE = "WELL";
+    public static final String LIBRARY_PLUGIN_TYPE_CODE = "LIBRARY";
 
     // code of the gene material type
     public static final String GENE_PLUGIN_TYPE_CODE = "GENE";
+
+    // code of the oligo material type
+    public static final String OLIGO_PLUGIN_TYPE_NAME = "OLIGO";
 
     public static final String IMAGE_DATASET_PLUGIN_TYPE_CODE = IMAGE_DATASET_TYPE;
 
@@ -62,4 +66,5 @@ public class ScreeningConstants
 
     /** path to the datastore screening servlet able to display images in different channels */
     public static final String DATASTORE_SCREENING_SERVLET_URL = "datastore_server_screening";
+
 }

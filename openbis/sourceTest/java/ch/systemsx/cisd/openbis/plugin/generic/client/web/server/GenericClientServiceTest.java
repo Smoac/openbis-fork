@@ -185,7 +185,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
                     allowing(httpSession).removeAttribute(sessionKey);
 
-                    exactly(2).of(multipartFile).getOriginalFilename();
+                    exactly(1).of(multipartFile).getOriginalFilename();
                     will(returnValue(fileName));
 
                     one(multipartFile).transferTo(with(any(File.class)));
@@ -264,7 +264,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
                     allowing(httpSession).removeAttribute(sessionKey);
 
-                    exactly(2).of(multipartFile).getOriginalFilename();
+                    exactly(1).of(multipartFile).getOriginalFilename();
                     will(returnValue(fileName));
 
                     one(multipartFile).transferTo(with(any(File.class)));

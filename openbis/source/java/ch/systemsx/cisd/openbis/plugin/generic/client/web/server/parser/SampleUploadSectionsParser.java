@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -30,10 +32,9 @@ import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.server.BisTabFileLoader;
-import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
+import ch.systemsx.cisd.openbis.generic.client.web.server.NamedInputStream;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -88,14 +89,14 @@ public class SampleUploadSectionsParser
     }
 
     public static BatchSamplesOperation prepareSamples(final SampleType sampleType,
-            final UploadedFilesBean uploadedFiles, String defaultGroupIdentifier,
+            final Collection<NamedInputStream> files, String defaultGroupIdentifier,
             final SampleCodeGenerator sampleCodeGeneratorOrNull, final boolean allowExperiments,
             BatchOperationKind operationKind)
     {
         final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
         boolean isAutoGenerateCodes = (sampleCodeGeneratorOrNull != null);
         final List<BatchRegistrationResult> results =
-                loadSamplesFromFiles(uploadedFiles, sampleType, isAutoGenerateCodes, newSamples,
+                loadSamplesFromFiles(files, sampleType, isAutoGenerateCodes, newSamples,
                         allowExperiments, operationKind);
         if (defaultGroupIdentifier != null)
         {
@@ -180,10 +181,10 @@ public class SampleUploadSectionsParser
         }
     }
 
-    private static List<FileSection> extractSections(IUncheckedMultipartFile multipartFile)
+    private static List<FileSection> extractSections(InputStream stream)
     {
         List<FileSection> sections = new ArrayList<FileSection>();
-        InputStreamReader reader = new InputStreamReader(multipartFile.getInputStream());
+        InputStreamReader reader = new InputStreamReader(stream);
         try
         {
             LineIterator it = IOUtils.lineIterator(reader);
@@ -243,20 +244,18 @@ public class SampleUploadSectionsParser
     }
 
     private static List<BatchRegistrationResult> loadSamplesFromFiles(
-            UploadedFilesBean uploadedFiles, SampleType sampleType, boolean isAutoGenerateCodes,
-            final List<NewSamplesWithTypes> newSamples, boolean allowExperiments,
-            BatchOperationKind operationKind)
+            Collection<NamedInputStream> uploadedFiles, SampleType sampleType,
+            boolean isAutoGenerateCodes, final List<NewSamplesWithTypes> newSamples,
+            boolean allowExperiments, BatchOperationKind operationKind)
     {
-
         final List<BatchRegistrationResult> results =
                 new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
-
-        for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+        for (final NamedInputStream multipartFile : uploadedFiles)
         {
             List<FileSection> sampleSections = new ArrayList<FileSection>();
             if (sampleType.isDefinedInFileSampleTypeCode())
             {
-                sampleSections.addAll(extractSections(multipartFile));
+                sampleSections.addAll(extractSections(multipartFile.getInputStream()));
             } else
             {
                 sampleSections.add(new FileSection(new String(multipartFile.getBytes()), sampleType

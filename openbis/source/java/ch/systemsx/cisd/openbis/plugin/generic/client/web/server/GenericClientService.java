@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -31,11 +30,6 @@ import org.springframework.transaction.TransactionSystemException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.io.DelegatedReader;
-import ch.systemsx.cisd.common.parser.IParserObjectFactory;
-import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
-import ch.systemsx.cisd.common.parser.IPropertyMapper;
-import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
@@ -43,7 +37,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.server.BisTabFileLoader;
+import ch.systemsx.cisd.openbis.generic.client.web.server.MaterialLoader;
+import ch.systemsx.cisd.openbis.generic.client.web.server.NamedInputStream;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -59,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -75,7 +69,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.NewMaterialParserObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.BatchSamplesOperation;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.SampleCodeGenerator;
@@ -291,7 +284,14 @@ public class GenericClientService extends AbstractClientService implements IGene
             SampleCodeGenerator sampleCodeGeneratorOrNull =
                     tryGetSampleCodeGenerator(isAutoGenerateCodes);
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
-            return SampleUploadSectionsParser.prepareSamples(sampleType, uploadedFiles,
+            Collection<NamedInputStream> files =
+                    new ArrayList<NamedInputStream>(uploadedFiles.size());
+            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
+            {
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename(), f
+                        .getBytes()));
+            }
+            return SampleUploadSectionsParser.prepareSamples(sampleType, files,
                     defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,
                     operationKind);
         } catch (final UserFailureException e)
@@ -320,14 +320,6 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
-    private UploadedFilesBean getUploadedFiles(String sessionKey, HttpSession session)
-    {
-        assert session.getAttribute(sessionKey) != null
-                && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String.format(
-                "No UploadedFilesBean object as session attribute '%s' found.", sessionKey);
-        return (UploadedFilesBean) session.getAttribute(sessionKey);
-    }
-
     public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
             final String sessionKey)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -337,53 +329,24 @@ public class GenericClientService extends AbstractClientService implements IGene
         try
         {
             uploadedFiles = getUploadedFiles(sessionKey, session);
-            final BisTabFileLoader<NewMaterial> tabFileLoader =
-                    new BisTabFileLoader<NewMaterial>(
-                            new IParserObjectFactoryFactory<NewMaterial>()
-                                {
-                                    public final IParserObjectFactory<NewMaterial> createFactory(
-                                            final IPropertyMapper propertyMapper)
-                                            throws ParserException
-                                    {
-                                        return new NewMaterialParserObjectFactory(propertyMapper);
-                                    }
-                                }, false);
-            final List<NewMaterial> newMaterials = new ArrayList<NewMaterial>();
-            final List<BatchRegistrationResult> results =
-                    new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
-            for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+            Collection<NamedInputStream> files =
+                    new ArrayList<NamedInputStream>(uploadedFiles.size());
+            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
             {
-                final StringReader stringReader =
-                        new StringReader(new String(multipartFile.getBytes()));
-                final List<NewMaterial> loadedMaterials =
-                        tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
-                                .getOriginalFilename()));
-                newMaterials.addAll(loadedMaterials);
-                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                        .format("%d material(s) found and registered.", loadedMaterials.size())));
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename(), f
+                        .getBytes()));
             }
-            genericServer
-                    .registerMaterials(getSessionToken(), materialType.getCode(), newMaterials);
-            return results;
+            MaterialLoader loader = new MaterialLoader();
+            loader.load(files);
+            genericServer.registerMaterials(getSessionToken(), materialType.getCode(), loader
+                    .getNewMaterials());
+            return loader.getResults();
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);
-        }
-    }
-
-    private void cleanUploadedFiles(final String sessionKey, HttpSession session,
-            UploadedFilesBean uploadedFiles)
-    {
-        if (uploadedFiles != null)
-        {
-            uploadedFiles.deleteTransferredFiles();
-        }
-        if (session != null)
-        {
-            session.removeAttribute(sessionKey);
         }
     }
 
