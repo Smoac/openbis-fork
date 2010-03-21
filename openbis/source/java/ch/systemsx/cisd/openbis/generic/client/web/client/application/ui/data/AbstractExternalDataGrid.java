@@ -126,6 +126,10 @@ public abstract class AbstractExternalDataGrid
                                             viewContext);
                                 }
                             });
+        if (viewContext.getModel().getApplicationInfo().getCIFEXURL() == null)
+        {
+            uploadButton.disable();
+        }
         addButton(uploadButton);
         pagingToolbar.add(createComputeMenu());
         addEntityOperationsSeparator();
