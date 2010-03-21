@@ -171,6 +171,10 @@ public final class CommonClientService extends AbstractClientService implements
     public final void setDataStoreBaseURL(String dataStoreBaseURL)
     {
         this.dataStoreBaseURL = dataStoreBaseURL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Set Data Store Server base URL to '" + this.dataStoreBaseURL + "'.");
+        }
     }
 
     @Override

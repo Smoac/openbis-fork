@@ -178,11 +178,19 @@ public abstract class AbstractClientService implements IClientService,
     public final void setCifexURL(String cifexURL)
     {
         this.cifexURL = cifexURL;
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Set CIFEX URL for client to '" + cifexURL + "'.");
+        }
     }
 
     public final void setCifexRecipient(String cifexRecipient)
     {
         this.cifexRecipient = cifexRecipient;
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Set CIFEX recipient for client to '" + cifexRecipient + "'.");
+        }
     }
 
     public String getOnlineHelpGenericRootURL()
@@ -193,6 +201,11 @@ public abstract class AbstractClientService implements IClientService,
     public void setOnlineHelpGenericRootURL(String onlineHelpGenericRootURL)
     {
         this.onlineHelpGenericRootURL = onlineHelpGenericRootURL;
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Set root ULR for generic online help to '"
+                    + onlineHelpGenericRootURL + "'.");
+        }
     }
 
     public String getOnlineHelpGenericPageTemplate()
@@ -203,6 +216,11 @@ public abstract class AbstractClientService implements IClientService,
     public void setOnlineHelpGenericPageTemplate(String onlineHelpGenericPageTemplate)
     {
         this.onlineHelpGenericPageTemplate = onlineHelpGenericPageTemplate;
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Set template for generic online help to '"
+                    + onlineHelpGenericPageTemplate + "'.");
+        }
     }
 
     public String getOnlineHelpSpecificRootURL()
@@ -213,6 +231,11 @@ public abstract class AbstractClientService implements IClientService,
     public void setOnlineHelpSpecificRootURL(String onlineHelpSpecificRootURL)
     {
         this.onlineHelpSpecificRootURL = onlineHelpSpecificRootURL;
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Set root ULR for specific online help to '"
+                    + onlineHelpSpecificRootURL + "'.");
+        }
     }
 
     public String getOnlineHelpSpecificPageTemplate()
@@ -223,6 +246,11 @@ public abstract class AbstractClientService implements IClientService,
     public void setOnlineHelpSpecificPageTemplate(String onlineHelpSpecificPageTemplate)
     {
         this.onlineHelpSpecificPageTemplate = onlineHelpSpecificPageTemplate;
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Set template for specific online help to '"
+                    + onlineHelpSpecificPageTemplate + "'.");
+        }
     }
 
     private final SessionContext createSessionContext(final SessionContextDTO session)
@@ -409,6 +437,10 @@ public abstract class AbstractClientService implements IClientService,
             final String sessionToken = getSessionToken();
             IServer server = getServer();
             server.setBaseIndexURL(sessionToken, baseURL);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Set openBIS base URL for client to '" + baseURL + "'.");
+            }
         } catch (InvalidSessionException e)
         {
             // ignored
