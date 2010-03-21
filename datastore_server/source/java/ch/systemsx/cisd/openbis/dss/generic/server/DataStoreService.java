@@ -26,6 +26,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
@@ -193,6 +194,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
+        if (context.getCifexURL() == null)
+        {
+            throw new ConfigurationFailureException(
+                    "Upload of data sets to CIFEX not possible: no CIFEX URL configured.");
+        }
         ICIFEXRPCServiceFactory serviceFactory =
                 createCIFEXRPCServiceFactory(context.getCifexURL());
         ICIFEXComponent cifex = serviceFactory.createCIFEXComponent();
