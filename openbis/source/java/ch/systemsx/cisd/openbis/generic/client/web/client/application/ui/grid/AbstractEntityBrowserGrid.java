@@ -219,16 +219,20 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
      */
     protected void updateCriteriaProviderAndRefresh()
     {
-        boolean shouldRefreshGridAfterwards = true;
         HashSet<DatabaseModificationKind> observedModifications =
                 new HashSet<DatabaseModificationKind>();
-        getCriteriaProvider().update(observedModifications,
-                createRefreshGridCallback(shouldRefreshGridAfterwards));
+        getCriteriaProvider().update(observedModifications, new IDataRefreshCallback()
+            {
+                public void postRefresh(boolean wasSuccessful)
+                {
+                    refresh();
+                }
+            });
     }
 
     private final IDataRefreshCallback createRefreshGridCallback(final boolean shouldRefreshGrid)
     {
-        IDataRefreshCallback entityTypeRefreshCallback = new IDataRefreshCallback()
+        return new IDataRefreshCallback()
             {
                 public void postRefresh(boolean wasSuccessful)
                 {
@@ -238,7 +242,6 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
                     }
                 }
             };
-        return entityTypeRefreshCallback;
     }
 
     protected final GridCellRenderer<BaseEntityModel<?>> createShowDetailsLinkCellRenderer()
