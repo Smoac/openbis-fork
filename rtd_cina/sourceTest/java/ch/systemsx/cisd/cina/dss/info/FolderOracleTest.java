@@ -37,9 +37,9 @@ public class FolderOracleTest extends AssertJUnit
         FolderOracle folderOracle = new FolderOracle();
         File experimentFolder =
                 new File("sourceTest/java/ch/systemsx/cisd/cina/dss/info/experiment-data-folder");
-        FolderMetadata metadata = folderOracle.getMetadataForFolder(experimentFolder);
+        FolderMetadata metadata = folderOracle.getFolderMetadataForFolder(experimentFolder);
         assertTrue(metadata.getType() == FolderType.EXPERIMENT);
-        assertTrue("experiment.properties".equals(metadata.tryGetMetadataFile().getName()));
+        assertTrue("experiment.properties".equals(metadata.tryGetMarkerFile().getName()));
     }
 
     @Test
@@ -48,9 +48,9 @@ public class FolderOracleTest extends AssertJUnit
         FolderOracle folderOracle = new FolderOracle();
         File sampleFolder =
                 new File("sourceTest/java/ch/systemsx/cisd/cina/dss/info/sample-data-folder");
-        FolderMetadata metadata = folderOracle.getMetadataForFolder(sampleFolder);
+        FolderMetadata metadata = folderOracle.getFolderMetadataForFolder(sampleFolder);
         assertTrue(metadata.getType() == FolderType.SAMPLE);
-        assertTrue("sample.properties".equals(metadata.tryGetMetadataFile().getName()));
+        assertTrue("sample.properties".equals(metadata.tryGetMarkerFile().getName()));
     }
 
     @Test
@@ -59,9 +59,9 @@ public class FolderOracleTest extends AssertJUnit
         FolderOracle folderOracle = new FolderOracle();
         File datasetFolder =
                 new File("sourceTest/java/ch/systemsx/cisd/cina/dss/info/dataset-data-folder");
-        FolderMetadata metadata = folderOracle.getMetadataForFolder(datasetFolder);
+        FolderMetadata metadata = folderOracle.getFolderMetadataForFolder(datasetFolder);
         assertTrue(metadata.getType() == FolderType.DATA_SET);
-        assertTrue("dataset.properties".equals(metadata.tryGetMetadataFile().getName()));
+        assertTrue("dataset.properties".equals(metadata.tryGetMarkerFile().getName()));
     }
 
     @Test
@@ -72,7 +72,7 @@ public class FolderOracleTest extends AssertJUnit
                 new File("sourceTest/java/ch/systemsx/cisd/cina/dss/info/ambiguous-data-folder");
         try
         {
-            folderOracle.getMetadataForFolder(ambiguousFolder);
+            folderOracle.getFolderMetadataForFolder(ambiguousFolder);
             fail("The method getMetadataForFolder should throw an error on folder ambiguous-data-folder.");
         } catch (UserFailureException ex)
         {

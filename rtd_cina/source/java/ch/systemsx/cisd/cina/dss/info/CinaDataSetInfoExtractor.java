@@ -58,21 +58,21 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
         final DataSetInformation dataSetInformation = new DataSetInformation();
 
         final FolderOracle folderOracle = new FolderOracle();
-        FolderMetadata metadata = folderOracle.getMetadataForFolder(incomingDataSetFile);
+        FolderMetadata metadata = folderOracle.getFolderMetadataForFolder(incomingDataSetFile);
         FolderType folderType = metadata.getType();
 
         switch (folderType)
         {
             case DATA_SET:
-                processDataSetFolder(metadata.tryGetMetadataFile(), dataSetInformation,
+                processDataSetFolder(metadata.tryGetMarkerFile(), dataSetInformation,
                         openbisService);
                 break;
             case EXPERIMENT:
-                processExperimentFolder(metadata.tryGetMetadataFile(), dataSetInformation,
+                processExperimentFolder(metadata.tryGetMarkerFile(), dataSetInformation,
                         openbisService);
                 break;
             case SAMPLE:
-                processSampleFolder(metadata.tryGetMetadataFile(), dataSetInformation,
+                processSampleFolder(metadata.tryGetMarkerFile(), dataSetInformation,
                         openbisService);
                 break;
             case UNKNOWN:

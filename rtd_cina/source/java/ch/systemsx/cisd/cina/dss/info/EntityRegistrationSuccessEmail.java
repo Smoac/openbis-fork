@@ -218,7 +218,7 @@ public class EntityRegistrationSuccessEmail
         @Override
         void appendMetadataFileName(StringBuffer sb)
         {
-            sb.append(FolderOracle.SAMPLE_METADATA_FILENAME);
+            sb.append(FolderOracle.SAMPLE_MARKER_FILENAME);
 
         }
     }
@@ -257,7 +257,7 @@ public class EntityRegistrationSuccessEmail
         @Override
         void appendMetadataFileName(StringBuffer sb)
         {
-            sb.append(FolderOracle.DATA_SET_METADATA_FILENAME);
+            sb.append(FolderOracle.DATA_SET_MARKER_FILENAME);
 
         }
     }

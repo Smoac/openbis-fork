@@ -43,8 +43,9 @@ class FolderOracle
     }
 
     /**
-     * A little helper class (struct) that just stores a file and metadata type. If the metadata
-     * type is UNKNOWN, the file will be null. Otherwise, the file will be non-null.
+     * A little helper class for storing the location and type of the sidecar files for a folder. If
+     * the type is UNKNOWN, the files will be null. If the type is known, the marker file will be
+     * non-null. The metadata file might still be null.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -52,32 +53,51 @@ class FolderOracle
     {
         private final FolderType type;
 
-        private final File metadataFileOrNull;
+        private final File markerFileOrNull;
 
-        FolderMetadata(FolderType type, File metadataFile)
+        private final File metadataXMLFileOrNull;
+
+        FolderMetadata(FolderType type, File markerFile, File metadataXMLFile)
         {
             this.type = type;
-            this.metadataFileOrNull = metadataFile;
+            this.markerFileOrNull = markerFile;
+            this.metadataXMLFileOrNull = metadataXMLFile;
         }
 
+        /**
+         * The type of the folder.
+         */
         FolderType getType()
         {
             return type;
         }
 
-        File tryGetMetadataFile()
+        /**
+         * The marker file for this folder -- this is a properties file.
+         */
+        File tryGetMarkerFile()
         {
-            return metadataFileOrNull;
+            return markerFileOrNull;
+        }
+
+        /**
+         * The metadata file for this folder -- this is an XML file.
+         */
+        File tryGetMetadataXMLFile()
+        {
+            return metadataXMLFileOrNull;
         }
     }
 
     // The known conventions for naming metadata files. If a new metadata file is created, cases
     // should be added to getFilenameFilter() and getFolderMetadataForFile() as well.
-    static String EXPERIMENT_METADATA_FILENAME = "experiment.properties";
+    static String EXPERIMENT_MARKER_FILENAME = "experiment.properties";
 
-    static String SAMPLE_METADATA_FILENAME = "sample.properties";
+    static String SAMPLE_MARKER_FILENAME = "sample.properties";
 
-    static String DATA_SET_METADATA_FILENAME = "dataset.properties";
+    static String DATA_SET_MARKER_FILENAME = "dataset.properties";
+
+    static String METADATA_XML_FILENAME = "metadata.xml";
 
     FolderOracle()
     {
@@ -90,20 +110,21 @@ class FolderOracle
      * Returns type UNKNOWN if the folder cannot be identified and throws an error if the
      * identification is ambiguous.
      */
-    FolderMetadata getMetadataForFolder(File incomingDataSetFolder) throws UserFailureException
+    FolderMetadata getFolderMetadataForFolder(File incomingDataSetFolder)
+            throws UserFailureException
     {
         // Don't know what to do with this file
         if (!incomingDataSetFolder.isDirectory())
         {
-            return new FolderMetadata(FolderType.UNKNOWN, null);
+            return new FolderMetadata(FolderType.UNKNOWN, null, null);
         }
 
-        File[] metadata = incomingDataSetFolder.listFiles(getFilenameFilter());
+        File[] metadata = incomingDataSetFolder.listFiles(getMarkerFilenameFilter());
 
         // Didn't find any metadata
         if (metadata.length < 1)
         {
-            return new FolderMetadata(FolderType.UNKNOWN, null);
+            return new FolderMetadata(FolderType.UNKNOWN, null, null);
         }
 
         // Found too much metadata
@@ -128,7 +149,7 @@ class FolderOracle
      */
     FolderType getTypeForFolder(File incomingDataSetFolder) throws UserFailureException
     {
-        FolderMetadata metadata = getMetadataForFolder(incomingDataSetFolder);
+        FolderMetadata metadata = getFolderMetadataForFolder(incomingDataSetFolder);
         return metadata.getType();
     }
 
@@ -139,38 +160,67 @@ class FolderOracle
     private FolderMetadata getFolderMetadataForFile(File metadataFile)
     {
         String filename = metadataFile.getName();
-        if (EXPERIMENT_METADATA_FILENAME.equals(filename))
+        File parentDir = metadataFile.getParentFile();
+        File metadataXMLFileOrNull = null;
+        if (parentDir != null)
         {
-            return new FolderMetadata(FolderType.EXPERIMENT, metadataFile);
+
+            File[] metadataXMLFiles = parentDir.listFiles(getMetadataXMLFilenameFilter());
+            if (metadataXMLFiles.length > 0)
+            {
+                metadataXMLFileOrNull = metadataXMLFiles[0];
+            }
         }
 
-        if (SAMPLE_METADATA_FILENAME.equals(filename))
+        if (EXPERIMENT_MARKER_FILENAME.equals(filename))
         {
-            return new FolderMetadata(FolderType.SAMPLE, metadataFile);
+            return new FolderMetadata(FolderType.EXPERIMENT, metadataFile, metadataXMLFileOrNull);
         }
 
-        if (DATA_SET_METADATA_FILENAME.equals(filename))
+        if (SAMPLE_MARKER_FILENAME.equals(filename))
         {
-            return new FolderMetadata(FolderType.DATA_SET, metadataFile);
+            return new FolderMetadata(FolderType.SAMPLE, metadataFile, metadataXMLFileOrNull);
+        }
+
+        if (DATA_SET_MARKER_FILENAME.equals(filename))
+        {
+            return new FolderMetadata(FolderType.DATA_SET, metadataFile, metadataXMLFileOrNull);
         }
 
         throw new EnvironmentFailureException(
                 "A metadata file convention was added without modifing getFolderMetadataForFile()");
     }
 
-    private FilenameFilter getFilenameFilter()
+    private FilenameFilter getMarkerFilenameFilter()
     {
         return new FilenameFilter()
             {
                 public boolean accept(File dir, String name)
                 {
-                    if (EXPERIMENT_METADATA_FILENAME.equals(name))
+                    if (EXPERIMENT_MARKER_FILENAME.equals(name))
                     {
                         return true;
-                    } else if (SAMPLE_METADATA_FILENAME.equals(name))
+                    } else if (SAMPLE_MARKER_FILENAME.equals(name))
                     {
                         return true;
-                    } else if (DATA_SET_METADATA_FILENAME.equals(name))
+                    } else if (DATA_SET_MARKER_FILENAME.equals(name))
+                    {
+                        return true;
+                    } else
+                    {
+                        return false;
+                    }
+                }
+            };
+    }
+
+    private FilenameFilter getMetadataXMLFilenameFilter()
+    {
+        return new FilenameFilter()
+            {
+                public boolean accept(File dir, String name)
+                {
+                    if (METADATA_XML_FILENAME.equals(name))
                     {
                         return true;
                     } else
