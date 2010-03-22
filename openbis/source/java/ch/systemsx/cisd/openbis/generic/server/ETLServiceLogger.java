@@ -65,6 +65,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public long drawANewUniqueID(String sessionToken) throws UserFailureException
+    {
+        logTracking(sessionToken, "drawANewUniqueID", "");
+        return 0;
+    }
+
     public DatabaseInstance getHomeDatabaseInstance(String sessionToken)
     {
         return null;

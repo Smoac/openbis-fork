@@ -249,6 +249,14 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
     public String createDataSetCode(final String sessionToken) throws UserFailureException;
+    
+    /**
+     * Draw a new unique ID. The returned value can be used as a part of a code 
+     * for samples, experiments etc. which is guaranteed to be unique.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public long drawANewUniqueID(String sessionToken) throws UserFailureException;
 
     /**
      * Lists samples codes filtered by specified criteria, see {@link ListSamplesByPropertyCriteria}

@@ -279,6 +279,12 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return daoFactory.getPermIdDAO().createPermId();
     }
 
+    public long drawANewUniqueID(String sessionToken) throws UserFailureException
+    {
+        checkSession(sessionToken);
+        return daoFactory.getCodeSequenceDAO().getNextCodeSequenceId();
+    }
+    
     public Experiment tryToGetExperiment(String sessionToken,
             ExperimentIdentifier experimentIdentifier) throws UserFailureException
     {
