@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
@@ -53,4 +54,7 @@ public interface IDatasetLister
 
     /** @return datasets specified by given criteria */
     List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria);
+
+    /** @return datasets specified by given criteria */
+    List<ExternalData> listByArchiverCriteria(String dataStoreCode, ArchiverDataSetCriteria criteria);
 }

@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
+
+import java.util.Date;
+
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
@@ -66,6 +69,26 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
             + "    WHERE data.id > ?{2} AND data.samp_id IN (SELECT id FROM samples s WHERE s.saty_id=?{1})", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getNewDataSetsForSampleType(long sampleTypeId,
             int lastSeenDatasetId);
+
+    /**
+     * Returns datasets from store with given id that have 'ACTIVE' status and were modified before
+     * given date.
+     */
+    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
+            + "    WHERE data.dast_id = ?{1} AND external_data.status = 'ACTIVE' "
+            + "    AND data.modification_timestamp < ?{2}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getActiveDataSetsModifiedBefore(long dataStoreId,
+            Date lastModificationDate);
+
+    /**
+     * Like {@link #getActiveDataSetsModifiedBefore(long, Date)} with additional condition for data
+     * set type id.
+     */
+    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
+            + "    WHERE data.dast_id = ?{1} AND external_data.status = 'ACTIVE' "
+            + "    AND data.modification_timestamp < ?{2} AND data.dsty_id = ?{3}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getActiveDataSetsModifiedBeforeWithDataSetType(
+            long dataStoreId, Date lastModificationDate, long dataSetTypeId);
 
     /**
      * Returns the directly connected dataset ids for the given sample id.

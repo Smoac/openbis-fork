@@ -24,9 +24,11 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
@@ -38,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.Seconda
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -183,6 +186,51 @@ public class DatasetLister implements IDatasetLister
                         .getConnectedSampleTypeCode());
         return enrichDatasets(query.getNewDataSetsForSampleType(sampleTypeId, criteria
                 .getLastSeenDataSetId()));
+    }
+
+    public List<ExternalData> listByArchiverCriteria(String dataStoreCode,
+            ArchiverDataSetCriteria criteria)
+    {
+        loadSmallConnectedTables();
+        final Long dataStoreId = extractDataStoreId(dataStoreCode);
+        final Date lastModificationDate = criteria.getLastModificationDate();
+        final String dataSetTypeCodeOrNull = criteria.tryGetDataSetTypeCode();
+        if (dataSetTypeCodeOrNull == null)
+        {
+            return enrichDatasets(query.getActiveDataSetsModifiedBefore(dataStoreId, criteria
+                    .getLastModificationDate()));
+        } else
+        {
+            Long dataSetTypeId = extractDataSetTypeId(dataSetTypeCodeOrNull);
+            return enrichDatasets(query.getActiveDataSetsModifiedBeforeWithDataSetType(dataStoreId,
+                    lastModificationDate, dataSetTypeId));
+        }
+    }
+
+    private Long extractDataStoreId(String dataStoreCode)
+    {
+        for (Entry<Long, DataStore> entry : dataStores.entrySet())
+        {
+            if (dataStoreCode.equalsIgnoreCase(entry.getValue().getCode()))
+            {
+                return entry.getKey();
+            }
+        }
+        assert false : "dataStore not found";
+        return null; // shouldn't happen
+    }
+
+    private Long extractDataSetTypeId(String dataSetTypeCode)
+    {
+        for (Entry<Long, DataSetType> entry : dataSetTypes.entrySet())
+        {
+            if (dataSetTypeCode.equalsIgnoreCase(entry.getValue().getCode()))
+            {
+                return entry.getKey();
+            }
+        }
+        assert false : "dataSetType not found";
+        return null; // shouldn't happen
     }
 
     private List<ExternalData> enrichDatasets(Iterable<DatasetRecord> datasets)
