@@ -21,10 +21,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.util.DelayedTask;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -127,14 +132,37 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
     {
         updateOriginalData(experiment);
         removeAll();
-        
+
         this.propertiesPanelOrNull = new ExperimentPropertiesPanel(experiment, viewContext, this);
         add(propertiesPanelOrNull, createLeftBorderLayoutData());
 
-        this.rightPanelSectionsOrNull = createRightPanel();
-        SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
-        add(rightPanel, createRightBorderLayoutData());
+        final Html loadingLabel = new Html(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
+        add(loadingLabel, createRightBorderLayoutData());
         layout();
+
+        executeDelayed(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    remove(loadingLabel);
+                    GenericExperimentViewer.this.rightPanelSectionsOrNull = createRightPanel();
+                    SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
+                    add(rightPanel, createRightBorderLayoutData());
+                    layout();
+                }
+            });
+    }
+
+    private static void executeDelayed(final IDelegatedAction delegatedAction)
+    {
+        DelayedTask delayedTask = new DelayedTask(new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    delegatedAction.execute();
+                }
+            });
+        delayedTask.delay(1);
     }
 
     public static final String createId(final IIdentifiable identifiable)
