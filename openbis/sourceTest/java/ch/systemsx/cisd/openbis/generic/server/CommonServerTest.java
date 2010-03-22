@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -58,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -1303,7 +1303,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
 
-                    one(externalDataTable).loadByDataSetCodes(dataSetCodes);
+                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, false);
                     one(externalDataTable).getExternalData();
                     ExternalDataPE ds1 = createDataSet("ds1", "type1");
                     ExternalDataPE ds2 = createDataSet("ds2", "type1");
@@ -1345,12 +1345,54 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
 
-                    one(externalDataTable).loadByDataSetCodes(dataSetCodes);
+                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, false);
                     one(externalDataTable).uploadLoadedDataSetsToCIFEX(uploadContext);
                 }
             });
 
         createServer().uploadDataSets(SESSION_TOKEN, dataSetCodes, uploadContext);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testArchiveDataSets()
+    {
+        prepareGetSession();
+        final List<String> dataSetCodes = Arrays.asList("a", "b");
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
+                    will(returnValue(externalDataTable));
+
+                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, true);
+                    one(externalDataTable).archiveDatasets();
+                }
+            });
+
+        createServer().archiveDatasets(SESSION_TOKEN, dataSetCodes);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUnarchiveDataSets()
+    {
+        prepareGetSession();
+        final List<String> dataSetCodes = Arrays.asList("a", "b");
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
+                    will(returnValue(externalDataTable));
+
+                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, true);
+                    one(externalDataTable).unarchiveDatasets();
+                }
+            });
+
+        createServer().unarchiveDatasets(SESSION_TOKEN, dataSetCodes);
 
         context.assertIsSatisfied();
     }

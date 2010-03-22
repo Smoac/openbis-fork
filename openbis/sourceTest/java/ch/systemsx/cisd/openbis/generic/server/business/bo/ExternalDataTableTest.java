@@ -210,7 +210,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         prepareFindFullDataset(d2, false);
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
+        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false);
 
         assertEquals(1, externalDataTable.getExternalData().size());
         assertSame(d1, externalDataTable.getExternalData().get(0));
@@ -220,10 +220,17 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
     private void prepareFindFullDataset(final ExternalDataPE result, final boolean found)
     {
+        prepareFindFullDataset(result, found, false);
+    }
+
+    private void prepareFindFullDataset(final ExternalDataPE result, final boolean found,
+            final boolean lockForUpdate)
+    {
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryToFindFullDataSetByCode(result.getCode(), true);
+                    one(externalDataDAO).tryToFindFullDataSetByCode(result.getCode(), true,
+                            lockForUpdate);
                     will(returnValue(found ? result : null));
                 }
             });
@@ -247,7 +254,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
+        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false);
         try
         {
             externalDataTable.deleteLoadedDataSets("");
@@ -284,7 +291,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)));
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false);
         try
         {
             externalDataTable.deleteLoadedDataSets("");
@@ -327,7 +334,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
+        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false);
         externalDataTable.deleteLoadedDataSets(reason);
 
         context.assertIsSatisfied();
@@ -384,7 +391,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1PE.getCode(), d2PE.getCode()));
+        externalDataTable.loadByDataSetCodes(Arrays.asList(d1PE.getCode(), d2PE.getCode()), false);
         String message = externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
 
         assertEquals(
@@ -421,7 +428,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)));
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false);
         try
         {
             externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
@@ -550,7 +557,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 {
                     for (ExternalDataPE dataSet : allDataSets)
                     {
-                        prepareFindFullDataset(dataSet, true);
+                        prepareFindFullDataset(dataSet, true, true);
                     }
 
                     prepareUpdateDatasetStatus(d2Active1, ARCHIVIZATION_IN_PROGRESS);
@@ -563,7 +570,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)));
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), true);
         externalDataTable.archiveDatasets();
 
         context.assertIsSatisfied();
@@ -588,7 +595,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 {
                     for (ExternalDataPE dataSet : allDataSets)
                     {
-                        prepareFindFullDataset(dataSet, true);
+                        prepareFindFullDataset(dataSet, false);
                     }
 
                     prepareUpdateDatasetStatus(d2Archived1, ACTIVATION_IN_PROGRESS);
@@ -601,7 +608,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)));
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), true);
         externalDataTable.unarchiveDatasets();
 
         context.assertIsSatisfied();

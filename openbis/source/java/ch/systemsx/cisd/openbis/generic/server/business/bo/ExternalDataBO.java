@@ -92,13 +92,14 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     public void loadByCode(String dataSetCode)
     {
-        loadByCode(dataSetCode, true);
+        loadByCode(dataSetCode, true, false);
     }
 
-    public void loadByCode(String dataSetCode, boolean withPropertyTypes)
+    public void loadByCode(String dataSetCode, boolean withPropertyTypes, boolean lockForUpdate)
     {
         externalData =
-                getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode, withPropertyTypes);
+                getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode, withPropertyTypes,
+                        lockForUpdate);
     }
 
     static final String PROPERTY_TYPES = "dataSetType.dataSetTypePropertyTypesInternal";
@@ -656,9 +657,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     public void updateStatus(String dataSetCode, DataSetArchivizationStatus newStatus)
     {
-        loadByCode(dataSetCode, false);
-        // TODO 2010-03-17, Piotr Buczek: check old status and modify status only if old one was
-        // pending?
+        loadByCode(dataSetCode, false, true);
         externalData.setStatus(newStatus);
         validateAndSave();
     }

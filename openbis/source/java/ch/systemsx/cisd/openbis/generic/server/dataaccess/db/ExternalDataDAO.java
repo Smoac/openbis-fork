@@ -25,6 +25,7 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
+import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
@@ -194,7 +195,8 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         return entity;
     }
 
-    public ExternalDataPE tryToFindFullDataSetByCode(String dataSetCode, boolean withPropertyTypes)
+    public ExternalDataPE tryToFindFullDataSetByCode(String dataSetCode, boolean withPropertyTypes,
+            boolean lockForUpdate)
     {
         assert dataSetCode != null : "Unspecified data set code";
 
@@ -208,6 +210,10 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
             criteria.setFetchMode("dataSetType.dataSetTypePropertyTypesInternal", FetchMode.JOIN);
         }
         criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        if (lockForUpdate)
+        {
+            criteria.setLockMode(LockMode.UPGRADE);
+        }
         final List<ExternalDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final ExternalDataPE entity = tryFindEntity(list, "data set");
         if (operationLog.isDebugEnabled())

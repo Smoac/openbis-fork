@@ -972,7 +972,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         {
             IExternalDataTable externalDataTable =
                     businessObjectFactory.createExternalDataTable(session);
-            externalDataTable.loadByDataSetCodes(dataSetCodes);
+            externalDataTable.loadByDataSetCodes(dataSetCodes, false);
             List<ExternalDataPE> dataSets = externalDataTable.getExternalData();
             Map<DataSetTypePE, List<ExternalDataPE>> groupedDataSets =
                     new LinkedHashMap<DataSetTypePE, List<ExternalDataPE>>();
@@ -1223,7 +1223,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         {
             IExternalDataTable externalDataTable =
                     businessObjectFactory.createExternalDataTable(session);
-            externalDataTable.loadByDataSetCodes(dataSetCodes);
+            externalDataTable.loadByDataSetCodes(dataSetCodes, false);
             return externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
         } catch (final DataAccessException ex)
         {
@@ -1627,7 +1627,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByDataSetCodes(datasetCodes);
+        externalDataTable.loadByDataSetCodes(datasetCodes, true);
         externalDataTable.archiveDatasets();
     }
 
@@ -1636,7 +1636,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByDataSetCodes(datasetCodes);
+        externalDataTable.loadByDataSetCodes(datasetCodes, true);
         externalDataTable.unarchiveDatasets();
     }
 

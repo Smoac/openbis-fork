@@ -74,9 +74,10 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
     public DataPE tryToFindDataSetByCode(String dataSetCode);
 
     /**
-     * Tries to get the full data set for the specified code.
+     * Tries to get the full data set for the specified code with optional locking.
      */
-    public ExternalDataPE tryToFindFullDataSetByCode(String dataSetCode, boolean withPropertyTypes);
+    public ExternalDataPE tryToFindFullDataSetByCode(String dataSetCode, boolean withPropertyTypes,
+            boolean lockForUpdate);
 
     /**
      * Persists the specified data set.

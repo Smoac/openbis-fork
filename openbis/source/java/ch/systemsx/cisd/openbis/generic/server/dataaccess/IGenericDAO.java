@@ -67,7 +67,7 @@ public interface IGenericDAO<T extends IIdHolder>
      * Persists given entity.
      * 
      * @param entity the entity to be persisted
-     * @throws DataAccessException if the entity cannot be deleted.
+     * @throws DataAccessException if the entity cannot be persisted.
      */
     public void persist(final T entity) throws DataAccessException;
 

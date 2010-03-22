@@ -239,7 +239,7 @@ public abstract class AbstractDAOWithoutContextTest extends
     protected ExternalDataPE findExternalData(String code)
     {
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
-        ExternalDataPE externalData = externalDataDAO.tryToFindFullDataSetByCode(code, true);
+        ExternalDataPE externalData = externalDataDAO.tryToFindFullDataSetByCode(code, true, false);
 
         assertNotNull(externalData);
 

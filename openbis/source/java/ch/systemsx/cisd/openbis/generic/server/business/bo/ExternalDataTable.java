@@ -157,13 +157,14 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         this.externalData = externalData;
     }
 
-    public void loadByDataSetCodes(List<String> dataSetCodes)
+    public void loadByDataSetCodes(List<String> dataSetCodes, boolean lockForUpdate)
     {
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
         externalData = new ArrayList<ExternalDataPE>();
         for (String dataSetCode : dataSetCodes)
         {
-            ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, true);
+            ExternalDataPE dataSet =
+                    externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, true, lockForUpdate);
             if (dataSet != null)
             {
                 externalData.add(dataSet);
@@ -445,7 +446,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         List<String> notAvailableDatasets = new ArrayList<String>();
         for (String datasetCode : datasetCodes)
         {
-            ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(datasetCode, false);
+            ExternalDataPE dataSet =
+                    externalDataDAO.tryToFindFullDataSetByCode(datasetCode, false, false);
             if (dataSet != null)
             {
                 if (dataSet.getStatus().isAvailable())
