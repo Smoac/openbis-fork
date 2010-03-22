@@ -38,6 +38,10 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 @Friend(toClasses = TimeSeriesHeaderUtils.class)
 public class TimeSeriesHeaderUtilsTest extends AssertJUnit
 {
+    private static final String QUANTIFIED_PEPTIDES = "QuantifiedPeptides";
+
+    private static final String PROTEIN_LCMS_RATIO = "ProteinLcmsRatio";
+
     private static final String CG_NEW1 = "CG1";
 
     private static final String TR_NEW1 = "TR1";
@@ -317,6 +321,47 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
             assertEquals("Inconsistent header values of 'BiID'. "
                     + "Expected the same value in all the columns, found: [val1, val2].", e
                     .getMessage());
+        }
+        assertTrue(exceptionThrown);
+    }
+
+    @Test
+    public void testGetPropertyValuePropertyDefinedMoreThanOnceOneExpectedQuantPeptides()
+            throws Exception
+    {
+        HashMap<DataHeaderProperty, Set<String>> map =
+                new HashMap<DataHeaderProperty, Set<String>>();
+        DataHeaderProperty property = DataHeaderProperty.DataSetType;
+        HashSet<String> set = new HashSet<String>();
+        set.add(PROTEIN_LCMS_RATIO);
+        set.add(QUANTIFIED_PEPTIDES);
+        map.put(property, set);
+        assertEquals(PROTEIN_LCMS_RATIO, TimeSeriesHeaderUtils.getPropertyValue(property, map,
+                false, true));
+    }
+
+    @Test
+    public void testGetPropertyValuePropertyDefinedMoreThanOnceOneExpectedQuantPeptidesTurnedOff()
+            throws Exception
+    {
+        HashMap<DataHeaderProperty, Set<String>> map =
+                new HashMap<DataHeaderProperty, Set<String>>();
+        DataHeaderProperty property = DataHeaderProperty.DataSetType;
+        HashSet<String> set = new HashSet<String>();
+        set.add(QUANTIFIED_PEPTIDES);
+        set.add(PROTEIN_LCMS_RATIO);
+        map.put(property, set);
+        boolean exceptionThrown = false;
+        try
+        {
+            TimeSeriesHeaderUtils.getPropertyValue(property, map, false, false);
+        } catch (UserFailureException e)
+        {
+            exceptionThrown = true;
+            assertEquals(
+                    "Inconsistent header values of 'DataSetType'. "
+                            + "Expected the same value in all the columns, found: [ProteinLcmsRatio, QuantifiedPeptides].",
+                    e.getMessage());
         }
         assertTrue(exceptionThrown);
     }

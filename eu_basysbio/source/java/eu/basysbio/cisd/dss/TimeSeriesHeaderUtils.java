@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +48,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 public class TimeSeriesHeaderUtils
 {
+    private static final String QUANTIFIED_PEPTIDES = "QuantifiedPeptides";
+
+    private static final String PROTEIN_LCMS_RATIO = "ProteinLcmsRatio";
+
     private static final Pattern DATA_COLUMN_HEADER_PATTERN =
             Pattern.compile(".*(" + DataColumnHeader.SEPARATOR + ".*)+");
 
@@ -172,18 +177,37 @@ public class TimeSeriesHeaderUtils
     static String getPropertyValue(DataHeaderProperty property,
             Map<DataHeaderProperty, Set<String>> map, boolean multipleValuesAllowed)
     {
+        return getPropertyValue(property, map, multipleValuesAllowed, true);
+    }
+
+    @Private
+    static String getPropertyValue(DataHeaderProperty property,
+            Map<DataHeaderProperty, Set<String>> map, boolean multipleValuesAllowed,
+            boolean treatQuantifiedPeptidesAsProteins)
+    {
         Set<String> set = map.get(property);
         if (set == null || set.size() < 1)
         {
             String message = String.format("%s not defined", property.name());
             throw new UserFailureException(message);
         }
+        Iterator<String> iterator = set.iterator();
         if (set.size() == 1)
         {
-            return set.iterator().next();
+            return iterator.next();
         }
         if (multipleValuesAllowed == false)
         {
+            if (treatQuantifiedPeptidesAsProteins
+                    && property.equals(DataHeaderProperty.DataSetType) && set.size() == 2)
+            {
+                String first = iterator.next();
+                String second = iterator.next();
+                if (equal(first, second, PROTEIN_LCMS_RATIO, QUANTIFIED_PEPTIDES))
+                {
+                    return PROTEIN_LCMS_RATIO;
+                }
+            }
             String message =
                     String.format("Inconsistent header values of '%s'. "
                             + "Expected the same value in all the columns, found: [%s].", property
@@ -191,6 +215,13 @@ public class TimeSeriesHeaderUtils
             throw new UserFailureException(message);
         }
         return StringUtils.join(set, TimeSeriesHeaderUtils.LIST_SEPARATOR);
+    }
+
+    private static boolean equal(String first, String second, String expectedFirst,
+            String expectedSecond)
+    {
+        return first.equals(expectedFirst) && second.equals(expectedSecond)
+                || first.equals(expectedSecond) && second.equals(expectedFirst);
     }
 
     /**
