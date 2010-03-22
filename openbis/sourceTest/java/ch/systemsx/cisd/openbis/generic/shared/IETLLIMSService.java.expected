@@ -249,10 +249,10 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
     public String createDataSetCode(final String sessionToken) throws UserFailureException;
-    
+
     /**
-     * Draw a new unique ID. The returned value can be used as a part of a code 
-     * for samples, experiments etc. which is guaranteed to be unique.
+     * Draw a new unique ID. The returned value can be used as a part of a code for samples,
+     * experiments etc. which is guaranteed to be unique.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
@@ -286,6 +286,13 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             Long lastSeenDeletionEventIdOrNull);
 
     /**
+     * List data sets that have have 'ACTIVE' status.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public List<ExternalData> listActiveDataSets(String sessionToken, String dataStoreCode);
+
+    /**
      * Adds specified properties of given data set. Properties defined before will not be updated.
      */
     @Transactional
@@ -299,7 +306,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Adds specified properties of given data set. Properties defined before will not be updated.
+     * Updates status of given data set.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
@@ -307,5 +314,23 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public void updateDataSetStatus(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode,
             final DataSetArchivizationStatus newStatus) throws UserFailureException;
+
+    /**
+     * Schedules archivization of specified data sets.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void archiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
+    /**
+     * Schedules unarchivization of specified data sets.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void unarchiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
 }
