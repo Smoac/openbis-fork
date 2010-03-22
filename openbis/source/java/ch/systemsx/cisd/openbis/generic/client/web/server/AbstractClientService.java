@@ -53,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTr
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -76,7 +75,7 @@ public abstract class AbstractClientService implements IClientService,
     private IRequestContextProvider requestContextProvider;
 
     @Resource(name = "common-service")
-    protected IDataStoreBaseURLProvider dataStoreBaseURLProvider;
+    protected CommonClientService commonClientService;
 
     private String cifexURL;
 
@@ -101,7 +100,7 @@ public abstract class AbstractClientService implements IClientService,
 
     protected String getDataStoreBaseURL()
     {
-        return dataStoreBaseURLProvider.getDataStoreBaseURL();
+        return commonClientService.getDataStoreBaseURL();
     }
 
     @SuppressWarnings("unchecked")
@@ -363,9 +362,17 @@ public abstract class AbstractClientService implements IClientService,
     public final ApplicationInfo getApplicationInfo()
     {
         final ApplicationInfo applicationInfo = new ApplicationInfo();
+        if (commonClientService == null || commonClientService == this)
+        {
+            applicationInfo.setCIFEXURL(cifexURL);
+            applicationInfo.setCifexRecipient(cifexRecipient);
+        } else
+        {
+            ApplicationInfo commonApplicationInfo = commonClientService.getApplicationInfo();
+            applicationInfo.setCIFEXURL(commonApplicationInfo.getCIFEXURL());
+            applicationInfo.setCifexRecipient(commonApplicationInfo.getCifexRecipient());
+        }
         applicationInfo.setVersion(getVersion());
-        applicationInfo.setCIFEXURL(cifexURL);
-        applicationInfo.setCifexRecipient(cifexRecipient);
         return applicationInfo;
     }
 
