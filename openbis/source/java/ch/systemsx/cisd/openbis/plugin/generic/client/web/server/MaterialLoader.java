@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.generic.client.web.server;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -12,6 +12,8 @@ import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.client.web.server.BisTabFileLoader;
+import ch.systemsx.cisd.openbis.generic.client.web.server.NamedInputStream;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.NewMaterialParserObjectFactory;
 

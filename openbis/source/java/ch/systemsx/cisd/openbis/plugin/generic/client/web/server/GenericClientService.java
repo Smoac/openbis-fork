@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.server.MaterialLoader;
 import ch.systemsx.cisd.openbis.generic.client.web.server.NamedInputStream;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
