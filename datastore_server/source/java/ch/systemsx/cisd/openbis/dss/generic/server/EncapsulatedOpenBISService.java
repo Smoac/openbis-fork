@@ -513,6 +513,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
+    synchronized public long drawANewUniqueID()
+    {
+        checkSessionToken();
+        try
+        {
+            return service.drawANewUniqueID(sessionToken);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return service.drawANewUniqueID(sessionToken);
+        }
+    }
+
     synchronized public ExternalData tryGetDataSet(String sToken, String dataSetCode)
             throws UserFailureException
     {

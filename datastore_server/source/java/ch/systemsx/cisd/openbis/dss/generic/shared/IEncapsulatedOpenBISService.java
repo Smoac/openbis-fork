@@ -147,6 +147,12 @@ public interface IEncapsulatedOpenBISService
      * Creates and returns a unique code for a new data set.
      */
     public String createDataSetCode();
+    
+    /**
+     * Creates a new unique ID which can be used to create codes which are guaranteed to be
+     * unique.
+     */
+    public long drawANewUniqueID();
 
     /**
      * Returns the version of the service.
