@@ -624,6 +624,7 @@
 			<arg value="-war" />
 			<arg value="${targets.www}" />
 			<arg value="${module-test.module}Firefox" />
+      <arg value="-draftCompile" />
 			<arg value="-style" />
 			<arg value="PRETTY" />
 		</java>
