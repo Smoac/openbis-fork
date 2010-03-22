@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.yeastx.etl;
+package ch.systemsx.cisd.etlserver.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
