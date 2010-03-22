@@ -17,101 +17,34 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
 import java.io.File;
-import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * @author Piotr Buczek
  */
-// TODO 2010-03-19, PTR: check HighWaterMark
-public class DemoArchiver extends AbstractDatastorePlugin implements IArchiverTask
+public class DemoArchiver extends AbstractArchiverProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
-
-    @SuppressWarnings("unused")
-    private File storeRoot;
 
     public DemoArchiver(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        this.storeRoot = storeRoot;
     }
 
-    public ProcessingStatus archive(List<DatasetDescription> datasets)
+    @Override
+    protected void archive(DatasetDescription dataset) throws UserFailureException
     {
-        System.out.println("Archivization of the following datasets has been requested: "
-                + datasets);
-        return handleDatasets(datasets, DataSetArchivizationStatus.ARCHIVED,
-                DataSetArchivizationStatus.ACTIVE, new IDatasetDescriptionHandler()
-                    {
-
-                        public Status handle(DatasetDescription dataset)
-                        {
-                            try
-                            {
-                                // TODO 2010-03-19, Piotr Buczek: perform archivization
-                            } catch (UserFailureException ex)
-                            {
-                                return Status.createError(ex.getMessage());
-                            }
-                            return Status.OK;
-                        }
-
-                    });
+        System.out.println(dataset + " - archived");
     }
 
-    public ProcessingStatus unarchive(List<DatasetDescription> datasets)
+    @Override
+    protected void unarchive(DatasetDescription dataset) throws UserFailureException
     {
-        System.out.println("Unarchivization of the following datasets has been requested: "
-                + datasets);
-        return handleDatasets(datasets, DataSetArchivizationStatus.ACTIVE,
-                DataSetArchivizationStatus.ARCHIVED, new IDatasetDescriptionHandler()
-                    {
-
-                        public Status handle(DatasetDescription dataset)
-                        {
-                            try
-                            {
-                                // TODO 2010-03-19, Piotr Buczek: perform unarchivization
-                            } catch (UserFailureException ex)
-                            {
-                                return Status.createError(ex.getMessage());
-                            }
-                            return Status.OK;
-                        }
-
-                    });
-    }
-
-    private ProcessingStatus handleDatasets(List<DatasetDescription> datasets,
-            DataSetArchivizationStatus success, DataSetArchivizationStatus failure,
-            IDatasetDescriptionHandler handler)
-    {
-        final ProcessingStatus result = new ProcessingStatus();
-        for (DatasetDescription dataset : datasets)
-        {
-            Status status = handler.handle(dataset);
-            DataSetArchivizationStatus newStatus = status.isError() ? failure : success;
-            System.out.println(dataset + " changing status: " + newStatus);
-            ServiceProvider.getOpenBISService().updateDataSetStatus(dataset.getDatasetCode(),
-                    newStatus);
-            result.addDatasetStatus(dataset, status);
-        }
-        return result;
-    }
-
-    private interface IDatasetDescriptionHandler
-    {
-        public Status handle(DatasetDescription dataset);
+        System.out.println(dataset + " - unarchived");
     }
 
 }
