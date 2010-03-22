@@ -101,10 +101,10 @@ public class EntityRegistrationSuccessEmail
         entityEmailDetails.appendFollowOnEntityName(content);
         content.append(":\n");
         content.append("------");
-        entityEmailDetails.appendMetadataFileName(content);
+        entityEmailDetails.appendMarkerFileName(content);
         content.append("------");
         content.append("\n");
-        entityEmailDetails.appendMetadataFileContent(content);
+        entityEmailDetails.appendMarkerFileContent(content);
 
         return content.toString();
     }
@@ -129,7 +129,7 @@ public class EntityRegistrationSuccessEmail
     public String getContentMimeAttachmentFileName()
     {
         StringBuffer content = new StringBuffer();
-        entityEmailDetails.appendMetadataFileName(content);
+        entityEmailDetails.appendMarkerFileName(content);
 
         return content.toString();
     }
@@ -137,7 +137,7 @@ public class EntityRegistrationSuccessEmail
     public DataHandler getContentMimeAttachmentContent()
     {
         StringBuffer content = new StringBuffer();
-        entityEmailDetails.appendMetadataFileContent(content);
+        entityEmailDetails.appendMarkerFileContent(content);
         DataHandler attachment = new DataHandler(content.toString(), MARKER_FILE_MIME_TYPE);
 
         return attachment;
@@ -160,11 +160,11 @@ public class EntityRegistrationSuccessEmail
         {
         }
 
-        void appendMetadataFileName(StringBuffer sb)
+        void appendMarkerFileName(StringBuffer sb)
         {
         }
 
-        void appendMetadataFileContent(StringBuffer sb)
+        void appendMarkerFileContent(StringBuffer sb)
         {
 
         }
@@ -197,7 +197,7 @@ public class EntityRegistrationSuccessEmail
         }
 
         @Override
-        void appendMetadataFileContent(StringBuffer sb)
+        void appendMarkerFileContent(StringBuffer sb)
         {
             sb.append(SampleRegistrationInformationExtractor.EXPERIMENT_IDENTIFIER_KEY);
             sb.append("=");
@@ -216,7 +216,7 @@ public class EntityRegistrationSuccessEmail
         }
 
         @Override
-        void appendMetadataFileName(StringBuffer sb)
+        void appendMarkerFileName(StringBuffer sb)
         {
             sb.append(FolderOracle.SAMPLE_MARKER_FILENAME);
 
@@ -250,15 +250,14 @@ public class EntityRegistrationSuccessEmail
         }
 
         @Override
-        void appendMetadataFileContent(StringBuffer sb)
+        void appendMarkerFileContent(StringBuffer sb)
         {
         }
 
         @Override
-        void appendMetadataFileName(StringBuffer sb)
+        void appendMarkerFileName(StringBuffer sb)
         {
             sb.append(FolderOracle.DATA_SET_MARKER_FILENAME);
-
         }
     }
 

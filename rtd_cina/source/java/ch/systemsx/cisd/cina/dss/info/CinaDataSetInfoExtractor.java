@@ -23,11 +23,16 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.Map.Entry;
 
 import ch.systemsx.cisd.cina.dss.info.FolderOracle.FolderMetadata;
 import ch.systemsx.cisd.cina.dss.info.FolderOracle.FolderType;
+import ch.systemsx.cisd.cina.dss.labview.Cluster;
+import ch.systemsx.cisd.cina.dss.labview.LVData;
+import ch.systemsx.cisd.cina.dss.labview.LVDataParser;
+import ch.systemsx.cisd.cina.dss.labview.LVDataString;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
@@ -46,6 +51,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
 {
+    // Keys used in the metadata file
+    static final String DESCRIPTION_KEY = "DESCRIPTION";
+
     public CinaDataSetInfoExtractor(final Properties globalProperties)
     {
 
@@ -64,16 +72,13 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
         switch (folderType)
         {
             case DATA_SET:
-                processDataSetFolder(metadata.tryGetMarkerFile(), dataSetInformation,
-                        openbisService);
+                processDataSetFolder(metadata, dataSetInformation, openbisService);
                 break;
             case EXPERIMENT:
-                processExperimentFolder(metadata.tryGetMarkerFile(), dataSetInformation,
-                        openbisService);
+                processExperimentFolder(metadata, dataSetInformation, openbisService);
                 break;
             case SAMPLE:
-                processSampleFolder(metadata.tryGetMarkerFile(), dataSetInformation,
-                        openbisService);
+                processSampleFolder(metadata, dataSetInformation, openbisService);
                 break;
             case UNKNOWN:
                 // Ignore it
@@ -83,32 +88,22 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
         return dataSetInformation;
     }
 
-    // Not currently used, may be used in the future
-    // private static final String NON_EXISTENT_SAMPLE_CODE = "JUNK";
-    // /**
-    // * Configure the dataset information to be recognized as something to be deleted -- this is
-    // * possible by giving it a non-existent sample code
-    // */
-    // private void configureFolderForDeletion(final DataSetInformation dataSetInformation)
-    // {
-    // // Configure the data set information to be recognized as something to be deleted -- this is
-    // // possible by giving it a non-existent sample code
-    // dataSetInformation.setSampleCode(NON_EXISTENT_SAMPLE_CODE);
-    // dataSetInformation.setGroupCode("CINA");
-    // }
-
     /**
      * See if the incoming data set folder is contains an experiment and, if so, register the
      * experiment.
      */
-    private void processExperimentFolder(final File metadataFile,
+    private void processExperimentFolder(final FolderMetadata folderMetadata,
             final DataSetInformation dataSetInformation, IEncapsulatedOpenBISService openbisService)
     {
+        final File markerFile = folderMetadata.tryGetMarkerFile();
+        final File metadataXMLFileOrNull = folderMetadata.tryGetMetadataXMLFile();
         try
         {
-            HashMap<String, String> experimentMetadata = convertMetadataFileToMap(metadataFile);
+            HashMap<String, String> metadata = new HashMap<String, String>();
+            metadata = appendMarkerFileToMap(markerFile, metadata);
+            metadata = appendMetadataXMLFileToMap(metadataXMLFileOrNull, metadata);
             ExperimentRegistrationInformationExtractor extractor =
-                    new ExperimentRegistrationInformationExtractor(dataSetInformation, experimentMetadata,
+                    new ExperimentRegistrationInformationExtractor(dataSetInformation, metadata,
                             getEntityCodeSuffix(), openbisService);
             extractor.processMetadataAndFillDataSetInformation();
         } catch (IOException ex)
@@ -122,14 +117,16 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
     /**
      * See if the incoming data set folder is contains a sample and, if so, register the sample.
      */
-    private void processSampleFolder(final File metadataFile,
+    private void processSampleFolder(final FolderMetadata folderMetadata,
             final DataSetInformation dataSetInformation, IEncapsulatedOpenBISService openbisService)
     {
+        final File markerFile = folderMetadata.tryGetMarkerFile();
         try
         {
-            HashMap<String, String> sampleMetadata = convertMetadataFileToMap(metadataFile);
+            HashMap<String, String> metadata = new HashMap<String, String>();
+            metadata = appendMarkerFileToMap(markerFile, metadata);
             SampleRegistrationInformationExtractor extractor =
-                    new SampleRegistrationInformationExtractor(dataSetInformation, sampleMetadata,
+                    new SampleRegistrationInformationExtractor(dataSetInformation, metadata,
                             getEntityCodeSuffix(), openbisService);
             extractor.processMetadataAndFillDataSetInformation();
         } catch (IOException ex)
@@ -143,7 +140,7 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
     /**
      * See if the incoming data set folder is contains a data set and, if so, register the data set.
      */
-    private void processDataSetFolder(final File metadataFile,
+    private void processDataSetFolder(final FolderMetadata folderMetadata,
             final DataSetInformation dataSetInformation, IEncapsulatedOpenBISService openbisService)
     {
     }
@@ -167,19 +164,47 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
     }
 
     /**
-     * Parse the metadata file and return it as a hashmap. Currently properties files are supported,
-     * but CINA may prefer an XML file using the XML schema that LabView supports.
+     * Parse the marker file and append it to hashmap.
      */
-    private HashMap<String, String> convertMetadataFileToMap(File metadataFile) throws IOException,
-            FileNotFoundException
+    private HashMap<String, String> appendMarkerFileToMap(File markerFile,
+            HashMap<String, String> map) throws IOException, FileNotFoundException
     {
         Properties properties = new Properties();
-        properties.load(new FileInputStream(metadataFile));
+        properties.load(new FileInputStream(markerFile));
 
-        HashMap<String, String> map = new HashMap<String, String>();
         for (Entry<Object, Object> entry : properties.entrySet())
         {
             map.put((String) entry.getKey(), (String) entry.getValue());
+        }
+        return map;
+    }
+
+    /**
+     * Parse the metadata xml file and append it to hashmap.
+     */
+    private HashMap<String, String> appendMetadataXMLFileToMap(File metadataXMLFileOrNull,
+            HashMap<String, String> map) throws IOException, FileNotFoundException
+    {
+        if (metadataXMLFileOrNull == null)
+            return map;
+
+        LVData data = LVDataParser.parse(metadataXMLFileOrNull);
+        // Look for the description in the LVData
+        List<Cluster> clusters = data.getClusters();
+        if (clusters == null || clusters.size() < 1)
+            return map;
+
+        for (Cluster cluster : clusters)
+        {
+            List<LVDataString> strings = cluster.getStrings();
+            if (strings == null || strings.size() < 1)
+                break;
+
+            for (LVDataString string : strings)
+            {
+                "Description".equals(string.getName());
+                map.put(DESCRIPTION_KEY, string.getValue());
+            }
         }
         return map;
     }

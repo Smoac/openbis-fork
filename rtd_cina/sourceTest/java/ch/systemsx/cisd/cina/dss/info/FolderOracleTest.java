@@ -38,8 +38,10 @@ public class FolderOracleTest extends AssertJUnit
         File experimentFolder =
                 new File("sourceTest/java/ch/systemsx/cisd/cina/dss/info/experiment-data-folder");
         FolderMetadata metadata = folderOracle.getFolderMetadataForFolder(experimentFolder);
-        assertTrue(metadata.getType() == FolderType.EXPERIMENT);
-        assertTrue("experiment.properties".equals(metadata.tryGetMarkerFile().getName()));
+        assertEquals(metadata.getType(), FolderType.EXPERIMENT);
+        assertEquals("experiment.properties", metadata.tryGetMarkerFile().getName());
+        // The folder doesn't have an XML metadata file
+        assertNull(metadata.tryGetMetadataXMLFile());
     }
 
     @Test
@@ -49,8 +51,10 @@ public class FolderOracleTest extends AssertJUnit
         File sampleFolder =
                 new File("sourceTest/java/ch/systemsx/cisd/cina/dss/info/sample-data-folder");
         FolderMetadata metadata = folderOracle.getFolderMetadataForFolder(sampleFolder);
-        assertTrue(metadata.getType() == FolderType.SAMPLE);
-        assertTrue("sample.properties".equals(metadata.tryGetMarkerFile().getName()));
+        assertEquals(metadata.getType(), FolderType.SAMPLE);
+        assertEquals("sample.properties", metadata.tryGetMarkerFile().getName());
+        // The folder doesn't have an XML metadata file
+        assertNull(metadata.tryGetMetadataXMLFile());
     }
 
     @Test
@@ -60,8 +64,10 @@ public class FolderOracleTest extends AssertJUnit
         File datasetFolder =
                 new File("sourceTest/java/ch/systemsx/cisd/cina/dss/info/dataset-data-folder");
         FolderMetadata metadata = folderOracle.getFolderMetadataForFolder(datasetFolder);
-        assertTrue(metadata.getType() == FolderType.DATA_SET);
-        assertTrue("dataset.properties".equals(metadata.tryGetMarkerFile().getName()));
+        assertEquals(metadata.getType(), FolderType.DATA_SET);
+        assertEquals("dataset.properties", metadata.tryGetMarkerFile().getName());
+        assertNotNull(metadata.tryGetMetadataXMLFile());
+        assertEquals("metadata.xml", metadata.tryGetMetadataXMLFile().getName());
     }
 
     @Test
