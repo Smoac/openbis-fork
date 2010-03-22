@@ -259,7 +259,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             String userEmailOrNull, boolean archive)
     {
         String description = archive ? "Archivization" : "Unarchivization";
-        // TODO PTR: remove debug
+        // TODO 2010-03-19, PTR: remove debug
         System.err.println(description + ":");
         for (DatasetDescription d : datasets)
         {
