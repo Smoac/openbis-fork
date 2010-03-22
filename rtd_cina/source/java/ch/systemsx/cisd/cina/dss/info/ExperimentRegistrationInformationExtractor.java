@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class ExperimentMetadataExtractor
+class ExperimentRegistrationInformationExtractor
 {
     // Keys expected in metadata properties file
     public static final String PROJECT_IDENTIFIER_KEY = "project.identifier";
@@ -61,7 +61,7 @@ class ExperimentMetadataExtractor
 
     private static final String EXPERIMENT_TYPE_CODE = "CINA_EXP_TYPE";
 
-    ExperimentMetadataExtractor(DataSetInformation dataSetInformation,
+    ExperimentRegistrationInformationExtractor(DataSetInformation dataSetInformation,
             Map<String, String> experimentMetadata, String experimentCodeSuffix,
             IEncapsulatedOpenBISService openbisService)
     {

@@ -39,14 +39,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class SampleMetadataExtractor
+class SampleRegistrationInformationExtractor
 {
     // Keys expected in metadata properties file
 
     public static final String EXPERIMENT_IDENTIFIER_KEY = "experiment.identifier";
 
     public static final String EXPERIMENT_OWNER_EMAIL_KEY =
-            ExperimentMetadataExtractor.EXPERIMENT_OWNER_EMAIL_KEY;
+            ExperimentRegistrationInformationExtractor.EXPERIMENT_OWNER_EMAIL_KEY;
 
     public static final String SAMPLE_CODE_PREFIX_KEY = "sample.code-prefix";
 
@@ -67,7 +67,7 @@ class SampleMetadataExtractor
 
     private static final String SAMPLE_TYPE_CODE = "CINA_SAMPLE_TYPE";
 
-    SampleMetadataExtractor(DataSetInformation dataSetInformation,
+    SampleRegistrationInformationExtractor(DataSetInformation dataSetInformation,
             Map<String, String> sampleMetadata, String sampleCodeSuffix,
             IEncapsulatedOpenBISService openbisService)
     {

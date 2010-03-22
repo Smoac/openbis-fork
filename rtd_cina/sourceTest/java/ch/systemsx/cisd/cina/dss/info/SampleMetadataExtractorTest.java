@@ -108,8 +108,8 @@ public class SampleMetadataExtractorTest extends AssertJUnit
                 }
             });
 
-        SampleMetadataExtractor extractor =
-                new SampleMetadataExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
+        SampleRegistrationInformationExtractor extractor =
+                new SampleRegistrationInformationExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
                         openbisService);
         extractor.processMetadataAndFillDataSetInformation();
         assertEquals(ownerEmail, dataSetInformation.tryGetUploadingUserEmail());
@@ -155,8 +155,8 @@ public class SampleMetadataExtractorTest extends AssertJUnit
                 }
             });
 
-        SampleMetadataExtractor extractor =
-                new SampleMetadataExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
+        SampleRegistrationInformationExtractor extractor =
+                new SampleRegistrationInformationExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
                         openbisService);
 
         try
@@ -186,8 +186,8 @@ public class SampleMetadataExtractorTest extends AssertJUnit
         sampleMetadata.put("sample.code-prefix", sampleCodePrefix);
         sampleMetadata.put("experiment.owner-email", ownerEmail);
 
-        SampleMetadataExtractor extractor =
-                new SampleMetadataExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
+        SampleRegistrationInformationExtractor extractor =
+                new SampleRegistrationInformationExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
                         openbisService);
         try
         {
@@ -215,8 +215,8 @@ public class SampleMetadataExtractorTest extends AssertJUnit
         sampleMetadata.put("sample.code-prefix", sampleCodePrefix);
         sampleMetadata.put("experiment.owner-email", ownerEmail);
 
-        SampleMetadataExtractor extractor =
-                new SampleMetadataExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
+        SampleRegistrationInformationExtractor extractor =
+                new SampleRegistrationInformationExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
                         openbisService);
         try
         {
@@ -265,8 +265,8 @@ public class SampleMetadataExtractorTest extends AssertJUnit
                 }
             });
 
-        SampleMetadataExtractor extractor =
-                new SampleMetadataExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
+        SampleRegistrationInformationExtractor extractor =
+                new SampleRegistrationInformationExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
                         openbisService);
         try
         {
@@ -295,8 +295,8 @@ public class SampleMetadataExtractorTest extends AssertJUnit
         sampleMetadata.put("experiment.identifier", experimentId);
         sampleMetadata.put("experiment.owner-email", ownerEmail);
 
-        SampleMetadataExtractor extractor =
-                new SampleMetadataExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
+        SampleRegistrationInformationExtractor extractor =
+                new SampleRegistrationInformationExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
                         openbisService);
         try
         {
@@ -322,8 +322,8 @@ public class SampleMetadataExtractorTest extends AssertJUnit
         sampleMetadata.put("experiment.identifier", experimentId);
         sampleMetadata.put("sample.code-prefix", sampleCodePrefix);
 
-        SampleMetadataExtractor extractor =
-                new SampleMetadataExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
+        SampleRegistrationInformationExtractor extractor =
+                new SampleRegistrationInformationExtractor(dataSetInformation, sampleMetadata, sampleCodeSuffix,
                         openbisService);
         try
         {

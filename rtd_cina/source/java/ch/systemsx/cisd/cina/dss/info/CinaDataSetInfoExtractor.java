@@ -107,8 +107,8 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
         try
         {
             HashMap<String, String> experimentMetadata = convertMetadataFileToMap(metadataFile);
-            ExperimentMetadataExtractor extractor =
-                    new ExperimentMetadataExtractor(dataSetInformation, experimentMetadata,
+            ExperimentRegistrationInformationExtractor extractor =
+                    new ExperimentRegistrationInformationExtractor(dataSetInformation, experimentMetadata,
                             getEntityCodeSuffix(), openbisService);
             extractor.processMetadataAndFillDataSetInformation();
         } catch (IOException ex)
@@ -128,8 +128,8 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
         try
         {
             HashMap<String, String> sampleMetadata = convertMetadataFileToMap(metadataFile);
-            SampleMetadataExtractor extractor =
-                    new SampleMetadataExtractor(dataSetInformation, sampleMetadata,
+            SampleRegistrationInformationExtractor extractor =
+                    new SampleRegistrationInformationExtractor(dataSetInformation, sampleMetadata,
                             getEntityCodeSuffix(), openbisService);
             extractor.processMetadataAndFillDataSetInformation();
         } catch (IOException ex)

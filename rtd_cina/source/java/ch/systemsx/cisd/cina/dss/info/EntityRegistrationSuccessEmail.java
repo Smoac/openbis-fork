@@ -199,17 +199,17 @@ public class EntityRegistrationSuccessEmail
         @Override
         void appendMetadataFileContent(StringBuffer sb)
         {
-            sb.append(SampleMetadataExtractor.EXPERIMENT_IDENTIFIER_KEY);
+            sb.append(SampleRegistrationInformationExtractor.EXPERIMENT_IDENTIFIER_KEY);
             sb.append("=");
             sb.append(dataSetInformation.getExperimentIdentifier());
             sb.append("\n");
 
-            sb.append(SampleMetadataExtractor.EXPERIMENT_OWNER_EMAIL_KEY);
+            sb.append(SampleRegistrationInformationExtractor.EXPERIMENT_OWNER_EMAIL_KEY);
             sb.append("=");
             sb.append(dataSetInformation.tryGetUploadingUserEmail());
             sb.append("\n");
 
-            sb.append(SampleMetadataExtractor.SAMPLE_CODE_PREFIX_KEY);
+            sb.append(SampleRegistrationInformationExtractor.SAMPLE_CODE_PREFIX_KEY);
             sb.append("=");
             sb.append(SAMPLE_CODE_PREFIX);
             sb.append("\n");

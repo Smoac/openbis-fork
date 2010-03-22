@@ -97,8 +97,8 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
                 }
             });
 
-        ExperimentMetadataExtractor extractor =
-                new ExperimentMetadataExtractor(dataSetInformation, experimentMetadata,
+        ExperimentRegistrationInformationExtractor extractor =
+                new ExperimentRegistrationInformationExtractor(dataSetInformation, experimentMetadata,
                         experimentCodeSuffix, openbisService);
         extractor.processMetadataAndFillDataSetInformation();
         assertEquals(ownerEmail, dataSetInformation.tryGetUploadingUserEmail());
@@ -138,8 +138,8 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
                 }
             });
 
-        ExperimentMetadataExtractor extractor =
-                new ExperimentMetadataExtractor(dataSetInformation, experimentMetadata,
+        ExperimentRegistrationInformationExtractor extractor =
+                new ExperimentRegistrationInformationExtractor(dataSetInformation, experimentMetadata,
                         experimentCodeSuffix, openbisService);
         try
         {
@@ -168,8 +168,8 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
         experimentMetadata.put("experiment.code", experimentCode);
         experimentMetadata.put("experiment.owner-email", ownerEmail);
 
-        ExperimentMetadataExtractor extractor =
-                new ExperimentMetadataExtractor(dataSetInformation, experimentMetadata,
+        ExperimentRegistrationInformationExtractor extractor =
+                new ExperimentRegistrationInformationExtractor(dataSetInformation, experimentMetadata,
                         experimentCodeSuffix, openbisService);
         try
         {
@@ -195,8 +195,8 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
         experimentMetadata.put("project.code", projectCode);
         experimentMetadata.put("experiment.owner-email", ownerEmail);
 
-        ExperimentMetadataExtractor extractor =
-                new ExperimentMetadataExtractor(dataSetInformation, experimentMetadata,
+        ExperimentRegistrationInformationExtractor extractor =
+                new ExperimentRegistrationInformationExtractor(dataSetInformation, experimentMetadata,
                         experimentCodeSuffix, openbisService);
         try
         {
@@ -222,8 +222,8 @@ public class ExperimentMetadataExtractorTest extends AssertJUnit
         experimentMetadata.put("project.code", projectCode);
         experimentMetadata.put("experiment.code", experimentCode);
 
-        ExperimentMetadataExtractor extractor =
-                new ExperimentMetadataExtractor(dataSetInformation, experimentMetadata,
+        ExperimentRegistrationInformationExtractor extractor =
+                new ExperimentRegistrationInformationExtractor(dataSetInformation, experimentMetadata,
                         experimentCodeSuffix, openbisService);
         try
         {

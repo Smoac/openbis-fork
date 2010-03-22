@@ -16,5 +16,7 @@
 	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt1.7/gwt-isserializable.jar"/>
 	<classpathentry kind="lib" path="/libraries/activation/activation.jar"/>
+	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-api.jar" sourcepath="/libraries/jaxb/jaxb-api-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
