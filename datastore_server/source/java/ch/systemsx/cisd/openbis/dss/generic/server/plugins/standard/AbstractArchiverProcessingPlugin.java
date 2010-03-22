@@ -59,8 +59,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     public ProcessingStatus archive(List<DatasetDescription> datasets)
     {
-        operationLog.debug("Archivization of the following datasets has been requested: "
-                + datasets);
+        operationLog
+                .info("Archivization of the following datasets has been requested: " + datasets);
         return handleDatasets(datasets, DataSetArchivizationStatus.ARCHIVED,
                 DataSetArchivizationStatus.ACTIVE, new IDatasetDescriptionHandler()
                     {
@@ -82,7 +82,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     public ProcessingStatus unarchive(List<DatasetDescription> datasets)
     {
-        operationLog.debug("Unarchivization of the following datasets has been requested: "
+        operationLog.info("Unarchivization of the following datasets has been requested: "
                 + datasets);
         return handleDatasets(datasets, DataSetArchivizationStatus.ACTIVE,
                 DataSetArchivizationStatus.ARCHIVED, new IDatasetDescriptionHandler()
@@ -108,11 +108,19 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             IDatasetDescriptionHandler handler)
     {
         final ProcessingStatus result = new ProcessingStatus();
+        // FIXME 2010-03-22, Piotr Buczek: remove this workaround (solves StaleObjectStateException)
+        try
+        {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex)
+        {
+            ex.printStackTrace();
+        }
         for (DatasetDescription dataset : datasets)
         {
             Status status = handler.handle(dataset);
             DataSetArchivizationStatus newStatus = status.isError() ? failure : success;
-            operationLog.debug(dataset + " changing status: " + newStatus);
+            operationLog.info(dataset + " changing status: " + newStatus);
             ServiceProvider.getOpenBISService().updateDataSetStatus(dataset.getDatasetCode(),
                     newStatus);
             result.addDatasetStatus(dataset, status);

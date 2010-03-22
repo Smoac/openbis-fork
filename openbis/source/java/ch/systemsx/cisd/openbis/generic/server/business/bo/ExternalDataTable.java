@@ -596,6 +596,10 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 throw createUnknownDataStoreServerException();
             }
             List<ExternalDataPE> datasets = entry.getValue();
+            if (datasets.isEmpty())
+            {
+                continue;
+            }
             List<DatasetDescription> descriptions = createDatasetDescriptions(datasets);
             String sessionToken = dataStore.getSessionToken();
             String userEmailOrNull = tryGetLoggedUserEmail();

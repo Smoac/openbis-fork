@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -284,7 +285,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         checkSession(sessionToken);
         return daoFactory.getCodeSequenceDAO().getNextCodeSequenceId();
     }
-    
+
     public Experiment tryToGetExperiment(String sessionToken,
             ExperimentIdentifier experimentIdentifier) throws UserFailureException
     {
@@ -588,6 +589,19 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStoreCode)
             throws UserFailureException
     {
+        List<ExternalDataPE> dataSets = loadDataSets(sessionToken, dataStoreCode);
+        return SimpleDataSetHelper.translate(dataSets);
+    }
+
+    public List<ExternalData> listActiveDataSets(String sessionToken, String dataStoreCode)
+    {
+        List<ExternalDataPE> dataSets = loadDataSets(sessionToken, dataStoreCode);
+		// TODO 2010-03-22, Piotr Buczek: improve performance with loadByDataStoreAndStatus
+        return ExternalDataTranslator.translate(dataSets, "?", "?");
+    }
+
+    private List<ExternalDataPE> loadDataSets(String sessionToken, String dataStoreCode)
+    {
         Session session = getSession(sessionToken);
         DataStorePE dataStore =
                 getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
@@ -597,7 +611,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         }
         IExternalDataTable dataSetTable = businessObjectFactory.createExternalDataTable(session);
         dataSetTable.loadByDataStore(dataStore);
-        return SimpleDataSetHelper.translate(dataSetTable.getExternalData());
+        return dataSetTable.getExternalData();
     }
 
     public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
@@ -606,5 +620,4 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         checkSession(sessionToken);
         return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
-
 }

@@ -47,7 +47,7 @@ public abstract class AbstractServerLogger implements IServer
     private static final String RESULT_FAILURE = " ...FAILED";
 
     private final Logger authLog;
-    
+
     private final Logger accessLog;
 
     private final Logger trackingLog;
@@ -55,7 +55,7 @@ public abstract class AbstractServerLogger implements IServer
     protected final LogMessagePrefixGenerator logMessagePrefixGenerator;
 
     private final ISessionManager<Session> sessionManager;
-    
+
     private final IInvocationLoggerContext context;
 
     private final String prefixOrNull;
@@ -68,7 +68,7 @@ public abstract class AbstractServerLogger implements IServer
         logMessagePrefixGenerator = new LogMessagePrefixGenerator();
         String sessionTokenOrNull = context.tryToGetSessionToken();
         prefixOrNull = tryToCreatePrefix(sessionTokenOrNull);
-        
+
         authLog = LogFactory.getLogger(LogCategory.AUTH, getClass());
         accessLog = LogFactory.getLogger(LogCategory.ACCESS, getClass());
         trackingLog = LogFactory.getLogger(LogCategory.TRACKING, getClass());
@@ -108,7 +108,7 @@ public abstract class AbstractServerLogger implements IServer
             return null;
         }
     }
-    
+
     protected final void logAuth(final String sessionToken, final String commandName,
             final String parameterDisplayFormat, final Object... parameters)
     {
@@ -248,5 +248,15 @@ public abstract class AbstractServerLogger implements IServer
     {
         logMessage(authLog, Level.INFO, sessionToken, "set_session_user", "USER(%s)", new Object[]
             { userID });
+    }
+
+    public void unarchiveDatasets(String sessionToken, List<String> datasetCodes)
+    {
+        logTracking(sessionToken, "unarchiveDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
+    }
+
+    public void archiveDatasets(String sessionToken, List<String> datasetCodes)
+    {
+        logTracking(sessionToken, "archiveDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
     }
 }

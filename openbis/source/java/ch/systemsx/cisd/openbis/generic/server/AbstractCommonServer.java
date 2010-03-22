@@ -27,6 +27,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -35,14 +36,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T> 
+abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
 {
 
     private final IAuthenticationService authenticationService;
+
     protected final ICommonBusinessObjectFactory businessObjectFactory;
 
     public AbstractCommonServer(IAuthenticationService authenticationService,
@@ -77,7 +77,8 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
             {
                 final Principal principal =
                         authenticationService.getPrincipal(applicationToken, userID);
-                newPersons.add(createPerson(principal, session.tryGetPerson(), defaultDisplaySettings));
+                newPersons.add(createPerson(principal, session.tryGetPerson(),
+                        defaultDisplaySettings));
             } catch (final IllegalArgumentException e)
             {
                 unknownUsers.add(userID);
@@ -92,7 +93,25 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
         {
             return newPersons;
         }
-            
+
+    }
+
+    public void archiveDatasets(String sessionToken, List<String> datasetCodes)
+    {
+        Session session = getSession(sessionToken);
+        IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        externalDataTable.loadByDataSetCodes(datasetCodes, true);
+        externalDataTable.archiveDatasets();
+    }
+
+    public void unarchiveDatasets(String sessionToken, List<String> datasetCodes)
+    {
+        Session session = getSession(sessionToken);
+        IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        externalDataTable.loadByDataSetCodes(datasetCodes, true);
+        externalDataTable.unarchiveDatasets();
     }
 
     protected IDatasetLister createDatasetLister(Session session)
@@ -101,4 +120,3 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
     }
 
 }
-

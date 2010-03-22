@@ -258,16 +258,9 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private void scheduleArchiverTask(String sessionToken, List<DatasetDescription> datasets,
             String userEmailOrNull, boolean archive)
     {
-        String description = archive ? "Archivization" : "Unarchivization";
-        // TODO 2010-03-19, PTR: remove debug
-        System.err.println(description + ":");
-        for (DatasetDescription d : datasets)
-        {
-            System.err.println(d.getDatasetCode() + " " + d.getDataSetLocation());
-        }
-
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
+        String description = archive ? "Archivization" : "Unarchivization";
         ArchiverTaskFactory factory = pluginTaskParameters.getArchiverTaskFactory();
         final IArchiverTask archiverTask = factory.createInstance(storeRoot);
         IProcessingPluginTask processingTask = new ArchiverProcessingTask(archiverTask, archive);
@@ -324,4 +317,5 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         }
 
     }
+
 }

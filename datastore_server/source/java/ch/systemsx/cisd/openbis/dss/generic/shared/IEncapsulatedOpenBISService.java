@@ -147,10 +147,9 @@ public interface IEncapsulatedOpenBISService
      * Creates and returns a unique code for a new data set.
      */
     public String createDataSetCode();
-    
+
     /**
-     * Creates a new unique ID which can be used to create codes which are guaranteed to be
-     * unique.
+     * Creates a new unique ID which can be used to create codes which are guaranteed to be unique.
      */
     public long drawANewUniqueID();
 
@@ -176,9 +175,20 @@ public interface IEncapsulatedOpenBISService
     public void updateDataSet(String code, List<NewProperty> properties, SpaceIdentifier space)
             throws UserFailureException;
 
-    /**
-     * Updates status of given data set.
-     */
+    // 
+    // Archivization
+    //
+
+    /** See {@link IETLLIMSService#listActiveDataSets(String, String)} */
+    public List<ExternalData> listActiveDataSets() throws UserFailureException;
+
+    /** See {@link IETLLIMSService#archiveDatasets(String, List)} */
+    public void archiveDataSets(List<String> dataSetCodes) throws UserFailureException;
+
+    /** See {@link IETLLIMSService#unarchiveDatasets(String, List)} */
+    public void unarchiveDataSets(List<String> dataSetCodes) throws UserFailureException;
+
+    /** See {@link IETLLIMSService#updateDataSetStatus(String, String, DataSetArchivizationStatus)} */
     public void updateDataSetStatus(String code, DataSetArchivizationStatus newStatus)
             throws UserFailureException;
 }

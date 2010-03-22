@@ -559,6 +559,24 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.listDataSets(sessionToken, dataStoreCode);
     }
 
+    synchronized public List<ExternalData> listActiveDataSets() throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            return primListActiveDataSets();
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return primListActiveDataSets();
+        }
+    }
+
+    private List<ExternalData> primListActiveDataSets()
+    {
+        return service.listActiveDataSets(sessionToken, dataStoreCode);
+    }
+
     public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull)
     {
         checkSessionToken();
@@ -572,4 +590,39 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
+    public void archiveDataSets(List<String> dataSetCodes) throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            primArchiveDataSets(dataSetCodes);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            primArchiveDataSets(dataSetCodes);
+        }
+    }
+
+    public void unarchiveDataSets(List<String> dataSetCodes) throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            primUnarchiveDataSets(dataSetCodes);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            primUnarchiveDataSets(dataSetCodes);
+        }
+    }
+
+    private void primArchiveDataSets(List<String> dataSetCodes)
+    {
+        service.archiveDatasets(sessionToken, dataSetCodes);
+    }
+
+    private void primUnarchiveDataSets(List<String> dataSetCodes)
+    {
+        service.unarchiveDatasets(sessionToken, dataSetCodes);
+    }
 }

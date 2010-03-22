@@ -197,6 +197,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public List<ExternalData> listActiveDataSets(String sessionToken, String dataStoreCode)
+    {
+        logAccess(sessionToken, "listActiveDataSets", "DATA_STORE(%s)", dataStoreCode);
+        return null;
+    }
+
     public SamplePE getSampleWithProperty(String sessionToken, String propertyTypeCode,
             GroupIdentifier groupIdentifier, String propertyValue)
     {

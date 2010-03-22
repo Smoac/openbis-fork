@@ -29,7 +29,6 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Piotr Buczek
  */
-// NOTE: It doesn't implement IsSerializable as it is not supposed to be used on the GWT client side
 public class TrackingDataSetCriteria implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
