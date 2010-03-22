@@ -294,8 +294,6 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         if (experimentId != null)
         {
             TechId experimentID = TechId.create(experimentId);
-            summaryGrid.setLoadMaskImmediately(true);
-            summaryGrid.update(experimentID);
             browserGrid.setLoadMaskImmediately(true);
             double falseDiscoveryRate = getSelection(fdrComboBox, 0.0);
             AggregateFunction aggregateFunction =
@@ -303,7 +301,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             VocabularyTermModel value = treatmentTypeComboBox.getValue();
             String treatmentTypeCode = value == null ? null : value.getTerm().getCode();
             AsyncCallback<List<AbundanceColumnDefinition>> callback =
-                    new AbundanceColumnDefinitionsCallback(viewContext, browserGrid, experimentID,
+                    new AbundanceColumnDefinitionsCallback(viewContext, summaryGrid, browserGrid, experimentID,
                             falseDiscoveryRate, aggregateFunction, treatmentTypeCode,
                             aggregateOriginalCheckBox.getValue());
             viewContext.getService().getAbundanceColumnDefinitionsForProteinByExperiment(
@@ -332,12 +330,15 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
         private final boolean aggregateOriginal;
 
+        private final ProteinSummaryGrid summaryGrid;
+
         public AbundanceColumnDefinitionsCallback(IViewContext<?> viewContext,
-                ProteinByExperimentBrowserGrid browserGrid, TechId experimentID,
+                ProteinSummaryGrid summaryGrid, ProteinByExperimentBrowserGrid browserGrid, TechId experimentID,
                 double falseDiscoveryRate, AggregateFunction aggregateFunction,
                 String treatmentTypeCode, boolean aggregateOriginal)
         {
             super(viewContext);
+            this.summaryGrid = summaryGrid;
             this.browserGrid = browserGrid;
             this.experimentID = experimentID;
             this.falseDiscoveryRate = falseDiscoveryRate;
@@ -351,6 +352,9 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         {
             browserGrid.update(experimentID, falseDiscoveryRate, aggregateFunction,
                     treatmentTypeCode, aggregateOriginal, result);
+            summaryGrid.setLoadMaskImmediately(true);
+            summaryGrid.update(experimentID);
+
         }
 
     }
