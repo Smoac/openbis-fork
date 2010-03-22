@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,22 @@
 
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
+import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class Constants
+abstract class AbstractDataSetInfoExtractorWithService implements IDataSetInfoExtractor
 {
-    public static final String NAMESPACE = "http://regis-web.systemsbiology.net/protXML";
-    
-    public static final String MS_DATA_SPACE = "MS_DATA";
-    
-    public static final String SEARCH_SAMPLE_TYPE = "SEARCH";
+    protected final IEncapsulatedOpenBISService service;
+
+    protected AbstractDataSetInfoExtractorWithService(IEncapsulatedOpenBISService service)
+    {
+        this.service = service;
+
+    }
+
 }

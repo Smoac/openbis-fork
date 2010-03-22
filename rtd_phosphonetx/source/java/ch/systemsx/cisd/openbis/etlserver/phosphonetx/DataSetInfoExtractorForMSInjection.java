@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -45,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * 
  * @author Franz-Josef Elmer
  */
-public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
+public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtractorWithService
 {
     static final String MS_INJECTION_PROPERTIES_FILE_KEY = "ms-injection-properties-file";
     static final String DEFAULT_MS_INJECTION_PROPERTIES_FILE = "ms-injection.properties";
@@ -55,15 +54,12 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
     static final String SAMPLE_CODE_KEY = "SAMPLE_CODE";
     static final String USER_KEY = "USER";
     
-    static final String SPACE_CODE = "MS_DATA";
     static final String EXPERIMENT_TYPE_CODE = "MS_INJECT";
 
     static final String SAMPLE_TYPE_CODE = "MS_INJECTION";
 
 
     private final String msInjectionPropertiesFileName;
-
-    private final IEncapsulatedOpenBISService service;
 
     public DataSetInfoExtractorForMSInjection(Properties properties)
     {
@@ -74,9 +70,8 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
     DataSetInfoExtractorForMSInjection(String msInjectionPropertiesFileName,
             IEncapsulatedOpenBISService service)
     {
+        super(service);
         this.msInjectionPropertiesFileName = msInjectionPropertiesFileName;
-        this.service = service;
-
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
@@ -86,7 +81,7 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
         Properties properties =
                 loadMSInjectionProperties(incomingDataSetPath);
         DataSetInformation info = new DataSetInformation();
-        info.setSpaceCode(SPACE_CODE);
+        info.setSpaceCode(Constants.MS_DATA_SPACE);
         info.setSampleCode(PropertyUtils.getMandatoryProperty(properties, SAMPLE_CODE_KEY));
         NewSample sample = new NewSample();
         SampleType sampleType = new SampleType();
@@ -106,7 +101,7 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, PROJECT_CODE_KEY);
         String experimentCode =
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, EXPERIMENT_CODE_KEY);
-        ExperimentIdentifier identifier = new ExperimentIdentifier(null, SPACE_CODE, projectCode, experimentCode);
+        ExperimentIdentifier identifier = new ExperimentIdentifier(null, Constants.MS_DATA_SPACE, projectCode, experimentCode);
         Experiment experiment = service.tryToGetExperiment(identifier);
         if (experiment == null)
         {

@@ -43,11 +43,8 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinProphetDetails;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryDataFilter;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ProbabilityToFDRCalculator;
 
 /**
@@ -85,33 +82,12 @@ class ResultDataSetUploader extends AbstractHandler
         {
             Experiment experiment =
                     getOrCreateExperiment(dataSetInfo.tryToGetExperiment().getPermId());
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample dataSetInfoSample =
-                    dataSetInfo.tryToGetSample();
-            Sample sample = null;
-            GroupIdentifier groupIdentifier = null;
-            if (dataSetInfoSample != null)
-            {
-                sample = getOrCreateSample(experiment, dataSetInfoSample.getPermId());
-                Space space = dataSetInfoSample.getSpace();
-                groupIdentifier =
-                        new GroupIdentifier(space.getInstance().getCode(), space.getCode());
-            } else
-            {
-                ExperimentIdentifier experimentIdentifier = dataSetInfo.getExperimentIdentifier();
-                if (experimentIdentifier == null)
-                {
-                    throw new UserFailureException(
-                            "Neither sample nor experiment identifier specified: " + dataSetInfo);
-                }
-                groupIdentifier =
-                        new GroupIdentifier(experimentIdentifier.getDatabaseInstanceCode(),
-                                experimentIdentifier.getSpaceCode());
-            }
+            ExperimentIdentifier experimentIdentifier = dataSetInfo.getExperimentIdentifier();
             String referenceDatabase = summary.getSummaryHeader().getReferenceDatabase();
             Database database = getOrGreateDatabase(referenceDatabase);
             DataSet ds =
-                    getOrCreateDataSet(experiment, sample, database, dataSetInfo.getDataSetCode());
-            addToDatabase(ds, experiment, groupIdentifier, summary);
+                    getOrCreateDataSet(experiment, database, dataSetInfo.getDataSetCode());
+            addToDatabase(ds, experiment, experimentIdentifier, summary);
         } catch (Throwable throwable)
         {
             try
@@ -175,8 +151,8 @@ class ResultDataSetUploader extends AbstractHandler
         return database;
     }
 
-    private DataSet getOrCreateDataSet(Experiment experiment, Sample sampleOrNull,
-            Database database, String dataSetPermID)
+    private DataSet getOrCreateDataSet(Experiment experiment, Database database,
+            String dataSetPermID)
     {
         DataSet dataSet = dao.tryToGetDataSetByPermID(dataSetPermID);
         if (dataSet == null)
@@ -185,15 +161,9 @@ class ResultDataSetUploader extends AbstractHandler
             dataSet.setPermID(dataSetPermID);
             long experimentID = experiment.getId();
             dataSet.setExperimentID(experimentID);
-            Long sampleID = null;
-            if (sampleOrNull != null)
-            {
-                sampleID = sampleOrNull.getId();
-                dataSet.setSampleID(sampleID);
-            }
             long databaseID = database.getId();
             dataSet.setDatabaseID(databaseID);
-            dataSet.setId(dao.createDataSet(experimentID, sampleID, dataSetPermID, databaseID));
+            dataSet.setId(dao.createDataSet(experimentID, dataSetPermID, databaseID));
         }
         return dataSet;
     }
@@ -211,12 +181,12 @@ class ResultDataSetUploader extends AbstractHandler
     }
 
     private void addToDatabase(DataSet dataSet, Experiment experiment,
-            GroupIdentifier groupIdentifier, ProteinSummary summary)
+            ExperimentIdentifier experimentIdentifier, ProteinSummary summary)
     {
         long dataSetID = dataSet.getId();
         Long databaseID = dataSet.getDatabaseID();
         AbundanceHandler abundanceHandler =
-                new AbundanceHandler(openbisService, dao, groupIdentifier, experiment);
+                new AbundanceHandler(openbisService, dao, experimentIdentifier, experiment);
         ProbabilityToFDRCalculator calculator = createProbabilityToFDRMapping(dataSetID, summary);
         List<ProteinGroup> proteinGroups = summary.getProteinGroups();
         for (ProteinGroup proteinGroup : proteinGroups)

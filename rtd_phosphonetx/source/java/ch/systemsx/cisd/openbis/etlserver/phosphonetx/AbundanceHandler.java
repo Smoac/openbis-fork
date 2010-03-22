@@ -26,9 +26,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Parameter;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Handler of {@link Parameter} objects of type 'abundance'.
@@ -49,19 +52,26 @@ class AbundanceHandler extends AbstractHandler
 
     private final IEncapsulatedOpenBISService openbisService;
 
-    private final GroupIdentifier groupIdentifier;
-
+    private final ExperimentIdentifier experimentIdentifier;
+    
+    private final SpaceIdentifier msData;
+    
     private final Experiment experiment;
 
     private final Map<String, SampleOrError> samplesOrErrors = new HashMap<String, SampleOrError>();
 
+    private final SampleType sampleType;
+
     AbundanceHandler(IEncapsulatedOpenBISService openbisService, IProtDAO dao,
-            GroupIdentifier groupIdentifier, Experiment experiment)
+            ExperimentIdentifier experimentIdentifier, Experiment experiment)
     {
         super(dao);
         this.openbisService = openbisService;
-        this.groupIdentifier = groupIdentifier;
+        this.experimentIdentifier = experimentIdentifier;
         this.experiment = experiment;
+        msData = new SpaceIdentifier(experimentIdentifier.getDatabaseInstanceCode(), Constants.MS_DATA_SPACE);
+        sampleType = new SampleType();
+        sampleType.setCode(Constants.SEARCH_SAMPLE_TYPE);
     }
 
     void addAbundancesToDatabase(Parameter parameter, long proteinID, String proteinName)
@@ -69,9 +79,8 @@ class AbundanceHandler extends AbstractHandler
         Sample sample = getOrCreateSample(parameter.getName(), proteinName);
         try
         {
-            dao
-                    .createAbundance(proteinID, sample.getId(), Double.parseDouble(parameter
-                            .getValue()));
+            double abundance = Double.parseDouble(parameter.getValue());
+            dao.createAbundance(proteinID, sample.getId(), abundance);
         } catch (NumberFormatException ex)
         {
             throw new UserFailureException("Abundance of sample '" + parameter.getName()
@@ -84,8 +93,9 @@ class AbundanceHandler extends AbstractHandler
         SampleOrError sampleOrError = samplesOrErrors.get(parameterName);
         if (sampleOrError == null)
         {
+            // first we look for a sample in space MS_DATA
             SampleIdentifier sampleIdentifier =
-                    new SampleIdentifier(groupIdentifier, parameterName);
+                    new SampleIdentifier(msData, parameterName);
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                     openbisService.tryGetSampleWithExperiment(sampleIdentifier);
             sampleOrError = new SampleOrError();
@@ -94,11 +104,12 @@ class AbundanceHandler extends AbstractHandler
                 sampleOrError.sample = getOrCreateSample(experiment, sample.getPermId());
             } else
             {
+                // second we look for a sample in same space as search experiment with
+                // a property specified by 'parameterName'
+                String spaceCode = experimentIdentifier.getSpaceCode();
                 List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> list =
-                        openbisService
-                                .listSamplesByCriteria(new ListSamplesByPropertyCriteria(
-                                        MZXML_FILENAME, parameterName, groupIdentifier
-                                                .getSpaceCode(), null));
+                        openbisService.listSamplesByCriteria(new ListSamplesByPropertyCriteria(
+                                MZXML_FILENAME, parameterName, spaceCode, null));
                 if (list == null || list.size() == 0)
                 {
                     sampleOrError.error = "an unidentified sample: " + parameterName;
@@ -109,8 +120,24 @@ class AbundanceHandler extends AbstractHandler
                                     + " samples are found): " + parameterName;
                 } else
                 {
-                    sampleOrError.sample = getOrCreateSample(experiment, list.get(0).getPermId());
+                    sample = list.get(0);
+                    sampleOrError.sample = getOrCreateSample(experiment, sample.getPermId());
                 }
+            }
+            if (sample != null)
+            {
+                NewSample searchSample = new NewSample();
+                searchSample.setSampleType(sampleType);
+                SpaceIdentifier spaceIdentifier =
+                        new SpaceIdentifier(experimentIdentifier.getDatabaseInstanceCode(),
+                                experimentIdentifier.getSpaceCode());
+                SampleIdentifier identifier =
+                        new SampleIdentifier(spaceIdentifier, parameterName + "_"
+                                + experimentIdentifier.getExperimentCode());
+                searchSample.setIdentifier(identifier.toString());
+                searchSample.setExperimentIdentifier(experimentIdentifier.toString());
+                searchSample.setParentIdentifier(sample.getIdentifier());
+                openbisService.registerSample(searchSample, null);
             }
             samplesOrErrors.put(parameterName, sampleOrError);
         }

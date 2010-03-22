@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.DEFAULT_MS_INJECTION_PROPERTIES_FILE;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.EXPERIMENT_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.EXPERIMENT_TYPE_CODE;
-import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SPACE_CODE;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.PROJECT_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SAMPLE_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE;
@@ -70,10 +69,10 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
     private static final String EXPERIMENT_CODE = "2010-02";
     private static final String SAMPLE_CODE = "U09-1242";
     private static final String SAMPLE_IDENTIFIER =
-            DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + SPACE_CODE
+            DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + Constants.MS_DATA_SPACE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + SAMPLE_CODE;
     private static final String EXPERIMENT_IDENTIFIER =
-            DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + SPACE_CODE
+            DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + Constants.MS_DATA_SPACE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + PROJECT_CODE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + EXPERIMENT_CODE;
     
@@ -247,7 +246,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
         
-        assertEquals(SPACE_CODE, info.getSpaceCode());
+        assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(SAMPLE_CODE, info.getSampleCode());
         assertEquals(null, info.getExperimentIdentifier());
         
@@ -286,7 +285,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         context.checking(new Expectations()
             {
                 {
-                    ExperimentIdentifier identifier = new ExperimentIdentifier(null, SPACE_CODE, PROJECT_CODE,
+                    ExperimentIdentifier identifier = new ExperimentIdentifier(null, Constants.MS_DATA_SPACE, PROJECT_CODE,
                             EXPERIMENT_CODE);
                     one(service).tryToGetExperiment(identifier
                             );

@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.core.IsNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -54,13 +55,15 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryDataFilter;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryHeader;
-import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -105,18 +108,20 @@ public class ResultDataSetUploaderTest extends AssertJUnit
 
     private static final String REFERENCE_DATABASE = "/here/and/there/" + NAME_AND_VERSION;
 
+    private static final String EXPERIMENT_CODE = "E1";
+    
     private static final long EXPERIMENT_ID = 11l;
 
     private static final String EXPERIMENT_PERM_ID = "e1234";
-
-    private static final long SAMPLE_ID = 22l;
 
     private static final String SAMPLE_PERM_ID = "s1234";
 
     private static final String DB_INSTANCE = "DB";
 
-    private static final String GROUP_CODE = "G1";
+    private static final String SPACE_CODE = "S1";
 
+    private static final String PROJECT_CODE = "P1";
+    
     private Mockery context;
 
     private Connection connection;
@@ -157,12 +162,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                     experiment.setPermID(EXPERIMENT_PERM_ID);
                     experiment.setId(EXPERIMENT_ID);
                     will(returnValue(experiment));
-
-                    one(dao).tryToGetSampleByPermID(SAMPLE_PERM_ID);
-                    Sample sample = new Sample();
-                    sample.setPermID(SAMPLE_PERM_ID);
-                    sample.setId(SAMPLE_ID);
-                    will(returnValue(sample));
 
                     one(dao).tryToGetDatabaseByName(NAME_AND_VERSION);
                     Database database = new Database();
@@ -238,16 +237,18 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
-        final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new GroupIdentifier(DB_INSTANCE, GROUP_CODE), CELL_LYSATE1);
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryGetSampleWithExperiment(sampleIdentifier);
+                    one(service).tryGetSampleWithExperiment(
+                            new SampleIdentifier(new SpaceIdentifier(DB_INSTANCE,
+                                    Constants.MS_DATA_SPACE), CELL_LYSATE1));
                     ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                             new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
                     sample.setPermId(CELL_LYSATE_PERM_ID1);
                     will(returnValue(sample));
+                    
+                    one(service).registerSample(with(any(NewSample.class)), with(new IsNull<String>()));
 
                     one(dao).tryToGetSampleByPermID(CELL_LYSATE_PERM_ID1);
                     will(returnValue(null));
@@ -292,12 +293,12 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
-        final GroupIdentifier groupIdentifier = new GroupIdentifier(DB_INSTANCE, GROUP_CODE);
+        final GroupIdentifier groupIdentifier = new GroupIdentifier(DB_INSTANCE, Constants.MS_DATA_SPACE);
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(groupIdentifier, CELL_LYSATE1);
         final ListSamplesByPropertyCriteria criteria =
                 new ListSamplesByPropertyCriteria(AbundanceHandler.MZXML_FILENAME, CELL_LYSATE1,
-                        GROUP_CODE, null);
+                        SPACE_CODE, null);
         context.checking(new Expectations()
             {
                 {
@@ -525,11 +526,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                     one(dao).createExperiment(EXPERIMENT_PERM_ID);
                     will(returnValue(EXPERIMENT_ID));
 
-                    one(dao).tryToGetSampleByPermID(SAMPLE_PERM_ID);
-                    will(returnValue(null));
-                    one(dao).createSample(EXPERIMENT_ID, SAMPLE_PERM_ID);
-                    will(returnValue(SAMPLE_ID));
-
                     one(dao).tryToGetDatabaseByName(NAME_AND_VERSION);
                     will(returnValue(null));
                     one(dao).createDatabase(NAME_AND_VERSION);
@@ -537,7 +533,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
 
                     one(dao).tryToGetDataSetByPermID(DATA_SET_CODE);
                     will(returnValue(null));
-                    one(dao).createDataSet(EXPERIMENT_ID, SAMPLE_ID, DATA_SET_CODE, DATABASE_ID);
+                    one(dao).createDataSet(EXPERIMENT_ID, DATA_SET_CODE, DATABASE_ID);
                     will(returnValue(DATA_SET_ID));
                 }
             });
@@ -578,6 +574,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     private DataSetInformation createDataSetInfo()
     {
         DataSetInformation info = new DataSetInformation();
+        info.setExperimentIdentifier(new ExperimentIdentifier(DB_INSTANCE, SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE));
         info.setDataSetCode(DATA_SET_CODE);
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                 new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
@@ -590,7 +587,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         DatabaseInstance databaseInstance = new DatabaseInstance();
         databaseInstance.setCode(DB_INSTANCE);
         space.setInstance(databaseInstance);
-        space.setCode(GROUP_CODE);
+        space.setCode(SPACE_CODE);
         sample.setSpace(space);
         info.setSample(sample);
         return info;

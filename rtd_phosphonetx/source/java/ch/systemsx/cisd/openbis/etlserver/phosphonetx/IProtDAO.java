@@ -55,9 +55,8 @@ public interface IProtDAO extends BaseQuery
     public ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.DataSet tryToGetDataSetByPermID(
             String permID);
 
-    @Select("insert into data_sets (expe_id, samp_id, perm_id, db_id) "
-            + "values (?{1}, ?{2}, ?{3}, ?{4}) returning id")
-    public long createDataSet(long experimentID, Long sampleID, String dataSetPermID,
+    @Select("insert into data_sets (expe_id, perm_id, db_id) values (?{1}, ?{2}, ?{3}) returning id")
+    public long createDataSet(long experimentID, String dataSetPermID,
             long databaseID);
 
     @Update("insert into probability_fdr_mappings (dase_id, probability, false_discovery_rate) "
