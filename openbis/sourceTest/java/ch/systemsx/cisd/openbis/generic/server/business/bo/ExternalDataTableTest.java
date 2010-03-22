@@ -595,7 +595,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 {
                     for (ExternalDataPE dataSet : allDataSets)
                     {
-                        prepareFindFullDataset(dataSet, false);
+                        prepareFindFullDataset(dataSet, true, true);
                     }
 
                     prepareUpdateDatasetStatus(d2Archived1, ACTIVATION_IN_PROGRESS);
