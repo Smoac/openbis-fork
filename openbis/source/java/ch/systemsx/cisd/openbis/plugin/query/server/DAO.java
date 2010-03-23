@@ -111,8 +111,6 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         afterPropertiesSet();
     }
 
-    boolean b = false;
-
     public TableModel query(String sqlQuery, QueryParameterBindings bindingsOrNull)
     {
         if (sqlQuery.toLowerCase().trim().startsWith("select") == false)
