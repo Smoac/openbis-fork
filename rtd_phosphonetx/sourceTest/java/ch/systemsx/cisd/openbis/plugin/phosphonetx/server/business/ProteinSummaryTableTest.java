@@ -74,7 +74,6 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
     {
         prepare();
 
-        table.clearCache(EXPERIMENT_ID);
         table.load(EXPERIMENT_ID);
 
         List<ProteinSummary> summaries = table.getProteinSummaries();
@@ -110,7 +109,6 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
                 }
 
             });
-        table.clearCache(EXPERIMENT_ID);
         table.load(EXPERIMENT_ID);
 
         List<ProteinSummary> summaries = table.getProteinSummaries();
