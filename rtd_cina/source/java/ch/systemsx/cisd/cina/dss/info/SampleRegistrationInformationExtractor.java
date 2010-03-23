@@ -65,8 +65,6 @@ class SampleRegistrationInformationExtractor
 
     private String emailAddress;
 
-    private static final String SAMPLE_TYPE_CODE = "CINA_SAMPLE_TYPE";
-
     SampleRegistrationInformationExtractor(DataSetInformation dataSetInformation,
             Map<String, String> sampleMetadata, String sampleCodeSuffix,
             IEncapsulatedOpenBISService openbisService)
@@ -138,7 +136,7 @@ class SampleRegistrationInformationExtractor
 
         NewSample sample = new NewSample();
         SampleType sampleType = new SampleType();
-        sampleType.setCode(SAMPLE_TYPE_CODE);
+        sampleType.setCode(EntityTypes.SampleTypes.CINA_SAMPLE_TYPE.toString());
         sample.setSampleType(sampleType);
         sample.setExperimentIdentifier(experimentIdentifier.toString());
         sample.setIdentifier(sampleId.toString());

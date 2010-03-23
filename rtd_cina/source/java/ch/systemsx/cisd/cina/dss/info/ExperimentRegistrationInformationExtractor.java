@@ -59,8 +59,6 @@ class ExperimentRegistrationInformationExtractor
 
     private String emailAddress;
 
-    private static final String EXPERIMENT_TYPE_CODE = "CINA_EXP_TYPE";
-
     ExperimentRegistrationInformationExtractor(DataSetInformation dataSetInformation,
             Map<String, String> experimentMetadata, String experimentCodeSuffix,
             IEncapsulatedOpenBISService openbisService)
@@ -121,7 +119,7 @@ class ExperimentRegistrationInformationExtractor
         }
 
         openbisService.registerExperiment(new NewExperiment(experimentIdentifier.toString(),
-                EXPERIMENT_TYPE_CODE));
+                EntityTypes.ExperimentTypes.CINA_EXP_TYPE.toString()));
 
         return experimentIdentifier;
     }
