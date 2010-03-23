@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -36,7 +35,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServle
 import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.eicml.ChromatogramDTO;
 import ch.systemsx.cisd.yeastx.eicml.EICMLChromatogramImageGenerator;
-import ch.systemsx.cisd.yeastx.eicml.EICMSRunDTO;
 import ch.systemsx.cisd.yeastx.eicml.IEICMSRunDAO;
 
 /**
@@ -163,9 +161,6 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
     // The properties needed for connecting to the database
     private Properties dbProperties;
 
-    // A query that is safe for multi-threaded use.
-    private IEICMSRunDAO query;
-
     @Override
     protected synchronized void doSpecificInitialization(Enumeration<String> parameterNames,
             ServletConfig servletConfig)
@@ -181,8 +176,12 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
             name = parameterNames.nextElement();
             dbProperties.setProperty(name, servletConfig.getInitParameter(name));
         }
+    }
 
-        query = createQuery(dbProperties);
+    // remember to close the query after using it!
+    private IEICMSRunDAO createQuery()
+    {
+        return createQuery(dbProperties);
     }
 
     private static IEICMSRunDAO createQuery(Properties properties)
@@ -233,19 +232,12 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
         }
     }
 
-    ChromatogramDTO getChromatogramForParameters(RequestParams params)
+    private ChromatogramDTO getChromatogramForParameters(RequestParams params)
     {
-        String datasetCode = params.getDatasetCode();
+        IEICMSRunDAO query = createQuery();
         long chromatogramId = params.getChromatogramId();
-        EICMSRunDTO run = query.getMSRunByDatasetPermId(datasetCode);
-        DataIterator<ChromatogramDTO> chromatograms = query.getChromatogramsForRun(run);
-        for (ChromatogramDTO chromatogram : chromatograms)
-        {
-            if (chromatogramId == chromatogram.getId())
-            {
-                return chromatogram;
-            }
-        }
-        return null;
+        ChromatogramDTO chromatogram = query.getChromatogramById(chromatogramId);
+        query.close();
+        return chromatogram;
     }
 }

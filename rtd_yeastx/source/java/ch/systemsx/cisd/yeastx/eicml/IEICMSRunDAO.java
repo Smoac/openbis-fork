@@ -68,6 +68,9 @@ public interface IEICMSRunDAO extends IGenericDAO
     @Select("select * FROM EIC_CHROMATOGRAMS where EIC_MS_RUN_ID=?{1.id}")
     public DataIterator<ChromatogramDTO> getChromatogramsForRun(EICMSRunDTO msRun);
 
+    @Select("select * FROM EIC_CHROMATOGRAMS where ID=?{1}")
+    public ChromatogramDTO getChromatogramById(long chromatogramId);
+
     @Select(sql = "select ID, EIC_MS_RUN_ID, Q1_MZ, Q3_LOW_MZ, Q3_HIGH_MZ, LABEL, POLARITY FROM EIC_CHROMATOGRAMS "
             + "LEFT JOIN EIC_MS_RUNS on EIC_MS_RUN_ID = EIC_MS_RUNS.ID where EIC_MS_RUN_ID=?{1.id}")
     public DataIterator<ChromatogramDTO> getChromatogramsForRunNoData(EICMSRunDTO msRun);
