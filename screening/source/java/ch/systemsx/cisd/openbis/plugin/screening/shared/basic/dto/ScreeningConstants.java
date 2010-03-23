@@ -60,6 +60,9 @@ public class ScreeningConstants
     // code of the oligo material type
     public static final String OLIGO_PLUGIN_TYPE_NAME = "OLIGO";
 
+    // code of plate geometry vocabulary
+    public static final String PLATE_GEOMETRY = "$PLATE_GEOMETRY";
+
     public static final String IMAGE_DATASET_PLUGIN_TYPE_CODE = IMAGE_DATASET_TYPE;
 
     // ---- required DSS servlets

@@ -16,21 +16,24 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.AbstractSampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -51,7 +54,7 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    private final Field<String> plateGeometryField;
+    private final PlateGeometrySelectionWidget plateGeometryField;
 
     private final RadioGroup scopeField;
 
@@ -122,7 +125,8 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
     protected void save()
     {
         ExperimentIdentifier experiment = experimentChooser.tryToGetValue();
-        String plateGeometry = plateGeometryField.getValue();
+        VocabularyTermModel value = plateGeometryField.getValue();
+        String plateGeometry = value == null ? null : value.getTerm().getCode();
         String userEmail = emailField.getValue();
         RegistrationScope registrationScope = extractRegistrationScope();
         LibraryRegistrationInfo libraryInfo =
@@ -176,11 +180,33 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
         }
     }
 
-    private Field<String> createPlateGeometryField()
-    {// FIXME: change to term chooser
-        Field<String> field = new TextField<String>();
+    private PlateGeometrySelectionWidget createPlateGeometryField()
+    {
+        PlateGeometrySelectionWidget field = new PlateGeometrySelectionWidget(viewContext);
         field.setFieldLabel("Plate geometry");
         FieldUtil.markAsMandatory(field);
         return field;
+    }
+
+    private static final class PlateGeometrySelectionWidget extends VocabularyTermSelectionWidget
+    {
+
+        PlateGeometrySelectionWidget(IViewContext<IScreeningClientServiceAsync> viewContext)
+        {
+            super("plateGeometry", "plateGeometry", false, null, viewContext, null, null);
+            setAllowBlank(false);
+            setForceSelection(true);
+            viewContext.getService().getPlateGeometryVocabulary(
+                    new AbstractAsyncCallback<Vocabulary>(viewContext)
+                        {
+                            @Override
+                            protected void process(Vocabulary vocabulary)
+                            {
+                                setVocabulary(vocabulary);
+                            }
+                        });
+
+        }
+
     }
 }

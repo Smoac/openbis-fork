@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -84,4 +85,9 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      */
     public void registerLibrary(LibraryRegistrationInfo newLibraryInfo,
             AsyncCallback<Void> registerSamplesCallback);
+
+    /**
+     * @see IScreeningClientService#getPlateGeometryVocabulary()
+     */
+    public void getPlateGeometryVocabulary(AsyncCallback<Vocabulary> callback);
 }

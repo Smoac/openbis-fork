@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
@@ -112,6 +114,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public TableModel loadImageAnalysisForPlate(String sessionToken, TechId plateId)
     {
         logAccess(sessionToken, "loadImageAnalysisForPlate", "PLATE(%s)", plateId.getId());
+        return null;
+    }
+
+    public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException
+    {
+        logAccess(sessionToken, "getVocabulary", "CODE(%s)", code);
         return null;
     }
 }
