@@ -62,6 +62,8 @@ public class HierarchicalStorageUpdater implements IMaintenanceTask
     public void setUp(String pluginName, Properties pluginProperties)
     {
         LogInitializer.init();
+        // TODO 2010-03-23, Piotr Buczek: pluginProperties contain all needed properties
+        // There is no need to load service properties once again.
         Properties properties = PropertyParametersUtil.loadServiceProperties();
         storeRoot = PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY);
         hierarchyRoot =

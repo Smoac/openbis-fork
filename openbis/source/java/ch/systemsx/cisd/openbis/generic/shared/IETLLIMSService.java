@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTec
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -286,11 +287,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             Long lastSeenDeletionEventIdOrNull);
 
     /**
-     * List data sets that have have 'ACTIVE' status.
+     * List 'ACTIVE' data sets that match given criteria.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public List<ExternalData> listActiveDataSets(String sessionToken, String dataStoreCode);
+    public List<ExternalData> listActiveDataSets(String sessionToken, String dataStoreCode,
+            ArchiverDataSetCriteria criteria);
 
     /**
      * Adds specified properties of given data set. Properties defined before will not be updated.

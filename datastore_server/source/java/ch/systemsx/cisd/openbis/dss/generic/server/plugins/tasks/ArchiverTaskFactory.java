@@ -61,7 +61,8 @@ public class ArchiverTaskFactory
         }
         try
         {
-            return ClassUtils.create(IArchiverTask.class, className, archiverProperties, storeRoot);
+            return ClassUtils.create(IArchiverTask.class, className, archiverProperties,
+                    storeRoot);
         } catch (ConfigurationFailureException ex)
         {
             throw ex; // rethrow the exception without changing the message

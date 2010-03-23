@@ -76,18 +76,18 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      */
     @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
             + "    WHERE data.dast_id = ?{1} AND external_data.status = 'ACTIVE' "
-            + "    AND data.modification_timestamp < ?{2}", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getActiveDataSetsModifiedBefore(long dataStoreId,
+            + "    AND data.registration_timestamp < ?{2}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getActiveDataSetsRegisteredBefore(long dataStoreId,
             Date lastModificationDate);
 
     /**
-     * Like {@link #getActiveDataSetsModifiedBefore(long, Date)} with additional condition for data
-     * set type id.
+     * Like {@link #getActiveDataSetsRegisteredBefore(long, Date)} with additional condition for
+     * data set type id.
      */
     @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
             + "    WHERE data.dast_id = ?{1} AND external_data.status = 'ACTIVE' "
-            + "    AND data.modification_timestamp < ?{2} AND data.dsty_id = ?{3}", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getActiveDataSetsModifiedBeforeWithDataSetType(
+            + "    AND data.registration_timestamp < ?{2} AND data.dsty_id = ?{3}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getActiveDataSetsRegisteredBeforeWithDataSetType(
             long dataStoreId, Date lastModificationDate, long dataSetTypeId);
 
     /**

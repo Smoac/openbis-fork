@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -559,22 +560,23 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.listDataSets(sessionToken, dataStoreCode);
     }
 
-    synchronized public List<ExternalData> listActiveDataSets() throws UserFailureException
+    synchronized public List<ExternalData> listActiveDataSets(ArchiverDataSetCriteria criteria)
+            throws UserFailureException
     {
         checkSessionToken();
         try
         {
-            return primListActiveDataSets();
+            return primListActiveDataSets(criteria);
         } catch (final InvalidSessionException ex)
         {
             authenticate();
-            return primListActiveDataSets();
+            return primListActiveDataSets(criteria);
         }
     }
 
-    private List<ExternalData> primListActiveDataSets()
+    private List<ExternalData> primListActiveDataSets(ArchiverDataSetCriteria criteria)
     {
-        return service.listActiveDataSets(sessionToken, dataStoreCode);
+        return service.listActiveDataSets(sessionToken, dataStoreCode, criteria);
     }
 
     public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull)

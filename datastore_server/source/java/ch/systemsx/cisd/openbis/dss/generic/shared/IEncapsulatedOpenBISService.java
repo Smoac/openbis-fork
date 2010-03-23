@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -179,8 +180,9 @@ public interface IEncapsulatedOpenBISService
     // Archivization
     //
 
-    /** See {@link IETLLIMSService#listActiveDataSets(String, String)} */
-    public List<ExternalData> listActiveDataSets() throws UserFailureException;
+    /** See {@link IETLLIMSService#listActiveDataSets(String, String, ArchiverDataSetCriteria)} */
+    public List<ExternalData> listActiveDataSets(ArchiverDataSetCriteria criteria)
+            throws UserFailureException;
 
     /** See {@link IETLLIMSService#archiveDatasets(String, List)} */
     public void archiveDataSets(List<String> dataSetCodes) throws UserFailureException;

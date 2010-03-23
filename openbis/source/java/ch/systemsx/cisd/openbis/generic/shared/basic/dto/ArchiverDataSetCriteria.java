@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Criteria for archiving <i>data sets</i>.
@@ -28,25 +27,31 @@ public class ArchiverDataSetCriteria implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private final Date lastModificationDate;
+    // number of days before current date
+    private final int olderThan;
 
     private final String dataSetTypeCodeOrNull;
 
-    public ArchiverDataSetCriteria(Date lastModificationDate, String dataSetTypeCodeOrNull)
+    public ArchiverDataSetCriteria(int olderThan, String dataSetTypeCodeOrNull)
     {
-        assert lastModificationDate != null;
-        this.lastModificationDate = lastModificationDate;
+        this.olderThan = olderThan;
         this.dataSetTypeCodeOrNull = dataSetTypeCodeOrNull;
     }
 
-    public Date getLastModificationDate()
+    public int getOlderThan()
     {
-        return lastModificationDate;
+        return olderThan;
     }
 
     public String tryGetDataSetTypeCode()
     {
         return dataSetTypeCodeOrNull;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "older than: " + olderThan + "; data set type: " + dataSetTypeCodeOrNull;
     }
 
 }

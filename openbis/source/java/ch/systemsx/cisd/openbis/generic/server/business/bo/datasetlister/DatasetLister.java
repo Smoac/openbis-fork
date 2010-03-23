@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
@@ -193,18 +195,23 @@ public class DatasetLister implements IDatasetLister
     {
         loadSmallConnectedTables();
         final Long dataStoreId = extractDataStoreId(dataStoreCode);
-        final Date lastModificationDate = criteria.getLastModificationDate();
+        final Date lastRegistrationDate = extractLastRegistrationDate(criteria);
         final String dataSetTypeCodeOrNull = criteria.tryGetDataSetTypeCode();
         if (dataSetTypeCodeOrNull == null)
         {
-            return enrichDatasets(query.getActiveDataSetsModifiedBefore(dataStoreId, criteria
-                    .getLastModificationDate()));
+            return enrichDatasets(query.getActiveDataSetsRegisteredBefore(dataStoreId,
+                    lastRegistrationDate));
         } else
         {
             Long dataSetTypeId = extractDataSetTypeId(dataSetTypeCodeOrNull);
-            return enrichDatasets(query.getActiveDataSetsModifiedBeforeWithDataSetType(dataStoreId,
-                    lastModificationDate, dataSetTypeId));
+            return enrichDatasets(query.getActiveDataSetsRegisteredBeforeWithDataSetType(
+                    dataStoreId, lastRegistrationDate, dataSetTypeId));
         }
+    }
+
+    private Date extractLastRegistrationDate(ArchiverDataSetCriteria criteria)
+    {
+        return DateUtils.addDays(new Date(), -criteria.getOlderThan());
     }
 
     private Long extractDataStoreId(String dataStoreCode)

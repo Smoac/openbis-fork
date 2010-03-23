@@ -38,13 +38,13 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     @Override
     protected void archive(DatasetDescription dataset) throws UserFailureException
     {
-        System.out.println("Archived: " + dataset);
+        System.out.println("DemoArchiver - Archived: " + dataset);
     }
 
     @Override
     protected void unarchive(DatasetDescription dataset) throws UserFailureException
     {
-        System.out.println("Unarchived: " + dataset);
+        System.out.println("DemoArchiver - Unarchived: " + dataset);
     }
 
 }

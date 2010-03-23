@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -593,11 +594,12 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return SimpleDataSetHelper.translate(dataSets);
     }
 
-    public List<ExternalData> listActiveDataSets(String sessionToken, String dataStoreCode)
+    public List<ExternalData> listActiveDataSets(String sessionToken, String dataStoreCode,
+            ArchiverDataSetCriteria criteria)
     {
-        List<ExternalDataPE> dataSets = loadDataSets(sessionToken, dataStoreCode);
-		// TODO 2010-03-22, Piotr Buczek: improve performance with loadByDataStoreAndStatus
-        return ExternalDataTranslator.translate(dataSets, "?", "?");
+        Session session = getSession(sessionToken);
+        final IDatasetLister datasetLister = createDatasetLister(session);
+        return datasetLister.listByArchiverCriteria(dataStoreCode, criteria);
     }
 
     private List<ExternalDataPE> loadDataSets(String sessionToken, String dataStoreCode)
