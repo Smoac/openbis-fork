@@ -121,6 +121,10 @@ public final class PropertyValidatorTest extends AbstractBOTest
                                 createTimestampPropertyType(),
                                 DateFormatUtils.format(new Date(),
                                         SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern()) },
+                        {
+                                createTimestampPropertyType(),
+                                DateFormatUtils.format(new Date(),
+                                        SupportedDatePattern.US_DATE_TIME_24_PATTERN.getPattern()) },
                         { createIntegerPropertyType(), "1" },
                         { createRealPropertyType(), "1" },
                         { createRealPropertyType(), "1.1" },
