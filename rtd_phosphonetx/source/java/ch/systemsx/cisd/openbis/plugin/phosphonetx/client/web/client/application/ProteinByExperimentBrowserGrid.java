@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -85,6 +86,13 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     private ListProteinByExperimentCriteria criteria;
 
     private List<AbundanceColumnDefinition> abundanceColumnDefinitions;
+
+    private IDataRefreshCallback postRefreshCallback = new IDataRefreshCallback()
+        {
+            public void postRefresh(boolean wasSuccessful)
+            {
+            }
+        };
     
     static IDisposableComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
@@ -171,7 +179,12 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         criteria.setTreatmentTypeCode(treatmentTypeCode);
         criteria.setAggregateOriginal(aggregateOriginal);
         abundanceColumnDefinitions = definitions;
-        refresh(true);
+        refresh(postRefreshCallback, true);
+    }
+    
+    void setPostRefreshCallback(IDataRefreshCallback postRefreshCallback)
+    {
+        this.postRefreshCallback = postRefreshCallback;
     }
 
     @Override

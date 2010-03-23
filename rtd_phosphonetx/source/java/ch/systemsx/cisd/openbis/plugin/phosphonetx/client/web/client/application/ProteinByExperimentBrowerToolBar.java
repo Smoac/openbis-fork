@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -293,15 +294,26 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
     {
         if (experimentId != null)
         {
-            TechId experimentID = TechId.create(experimentId);
+            final TechId experimentID = TechId.create(experimentId);
             browserGrid.setLoadMaskImmediately(true);
+            browserGrid.setPostRefreshCallback(new IDataRefreshCallback()
+                {
+                    public void postRefresh(boolean wasSuccessful)
+                    {
+                        if (summaryGrid != null)
+                        {
+                            summaryGrid.setLoadMaskImmediately(true);
+                            summaryGrid.update(experimentID);
+                        }
+                    }
+                });
             double falseDiscoveryRate = getSelection(fdrComboBox, 0.0);
             AggregateFunction aggregateFunction =
                     getSelection(aggregateFunctionComboBox, DEFAULT_AGGREGATE_FUNCTION);
             VocabularyTermModel value = treatmentTypeComboBox.getValue();
             String treatmentTypeCode = value == null ? null : value.getTerm().getCode();
             AsyncCallback<List<AbundanceColumnDefinition>> callback =
-                    new AbundanceColumnDefinitionsCallback(viewContext, summaryGrid, browserGrid, experimentID,
+                    new AbundanceColumnDefinitionsCallback(viewContext, browserGrid, experimentID,
                             falseDiscoveryRate, aggregateFunction, treatmentTypeCode,
                             aggregateOriginalCheckBox.getValue());
             viewContext.getService().getAbundanceColumnDefinitionsForProteinByExperiment(
@@ -330,15 +342,12 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
         private final boolean aggregateOriginal;
 
-        private final ProteinSummaryGrid summaryGrid;
-
         public AbundanceColumnDefinitionsCallback(IViewContext<?> viewContext,
-                ProteinSummaryGrid summaryGrid, ProteinByExperimentBrowserGrid browserGrid, TechId experimentID,
-                double falseDiscoveryRate, AggregateFunction aggregateFunction,
-                String treatmentTypeCode, boolean aggregateOriginal)
+                ProteinByExperimentBrowserGrid browserGrid, TechId experimentID, double falseDiscoveryRate,
+                AggregateFunction aggregateFunction, String treatmentTypeCode,
+                boolean aggregateOriginal)
         {
             super(viewContext);
-            this.summaryGrid = summaryGrid;
             this.browserGrid = browserGrid;
             this.experimentID = experimentID;
             this.falseDiscoveryRate = falseDiscoveryRate;
@@ -352,9 +361,6 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         {
             browserGrid.update(experimentID, falseDiscoveryRate, aggregateFunction,
                     treatmentTypeCode, aggregateOriginal, result);
-            summaryGrid.setLoadMaskImmediately(true);
-            summaryGrid.update(experimentID);
-
         }
 
     }
