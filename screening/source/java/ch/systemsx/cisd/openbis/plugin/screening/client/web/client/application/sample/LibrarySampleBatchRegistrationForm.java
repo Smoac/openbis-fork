@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample;
 
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -48,6 +48,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistr
 public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatchRegistrationForm
 {
 
+    private static final String PLATES = "Plates";
+
+    private static final String OLIGOS_PLATES = "Oligos + Plates";
+
+    private static final String GENES_OLIGOS_PLATES = "Genes + Oligos + Plates";
+
     private static final String SESSION_KEY = "qiagen-library-sample-batch-registration";
 
     private final ExperimentChooserFieldAdaptor experimentChooser;
@@ -56,13 +62,7 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
 
     private final PlateGeometrySelectionWidget plateGeometryField;
 
-    private final RadioGroup scopeField;
-
-    private Radio genesOligosPlatesRadio;
-
-    private Radio oligosPlatesRadio;
-
-    private Radio platesRadio;
+    private final SimpleComboBox<String> scopeField;
 
     private final TextField<String> emailField;
 
@@ -99,26 +99,22 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
         return field;
     }
 
-    // FIXME: change to combobox
-    private RadioGroup createScope()
+    private SimpleComboBox<String> createScope()
     {
-        RadioGroup group = new RadioGroup();
-        group.setFieldLabel("Register");
-        genesOligosPlatesRadio = createCheckBox("Genes + Oligos + Plates");
-        oligosPlatesRadio = createCheckBox("Oligos + Plates");
-        platesRadio = createCheckBox("Plates");
-        group.add(genesOligosPlatesRadio);
-        group.add(oligosPlatesRadio);
-        group.add(platesRadio);
-        group.setValue(genesOligosPlatesRadio);
-        return group;
-    }
-
-    private Radio createCheckBox(String label)
-    {
-        Radio checkBox = new Radio();
-        checkBox.setBoxLabel(label);
-        return checkBox;
+        SimpleComboBox<String> options = new SimpleComboBox<String>();
+        options.add(GENES_OLIGOS_PLATES);
+        options.add(OLIGOS_PLATES);
+        options.add(PLATES);
+        options
+                .setFieldLabel(viewContext
+                        .getMessage(ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict.REGISTER));
+        options.setTriggerAction(TriggerAction.ALL);
+        options.setForceSelection(true);
+        options.setEditable(false);
+        options.setAllowBlank(false);
+        options.setSimpleValue(GENES_OLIGOS_PLATES);
+        FieldUtil.markAsMandatory(options);
+        return options;
     }
 
     @Override
@@ -140,13 +136,14 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
 
     private RegistrationScope extractRegistrationScope()
     {
-        if (genesOligosPlatesRadio.getValue())
+        String value = scopeField.getValue().getValue();
+        if (value.equals(GENES_OLIGOS_PLATES))
         {
             return RegistrationScope.GENES_OLIGOS_PLATES;
-        } else if (oligosPlatesRadio.getValue())
+        } else if (value.equals(OLIGOS_PLATES))
         {
             return RegistrationScope.OLIGOS_PLATES;
-        } else if (platesRadio.getValue())
+        } else if (value.equals(PLATES))
         {
             return RegistrationScope.PLATES;
         }
@@ -183,7 +180,7 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
     private PlateGeometrySelectionWidget createPlateGeometryField()
     {
         PlateGeometrySelectionWidget field = new PlateGeometrySelectionWidget(viewContext);
-        field.setFieldLabel("Plate geometry");
+        field.setFieldLabel("Plate Geometry");
         FieldUtil.markAsMandatory(field);
         return field;
     }

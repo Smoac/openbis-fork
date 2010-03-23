@@ -36,7 +36,6 @@ public class NamedInputStream
     {
         this.stream = stream;
         this.originalName = originalName;
-        // FIXME: do not require
         this.bytes = bytes;
     }
 

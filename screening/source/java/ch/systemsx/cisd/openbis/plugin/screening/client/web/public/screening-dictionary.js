@@ -23,6 +23,7 @@ var screening = {
 	// Sample import
 	//
   import_scheduled: "Import started successfully. Notification will be sent to '{0}' upon completion.",
+	register: "Register",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

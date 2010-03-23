@@ -19,6 +19,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 class LibraryRegistrationTask implements Runnable
 {
 
+    private static final String LIBRARY_REGISTARION_STATUS = "Library registarion status";
+
     private final MailClientParameters mailClientParameters;
 
     private final String sessionToken;
@@ -49,7 +51,6 @@ class LibraryRegistrationTask implements Runnable
 
     public void run()
     {
-        // FIXME: improve messages, add details
         StringBuilder message = new StringBuilder();
         try
         {
@@ -67,7 +68,7 @@ class LibraryRegistrationTask implements Runnable
         {
             message.append("GENES: ERROR (NOT REGISTERED)\n");
             message.append(ex.getMessage());
-            sendEmail("Library registarion status", message.toString(), email);
+            sendEmail(LIBRARY_REGISTARION_STATUS, message.toString(), email);
             return;
         }
         try
@@ -86,7 +87,7 @@ class LibraryRegistrationTask implements Runnable
         {
             message.append("OLIGOS: ERROR (NOT REGISTERED)\n");
             message.append(ex.getMessage());
-            sendEmail("Library registarion status", message.toString(), email);
+            sendEmail(LIBRARY_REGISTARION_STATUS, message.toString(), email);
             return;
         }
         try
@@ -105,10 +106,10 @@ class LibraryRegistrationTask implements Runnable
         {
             message.append("PLATES: ERROR (NOT REGISTERED)\n");
             message.append(ex.getMessage());
-            sendEmail("Library registarion status", message.toString(), email);
+            sendEmail(LIBRARY_REGISTARION_STATUS, message.toString(), email);
             return;
         }
-        sendEmail("Library registarion status", message.toString(), email);
+        sendEmail(LIBRARY_REGISTARION_STATUS, message.toString(), email);
 
     }
 

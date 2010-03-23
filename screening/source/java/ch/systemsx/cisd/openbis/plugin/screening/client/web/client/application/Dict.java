@@ -28,6 +28,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String IMPORT_SCHEDULED_MESSAGE = "import_scheduled";
 
+    public static final String REGISTER = "register";
+
     private Dict()
     {
         // Can not be instantiated.
