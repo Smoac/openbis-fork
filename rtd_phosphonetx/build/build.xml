@@ -8,6 +8,8 @@
 	<property name="variant" value="-phosphonetx"/>
 
 	<target name="compile" depends="build-common.compile, clean" />
+	
+	<target name="client-jar" depends="make-client-jar"/>
 
         <!--
         // Task for creating distributions
