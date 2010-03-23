@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Piotr Buczek
  */
-// TODO 2010-03-19, PTR: check HighWaterMark
 public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastorePlugin implements
         IArchiverTask
 {
@@ -48,9 +47,16 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private static final long serialVersionUID = 1L;
 
-    public AbstractArchiverProcessingPlugin(Properties properties, File storeRoot)
+    private final IStatusChecker archivePrerequisiteOrNull;
+
+    private final IStatusChecker unarchivePrerequisiteOrNull;
+
+    public AbstractArchiverProcessingPlugin(Properties properties, File storeRoot,
+            IStatusChecker archivePrerequisiteOrNull, IStatusChecker unarchivePrerequisiteOrNull)
     {
         super(properties, storeRoot);
+        this.archivePrerequisiteOrNull = archivePrerequisiteOrNull;
+        this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
     }
 
     abstract protected void archive(DatasetDescription dataset) throws UserFailureException;
@@ -67,6 +73,14 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
                         public Status handle(DatasetDescription dataset)
                         {
+                            if (archivePrerequisiteOrNull != null)
+                            {
+                                Status status = archivePrerequisiteOrNull.check();
+                                if (status.isError())
+                                {
+                                    return status;
+                                }
+                            }
                             try
                             {
                                 archive(dataset);
@@ -90,6 +104,14 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
                         public Status handle(DatasetDescription dataset)
                         {
+                            if (unarchivePrerequisiteOrNull != null)
+                            {
+                                Status status = unarchivePrerequisiteOrNull.check();
+                                if (status.isError())
+                                {
+                                    return status;
+                                }
+                            }
                             try
                             {
                                 unarchive(dataset);

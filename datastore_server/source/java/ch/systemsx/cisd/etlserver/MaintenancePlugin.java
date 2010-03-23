@@ -21,8 +21,8 @@ public class MaintenancePlugin
             this.task = ClassUtils.create(IMaintenanceTask.class, parameters.getClassName());
         } catch (Exception ex)
         {
-            throw new ConfigurationFailureException("Cannot find the plugin class '" + parameters.getClassName()
-                    + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
+            throw new ConfigurationFailureException("Cannot find the plugin class '"
+                    + parameters.getClassName() + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
         }
         task.setUp(parameters.getPluginName(), parameters.getProperties());
     }
@@ -38,6 +38,6 @@ public class MaintenancePlugin
                 {
                     task.execute();
                 }
-            }, 0L, parameters.getIntervalSeconds() * 1000);
+            }, parameters.getStartDate(), parameters.getIntervalSeconds() * 1000);
     }
 }
