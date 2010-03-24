@@ -1047,4 +1047,22 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason);
 
+    /**
+     * Locks data sets
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void lockDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
+    /**
+     * Unlocks data sets
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void unlockDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
 }
