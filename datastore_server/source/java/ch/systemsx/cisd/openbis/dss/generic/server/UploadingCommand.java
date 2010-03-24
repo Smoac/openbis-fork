@@ -156,7 +156,7 @@ class UploadingCommand implements IDataSetCommand
         {
             for (IEntityProperty property : properties)
             {
-                addRow(category, property.getPropertyType().getCode(), property.getValue());
+                addRow(category, property.getPropertyType().getCode(), property.tryGetAsString());
             }
         }
 
