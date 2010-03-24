@@ -153,10 +153,10 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
     @Override
     protected void addSpecificFormFields(FormPanel form)
     {
-        form.add(scopeField);
         form.add(experimentChooser.getChooserField());
         form.add(plateGeometryField);
         form.add(emailField);
+        form.add(scopeField);
     }
 
     private final class RegisterSamplesCallback extends
