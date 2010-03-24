@@ -266,7 +266,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         final FormPanel panel = new FormPanel();
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
-        panel.setWidth(LABEL_WIDTH + FIELD_WIDTH + 40);
+        panel.setWidth(LABEL_WIDTH + FIELD_WIDTH + 60);
         panel.setLabelWidth(LABEL_WIDTH);
         panel.setFieldWidth(FIELD_WIDTH);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
