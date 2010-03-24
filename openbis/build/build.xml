@@ -25,6 +25,7 @@
 
 	<property name="jar.file.name" value="${ant.project.name}.jar" />
 	<property name="jar.file" value="${dist}/${jar.file.name}" />
+	<property name="client.jar.file" value="${dist}/${ant.project.name}-client.jar"/>
 
 	<property name="webapp.file.name" value="openBIS.war" />
 	<property name="webapp.file" value="${server.dist}/${webapp.file.name}" />
@@ -148,12 +149,8 @@
 		</loadfile>
 		<echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
 		<copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
-		<copy todir="${server.dist}" >
-			<fileset dir="${dist}">
-				<include name="*client.jar"/>
-			</fileset>
-		</copy>
-		<copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
+		<copy file="${client.jar.file}" todir="${server.dist}" />
+		<move file="${original.server.dist}/service.properties" todir="${server.dist}" />
 		<copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
 		<copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
 		<copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
@@ -392,18 +389,7 @@
 			<fileset dir="../${ant.project.name}/${classes}"
 			         includes="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class" />
 		</jar>
-	</target>
-	
-	<target name="client-jar"  
-					description="Extracts from jar file only those classes need by a remote client">
-		<antcall target="make-client-jar">
-			<param name="variant" value="" />
-		</antcall>
-	</target>
-	
-	<target name="make-client-jar" depends="jar" 
-					description="Extracts from jar file only those classes need by a remote client">
-		<jar destfile="${dist}/openbis${variant}-client.jar">
+		<jar destfile="${client.jar.file}">
 			<zipfileset src="${jar.file}">
 				<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"/>
 				<include name="ch/systemsx/cisd/common/exceptions/*.class"/>
@@ -427,7 +413,7 @@
 	<!--
       // Creates WAR file.
       -->
-	<target name="war" depends="client-jar, compile-javascript" description="Creates project war file.">
+	<target name="war" depends="jar, compile-javascript" description="Creates project war file.">
 		<mkdir dir="${webapp.dist.web-inf}" />
 		<copy todir="${webapp.dist.web-inf}">
 			<fileset dir="${application.server.resource}">
