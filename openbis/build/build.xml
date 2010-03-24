@@ -149,8 +149,8 @@
 		</loadfile>
 		<echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
 		<copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
-		<copy file="${client.jar.file}" todir="${server.dist}" />
-		<move file="${original.server.dist}/service.properties" todir="${server.dist}" />
+		<move file="${client.jar.file}" todir="${server.dist}" />
+		<copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
 		<copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
 		<copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
 		<copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
@@ -407,6 +407,7 @@
 				<include name="com/google/gwt/user/client/rpc/IsSerializable.class"/>
 				<include name="com/google/gwt/user/client/rpc/SerializableException.class"/>
 			</zipfileset>
+			<attribute name="Main-Class" value="ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo"/>
 		</jar>
 	</target>
 
