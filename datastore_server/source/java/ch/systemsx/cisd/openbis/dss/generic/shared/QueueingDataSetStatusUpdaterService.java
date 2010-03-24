@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
 import java.util.List;
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.collections.RecordBasedQueuePersister;
 import ch.systemsx.cisd.common.filesystem.ICloseable;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodeWithStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 
 /**
@@ -86,17 +86,7 @@ public class QueueingDataSetStatusUpdaterService
      */
     public static synchronized final void start(final File queueFile, TimingParameters parameters)
     {
-        updater = new IDataSetStatusUpdater()
-            {
-                public void updateDataSetStatus(String dataSetCode,
-                        DataSetArchivizationStatus newStatus)
-                {
-                    ServiceProvider.getOpenBISService().updateDataSetStatus(dataSetCode, newStatus);
-                    operationLog
-                            .info("Data Set " + dataSetCode + " changed status to " + newStatus);
-                }
-
-            };
+        updater = createDataSetStatusUpdater();
         final PersistentExtendedBlockingQueueDecorator<DataSetCodeWithStatus> persistentQueue =
                 ExtendedBlockingQueueFactory.createPersistRecordBased(queueFile,
                         INITIAL_RECORD_SIZE);
@@ -113,6 +103,7 @@ public class QueueingDataSetStatusUpdaterService
                             final DataSetCodeWithStatus dataSet = queue.peekWait();
                             updater.updateDataSetStatus(dataSet.getDataSetCode(), dataSet
                                     .getStatus());
+                            Thread.sleep(10000);
                             // Note: this is the only consumer of this queue.
                             queue.take();
                         }
@@ -127,6 +118,21 @@ public class QueueingDataSetStatusUpdaterService
             }, "Updater Queue");
         thread.setDaemon(true);
         thread.start();
+    }
+
+    private static IDataSetStatusUpdater createDataSetStatusUpdater()
+    {
+        return new IDataSetStatusUpdater()
+            {
+                public void updateDataSetStatus(String dataSetCode,
+                        DataSetArchivizationStatus newStatus)
+                {
+                    ServiceProvider.getOpenBISService().updateDataSetStatus(dataSetCode, newStatus);
+                    operationLog
+                            .info("Data Set " + dataSetCode + " changed status to " + newStatus);
+                }
+
+            };
     }
 
     /**
@@ -209,6 +215,22 @@ public class QueueingDataSetStatusUpdaterService
     private QueueingDataSetStatusUpdaterService()
     {
         // Cannot be instantiated.
+    }
+
+    /**
+     * A role that can update data set status.
+     * 
+     * @author Piotr Buczek
+     */
+    public interface IDataSetStatusUpdater
+    {
+        /**
+         * Updates status of data set with given code.
+         * 
+         * @param dataSetCode code of data set to be updated
+         * @param newStatus status to be set
+         */
+        public void updateDataSetStatus(String dataSetCode, DataSetArchivizationStatus newStatus);
     }
 
 }
