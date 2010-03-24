@@ -19,7 +19,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 class LibraryRegistrationTask implements Runnable
 {
 
-    private static final String LIBRARY_REGISTARION_STATUS = "Library registarion status";
+    private static final String LIBRARY_REGISTARION_STATUS = "Library registration status";
 
     private final MailClientParameters mailClientParameters;
 
