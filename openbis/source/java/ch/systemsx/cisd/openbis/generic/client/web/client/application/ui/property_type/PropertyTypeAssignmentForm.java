@@ -254,6 +254,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         {
             mandatoryCheckbox = new CheckBoxField(viewContext.getMessage(Dict.MANDATORY), false);
             mandatoryCheckbox.setId(createChildId(MANDATORY_CHECKBOX_ID_SUFFIX));
+            mandatoryCheckbox.setFireChangeEventOnSetValue(false);
             mandatoryCheckbox.setValue(false);
             mandatoryCheckbox.addListener(Events.Change, new InfoBoxResetListener(infoBox));
         }
