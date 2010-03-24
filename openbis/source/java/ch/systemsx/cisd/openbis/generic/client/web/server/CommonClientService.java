@@ -2408,4 +2408,32 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void lockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> datasetCodes = extractDatasetCodes(criteria);
+            commonServer.lockDatasets(sessionToken, datasetCodes);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> datasetCodes = extractDatasetCodes(criteria);
+            commonServer.unlockDatasets(sessionToken, datasetCodes);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
 }

@@ -1847,4 +1847,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         }
     }
 
+    public void lockDatasets(String sessionToken, List<String> datasetCodes)
+    {
+        Session session = getSession(sessionToken);
+        IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        externalDataTable.loadByDataSetCodes(datasetCodes, true);
+        externalDataTable.lockDatasets();
+    }
+
+    public void unlockDatasets(String sessionToken, List<String> datasetCodes)
+    {
+        Session session = getSession(sessionToken);
+        IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        externalDataTable.loadByDataSetCodes(datasetCodes, true);
+        externalDataTable.unlockDatasets();
+    }
+
 }

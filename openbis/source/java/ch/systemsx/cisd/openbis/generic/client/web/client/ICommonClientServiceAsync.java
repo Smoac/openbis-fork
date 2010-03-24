@@ -757,5 +757,17 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> uploadCriteria,
             String value, AsyncCallback<Void> callback);
 
+    /**
+     * @see ICommonClientService#lockDatasets(DisplayedOrSelectedDatasetCriteria)
+     */
+    public void lockDatasets(DisplayedOrSelectedDatasetCriteria criteria,
+            AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#unlockDatasets(DisplayedOrSelectedDatasetCriteria)
+     */
+    public void unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria,
+            AsyncCallback<Void> callback);
+
     // --
 }

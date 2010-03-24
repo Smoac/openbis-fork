@@ -855,4 +855,16 @@ public interface ICommonClientService extends IClientService
     public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> criteria,
             String reason) throws UserFailureException;
 
+    /**
+     * Locks the specified datasets.
+     */
+    public void lockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+            throws UserFailureException;
+
+    /**
+     * Unlocks the specified datasets.
+     */
+    public void unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+            throws UserFailureException;
+
 }

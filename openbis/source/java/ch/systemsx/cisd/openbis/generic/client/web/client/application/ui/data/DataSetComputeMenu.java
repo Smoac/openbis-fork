@@ -88,6 +88,8 @@ public class DataSetComputeMenu extends TextToolItem
         addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_PROCESSING);
         addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_ARCHIVIZATION);
         addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_UNARCHIVIZATION);
+        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_LOCK);
+        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_UNLOCK);
         setMenu(submenu);
     }
 
@@ -99,7 +101,9 @@ public class DataSetComputeMenu extends TextToolItem
         COMPUTE_MENU_QUERIES(DataStoreServiceKind.QUERIES), COMPUTE_MENU_PROCESSING(
                 DataStoreServiceKind.PROCESSING), COMPUTE_MENU_ARCHIVIZATION(
                 DataStoreServiceKind.ARCHIVIZATION), COMPUTE_MENU_UNARCHIVIZATION(
-                DataStoreServiceKind.UNARCHIVIZATION);
+                DataStoreServiceKind.UNARCHIVIZATION),
+        COMPUTE_MENU_LOCK(DataStoreServiceKind.LOCK), COMPUTE_MENU_UNLOCK(
+                DataStoreServiceKind.UNLOCK);
 
         private final DataStoreServiceKind dssTaskKind;
 
@@ -154,6 +158,8 @@ public class DataSetComputeMenu extends TextToolItem
                     {
                         case ARCHIVIZATION:
                         case UNARCHIVIZATION:
+                        case LOCK:
+                        case UNLOCK:
                             return new PerformArchivizationDialog(viewContext, data, title);
                         default:
                             return new PerformComputationDialog(viewContext, data, title);
@@ -189,6 +195,18 @@ public class DataSetComputeMenu extends TextToolItem
                             break;
                         case UNARCHIVIZATION:
                             viewContext.getService().unarchiveDatasets(
+                                    criteria,
+                                    new ArchivizationDisplayCallback(viewContext, dssTaskKind
+                                            .getDescription()));
+                            break;
+                        case LOCK:
+                            viewContext.getService().lockDatasets(
+                                    criteria,
+                                    new ArchivizationDisplayCallback(viewContext, dssTaskKind
+                                            .getDescription()));
+                            break;
+                        case UNLOCK:
+                            viewContext.getService().unlockDatasets(
                                     criteria,
                                     new ArchivizationDisplayCallback(viewContext, dssTaskKind
                                             .getDescription()));
@@ -321,6 +339,10 @@ public class DataSetComputeMenu extends TextToolItem
                     return DataSetArchivizationStatus.ACTIVE;
                 case UNARCHIVIZATION:
                     return DataSetArchivizationStatus.ARCHIVED;
+                case LOCK:
+                    return DataSetArchivizationStatus.ACTIVE;
+                case UNLOCK:
+                    return DataSetArchivizationStatus.LOCKED;
                 default:
                     return null; // not possible
             }
@@ -379,7 +401,7 @@ public class DataSetComputeMenu extends TextToolItem
         // not null only if all selected datasets come from the same datastore
         private final DataStore dataStoreOrNull;
 
-        private ComputationDataSetsRadioProvider radioProvider;
+        private final ComputationDataSetsRadioProvider radioProvider;
 
         private Html selectedDataSetTypesText;
 
@@ -656,7 +678,7 @@ public class DataSetComputeMenu extends TextToolItem
 
         private Radio computeOnAllRadio;
 
-        private ComputationData data;
+        private final ComputationData data;
 
         public ComputationDataSetsRadioProvider(ComputationData data)
         {

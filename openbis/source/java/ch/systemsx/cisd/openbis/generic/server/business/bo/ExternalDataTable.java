@@ -616,4 +616,18 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             }
         }
     }
+
+    public void lockDatasets()
+    {
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.ACTIVE,
+                DataSetArchivizationStatus.LOCKED);
+    }
+
+    public void unlockDatasets()
+    {
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.LOCKED,
+                DataSetArchivizationStatus.ACTIVE);
+    }
 }

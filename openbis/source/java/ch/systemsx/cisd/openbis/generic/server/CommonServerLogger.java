@@ -830,4 +830,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "delete_materials", "IDS(%s) REASON(%s)", materialIds, reason);
     }
 
+    public void lockDatasets(String sessionToken, List<String> datasetCodes)
+    {
+        logTracking(sessionToken, "lockDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
+    }
+
+    public void unlockDatasets(String sessionToken, List<String> datasetCodes)
+    {
+        logTracking(sessionToken, "unlockDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
+    }
+
 }

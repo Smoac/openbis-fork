@@ -327,6 +327,8 @@ var common = {
   COMPUTE_MENU_PROCESSING: "Processing",
   COMPUTE_MENU_ARCHIVIZATION: "Archivization",
   COMPUTE_MENU_UNARCHIVIZATION: "Unarchivization",
+  COMPUTE_MENU_LOCK: "Lock",
+  COMPUTE_MENU_UNLOCK: "Unlock",
   
   menu_modules: "Utilities",
     

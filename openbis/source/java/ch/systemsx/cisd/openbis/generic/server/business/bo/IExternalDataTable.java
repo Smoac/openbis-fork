@@ -89,4 +89,14 @@ public interface IExternalDataTable
      */
     public void loadByDataStore(DataStorePE dataStore);
 
+    /**
+     * Locks loaded data sets.
+     */
+    void lockDatasets();
+
+    /**
+     * Unlocks loaded data sets.
+     */
+    void unlockDatasets();
+
 }
