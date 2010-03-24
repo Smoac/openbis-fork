@@ -58,18 +58,14 @@ public class AutoArchiverTask implements IMaintenanceTask
 
     private IEncapsulatedOpenBISService openBISService;
 
-    private IAutoArchiverPolicy policyOrNull;
+    private IAutoArchiverPolicy policy;
 
     private ArchiverDataSetCriteria criteria;
 
     public void execute()
     {
         operationLog.info("start");
-        List<ExternalData> dataSets = openBISService.listActiveDataSets(criteria);
-        if (policyOrNull != null)
-        {
-            policyOrNull.filter(dataSets);
-        }
+        List<ExternalData> dataSets = policy.filter(openBISService.listActiveDataSets(criteria));
         if (dataSets.isEmpty())
         {
             operationLog.info("nothing to archive");
@@ -89,7 +85,7 @@ public class AutoArchiverTask implements IMaintenanceTask
         SectionProperties policySectionProperties =
                 PropertyParametersUtil.extractSingleSectionProperties(properties,
                         POLICY_SECTION_NAME, false);
-        policyOrNull = tryCreatePolicyInstance(policySectionProperties);
+        policy = createPolicyInstance(policySectionProperties);
         operationLog.info("Plugin " + pluginName + " initialized");
     }
 
@@ -100,12 +96,12 @@ public class AutoArchiverTask implements IMaintenanceTask
         return new ArchiverDataSetCriteria(olderThan, dataSetTypeCodeOrNull);
     }
 
-    private IAutoArchiverPolicy tryCreatePolicyInstance(SectionProperties policySectionProperties)
+    private IAutoArchiverPolicy createPolicyInstance(SectionProperties policySectionProperties)
     {
         String className = policySectionProperties.getProperties().getProperty(CLASS_PROPERTY_NAME);
         if (className == null)
         {
-            return null;
+            return DummyAutoArchiverPolicy.INSTANCE;
         }
         try
         {

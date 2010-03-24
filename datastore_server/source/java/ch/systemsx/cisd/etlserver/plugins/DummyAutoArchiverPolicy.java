@@ -27,13 +27,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 public class DummyAutoArchiverPolicy implements IAutoArchiverPolicy
 {
+    public static final IAutoArchiverPolicy INSTANCE = new DummyAutoArchiverPolicy(null);
+    
     public DummyAutoArchiverPolicy(Properties properties)
     {
     }
 
     public List<ExternalData> filter(List<ExternalData> dataSets)
     {
-        System.out.println("DummyAutoArchiverPolicy - filtered nothing");
         return dataSets;
     }
 
