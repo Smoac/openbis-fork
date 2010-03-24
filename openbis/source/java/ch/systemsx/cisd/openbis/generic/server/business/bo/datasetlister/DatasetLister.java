@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
@@ -223,8 +224,7 @@ public class DatasetLister implements IDatasetLister
                 return entry.getKey();
             }
         }
-        assert false : "dataStore not found";
-        return null; // shouldn't happen
+        throw new UserFailureException("Data store '" + dataStoreCode + "' unknown.");
     }
 
     private Long extractDataSetTypeId(String dataSetTypeCode)
@@ -236,8 +236,7 @@ public class DatasetLister implements IDatasetLister
                 return entry.getKey();
             }
         }
-        assert false : "dataSetType not found";
-        return null; // shouldn't happen
+        throw new UserFailureException("Data Set type '" + dataSetTypeCode + "' unknown.");
     }
 
     private List<ExternalData> enrichDatasets(Iterable<DatasetRecord> datasets)
