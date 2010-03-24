@@ -66,6 +66,7 @@ if [ -f $KEYSTORE ]; then
   mv -f new-startup.sh apache-tomcat/bin/startup.sh
   chmod 744 apache-tomcat/bin/startup.sh
 fi
+cp ~openbis/$SERVERS_PREV_VER/openBIS-server/apache-tomcat/conf/server.xml ~openbis/$SERVERS_VER/openBIS-server/apache-tomcat/conf/server.xml
 #apache-tomcat/bin/startup.sh
 
 echo Installing datastore server...
