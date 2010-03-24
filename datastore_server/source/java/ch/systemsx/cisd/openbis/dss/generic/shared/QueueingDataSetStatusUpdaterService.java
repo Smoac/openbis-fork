@@ -103,7 +103,6 @@ public class QueueingDataSetStatusUpdaterService
                             final DataSetCodeWithStatus dataSet = queue.peekWait();
                             updater.updateDataSetStatus(dataSet.getDataSetCode(), dataSet
                                     .getStatus());
-                            Thread.sleep(10000);
                             // Note: this is the only consumer of this queue.
                             queue.take();
                         }
