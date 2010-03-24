@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.dss.generic.server.CommandQueueLister;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.QueueingDataSetStatusUpdaterService;
 
 /**
  * Main class starting {@link ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer},
@@ -68,6 +69,13 @@ public class DataStoreServer
             ETLDaemon.listShredder();
             System.exit(0);
         }
+        final boolean showUpdaterQueue =
+                (args.length > 0 && args[0].equals("--show-updater-queue"));
+        if (showUpdaterQueue)
+        {
+            ETLDaemon.listUpdaterQueue();
+            System.exit(0);
+        }
         final boolean showCommandQueue =
                 (args.length > 0 && args[0].equals("--show-command-queue"));
         if (showCommandQueue)
@@ -75,8 +83,9 @@ public class DataStoreServer
             CommandQueueLister.listQueuedCommand();
             System.exit(0);
         }
-        // Initialize the shredder _before_ the DataSetCommandExecutor which uses it.
+        // Initialize the shredder and updater _before_ the DataSetCommandExecutor which uses them.
         QueueingPathRemoverService.start(ETLDaemon.shredderQueueFile);
+        QueueingDataSetStatusUpdaterService.start(ETLDaemon.updaterQueueFile);
         ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.main(args);
         ETLDaemon.main(args);
     }

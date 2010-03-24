@@ -61,6 +61,8 @@ import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCodeWithStatus;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
@@ -75,6 +77,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 public final class ETLDaemon
 {
     public static final File shredderQueueFile = new File(".shredder");
+
+    public static final File updaterQueueFile = new File(".updater");
 
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
@@ -112,6 +116,23 @@ public final class ETLDaemon
             for (final File f : shredderItems)
             {
                 System.out.println(f.getAbsolutePath());
+            }
+        }
+    }
+
+    public static void listUpdaterQueue()
+    {
+        final List<DataSetCodeWithStatus> items =
+                QueueingDataSetStatusUpdaterService.listItems(updaterQueueFile);
+        if (items.isEmpty())
+        {
+            System.out.println("Updater queue is empty.");
+        } else
+        {
+            System.out.println("Found " + items.size() + " items in updater:");
+            for (final DataSetCodeWithStatus item : items)
+            {
+                System.out.println(item);
             }
         }
     }
@@ -253,8 +274,8 @@ public final class ETLDaemon
     private final static void createProcessingThread(final Parameters parameters,
             final ThreadParameters threadParameters,
             final IEncapsulatedOpenBISService authorizedLimsService,
-            final HighwaterMarkWatcher highwaterMarkWatcher,
-            IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
+            final HighwaterMarkWatcher highwaterMarkWatcher, IDataSetValidator dataSetValidator,
+            final boolean notifySuccessfulRegistration)
     {
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
         final TransferredDataSetHandler pathHandler =
@@ -280,8 +301,8 @@ public final class ETLDaemon
 
     public static TransferredDataSetHandler createDataSetHandler(final Properties properties,
             final ThreadParameters threadParameters,
-            final IEncapsulatedOpenBISService openBISService,
-            IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
+            final IEncapsulatedOpenBISService openBISService, IDataSetValidator dataSetValidator,
+            final boolean notifySuccessfulRegistration)
     {
         final IETLServerPlugin plugin = threadParameters.getPlugin();
         final File storeRootDir = getStoreRootDir(properties);
@@ -290,9 +311,9 @@ public final class ETLDaemon
         final Properties mailProperties = Parameters.createMailProperties(properties);
         String dssCode = PropertyParametersUtil.getDataStoreCode(properties);
         boolean deleteUnidentified = threadParameters.deleteUnidentified();
-        return new TransferredDataSetHandler(dssCode, plugin, openBISService,
-                mailProperties, dataSetValidator, notifySuccessfulRegistration,
-                threadParameters.useIsFinishedMarkerFile(), deleteUnidentified);
+        return new TransferredDataSetHandler(dssCode, plugin, openBISService, mailProperties,
+                dataSetValidator, notifySuccessfulRegistration, threadParameters
+                        .useIsFinishedMarkerFile(), deleteUnidentified);
     }
 
     private static FileFilter createFileFilter(File incomingDataDirectory,
@@ -446,6 +467,10 @@ public final class ETLDaemon
         if (QueueingPathRemoverService.isRunning() == false)
         {
             QueueingPathRemoverService.start(shredderQueueFile);
+        }
+        if (QueueingDataSetStatusUpdaterService.isRunning() == false)
+        {
+            QueueingDataSetStatusUpdaterService.start(updaterQueueFile);
         }
         printInitialLogMessage(parameters);
         startupServer(parameters);

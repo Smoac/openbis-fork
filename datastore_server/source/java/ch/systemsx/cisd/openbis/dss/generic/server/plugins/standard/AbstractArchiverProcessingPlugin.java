@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.ProcessDatasetsCommand;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -130,21 +129,12 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             IDatasetDescriptionHandler handler)
     {
         final ProcessingStatus result = new ProcessingStatus();
-        // FIXME 2010-03-22, Piotr Buczek: remove this workaround (solves StaleObjectStateException)
-        try
-        {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex)
-        {
-            ex.printStackTrace();
-        }
         for (DatasetDescription dataset : datasets)
         {
             Status status = handler.handle(dataset);
             DataSetArchivizationStatus newStatus = status.isError() ? failure : success;
-            operationLog.info(dataset + " changing status: " + newStatus);
-            ServiceProvider.getOpenBISService().updateDataSetStatus(dataset.getDatasetCode(),
-                    newStatus);
+            QueueingDataSetStatusUpdaterService.update(new DataSetCodeWithStatus(dataset
+                    .getDatasetCode(), newStatus));
             result.addDatasetStatus(dataset, status);
         }
         return result;
