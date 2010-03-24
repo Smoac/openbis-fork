@@ -400,12 +400,15 @@
 				<exclude name="**/shared/dto/*PE.class"/>
 				<include name="**/shared/authorization/annotation/*.class"/>
 				<include name="**/shared/authorization/ISessionProvider.class"/>
-				<include name="**/BuildAndEnvironmentInfo.class"/>
-				<include name="${build.info.filename}" />
+				<include name="**/*BuildAndEnvironmentInfo.class"/>
+				<include name="*.INFO" />
 			</zipfileset>
 			<zipfileset src="${lib}/gwt2.0/gwt-user.jar">
 				<include name="com/google/gwt/user/client/rpc/IsSerializable.class"/>
 				<include name="com/google/gwt/user/client/rpc/SerializableException.class"/>
+			</zipfileset>
+			<zipfileset src="${lib}/cisd-base/cisd-base.jar">
+				<include name="**/*BuildAndEnvironmentInfo.class"/>
 			</zipfileset>
 			<manifest>
 			  <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo"/>
