@@ -407,7 +407,9 @@
 				<include name="com/google/gwt/user/client/rpc/IsSerializable.class"/>
 				<include name="com/google/gwt/user/client/rpc/SerializableException.class"/>
 			</zipfileset>
-			<attribute name="Main-Class" value="ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo"/>
+			<manifest>
+			  <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo"/>
+			</manifest>
 		</jar>
 	</target>
 
