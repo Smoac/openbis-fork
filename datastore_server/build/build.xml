@@ -26,6 +26,7 @@
 
 	<target name="dss-jar" depends="compile">
 		<mkdir dir="${dist.datastore_server.lib}" />
+		<delete dir="tmp/test"/><!-- remove this directory in order to get a clean clean-flag -->
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<copy todir="${native}">
