@@ -92,7 +92,9 @@ abstract public class MaterialPropertiesComponent extends LayoutContainer implem
         protected final void process(final Material result)
         {
             viewer.removeAll();
-            addSection(viewer, new MaterialPropertiesSection(result, viewContext));
+            MaterialPropertiesSection props = new MaterialPropertiesSection(result, viewContext);
+            props.setContentVisible(true);
+            addSection(viewer, props);
             viewer.layout();
         }
 
