@@ -294,6 +294,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    one(externalDataDAO).clearSession();
                     one(externalDataDAO).tryToFindFullDataSetByCode(dataSet.getCode(), false, true);
                     will(returnValue(dataSet));
                     one(externalDataDAO).validateAndSaveUpdatedEntity(dataSet);

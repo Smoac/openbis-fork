@@ -84,4 +84,6 @@ public interface IGenericDAO<T extends IIdHolder>
      */
     public List<T> listAllEntities() throws DataAccessException;
 
+    public void clearSession();
+
 }

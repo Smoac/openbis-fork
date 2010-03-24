@@ -161,4 +161,10 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
     {
         return cast(getHibernateTemplate().loadAll(getEntityClass()));
     }
+
+    public void clearSession()
+    {
+        getHibernateTemplate().clear();
+    }
+
 }
