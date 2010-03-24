@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 public class MaintenanceTaskParameters
 {
-    private static final String TIME_FORMAT = "hh:mm";
+    private static final String TIME_FORMAT = "HH:mm";
 
     private static final int ONE_DAY_IN_SEC = 60 * 60 * 24;
 
