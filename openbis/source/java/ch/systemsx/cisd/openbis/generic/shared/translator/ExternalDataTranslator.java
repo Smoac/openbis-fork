@@ -184,6 +184,9 @@ public class ExternalDataTranslator
         sample.setSampleType(TypeTranslator.translate(samplePE.getSampleType()));
         sample.setIdentifier(StringEscapeUtils
                 .escapeHtml(samplePE.getSampleIdentifier().toString()));
+        sample.setRegistrationDate(samplePE.getRegistrationDate());
+        sample.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
+        sample.setSpace(GroupTranslator.translate(samplePE.getGroup()));
         if (loadSampleProperties)
         {
             sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
