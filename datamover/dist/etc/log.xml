@@ -55,6 +55,7 @@
 
   <category name="NOTIFY">
     <priority value="info" />
+    <appender-ref ref="DEFAULT" />
     <appender-ref ref="EMAIL" />
   </category>    
   
