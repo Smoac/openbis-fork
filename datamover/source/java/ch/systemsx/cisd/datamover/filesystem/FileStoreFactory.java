@@ -18,8 +18,12 @@ package ch.systemsx.cisd.datamover.filesystem;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -34,6 +38,9 @@ import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemoteMounted;
  */
 public final class FileStoreFactory
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, FileStoreFactory.class);
+
     private FileStoreFactory()
     {
         // This class can not be instantiated.
@@ -98,16 +105,36 @@ public final class FileStoreFactory
     {
         if (path.tryGetHost() != null)
         {
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(String.format(
+                        "Create %s store for remote host %s, path %s, timeout: %f s.", kind, path
+                                .tryGetHost(), path.getFile().toString(),
+                        FileStoreRemote.LONG_SSH_TIMEOUT_MILLIS / 1000.0));
+            }
             return createRemoteHost(path, kind, factory, skipAccessibilityTest,
                     findExecutableOrNull, lastchangedExecutableOrNull);
         } else
         {
+            final long timoutMillis = checkIntervalMillis * 3;
             if (isRemote)
             {
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug(String.format(
+                            "Create %s store for mounted path %s, timeout: %f s.", kind, path
+                                    .getFile().toString(), timoutMillis / 1000.0));
+                }
                 return new FileStoreRemoteMounted(path, kind, factory, skipAccessibilityTest,
-                        checkIntervalMillis * 3);
+                        timoutMillis);
             } else
             {
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug(String.format(
+                            "Create %s store for local path %s.", kind, path
+                                    .getFile().toString()));
+                }
                 return createLocal(path, kind, factory, skipAccessibilityTest);
             }
         }

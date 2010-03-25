@@ -72,7 +72,7 @@ public final class DirectoryScannedStore implements IScannedStore
         }
     }
 
-    public StoreItem[] filterReadyToProcess(StoreItem[] items, ISimpleLogger loggerOrNull)
+    public StoreItem[] tryFilterReadyToProcess(StoreItem[] items, ISimpleLogger loggerOrNull)
     {
         StoreItem currentItem = null;
         try

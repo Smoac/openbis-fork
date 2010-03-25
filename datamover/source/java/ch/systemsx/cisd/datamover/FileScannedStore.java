@@ -84,7 +84,7 @@ final class FileScannedStore implements IScannedStore
         return items;
     }
 
-    public final StoreItem[] filterReadyToProcess(final StoreItem[] items,
+    public final StoreItem[] tryFilterReadyToProcess(final StoreItem[] items,
             ISimpleLogger loggerOrNull)
     {
         StoreItem currentItem = null;

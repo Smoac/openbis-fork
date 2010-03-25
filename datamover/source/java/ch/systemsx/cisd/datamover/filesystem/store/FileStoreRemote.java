@@ -56,9 +56,9 @@ public class FileStoreRemote extends AbstractFileStore
 
     private static final String NO_SUCH_FILE_OR_DIRECTORY_MSG = "No such file or directory";
 
-    private static final long QUICK_SSH_TIMEOUT_MILLIS = 15 * 1000;
+    public static final long QUICK_SSH_TIMEOUT_MILLIS = 15 * 1000;
 
-    private static final long LONG_SSH_TIMEOUT_MILLIS = 120 * 1000;
+    public static final long LONG_SSH_TIMEOUT_MILLIS = 120 * 1000;
 
     // -- bash commands -------------
 
