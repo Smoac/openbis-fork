@@ -31,12 +31,12 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplesWithTypePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
@@ -155,11 +155,13 @@ public interface IGenericServer extends IServer
             throws UserFailureException;
 
     /**
-     * Registers experiment.
+     * Registers experiment. At the same time samples may be registered or updated.
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void registerExperiment(
             String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class) final NewExperiment experiment,
