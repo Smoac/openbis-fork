@@ -51,8 +51,8 @@
         	</war>
         </target>
 
-	<target name="prepare-and-run-module-test"
-	        depends="prepare-gwt, module-test"
+	<target name="prepare-compile-and-run-screening-test"
+	        depends="prepare-gwt, compile-and-run-screening-test"
 	        description="Prepare, compile, and run the module test mode">
 	</target>
 	
