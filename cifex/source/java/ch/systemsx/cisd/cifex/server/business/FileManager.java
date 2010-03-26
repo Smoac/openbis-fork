@@ -397,6 +397,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 }
             } catch (final IOException ex)
             {
+                operationLog.error("Error saving file " + fileName + ": " + ex.getMessage());
                 throw EnvironmentFailureException.fromTemplate(ex,
                         "Error saving file '%s' (Is it a file?).", fileName);
             } finally
