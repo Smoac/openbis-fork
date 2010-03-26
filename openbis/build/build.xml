@@ -2,7 +2,7 @@
 	<import file="../../server-common/build/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 	<project-classpath name="eclipse.cp" classes="${targets}/classes" />
-	<project-classpath name="ecp.plus" classes="${targets}/www/WEB-INF/classes" />
+	<project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
 
 	<property name="mainfolder" value="openbis" />
 
@@ -644,7 +644,7 @@
 			-->
 	<target name="compile-module-test" description="Compile the module test mode">
 		<delete dir="${targets.www}/${module-test.path}" />
-		<java classpath="${ecp}:${ecp.plus}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
+		<java classpath="${ecp}:${ecp.gwt}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
 		      classname="com.google.gwt.dev.Compiler"
 		      fork="true">
 			<jvmarg value="-Xmx512M" />
@@ -676,7 +676,7 @@
 				<pathelement location="${sources}" />
 				<pathelement location="../openbis/${sources}" />
 				<pathelement path="${ecp}" />
-				<pathelement path="${ecp.plus}" />
+				<pathelement path="${ecp.gwt}" />
 				<pathelement location="${gwt.lib}/gwt-dev.jar" />
 				<pathelement location="${gwt.lib}/gwt-user.jar" />
 			</classpath>
@@ -719,5 +719,5 @@
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
 		</antcall>
 	</target>
-
+  
 </project>
