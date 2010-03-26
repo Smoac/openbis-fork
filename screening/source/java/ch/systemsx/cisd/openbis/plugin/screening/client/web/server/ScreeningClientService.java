@@ -29,9 +29,9 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.MailClientParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;

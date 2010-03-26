@@ -12,7 +12,7 @@
     <!--
         //Mail Client Parameters
     -->
-    <bean id="mail-client-parameters" class="ch.systemsx.cisd.openbis.dss.generic.server.MailClientParameters">
+    <bean id="mail-client-parameters" class="ch.systemsx.cisd.common.mail.MailClientParameters">
         <property name="from" value="${mail.from}"/>
         <property name="smtpHost" value="${mail.smtp.host}"/>
         <property name="smtpUser" value="${mail.smtp.user}"/>

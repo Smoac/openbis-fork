@@ -2,5 +2,38 @@
 
 {root} = ch.systemsx.cisd.openbis
 {screening} = ${root}.plugin.screening
+
+[screening_openbis] = ${screening}.*
 [private_openbis] = ${root}.* excluding ${root}.dss.generic.shared.* ${root}.generic.shared.*
+[dss] = ${root}.dss.* ch.systemsx.cisd.etlserver.*
+check sets [screening_openbis] [dss]
+
+check [screening_openbis] independentOf [dss]
+
+# -------- check internal screening structure
+
+[screening_shared] =  ${screening}.shared.*
+[screening_web] =  ${screening}.client.web.*
+[screening_server] =  ${screening}.server.*
+check sets [screening_shared] [screening_web] [screening_server]
+
+layer s_shared = [screening_shared]
+layer s_server = [screening_server]
+layer s_web_all = [screening_web]
+
+check layeringOf s_shared s_server s_web_all
+
+# --------
+
+[screening_web_client] =  ${screening}.client.web.client.application.*
+[screening_web_shared] =  ${screening}.client.web.client.* excluding [screening_web_client]
+[screening_web_server] =  ${screening}.client.web.server.*
+check sets [screening_web_client] [screening_web_shared] [screening_web_server]
+
+layer s_web_shared = [screening_web_shared]
+layer s_web = [screening_web_server] [screening_web_client]
+
+check layeringOf s_web_shared s_web
+check [screening_web_client] independentOf [screening_server]
+
 

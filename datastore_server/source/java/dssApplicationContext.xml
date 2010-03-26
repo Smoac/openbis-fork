@@ -20,6 +20,7 @@
     
     <bean id="plugin-tasks" class="ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders" factory-method="create" />
 
+
     <bean id="openBIS-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService">
         <constructor-arg ref="session-token-manager"/>
         <constructor-arg value="${server-url}"/>
@@ -38,7 +39,7 @@
             <bean class="ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService">
                 <constructor-arg ref="session-token-manager" />
                 <constructor-arg>
-                    <bean class="ch.systemsx.cisd.openbis.dss.generic.server.MailClientParameters">
+                    <bean class="ch.systemsx.cisd.common.mail.MailClientParameters">
                         <property name="from" value="${mail.from}"/>
                         <property name="smtpHost" value="${mail.smtp.host}"/>
                         <property name="smtpUser" value="${mail.smtp.user}"/>
