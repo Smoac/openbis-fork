@@ -14,6 +14,7 @@ export DSU=openbis-dsu
 export SCU=openbis-scu
 export BASYSBIO=bs-dsvr10.ethz.ch
 export BASYSBIO_TEST=openbis-test
+export CINA=bs-openbis01.ethz.ch
 
 function create_individual_greeting_message {
 # Creates an individual greeting message
@@ -110,6 +111,11 @@ case "$SERVER" in
 	create_individual_greeting_message
 	add_yeastx_plugin
 	$BIN/sprint_post_install_basysbio.sh
+	;;
+	$CINA)
+	echo DSU:$CINA;
+	restore_loginHeader
+	create_individual_greeting_message
 	;;
 	*)
 	echo Wrong Server! $SERVER is not in the list of openBIS Servers.;
