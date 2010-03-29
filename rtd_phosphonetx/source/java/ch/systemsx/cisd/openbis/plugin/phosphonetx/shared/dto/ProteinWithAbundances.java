@@ -31,7 +31,19 @@ public class ProteinWithAbundances extends ProteinReference
 
     private static final double[] EMPTY_ARRAY = new double[0];
     
+    private double coverage;
+    
     private final Map<Long, double[]> abundances = new LinkedHashMap<Long, double[]>();
+    
+    public double getCoverage()
+    {
+        return coverage;
+    }
+    
+    public void setCoverage(double coverage)
+    {
+        this.coverage = coverage;
+    }
     
     public void addAbundanceFor(long sampleID, double abundance)
     {

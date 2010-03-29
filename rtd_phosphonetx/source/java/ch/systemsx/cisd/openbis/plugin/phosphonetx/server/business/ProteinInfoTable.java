@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +70,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
     {
         IExperimentDAO experimentDAO = getDaoFactory().getExperimentDAO();
         String permID = experimentDAO.getByTechId(experimentID).getPermId();
-        CoverageCalculator coverageCalculator = setUpCoverageCalculator(permID);
+//        CoverageCalculator coverageCalculator = setUpCoverageCalculator(permID);
         AbundanceManager abundanceManager = setUpAbundanceManager(permID, falseDiscoveryRate);
         Collection<ProteinWithAbundances> proteins = abundanceManager.getProteinsWithAbundances();
         infos = new ArrayList<ProteinInfo>(proteins.size());
@@ -77,7 +79,8 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
             ProteinInfo proteinInfo = new ProteinInfo();
             proteinInfo.setId(new TechId(protein.getId()));
             AccessionNumberBuilder builder = new AccessionNumberBuilder(protein.getAccessionNumber());
-            proteinInfo.setCoverage(coverageCalculator.calculateCoverageFor(protein.getId()));
+//            proteinInfo.setCoverage(coverageCalculator.calculateCoverageFor(protein.getId()));
+            proteinInfo.setCoverage(100 * protein.getCoverage());
             proteinInfo.setAccessionNumber(builder.getAccessionNumber());
             proteinInfo.setDescription(protein.getDescription());
             proteinInfo.setExperimentID(experimentID);
@@ -104,6 +107,16 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
             proteinInfo.setAbundances(abundances);
             infos.add(proteinInfo);
         }
+        Collections.sort(infos, new Comparator<ProteinInfo>()
+            {
+
+                public int compare(ProteinInfo p1, ProteinInfo p2)
+                {
+                    String an1 = p1.getAccessionNumber();
+                    String an2 = p2.getAccessionNumber();
+                    return an1 == null ? -1 : (an2 == null ? 1 : an1.compareToIgnoreCase(an2));
+                }
+            });
     }
 
     private AbundanceManager setUpAbundanceManager(String experimentPermID,

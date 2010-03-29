@@ -70,6 +70,7 @@ class AbundanceManager
         if (protein == null)
         {
             protein = new ProteinWithAbundances();
+            protein.setCoverage(proteinReference.getCoverage());
             protein.setId(proteinReference.getId());
             protein.setDescription(proteinReference.getDescription());
             protein.setAccessionNumber(accessionNumber);

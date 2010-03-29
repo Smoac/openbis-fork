@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
 
@@ -46,6 +48,8 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryDataFilt
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ProbabilityToFDRCalculator;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Occurrence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.OccurrenceUtil;
 
 /**
  * @author Franz-Josef Elmer
@@ -239,21 +243,23 @@ class ResultDataSetUploader extends AbstractHandler
                 abundanceHandler.addAbundancesToDatabase(parameter, proteinID, protein.getName());
             }
         }
-        createIdentifiedProtein(proteinID, databaseID, protein.getAnnotation());
-        for (AnnotatedProtein annotatedProtein : protein.getIndistinguishableProteins())
-        {
-            createIdentifiedProtein(proteinID, databaseID, annotatedProtein.getAnnotation());
-        }
         List<Peptide> peptides = protein.getPeptides();
+        Set<String> peptideSequences = new HashSet<String>();
         for (Peptide peptide : peptides)
         {
             try
             {
                 addPeptide(proteinID, peptide);
+                peptideSequences.add(peptide.getSequence());
             } catch (Exception e)
             {
                 logException(e, "peptide", peptide.getSequence().toString());
             }
+        }
+        createIdentifiedProtein(proteinID, peptideSequences, databaseID, protein.getAnnotation());
+        for (AnnotatedProtein annotatedProtein : protein.getIndistinguishableProteins())
+        {
+            createIdentifiedProtein(proteinID, peptideSequences, databaseID, annotatedProtein.getAnnotation());
         }
     }
 
@@ -289,8 +295,8 @@ class ResultDataSetUploader extends AbstractHandler
         }
     }
 
-    private void createIdentifiedProtein(long proteinID, Long databaseID,
-            ProteinAnnotation annotation)
+    private void createIdentifiedProtein(long proteinID, Set<String> peptideSequences,
+            Long databaseID, ProteinAnnotation annotation)
     {
         ProteinDescription protDesc = new ProteinDescription(annotation.getDescription());
         String accessionNumber = protDesc.getAccessionNumber();
@@ -313,7 +319,19 @@ class ResultDataSetUploader extends AbstractHandler
             sequence.setProteinReferenceID(proteinReference.getId());
             sequence.setId(dao.createSequence(sequence));
         }
-        dao.createIdentifiedProtein(proteinID, sequence.getId());
+        double coverage = calculateCoverage(sequence.getSequence(), peptideSequences);
+        dao.createIdentifiedProtein(proteinID, sequence.getId(), coverage);
+   }
+    
+    private double calculateCoverage(String aminoAcidSequence, Set<String> peptideSequences)
+    {
+        List<Occurrence> list = OccurrenceUtil.getCoverage(aminoAcidSequence, peptideSequences);
+        int sumPeptides = 0;
+        for (Occurrence occurrence : list)
+        {
+            sumPeptides += occurrence.getWord().length();
+        }
+        return sumPeptides / (double) aminoAcidSequence.length();
     }
 
     private Sequence tryFindSequence(long referenceID, Long databaseID, String sequence)

@@ -511,7 +511,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                         will(returnValue(Arrays.asList(seq)));
                     }
 
-                    one(dao).createIdentifiedProtein(PROTEIN1_ID, SEQUENCE_ID);
+                    one(dao).createIdentifiedProtein(PROTEIN1_ID, SEQUENCE_ID, 0);
                 }
             });
     }

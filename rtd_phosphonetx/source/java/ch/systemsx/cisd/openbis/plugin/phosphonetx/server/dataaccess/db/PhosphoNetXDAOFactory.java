@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQue
 public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
 {
     /** Current version of the database. */
-    public static final String DATABASE_VERSION = "002";
+    public static final String DATABASE_VERSION = "003";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PhosphoNetXDAOFactory.class);

@@ -35,6 +35,9 @@ public class ProteinReferenceWithProbability extends ProteinReference implements
     @ResultColumn("probability")
     private double probability;
     
+    @ResultColumn("coverage")
+    private double coverage;
+    
     @ResultColumn("abundance")
     private Double abundance;
     
@@ -79,6 +82,16 @@ public class ProteinReferenceWithProbability extends ProteinReference implements
     public final void setSamplePermID(String samplePermID)
     {
         this.samplePermID = samplePermID;
+    }
+
+    public void setCoverage(double coverage)
+    {
+        this.coverage = coverage;
+    }
+
+    public double getCoverage()
+    {
+        return coverage;
     }
 
 }
