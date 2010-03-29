@@ -10,7 +10,9 @@ export AGRONOMICS=bs-dsvr11.ethz.ch
 export DSU=bs-dsvr28-openbis-dsu.ethz.ch
 export SCU=bs-dsvr28-openbis-scu.ethz.ch
 export BASYSBIO=bs-dsvr10.ethz.ch
-export BASYSBIO_TEST=bs-dsvr28-openbis-test.ethz.ch.
+export BASYSBIO_TEST=bs-dsvr28-openbis-test.ethz.ch
+export CINA=bs-openbis01.ethz.ch
+
 
 # Currently there are three different types of server specific zips we distinguish
 export ZIPS="openBIS-server-S*.zip  datastore_server-S*.zip"
@@ -28,6 +30,7 @@ for i in $ZIPS; do
          echo $LIVERX; scp -p $i $LIVERX:~openbis
          echo $AGRONOMICS; scp -p $i $AGRONOMICS:~openbis
          echo $SCU; scp -p $i $SCU:~openbis
+         echo $CINA; scp -p $i $CINA:~openbis
 done
 
 echo -e "\nCopying to $PHOSPHONETX...\n"
