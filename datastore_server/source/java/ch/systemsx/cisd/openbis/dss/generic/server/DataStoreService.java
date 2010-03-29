@@ -226,7 +226,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
                 pluginTaskParameters.getReportingPluginsProvider();
-        IReportingPluginTask task = reportingPlugins.createPluginInstance(serviceKey, storeRoot);
+        IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
         return task.createReport(datasets);
     }
 
@@ -238,7 +238,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         PluginTaskProvider<IProcessingPluginTask> plugins =
                 pluginTaskParameters.getProcessingPluginsProvider();
 
-        IProcessingPluginTask task = plugins.createPluginInstance(serviceKey, storeRoot);
+        IProcessingPluginTask task = plugins.getPluginInstance(serviceKey);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
         commandExecutor.scheduleProcessDatasets(task, datasets, userEmailOrNull, pluginDescription,
                 mailClientParameters);

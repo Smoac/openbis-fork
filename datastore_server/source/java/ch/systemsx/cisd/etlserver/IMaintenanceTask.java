@@ -19,24 +19,24 @@ package ch.systemsx.cisd.etlserver;
 import java.util.Properties;
 
 /**
- * The interface that should be implemented by all maintenance tasks.
+ * The interface that should be implemented by all maintenance tasks. Task instances are reusable.
  * 
  * @author Izabela Adamczyk
  */
 public interface IMaintenanceTask
 {
-
     /**
-     * Performs the maintenance task.
-     */
-    public void execute();
-
-    /**
-     * Prepares the task for execution and checks that it has been configured correctly.
+     * Prepares the task for execution and checks that it has been configured correctly. It will be
+     * called exactly once immediately after the task is created.
      * 
      * @param pluginName Name of the plugin. Useful for creating messages.
-     * @param properties Properties to set up the task. 
+     * @param properties Properties to set up the task.
      */
     public void setUp(String pluginName, Properties properties);
 
+    /**
+     * Performs the maintenance task. This method is reusable - it will be called many times every
+     * certain time period.
+     */
+    public void execute();
 }

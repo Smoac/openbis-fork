@@ -48,13 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 public abstract class AbstractPluginTaskFactory<T>
 {
     /**
-     * Creates a new instance of a plugin task
-     * 
-     * @param storeRoot the root directory of the file store
-     */
-    abstract public T createPluginInstance(File storeRoot);
-
-    /**
      * Logs the current parameters to the {@link LogCategory#OPERATION} log.
      */
     abstract public void logConfiguration();
@@ -87,7 +80,10 @@ public abstract class AbstractPluginTaskFactory<T>
 
     private final Properties instanceParameters;
 
-    protected AbstractPluginTaskFactory(SectionProperties sectionProperties, String datastoreCode)
+    private final T pluginInstance;
+
+    protected AbstractPluginTaskFactory(SectionProperties sectionProperties, String datastoreCode,
+            Class<T> clazz, File storeRoot)
     {
         Properties pluginProperties = sectionProperties.getProperties();
         String pluginKey = sectionProperties.getKey();
@@ -97,9 +93,18 @@ public abstract class AbstractPluginTaskFactory<T>
                 new DatastoreServiceDescription(pluginKey, label, datasetCodes, datastoreCode);
         this.className = PropertyUtils.getMandatoryProperty(pluginProperties, CLASS_PROPERTY_NAME);
         this.instanceParameters = extractInstanceParameters(pluginProperties);
+        this.pluginInstance = createPluginInstance(clazz, storeRoot);
     }
 
-    protected T createPluginInstance(Class<T> clazz, File storeRoot)
+    /**
+     * Returns an instance of a plugin task
+     */
+    public T getPluginInstance()
+    {
+        return pluginInstance;
+    }
+
+    private T createPluginInstance(Class<T> clazz, File storeRoot)
     {
         try
         {
@@ -170,14 +175,13 @@ public abstract class AbstractPluginTaskFactory<T>
      */
     public void check(boolean checkIfSerializable)
     {
-        T pluginInstance = createPluginInstance(new File(".")); // just to see if it is possible
         if (checkIfSerializable)
         {
-            checkInstanceSerializable(pluginInstance);
+            checkInstanceSerializable();
         }
     }
 
-    private void checkInstanceSerializable(T pluginInstance)
+    private void checkInstanceSerializable()
     {
         try
         {
@@ -191,12 +195,12 @@ public abstract class AbstractPluginTaskFactory<T>
             in.readObject(); // read the object back
         } catch (Exception ex)
         {
-            throwSerializationError(pluginInstance, ex.getMessage());
+            throwSerializationError(ex.getMessage());
         }
 
     }
 
-    private void throwSerializationError(T pluginInstance, String message)
+    private void throwSerializationError(String message)
     {
         throw UserFailureException.fromTemplate(
                 "Plugin '%s' has problems with serialization/deserialization: %s", pluginInstance

@@ -34,15 +34,10 @@ public class ReportingPluginTaskFactory extends AbstractPluginTaskFactory<IRepor
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ProcessingPluginTaskFactory.class);
 
-    public ReportingPluginTaskFactory(SectionProperties sectionProperties, String datastoreCode)
+    public ReportingPluginTaskFactory(SectionProperties sectionProperties, String datastoreCode,
+            File storeRoot)
     {
-        super(sectionProperties, datastoreCode);
-    }
-
-    @Override
-    public IReportingPluginTask createPluginInstance(File storeRoot)
-    {
-        return createPluginInstance(IReportingPluginTask.class, storeRoot);
+        super(sectionProperties, datastoreCode, IReportingPluginTask.class, storeRoot);
     }
 
     @Override

@@ -22,6 +22,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
@@ -58,7 +60,7 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
     private static final String DATABASE_ENGINE_KEY = "database.engine";
 
     private static final String DEFAULT_DATABASE_ENGINE = "postgresql";
-    
+
     private static final String DEFAULT_DATA_SET_PERM_ID = "PERM_ID";
 
     private static final String DATA_SET_PERM_ID_KEY = "data-set-perm-id";
@@ -80,9 +82,7 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
 
     private final IEncapsulatedOpenBISService openBISService;
 
-    private DatabaseConfigurationContext context;
-
-    private Connection connection;
+    private DataSource dataSource;
 
     private String synchronizationTable;
 
@@ -107,8 +107,9 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
         dataSetTableName =
                 properties.getProperty(DATA_SET_TABLE_NAME_KEY, DEFAULT_DATA_SET_TABLE_NAME);
         permIDColumn = properties.getProperty(DATA_SET_PERM_ID_KEY, DEFAULT_DATA_SET_PERM_ID);
-        context = createDatabaseConfigurationContext(properties);
+        DatabaseConfigurationContext context = createDatabaseConfigurationContext(properties);
         init(context);
+        this.dataSource = context.getDataSource();
         checkDatabseConnection();
         operationLog.info("Plugin initialized: " + pluginName);
     }
@@ -149,29 +150,33 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
      */
     protected void init(DatabaseConfigurationContext databaseConfigurationContext)
     {
-        
+
     }
 
     private void checkDatabseConnection()
     {
+        Connection connection = null;
         try
         {
-            connection = context.getDataSource().getConnection();
-            tryGetPreviousLastSeenEventId();
-            connection.close();
+            connection = createConnection();
+            tryGetPreviousLastSeenEventId(connection);
         } catch (SQLException ex)
         {
             throw new ConfigurationFailureException("Initialization failed", ex);
+        } finally
+        {
+            closeConnection(connection);
         }
     }
 
     public void execute()
     {
         operationLog.info("Synchronizing data set information");
+        Connection connection = null;
         try
         {
-            connection = context.getDataSource().getConnection();
-            Long lastSeenEventId = tryGetPreviousLastSeenEventId();
+            connection = createConnection();
+            Long lastSeenEventId = tryGetPreviousLastSeenEventId(connection);
             List<DeletedDataSet> deletedDataSets =
                     openBISService.listDeletedDataSets(lastSeenEventId);
             if (deletedDataSets.size() > 0)
@@ -179,32 +184,55 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
                 boolean autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
                 long t0 = System.currentTimeMillis();
-                deleteDatasets(deletedDataSets);
-                updateSynchronizationDate(lastSeenEventId, deletedDataSets);
+                deleteDatasets(deletedDataSets, connection);
+                updateSynchronizationDate(lastSeenEventId, deletedDataSets, connection);
                 connection.commit();
                 operationLog.info("Synchronization task took "
                         + ((System.currentTimeMillis() - t0 + 500) / 1000) + " seconds.");
                 connection.setAutoCommit(autoCommit);
             }
-            connection.close();
         } catch (SQLException ex)
         {
             operationLog.error(ex);
+        } finally
+        {
+            closeConnection(connection);
         }
     }
 
-    private void deleteDatasets(List<DeletedDataSet> deletedDataSets) throws SQLException
+    private void closeConnection(Connection connectionOrNull)
     {
-        operationLog.info(String.format(
-                "Synchronizing deletions of %d datasets with the database.",
-                deletedDataSets.size()));
-        connection.createStatement().execute(
-                String.format("DELETE FROM " + dataSetTableName + " WHERE " + permIDColumn + " IN (%s)",
-                        joinIds(deletedDataSets)));
+        if (connectionOrNull != null)
+        {
+            try
+            {
+                connectionOrNull.close();
+            } catch (SQLException ex)
+            {
+                // suppress this exception
+                operationLog.error(ex);
+            }
+        }
     }
 
-    private void updateSynchronizationDate(Long lastSeenEventIdOrNull, List<DeletedDataSet> deleted)
+    private Connection createConnection() throws SQLException
+    {
+        return dataSource.getConnection();
+    }
+
+    private void deleteDatasets(List<DeletedDataSet> deletedDataSets, Connection connection)
             throws SQLException
+    {
+        operationLog.info(String
+                .format("Synchronizing deletions of %d datasets with the database.",
+                        deletedDataSets.size()));
+        connection.createStatement().execute(
+                String.format("DELETE FROM " + dataSetTableName + " WHERE " + permIDColumn
+                        + " IN (%s)", joinIds(deletedDataSets)));
+    }
+
+    private void updateSynchronizationDate(Long lastSeenEventIdOrNull,
+            List<DeletedDataSet> deleted, Connection connection) throws SQLException
     {
         Long maxEventId = lastSeenEventIdOrNull;
         for (DeletedDataSet dds : deleted)
@@ -218,13 +246,13 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
         if (lastSeenEventIdOrNull == null || maxEventId > lastSeenEventIdOrNull)
         {
             // we store only the last update time, so all the others can be deleted
-            executeSql("delete from " + synchronizationTable);
+            executeSql("delete from " + synchronizationTable, connection);
             executeSql("INSERT INTO " + synchronizationTable + " (" + lastSeenEventID
-                    + ") VALUES('" + maxEventId + "')");
+                    + ") VALUES('" + maxEventId + "')", connection);
         }
     }
 
-    private void executeSql(String sql) throws SQLException
+    private void executeSql(String sql, Connection connection) throws SQLException
     {
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.executeUpdate();
@@ -245,13 +273,13 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
         return ids;
     }
 
-    private long tryGetPreviousLastSeenEventId() throws SQLException
+    private long tryGetPreviousLastSeenEventId(Connection connection) throws SQLException
     {
         Long maxLastSeenEventId = null;
         ResultSet result =
                 connection.createStatement().executeQuery(
-                        "SELECT MAX(" + lastSeenEventID + ") AS " + lastSeenEventID
-                                + " FROM " + synchronizationTable);
+                        "SELECT MAX(" + lastSeenEventID + ") AS " + lastSeenEventID + " FROM "
+                                + synchronizationTable);
         while (result.next())
         {
             long newLastSeenEventId = result.getLong(lastSeenEventID);

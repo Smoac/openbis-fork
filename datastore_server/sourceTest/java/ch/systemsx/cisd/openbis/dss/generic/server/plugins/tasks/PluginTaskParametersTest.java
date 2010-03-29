@@ -66,9 +66,8 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         PluginTaskProvider<IReportingPluginTask> factories = createReportingPluginsFactories(props);
         factories.check(false);
         factories.logConfigurations();
-        IReportingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1, STORE_ROOT);
+        IReportingPluginTask pluginInstance1 = factories.getPluginInstance(plugin1);
         pluginInstance1.createReport(createDatasetDescriptions());
-        factories.createPluginInstance(plugin2, STORE_ROOT);
 
         List<DatastoreServiceDescription> descriptions = factories.getPluginDescriptions();
         assertEquals(2, descriptions.size());
@@ -98,13 +97,13 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     private static PluginTaskProvider<IReportingPluginTask> createReportingPluginsFactories(
             Properties props)
     {
-        return PluginTaskProviders.createReportingPluginsFactories(props, "dss");
+        return PluginTaskProviders.createReportingPluginsFactories(props, "dss", STORE_ROOT);
     }
 
     private static PluginTaskProvider<IProcessingPluginTask> createProcessingPluginsFactories(
             Properties props)
     {
-        return PluginTaskProviders.createProcessingPluginsFactories(props, "dss");
+        return PluginTaskProviders.createProcessingPluginsFactories(props, "dss", STORE_ROOT);
     }
 
     @Test
@@ -135,7 +134,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
                 createProcessingPluginsFactories(props);
         factories.check(true);
         factories.logConfigurations();
-        IProcessingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1, STORE_ROOT);
+        IProcessingPluginTask pluginInstance1 = factories.getPluginInstance(plugin1);
         pluginInstance1.process(createDatasetDescriptions());
     }
 

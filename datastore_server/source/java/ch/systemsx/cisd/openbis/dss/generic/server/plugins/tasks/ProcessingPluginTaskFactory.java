@@ -34,15 +34,10 @@ public class ProcessingPluginTaskFactory extends AbstractPluginTaskFactory<IProc
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ProcessingPluginTaskFactory.class);
 
-    public ProcessingPluginTaskFactory(SectionProperties sectionProperties, String datastoreCode)
+    public ProcessingPluginTaskFactory(SectionProperties sectionProperties, String datastoreCode,
+            File storeRoot)
     {
-        super(sectionProperties, datastoreCode);
-    }
-
-    @Override
-    public IProcessingPluginTask createPluginInstance(File storeRoot)
-    {
-        return createPluginInstance(IProcessingPluginTask.class, storeRoot);
+        super(sectionProperties, datastoreCode, IProcessingPluginTask.class, storeRoot);
     }
 
     @Override

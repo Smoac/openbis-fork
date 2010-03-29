@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.File;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -123,7 +125,7 @@ public class EncapsulatedOpenBISServiceTest
             });
         encapsulatedLimsService =
                 new EncapsulatedOpenBISService(new SessionTokenManager(), limsService,
-                        PluginUtilTest.createPluginTaskProviders());
+                        PluginUtilTest.createPluginTaskProviders(new File(".")));
         encapsulatedLimsService.setUsername(LIMS_USER);
         encapsulatedLimsService.setPassword(LIMS_PASSWORD);
         encapsulatedLimsService.setDataStoreCode(DATA_STORE_CODE);

@@ -9,9 +9,9 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 
 public class MaintenancePlugin
 {
-    IMaintenanceTask task;
+    private final IMaintenanceTask task;
 
-    MaintenanceTaskParameters parameters;
+    private final MaintenanceTaskParameters parameters;
 
     public MaintenancePlugin(MaintenanceTaskParameters parameters)
     {

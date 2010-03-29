@@ -24,44 +24,27 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
-import net.lemnik.eodsql.QueryTool;
-
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
 
 /**
  * Reporting plugin which shows all the run details for the chosen datasets.
  * 
  * @author Tomasz Pylak
  */
-public class EICMLRunsReporter extends AbstractDatastorePlugin implements IReportingPluginTask
+public class EICMLRunsReporter extends AbstractEICMLDatastoreReportingPlugin 
 {
-    private final IEICMSRunDAO query;
+    private static final long serialVersionUID = 1L;
 
     public EICMLRunsReporter(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        this.query = createQuery(properties);
     }
 
-    private static IEICMSRunDAO createQuery(Properties properties)
-    {
-        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(properties);
-        DataSource dataSource = dbContext.getDataSource();
-        return QueryTool.getQuery(dataSource, IEICMSRunDAO.class);
-    }
-
-    private static final long serialVersionUID = 1L;
-
-    public TableModel createReport(List<DatasetDescription> datasets)
+    @Override
+    protected final TableModel createReport(List<DatasetDescription> datasets, IEICMSRunDAO query)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         addReportHeaders(builder);

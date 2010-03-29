@@ -24,50 +24,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
 import net.lemnik.eodsql.DataIterator;
-import net.lemnik.eodsql.QueryTool;
 
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
 
 /**
  * Reporting plugin which shows all the chromatograms details for the chosen datasets.
  * 
  * @author Tomasz Pylak
  */
-public class EICMLChromatogramsReporter extends AbstractDatastorePlugin implements
-        IReportingPluginTask
+public class EICMLChromatogramsReporter extends AbstractEICMLDatastoreReportingPlugin
 {
-    private final IEICMSRunDAO query;
+    private static final long serialVersionUID = 1L;
 
     public EICMLChromatogramsReporter(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        this.query = createQuery(properties);
     }
 
-    private static IEICMSRunDAO createQuery(Properties properties)
-    {
-        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(properties);
-        DataSource dataSource = dbContext.getDataSource();
-        return QueryTool.getQuery(dataSource, IEICMSRunDAO.class);
-    }
-
-    private static final long serialVersionUID = 1L;
-
-    public TableModel createReport(List<DatasetDescription> datasets)
+    @Override
+    protected final TableModel createReport(List<DatasetDescription> datasets, IEICMSRunDAO query)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         addReportHeaders(builder);
-        List<EICMSRunDTO> runs = fetchRuns(datasets);
+        List<EICMSRunDTO> runs = fetchRuns(datasets, query);
         for (EICMSRunDTO run : runs)
         {
             DataIterator<ChromatogramDTO> chromatograms = query.getChromatogramsForRun(run);
@@ -76,7 +59,7 @@ public class EICMLChromatogramsReporter extends AbstractDatastorePlugin implemen
         return builder.getTableModel();
     }
 
-    private List<EICMSRunDTO> fetchRuns(List<DatasetDescription> datasets)
+    private List<EICMSRunDTO> fetchRuns(List<DatasetDescription> datasets, IEICMSRunDAO query)
     {
         List<EICMSRunDTO> runs = new ArrayList<EICMSRunDTO>();
         for (DatasetDescription dataset : datasets)

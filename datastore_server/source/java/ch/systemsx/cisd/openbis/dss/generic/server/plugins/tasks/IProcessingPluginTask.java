@@ -22,7 +22,8 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Interface of the processing plugin task.
+ * Interface of the processing plugin task. Implementations will be singletons serving all the
+ * requests.
  * 
  * @author Tomasz Pylak
  */

@@ -22,14 +22,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Interface of the reporting plugin task.
+ * Interface of the reporting plugin task. Implementations will be singletons serving all the
+ * requests.
  * 
  * @author Tomasz Pylak
  */
 public interface IReportingPluginTask
 {
     /**
-     * Creates a report for the specified datasets
+     * Creates a report for the specified datasets. This method should be multi threaded.
      */
     TableModel createReport(List<DatasetDescription> datasets);
 }

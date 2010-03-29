@@ -111,7 +111,7 @@ public class DataStoreServiceTest extends AssertJUnit
         mailClientParameters.setFrom("a@bc.de");
         mailClientParameters.setSmtpHost("file://targets/email");
         FileUtilities.deleteRecursively(TEST_FOLDER);
-        pluginTaskParameters = PluginUtilTest.createPluginTaskProviders();
+        pluginTaskParameters = PluginUtilTest.createPluginTaskProviders(TEST_STORE);
         TEST_STORE.mkdirs();
     }
 

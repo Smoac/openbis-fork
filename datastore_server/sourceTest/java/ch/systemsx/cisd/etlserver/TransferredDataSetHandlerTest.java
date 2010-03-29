@@ -249,7 +249,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final Properties properties = new Properties();
         properties.setProperty(JavaMailProperties.MAIL_SMTP_HOST, "host");
         properties.setProperty(JavaMailProperties.MAIL_FROM, "me");
-        properties.setProperty(ETLDaemon.STOREROOT_DIR_KEY, workingDirectory.getPath());
+        String storeRoot = workingDirectory.getPath();
+        properties.setProperty(ETLDaemon.STOREROOT_DIR_KEY, storeRoot);
         storageProcessor = context.mock(IStorageProcessor.class);
         limsService = context.mock(IETLLIMSService.class);
         mailClient = context.mock(IMailClient.class);
@@ -258,7 +259,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         typeExtractor, storageProcessor);
         final EncapsulatedOpenBISService authorizedLimsService =
                 new EncapsulatedOpenBISService(new SessionTokenManager(), limsService,
-                        PluginUtilTest.createPluginTaskProviders());
+                        PluginUtilTest.createPluginTaskProviders(new File(storeRoot)));
         authorizedLimsService.setUsername("u");
         authorizedLimsService.setPassword("p");
         dataSetValidator = context.mock(IDataSetValidator.class);

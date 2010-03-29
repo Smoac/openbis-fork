@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
+import java.io.File;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
@@ -47,10 +48,10 @@ public class PluginTaskProviders
     private final ArchiverTaskFactory archiverTaskFactory;
 
     /** for external injections */
-    public static PluginTaskProviders create()
+    public static PluginTaskProviders create(File storeRoot)
     {
         Properties properties = PropertyParametersUtil.loadServiceProperties();
-        PluginTaskProviders providers = new PluginTaskProviders(properties);
+        PluginTaskProviders providers = new PluginTaskProviders(properties, storeRoot);
         providers.check();
         providers.logConfigurations();
         return providers;
@@ -58,11 +59,13 @@ public class PluginTaskProviders
 
     @Private
     // public only for tests
-    public PluginTaskProviders(Properties serviceProperties)
+    public PluginTaskProviders(Properties serviceProperties, File storeRoot)
     {
         String datastoreCode = PropertyParametersUtil.getDataStoreCode(serviceProperties);
-        this.reportingPlugins = createReportingPluginsFactories(serviceProperties, datastoreCode);
-        this.processingPlugins = createProcessingPluginsFactories(serviceProperties, datastoreCode);
+        this.reportingPlugins =
+                createReportingPluginsFactories(serviceProperties, datastoreCode, storeRoot);
+        this.processingPlugins =
+                createProcessingPluginsFactories(serviceProperties, datastoreCode, storeRoot);
         this.archiverTaskFactory = createArchiverTaskFactory(serviceProperties, datastoreCode);
     }
 
@@ -96,7 +99,7 @@ public class PluginTaskProviders
 
     @Private
     static PluginTaskProvider<IReportingPluginTask> createReportingPluginsFactories(
-            Properties serviceProperties, String datastoreCode)
+            Properties serviceProperties, String datastoreCode, File storeRoot)
     {
         SectionProperties[] sectionsProperties =
                 extractSectionProperties(serviceProperties, REPORTING_PLUGIN_NAMES);
@@ -104,14 +107,15 @@ public class PluginTaskProviders
                 new ReportingPluginTaskFactory[sectionsProperties.length];
         for (int i = 0; i < factories.length; i++)
         {
-            factories[i] = new ReportingPluginTaskFactory(sectionsProperties[i], datastoreCode);
+            factories[i] =
+                    new ReportingPluginTaskFactory(sectionsProperties[i], datastoreCode, storeRoot);
         }
         return new PluginTaskProvider<IReportingPluginTask>(factories);
     }
 
     @Private
     static PluginTaskProvider<IProcessingPluginTask> createProcessingPluginsFactories(
-            Properties serviceProperties, String datastoreCode)
+            Properties serviceProperties, String datastoreCode, File storeRoot)
     {
         SectionProperties[] sectionsProperties =
                 extractSectionProperties(serviceProperties, PROCESSING_PLUGIN_NAMES);
@@ -119,7 +123,8 @@ public class PluginTaskProviders
                 new ProcessingPluginTaskFactory[sectionsProperties.length];
         for (int i = 0; i < factories.length; i++)
         {
-            factories[i] = new ProcessingPluginTaskFactory(sectionsProperties[i], datastoreCode);
+            factories[i] =
+                    new ProcessingPluginTaskFactory(sectionsProperties[i], datastoreCode, storeRoot);
         }
         return new PluginTaskProvider<IProcessingPluginTask>(factories);
     }

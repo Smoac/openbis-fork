@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
+import java.io.File;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Friend;
@@ -27,10 +28,10 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvi
 @Friend(toClasses = PropertyParametersUtil.class)
 public class PluginUtilTest
 {
-    public static PluginTaskProviders createPluginTaskProviders()
+    public static PluginTaskProviders createPluginTaskProviders(File storeRoot)
     {
         Properties serviceProperties = new Properties();
         serviceProperties.put(PropertyParametersUtil.DSS_CODE_KEY, "dss");
-        return new PluginTaskProviders(serviceProperties);
+        return new PluginTaskProviders(serviceProperties, storeRoot);
     }
 }

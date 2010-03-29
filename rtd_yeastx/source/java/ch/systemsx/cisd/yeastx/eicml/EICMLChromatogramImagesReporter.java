@@ -23,15 +23,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
 import net.lemnik.eodsql.DataIterator;
-import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.dss.yeastx.server.EICMLChromatogramGeneratorServlet;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -40,18 +34,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
 
 /**
  * Reporting plugin which shows images for the chromatograms contained in the specified datasets.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin implements
-        IReportingPluginTask
+public class EICMLChromatogramImagesReporter extends AbstractEICMLDatastoreReportingPlugin
 {
     private static final String CHROMATOGRAM_SERVLET = "chromatogram";
-    
+
     private static final int MZ_1_COLUMN_INDEX = 1;
 
     private static final int THUMBNAIL_WIDTH = 300;
@@ -63,8 +55,6 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
     private static final int IMAGE_HEIGHT = 600;
 
     private static final long serialVersionUID = 1L;
-
-    private final IEICMSRunDAO query;
 
     /**
      * An internal helper class for storing the information for the query parameters to the image
@@ -110,21 +100,14 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
     public EICMLChromatogramImagesReporter(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        this.query = createQuery(properties);
     }
 
-    private static IEICMSRunDAO createQuery(Properties properties)
-    {
-        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(properties);
-        DataSource dataSource = dbContext.getDataSource();
-        return QueryTool.getQuery(dataSource, IEICMSRunDAO.class);
-    }
-
-    public TableModel createReport(List<DatasetDescription> datasets)
+    @Override
+    protected final TableModel createReport(List<DatasetDescription> datasets, IEICMSRunDAO query)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         addReportHeaders(builder);
-        List<DatasetRun> runs = fetchRuns(datasets);
+        List<DatasetRun> runs = fetchRuns(datasets, query);
         for (DatasetRun datasetRun : runs)
         {
             DataIterator<ChromatogramDTO> chromatograms =
@@ -146,7 +129,7 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
         return tableModel;
     }
 
-    private List<DatasetRun> fetchRuns(List<DatasetDescription> datasets)
+    private List<DatasetRun> fetchRuns(List<DatasetDescription> datasets, IEICMSRunDAO query)
     {
         List<DatasetRun> runs = new ArrayList<DatasetRun>();
         for (DatasetDescription dataset : datasets)
