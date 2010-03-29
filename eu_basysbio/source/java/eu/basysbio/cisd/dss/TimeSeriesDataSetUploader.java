@@ -97,6 +97,7 @@ class TimeSeriesDataSetUploader
         this.parameters = parameters;
     }
 
+    /** the uploader should not be used after calling this method */
     void commit()
     {
         try
@@ -105,6 +106,7 @@ class TimeSeriesDataSetUploader
             {
                 connection.commit();
             }
+            dao.close();
         } catch (SQLException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -114,6 +116,7 @@ class TimeSeriesDataSetUploader
         }
     }
 
+    /** the uploader should not be used after calling this method */
     void rollback()
     {
         try
@@ -122,6 +125,7 @@ class TimeSeriesDataSetUploader
             {
                 connection.rollback();
             }
+            dao.close();
         } catch (SQLException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

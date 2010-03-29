@@ -108,22 +108,26 @@ class ResultDataSetUploader extends AbstractHandler
         }
     }
 
+    /** the uploader should not be used after calling this method */
     public void rollback()
     {
         try
         {
             connection.rollback();
+            connection.close();
         } catch (SQLException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
+    /** the uploader should not be used after calling this method */
     public void commit()
     {
         try
         {
             connection.commit();
+            connection.close();
         } catch (SQLException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

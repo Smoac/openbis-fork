@@ -235,9 +235,14 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
     private ChromatogramDTO getChromatogramForParameters(RequestParams params)
     {
         IEICMSRunDAO query = createQuery();
-        long chromatogramId = params.getChromatogramId();
-        ChromatogramDTO chromatogram = query.getChromatogramById(chromatogramId);
-        query.close();
-        return chromatogram;
+        try
+        {
+            long chromatogramId = params.getChromatogramId();
+            ChromatogramDTO chromatogram = query.getChromatogramById(chromatogramId);
+            return chromatogram;
+        } finally
+        {
+            query.close();
+        }
     }
 }
