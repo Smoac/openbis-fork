@@ -728,7 +728,7 @@
 	<target name="check-dictionary-syntax"
 	        description="Parse common-dictionary.js and check that the syntax is correct.">
 		<java failonerror="true" fork="true" jar="${rhino.lib}">
-			<arg value="${sources}/ch/systemsx/cisd/openbis/public/common-dictionary.js" />
+			<arg value="../openbis/${sources}/ch/systemsx/cisd/openbis/public/common-dictionary.js" />
 		</java>
 	</target>
 
