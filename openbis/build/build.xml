@@ -708,7 +708,9 @@
 	        description="Prepare, compile, and run the module test mode">
 	</target>
 
-	<target name="module-test" description="Compile and run the module test mode" depends="check-dictionary-syntax">
+	<target name="module-test"
+	        description="Compile and run the module test mode"
+	        depends="check-dictionary-syntax">
 		<antcall target="compile-module-test">
 			<param name="module-test.path" value="openbis-test" />
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
