@@ -547,6 +547,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                     try
                     {
                         one(connection).commit();
+                        one(connection).close();
                     } catch (SQLException ex)
                     {
                         throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -563,6 +564,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                     try
                     {
                         one(connection).rollback();
+                        one(connection).close();
                     } catch (SQLException ex)
                     {
                         throw CheckedExceptionTunnel.wrapIfNecessary(ex);

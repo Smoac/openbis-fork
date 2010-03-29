@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceCol
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithPeptideSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 
 /**
@@ -46,13 +45,13 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWi
  */
 public class ProteinInfoTableTest extends AbstractServerTestCase
 {
+    private static final double COVERAGE = 0.5;
     private static final String PERM_ID_PREFIX = "abc-";
     private static final long SAMPLE_ID_3 = 211L;
     private static final long SAMPLE_ID_2 = 102L;
     private static final long SAMPLE_ID_1 = 101L;
     private static final Double ABUNDANCE = new Double(47.11);
     private static final long PROTEIN_ID = 41L;
-    private static final long SEQUENCE_ID = 4142L;
     private static final String SAMPLE_PERM_ID = "s47-11";
     private static final long SAMPLE_ID = 4711;
     private static final long DATA_SET_ID = 42L;
@@ -221,7 +220,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
         assertEquals(2, abundances.size());
         assertEquals(expectedAbundance, abundances.get(SAMPLE_ID_1 * 37 + SAMPLE_ID_2).doubleValue());
         assertEquals(20.0, abundances.get(SAMPLE_ID_3).doubleValue());
-        assertEquals(50.0, protein.getCoverage());
+        assertEquals(100 * COVERAGE, protein.getCoverage());
         
         assertEquals(true, dataSet.hasCloseBeenInvoked());
         assertEquals(true, mappings.hasCloseBeenInvoked());
@@ -240,27 +239,6 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
 
                     one(proteinDAO).listProteinsByExperiment(EXPERIMENT_PERM_ID);
                     will(returnValue(dataSet));
-                    
-                    one(proteinDAO).listProteinsWithSequencesByExperiment(EXPERIMENT_PERM_ID);
-                    MockDataSet<ProteinReferenceWithPeptideSequence> dataSet1 =
-                            new MockDataSet<ProteinReferenceWithPeptideSequence>();
-                    ProteinReferenceWithPeptideSequence protein1 =
-                            new ProteinReferenceWithPeptideSequence();
-                    protein1.setId(PROTEIN_ID);
-                    protein1.setSequenceID(SEQUENCE_ID);
-                    protein1.setProteinSequence("ABCDEFblabla");
-                    dataSet1.add(protein1);
-                    will(returnValue(dataSet1));
-                    
-                    one(proteinDAO).listProteinsWithPeptidesByExperiment(EXPERIMENT_PERM_ID);
-                    MockDataSet<ProteinReferenceWithPeptideSequence> dataSet2 =
-                            new MockDataSet<ProteinReferenceWithPeptideSequence>();
-                    ProteinReferenceWithPeptideSequence protein2 = new ProteinReferenceWithPeptideSequence();
-                    protein2.setId(PROTEIN_ID);
-                    protein2.setSequenceID(SEQUENCE_ID);
-                    protein2.setPeptideSequence("ABCDEF");
-                    dataSet2.add(protein2);
-                    will(returnValue(dataSet2));
                 }
             });
     }
@@ -273,6 +251,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
         proteinReference.setAccessionNumber(ACCESSION_NUMBER);
         proteinReference.setId(PROTEIN_ID);
         proteinReference.setAbundance(abundance);
+        proteinReference.setCoverage(COVERAGE);
         return proteinReference;
     }
 
