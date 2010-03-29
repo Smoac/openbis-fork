@@ -25,10 +25,13 @@
 
 	<property name="jar.file.name" value="${ant.project.name}.jar" />
 	<property name="jar.file" value="${dist}/${jar.file.name}" />
-	<property name="client.jar.file" value="${dist}/${ant.project.name}-client.jar"/>
+	<property name="client.jar.file" value="${dist}/${ant.project.name}-client.jar" />
 
 	<property name="webapp.file.name" value="openBIS.war" />
 	<property name="webapp.file" value="${server.dist}/${webapp.file.name}" />
+
+	<!-- Properties for testing javascript, in particular common-dictionary.js -->
+	<property name="rhino.lib" value="${lib}/rhino/js.jar" />
 
 	<!-- 
       // Cleans distribution directory.
@@ -41,7 +44,7 @@
 	<!-- 
       // Runs tests.
       -->
-	<target name="run-tests">
+	<target name="run-tests" depends="check-dictionary-syntax">
 		<antcall target="build-common.run-tests">
 			<param name="test.suite" value="tests.xml" />
 		</antcall>
@@ -134,7 +137,7 @@
       // Makes a distribution file.
       -->
 
-	<target name="dist" description="Makes a distribution file.">
+	<target name="dist" description="Makes a distribution file." depends="check-dictionary-syntax">
 		<antcall target="make-dist">
 			<param name="variant" value="" />
 		</antcall>
@@ -168,7 +171,7 @@
       // Task for continuous integration server.
       -->
 	<target name="ci"
-	        depends="build-common.ci, check-dependencies, dist"
+	        depends="check-dictionary-syntax, build-common.ci, check-dependencies, dist"
 	        description="Task for continuous integration server." />
 
 	<!--
@@ -391,27 +394,27 @@
 		</jar>
 		<jar destfile="${client.jar.file}">
 			<zipfileset src="${jar.file}">
-				<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"/>
-				<include name="ch/systemsx/cisd/common/exceptions/*.class"/>
-				<include name="**/shared/I*.class"/>
-				<include name="**/shared/basic/dto/*.class"/>
-				<include name="**/shared/basic/*.class"/>
-				<include name="**/shared/dto/*.class"/>
-				<exclude name="**/shared/dto/*PE.class"/>
-				<include name="**/shared/authorization/annotation/*.class"/>
-				<include name="**/shared/authorization/ISessionProvider.class"/>
-				<include name="**/*BuildAndEnvironmentInfo.class"/>
+				<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
+				<include name="ch/systemsx/cisd/common/exceptions/*.class" />
+				<include name="**/shared/I*.class" />
+				<include name="**/shared/basic/dto/*.class" />
+				<include name="**/shared/basic/*.class" />
+				<include name="**/shared/dto/*.class" />
+				<exclude name="**/shared/dto/*PE.class" />
+				<include name="**/shared/authorization/annotation/*.class" />
+				<include name="**/shared/authorization/ISessionProvider.class" />
+				<include name="**/*BuildAndEnvironmentInfo.class" />
 				<include name="*.INFO" />
 			</zipfileset>
 			<zipfileset src="${lib}/gwt2.0/gwt-user.jar">
-				<include name="com/google/gwt/user/client/rpc/IsSerializable.class"/>
-				<include name="com/google/gwt/user/client/rpc/SerializableException.class"/>
+				<include name="com/google/gwt/user/client/rpc/IsSerializable.class" />
+				<include name="com/google/gwt/user/client/rpc/SerializableException.class" />
 			</zipfileset>
 			<zipfileset src="${lib}/cisd-base/cisd-base.jar">
-				<include name="**/*BuildAndEnvironmentInfo.class"/>
+				<include name="**/*BuildAndEnvironmentInfo.class" />
 			</zipfileset>
 			<manifest>
-			  <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo"/>
+				<attribute name="Main-Class" value="ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo" />
 			</manifest>
 		</jar>
 	</target>
@@ -651,7 +654,7 @@
 			<arg value="-war" />
 			<arg value="${targets.www}" />
 			<arg value="${module-test.module}Firefox" />
-      <arg value="-draftCompile" />
+			<arg value="-draftCompile" />
 			<arg value="-style" />
 			<arg value="PRETTY" />
 		</java>
@@ -705,7 +708,7 @@
 	        description="Prepare, compile, and run the module test mode">
 	</target>
 
-	<target name="module-test" description="Compile and run the module test mode">
+	<target name="module-test" description="Compile and run the module test mode" depends="check-dictionary-syntax">
 		<antcall target="compile-module-test">
 			<param name="module-test.path" value="openbis-test" />
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
@@ -719,5 +722,12 @@
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
 		</antcall>
 	</target>
-  
+
+	<target name="check-dictionary-syntax"
+	        description="Parse common-dictionary.js and check that the syntax is correct.">
+		<java failonerror="true" fork="true" jar="${rhino.lib}">
+			<arg value="${sources}/ch/systemsx/cisd/openbis/public/common-dictionary.js" />
+		</java>
+	</target>
+
 </project>
