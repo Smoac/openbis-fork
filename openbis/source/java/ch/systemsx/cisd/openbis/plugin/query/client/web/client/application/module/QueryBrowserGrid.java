@@ -137,7 +137,8 @@ public class QueryBrowserGrid extends AbstractSimpleBrowserGrid<QueryExpression>
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<QueryExpression>>()
                             {
-                                public void invoke(BaseEntityModel<QueryExpression> selectedItem)
+                                public void invoke(BaseEntityModel<QueryExpression> selectedItem,
+                                        boolean keyPressed)
                                 {
                                     QueryExpression query = selectedItem.getBaseObject();
                                     new QueryEditor(viewContext, query, createRefreshGridAction(),

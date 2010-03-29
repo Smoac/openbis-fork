@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -112,12 +112,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         // IViewClientPlugin
         //
 
-        public final ITabItemFactory createEntityViewer(final SampleType sampleType,
+        public final AbstractTabItemFactory createEntityViewer(final SampleType sampleType,
                 final IIdentifiable identifiable)
         {
             final TechId sampleId = TechId.create(identifiable);
-            return new ITabItemFactory()
+            return new AbstractTabItemFactory()
                 {
+                    @Override
                     public ITabItem create()
                     {
                         final DemoSampleViewer sampleViewer =
@@ -126,11 +127,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                                 false);
                     }
 
+                    @Override
                     public String getId()
                     {
                         return DemoSampleViewer.createId(sampleId);
                     }
 
+                    @Override
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.VIEW);
@@ -157,21 +160,24 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
             return new DummyComponent();
         }
 
-        public ITabItemFactory createEntityEditor(final SampleType sampleType,
+        public AbstractTabItemFactory createEntityEditor(final SampleType sampleType,
                 final IIdentifiable identifiable)
         {
-            return new ITabItemFactory()
+            return new AbstractTabItemFactory()
                 {
+                    @Override
                     public ITabItem create()
                     {
                         return createDummyTab(identifiable.getCode());
                     }
 
+                    @Override
                     public String getId()
                     {
                         return DummyComponent.ID;
                     }
 
+                    @Override
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.EDIT);
@@ -190,21 +196,24 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         //
 
         @Override
-        public final ITabItemFactory createEntityViewer(final ExperimentType experimentType,
+        public final AbstractTabItemFactory createEntityViewer(final ExperimentType experimentType,
                 final IIdentifiable identifiable)
         {
-            return new ITabItemFactory()
+            return new AbstractTabItemFactory()
                 {
+                    @Override
                     public ITabItem create()
                     {
                         return createDummyTab(identifiable.getCode());
                     }
 
+                    @Override
                     public String getId()
                     {
                         return DummyComponent.ID;
                     }
 
+                    @Override
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,

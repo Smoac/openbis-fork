@@ -110,7 +110,8 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<Space>>()
                             {
-                                public void invoke(BaseEntityModel<Space> selectedItem)
+                                public void invoke(BaseEntityModel<Space> selectedItem,
+                                        boolean keyPressed)
                                 {
                                     Space space = selectedItem.getBaseObject();
                                     createEditDialog(space).show();
@@ -203,7 +204,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
     }
 
     @Override
-    protected void showEntityViewer(final Space space, boolean editMode)
+    protected void showEntityViewer(final Space space, boolean editMode, boolean active)
     {
         assert false : "not implemented";
     }

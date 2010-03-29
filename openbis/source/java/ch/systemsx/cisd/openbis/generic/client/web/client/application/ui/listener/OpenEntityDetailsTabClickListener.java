@@ -20,7 +20,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 
 /**
@@ -30,17 +30,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
  */
 public final class OpenEntityDetailsTabClickListener implements ClickHandler
 {
-    private final IDelegatedAction action;
+    private final IEntityInformationHolder entity;
+
+    private final IViewContext<?> viewContext;
 
     public OpenEntityDetailsTabClickListener(IEntityInformationHolder entity,
             final IViewContext<?> viewContext)
     {
         super();
-        this.action = new OpenEntityDetailsTabAction(entity, viewContext);
+        this.entity = entity;
+        this.viewContext = viewContext;
     }
 
     public void onClick(ClickEvent event)
     {
-        action.execute();
+        new OpenEntityDetailsTabAction(entity, viewContext, WidgetUtils.ifSpecialKeyPressed(event
+                .getNativeEvent())).execute();
     }
 }

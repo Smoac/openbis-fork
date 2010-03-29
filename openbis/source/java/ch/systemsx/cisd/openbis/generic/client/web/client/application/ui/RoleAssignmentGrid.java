@@ -100,7 +100,8 @@ public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment
                         new ISelectedEntityInvoker<BaseEntityModel<RoleAssignment>>()
                             {
 
-                                public void invoke(BaseEntityModel<RoleAssignment> selectedItem)
+                                public void invoke(BaseEntityModel<RoleAssignment> selectedItem,
+                                        boolean keyPressed)
                                 {
                                     RoleAssignment assignment = selectedItem.getBaseObject();
                                     new RemoveRoleDialog(assignment).show();
@@ -188,7 +189,8 @@ public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment
     }
 
     @Override
-    protected void showEntityViewer(final RoleAssignment roleAssignment, boolean editMode)
+    protected void showEntityViewer(final RoleAssignment roleAssignment, boolean editMode,
+            boolean active)
     {
         assert false : "not implemented";
     }

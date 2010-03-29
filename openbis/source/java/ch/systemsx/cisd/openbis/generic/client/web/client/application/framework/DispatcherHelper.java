@@ -45,7 +45,7 @@ public final class DispatcherHelper
      * Creates and dispatches an event of type {@link AppEvents#NAVI_EVENT}. The event opens a new
      * tab.
      */
-    public final static void dispatchNaviEvent(final ITabItemFactory tabItemFactory)
+    public final static void dispatchNaviEvent(final AbstractTabItemFactory tabItemFactory)
     {
         AppEvent event = createEvent(AppEvents.NAVI_EVENT, tabItemFactory);
         Dispatcher.get().dispatch(event);

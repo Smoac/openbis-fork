@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonH
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -214,7 +215,9 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
                                             public void onClick(ClickEvent event)
                                             {
-                                                showProjectDetailsView(project);
+                                                showProjectDetailsView(project,
+                                                        WidgetUtils.ifSpecialKeyPressed(event
+                                                                .getNativeEvent()));
                                             }
 
                                         });
@@ -301,9 +304,9 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         return columnConfig;
     }
 
-    private void showProjectDetailsView(final Project project)
+    private void showProjectDetailsView(final Project project, boolean keyPressed)
     {
-        OpenEntityDetailsTabHelper.open(viewContext, project);
+        OpenEntityDetailsTabHelper.open(viewContext, project, keyPressed);
     }
 
     /**

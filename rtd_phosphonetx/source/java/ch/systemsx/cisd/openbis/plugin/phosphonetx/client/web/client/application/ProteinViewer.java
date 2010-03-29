@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -72,17 +72,19 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    static ITabItemFactory createTabItemFactory(
+    static AbstractTabItemFactory createTabItemFactory(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             final IIdentifiable experimentId, final ProteinInfo proteinInfo)
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public String getId()
                 {
                     return createWidgetID(experimentId, proteinInfo.getId());
                 }
 
+                @Override
                 public ITabItem create()
                 {
                     ProteinViewer viewer =
@@ -96,6 +98,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
                             viewContext, false);
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return HelpPageIdentifier.createSpecific("Protein Viewer");

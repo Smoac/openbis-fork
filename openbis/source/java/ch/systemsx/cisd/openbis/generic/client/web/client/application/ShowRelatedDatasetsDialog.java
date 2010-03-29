@@ -23,10 +23,10 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -50,8 +50,9 @@ public final class ShowRelatedDatasetsDialog extends
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final RelatedDataSetCriteria criteria)
     {
-        final ITabItemFactory tabFactory = new ITabItemFactory()
+        final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component =
@@ -59,6 +60,7 @@ public final class ShowRelatedDatasetsDialog extends
                     return DefaultTabItem.create(getTabTitle(), component, viewContext);
                 }
 
+                @Override
                 public String getId()
                 {
                     return RelatedDataSetGrid.BROWSER_ID + XDOM.getUniqueId();
@@ -69,6 +71,7 @@ public final class ShowRelatedDatasetsDialog extends
                     return "Related Data Sets";
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.RELATED_DATA_SETS,

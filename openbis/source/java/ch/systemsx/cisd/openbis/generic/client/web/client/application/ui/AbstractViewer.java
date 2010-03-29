@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -34,9 +35,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -97,11 +98,11 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     {
         Button result = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
         result.setId(getId() + ID_EDIT_SUFFIX);
-        result.addListener(Events.Select, new Listener<BaseEvent>()
+        result.addListener(Events.Select, new Listener<ButtonEvent>()
             {
-                public void handleEvent(BaseEvent be)
+                public void handleEvent(ButtonEvent be)
                 {
-                    showEntityEditor();
+                    showEntityEditor(be.isShiftKey());
                 }
             });
         result.disable();
@@ -150,23 +151,25 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         return Collections.singletonList(getOriginalData());
     }
 
-    protected void showEntityEditor()
+    protected void showEntityEditor(boolean inBackground)
     {
         assert originalData != null : "data is not yet set";
-        showEntityEditor(originalData.getEntityKind(), originalData.getEntityType(), originalData);
+        showEntityEditor(originalData.getEntityKind(), originalData.getEntityType(), originalData,
+                inBackground);
     }
 
     private final void showEntityEditor(EntityKind entityKind, BasicEntityType type,
-            IIdentifiable identifiable)
+            IIdentifiable identifiable, boolean inBackground)
     {
         assert type != null : "entity type is not provided";
-        final ITabItemFactory tabView;
+        final AbstractTabItemFactory tabView;
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         type);
         final IClientPlugin<BasicEntityType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         tabView = createClientPlugin.createEntityEditor(type, identifiable);
+        tabView.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 

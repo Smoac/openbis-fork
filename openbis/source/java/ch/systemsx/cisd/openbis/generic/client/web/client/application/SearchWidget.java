@@ -22,10 +22,10 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -158,7 +158,7 @@ public final class SearchWidget extends LayoutContainer
                 new MatchingEntitiesPanel(viewContext, selectedSearchableEntityOrNull, queryText,
                         useWildcardSearchMode);
         String title = createTabTitle(queryText);
-        final ITabItemFactory tabFactory =
+        final AbstractTabItemFactory tabFactory =
                 createTabFactory(matchingEntitiesGrid, title, viewContext);
 
         matchingEntitiesGrid.refresh(new IDataRefreshCallback()
@@ -194,7 +194,7 @@ public final class SearchWidget extends LayoutContainer
         return viewContext.getMessage(Dict.GLOBAL_SEARCH, selectedText, queryText);
     }
 
-    private static ITabItemFactory createTabFactory(
+    private static AbstractTabItemFactory createTabFactory(
             final MatchingEntitiesPanel matchingEntitiesPanel, String title,
             IViewContext<?> viewContext)
     {
@@ -203,18 +203,21 @@ public final class SearchWidget extends LayoutContainer
                         viewContext);
         // this tab cannot be opened for the second time, so we can create it outside of the
         // factory
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     return tab;
                 }
 
+                @Override
                 public String getId()
                 {
                     return matchingEntitiesPanel.getId();
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.SEARCH, HelpPageAction.ACTION);

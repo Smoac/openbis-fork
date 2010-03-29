@@ -181,10 +181,10 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
     }
 
     @Override
-    protected void showEntityEditor()
+    protected void showEntityEditor(boolean inBackground)
     {
         assert originalProject != null;
-        ProjectGrid.showEntityViewer(originalProject, true, viewContext);
+        ProjectGrid.showEntityViewer(originalProject, true, viewContext, inBackground);
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)

@@ -103,7 +103,8 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                         new ISelectedEntityInvoker<BaseEntityModel<AbstractType>>()
                             {
 
-                                public void invoke(BaseEntityModel<AbstractType> selectedItem)
+                                public void invoke(BaseEntityModel<AbstractType> selectedItem,
+                                        boolean keyPressed)
                                 {
                                     AbstractType entityType = selectedItem.getBaseObject();
                                     createEditEntityTypeDialog(entityType).show();

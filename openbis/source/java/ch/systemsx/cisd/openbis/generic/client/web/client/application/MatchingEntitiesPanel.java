@@ -29,9 +29,9 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
@@ -95,9 +95,9 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
         registerLinkClickListenerFor(MatchingEntityColumnKind.IDENTIFIER.id(),
                 new ICellListener<MatchingEntity>()
                     {
-                        public void handle(MatchingEntity rowItem)
+                        public void handle(MatchingEntity rowItem, boolean keyPressed)
                         {
-                            showEntityViewer(rowItem, false);
+                            showEntityViewer(rowItem, false, keyPressed);
                         }
                     });
         extendBottomToolbar();
@@ -149,7 +149,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     }
 
     @Override
-    protected void showEntityViewer(MatchingEntity matchingEntity, boolean editMode)
+    protected void showEntityViewer(MatchingEntity matchingEntity, boolean editMode, boolean inBackground)
     {
         final EntityKind entityKind = matchingEntity.getEntityKind();
         BasicEntityType entityType = matchingEntity.getEntityType();
@@ -158,8 +158,9 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
                         entityType);
         final IClientPlugin<BasicEntityType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
-        final ITabItemFactory tabView =
+        final AbstractTabItemFactory tabView =
                 createClientPlugin.createEntityViewer(entityType, matchingEntity.asIdentifiable());
+        tabView.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 

@@ -188,7 +188,7 @@ public abstract class GenericTableBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(GenericTableRow entity, boolean editMode)
+    protected void showEntityViewer(GenericTableRow entity, boolean editMode, boolean active)
     {
     }
 

@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.dom.client.NativeEvent;
 
 /**
  * Utility methods for widgets.
@@ -79,6 +80,22 @@ public class WidgetUtils
         {
             return radioOrNull.getValue();
         }
+    }
+
+    /**
+     * Returns true and stops event propagation and default behavior if the special key is pressed.
+     */
+    public static final boolean ifSpecialKeyPressed(NativeEvent e)
+    {
+        // Note: using getMetaKey() would allow using Apple Key (Windows Key), but then
+        // preventDefault() might not work in all browsers
+        boolean result = e.getAltKey();
+        if (result)
+        {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        return result;
     }
 
 }

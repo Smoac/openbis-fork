@@ -109,7 +109,8 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<GridCustomFilter>>()
                             {
-                                public void invoke(BaseEntityModel<GridCustomFilter> selectedItem)
+                                public void invoke(BaseEntityModel<GridCustomFilter> selectedItem,
+                                        boolean keyPressed)
                                 {
                                     final GridCustomFilter selected = selectedItem.getBaseObject();
                                     createEditDialog(selected).show();

@@ -106,7 +106,8 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
                 new ISelectedEntityInvoker<BaseEntityModel<PropertyType>>()
                     {
 
-                        public void invoke(BaseEntityModel<PropertyType> selectedItem)
+                        public void invoke(BaseEntityModel<PropertyType> selectedItem,
+                                boolean keyPressed)
                         {
                             final PropertyType propertyType = selectedItem.getBaseObject();
                             if (propertyType.isManagedInternally())

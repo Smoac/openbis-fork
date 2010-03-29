@@ -24,12 +24,12 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
@@ -132,7 +132,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final ITabItemFactory createEntityViewer(final MaterialType materialType,
+        public final AbstractTabItemFactory createEntityViewer(final MaterialType materialType,
                 final IIdentifiable materialId)
         {
             return createGeneMaterialViewerTabFactory(materialId, null, getViewContext());
@@ -144,17 +144,19 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             final ExperimentIdentifier experimentIdentifier,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        ITabItemFactory tab =
+        AbstractTabItemFactory tab =
                 createGeneMaterialViewerTabFactory(materialId, experimentIdentifier, viewContext);
+        // 
         DispatcherHelper.dispatchNaviEvent(tab);
     }
 
-    private static final ITabItemFactory createGeneMaterialViewerTabFactory(
+    private static final AbstractTabItemFactory createGeneMaterialViewerTabFactory(
             final IIdentifiable materialId, final ExperimentIdentifier experimentIdentifierOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     final DatabaseModificationAwareComponent viewer =
@@ -163,11 +165,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     return createMaterialViewerTab(materialId, viewer, viewContext);
                 }
 
+                @Override
                 public String getId()
                 {
                     return GeneMaterialViewer.createId(materialId);
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return GeneMaterialViewer.getHelpPageIdentifier();
@@ -192,11 +196,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final ITabItemFactory createEntityViewer(final DataSetType dataSetType,
+        public final AbstractTabItemFactory createEntityViewer(final DataSetType dataSetType,
                 final IIdentifiable identifiable)
         {
-            return new ITabItemFactory()
+            return new AbstractTabItemFactory()
                 {
+                    @Override
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent viewer =
@@ -205,12 +210,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                                 screeningViewContext);
                     }
 
+                    @Override
                     public String getId()
                     {
                         final TechId sampleId = TechId.create(identifiable);
                         return PlateDatasetViewer.createId(sampleId);
                     }
 
+                    @Override
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return HelpPageIdentifier.createSpecific("Plate Dataset Viewer");
@@ -230,11 +237,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final ITabItemFactory createEntityViewer(final SampleType sampleType,
+        public final AbstractTabItemFactory createEntityViewer(final SampleType sampleType,
                 final IIdentifiable identifiable)
         {
-            return new ITabItemFactory()
+            return new AbstractTabItemFactory()
                 {
+                    @Override
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent viewer =
@@ -243,12 +251,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                                 screeningViewContext);
                     }
 
+                    @Override
                     public String getId()
                     {
                         final TechId sampleId = TechId.create(identifiable);
                         return PlateSampleViewer.createId(sampleId);
                     }
 
+                    @Override
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return HelpPageIdentifier.createSpecific("Plate Sample Viewer");
@@ -305,7 +315,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             return clientPluginFactory;
         }
 
-        public ITabItemFactory createEntityViewer(final T entityType,
+        public AbstractTabItemFactory createEntityViewer(final T entityType,
                 final IIdentifiable identifiable)
         {
             return delegator.createEntityViewer(entityType, identifiable);
@@ -321,7 +331,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             return delegator.createBatchUpdateForEntityType(entityType);
         }
 
-        public ITabItemFactory createEntityEditor(final T entityType,
+        public AbstractTabItemFactory createEntityEditor(final T entityType,
                 final IIdentifiable identifiable)
         {
             return delegator.createEntityEditor(entityType, identifiable);

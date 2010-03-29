@@ -69,9 +69,9 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
         specificViewContext = viewContext;
         registerLinkClickListenerFor("CODE", new ICellListener<GenericTableRow>()
             {
-                public void handle(GenericTableRow rowItem)
+                public void handle(GenericTableRow rowItem, boolean keyPressed)
                 {
-                    showEntityViewer(rowItem, false);
+                    showEntityViewer(rowItem, false, keyPressed);
                 }
             });
         allowMultipleSelection();
@@ -113,7 +113,7 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
     }
 
     @Override
-    protected void showEntityViewer(final GenericTableRow entity, boolean editMode)
+    protected void showEntityViewer(final GenericTableRow entity, boolean editMode, boolean active)
     {
         showEntityInformationHolderViewer(new IEntityInformationHolder()
             {
@@ -139,6 +139,6 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
                 {
                     return EntityKind.SAMPLE;
                 }
-            }, editMode);
+            }, editMode, active);
     }
 }

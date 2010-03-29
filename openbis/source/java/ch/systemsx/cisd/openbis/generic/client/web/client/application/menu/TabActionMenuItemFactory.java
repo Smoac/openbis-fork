@@ -20,7 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -48,13 +48,15 @@ public class TabActionMenuItemFactory
                 }
             };
         final String tabLabelKey = definition.getName() + "_tab_label";
-        return new ActionMenu(menuItem, viewContext, new ITabItemFactory()
+        return new ActionMenu(menuItem, viewContext, new AbstractTabItemFactory()
             {
+                @Override
                 public String getId()
                 {
                     return widgetIDPrefix + "_" + tabLabelKey;
                 }
 
+                @Override
                 public ITabItem create()
                 {
                     String tabItemText = viewContext.getMessage(tabLabelKey);
@@ -62,6 +64,7 @@ public class TabActionMenuItemFactory
                             .createComponent(viewContext), viewContext, false);
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return HelpPageIdentifier.createSpecific(definition.getHelpPageTitle());

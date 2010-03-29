@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -50,11 +50,10 @@ public class DataSetSearchLocatorResolver
         // Open the search view using the provided criteria
         OpenEntitySearchGridTabAction searchAction =
                 new OpenEntitySearchGridTabAction(searchCriteria, viewContext);
-
         DispatcherHelper.dispatchNaviEvent(searchAction);
     }
 
-    private static class OpenEntitySearchGridTabAction implements ITabItemFactory
+    private static class OpenEntitySearchGridTabAction extends AbstractTabItemFactory
     {
         private final DetailedSearchCriteria searchCriteria;
 
@@ -78,6 +77,7 @@ public class DataSetSearchLocatorResolver
             return DefaultTabItem.create(title, component, viewContext);
         }
 
+        @Override
         public ITabItem create()
         {
             IDisposableComponent browser =
@@ -86,11 +86,13 @@ public class DataSetSearchLocatorResolver
             return createTab(Dict.DATA_SET_SEARCH, browser);
         }
 
+        @Override
         public String getId()
         {
             return DataSetSearchHitGrid.BROWSER_ID;
         }
 
+        @Override
         public HelpPageIdentifier getHelpPageIdentifier()
         {
             return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.SEARCH);

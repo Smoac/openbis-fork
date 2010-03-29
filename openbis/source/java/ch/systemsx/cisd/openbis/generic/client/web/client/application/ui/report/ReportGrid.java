@@ -85,8 +85,9 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
     public static class ReportColumnUI extends DataSetReportColumnDefinition implements
             IColumnDefinitionUI<TableModelRow>
     {
-        private boolean isHidden;
-        private int defaultColumnWidth;
+        private final boolean isHidden;
+
+        private final int defaultColumnWidth;
 
         public ReportColumnUI(TableModelColumnHeader columnHeader, String downloadURL,
                 String sessionID, int defaultColumnWidth, boolean isHidden)
@@ -207,7 +208,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
     }
 
     @Override
-    protected void showEntityViewer(TableModelRow entity, boolean editMode)
+    protected void showEntityViewer(TableModelRow entity, boolean editMode, boolean active)
     {
         // do nothing
     }
@@ -238,7 +239,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
                     registerLinkClickListenerFor(colDefinition.getIdentifier(),
                             new ICellListener<TableModelRow>()
                                 {
-                                    public void handle(TableModelRow rowItem)
+                                    public void handle(TableModelRow rowItem, boolean keyPressed)
                                     {
                                         ISerializableComparable cellValue =
                                                 rowItem.getValues().get(colIndex);

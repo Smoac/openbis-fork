@@ -20,8 +20,8 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -62,7 +62,7 @@ public class ActionMenu extends MenuItem
     }
 
     public ActionMenu(final IActionMenuItem actionMenu, IMessageProvider messageProvider,
-            final ITabItemFactory tabToOpen)
+            final AbstractTabItemFactory tabToOpen)
     {
         this(actionMenu, messageProvider, new IDelegatedAction()
             {

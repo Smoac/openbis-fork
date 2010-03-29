@@ -96,7 +96,7 @@ public class MainTabPanel extends TabPanel
         return div.getString();
     }
 
-    private final MainTabItem tryFindTab(final ITabItemFactory tabItemFactory)
+    private final MainTabItem tryFindTab(final AbstractTabItemFactory tabItemFactory)
     {
         return openTabs.get(tabItemFactory.getId());
     }
@@ -108,12 +108,13 @@ public class MainTabPanel extends TabPanel
      * be generated out of given {@link ITabItem}.
      * </p>
      */
-    public final void openTab(final ITabItemFactory tabItemFactory)
+    public final void openTab(final AbstractTabItemFactory tabItemFactory)
     {
+        boolean inBackground = tabItemFactory.isInBackground();
         final MainTabItem tab = tryFindTab(tabItemFactory);
         if (tab != null)
         {
-            setSelection(tab);
+            maybeActivate(tab, inBackground);
         } else
         {
             final String tabId = tabItemFactory.getId();
@@ -125,7 +126,18 @@ public class MainTabPanel extends TabPanel
             final MainTabItem newTab = new MainTabItem(tabItemFactory.create(), tabId, helpId);
             add(newTab);
             openTabs.put(tabId, newTab);
-            setSelection(newTab);
+            maybeActivate(newTab, inBackground);
+        }
+    }
+
+    private void maybeActivate(MainTabItem tab, boolean inBackground)
+    {
+        if (inBackground == false)
+        {
+            setSelection(tab);
+        } else
+        {
+            // TODO 2010-03-18, IA: Shall we somehow inform the user?
         }
     }
 

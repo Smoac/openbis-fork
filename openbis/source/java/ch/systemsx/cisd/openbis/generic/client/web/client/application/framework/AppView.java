@@ -53,12 +53,12 @@ final class AppView extends View
         this.viewContext = viewContext;
     }
 
-    private final ITabItemFactory getData(final AppEvent event)
+    private final AbstractTabItemFactory getData(final AppEvent event)
     {
         return event.getData();
     }
 
-    private final void activateTab(final ITabItemFactory tabItemFactory)
+    private final void activateTab(final AbstractTabItemFactory tabItemFactory)
     {
         center.openTab(tabItemFactory);
     }

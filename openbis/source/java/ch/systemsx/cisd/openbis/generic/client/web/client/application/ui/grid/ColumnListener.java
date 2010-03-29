@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 
 /**
  * Listener for a Grid which delegates click on a cell or link in a cell to a registered
@@ -59,9 +60,10 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements
     }
 
     /**
-     * Invokes {@link ICellListener#handle(Object)} with the base object of the row specified by the
-     * row index of the event. The cell listener is determined by the column index. This method does
-     * nothing if no cell listener has been registered for column determined by the event.
+     * Invokes {@link ICellListener#handle(Object,boolean)} with the base object of the row
+     * specified by the row index of the event. The cell listener is determined by the column index.
+     * This method does nothing if no cell listener has been registered for column determined by the
+     * event.
      */
     @SuppressWarnings("unchecked")
     public void handleEvent(GridEvent be)
@@ -70,7 +72,8 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements
         if (listener != null)
         {
             ListStore store = be.getGrid().getStore();
-            listener.handle(((BaseEntityModel<T>) store.getAt(be.getRowIndex())).getBaseObject());
+            listener.handle(((BaseEntityModel<T>) store.getAt(be.getRowIndex())).getBaseObject(),
+                    WidgetUtils.ifSpecialKeyPressed(be.getEvent()));
         }
     }
 

@@ -67,12 +67,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowRelatedDatasetsDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
@@ -122,7 +122,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /**
      * Shows the detail view for the specified entity
      */
-    abstract protected void showEntityViewer(T entity, boolean editMode);
+    abstract protected void showEntityViewer(T entity, boolean editMode, boolean active);
 
     abstract protected void listEntities(DefaultResultSetConfig<String, T> resultSetConfig,
             AbstractAsyncCallback<ResultSet<T>> callback);
@@ -268,9 +268,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         columnListener = new ColumnListener<T, M>(grid);
         registerLinkClickListenerFor(Dict.CODE, new ICellListener<T>()
             {
-                public void handle(T rowItem)
+                public void handle(T rowItem, boolean keyPressed)
                 {
-                    showEntityViewer(rowItem, false);
+                    showEntityViewer(rowItem, false, keyPressed);
                 }
             });
 
@@ -281,10 +281,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     protected void showEntityInformationHolderViewer(IEntityInformationHolder entity,
-            boolean editMode)
+            boolean editMode, boolean inBackground)
     {
         final EntityKind entityKind = entity.getEntityKind();
-        final ITabItemFactory tabView;
+        final AbstractTabItemFactory tabView;
         BasicEntityType entityType = entity.getEntityType();
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
@@ -298,6 +298,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             tabView = createClientPlugin.createEntityViewer(entityType, entity);
         }
+        tabView.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
@@ -764,18 +765,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected static interface ISelectedEntityInvoker<M>
     {
-        void invoke(M selectedItem);
+        void invoke(M selectedItem, boolean keyPressed);
     }
 
     protected final ISelectedEntityInvoker<M> asShowEntityInvoker(final boolean editMode)
     {
         return new ISelectedEntityInvoker<M>()
             {
-                public void invoke(M selectedItem)
+                public void invoke(M selectedItem, boolean keyPressed)
                 {
                     if (selectedItem != null)
                     {
-                        showEntityViewer(selectedItem.getBaseObject(), editMode);
+                        showEntityViewer(selectedItem.getBaseObject(), editMode, keyPressed);
                     }
                 }
             };
@@ -785,7 +786,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         return new ISelectedEntityInvoker<M>()
             {
-                public void invoke(M selectedItem)
+                public void invoke(M selectedItem, boolean keyPressed)
                 {
                     MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
                             .getMessage(Dict.NOT_IMPLEMENTED), null);
@@ -829,7 +830,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     List<M> selectedItems = getSelectedItems();
                     if (selectedItems.isEmpty() == false)
                     {
-                        invoker.invoke(selectedItems.get(0));
+                        invoker.invoke(selectedItems.get(0), true);
                     }
                 }
             });

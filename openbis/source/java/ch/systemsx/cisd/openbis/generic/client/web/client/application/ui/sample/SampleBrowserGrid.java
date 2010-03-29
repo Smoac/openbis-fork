@@ -110,7 +110,8 @@ public class SampleBrowserGrid extends
                         DisplayTypeIDGenerator.ENTITY_BROWSER_GRID)
                     {
                         @Override
-                        protected void showEntityViewer(Sample sample, boolean editMode)
+                        protected void showEntityViewer(Sample sample, boolean editMode,
+                                boolean active)
                         {
                             // do nothing - avoid showing the details after double click
                         }
@@ -318,10 +319,10 @@ public class SampleBrowserGrid extends
         registerLinkClickListenerFor(CommonSampleColDefKind.PROJECT.id(),
                 new ICellListener<Sample>()
                     {
-                        public void handle(Sample rowItem)
+                        public void handle(Sample rowItem, boolean keyPressed)
                         {
                             OpenEntityDetailsTabHelper.open(viewContext, rowItem.getExperiment()
-                                    .getProject());
+                                    .getProject(), keyPressed);
                         }
                     });
         setId(browserId);
@@ -331,12 +332,12 @@ public class SampleBrowserGrid extends
     {
         protected abstract IEntityInformationHolder getEntity(Sample rowItem);
 
-        public final void handle(Sample rowItem)
+        public final void handle(Sample rowItem, boolean keyPressed)
         {
             // don't need to check whether the value is null
             // because there will not be a link for null value
             final IEntityInformationHolder entity = getEntity(rowItem);
-            new OpenEntityDetailsTabAction(entity, viewContext).execute();
+            new OpenEntityDetailsTabAction(entity, viewContext, keyPressed).execute();
         }
     }
 
@@ -473,9 +474,9 @@ public class SampleBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(Sample sample, boolean editMode)
+    protected void showEntityViewer(Sample sample, boolean editMode, boolean active)
     {
-        showEntityInformationHolderViewer(sample, editMode);
+        showEntityInformationHolderViewer(sample, editMode, active);
     }
 
     @Override

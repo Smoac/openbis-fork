@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -103,11 +103,12 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
         //
 
         @Override
-        public final ITabItemFactory createEntityViewer(final ExperimentType experimentType,
+        public final AbstractTabItemFactory createEntityViewer(final ExperimentType experimentType,
                 final IIdentifiable identifiable)
         {
-            return new ITabItemFactory()
+            return new AbstractTabItemFactory()
                 {
+                    @Override
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent experimentViewer =
@@ -117,11 +118,13 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                                 experimentViewer, getViewContext(), false);
                     }
 
+                    @Override
                     public String getId()
                     {
                         return GenericExperimentViewer.createId(identifiable);
                     }
 
+                    @Override
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
@@ -140,11 +143,12 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
         }
 
         @Override
-        public ITabItemFactory createEntityEditor(final ExperimentType experimentType,
+        public AbstractTabItemFactory createEntityEditor(final ExperimentType experimentType,
                 final IIdentifiable identifiable)
         {
-            return new ITabItemFactory()
+            return new AbstractTabItemFactory()
                 {
+                    @Override
                     public ITabItem create()
                     {
                         DatabaseModificationAwareComponent component =
@@ -154,12 +158,14 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                         return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
+                    @Override
                     public String getId()
                     {
                         return GenericExperimentEditForm.createId(identifiable,
                                 EntityKind.EXPERIMENT);
                     }
 
+                    @Override
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,

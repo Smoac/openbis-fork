@@ -45,11 +45,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -122,7 +122,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         registerLinkClickListenerFor(AttachmentColDefKind.FILE_NAME.id(),
                 new ICellListener<AttachmentVersions>()
                     {
-                        public void handle(AttachmentVersions rowItem)
+                        public void handle(AttachmentVersions rowItem, boolean keyPressed)
                         {
                             // don't need to check whether the value is null
                             // because there will not be a link for null value
@@ -135,14 +135,14 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         registerLinkClickListenerFor(AttachmentColDefKind.VERSION.id(),
                 new ICellListener<AttachmentVersions>()
                     {
-                        public void handle(AttachmentVersions rowItem)
+                        public void handle(AttachmentVersions rowItem, boolean keyPressed)
                         {
                             // don't need to check whether the value is null
                             // because there will not be a link for null value
                             final String fileName = rowItem.getCurrent().getFileName();
                             final List<Attachment> versions = rowItem.getVersions();
 
-                            showVersionsPanel(fileName, versions);
+                            showVersionsPanel(fileName, versions, keyPressed);
                         }
                     });
     }
@@ -186,7 +186,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 new ISelectedEntityInvoker<BaseEntityModel<AttachmentVersions>>()
                     {
 
-                        public void invoke(BaseEntityModel<AttachmentVersions> selectedItem)
+                        public void invoke(BaseEntityModel<AttachmentVersions> selectedItem,
+                                boolean keyPressed)
                         {
                             AttachmentVersions versions = selectedItem.getBaseObject();
                             createEditAttachmentDialog(versions).show();
@@ -214,7 +215,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     {
         return new ISelectedEntityInvoker<BaseEntityModel<AttachmentVersions>>()
             {
-                public void invoke(BaseEntityModel<AttachmentVersions> selectedItem)
+                public void invoke(BaseEntityModel<AttachmentVersions> selectedItem,
+                        boolean keyPressed)
                 {
                     AttachmentVersions versions = selectedItem.getBaseObject();
                     final String fileName = versions.getCurrent().getFileName();
@@ -260,7 +262,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     }
 
     @Override
-    protected void showEntityViewer(AttachmentVersions entity, boolean editMode)
+    protected void showEntityViewer(AttachmentVersions entity, boolean editMode, boolean active)
     {
         assert editMode == false : "edit mode is not implemented";
 
@@ -268,7 +270,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         final String fileName = entity.getCurrent().getFileName();
         final List<Attachment> versions = entity.getVersions();
 
-        showVersionsPanel(fileName, versions);
+        showVersionsPanel(fileName, versions, active);
     }
 
     private static void downloadAttachment(String fileName, int version, IAttachmentHolder holder)
@@ -291,14 +293,16 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         return methodWithParameters.toString();
     }
 
-    private void showVersionsPanel(final String fileName, final List<Attachment> versions)
+    private void showVersionsPanel(final String fileName, final List<Attachment> versions,
+            boolean inBackground)
     {
         assert versions != null : "versions not set!";
 
         final VersionsPanelHelper helper =
                 new VersionsPanelHelper(fileName, attachmentHolder, viewContext);
-        final ITabItemFactory tabFactory = new ITabItemFactory()
+        final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     final String tabTitle = helper.createTabTitle();
@@ -306,16 +310,19 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                     return DefaultTabItem.createUnaware(tabTitle, component, false);
                 }
 
+                @Override
                 public String getId()
                 {
                     return helper.createTabId();
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.ATTACHMENTS, HelpPageAction.VIEW);
                 }
             };
+        tabFactory.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 

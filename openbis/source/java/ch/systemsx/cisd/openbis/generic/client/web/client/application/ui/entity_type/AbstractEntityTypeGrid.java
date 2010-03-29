@@ -99,7 +99,8 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
                         new ISelectedEntityInvoker<BaseEntityModel<T>>()
                             {
 
-                                public void invoke(BaseEntityModel<T> selectedItem)
+                                public void invoke(BaseEntityModel<T> selectedItem,
+                                        boolean keyPressed)
                                 {
                                     T entityType = selectedItem.getBaseObject();
                                     createEditEntityTypeDialog(entityKind, entityType).show();

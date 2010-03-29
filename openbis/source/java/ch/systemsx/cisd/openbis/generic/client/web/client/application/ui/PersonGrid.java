@@ -207,7 +207,7 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
     }
 
     @Override
-    protected void showEntityViewer(final Person person, boolean editMode)
+    protected void showEntityViewer(final Person person, boolean editMode, boolean active)
     {
         assert false : "not implemented";
     }

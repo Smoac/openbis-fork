@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -72,8 +72,9 @@ public class DataSetReportGenerator
 
                 public void execute(final IDisposableComponent reportComponent)
                 {
-                    final ITabItemFactory tabFactory = new ITabItemFactory()
+                    final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
                         {
+                            @Override
                             public ITabItem create()
                             {
                                 final String reportTitle = service.getLabel();
@@ -81,12 +82,14 @@ public class DataSetReportGenerator
                                         viewContext);
                             }
 
+                            @Override
                             public String getId()
                             {
                                 final String reportKey = service.getKey();
                                 return ReportGrid.createId(reportKey);
                             }
 
+                            @Override
                             public HelpPageIdentifier getHelpPageIdentifier()
                             {
                                 return new HelpPageIdentifier(HelpPageDomain.DATA_SET,

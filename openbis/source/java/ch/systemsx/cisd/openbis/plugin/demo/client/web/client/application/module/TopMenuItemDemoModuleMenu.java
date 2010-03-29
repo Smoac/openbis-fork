@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
@@ -40,7 +40,7 @@ public class TopMenuItemDemoModuleMenu extends MenuItem
 {
     public static final String ID = GenericConstants.ID_PREFIX;
 
-    private final class ExperimentStatisticsTabItemFactory implements ITabItemFactory
+    private final class ExperimentStatisticsTabItemFactory extends AbstractTabItemFactory
     {
         private final IViewContext<IDemoClientServiceAsync> viewContext;
 
@@ -49,17 +49,20 @@ public class TopMenuItemDemoModuleMenu extends MenuItem
             this.viewContext = viewContext;
         }
 
+        @Override
         public ITabItem create()
         {
             return DefaultTabItem.create(viewContext.getMessage(Dict.STATISTICS_DEMO_TAB_HEADER),
                     StatisticsWidget.create(viewContext), viewContext, false);
         }
 
+        @Override
         public String getId()
         {
             return StatisticsWidget.ID;
         }
 
+        @Override
         public HelpPageIdentifier getHelpPageIdentifier()
         {
             return HelpPageIdentifier.createSpecific("Experiment Statistics");

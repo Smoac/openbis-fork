@@ -218,10 +218,10 @@ public abstract class AbstractExternalDataGrid
     {
         protected abstract IEntityInformationHolder getEntity(ExternalData rowItem);
 
-        public final void handle(ExternalData rowItem)
+        public final void handle(ExternalData rowItem, boolean keyPressed)
         {
             final IEntityInformationHolder entity = getEntity(rowItem);
-            new OpenEntityDetailsTabAction(entity, viewContext).execute();
+            new OpenEntityDetailsTabAction(entity, viewContext, keyPressed).execute();
         }
 
     }
@@ -374,9 +374,9 @@ public abstract class AbstractExternalDataGrid
     }
 
     @Override
-    protected void showEntityViewer(ExternalData dataSet, boolean editMode)
+    protected void showEntityViewer(ExternalData dataSet, boolean editMode, boolean active)
     {
-        showEntityInformationHolderViewer(dataSet, editMode);
+        showEntityInformationHolderViewer(dataSet, editMode, active);
     }
 
     @Override

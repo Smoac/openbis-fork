@@ -29,13 +29,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -108,9 +108,11 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                         new ISelectedEntityInvoker<BaseEntityModel<Project>>()
                             {
-                                public void invoke(BaseEntityModel<Project> selectedItem)
+                                public void invoke(BaseEntityModel<Project> selectedItem,
+                                        boolean keyPressed)
                                 {
-                                    showEntityViewer(selectedItem.getBaseObject(), false);
+                                    showEntityViewer(selectedItem.getBaseObject(), false,
+                                            keyPressed);
                                 }
                             });
         showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
@@ -120,9 +122,10 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<Project>>()
                             {
-                                public void invoke(BaseEntityModel<Project> selectedItem)
+                                public void invoke(BaseEntityModel<Project> selectedItem,
+                                        boolean keyPressed)
                                 {
-                                    showEntityViewer(selectedItem.getBaseObject(), true);
+                                    showEntityViewer(selectedItem.getBaseObject(), true, keyPressed);
                                 }
                             });
         editButton.setId(EDIT_BUTTON_ID);
@@ -185,20 +188,21 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     }
 
     @Override
-    protected void showEntityViewer(final Project project, boolean editMode)
+    protected void showEntityViewer(final Project project, boolean editMode, boolean inBackground)
     {
-        showEntityViewer(project, editMode, viewContext);
+        showEntityViewer(project, editMode, viewContext, inBackground);
     }
 
     public static void showEntityViewer(final Project project, boolean editMode,
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, boolean inBackground)
     {
-        ITabItemFactory tabFactory;
+        AbstractTabItemFactory tabFactory;
         final TechId projectId = TechId.create(project);
         if (editMode == false)
         {
-            tabFactory = new ITabItemFactory()
+            tabFactory = new AbstractTabItemFactory()
                 {
+                    @Override
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent viewer =
@@ -206,6 +210,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                         return DefaultTabItem.create(getViewerTitle(), viewer, viewContext, false);
                     }
 
+                    @Override
                     public String getId()
                     {
                         return ProjectViewer.createId(projectId);
@@ -216,6 +221,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                         return AbstractViewer.getTitle(viewContext, Dict.PROJECT, project);
                     }
 
+                    @Override
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.VIEW);
@@ -223,8 +229,9 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                 };
         } else
         {
-            tabFactory = new ITabItemFactory()
+            tabFactory = new AbstractTabItemFactory()
                 {
+                    @Override
                     public ITabItem create()
                     {
                         DatabaseModificationAwareComponent component =
@@ -232,6 +239,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                         return DefaultTabItem.create(getEditTitle(), component, viewContext, true);
                     }
 
+                    @Override
                     public String getId()
                     {
                         return ProjectEditForm.createId(projectId);
@@ -243,12 +251,14 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                                 project);
                     }
 
+                    @Override
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.EDIT);
                     }
                 };
         }
+        tabFactory.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 

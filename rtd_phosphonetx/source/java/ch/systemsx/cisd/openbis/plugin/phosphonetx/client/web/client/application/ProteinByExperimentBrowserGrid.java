@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -93,7 +94,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
             {
             }
         };
-    
+
     static IDisposableComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             ExperimentType experimentType, IIdentifiable experimentId)
@@ -148,9 +149,10 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         tabItem.add(component);
         return tabItem;
     }
-    
+
     private ProteinByExperimentBrowserGrid(
-            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext, IIdentifiable experimentId)
+            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
+            IIdentifiable experimentId)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false,
                 PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
@@ -160,14 +162,17 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         registerLinkClickListenerFor(ProteinColDefKind.ACCESSION_NUMBER.id(),
                 new ICellListener<ProteinInfo>()
                     {
-                        public void handle(ProteinInfo rowItem)
+                        public void handle(ProteinInfo rowItem, boolean keyPressed)
                         {
-                            DispatcherHelper.dispatchNaviEvent(ProteinViewer.createTabItemFactory(
-                                    viewContext, toolbar.getExperimentOrNull(), rowItem));
+                            AbstractTabItemFactory tabItemFactory =
+                                    ProteinViewer.createTabItemFactory(viewContext, toolbar
+                                            .getExperimentOrNull(), rowItem);
+                            tabItemFactory.setInBackground(keyPressed);
+                            DispatcherHelper.dispatchNaviEvent(tabItemFactory);
                         }
                     });
     }
-    
+
     void update(TechId experimentID, double falseDiscoveryRate,
             AggregateFunction aggregateFunction, String treatmentTypeCode,
             boolean aggregateOriginal, List<AbundanceColumnDefinition> definitions)
@@ -181,7 +186,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         abundanceColumnDefinitions = definitions;
         refresh(postRefreshCallback, true);
     }
-    
+
     void setPostRefreshCallback(IDataRefreshCallback postRefreshCallback)
     {
         this.postRefreshCallback = postRefreshCallback;

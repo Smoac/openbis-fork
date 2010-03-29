@@ -24,10 +24,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
  * 
  * @author Tomasz Pylak
  */
-public interface ITabItemFactory
+public abstract class AbstractTabItemFactory
 {
+    private boolean inBackground = false;
+
     /** Creates and initializes a new tab. */
-    ITabItem create();
+    public abstract ITabItem create();
 
     /**
      * Returns the unique identifier of this tab item. Note that the id should be unique among all
@@ -37,11 +39,24 @@ public interface ITabItemFactory
      * one already created will get the focus.
      * </p>
      */
-    public String getId();
+    public abstract String getId();
 
     /**
      * Returns the identifier of the help page for this tab item.
      */
-    public HelpPageIdentifier getHelpPageIdentifier();
+    public abstract HelpPageIdentifier getHelpPageIdentifier();
+
+    /**
+     * True if the tab should become active.
+     */
+    public boolean isInBackground()
+    {
+        return inBackground;
+    }
+
+    public void setInBackground(boolean inBackground)
+    {
+        this.inBackground = inBackground;
+    }
 
 }

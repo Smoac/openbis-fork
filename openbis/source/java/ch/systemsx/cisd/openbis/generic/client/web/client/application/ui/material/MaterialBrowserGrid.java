@@ -131,7 +131,8 @@ public class MaterialBrowserGrid extends
             return new MaterialBrowserGrid(viewContext, true, criteriaProvider)
                 {
                     @Override
-                    protected void showEntityViewer(Material material, boolean editMode)
+                    protected void showEntityViewer(Material material, boolean editMode,
+                            boolean active)
                     {
                         // do nothing - avoid showing the details after double click
                     }
@@ -266,9 +267,9 @@ public class MaterialBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(Material material, boolean editMode)
+    protected void showEntityViewer(Material material, boolean editMode, boolean active)
     {
-        showEntityInformationHolderViewer(material, editMode);
+        showEntityInformationHolderViewer(material, editMode, active);
     }
 
     @Override

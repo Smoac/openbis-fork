@@ -201,7 +201,8 @@ public class PropertyTypeAssignmentGrid extends
                 new ISelectedEntityInvoker<BaseEntityModel<EntityTypePropertyType<?>>>()
                     {
 
-                        public void invoke(BaseEntityModel<EntityTypePropertyType<?>> selectedItem)
+                        public void invoke(BaseEntityModel<EntityTypePropertyType<?>> selectedItem,
+                                boolean keyPressed)
                         {
                             final EntityTypePropertyType<?> etpt = selectedItem.getBaseObject();
                             if (etpt.isManagedInternally())
@@ -218,7 +219,8 @@ public class PropertyTypeAssignmentGrid extends
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),
                 new ISelectedEntityInvoker<BaseEntityModel<EntityTypePropertyType<?>>>()
                     {
-                        public void invoke(BaseEntityModel<EntityTypePropertyType<?>> selectedItem)
+                        public void invoke(BaseEntityModel<EntityTypePropertyType<?>> selectedItem,
+                                boolean keyPressed)
                         {
                             final EntityTypePropertyType<?> etpt = selectedItem.getBaseObject();
                             unassignPropertyType(etpt);

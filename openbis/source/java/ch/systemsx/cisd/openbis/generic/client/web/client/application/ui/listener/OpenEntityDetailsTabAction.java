@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -38,11 +38,20 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
 
     private final IViewContext<?> viewContext;
 
+    private final boolean keyPressed;
+
     public OpenEntityDetailsTabAction(IEntityInformationHolder entity,
             final IViewContext<?> viewContext)
     {
+        this(entity, viewContext, false);
+    }
+
+    public OpenEntityDetailsTabAction(IEntityInformationHolder entity,
+            final IViewContext<?> viewContext, boolean keyPressed)
+    {
         this.entity = entity;
         this.viewContext = viewContext;
+        this.keyPressed = keyPressed;
     }
 
     public void execute()
@@ -54,8 +63,9 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
                         entityType);
         final IClientPlugin<BasicEntityType, IIdentifiable> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
-        final ITabItemFactory tabView = createClientPlugin.createEntityViewer(entityType, entity);
-
+        final AbstractTabItemFactory tabView =
+                createClientPlugin.createEntityViewer(entityType, entity);
+        tabView.setInBackground(keyPressed);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 }

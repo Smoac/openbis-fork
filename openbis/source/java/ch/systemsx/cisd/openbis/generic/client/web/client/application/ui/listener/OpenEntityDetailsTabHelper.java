@@ -20,11 +20,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -71,12 +71,14 @@ public class OpenEntityDetailsTabHelper
         }
     }
 
-    public static void open(final IViewContext<?> viewContext, final Project project)
+    public static void open(final IViewContext<?> viewContext, final Project project,
+            boolean keyPressed)
     {
-        ITabItemFactory tabFactory;
+        AbstractTabItemFactory tabFactory;
         final TechId projectId = TechId.create(project);
-        tabFactory = new ITabItemFactory()
+        tabFactory = new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     final DatabaseModificationAwareComponent viewer =
@@ -84,6 +86,7 @@ public class OpenEntityDetailsTabHelper
                     return DefaultTabItem.create(getViewerTitle(), viewer, viewContext, false);
                 }
 
+                @Override
                 public String getId()
                 {
                     return ProjectViewer.createId(projectId);
@@ -94,11 +97,13 @@ public class OpenEntityDetailsTabHelper
                     return AbstractViewer.getTitle(viewContext, Dict.PROJECT, project);
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.VIEW);
                 }
             };
+        tabFactory.setInBackground(keyPressed);
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 

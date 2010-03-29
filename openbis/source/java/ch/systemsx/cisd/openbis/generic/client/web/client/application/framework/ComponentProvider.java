@@ -102,11 +102,12 @@ public final class ComponentProvider
                 isCloseConfirmationNeeded);
     }
 
-    public ITabItemFactory getSampleBrowser(final String initialGroupOrNull,
+    public AbstractTabItemFactory getSampleBrowser(final String initialGroupOrNull,
             final String initialSampleTypeOrNull)
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     System.err.println(initialGroupOrNull + " " + initialSampleTypeOrNull);
@@ -117,11 +118,13 @@ public final class ComponentProvider
                     return createTab(Dict.SAMPLE_BROWSER, browser);
                 }
 
+                @Override
                 public String getId()
                 {
                     return SampleBrowserGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.BROWSE);
@@ -129,15 +132,16 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getSampleBrowser()
+    public final AbstractTabItemFactory getSampleBrowser()
     {
         return getSampleBrowser(null, null);
     }
 
-    public final ITabItemFactory getMaterialBrowser()
+    public final AbstractTabItemFactory getMaterialBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent browser =
@@ -145,33 +149,39 @@ public final class ComponentProvider
                     return createTab(Dict.MATERIAL_BROWSER, browser);
                 }
 
+                @Override
                 public String getId()
                 {
                     return MaterialBrowserGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.MATERIAL, HelpPageAction.BROWSE);
                 }
+
             };
     }
 
-    public final ITabItemFactory getGroupBrowser()
+    public final AbstractTabItemFactory getGroupBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = GroupGrid.create(viewContext);
                     return createTab(Dict.GROUP_BROWSER, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return GroupGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.GROUP, HelpPageAction.BROWSE);
@@ -179,21 +189,24 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getAuthorizationGroupBrowser()
+    public final AbstractTabItemFactory getAuthorizationGroupBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = AuthorizationGroupGrid.create(viewContext);
                     return createTab(Dict.AUTHORIZATION_GROUP_BROWSER, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return AuthorizationGroupGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.AUTHORIZATION_GROUPS,
@@ -202,21 +215,24 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getRoleAssignmentBrowser()
+    public final AbstractTabItemFactory getRoleAssignmentBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = RoleAssignmentGrid.create(viewContext);
                     return createTab(Dict.ROLE_ASSIGNMENT_BROWSER, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return RoleAssignmentGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.ROLES, HelpPageAction.BROWSE);
@@ -224,21 +240,24 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getPersonBrowser()
+    public final AbstractTabItemFactory getPersonBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = PersonGrid.create(viewContext);
                     return createTab(Dict.PERSON_BROWSER, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return PersonGrid.createBrowserId();
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.USERS, HelpPageAction.BROWSE);
@@ -246,10 +265,11 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getSampleRegistration()
+    public final AbstractTabItemFactory getSampleRegistration()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
@@ -257,11 +277,13 @@ public final class ComponentProvider
                     return createRegistrationTab(Dict.SAMPLE_REGISTRATION, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return SampleRegistrationPanel.ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.REGISTER);
@@ -269,10 +291,11 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getExperimentRegistration()
+    public final AbstractTabItemFactory getExperimentRegistration()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
@@ -280,11 +303,13 @@ public final class ComponentProvider
                     return createRegistrationTab(Dict.EXPERIMENT_REGISTRATION, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return ExperimentRegistrationPanel.ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
@@ -293,11 +318,12 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getSampleBatchRegistration()
+    public final AbstractTabItemFactory getSampleBatchRegistration()
     {
         final boolean update = false;
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
@@ -305,11 +331,13 @@ public final class ComponentProvider
                     return createRegistrationTab(Dict.SAMPLE_BATCH_REGISTRATION, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return SampleBatchRegisterUpdatePanel.getId(update);
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.IMPORT);
@@ -317,12 +345,13 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getSampleBatchUpdate()
+    public final AbstractTabItemFactory getSampleBatchUpdate()
     {
         final boolean update = true;
 
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
@@ -330,11 +359,13 @@ public final class ComponentProvider
                     return createRegistrationTab(Dict.SAMPLE_BATCH_UPDATE, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return SampleBatchRegisterUpdatePanel.getId(update);
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.SAMPLE,
@@ -343,10 +374,11 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getMaterialBatchRegistration()
+    public final AbstractTabItemFactory getMaterialBatchRegistration()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
@@ -354,11 +386,13 @@ public final class ComponentProvider
                     return createRegistrationTab(Dict.MATERIAL_IMPORT, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return MaterialBatchRegistrationPanel.ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.MATERIAL, HelpPageAction.IMPORT);
@@ -366,21 +400,24 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getVocabularyRegistration()
+    public final AbstractTabItemFactory getVocabularyRegistration()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     Component component = new VocabularyRegistrationForm(viewContext);
                     return createSimpleTab(Dict.VOCABULARY_REGISTRATION, component, true);
                 }
 
+                @Override
                 public String getId()
                 {
                     return VocabularyRegistrationForm.ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.VOCABULARY,
@@ -389,10 +426,11 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getProjectRegistration()
+    public final AbstractTabItemFactory getProjectRegistration()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
@@ -400,11 +438,13 @@ public final class ComponentProvider
                     return createRegistrationTab(Dict.PROJECT_REGISTRATION, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return ProjectRegistrationForm.createId();
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.REGISTER);
@@ -412,21 +452,24 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getVocabularyBrowser()
+    public final AbstractTabItemFactory getVocabularyBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = VocabularyGrid.create(viewContext);
                     return createTab(Dict.VOCABULARY_BROWSER, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return VocabularyGrid.GRID_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.VOCABULARY, HelpPageAction.BROWSE);
@@ -434,21 +477,24 @@ public final class ComponentProvider
             };
     }
 
-    public final ITabItemFactory getProjectBrowser()
+    public final AbstractTabItemFactory getProjectBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = ProjectGrid.create(viewContext);
                     return createTab(Dict.PROJECT_BROWSER, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return ProjectGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.BROWSE);
@@ -456,11 +502,12 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getExperimentBrowser(final String initialProjectOrNull,
+    public AbstractTabItemFactory getExperimentBrowser(final String initialProjectOrNull,
             final String initialExperimentTypeOrNull)
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent browser =
@@ -469,11 +516,13 @@ public final class ComponentProvider
                     return createTab(Dict.EXPERIMENT_BROWSER, browser);
                 }
 
+                @Override
                 public String getId()
                 {
                     return ExperimentBrowserGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT, HelpPageAction.BROWSE);
@@ -481,26 +530,29 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getExperimentBrowser()
+    public AbstractTabItemFactory getExperimentBrowser()
     {
         return getExperimentBrowser(null, null);
     }
 
-    public ITabItemFactory getPropertyTypeBrowser()
+    public AbstractTabItemFactory getPropertyTypeBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = PropertyTypeGrid.create(viewContext);
                     return createTab(Dict.PROPERTY_TYPES, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return PropertyTypeGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.PROPERTY_TYPE,
@@ -509,10 +561,11 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getPropertyTypeRegistration()
+    public AbstractTabItemFactory getPropertyTypeRegistration()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
@@ -520,11 +573,13 @@ public final class ComponentProvider
                     return createRegistrationTab(Dict.PROPERTY_TYPE_REGISTRATION, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return PropertyTypeRegistrationForm.ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.PROPERTY_TYPE,
@@ -533,21 +588,24 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getPropertyTypeAssignmentBrowser()
+    public AbstractTabItemFactory getPropertyTypeAssignmentBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext);
                     return createTab(Dict.PROPERTY_TYPE_ASSIGNMENTS, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return PropertyTypeAssignmentGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.ASSIGNMENT, HelpPageAction.BROWSE);
@@ -555,34 +613,35 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getPropertyTypeExperimentTypeAssignmentForm()
+    public AbstractTabItemFactory getPropertyTypeExperimentTypeAssignmentForm()
     {
         return getPropertyTypeAssignmentForm(EntityKind.EXPERIMENT,
                 Dict.ASSIGN_EXPERIMENT_PROPERTY_TYPE);
     }
 
-    public ITabItemFactory getPropertyTypeMaterialTypeAssignmentForm()
+    public AbstractTabItemFactory getPropertyTypeMaterialTypeAssignmentForm()
     {
         return getPropertyTypeAssignmentForm(EntityKind.MATERIAL,
                 Dict.ASSIGN_MATERIAL_PROPERTY_TYPE);
     }
 
-    public ITabItemFactory getPropertyTypeDataSetTypeAssignmentForm()
+    public AbstractTabItemFactory getPropertyTypeDataSetTypeAssignmentForm()
     {
         return getPropertyTypeAssignmentForm(EntityKind.DATA_SET,
                 Dict.ASSIGN_DATA_SET_PROPERTY_TYPE);
     }
 
-    public ITabItemFactory getPropertyTypeSampleTypeAssignmentForm()
+    public AbstractTabItemFactory getPropertyTypeSampleTypeAssignmentForm()
     {
         return getPropertyTypeAssignmentForm(EntityKind.SAMPLE, Dict.ASSIGN_SAMPLE_PROPERTY_TYPE);
     }
 
-    private ITabItemFactory getPropertyTypeAssignmentForm(final EntityKind entityKind,
+    private AbstractTabItemFactory getPropertyTypeAssignmentForm(final EntityKind entityKind,
             final String messageKey)
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
@@ -590,11 +649,13 @@ public final class ComponentProvider
                     return createRegistrationTab(messageKey, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return PropertyTypeAssignmentForm.createId(entityKind);
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.ASSIGNMENT,
@@ -603,21 +664,24 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getDataSetSearch()
+    public AbstractTabItemFactory getDataSetSearch()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent browser = DataSetSearchHitGrid.create(viewContext);
                     return createTab(Dict.DATA_SET_SEARCH, browser);
                 }
 
+                @Override
                 public String getId()
                 {
                     return DataSetSearchHitGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.SEARCH);
@@ -625,21 +689,24 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getSampleSearch()
+    public AbstractTabItemFactory getSampleSearch()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent browser = SampleSearchHitGrid.create(viewContext);
                     return createTab(Dict.SAMPLE_SEARCH, browser);
                 }
 
+                @Override
                 public String getId()
                 {
                     return SampleSearchHitGrid.SEARCH_BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.SEARCH);
@@ -647,21 +714,24 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getSampleTypeBrowser()
+    public AbstractTabItemFactory getSampleTypeBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = SampleTypeGrid.create(viewContext);
                     return createTab(Dict.SAMPLE_TYPES, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return SampleTypeGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.SAMPLE_TYPE, HelpPageAction.BROWSE);
@@ -670,21 +740,24 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getMaterialTypeBrowser()
+    public AbstractTabItemFactory getMaterialTypeBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = MaterialTypeGrid.create(viewContext);
                     return createTab(Dict.MATERIAL_TYPES, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return MaterialTypeGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.MATERIAL_TYPE,
@@ -693,21 +766,24 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getExperimentTypeBrowser()
+    public AbstractTabItemFactory getExperimentTypeBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = ExperimentTypeGrid.create(viewContext);
                     return createTab(Dict.EXPERIMENT_TYPES, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return ExperimentTypeGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT_TYPE,
@@ -716,21 +792,24 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getDataSetTypeBrowser()
+    public AbstractTabItemFactory getDataSetTypeBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = DataSetTypeGrid.create(viewContext);
                     return createTab(Dict.DATA_SET_TYPES, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return DataSetTypeGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.DATA_SET_TYPE,
@@ -739,10 +818,11 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getDataSetUploadTab()
+    public AbstractTabItemFactory getDataSetUploadTab()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
@@ -750,11 +830,13 @@ public final class ComponentProvider
                     return createRegistrationTab(Dict.DATA_SET_UPLOAD, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return DataSetUploadForm.ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.REGISTER);
@@ -762,21 +844,24 @@ public final class ComponentProvider
             };
     }
 
-    public ITabItemFactory getFileFormatTypeBrowser()
+    public AbstractTabItemFactory getFileFormatTypeBrowser()
     {
-        return new ITabItemFactory()
+        return new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component = FileFormatTypeGrid.create(viewContext);
                     return createTab(Dict.FILE_FORMAT_TYPES, component);
                 }
 
+                @Override
                 public String getId()
                 {
                     return FileFormatTypeGrid.BROWSER_ID;
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.FILE_TYPE, HelpPageAction.BROWSE);

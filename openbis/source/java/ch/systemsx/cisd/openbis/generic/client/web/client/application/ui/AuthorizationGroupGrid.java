@@ -30,11 +30,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -105,9 +105,12 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_USERS),
                         new ISelectedEntityInvoker<BaseEntityModel<AuthorizationGroup>>()
                             {
-                                public void invoke(BaseEntityModel<AuthorizationGroup> selectedItem)
+                                public void invoke(
+                                        BaseEntityModel<AuthorizationGroup> selectedItem,
+                                        boolean keyPressed)
                                 {
-                                    showEntityViewer(selectedItem.getBaseObject(), false);
+                                    showEntityViewer(selectedItem.getBaseObject(), false,
+                                            keyPressed);
                                 }
                             });
         showDetailsButton.setId(USERS_BUTTON_ID);
@@ -133,7 +136,8 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                 new ISelectedEntityInvoker<BaseEntityModel<AuthorizationGroup>>()
                     {
 
-                        public void invoke(BaseEntityModel<AuthorizationGroup> selectedItem)
+                        public void invoke(BaseEntityModel<AuthorizationGroup> selectedItem,
+                                boolean keyPressed)
                         {
                             final AuthorizationGroup authGroup = selectedItem.getBaseObject();
                             createEditDialog(authGroup).show();
@@ -198,10 +202,11 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
     }
 
     @Override
-    protected void showEntityViewer(final AuthorizationGroup group, boolean editMode)
+    protected void showEntityViewer(final AuthorizationGroup group, boolean editMode, boolean inBackground)
     {
-        final ITabItemFactory tabFactory = new ITabItemFactory()
+        final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
             {
+                @Override
                 public ITabItem create()
                 {
                     IDisposableComponent component =
@@ -211,17 +216,20 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                     return DefaultTabItem.create(tabTitle, component, viewContext);
                 }
 
+                @Override
                 public String getId()
                 {
                     return PersonGrid.createBrowserId(group);
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.AUTHORIZATION_GROUPS,
                             HelpPageAction.VIEW);
                 }
             };
+        tabFactory.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 

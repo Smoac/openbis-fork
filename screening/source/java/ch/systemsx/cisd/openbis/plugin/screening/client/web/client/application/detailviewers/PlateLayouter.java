@@ -37,10 +37,10 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -330,10 +330,11 @@ public class PlateLayouter
                     DispatcherHelper.dispatchNaviEvent(createPlateMetadataTabFactory());
                 }
 
-                private ITabItemFactory createPlateMetadataTabFactory()
+                private AbstractTabItemFactory createPlateMetadataTabFactory()
                 {
-                    return new ITabItemFactory()
+                    return new AbstractTabItemFactory()
                         {
+                            @Override
                             public ITabItem create()
                             {
                                 return DefaultTabItem.create("Plate Report: " + plate.getCode(),
@@ -341,12 +342,14 @@ public class PlateLayouter
                                                 .getId())), viewContext);
                             }
 
+                            @Override
                             public String getId()
                             {
                                 return GenericConstants.ID_PREFIX + "plate-metadata-"
                                         + plate.getId();
                             }
 
+                            @Override
                             public HelpPageIdentifier getHelpPageIdentifier()
                             {
                                 return new HelpPageIdentifier(HelpPageDomain.SAMPLE,

@@ -89,7 +89,8 @@ public class ExperimentBrowserGrid extends
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar)
             {
                 @Override
-                protected void showEntityViewer(Experiment experiment, boolean editMode)
+                protected void showEntityViewer(Experiment experiment, boolean editMode,
+                        boolean active)
                 {
                     // do nothing - avoid showing the details after double click
                 }
@@ -133,9 +134,10 @@ public class ExperimentBrowserGrid extends
         registerLinkClickListenerFor(CommonSampleColDefKind.PROJECT.id(),
                 new ICellListener<Experiment>()
                     {
-                        public void handle(Experiment rowItem)
+                        public void handle(Experiment rowItem, boolean keyPressed)
                         {
-                            OpenEntityDetailsTabHelper.open(viewContext, rowItem.getProject());
+                            OpenEntityDetailsTabHelper.open(viewContext, rowItem.getProject(),
+                                    keyPressed);
                         }
                     });
         setId(BROWSER_ID);
@@ -209,9 +211,9 @@ public class ExperimentBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(Experiment experiment, boolean editMode)
+    protected void showEntityViewer(Experiment experiment, boolean editMode, boolean active)
     {
-        showEntityInformationHolderViewer(experiment, editMode);
+        showEntityInformationHolderViewer(experiment, editMode, active);
     }
 
     @Override

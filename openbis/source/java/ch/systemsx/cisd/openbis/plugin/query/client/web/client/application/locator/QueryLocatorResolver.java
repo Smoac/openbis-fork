@@ -1,11 +1,11 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.locator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.IViewLocatorResolver;
@@ -51,19 +51,22 @@ public class QueryLocatorResolver extends AbstractViewLocatorResolver
         final ITabActionMenuItemDefinition<IQueryClientServiceAsync> definition =
                 ActionMenuDefinition.RUN_CANNED_QUERY;
         final String tabLabelKey = definition.getName() + "_tab_label";
-        final ITabItemFactory tabItemFactory = new ITabItemFactory()
+        final AbstractTabItemFactory tabItemFactory = new AbstractTabItemFactory()
             {
+                @Override
                 public String getId()
                 {
                     return QueryModuleDatabaseMenuItem.ID + "_" + tabLabelKey;
                 }
 
+                @Override
                 public ITabItem create()
                 {
                     String tabItemText = viewContext.getMessage(tabLabelKey);
                     return DefaultTabItem.create(tabItemText, component, viewContext, false);
                 }
 
+                @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return HelpPageIdentifier.createSpecific(definition.getHelpPageTitle());

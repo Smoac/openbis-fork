@@ -286,9 +286,10 @@ public class SampleAbundanceBrowserGrid
     }
 
     @Override
-    protected void showEntityViewer(SampleWithPropertiesAndAbundance sample, boolean editMode)
+    protected void showEntityViewer(SampleWithPropertiesAndAbundance sample, boolean editMode,
+            boolean active)
     {
-        showEntityInformationHolderViewer(sample, editMode);
+        showEntityInformationHolderViewer(sample, editMode, active);
     }
 
     @Override

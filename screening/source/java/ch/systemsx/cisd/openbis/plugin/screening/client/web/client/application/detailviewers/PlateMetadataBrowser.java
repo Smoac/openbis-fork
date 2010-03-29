@@ -74,32 +74,32 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
         registerLinkClickListenerFor(PlateMetadataStaticColumns.WELL.colId(),
                 new ICellListener<GenericTableRow>()
                     {
-                        public void handle(GenericTableRow rowItem)
+                        public void handle(GenericTableRow rowItem, boolean keyPressed)
                         {
-                            showEntityViewer(rowItem, false);
+                            showEntityViewer(rowItem, false, keyPressed);
                         }
                     });
         registerLinkClickListenerFor(PlateMetadataStaticColumns.CONTENT.colId(),
                 new ICellListener<GenericTableRow>()
                     {
-                        public void handle(GenericTableRow rowItem)
+                        public void handle(GenericTableRow rowItem, boolean keyPressed)
                         {
-                            showMaterialViewer(rowItem, false);
+                            showMaterialViewer(rowItem, false, keyPressed);
                         }
                     });
         registerLinkClickListenerFor(PlateMetadataStaticColumns.INHIBITED_GENE.colId(),
                 new ICellListener<GenericTableRow>()
                     {
-                        public void handle(GenericTableRow rowItem)
+                        public void handle(GenericTableRow rowItem, boolean keyPressed)
                         {
-                            showGeneViewer(rowItem, false);
+                            showGeneViewer(rowItem, false, keyPressed);
                         }
                     });
         registerLinkClickListenerFor(PlateMetadataStaticColumns.GENE_DETAILS.colId(),
                 new ICellListener<GenericTableRow>()
                     {
 
-                        public void handle(GenericTableRow rowItem)
+                        public void handle(GenericTableRow rowItem, boolean keyPressed)
                         {
                             ISerializableComparable gene =
                                     rowItem.tryToGetValue(PlateMetadataStaticColumns.INHIBITED_GENE
@@ -137,7 +137,7 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
     }
 
     @Override
-    protected void showEntityViewer(final GenericTableRow entity, boolean editMode)
+    protected void showEntityViewer(final GenericTableRow entity, boolean editMode, boolean active)
     {
         showEntityInformationHolderViewer(new IEntityInformationHolder()
             {
@@ -165,10 +165,10 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
                 {
                     return EntityKind.SAMPLE;
                 }
-            }, editMode);
+            }, editMode, active);
     }
 
-    protected void showMaterialViewer(final GenericTableRow entity, boolean editMode)
+    protected void showMaterialViewer(final GenericTableRow entity, boolean editMode, boolean active)
     {
         showEntityInformationHolderViewer(new IEntityInformationHolder()
             {
@@ -196,10 +196,10 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
                 {
                     return EntityKind.MATERIAL;
                 }
-            }, editMode);
+            }, editMode, active);
     }
 
-    protected void showGeneViewer(final GenericTableRow entity, boolean editMode)
+    protected void showGeneViewer(final GenericTableRow entity, boolean editMode, boolean active)
     {
         showEntityInformationHolderViewer(new IEntityInformationHolder()
             {
@@ -229,7 +229,7 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
                 {
                     return EntityKind.MATERIAL;
                 }
-            }, editMode);
+            }, editMode, active);
     }
 
 }

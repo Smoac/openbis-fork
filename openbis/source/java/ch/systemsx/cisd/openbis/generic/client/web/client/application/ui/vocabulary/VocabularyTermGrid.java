@@ -169,7 +169,8 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                             {
 
                                 public void invoke(
-                                        BaseEntityModel<VocabularyTermWithStats> selectedItem)
+                                        BaseEntityModel<VocabularyTermWithStats> selectedItem,
+                                        boolean keyPressed)
                                 {
                                     final VocabularyTermWithStats term =
                                             selectedItem.getBaseObject();

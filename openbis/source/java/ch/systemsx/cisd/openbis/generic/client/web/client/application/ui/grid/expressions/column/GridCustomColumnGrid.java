@@ -113,7 +113,8 @@ public class GridCustomColumnGrid extends AbstractSimpleBrowserGrid<GridCustomCo
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<GridCustomColumn>>()
                             {
-                                public void invoke(BaseEntityModel<GridCustomColumn> selectedItem)
+                                public void invoke(BaseEntityModel<GridCustomColumn> selectedItem,
+                                        boolean keyPressed)
                                 {
                                     final GridCustomColumn selected = selectedItem.getBaseObject();
                                     createEditDialog(selected).show();
