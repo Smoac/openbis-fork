@@ -16,33 +16,30 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 import net.lemnik.eodsql.DataSet;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.support.lob.LobHandler;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithPeptideSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbabilityAndPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SampleAbundance;
@@ -55,213 +52,141 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
  */
 class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
 {
-    private IProteinQueryDAO proteinQueryDAO;
-
     private static final class ProteinQueryDAO implements IProteinQueryDAO
     {
-        private static final class ListBasedDataSet<T> extends ArrayList<T> implements DataSet<T>
+        private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, ProteinQueryDAO.class);
+        
+        private static final class DataSetProxy<T> implements DataSet<T>
         {
-            private static final long serialVersionUID = 1L;
-            
-            ListBasedDataSet(DataSet<T> dataSet)
+            private List<T> list;
+            DataSetProxy(List<T> list)
             {
-                try
-                {
-                    for (T row : dataSet)
-                    {
-                        add(row);
-                    }
-                } finally
-                {
-                    dataSet.close();
-                }
+                this.list = list;
             }
-
+            public void add(int index, T element)
+            {
+                list.add(index, element);
+            }
+            public boolean add(T o)
+            {
+                return list.add(o);
+            }
+            public boolean addAll(Collection<? extends T> c)
+            {
+                return list.addAll(c);
+            }
+            public boolean addAll(int index, Collection<? extends T> c)
+            {
+                return list.addAll(index, c);
+            }
+            public void clear()
+            {
+                list.clear();
+            }
+            public boolean contains(Object o)
+            {
+                return list.contains(o);
+            }
+            public boolean containsAll(Collection<?> c)
+            {
+                return list.containsAll(c);
+            }
+            @Override
+            public boolean equals(Object o)
+            {
+                return list.equals(o);
+            }
+            public T get(int index)
+            {
+                return list.get(index);
+            }
+            @Override
+            public int hashCode()
+            {
+                return list.hashCode();
+            }
+            public int indexOf(Object o)
+            {
+                return list.indexOf(o);
+            }
+            public boolean isEmpty()
+            {
+                return list.isEmpty();
+            }
+            public Iterator<T> iterator()
+            {
+                return list.iterator();
+            }
+            public int lastIndexOf(Object o)
+            {
+                return list.lastIndexOf(o);
+            }
+            public ListIterator<T> listIterator()
+            {
+                return list.listIterator();
+            }
+            public ListIterator<T> listIterator(int index)
+            {
+                return list.listIterator(index);
+            }
+            public T remove(int index)
+            {
+                return list.remove(index);
+            }
+            public boolean remove(Object o)
+            {
+                return list.remove(o);
+            }
+            public boolean removeAll(Collection<?> c)
+            {
+                return list.removeAll(c);
+            }
+            public boolean retainAll(Collection<?> c)
+            {
+                return list.retainAll(c);
+            }
+            public T set(int index, T element)
+            {
+                return list.set(index, element);
+            }
+            public int size()
+            {
+                return list.size();
+            }
+            public List<T> subList(int fromIndex, int toIndex)
+            {
+                return list.subList(fromIndex, toIndex);
+            }
+            public Object[] toArray()
+            {
+                return list.toArray();
+            }
+            public <X> X[] toArray(X[] a)
+            {
+                return list.toArray(a);
+            }
             public void close()
             {
             }
-
             public void disconnect()
             {
             }
-
             public boolean isConnected()
             {
                 return false;
             }
-        }
-        
-        private static interface IDataSetLoader<T>
-        {
-            public DataSet<T> load(String experimentPermID);
-        }
-        
-        private static final class FileBasedDataSetLoader<T> implements IDataSetLoader<T>
-        {
-            private final File store;
-
-            FileBasedDataSetLoader(File store)
-            {
-                this.store = store;
-            }
             
-            void save(String experimentPermID, DataSet<T> dataSet)
-            {
-                store.mkdirs();
-                File file = new File(store, experimentPermID);
-                ObjectOutputStream outputStream = null;
-                try
-                {
-                    outputStream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file), 1024*1024));
-                    outputStream.writeObject(dataSet);
-                } catch (IOException ex)
-                {
-                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                } finally
-                {
-                    IOUtils.closeQuietly(outputStream);
-                }
-            }
-
-            @SuppressWarnings("unchecked")
-            public DataSet<T> load(String experimentPermID)
-            {
-                store.mkdirs();
-                File file = new File(store, experimentPermID);
-                if (file.exists() == false)
-                {
-                    return null;
-                }
-                ObjectInputStream inputStream = null;
-                try
-                {
-                    inputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file), 1024*1024));
-                    return (DataSet<T>) inputStream.readObject();
-                } catch (Exception ex)
-                {
-                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                } finally
-                {
-                    IOUtils.closeQuietly(inputStream);
-                }
-            }
-            
-        }
-
-        private static final class ResultSetCache<T> 
-        {
-            private static final Logger operationLog =
-                    LogFactory.getLogger(LogCategory.OPERATION, ResultSetCache.class);
-
-            private enum CachingType { MEMORY, FILE_SYSTEM }
-            
-            private final String name;
-            private final IDataSetLoader<T> dataSetLoader;
-            private final Map<String, DataSet<T>> cache;
-            private final FileBasedDataSetLoader<T> fileBasedDataSetLoader;
-            private final CachingType cachingType;
-            
-            ResultSetCache(String name, String typeOfCaching, IDataSetLoader<T> dataSetLoader)
-            {
-                this.name = name;
-                cachingType = resolve(typeOfCaching);
-                fileBasedDataSetLoader = new FileBasedDataSetLoader<T>(new File("cache/" + name));
-                this.dataSetLoader = dataSetLoader;
-                cache = new HashMap<String, DataSet<T>>();
-            }
-
-            private CachingType resolve(String typeOfCaching)
-            {
-                CachingType[] values = CachingType.values();
-                for (CachingType type : values)
-                {
-                    if (type.toString().equalsIgnoreCase(typeOfCaching))
-                    {
-                        return type;
-                    }
-                }
-                return null;
-            }
-            
-            DataSet<T> getDataSet(String experimentPermID)
-            {
-                long time = System.currentTimeMillis();
-                DataSet<T> dataSet;
-                if (cachingType == CachingType.MEMORY)
-                {
-                    dataSet = cache.get(experimentPermID);
-                    if (dataSet == null)
-                    {
-                        DataSet<T> resultSet = dataSetLoader.load(experimentPermID);
-                        dataSet = new ListBasedDataSet<T>(resultSet);
-                        cache.put(experimentPermID, dataSet);
-                    }
-                } else if (cachingType == CachingType.FILE_SYSTEM)
-                {
-                    dataSet = fileBasedDataSetLoader.load(experimentPermID);
-                    if (dataSet == null)
-                    {
-                        DataSet<T> resultSet = dataSetLoader.load(experimentPermID);
-                        dataSet = new ListBasedDataSet<T>(resultSet);
-                        fileBasedDataSetLoader.save(experimentPermID, dataSet);
-                    }
-                } else
-                {
-                    dataSet = new ListBasedDataSet<T>(dataSetLoader.load(experimentPermID));
-                }
-                operationLog.info("(" + (System.currentTimeMillis() - time) + "ms) " + name);
-                return dataSet;
-            }
         }
         
         private final IProteinQueryDAO dao;
 
-        private final ResultSetCache<ProteinReferenceWithProbability> listProteinsByExperimentCache;
+        private final DatabaseConfigurationContext context;
 
-        private final ResultSetCache<ProteinReferenceWithPeptideSequence> listProteinsWithSequencesByExperimentCache;
-        
-        private final ResultSetCache<ProteinReferenceWithPeptideSequence> listProteinsWithPeptidesByExperiment;
-
-        ProteinQueryDAO(final IProteinQueryDAO dao, String typeOfCaching)
+        ProteinQueryDAO(final IProteinQueryDAO dao, DatabaseConfigurationContext context)
         {
             this.dao = dao;
-            listProteinsByExperimentCache =
-                    new ResultSetCache<ProteinReferenceWithProbability>("listProteinsByExperiment", typeOfCaching, 
-                            new IDataSetLoader<ProteinReferenceWithProbability>()
-                                {
-
-                                    public DataSet<ProteinReferenceWithProbability> load(
-                                            String experimentPermID)
-                                    {
-                                        return dao.listProteinsByExperiment(experimentPermID);
-                                    }
-                                });
-            listProteinsWithSequencesByExperimentCache =
-                    new ResultSetCache<ProteinReferenceWithPeptideSequence>(
-                            "listProteinsWithSequencesByExperiment", typeOfCaching, 
-                            new IDataSetLoader<ProteinReferenceWithPeptideSequence>()
-                                {
-
-                                    public DataSet<ProteinReferenceWithPeptideSequence> load(
-                                            String experimentPermID)
-                                    {
-                                        return dao
-                                                .listProteinsWithSequencesByExperiment(experimentPermID);
-                                    }
-                                });
-            listProteinsWithPeptidesByExperiment =
-                    new ResultSetCache<ProteinReferenceWithPeptideSequence>(
-                            "listProteinsWithPeptidesByExperiment", typeOfCaching, 
-                            new IDataSetLoader<ProteinReferenceWithPeptideSequence>()
-                                {
-
-                                    public DataSet<ProteinReferenceWithPeptideSequence> load(
-                                            String experimentPermID)
-                                    {
-                                        return dao
-                                                .listProteinsWithPeptidesByExperiment(experimentPermID);
-                                    }
-                                });
+            this.context = context;
         }
 
         public void close()
@@ -292,7 +217,24 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
         public DataSet<ProteinReferenceWithProbability> listProteinsByExperiment(
                 String experimentPermID)
         {
-            return listProteinsByExperimentCache.getDataSet(experimentPermID);
+            long time = System.currentTimeMillis();
+            final LobHandler lobHandler = context.getLobHandler();
+            SimpleJdbcTemplate template = new SimpleJdbcTemplate(context.getDataSource());
+            List<ProteinReferenceWithProbability> resultSet =
+                    template.queryForObject(
+                            "select blob from protein_view_cache where experiment_perm_id = ?",
+                            new ParameterizedRowMapper<List<ProteinReferenceWithProbability>>()
+                                {
+
+                                    public List<ProteinReferenceWithProbability> mapRow(ResultSet rs,
+                                            int rowNum) throws SQLException
+                                    {
+                                        return (List<ProteinReferenceWithProbability>) SerializationUtils
+                                                .deserialize(lobHandler.getBlobAsBinaryStream(rs, 1));
+                                    }
+                                }, experimentPermID);
+            operationLog.info("(" + (System.currentTimeMillis() - time) + "ms) listProteinsByExperiment");
+            return new DataSetProxy<ProteinReferenceWithProbability>(resultSet);
         }
         
         public DataSet<IdentifiedProtein> listProteinsByProteinReferenceAndExperiment(
@@ -307,22 +249,10 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
             return dao.listProteinSequencesByProteinReference(proteinReferenceID);
         }
 
-        public DataSet<ProteinReferenceWithPeptideSequence> listProteinsWithPeptidesByExperiment(
-                String experimentPermID)
-        {
-            return listProteinsWithPeptidesByExperiment.getDataSet(experimentPermID);
-        }
-
         public DataSet<ProteinReferenceWithProbabilityAndPeptide> listProteinsWithProbabilityAndPeptidesByExperiment(
                 String experimentPermID)
         {
             return dao.listProteinsWithProbabilityAndPeptidesByExperiment(experimentPermID);
-        }
-
-        public DataSet<ProteinReferenceWithPeptideSequence> listProteinsWithSequencesByExperiment(
-                String experimentPermID)
-        {
-            return listProteinsWithSequencesByExperimentCache.getDataSet(experimentPermID);
         }
 
         public DataSet<SampleAbundance> listSampleAbundanceByProtein(String experimentPermID,
@@ -335,16 +265,30 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
         {
             return dao.tryToGetProteinReference(proteinReferenceID);
         }
+
+        public byte[] tryToGetCachedProteinView(String experimentPermID)
+        {
+            return dao.tryToGetCachedProteinView(experimentPermID);
+        }
     }
     
+    private IProteinQueryDAO proteinQueryDAO;
+    private DatabaseConfigurationContext context;
+
     DAOFactoryWithCache(IPhosphoNetXDAOFactory daoFactory, String typeOfCaching)
     {
-        proteinQueryDAO = new ProteinQueryDAO(daoFactory.getProteinQueryDAO(), typeOfCaching);
+        proteinQueryDAO = new ProteinQueryDAO(daoFactory.getProteinQueryDAO(), daoFactory.getContext());
+        context = daoFactory.getContext();
     }
 
     public IProteinQueryDAO getProteinQueryDAO()
     {
         return proteinQueryDAO;
+    }
+
+    public DatabaseConfigurationContext getContext()
+    {
+        return context;
     }
 
 }

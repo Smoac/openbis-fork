@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithPeptideSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbabilityAndPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SampleAbundance;
@@ -40,6 +39,9 @@ public interface IProteinQueryDAO extends BaseQuery
     @Select(sql = "select * from probability_fdr_mappings where dase_id = ?{1}", disconnected = true)
     public DataSet<ProbabilityFDRMapping> getProbabilityFDRMapping(long dataSetID);
     
+    @Select("select blob from protein_view_cache where experiment_perm_id = ?{1}")
+    public byte[] tryToGetCachedProteinView(String experimentPermID);
+    
     @Select("select pr.id, pr.accession_number, pr.description, d.id as data_set_id, p.probability, " 
     		+ "   ip.coverage, a.value as abundance, samples.perm_id as sample_perm_id "
             + "from identified_proteins as ip left join proteins as p on ip.prot_id = p.id "
@@ -52,6 +54,7 @@ public interface IProteinQueryDAO extends BaseQuery
             + "where e.perm_id = ?{1}")
     public DataSet<ProteinReferenceWithProbability> listProteinsByExperiment(String experimentPermID);
 
+    
     @Select(sql = "select p.dase_id as data_set_id, p.probability, s.prre_id as id, pe.sequence "
             + "from identified_proteins as ip left join sequences as s on ip.sequ_id = s.id "
             + "left join proteins as p on ip.prot_id = p.id "
@@ -61,28 +64,6 @@ public interface IProteinQueryDAO extends BaseQuery
             + "where e.perm_id = ?{1} ")
     public DataSet<ProteinReferenceWithProbabilityAndPeptide> listProteinsWithProbabilityAndPeptidesByExperiment(
             String experimentPermID);
-    
-    @Select("select distinct on (s.prre_id,s.checksum) s.prre_id, ip.sequ_id, s.amino_acid_sequence "
-            + "from identified_proteins as ip "
-            + "left join proteins as p on ip.prot_id = p.id "
-            + "left join data_sets as d on p.dase_id = d.id "
-            + "left join experiments as e on d.expe_id = e.id "
-            + "left join sequences as s on ip.sequ_id = s.id "
-            + "where e.perm_id = ?{1} order by s.prre_id")
-    public DataSet<ProteinReferenceWithPeptideSequence> listProteinsWithSequencesByExperiment(
-            String experimentPermID);
-
-    @Select("select distinct on (s.prre_id,s.checksum,pe.sequence) s.prre_id, ip.sequ_id, pe.sequence "
-            + "from identified_proteins as ip "
-            + "left join proteins as p on ip.prot_id = p.id "
-            + "left join data_sets as d on p.dase_id = d.id "
-            + "left join experiments as e on d.expe_id = e.id "
-            + "left join sequences as s on ip.sequ_id = s.id "
-            + "left join peptides as pe on p.id = pe.prot_id "
-            + "where e.perm_id = ?{1} order by s.prre_id, pe.sequence")
-    public DataSet<ProteinReferenceWithPeptideSequence> listProteinsWithPeptidesByExperiment(
-            String experimentPermID);    
-    
     
     @Select("select distinct s.perm_id "
             + "from abundances as a left join proteins as p on a.prot_id = p.id "

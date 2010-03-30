@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess;
 
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+
 /**
  * A factory for PhosphoNetX specific DAOs.
  *
@@ -23,5 +25,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess;
  */
 public interface IPhosphoNetXDAOFactory
 {
+    public DatabaseConfigurationContext getContext();
+    
     public IProteinQueryDAO getProteinQueryDAO();
 }

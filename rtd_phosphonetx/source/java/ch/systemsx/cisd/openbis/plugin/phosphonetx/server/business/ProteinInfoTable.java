@@ -31,11 +31,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithPeptideSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
@@ -70,7 +68,6 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
     {
         IExperimentDAO experimentDAO = getDaoFactory().getExperimentDAO();
         String permID = experimentDAO.getByTechId(experimentID).getPermId();
-//        CoverageCalculator coverageCalculator = setUpCoverageCalculator(permID);
         AbundanceManager abundanceManager = setUpAbundanceManager(permID, falseDiscoveryRate);
         Collection<ProteinWithAbundances> proteins = abundanceManager.getProteinsWithAbundances();
         infos = new ArrayList<ProteinInfo>(proteins.size());
@@ -79,7 +76,6 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
             ProteinInfo proteinInfo = new ProteinInfo();
             proteinInfo.setId(new TechId(protein.getId()));
             AccessionNumberBuilder builder = new AccessionNumberBuilder(protein.getAccessionNumber());
-//            proteinInfo.setCoverage(coverageCalculator.calculateCoverageFor(protein.getId()));
             proteinInfo.setCoverage(100 * protein.getCoverage());
             proteinInfo.setAccessionNumber(builder.getAccessionNumber());
             proteinInfo.setDescription(protein.getDescription());
@@ -123,10 +119,10 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
             double falseDiscoveryRate)
     {
         AbundanceManager abundanceManager = new AbundanceManager(sampleProvider);
-        ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
+        IPhosphoNetXDAOFactory daoFactory = getSpecificDAOFactory();
+        ErrorModel errorModel = new ErrorModel(daoFactory);
         DataSet<ProteinReferenceWithProbability> resultSet =
-                dao.listProteinsByExperiment(experimentPermID);
+                daoFactory.getProteinQueryDAO().listProteinsByExperiment(experimentPermID);
         try
         {
             for (ProteinReferenceWithProbability protein : resultSet)
@@ -141,36 +137,6 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
             resultSet.close();
         }
         return abundanceManager;
-    }
-    
-    private CoverageCalculator setUpCoverageCalculator(String experimentPermID)
-    {
-        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
-        CoverageCalculator coverageCalculator = createAndPrepareCoverageCalculator(experimentPermID);
-        DataSet<ProteinReferenceWithPeptideSequence> resultSet =
-                dao.listProteinsWithPeptidesByExperiment(experimentPermID);
-        try
-        {
-            coverageCalculator.handlePeptideSequences(resultSet);
-        } finally
-        {
-            resultSet.close();
-        }
-        return coverageCalculator;
-    }
-
-    private CoverageCalculator createAndPrepareCoverageCalculator(String experimentPermID)
-    {
-        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
-        DataSet<ProteinReferenceWithPeptideSequence> resultSet =
-                dao.listProteinsWithSequencesByExperiment(experimentPermID);
-        try
-        {
-            return new CoverageCalculator(resultSet);
-        } finally
-        {
-            resultSet.close();
-        }
     }
 
     private static double[] concatenate(double[] array1OrNull, double[] array2OrNull)

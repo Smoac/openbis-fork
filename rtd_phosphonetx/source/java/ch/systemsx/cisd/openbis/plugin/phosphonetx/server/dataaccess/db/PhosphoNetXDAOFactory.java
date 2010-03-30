@@ -42,10 +42,13 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PhosphoNetXDAOFactory.class);
 
-    private IProteinQueryDAO proteinQueryDAO;
+    private final IProteinQueryDAO proteinQueryDAO;
+
+    private final DatabaseConfigurationContext context;
 
     public PhosphoNetXDAOFactory(DatabaseConfigurationContext context)
     {
+        this.context = context;
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
         Connection connection = null;
         try
@@ -60,6 +63,11 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
         {
             operationLog.info("DAO factory for PhosphoNetX created.");
         }
+    }
+    
+    public DatabaseConfigurationContext getContext()
+    {
+        return context;
     }
 
     public IProteinQueryDAO getProteinQueryDAO()

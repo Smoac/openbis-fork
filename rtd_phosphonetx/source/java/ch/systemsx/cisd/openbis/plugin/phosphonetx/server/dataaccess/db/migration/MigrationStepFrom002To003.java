@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.db.migration;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,17 +28,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.support.JdbcUtils;
+
+import sun.print.PSPrinterJob.EPSPrinter;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.java.MigrationStepAdapter;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Occurrence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.OccurrenceUtil;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 
 /**
  * 
@@ -44,6 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.OccurrenceUt
  */
 public class MigrationStepFrom002To003 extends MigrationStepAdapter
 {
+    private static final long MB = 1024 * 1024;
     private static final Logger operationLog =
         LogFactory.getLogger(LogCategory.OPERATION, MigrationStepFrom002To003.class);
     
@@ -51,43 +61,103 @@ public class MigrationStepFrom002To003 extends MigrationStepAdapter
     public void performPostMigration(SimpleJdbcTemplate simpleJdbcTemplate)
             throws DataAccessException
     {
-        Runtime runtime = Runtime.getRuntime();
-        long usedMemory = runtime.totalMemory() - runtime.freeMemory();
-        JdbcOperations jdbcOperations = simpleJdbcTemplate.getJdbcOperations();
-        Map<Long, String> sequences = getSequences(jdbcOperations);
-        Map<Long, List<String>> peptides = getPeptides(jdbcOperations);
-        List<Object[]> coverageValues =
-                calculateCoverageValues(jdbcOperations, sequences, peptides);
-        operationLog.info("update " + coverageValues.size() + " identified proteins ("
-                + (runtime.totalMemory() - runtime.freeMemory() - usedMemory) / 1024 / 1024 + " MB)");
+        List<Object[]> coverageValues = calculateCoverageValues(simpleJdbcTemplate);
+        operationLog.info("update " + coverageValues.size() + " identified proteins");
         simpleJdbcTemplate.batchUpdate("update identified_proteins set coverage = ? where id = ?", coverageValues);
+        createProteinView(simpleJdbcTemplate);
     }
-
-    private List<Object[]> calculateCoverageValues(JdbcOperations jdbcOperations,
-            final Map<Long, String> sequences, final Map<Long, List<String>> peptides)
+    
+    private List<Object[]> calculateCoverageValues(SimpleJdbcTemplate simpleJdbcTemplate)
     {
-        final List<Object[]> result = new ArrayList<Object[]>();
+        logMemory();
+        JdbcOperations jdbcOperations = simpleJdbcTemplate.getJdbcOperations();
+        final Map<Long, List<String>> peptides = getPeptides(jdbcOperations);
+        logMemory();
+        final List<Object[]> values = new ArrayList<Object[]>();
         jdbcOperations.query(
-                "select id, prot_id, sequ_id from identified_proteins where coverage is null",
+                "select ip.id, ip.prot_id, s.amino_acid_sequence " +
+                "from identified_proteins as ip " +
+                "join sequences as s on ip.sequ_id = s.id where coverage is null",
                 new ResultSetExtractor()
+                {
+                    public Object extractData(ResultSet rs) throws SQLException,
+                    DataAccessException
                     {
-                        public Object extractData(ResultSet rs) throws SQLException,
-                                DataAccessException
+                        while (rs.next())
                         {
-                            while (rs.next())
-                            {
-                                long id = rs.getLong(1);
-                                long proteinID = rs.getLong(2);
-                                long sequenceID = rs.getLong(3);
-                                String sequence = sequences.get(sequenceID);
-                                List<String> peptideSequences = peptides.get(proteinID);
-                                double coverage = calculateCoverage(sequence, peptideSequences);
-                                result.add(new Object[] { coverage, id });
-                            }
-                            return null;
+                            long id = rs.getLong(1);
+                            long proteinID = rs.getLong(2);
+                            String sequence = rs.getString(3);
+                            List<String> peptideSequences = peptides.get(proteinID);
+                            double coverage = calculateCoverage(sequence, peptideSequences);
+                            values.add(new Object[] { coverage, id });
                         }
-                    });
-        return result;
+                        return null;
+                    }
+                });
+        logMemory();
+        return values;
+    }
+    
+    private void createProteinView(SimpleJdbcTemplate simpleJdbcTemplate)
+    {
+        List<String> experiments =
+                simpleJdbcTemplate.query("select perm_id from experiments",
+                        new ParameterizedRowMapper<String>()
+                            {
+                                public String mapRow(ResultSet rs, int rowNum) throws SQLException
+                                {
+                                    return rs.getString(1);
+                                }
+                            });
+        operationLog.info("create protein views for " + experiments.size() + " experiments");
+        logMemory();
+        JdbcOperations jdbcOperations = simpleJdbcTemplate.getJdbcOperations();
+        Object[] arguments = new Object[1];
+        for (final String experiment : experiments)
+        {
+            arguments[0] = experiment;
+            List<ProteinReferenceWithProbability> rows = simpleJdbcTemplate.query(
+                    "select pr.id, pr.accession_number, pr.description, d.id, p.probability, "
+                            + "ip.coverage, a.value, samples.perm_id "
+                            + "from identified_proteins as ip "
+                            + "left join proteins as p on ip.prot_id = p.id "
+                            + "left join data_sets as d on p.dase_id = d.id "
+                            + "left join experiments as e on d.expe_id = e.id "
+                            + "left join sequences as s on ip.sequ_id = s.id "
+                            + "left join protein_references as pr on s.prre_id = pr.id "
+                            + "left join abundances as a on p.id = a.prot_id "
+                            + "left join samples on a.samp_id = samples.id "
+                            + "where e.perm_id = ?", new ParameterizedRowMapper<ProteinReferenceWithProbability>()
+                                {
+
+                                    public ProteinReferenceWithProbability mapRow(ResultSet rs,
+                                            int rowNum) throws SQLException
+                                    {
+                                        ProteinReferenceWithProbability protein = new ProteinReferenceWithProbability();
+                                        protein.setId(rs.getLong(1));
+                                        protein.setAccessionNumber(rs.getString(2));
+                                        protein.setDescription(rs.getString(3));
+                                        protein.setDataSetID(rs.getLong(4));
+                                        protein.setProbability(rs.getDouble(5));
+                                        protein.setCoverage(rs.getDouble(6));
+                                        protein.setAbundance(getDoubleOrNull(rs, 7));
+                                        protein.setSamplePermID(rs.getString(8));
+                                        return protein;
+                                    }
+                                }, experiment);
+            operationLog.info("insert " + rows.size() + " rows into protein_view_cache for experiment "
+                    + experiment);
+            byte[] serializedRows = SerializationUtils.serialize((Serializable) rows);
+            simpleJdbcTemplate.update("insert into protein_view_cache (experiment_perm_id, blob) "
+                    + "values(?, ?)", experiment, serializedRows);
+            logMemory();
+        }
+    }
+    private Double getDoubleOrNull(ResultSet rs, int index) throws SQLException
+    {
+        double result = rs.getDouble(index);
+        return rs.wasNull() ? null : result;
     }
 
     private Map<Long, List<String>> getPeptides(JdbcOperations jdbcOperations)
@@ -100,41 +170,26 @@ public class MigrationStepFrom002To003 extends MigrationStepAdapter
                                 DataAccessException
                         {
                             long currentProteinID = -1;
-                            List<String> set = null;
+                            ArrayList<String> list = null;
                             while (rs.next())
                             {
                                 long proteinID = rs.getLong(1);
-                                if (set == null || proteinID != currentProteinID)
+                                if (list == null || proteinID != currentProteinID)
                                 {
+                                    if (list != null)
+                                    {
+                                        list.trimToSize();
+                                    }
                                     currentProteinID = proteinID;
-                                    set = new ArrayList<String>();
-                                    peptides.put(proteinID, set);
+                                    list = new ArrayList<String>();
+                                    peptides.put(proteinID, list);
                                 }
-                                set.add(rs.getString(2));
+                                list.add(rs.getString(2));
                             }
                             return null;
                         }
                     });
         return peptides;
-    }
-
-    private Map<Long, String> getSequences(JdbcOperations jdbcOperations)
-    {
-        final Map<Long, String> sequences = new HashMap<Long, String>();
-        jdbcOperations.query("select id, amino_acid_sequence from sequences",
-                new ResultSetExtractor()
-                    {
-                        public Object extractData(ResultSet rs) throws SQLException,
-                                DataAccessException
-                        {
-                            while (rs.next())
-                            {
-                                sequences.put(rs.getLong(1), rs.getString(2));
-                            }
-                            return null;
-                        }
-                    });
-        return sequences;
     }
 
     private double calculateCoverage(String sequence, List<String> peptides)
@@ -149,4 +204,11 @@ public class MigrationStepFrom002To003 extends MigrationStepAdapter
         return sumPeptides / (double) sequence.length();
     }
 
+    private void logMemory()
+    {
+        Runtime runtime = Runtime.getRuntime();
+        long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / MB;
+        operationLog.info(usedMemory + " MB used, " + runtime.totalMemory() / MB + " MB total");
+    }
 }
+
