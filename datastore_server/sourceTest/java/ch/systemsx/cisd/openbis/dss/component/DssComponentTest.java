@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.rpc.client;
+package ch.systemsx.cisd.openbis.dss.component;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -22,7 +22,8 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.dss.rpc.client.DssComponent;
+import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -35,7 +36,9 @@ public class DssComponentTest extends AssertJUnit
 {
     private Mockery context;
 
-    private IETLLIMSService service;
+    private IETLLIMSService openBisService;
+
+    private IDssServiceRpcFactory dssServiceFactory;
 
     private DssComponent dssComponent;
 
@@ -50,8 +53,9 @@ public class DssComponentTest extends AssertJUnit
     public void setUp()
     {
         context = new Mockery();
-        service = context.mock(IETLLIMSService.class);
-        dssComponent = new DssComponent(service);
+        openBisService = context.mock(IETLLIMSService.class);
+        dssServiceFactory = context.mock(IDssServiceRpcFactory.class);
+        dssComponent = new DssComponent(openBisService, dssServiceFactory);
     }
 
     @Test
@@ -62,7 +66,7 @@ public class DssComponentTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryToAuthenticate("foo", "bar");
+                    one(openBisService).tryToAuthenticate("foo", "bar");
                     will(returnValue(session));
                 }
             });
@@ -75,15 +79,24 @@ public class DssComponentTest extends AssertJUnit
     {
         final SessionContextDTO session = getDummySession();
         final ExternalData dataSetExternalData = new ExternalData();
-        dataSetExternalData.setDataStore(new DataStore());
+        DataStore dataStore = new DataStore();
+        dataStore.setDownloadUrl("http://localhost/path/to/dataset/");
+        dataSetExternalData.setDataStore(dataStore);
+        final IDssServiceRpcV1 dssService = context.mock(IDssServiceRpcV1.class);
 
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryToAuthenticate("foo", "bar");
+                    final String dataSetCode = "DummyDataSetCode";
+
+                    one(openBisService).tryToAuthenticate("foo", "bar");
                     will(returnValue(session));
-                    one(service).tryGetDataSet(DUMMY_SESSSION_TOKEN, "DummyDataSetCode");
+                    one(openBisService).tryGetDataSet(DUMMY_SESSSION_TOKEN, dataSetCode);
                     will(returnValue(dataSetExternalData));
+                    one(dssServiceFactory).getServiceV1("http://localhost/path/to/dataset/", false);
+                    will(returnValue(dssService));
+                    one(dssService).getDataSet(DUMMY_SESSSION_TOKEN, dataSetCode);
+                    will(returnValue(null));
                 }
             });
 

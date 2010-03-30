@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.shared;
 
-
 /**
  * The most generic interface for RPC invocations into DSS.
  * <p>
- * This interface defines a minimal interface presented by DSS and is not useful for clients.
- * Clients should use a versioned interface, e.g., IDssServiceRpcV1.
+ * This interface defines a minimal interface presented by DSS. It lets clients determine which
+ * version of the interface the server supports. To actualy interact with the server, clients should
+ * use a versioned interface, e.g., IDssServiceRpcV1.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.rpc.shared;
+package ch.systemsx.cisd.openbis.dss.rpc.client;
+
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
 
 /**
+ * The interface for creating proxies to the data store server.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IDssServiceRpcV1 extends IDssServiceRpc
+public interface IDssServiceRpcFactory
 {
-    //
-    // Protocol versioning
-    //
-    /** The version of this service interface. */
-    public static final int VERSION = 1;
 
-    /**
-     * Get a proxy to the data set object managed by the data store server.
-     */
-    public IDataSetDss getDataSet(String sessionToken, String code);
+    public abstract IDssServiceRpcV1 getServiceV1(String serviceURL,
+            boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException;
+
 }

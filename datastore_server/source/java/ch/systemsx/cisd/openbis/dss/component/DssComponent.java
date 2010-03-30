@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.rpc.client;
+package ch.systemsx.cisd.openbis.dss.component;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.openbis.dss.rpc.client.DssServiceRpcFactory;
+import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -29,12 +32,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 /**
  * Implementation of the IDssComponent interface. It is a facade for interacting with openBIS and
  * multiple DSS servers.
+ * <p>
+ * The DssComponent manages a connection to openBIS (IETLLIMSService) as well as connections to data
+ * store servers (IDssServiceRpc) to present a simplified interface to downloading datasets.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class DssComponent implements IDssComponent
 {
-    private final IETLLIMSService service;
+    private static final int SERVIER_TIMEOUT_MIN = 5;
+
+    private final IETLLIMSService openBisService;
+
+    private final IDssServiceRpcFactory dssServiceFactory;
 
     private AbstractDssComponentState state;
 
@@ -48,7 +58,8 @@ public class DssComponent implements IDssComponent
      */
     public DssComponent(String openBISURL)
     {
-        this(HttpInvokerUtils.createServiceStub(IETLLIMSService.class, openBISURL + "/rmi-etl", 5));
+        this(HttpInvokerUtils.createServiceStub(IETLLIMSService.class, openBISURL + "/rmi-etl",
+                SERVIER_TIMEOUT_MIN), new DssServiceRpcFactory());
     }
 
     /**
@@ -56,9 +67,10 @@ public class DssComponent implements IDssComponent
      * 
      * @param service
      */
-    protected DssComponent(IETLLIMSService service)
+    protected DssComponent(IETLLIMSService service, IDssServiceRpcFactory dssServiceFactory)
     {
-        this.service = service;
+        this.openBisService = service;
+        this.dssServiceFactory = dssServiceFactory;
         this.state = new UnauthenticatedState(service);
     }
 
@@ -66,7 +78,7 @@ public class DssComponent implements IDssComponent
     {
         // login and transition to the authenticated state
         state.login(user, password);
-        state = new AuthenticatedState(service, state.getSession());
+        state = new AuthenticatedState(openBisService, dssServiceFactory, state.getSession());
     }
 
     public void checkSession() throws InvalidSessionException
@@ -83,7 +95,7 @@ public class DssComponent implements IDssComponent
     {
         // logout and transition to the unauthenticated state
         state.logout();
-        state = new UnauthenticatedState(service);
+        state = new UnauthenticatedState(openBisService);
     }
 }
 
@@ -166,12 +178,16 @@ class AuthenticatedState extends AbstractDssComponentState
 {
     private final SessionContextDTO session;
 
+    private final IDssServiceRpcFactory dssServiceFactory;
+
     /**
      * @param service
      */
-    AuthenticatedState(IETLLIMSService service, SessionContextDTO session)
+    AuthenticatedState(IETLLIMSService service, IDssServiceRpcFactory dssServiceFactory,
+            SessionContextDTO session)
     {
         super(service);
+        this.dssServiceFactory = dssServiceFactory;
         this.session = session;
     }
 
@@ -196,12 +212,13 @@ class AuthenticatedState extends AbstractDssComponentState
     {
         // Contact openBIS to find out which DSS server manages the data set
         ExternalData dataSetOpenBis = service.tryGetDataSet(session.getSessionToken(), code);
-        // Get an RPC service for the DSS server
         DataStore dataStore = dataSetOpenBis.getDataStore();
-        // Get a proxy to the data set
-        dataStore.getDownloadUrl();
-        // TODO Auto-generated method stub
-        return null;
-    }
+        String url = dataStore.getDownloadUrl();
 
+        // Get an RPC service for the DSS server
+        IDssServiceRpcV1 dssService = dssServiceFactory.getServiceV1(url, false);
+
+        // Get a proxy to the data set
+        return dssService.getDataSet(session.getSessionToken(), code);
+    }
 }
