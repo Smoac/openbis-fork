@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.rpc.client.DssComponent;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -73,6 +74,8 @@ public class DssComponentTest extends AssertJUnit
     public void testGetDataSet()
     {
         final SessionContextDTO session = getDummySession();
+        final ExternalData dataSetExternalData = new ExternalData();
+        dataSetExternalData.setDataStore(new DataStore());
 
         context.checking(new Expectations()
             {
@@ -80,7 +83,7 @@ public class DssComponentTest extends AssertJUnit
                     one(service).tryToAuthenticate("foo", "bar");
                     will(returnValue(session));
                     one(service).tryGetDataSet(DUMMY_SESSSION_TOKEN, "DummyDataSetCode");
-                    will(returnValue(new ExternalData()));
+                    will(returnValue(dataSetExternalData));
                 }
             });
 

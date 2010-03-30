@@ -20,8 +20,10 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDataSetDss;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -32,11 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  */
 public class DssComponent implements IDssComponent
 {
-    final IETLLIMSService service;
+    private final IETLLIMSService service;
 
-    AbstractDssComponentState state;
-
-    SessionContextDTO sessionOrNull;
+    private AbstractDssComponentState state;
 
     /**
      * Create a DSS component that connects to the openBIS instance specified by the URL.
@@ -114,6 +114,9 @@ abstract class AbstractDssComponentState implements IDssComponent
         throw new UserFailureException("Please log in");
     }
 
+    /**
+     * Package visible method used to transfer context information between states.
+     */
     abstract SessionContextDTO getSession();
 }
 
@@ -132,6 +135,14 @@ class UnauthenticatedState extends AbstractDssComponentState
         super(service);
     }
 
+    @Override
+    SessionContextDTO getSession()
+    {
+        if (sessionOrNull == null)
+            throw new UserFailureException("Please log in");
+        return sessionOrNull;
+    }
+
     public void login(String user, String password) throws AuthorizationFailureException
     {
         sessionOrNull = service.tryToAuthenticate(user, password);
@@ -143,20 +154,17 @@ class UnauthenticatedState extends AbstractDssComponentState
     {
         return;
     }
-
-    @Override
-    SessionContextDTO getSession()
-    {
-        if (sessionOrNull == null)
-            throw new UserFailureException("Please log in");
-        return sessionOrNull;
-    }
 }
 
+/**
+ * An object representing an authenticated state. Being in this state means that the user has logged
+ * in and all operations are available, except login.
+ * 
+ * @author Chandrasekhar Ramakrishnan
+ */
 class AuthenticatedState extends AbstractDssComponentState
 {
-
-    final SessionContextDTO session;
+    private final SessionContextDTO session;
 
     /**
      * @param service
@@ -186,10 +194,12 @@ class AuthenticatedState extends AbstractDssComponentState
     @Override
     public IDataSetDss getDataSet(String code)
     {
-        service.tryGetDataSet(session.getSessionToken(), code);
         // Contact openBIS to find out which DSS server manages the data set
+        ExternalData dataSetOpenBis = service.tryGetDataSet(session.getSessionToken(), code);
         // Get an RPC service for the DSS server
+        DataStore dataStore = dataSetOpenBis.getDataStore();
         // Get a proxy to the data set
+        dataStore.getDownloadUrl();
         // TODO Auto-generated method stub
         return null;
     }
