@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
+import it.unimi.dsi.fastutil.longs.LongSet;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -27,6 +29,7 @@ import net.lemnik.eodsql.DataSet;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.support.lob.LobHandler;
@@ -39,9 +42,11 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQue
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbabilityAndPeptide;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SampleAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
 
@@ -269,6 +274,18 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
         public byte[] tryToGetCachedProteinView(String experimentPermID)
         {
             return dao.tryToGetCachedProteinView(experimentPermID);
+        }
+
+        public DataSet<ProteinReferenceWithProtein> listProteinReferencesByExperiment(
+                String experimentPermID)
+        {
+            return dao.listProteinReferencesByExperiment(experimentPermID);
+        }
+
+        public DataSet<ProteinAbundance> listProteinWithAbundanceByExperiment(
+                LongSet proteinIDs)
+        {
+            return dao.listProteinWithAbundanceByExperiment(proteinIDs);
         }
     }
     

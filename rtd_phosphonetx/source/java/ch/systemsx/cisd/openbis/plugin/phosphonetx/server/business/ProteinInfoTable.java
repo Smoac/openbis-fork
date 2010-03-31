@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,10 +33,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
@@ -121,22 +126,89 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         AbundanceManager abundanceManager = new AbundanceManager(sampleProvider);
         IPhosphoNetXDAOFactory daoFactory = getSpecificDAOFactory();
         ErrorModel errorModel = new ErrorModel(daoFactory);
-        DataSet<ProteinReferenceWithProbability> resultSet =
-                daoFactory.getProteinQueryDAO().listProteinsByExperiment(experimentPermID);
+        IProteinQueryDAO proteinQueryDAO = daoFactory.getProteinQueryDAO();
+        DataSet<ProteinReferenceWithProtein> ds1 = proteinQueryDAO.listProteinReferencesByExperiment(experimentPermID);
+        List<ProteinReferenceWithProtein> prs = new ArrayList<ProteinReferenceWithProtein>();
+        LongOpenHashSet proteinIDs = new LongOpenHashSet();
         try
         {
-            for (ProteinReferenceWithProbability protein : resultSet)
+            for (ProteinReferenceWithProtein protein : ds1)
             {
-                if (errorModel.passProtein(protein, falseDiscoveryRate))
-                {
-                    abundanceManager.handle(protein);
-                }
+                prs.add(protein);
+                proteinIDs.add(protein.getProteinID());
             }
         } finally
         {
-            resultSet.close();
+            ds1.close();
         }
+        DataSet<ProteinAbundance> ds2 = proteinQueryDAO.listProteinWithAbundanceByExperiment(proteinIDs);
+        Map<Long, List<ProteinAbundance>> p2a = new HashMap<Long, List<ProteinAbundance>>();
+        try
+        {
+            for (ProteinAbundance proteinAbundance : ds2)
+            {
+                long proteinID = proteinAbundance.getId();
+                List<ProteinAbundance> list = p2a.get(proteinID);
+                if (list == null)
+                {
+                    list = new ArrayList<ProteinAbundance>();
+                    p2a.put(proteinID, list);
+                }
+                list.add(proteinAbundance);
+            }
+        } finally
+        {
+            ds2.close();
+        }
+        for (ProteinReferenceWithProtein proteinReferenceWithProtein : prs)
+        {
+            ProteinReferenceWithProbability protein = translate(proteinReferenceWithProtein);
+            if (errorModel.passProtein(protein, falseDiscoveryRate))
+            {
+                List<ProteinAbundance> list = p2a.get(proteinReferenceWithProtein.getProteinID());
+                if (list == null)
+                {
+                    abundanceManager.handle(protein);
+                } else
+                {
+                    for (ProteinAbundance proteinAbundance : list)
+                    {
+                        protein.setAbundance(proteinAbundance.getAbundance());
+                        protein.setSamplePermID(proteinAbundance.getSamplePermID());
+                        abundanceManager.handle(protein);
+                    }
+                }
+            }
+        }
+//        DataSet<ProteinReferenceWithProbability> resultSet =
+//                proteinQueryDAO.listProteinsByExperiment(experimentPermID);
+//        try
+//        {
+//            for (ProteinReferenceWithProbability protein : resultSet)
+//            {
+//                if (errorModel.passProtein(protein, falseDiscoveryRate))
+//                {
+//                    abundanceManager.handle(protein);
+//                }
+//            }
+//        } finally
+//        {
+//            resultSet.close();
+//        }
         return abundanceManager;
+    }
+
+    private ProteinReferenceWithProbability translate(
+            ProteinReferenceWithProtein proteinReferenceWithProtein)
+    {
+        ProteinReferenceWithProbability proteinReferenceWithProbability = new ProteinReferenceWithProbability();
+        proteinReferenceWithProbability.setId(proteinReferenceWithProtein.getId());
+        proteinReferenceWithProbability.setAccessionNumber(proteinReferenceWithProtein.getAccessionNumber());
+        proteinReferenceWithProbability.setDescription(proteinReferenceWithProtein.getDescription());
+        proteinReferenceWithProbability.setCoverage(proteinReferenceWithProtein.getCoverage());
+        proteinReferenceWithProbability.setProbability(proteinReferenceWithProtein.getProbability());
+        proteinReferenceWithProbability.setDataSetID(proteinReferenceWithProtein.getDataSetID());
+        return proteinReferenceWithProbability;
     }
 
     private static double[] concatenate(double[] array1OrNull, double[] array2OrNull)

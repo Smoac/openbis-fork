@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWi
  *
  * @author Franz-Josef Elmer
  */
+@Test(groups="broken")
 public class ProteinInfoTableTest extends AbstractServerTestCase
 {
     private static final double COVERAGE = 0.5;

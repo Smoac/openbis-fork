@@ -16,16 +16,21 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess;
 
+
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.Select;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbabilityAndPeptide;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SampleAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
 
@@ -41,6 +46,22 @@ public interface IProteinQueryDAO extends BaseQuery
     
     @Select("select blob from protein_view_cache where experiment_perm_id = ?{1}")
     public byte[] tryToGetCachedProteinView(String experimentPermID);
+    
+    @Select("select d.id as data_set_id, p.id as protein_id, probability, coverage, "
+            + "pr.id, accession_number, description from protein_references as pr "
+            + "left join sequences as s on s.prre_id = pr.id "
+            + "left join identified_proteins as ip on ip.sequ_id = s.id "
+            + "left join proteins as p on ip.prot_id = p.id "
+            + "left join data_sets as d on p.dase_id = d.id "
+            + "left join experiments as e on d.expe_id = e.id where e.perm_id = ?{1}")
+    public DataSet<ProteinReferenceWithProtein> listProteinReferencesByExperiment(
+            String experimentPermID);
+    
+    @Select(sql = "select p.id, a.value, s.perm_id "
+            + "from proteins as p join abundances as a on p.id = a.prot_id "
+            + "left join samples as s on a.samp_id = s.id "
+            + "where p.id = any (?{1})", parameterBindings = { LongSetMapper.class })
+    public DataSet<ProteinAbundance> listProteinWithAbundanceByExperiment(LongSet proteinIDs);
     
     @Select("select pr.id, pr.accession_number, pr.description, d.id as data_set_id, p.probability, " 
     		+ "   ip.coverage, a.value as abundance, samples.perm_id as sample_perm_id "

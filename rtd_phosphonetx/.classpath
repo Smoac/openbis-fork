@@ -30,5 +30,6 @@
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
+	<classpathentry kind="lib" path="/libraries/fastutil/fastutil.jar" sourcepath="/libraries/fastutil/fastutil-src.zip"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
