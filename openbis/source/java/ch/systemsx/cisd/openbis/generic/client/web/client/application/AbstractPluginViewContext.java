@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
@@ -25,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.IProfilingTable;
 
 /**
  * An <i>abstract</i> {@link IViewContext} implementation which should be extended by each plugin
@@ -109,6 +112,45 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         return commonViewContext.getImageBundle();
     }
 
+    // -------- IProfilingTable delegate
+
+    /** @see IProfilingTable#log */
+    public int log(String description)
+    {
+        return commonViewContext.log(description);
+    }
+
+    public void log(int taskId, String description)
+    {
+        commonViewContext.log(taskId, description);
+    }
+
+    /** @see IProfilingTable#logStop */
+    public void logStop(int taskId)
+    {
+        commonViewContext.logStop(taskId);
+    }
+
+    /** @see IProfilingTable#clearLog */
+    public void clearLog()
+    {
+        commonViewContext.clearLog();
+    }
+
+    /** @see IProfilingTable#getLoggedEvents() */
+    public List<String> getLoggedEvents()
+    {
+        return commonViewContext.getLoggedEvents();
+    }
+
+    /** @see IProfilingTable#isLoggingEnabled() */
+    public boolean isLoggingEnabled()
+    {
+        return commonViewContext.isLoggingEnabled();
+    }
+
+    // -------- IMessageProvider delegate
+
     /** @see IMessageProvider#containsKey(String) */
     public boolean containsKey(String key)
     {
@@ -126,6 +168,8 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     {
         return commonViewContext.getName();
     }
+
+    // --------
 
     public void addMessageSource(String messageSource)
     {

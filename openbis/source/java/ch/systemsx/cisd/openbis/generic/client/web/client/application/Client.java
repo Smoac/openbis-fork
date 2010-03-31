@@ -57,6 +57,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public class Client implements EntryPoint
 {
+    /** name of the URL parameter which decides if looging is switched on or off */
+    private static final String LOGGING_PARAM = "log";
+
+    /** value of the URL parameter {@link #LOGGING_PARAM} which switches looging off */
+    private static final String LOGGING_ON = "true";
+
     private IViewContext<ICommonClientServiceAsync> viewContext;
 
     private List<Controller> controllers = new ArrayList<Controller>();
@@ -90,11 +96,19 @@ public class Client implements EntryPoint
                     onModuleLoad();
                 }
             };
+
         CommonViewContext commonContext =
-                new CommonViewContext(service, messageProvider, imageBundle, pageController);
+                new CommonViewContext(service, messageProvider, imageBundle, pageController,
+                        isLoggingEnabled());
         commonContext.setClientPluginFactoryProvider(createPluginFactoryProvider(commonContext));
         initializeLocatorHandlerRegistry(commonContext.getLocatorResolverRegistry(), commonContext);
         return commonContext;
+    }
+
+    private boolean isLoggingEnabled()
+    {
+        return GWTUtils.getParamString() != null
+                && GWTUtils.getParamString().contains(LOGGING_PARAM + "=" + LOGGING_ON);
     }
 
     /**

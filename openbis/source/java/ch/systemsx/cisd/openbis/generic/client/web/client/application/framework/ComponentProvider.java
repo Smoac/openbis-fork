@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.LoggingConsole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -877,6 +878,34 @@ public final class ComponentProvider
     public void setMainTabPanel(MainTabPanel mainTabPanel)
     {
         this.mainTabPanelOrNull = mainTabPanel;
+    }
+
+    public AbstractTabItemFactory getLoggingConsole()
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    return createSimpleTab(Dict.LOGGING_CONSOLE,
+                            LoggingConsole.create(viewContext), false);
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    // null would be better
+                    return new HelpPageIdentifier(HelpPageDomain.ADMINISTRATION,
+                            HelpPageAction.BROWSE);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return LoggingConsole.ID;
+                }
+
+            };
     }
 
 }

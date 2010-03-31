@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
@@ -24,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Compo
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.IProfilingTable;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.ProfilingTable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
@@ -51,14 +55,17 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     private final ViewLocatorResolverRegistry locatorHandlerRegistry;
 
+    private final IProfilingTable profilingTable;
+
     CommonViewContext(final ICommonClientServiceAsync service,
             final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
-            final IPageController pageController)
+            final IPageController pageController, boolean isLoggingEnabled)
     {
         this.service = service;
         this.messageProvider = new DictonaryBasedMessageProvider(TECHNOLOGY_NAME);
         this.imageBundle = imageBundle;
         this.pageController = pageController;
+        this.profilingTable = ProfilingTable.create(isLoggingEnabled);
         viewModel = new GenericViewModel();
         locatorHandlerRegistry = new ViewLocatorResolverRegistry();
     }
@@ -171,4 +178,37 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     {
         return locatorHandlerRegistry;
     }
+
+    // ----- delegation to profilingTable
+
+    public final void clearLog()
+    {
+        profilingTable.clearLog();
+    }
+
+    public final List<String> getLoggedEvents()
+    {
+        return profilingTable.getLoggedEvents();
+    }
+
+    public final int log(String description)
+    {
+        return profilingTable.log(description);
+    }
+
+    public void log(int taskId, String description)
+    {
+        profilingTable.log(taskId, description);
+    }
+
+    public final void logStop(int taskId)
+    {
+        profilingTable.logStop(taskId);
+    }
+
+    public boolean isLoggingEnabled()
+    {
+        return profilingTable.isLoggingEnabled();
+    }
+
 }

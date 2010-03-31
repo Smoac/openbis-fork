@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.admi
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
@@ -32,19 +33,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class AdministrationMenu extends TopMenuItem
 {
-    public AdministrationMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
+    public AdministrationMenu(IViewContext<?> viewContext, ComponentProvider componentProvider)
     {
-        super(messageProvider.getMessage(Dict.MENU_ADMINISTRATION));
+        super(viewContext.getMessage(Dict.MENU_ADMINISTRATION));
 
+        IMessageProvider messageProvider = viewContext;
         Menu submenu = new Menu();
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.ADMINISTRATION_MENU_MANAGE_GROUPS,
                 messageProvider, componentProvider.getGroupBrowser()));
         submenu.add(new ProjectMenu(messageProvider, componentProvider));
         submenu.add(new VocabularyMenu(messageProvider, componentProvider));
         submenu.add(new PropertyTypesMenu(messageProvider, componentProvider));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_FILE_FORMATS, messageProvider,
-                componentProvider.getFileFormatTypeBrowser()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_FILE_FORMATS,
+                messageProvider, componentProvider.getFileFormatTypeBrowser()));
         submenu.add(new AuthorizationMenu(messageProvider, componentProvider));
+        if (viewContext.isLoggingEnabled())
+        {
+            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.LOGGING_CONSOLE, messageProvider,
+                    componentProvider.getLoggingConsole()));
+        }
         setMenu(submenu);
     }
 }

@@ -22,13 +22,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.IProfilingTable;
 
 /**
  * The view context interface.
  * 
  * @author Christian Ribeaud
  */
-public interface IViewContext<T extends IClientServiceAsync> extends IMessageProvider
+public interface IViewContext<T extends IClientServiceAsync> extends IMessageProvider, IProfilingTable
 {
     public void addMessageSource(String messageSource);
 

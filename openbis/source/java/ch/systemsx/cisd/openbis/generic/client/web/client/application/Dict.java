@@ -941,5 +941,7 @@ public abstract class Dict
 
     public static final String DEFAULT_GROUP = "default_group";
 
+    public static final String LOGGING_CONSOLE = "LOGGING_CONSOLE";
+
     // ----- end generic ------------------
 }

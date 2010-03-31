@@ -276,6 +276,7 @@ var common = {
   AUTHORIZATION_MENU_USERS: "Users",
   AUTHORIZATION_MENU_AUTHORIZATION_GROUPS: "User Groups",
   AUTHORIZATION_MENU_ROLES: "Roles",
+  LOGGING_CONSOLE: "Logging Console",
 
   menu_data_set: "Data Set",
   DATA_SET_MENU_SEARCH: "Advanced Search",
