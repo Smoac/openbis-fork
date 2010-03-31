@@ -80,7 +80,7 @@ public class DssComponentTest extends AssertJUnit
         final SessionContextDTO session = getDummySession();
         final ExternalData dataSetExternalData = new ExternalData();
         DataStore dataStore = new DataStore();
-        dataStore.setDownloadUrl("http://localhost/path/to/dataset/");
+        dataStore.setDownloadUrl("http://localhost/path/to/dataset");
         dataSetExternalData.setDataStore(dataStore);
         final IDssServiceRpcV1 dssService = context.mock(IDssServiceRpcV1.class);
 
@@ -93,7 +93,7 @@ public class DssComponentTest extends AssertJUnit
                     will(returnValue(session));
                     one(openBisService).tryGetDataSet(DUMMY_SESSSION_TOKEN, dataSetCode);
                     will(returnValue(dataSetExternalData));
-                    one(dssServiceFactory).getServiceV1("http://localhost/path/to/dataset/", false);
+                    one(dssServiceFactory).getServiceV1("http://localhost/path/to/dataset/rpc/v1", false);
                     will(returnValue(dssService));
                     one(dssService).tryDataSet(DUMMY_SESSSION_TOKEN, dataSetCode);
                     will(returnValue(null));
