@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQue
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ProbabilityToFDRCalculator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProtein;
 
 /**
  * @author Franz-Josef Elmer
@@ -43,7 +43,7 @@ class ErrorModel
         this.specificDAOFactory = specificDAOFactory;
     }
 
-    boolean passProtein(ProteinReferenceWithProbability protein, double falseDiscoveryRate)
+    boolean passProtein(ProteinReferenceWithProtein protein, double falseDiscoveryRate)
     {
         ProbabilityToFDRCalculator calculator = getCalculator(protein.getDataSetID());
         return calculator.calculateFDR(protein.getProbability()) <= falseDiscoveryRate;

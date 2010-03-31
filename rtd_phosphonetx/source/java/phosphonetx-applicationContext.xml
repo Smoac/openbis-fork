@@ -20,7 +20,7 @@
         <property name="urlHostPart" value="${phosphonetx.database.url-host-part}" />
         <property name="adminUser" value="${phosphonetx.database.admin-user}" />
         <property name="owner" value="${phosphonetx.database.owner}" />
-        <property name="readOnlyGroup" value="openbis_readonly" />
+        <property name="readOnlyGroup" value="phosphonetx_readonly" />
         <property name="password" value="${phosphonetx.database.owner-password}" />
         <property name="adminPassword" value="${phosphonetx.database.admin-password}" />
         <property name="databaseKind" value="${phosphonetx.database.kind}" />
@@ -38,7 +38,6 @@
           class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.BusinessObjectFactory">
         <constructor-arg ref="dao-factory"/>
         <constructor-arg ref="phosphonetx-dao-factory"/>
-        <constructor-arg value="${type-of-caching}"/>
     </bean>      
     
     <!-- 

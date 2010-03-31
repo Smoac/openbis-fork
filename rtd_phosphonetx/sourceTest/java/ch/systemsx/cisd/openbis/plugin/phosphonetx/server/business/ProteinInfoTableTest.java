@@ -16,10 +16,15 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
+import it.unimi.dsi.fastutil.longs.LongArraySet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+
+import net.lemnik.eodsql.DataSet;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -36,14 +41,14 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceCol
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinAbundance;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProtein;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-@Test(groups="broken")
 public class ProteinInfoTableTest extends AbstractServerTestCase
 {
     private static final double COVERAGE = 0.5;
@@ -52,7 +57,8 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
     private static final long SAMPLE_ID_2 = 102L;
     private static final long SAMPLE_ID_1 = 101L;
     private static final Double ABUNDANCE = new Double(47.11);
-    private static final long PROTEIN_ID = 41L;
+    private static final long PROTEIN_ID = 4141L;
+    private static final long PROTEIN_REFERENCE_ID = 41L;
     private static final String SAMPLE_PERM_ID = "s47-11";
     private static final long SAMPLE_ID = 4711;
     private static final long DATA_SET_ID = 42L;
@@ -101,42 +107,50 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
     @Test
     public void testLoadLeadingToAnEmptyTable()
     {
-        final MockDataSet<ProteinReferenceWithProbability> dataSet =
-                new MockDataSet<ProteinReferenceWithProbability>();
-        prepareLoadDataSet(dataSet);
+        MockDataSet<ProteinReferenceWithProtein> proteinReferences = new MockDataSet<ProteinReferenceWithProtein>();
+        MockDataSet<ProteinAbundance> proteinAbundances = new MockDataSet<ProteinAbundance>();
+        prepareLoadDataSet(proteinReferences, proteinAbundances);
         
         table.load(Arrays.<AbundanceColumnDefinition> asList(), EXPERIMENT_ID,
                 FALSE_DISCOVERY_RATE, AggregateFunction.MEAN, false);
         
         assertEquals(0, table.getProteinInfos().size());
         
-        assertEquals(true, dataSet.hasCloseBeenInvoked());
+        assertEquals(true, proteinReferences.hasCloseBeenInvoked());
+        assertEquals(true, proteinAbundances.hasCloseBeenInvoked());
         context.assertIsSatisfied();
     }
 
     @Test
     public void testSimpleLoad()
     {
-        final MockDataSet<ProteinReferenceWithProbability> dataSet =
-            new MockDataSet<ProteinReferenceWithProbability>();
-        ProteinReferenceWithProbability proteinReference = new ProteinReferenceWithProbability();
+        MockDataSet<ProteinReferenceWithProtein> proteinReferences =
+            new MockDataSet<ProteinReferenceWithProtein>();
+        MockDataSet<ProteinAbundance> abundances = new MockDataSet<ProteinAbundance>();
+        ProteinReferenceWithProtein proteinReference = new ProteinReferenceWithProtein();
         proteinReference.setDataSetID(DATA_SET_ID);
-        proteinReference.setSamplePermID(SAMPLE_PERM_ID);
+        proteinReference.setProteinID(PROTEIN_ID);
         proteinReference.setAccessionNumber(ACCESSION_NUMBER);
-        proteinReference.setId(PROTEIN_ID);
-        proteinReference.setAbundance(ABUNDANCE);
-        dataSet.add(proteinReference);
-        proteinReference = new ProteinReferenceWithProbability();
+        proteinReference.setId(PROTEIN_REFERENCE_ID);
+        proteinReferences.add(proteinReference);
+        ProteinAbundance proteinAbundance = new ProteinAbundance();
+        proteinAbundance.setId(PROTEIN_ID);
+        proteinAbundance.setAbundance(ABUNDANCE);
+        proteinAbundance.setSampleID(SAMPLE_PERM_ID);
+        abundances.add(proteinAbundance);
+        proteinReference = new ProteinReferenceWithProtein();
+        proteinReference.setProteinID(PROTEIN_ID);
+        proteinReference.setId(PROTEIN_REFERENCE_ID);
         proteinReference.setProbability(1);
         proteinReference.setDataSetID(DATA_SET_ID);
-        dataSet.add(proteinReference);
+        proteinReferences.add(proteinReference);
         final MockDataSet<ProbabilityFDRMapping> mappings = new MockDataSet<ProbabilityFDRMapping>();
         mappings.add(new ProbabilityFDRMapping());
         ProbabilityFDRMapping mapping = new ProbabilityFDRMapping();
         mapping.setProbability(1);
         mapping.setFalseDiscoveryRate(1);
         mappings.add(mapping);
-        prepareLoadDataSet(dataSet);
+        prepareLoadDataSet(proteinReferences, abundances);
         context.checking(new Expectations()
             {
                 {
@@ -158,10 +172,10 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
         Collection<ProteinInfo> proteins = table.getProteinInfos();
         assertEquals(1, proteins.size());
         ProteinInfo protein = proteins.iterator().next();
-        assertEquals(PROTEIN_ID, protein.getId().getId().longValue());
+        assertEquals(PROTEIN_REFERENCE_ID, protein.getId().getId().longValue());
         assertEquals(ACCESSION_NUMBER, protein.getAccessionNumber());
         
-        assertEquals(true, dataSet.hasCloseBeenInvoked());
+        assertEquals(true, proteinReferences.hasCloseBeenInvoked());
         assertEquals(true, mappings.hasCloseBeenInvoked());
         context.assertIsSatisfied();
     }
@@ -180,19 +194,27 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
     
     private void checkAggregationType(double expectedAbundance, boolean aggregateOriginal)
     {
-        final MockDataSet<ProteinReferenceWithProbability> dataSet =
-            new MockDataSet<ProteinReferenceWithProbability>();
-        dataSet.add(createProtein(SAMPLE_ID_1, 1));
-        dataSet.add(createProtein(SAMPLE_ID_1, 2));
-        dataSet.add(createProtein(SAMPLE_ID_2, 3));
-        dataSet.add(createProtein(SAMPLE_ID_3, 20));
+        final MockDataSet<ProteinReferenceWithProtein> proteinReferences =
+            new MockDataSet<ProteinReferenceWithProtein>();
+        ProteinReferenceWithProtein proteinReference = new ProteinReferenceWithProtein();
+        proteinReference.setProteinID(PROTEIN_ID);
+        proteinReference.setDataSetID(DATA_SET_ID);
+        proteinReference.setAccessionNumber(ACCESSION_NUMBER);
+        proteinReference.setId(PROTEIN_REFERENCE_ID);
+        proteinReference.setCoverage(COVERAGE);
+        proteinReferences.add(proteinReference);
+        MockDataSet<ProteinAbundance> proteinAbundances = new MockDataSet<ProteinAbundance>();
+        proteinAbundances.add(createProteinAbundance(SAMPLE_ID_1, 1));
+        proteinAbundances.add(createProteinAbundance(SAMPLE_ID_1, 2));
+        proteinAbundances.add(createProteinAbundance(SAMPLE_ID_2, 3));
+        proteinAbundances.add(createProteinAbundance(SAMPLE_ID_3, 20));
         final MockDataSet<ProbabilityFDRMapping> mappings = new MockDataSet<ProbabilityFDRMapping>();
         mappings.add(new ProbabilityFDRMapping());
         ProbabilityFDRMapping mapping = new ProbabilityFDRMapping();
         mapping.setProbability(1);
         mapping.setFalseDiscoveryRate(1);
         mappings.add(mapping);
-        prepareLoadDataSet(dataSet);
+        prepareLoadDataSet(proteinReferences, proteinAbundances);
         context.checking(new Expectations()
             {
                 {
@@ -215,7 +237,7 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
         Collection<ProteinInfo> proteins = table.getProteinInfos();
         assertEquals(1, proteins.size());
         ProteinInfo protein = proteins.iterator().next();
-        assertEquals(PROTEIN_ID, protein.getId().getId().longValue());
+        assertEquals(PROTEIN_REFERENCE_ID, protein.getId().getId().longValue());
         assertEquals(ACCESSION_NUMBER, protein.getAccessionNumber());
         Map<Long, Double> abundances = protein.getAbundances();
         assertEquals(2, abundances.size());
@@ -223,12 +245,14 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
         assertEquals(20.0, abundances.get(SAMPLE_ID_3).doubleValue());
         assertEquals(100 * COVERAGE, protein.getCoverage());
         
-        assertEquals(true, dataSet.hasCloseBeenInvoked());
+        assertEquals(true, proteinReferences.hasCloseBeenInvoked());
         assertEquals(true, mappings.hasCloseBeenInvoked());
         context.assertIsSatisfied();
     }
     
-    private void prepareLoadDataSet(final MockDataSet<ProteinReferenceWithProbability> dataSet)
+    private void prepareLoadDataSet(
+            final MockDataSet<ProteinReferenceWithProtein> proteinReferences,
+            final DataSet<ProteinAbundance> proteinAbundances)
     {
         context.checking(new Expectations()
             {
@@ -238,22 +262,27 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
                     experimentPE.setPermId(EXPERIMENT_PERM_ID);
                     will(returnValue(experimentPE));
 
-                    one(proteinDAO).listProteinsByExperiment(EXPERIMENT_PERM_ID);
-                    will(returnValue(dataSet));
+                    one(proteinDAO).listProteinReferencesByExperiment(EXPERIMENT_PERM_ID);
+                    will(returnValue(proteinReferences));
+                    
+                    LongSet proteinIDs = new LongArraySet();
+                    for (ProteinReferenceWithProtein p : proteinReferences)
+                    {
+                        proteinIDs.add(p.getProteinID());
+                    }
+                    one(proteinDAO).listProteinWithAbundanceByExperiment(proteinIDs);
+                    will(returnValue(proteinAbundances));
                 }
             });
     }
     
-    private ProteinReferenceWithProbability createProtein(long sampleID, double abundance)
+    private ProteinAbundance createProteinAbundance(long sampleID, double abundance)
     {
-        ProteinReferenceWithProbability proteinReference = new ProteinReferenceWithProbability();
-        proteinReference.setDataSetID(DATA_SET_ID);
-        proteinReference.setSamplePermID(PERM_ID_PREFIX + sampleID);
-        proteinReference.setAccessionNumber(ACCESSION_NUMBER);
-        proteinReference.setId(PROTEIN_ID);
-        proteinReference.setAbundance(abundance);
-        proteinReference.setCoverage(COVERAGE);
-        return proteinReference;
+        ProteinAbundance proteinAbundance = new ProteinAbundance();
+        proteinAbundance.setSampleID(PERM_ID_PREFIX + sampleID);
+        proteinAbundance.setId(PROTEIN_ID);
+        proteinAbundance.setAbundance(abundance);
+        return proteinAbundance;
     }
 
 }

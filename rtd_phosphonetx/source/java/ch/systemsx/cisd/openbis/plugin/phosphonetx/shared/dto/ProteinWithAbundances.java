@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +35,7 @@ public class ProteinWithAbundances extends ProteinReference
     
     private double coverage;
     
-    private final Map<Long, double[]> abundances = new LinkedHashMap<Long, double[]>();
+    private final Map<Long, DoubleArrayList> abundances = new LinkedHashMap<Long, DoubleArrayList>();
     
     public double getCoverage()
     {
@@ -47,15 +49,13 @@ public class ProteinWithAbundances extends ProteinReference
     
     public void addAbundanceFor(long sampleID, double abundance)
     {
-        double[] array = abundances.get(sampleID);
-        if (array == null)
+        DoubleArrayList list = abundances.get(sampleID);
+        if (list == null)
         {
-            array = EMPTY_ARRAY;
+            list = new DoubleArrayList();
+            abundances.put(sampleID, list);
         }
-        double[] newArray = new double[array.length + 1];
-        System.arraycopy(array, 0, newArray, 0, array.length);
-        newArray[array.length] = abundance;
-        abundances.put(sampleID, newArray);
+        list.add(abundance);
     }
     
     public Set<Long> getSampleIDs()
@@ -65,7 +65,7 @@ public class ProteinWithAbundances extends ProteinReference
     
     public double[] getAbundancesForSample(long sampleID)
     {
-        double[] values = abundances.get(sampleID);
-        return values == null ? EMPTY_ARRAY : values;
+        DoubleArrayList list = abundances.get(sampleID);
+        return list == null ? EMPTY_ARRAY : list.toDoubleArray();
     }
 }

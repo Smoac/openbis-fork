@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinAbundance;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
@@ -31,8 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundan
  */
 class AbundanceManager
 {
-    private final Map<String, ProteinWithAbundances> proteins =
-            new LinkedHashMap<String, ProteinWithAbundances>();
+    private final List<ProteinWithAbundances> proteins = new ArrayList<ProteinWithAbundances>();
     
     private final ISampleProvider sampleProvider;
     
@@ -41,21 +41,29 @@ class AbundanceManager
     AbundanceManager(ISampleProvider sampleProvider)
     {
         this.sampleProvider = sampleProvider;
-        
     }
-
-    public void handle(ProteinReferenceWithProbability proteinReference)
+    
+    public void handle(ProteinReferenceWithProtein proteinReference, List<ProteinAbundance> listOrNull)
     {
-        ProteinWithAbundances protein = getOrCreateProtein(proteinReference);
-        String samplePermID = proteinReference.getSamplePermID();
-        if (samplePermID != null)
+        String accessionNumber = proteinReference.getAccessionNumber();
+        ProteinWithAbundances protein = new ProteinWithAbundances();
+        protein.setCoverage(proteinReference.getCoverage());
+        protein.setId(proteinReference.getId());
+        protein.setDescription(proteinReference.getDescription());
+        protein.setAccessionNumber(accessionNumber);
+        proteins.add(protein);
+        if (listOrNull != null)
         {
-            Long sampleID = getSampleIDOrParentSampleID(samplePermID);
-            sampleIDs.add(sampleID);
-            protein.addAbundanceFor(sampleID, proteinReference.getAbundance());
+            for (ProteinAbundance proteinAbundance : listOrNull)
+            {
+                String samplePermID = proteinAbundance.getSamplePermID();
+                Long sampleID = getSampleIDOrParentSampleID(samplePermID);
+                sampleIDs.add(sampleID);
+                protein.addAbundanceFor(sampleID, proteinAbundance.getAbundance());
+            }
         }
     }
-
+    
     private Long getSampleIDOrParentSampleID(String samplePermID)
     {
         Sample sample = sampleProvider.getSample(samplePermID);
@@ -63,30 +71,15 @@ class AbundanceManager
         return parent == null ? sample.getId() : parent.getId();
     }
 
-    private ProteinWithAbundances getOrCreateProtein(ProteinReferenceWithProbability proteinReference)
-    {
-        String accessionNumber = proteinReference.getAccessionNumber();
-        ProteinWithAbundances protein = proteins.get(accessionNumber);
-        if (protein == null)
-        {
-            protein = new ProteinWithAbundances();
-            protein.setCoverage(proteinReference.getCoverage());
-            protein.setId(proteinReference.getId());
-            protein.setDescription(proteinReference.getDescription());
-            protein.setAccessionNumber(accessionNumber);
-            proteins.put(accessionNumber, protein);
-        }
-        return protein;
-    }
-
     public Collection<ProteinWithAbundances> getProteinsWithAbundances()
     {
-        return proteins.values();
+        return proteins;
     }
 
     public final Collection<Long> getSampleIDs()
     {
         return sampleIDs;
     }
+
 
 }

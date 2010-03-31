@@ -5,8 +5,8 @@
 /* Project name:                                                          */
 /* Author:                                                                */
 /* Script type:           Database creation script                        */
-/* Created on:            2009-12-07 11:03                                */
-/* Model version:         Version 2009-12-07                              */
+/* Created on:            2010-03-31 16:10                                */
+/* Model version:         Version 2010-03-31                              */
 /* ---------------------------------------------------------------------- */
 
 
@@ -39,18 +39,6 @@ CREATE DOMAIN SPECTRUM_REFERENCE AS CHARACTER VARYING(100);
 /* ---------------------------------------------------------------------- */
 /* Tables                                                                 */
 /* ---------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------- */
-/* Add table "PROTEIN_VIEW"                                                */
-/* ---------------------------------------------------------------------- */
-
-CREATE TABLE PROTEIN_VIEW_CACHE (
-    ID BIGSERIAL  NOT NULL,
-    EXPERIMENT_PERM_ID CODE  NOT NULL,
-    BLOB BYTEA NOT NULL,
-    CONSTRAINT PK_PROTEIN_VIEW PRIMARY KEY (ID)
-);
-
 
 /* ---------------------------------------------------------------------- */
 /* Add table "EXPERIMENTS"                                                */

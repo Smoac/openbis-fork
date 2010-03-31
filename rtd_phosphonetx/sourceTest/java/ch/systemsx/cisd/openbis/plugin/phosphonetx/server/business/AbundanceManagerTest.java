@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.jmock.Expectations;
@@ -25,7 +27,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinAbundance;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
@@ -64,18 +67,19 @@ public class AbundanceManagerTest extends AbstractServerTestCase
     public void testHandleTwoProteinReferencesButOnlyOneHasAnAbundance()
     {
         prepareSampleIDProvider();
-        ProteinReferenceWithProbability protein1 = new ProteinReferenceWithProbability();
+        ProteinReferenceWithProtein protein1 = new ProteinReferenceWithProtein();
         protein1.setId(1);
         protein1.setAccessionNumber("abc1");
         protein1.setDescription("abc one");
-        protein1.setSamplePermID(PERM_ID1);
-        protein1.setAbundance(1.5);
-        abundanceManager.handle(protein1);
-        ProteinReferenceWithProbability protein2 = new ProteinReferenceWithProbability();
+        ProteinAbundance proteinAbundance = new ProteinAbundance();
+        proteinAbundance.setSampleID(PERM_ID1);
+        proteinAbundance.setAbundance(1.5);
+        abundanceManager.handle(protein1, Collections.singletonList(proteinAbundance));
+        ProteinReferenceWithProtein protein2 = new ProteinReferenceWithProtein();
         protein2.setId(2);
         protein2.setAccessionNumber("abc2");
         protein2.setDescription("abc two");
-        abundanceManager.handle(protein2);
+        abundanceManager.handle(protein2, null);
         
         assertEquals(1, abundanceManager.getSampleIDs().size());
         Collection<ProteinWithAbundances> proteinsWithAbundances = abundanceManager.getProteinsWithAbundances();
@@ -103,11 +107,13 @@ public class AbundanceManagerTest extends AbstractServerTestCase
     public void testHandleProteinReferencesWithManyAbundancesForTwoSamples()
     {
         prepareSampleIDProvider();
-        abundanceManager.handle(createProteinReference(PERM_ID1, 1.5));
-        abundanceManager.handle(createProteinReference(PERM_ID1, 2.25));
-        abundanceManager.handle(createProteinReference(PERM_ID2, 42));
-        abundanceManager.handle(createProteinReference(PERM_ID2, 4.75));
-        abundanceManager.handle(createProteinReference(PERM_ID2, 7.5));
+        ProteinReferenceWithProtein protein1 = new ProteinReferenceWithProtein();
+        protein1.setId(1);
+        protein1.setAccessionNumber("abc1");
+        protein1.setDescription("abc one");
+
+        abundanceManager.handle(protein1, Arrays.asList(a(PERM_ID1, 1.5), a(PERM_ID1, 2.25), a(
+                PERM_ID2, 42), a(PERM_ID2, 4.75), a(PERM_ID2, 7.5)));
         
         assertEquals(2, abundanceManager.getSampleIDs().size());
         Collection<ProteinWithAbundances> proteinsWithAbundances = abundanceManager.getProteinsWithAbundances();
@@ -150,14 +156,11 @@ public class AbundanceManagerTest extends AbstractServerTestCase
             });
     }
 
-    private ProteinReferenceWithProbability createProteinReference(String samplePermID, double abundance)
+    private ProteinAbundance a(String samplePermID, double abundance)
     {
-        ProteinReferenceWithProbability protein1 = new ProteinReferenceWithProbability();
-        protein1.setId(1);
-        protein1.setAccessionNumber("abc1");
-        protein1.setDescription("abc one");
-        protein1.setSamplePermID(samplePermID);
-        protein1.setAbundance(abundance);
-        return protein1;
+        ProteinAbundance protein = new ProteinAbundance();
+        protein.setSampleID(samplePermID);
+        protein.setAbundance(abundance);
+        return protein;
     }
 }

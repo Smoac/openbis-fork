@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceCol
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinAbundance;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
@@ -124,91 +123,60 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
             double falseDiscoveryRate)
     {
         AbundanceManager abundanceManager = new AbundanceManager(sampleProvider);
-        IPhosphoNetXDAOFactory daoFactory = getSpecificDAOFactory();
-        ErrorModel errorModel = new ErrorModel(daoFactory);
-        IProteinQueryDAO proteinQueryDAO = daoFactory.getProteinQueryDAO();
-        DataSet<ProteinReferenceWithProtein> ds1 = proteinQueryDAO.listProteinReferencesByExperiment(experimentPermID);
-        List<ProteinReferenceWithProtein> prs = new ArrayList<ProteinReferenceWithProtein>();
+        IPhosphoNetXDAOFactory specificDAOFactory = getSpecificDAOFactory();
+        IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
+        DataSet<ProteinReferenceWithProtein> dataSet =
+                dao.listProteinReferencesByExperiment(experimentPermID);
+        List<ProteinReferenceWithProtein> proteins = new ArrayList<ProteinReferenceWithProtein>();
         LongOpenHashSet proteinIDs = new LongOpenHashSet();
         try
         {
-            for (ProteinReferenceWithProtein protein : ds1)
+            for (ProteinReferenceWithProtein protein : dataSet)
             {
-                prs.add(protein);
+                proteins.add(protein);
                 proteinIDs.add(protein.getProteinID());
             }
         } finally
         {
-            ds1.close();
+            dataSet.close();
         }
-        DataSet<ProteinAbundance> ds2 = proteinQueryDAO.listProteinWithAbundanceByExperiment(proteinIDs);
-        Map<Long, List<ProteinAbundance>> p2a = new HashMap<Long, List<ProteinAbundance>>();
+        Map<Long, List<ProteinAbundance>> abundancesPerProtein = getAbudancesPerProtein(proteinIDs);
+        ErrorModel errorModel = new ErrorModel(specificDAOFactory);
+        for (ProteinReferenceWithProtein protein : proteins)
+        {
+            if (errorModel.passProtein(protein, falseDiscoveryRate))
+            {
+                List<ProteinAbundance> list = abundancesPerProtein.get(protein.getProteinID());
+                abundanceManager.handle(protein, list);
+            }
+        }
+        return abundanceManager;
+    }
+
+    private Map<Long, List<ProteinAbundance>> getAbudancesPerProtein(LongOpenHashSet proteinIDs)
+    {
+        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
+        DataSet<ProteinAbundance> dataSet = dao.listProteinWithAbundanceByExperiment(proteinIDs);
+        Map<Long, List<ProteinAbundance>> abundancesPerProtein =
+                new HashMap<Long, List<ProteinAbundance>>();
         try
         {
-            for (ProteinAbundance proteinAbundance : ds2)
+            for (ProteinAbundance proteinAbundance : dataSet)
             {
                 long proteinID = proteinAbundance.getId();
-                List<ProteinAbundance> list = p2a.get(proteinID);
+                List<ProteinAbundance> list = abundancesPerProtein.get(proteinID);
                 if (list == null)
                 {
                     list = new ArrayList<ProteinAbundance>();
-                    p2a.put(proteinID, list);
+                    abundancesPerProtein.put(proteinID, list);
                 }
                 list.add(proteinAbundance);
             }
         } finally
         {
-            ds2.close();
+            dataSet.close();
         }
-        for (ProteinReferenceWithProtein proteinReferenceWithProtein : prs)
-        {
-            ProteinReferenceWithProbability protein = translate(proteinReferenceWithProtein);
-            if (errorModel.passProtein(protein, falseDiscoveryRate))
-            {
-                List<ProteinAbundance> list = p2a.get(proteinReferenceWithProtein.getProteinID());
-                if (list == null)
-                {
-                    abundanceManager.handle(protein);
-                } else
-                {
-                    for (ProteinAbundance proteinAbundance : list)
-                    {
-                        protein.setAbundance(proteinAbundance.getAbundance());
-                        protein.setSamplePermID(proteinAbundance.getSamplePermID());
-                        abundanceManager.handle(protein);
-                    }
-                }
-            }
-        }
-//        DataSet<ProteinReferenceWithProbability> resultSet =
-//                proteinQueryDAO.listProteinsByExperiment(experimentPermID);
-//        try
-//        {
-//            for (ProteinReferenceWithProbability protein : resultSet)
-//            {
-//                if (errorModel.passProtein(protein, falseDiscoveryRate))
-//                {
-//                    abundanceManager.handle(protein);
-//                }
-//            }
-//        } finally
-//        {
-//            resultSet.close();
-//        }
-        return abundanceManager;
-    }
-
-    private ProteinReferenceWithProbability translate(
-            ProteinReferenceWithProtein proteinReferenceWithProtein)
-    {
-        ProteinReferenceWithProbability proteinReferenceWithProbability = new ProteinReferenceWithProbability();
-        proteinReferenceWithProbability.setId(proteinReferenceWithProtein.getId());
-        proteinReferenceWithProbability.setAccessionNumber(proteinReferenceWithProtein.getAccessionNumber());
-        proteinReferenceWithProbability.setDescription(proteinReferenceWithProtein.getDescription());
-        proteinReferenceWithProbability.setCoverage(proteinReferenceWithProtein.getCoverage());
-        proteinReferenceWithProbability.setProbability(proteinReferenceWithProtein.getProbability());
-        proteinReferenceWithProbability.setDataSetID(proteinReferenceWithProtein.getDataSetID());
-        return proteinReferenceWithProbability;
+        return abundancesPerProtein;
     }
 
     private static double[] concatenate(double[] array1OrNull, double[] array2OrNull)
