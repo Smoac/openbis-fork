@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -29,7 +30,9 @@ import net.lemnik.eodsql.DataSet;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.support.lob.LobHandler;
@@ -188,10 +191,16 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
 
         private final DatabaseConfigurationContext context;
 
+        private final SimpleJdbcTemplate template;
+
+        private NamedParameterJdbcTemplate namedTemplate;
+
         ProteinQueryDAO(final IProteinQueryDAO dao, DatabaseConfigurationContext context)
         {
             this.dao = dao;
             this.context = context;
+            template = new SimpleJdbcTemplate(context.getDataSource());
+            namedTemplate = new NamedParameterJdbcTemplate(context.getDataSource());
         }
 
         public void close()
@@ -224,7 +233,6 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
         {
             long time = System.currentTimeMillis();
             final LobHandler lobHandler = context.getLobHandler();
-            SimpleJdbcTemplate template = new SimpleJdbcTemplate(context.getDataSource());
             List<ProteinReferenceWithProbability> resultSet =
                     template.queryForObject(
                             "select blob from protein_view_cache where experiment_perm_id = ?",
@@ -279,13 +287,70 @@ class DAOFactoryWithCache implements IPhosphoNetXDAOFactory
         public DataSet<ProteinReferenceWithProtein> listProteinReferencesByExperiment(
                 String experimentPermID)
         {
-            return dao.listProteinReferencesByExperiment(experimentPermID);
+            long time = System.currentTimeMillis();
+            try
+            {
+                List<ProteinReferenceWithProtein> list = template.query("select d.id , p.id , probability, coverage, "
+                        + "pr.id, accession_number, description "
+                        + "from protein_references as pr "
+                        + "left join sequences as s on s.prre_id = pr.id "
+                        + "left join identified_proteins as ip on ip.sequ_id = s.id "
+                        + "left join proteins as p on ip.prot_id = p.id "
+                        + "left join data_sets as d on p.dase_id = d.id "
+                        + "left join experiments as e on d.expe_id = e.id where e.perm_id = ?",
+                        new ParameterizedRowMapper<ProteinReferenceWithProtein>()
+                            {
+
+                                public ProteinReferenceWithProtein mapRow(ResultSet rs, int rowNum)
+                                        throws SQLException
+                                {
+                                    ProteinReferenceWithProtein protein =
+                                            new ProteinReferenceWithProtein();
+                                    protein.setDataSetID(rs.getLong(1));
+                                    protein.setProteinID(rs.getLong(2));
+                                    protein.setProbability(rs.getDouble(3));
+                                    protein.setCoverage(rs.getDouble(4));
+                                    protein.setId(rs.getLong(5));
+                                    protein.setAccessionNumber(rs.getString(6));
+                                    protein.setDescription(rs.getString(7));
+                                    return protein;
+                                }
+                            }, experimentPermID);
+                return new DataSetProxy<ProteinReferenceWithProtein>(list);
+//                return dao.listProteinReferencesByExperiment(experimentPermID);
+            } finally
+            {
+                operationLog.info("(" + (System.currentTimeMillis() - time )+ "ms) listProteinReferenceByExperiment");
+            }
         }
 
         public DataSet<ProteinAbundance> listProteinWithAbundanceByExperiment(
                 LongSet proteinIDs)
         {
-            return dao.listProteinWithAbundanceByExperiment(proteinIDs);
+            long time = System.currentTimeMillis();
+            try
+            {
+                List<ProteinAbundance> list = namedTemplate.query("select p.id, a.value, s.perm_id "
+                        + "from proteins as p join abundances as a on p.id = a.prot_id "
+                        + "left join samples as s on a.samp_id = s.id "
+                        + "where p.id in (:ids)", Collections.singletonMap("ids", proteinIDs), new RowMapper()
+                    {
+                        
+                        public Object mapRow(ResultSet rs, int rowNum) throws SQLException
+                        {
+                            ProteinAbundance proteinAbundance = new ProteinAbundance();
+                            proteinAbundance.setId(rs.getLong(1));
+                            proteinAbundance.setAbundance(rs.getDouble(2));
+                            proteinAbundance.setSampleID(rs.getString(3));
+                            return proteinAbundance;
+                        }
+                    });
+                return new DataSetProxy<ProteinAbundance>(list);
+            } finally
+            {
+                operationLog.info("(" + (System.currentTimeMillis() - time)
+                        + "ms) listProteinWithAbundanceByExperiment");
+            }
         }
     }
     
