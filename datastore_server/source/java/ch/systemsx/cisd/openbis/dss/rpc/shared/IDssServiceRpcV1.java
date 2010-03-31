@@ -30,5 +30,5 @@ public interface IDssServiceRpcV1 extends IDssServiceRpc
     /**
      * Get a proxy to the data set object managed by the data store server.
      */
-    public IDataSetDss getDataSet(String sessionToken, String code);
+    public IDataSetDss tryDataSet(String sessionToken, String code);
 }

@@ -20,14 +20,16 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
+import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
+
 /**
  * Provider of remote service onto openBIS.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ServiceProvider
 {
-    private static final BeanFactory APPLICATION_CONTEXT =
+    public static final BeanFactory APPLICATION_CONTEXT =
             new ClassPathXmlApplicationContext(new String[]
                 { "dssApplicationContext.xml" }, true);
 
@@ -38,12 +40,18 @@ public class ServiceProvider
     {
         return ((IEncapsulatedOpenBISService) APPLICATION_CONTEXT.getBean("openBIS-service"));
     }
-    
+
     public static HttpInvokerServiceExporter getDataStoreServer()
     {
         return ((HttpInvokerServiceExporter) APPLICATION_CONTEXT.getBean("data-store-server"));
     }
-    
+
+    public static StreamSupportingHttpInvokerServiceExporter getDssServiceRpcV1()
+    {
+        return ((StreamSupportingHttpInvokerServiceExporter) APPLICATION_CONTEXT
+                .getBean("data-store-rpc-service-v1"));
+    }
+
     private ServiceProvider()
     {
     }

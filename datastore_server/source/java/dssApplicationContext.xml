@@ -57,6 +57,16 @@
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.generic.shared.IDataStoreService" />
     </bean>
     
+     <bean id="data-store-rpc-service-v1"
+        class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
+        <property name="service">
+            <bean class="ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcV1">
+                <constructor-arg ref="openBIS-service" />
+            </bean>
+        </property>
+        <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1" />
+    </bean>
+    
     <bean id="session-token-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager"/>
     
     

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.component;
 
+import org.springframework.remoting.RemoteAccessException;
+
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
@@ -176,6 +178,8 @@ class UnauthenticatedState extends AbstractDssComponentState
  */
 class AuthenticatedState extends AbstractDssComponentState
 {
+    private static final String RPC_V1 = "/rpc/v1";
+
     private final SessionContextDTO session;
 
     private final IDssServiceRpcFactory dssServiceFactory;
@@ -213,12 +217,33 @@ class AuthenticatedState extends AbstractDssComponentState
         // Contact openBIS to find out which DSS server manages the data set
         ExternalData dataSetOpenBis = service.tryGetDataSet(session.getSessionToken(), code);
         DataStore dataStore = dataSetOpenBis.getDataStore();
-        String url = dataStore.getDownloadUrl();
 
-        // Get an RPC service for the DSS server
-        IDssServiceRpcV1 dssService = dssServiceFactory.getServiceV1(url, false);
+        String url = dataStore.getDownloadUrl();
+        IDssServiceRpcV1 dssService = getDssServiceForUrl(url);
 
         // Get a proxy to the data set
-        return dssService.getDataSet(session.getSessionToken(), code);
+        return dssService.tryDataSet(session.getSessionToken(), code);
+    }
+
+    private IDssServiceRpcV1 getDssServiceForUrl(String url)
+    {
+        // Get an RPC service for the DSS server
+        String serverURL = url + RPC_V1;
+        IDssServiceRpcV1 dssService = null;
+        try
+        {
+            dssService = dssServiceFactory.getServiceV1(serverURL, false);
+        } catch (RemoteAccessException e)
+        {
+            // if the url begins with https, try http
+            if (serverURL.startsWith("https://"))
+            {
+                // https:// has 8 characters
+                serverURL = "http://" + serverURL.substring(8);
+                dssService = dssServiceFactory.getServiceV1(serverURL, false);
+            }
+
+        }
+        return dssService;
     }
 }

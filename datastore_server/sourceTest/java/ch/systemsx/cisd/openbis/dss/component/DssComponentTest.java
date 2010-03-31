@@ -95,7 +95,7 @@ public class DssComponentTest extends AssertJUnit
                     will(returnValue(dataSetExternalData));
                     one(dssServiceFactory).getServiceV1("http://localhost/path/to/dataset/", false);
                     will(returnValue(dssService));
-                    one(dssService).getDataSet(DUMMY_SESSSION_TOKEN, dataSetCode);
+                    one(dssService).tryDataSet(DUMMY_SESSSION_TOKEN, dataSetCode);
                     will(returnValue(null));
                 }
             });

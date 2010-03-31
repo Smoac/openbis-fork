@@ -39,6 +39,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.context.WebApplicationContext;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -59,6 +60,11 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 public class DataStoreServer
 {
+
+    /** Part of the URL of the DSS RPC service. */
+    public static final String DATA_STORE_SERVER_RPC_SERVICE_NAME =
+            DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/rpc";
+
     private static final class DataStoreServlet extends HttpServlet
     {
         private static final long serialVersionUID = 1L;
@@ -69,6 +75,58 @@ public class DataStoreServer
         public void init() throws ServletException
         {
             target = ServiceProvider.getDataStoreServer();
+        }
+
+        // Code copied from org.springframework.web.context.support.HttpRequestHandlerServlet
+        @Override
+        protected void service(HttpServletRequest request, HttpServletResponse response)
+                throws ServletException, IOException
+        {
+
+            LocaleContextHolder.setLocale(request.getLocale());
+            try
+            {
+                this.target.handleRequest(request, response);
+            } catch (HttpRequestMethodNotSupportedException ex)
+            {
+                String[] supportedMethods = ex.getSupportedMethods();
+                if (supportedMethods != null)
+                {
+                    response.setHeader("Allow", StringUtils.arrayToDelimitedString(
+                            supportedMethods, ", "));
+                }
+                response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, ex.getMessage());
+            } finally
+            {
+                LocaleContextHolder.resetLocaleContext();
+            }
+        }
+    }
+
+    /**
+     * A more generic version of the DataStoreServlet above.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    // TODO Refactor to make the reference to DataStoreServlet use the HttpInvokerServlet.
+    private static final class HttpInvokerServlet extends HttpServlet
+    {
+        private static final long serialVersionUID = 1L;
+
+        private final HttpRequestHandler target;
+
+        private final String canonicalPath;
+
+        HttpInvokerServlet(HttpRequestHandler target, String canonicalPath)
+        {
+            this.target = target;
+            this.canonicalPath = canonicalPath;
+        }
+
+        @Override
+        public void init() throws ServletException
+        {
+            operationLog.info("HTTP invoker-based RPC service available at " + canonicalPath);
         }
 
         // Code copied from org.springframework.web.context.support.HttpRequestHandlerServlet
@@ -158,18 +216,37 @@ public class DataStoreServer
         final ConfigParameters configParameters = applicationContext.getConfigParameters();
         final int port = configParameters.getPort();
         final Server thisServer = new Server();
+        initializeServer(configParameters, port, thisServer);
+        initializeContext(applicationContext, configParameters, thisServer);
+        return thisServer;
+    }
+
+    private static void initializeServer(final ConfigParameters configParameters, final int port,
+            final Server thisServer)
+    {
         final SocketConnector socketConnector = createSocketConnector(configParameters);
         socketConnector.setPort(port);
         socketConnector.setMaxIdleTime(30000);
         thisServer.addConnector(socketConnector);
+    }
+
+    private static void initializeContext(final ApplicationContext applicationContext,
+            final ConfigParameters configParameters, final Server thisServer)
+    {
         final Context context = new Context(thisServer, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
+        context.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
+                ServiceProvider.APPLICATION_CONTEXT);
         String applicationName = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
         context.addServlet(new ServletHolder(new DataStoreServlet()), "/"
                 + DATA_STORE_SERVER_SERVICE_NAME + "/*");
         context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
+
+        String rpcPath = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME + "/v1";
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(ServiceProvider
+                .getDssServiceRpcV1(), rpcPath)), rpcPath);
+
         registerPluginServlets(context, configParameters.getPluginServlets());
-        return thisServer;
     }
 
     private static void registerPluginServlets(Context context, List<PluginServlet> pluginServlets)
