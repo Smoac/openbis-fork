@@ -1,735 +1,700 @@
 <project name="openbis" default="dist" basedir="..">
-	<import file="../../server-common/build/build-common.xml" />
-	<project-classpath name="ecp" classes="${classes}" />
-	<project-classpath name="eclipse.cp" classes="${targets}/classes" />
-	<project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
+  <import file="../../server-common/build/build-common.xml" />
+  <project-classpath name="ecp" classes="${classes}" />
+  <project-classpath name="eclipse.cp" classes="${targets}/classes" />
+  <project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
 
-	<property name="mainfolder" value="openbis" />
+  <property name="mainfolder" value="openbis" />
 
-	<property name="gwt.lib" value="${lib}/gwt2.0" />
-	<property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
+  <property name="gwt.lib" value="${lib}/gwt2.0" />
+  <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
 
-	<property name="original.server.dist" value="${original.dist}/server" />
-	<property name="original.openbis.server.dist" value="../openbis/dist/server" />
-	<property name="server.folder.name" value="openBIS-server" />
-	<property name="server.dist" value="${dist}/${server.folder.name}" />
-	<property name="server.jar.file.name" value="openBIS.jar" />
-	<property name="server.jar.file" value="${server.dist}/${server.jar.file.name}" />
-	<property name="server.webapp.file" value="${server.dist}/openBIS.war" />
-	<property name="server.service" value="${server.dist}/service" />
-	<property name="server.service.lib" value="${server.service}/lib" />
-	<property name="application.server.resource" value="../${ant.project.name}/${server-resource}" />
+  <property name="original.server.dist" value="${original.dist}/server" />
+  <property name="original.openbis.server.dist" value="../openbis/dist/server" />
+  <property name="server.folder.name" value="openBIS-server" />
+  <property name="server.dist" value="${dist}/${server.folder.name}" />
+  <property name="server.jar.file.name" value="openBIS.jar" />
+  <property name="server.jar.file" value="${server.dist}/${server.jar.file.name}" />
+  <property name="server.webapp.file" value="${server.dist}/openBIS.war" />
+  <property name="server.service" value="${server.dist}/service" />
+  <property name="server.service.lib" value="${server.service}/lib" />
+  <property name="application.server.resource" value="../${ant.project.name}/${server-resource}" />
 
-	<property name="webapp.dist" value="${dist}/webapp" />
-	<property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
+  <property name="webapp.dist" value="${dist}/webapp" />
+  <property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
 
-	<property name="jar.file.name" value="${ant.project.name}.jar" />
-	<property name="jar.file" value="${dist}/${jar.file.name}" />
-	<property name="client.jar.file" value="${dist}/${ant.project.name}-client.jar" />
+  <property name="jar.file.name" value="${ant.project.name}.jar" />
+  <property name="jar.file" value="${dist}/${jar.file.name}" />
+  <property name="client.jar.file" value="${dist}/${ant.project.name}-client.jar" />
 
-	<property name="webapp.file.name" value="openBIS.war" />
-	<property name="webapp.file" value="${server.dist}/${webapp.file.name}" />
+  <property name="webapp.file.name" value="openBIS.war" />
+  <property name="webapp.file" value="${server.dist}/${webapp.file.name}" />
 
-	<!-- Properties for testing javascript, in particular common-dictionary.js -->
-	<property name="rhino.lib" value="${lib}/rhino/js.jar" />
+  <!-- Properties for testing javascript, in particular common-dictionary.js -->
+  <property name="rhino.lib" value="${lib}/rhino/js.jar" />
 
-	<!-- 
+  <!-- 
       // Cleans distribution directory.
       -->
-	<target name="clean" description="Cleans distribution directory.">
-		<delete dir="${dist}" failonerror="true" />
-		<mkdir dir="${dist}" />
-	</target>
+  <target name="clean" description="Cleans distribution directory.">
+    <delete dir="${dist}" failonerror="true" />
+    <mkdir dir="${dist}" />
+  </target>
 
-	<!-- 
+  <!-- 
       // Runs tests.
       -->
-	<target name="run-tests" depends="check-dictionary-syntax">
-		<antcall target="build-common.run-tests">
-			<param name="test.suite" value="tests.xml" />
-		</antcall>
-	</target>
+  <target name="run-tests" depends="check-dictionary-syntax">
+    <antcall target="build-common.run-tests">
+      <param name="test.suite" value="tests.xml" />
+    </antcall>
+  </target>
 
-	<!--
+  <!--
 			// Target that sets up enviroment info for tests. The test.suite parameter should be provided when called.
 	-->
-	<target name="run-system-test-suite">
-		<junit dir="."
-		       fork="true"
-		       forkmode="once"
-		       maxmemory="1024m"
-		       showoutput="true"
-		       failureproperty="tests-failed">
-			<classpath>
-				<pathelement location="${sources}" />
-				<pathelement location="${sources.test}" />
-				<pathelement path="${ecp}" />
-				<pathelement location="${gwt.lib}/gwt-dev.jar" />
-			</classpath>
-			<jvmarg value="-ea" />
-			<sysproperty key="authentication-service" value="file-authentication-service" />
-			<sysproperty key="database.create-from-scratch" value="true" />
-			<sysproperty key="database.kind" value="system_test" />
-			<sysproperty key="script-folder" value="sourceTest" />
-			<sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
-			<sysproperty key="log4j.configuration" value="etc/log.xml" />
-			<sysproperty key="hibernate.search.index-base" value="sourceTest/lucene/indices" />
-			<sysproperty key="hibernate.search.index-mode" value="NO_INDEX" />
-			<sysproperty key="hibernate.search.indexing_strategy" value="manual" />
-			<sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
-			<sysproperty key="gwt.args" value="-testMethodTimeout 4 -Xtries 1" />
-			<formatter type="xml" />
-			<test name="${test.suite}" todir="${output.test}" />
-		</junit>
-		<fail>
-			<condition>
-				<isset property="tests-failed" />
-			</condition>
-		</fail>
-	</target>
+  <target name="run-system-test-suite">
+    <junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
+      <classpath>
+        <pathelement location="${sources}" />
+        <pathelement location="${sources.test}" />
+        <pathelement path="${ecp}" />
+        <pathelement location="${gwt.lib}/gwt-dev.jar" />
+      </classpath>
+      <jvmarg value="-ea" />
+      <sysproperty key="authentication-service" value="file-authentication-service" />
+      <sysproperty key="database.create-from-scratch" value="true" />
+      <sysproperty key="database.kind" value="system_test" />
+      <sysproperty key="script-folder" value="sourceTest" />
+      <sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
+      <sysproperty key="log4j.configuration" value="etc/log.xml" />
+      <sysproperty key="hibernate.search.index-base" value="sourceTest/lucene/indices" />
+      <sysproperty key="hibernate.search.index-mode" value="NO_INDEX" />
+      <sysproperty key="hibernate.search.indexing_strategy" value="manual" />
+      <sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
+      <sysproperty key="gwt.args" value="-testMethodTimeout 4 -Xtries 1" />
+      <formatter type="xml" />
+      <test name="${test.suite}" todir="${output.test}" />
+    </junit>
+    <fail>
+      <condition>
+        <isset property="tests-failed" />
+      </condition>
+    </fail>
+  </target>
 
-	<target name="run-editing1-tests">
-		<antcall target="run-system-test-suite">
-			<param name="test.suite" value="ch.systemsx.cisd.openbis.generic.EditingTestSuite1" />
-		</antcall>
-	</target>
+  <target name="run-editing1-tests">
+    <antcall target="run-system-test-suite">
+      <param name="test.suite" value="ch.systemsx.cisd.openbis.generic.EditingTestSuite1" />
+    </antcall>
+  </target>
 
-	<target name="run-editing2-tests">
-		<antcall target="run-system-test-suite">
-			<param name="test.suite" value="ch.systemsx.cisd.openbis.generic.EditingTestSuite2" />
-		</antcall>
-	</target>
+  <target name="run-editing2-tests">
+    <antcall target="run-system-test-suite">
+      <param name="test.suite" value="ch.systemsx.cisd.openbis.generic.EditingTestSuite2" />
+    </antcall>
+  </target>
 
-	<target name="run-viewing1-tests">
-		<antcall target="run-system-test-suite">
-			<param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1" />
-		</antcall>
-	</target>
+  <target name="run-viewing1-tests">
+    <antcall target="run-system-test-suite">
+      <param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1" />
+    </antcall>
+  </target>
 
-	<target name="run-viewing2-tests">
-		<antcall target="run-system-test-suite">
-			<param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite2" />
-		</antcall>
-	</target>
+  <target name="run-viewing2-tests">
+    <antcall target="run-system-test-suite">
+      <param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite2" />
+    </antcall>
+  </target>
 
-	<target name="run-viewing3-tests">
-		<antcall target="run-system-test-suite">
-			<param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite3" />
-		</antcall>
-	</target>
+  <target name="run-viewing3-tests">
+    <antcall target="run-system-test-suite">
+      <param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite3" />
+    </antcall>
+  </target>
 
-	<!-- 
+  <!-- 
       // Runs system tests
       -->
-	<target name="run-system-tests"
-	        depends="prepare-gwt, compile-tests, run-editing1-tests, run-editing2-tests, run-viewing1-tests, run-viewing2-tests">
-		<delete dir="${output.test}" />
-		<mkdir dir="${output.test}" />
-	</target>
+  <target name="run-system-tests"
+    depends="prepare-gwt, compile-tests, run-editing1-tests, run-editing2-tests, run-viewing1-tests, run-viewing2-tests">
+    <delete dir="${output.test}" />
+    <mkdir dir="${output.test}" />
+  </target>
 
-	<target name="run-system-tests-no-prep"
-	        depends="run-editing1-tests, run-editing2-tests, run-viewing1-tests, run-viewing2-tests, run-viewing3-tests">
-		<delete dir="${output.test}" />
-		<mkdir dir="${output.test}" />
-	</target>
+  <target name="run-system-tests-no-prep"
+    depends="run-editing1-tests, run-editing2-tests, run-viewing1-tests, run-viewing2-tests, run-viewing3-tests">
+    <delete dir="${output.test}" />
+    <mkdir dir="${output.test}" />
+  </target>
 
-	<!-- 
+  <!-- 
       // Makes a distribution file.
       -->
 
-	<target name="dist" description="Makes a distribution file." depends="check-dictionary-syntax">
-		<antcall target="make-dist">
-			<param name="variant" value="" />
-		</antcall>
-	</target>
+  <target name="dist" description="Makes a distribution file.">
+    <antcall target="make-dist">
+      <param name="variant" value="" />
+    </antcall>
+  </target>
 
-	<target name="make-dist" description="Makes a distribution file." depends="clean, war">
-		<copy file="${lib}/tomcat5/apache-tomcat.zip" todir="${server.dist}" />
-		<loadfile property="tomcat.version" srcFile="${lib}/tomcat5/version.txt">
-			<filterchain>
-				<striplinebreaks />
-			</filterchain>
-		</loadfile>
-		<echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
-		<copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
-		<move file="${client.jar.file}" todir="${server.dist}" />
-		<copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
-		<copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
-		<copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
-		<copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
-		<property name="server.dist.file"
-		          value="${server.dist}${variant}-${version.number}-r${revision.number}.zip" />
-		<zip basedir="${dist}" destfile="${server.dist.file}" excludes="*.zip">
-			<zipfileset file="${original.openbis.server.dist}/install.sh"
-			            filemode="777"
-			            prefix="${server.folder.name}" />
-		</zip>
-		<delete dir="${server.dist}" />
-	</target>
+  <target name="make-dist" description="Makes a distribution file." depends="check-dictionary-syntax, clean, war">
+    <copy file="${lib}/tomcat5/apache-tomcat.zip" todir="${server.dist}" />
+    <loadfile property="tomcat.version" srcFile="${lib}/tomcat5/version.txt">
+      <filterchain>
+        <striplinebreaks />
+      </filterchain>
+    </loadfile>
+    <echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
+    <copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
+    <move file="${client.jar.file}" todir="${server.dist}" />
+    <copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
+    <copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
+    <copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
+    <copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
+    <property name="server.dist.file" value="${server.dist}${variant}-${version.number}-r${revision.number}.zip" />
+    <zip basedir="${dist}" destfile="${server.dist.file}" excludes="*.zip">
+      <zipfileset file="${original.openbis.server.dist}/install.sh" filemode="777" prefix="${server.folder.name}" />
+    </zip>
+    <delete dir="${server.dist}" />
+  </target>
 
-	<!--
+  <!--
       // Task for continuous integration server.
       -->
-	<target name="ci"
-	        depends="check-dictionary-syntax, build-common.ci, check-dependencies, dist"
-	        description="Task for continuous integration server." />
+  <target name="ci" depends="check-dictionary-syntax, build-common.ci, check-dependencies, dist" description="Task for continuous integration server." />
 
-	<!--
-      // Nightly build task for continuous integration server.
-      // CR : Remove run-system-tests from the dependencies because the system tests do not run
-      //    	correctly as a dependent of the nightly build (for some reason).
-      //   		Orig: depends="build-common.ci, run-system-tests, dist"
-      -->
-	<target name="nightly-build"
-	        depends="build-common.ci, dist"
-	        description="Nightly build task for continuous integration server." />
+  <!--
+    // Nightly build task for continuous integration server. // CR : Remove run-system-tests from the dependencies
+    because the system tests do not run // correctly as a dependent of the nightly build (for some reason). // Orig:
+    depends="build-common.ci, run-system-tests, dist"
+  -->
+  <target name="nightly-build" depends="build-common.ci, dist" description="Nightly build task for continuous integration server." />
 
-	<!--
+  <!--
       // Compiles the javascript using GWT compiler.
       -->
-	<target name="compile-javascript"
-	        depends="prepare-web-client"
-	        description="Compiles the javascript using GWT compiler.">
-		<antcall target="compile-gwt-module">
-			<param name="gwt.module.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
-		</antcall>
-	</target>
+  <target name="compile-javascript" depends="prepare-web-client" description="Compiles the javascript using GWT compiler.">
+    <antcall target="compile-gwt-module">
+      <param name="gwt.module.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
+    </antcall>
+  </target>
 
-	<!--
-	   Compiles a GWT module to Javascript. As a side effect ${webbap.dist} is deleted.
-	   
-	   Parameters:
-	      gwt.module.name: Fully qualified name of the module.
-	-->
-	<target name="compile-gwt-module">
-		<delete dir="${webapp.dist}" />
-		<java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
-		      classname="com.google.gwt.dev.Compiler"
-		      fork="true">
-			<jvmarg value="-Xmx512M" />
-			<arg value="-war" />
-			<arg value="${webapp.dist}" />
-			<arg value="${gwt.module.name}" />
-		</java>
-		<move todir="${webapp.dist}">
-			<fileset dir="${webapp.dist}/${gwt.module.name}" />
-		</move>
-	</target>
+  <!--
+    Compiles a GWT module to Javascript. As a side effect ${webbap.dist} is deleted. Parameters: gwt.module.name: Fully
+    qualified name of the module.
+  -->
+  <target name="compile-gwt-module">
+    <delete dir="${webapp.dist}" />
+    <java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}" classname="com.google.gwt.dev.Compiler"
+      fork="true">
+      <jvmarg value="-Xmx512M" />
+      <arg value="-war" />
+      <arg value="${webapp.dist}" />
+      <arg value="${gwt.module.name}" />
+    </java>
+    <move todir="${webapp.dist}">
+      <fileset dir="${webapp.dist}/${gwt.module.name}" />
+    </move>
+  </target>
 
-	<!--
+  <!--
       // Creates build information.
       -->
-	<target name="build-info" description="Creates build information.">
-		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
-	</target>
+  <target name="build-info" description="Creates build information.">
+    <build-info revision="revision.number" version="version.number" clean="clean.flag" />
+    <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+  </target>
 
-	<!--
-      // Override 'prepare-gwt' target by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.
-      -->
-	<target name="prepare-gwt"
-	        description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.">
-		<antcall target="prepare-web-client" />
-		<antcall target="compile-tests" />
-		<antcall target="server-common-common.prepare-gwt" />
-		<copy todir="${targets.www.web-inf}/lib">
-			<fileset dir="${lib}/cisd-base">
-				<include name="cisd-base.jar" />
-			</fileset>
-			<fileset dir="${lib}/commons-lang">
-				<include name="commons-lang.jar" />
-			</fileset>
-			<fileset dir="${lib}/commons-logging">
-				<include name="*.jar" />
-			</fileset>
-			<fileset dir="${lib}/commons-io">
-				<include name="commons-io.jar" />
-			</fileset>
-			<fileset dir="${lib}/jline">
-				<include name="jline.jar" />
-			</fileset>
-			<fileset dir="${lib}/commons-codec">
-				<include name="commons-codec.jar" />
-			</fileset>
-			<fileset dir="${lib}/commons-httpclient">
-				<include name="commons-httpclient.jar" />
-			</fileset>
-			<fileset dir="${lib}/log4j">
-				<include name="log4j.jar" />
-			</fileset>
-			<fileset dir="${lib}/spring">
-				<include name="spring.jar" />
-			</fileset>
-			<fileset dir="${lib}/spring/webmvc">
-				<include name="spring-webmvc.jar" />
-			</fileset>
-			<fileset dir="${lib}/activation">
-				<include name="activation.jar" />
-			</fileset>
-			<fileset dir="${lib}/mail">
-				<include name="mail.jar" />
-			</fileset>
-			<fileset dir="${gwt.lib}">
-				<include name="gwt-servlet.jar" />
-			</fileset>
-			<fileset dir="${lib}/commons-fileupload">
-				<include name="*.jar" />
-			</fileset>
-			<fileset dir="${lib}/fastutil">
-				<include name="fastutil.jar" />
-			</fileset>
-			<fileset dir="${lib}/commons-collections-generic">
-				<include name="commons-collections-generic.jar" />
-			</fileset>
-			<fileset dir="${lib}/postgresql">
-				<include name="postgresql.jar" />
-			</fileset>
-			<fileset dir="${lib}/commons-dbcp">
-				<include name="commons-dbcp.jar" />
-			</fileset>
-			<fileset dir="${lib}/commons-pool">
-				<include name="commons-pool.jar" />
-			</fileset>
-			<fileset dir="${lib}/eodsql">
-				<include name="eodsql.jar" />
-			</fileset>
-			<!-- Hibernate -->
-			<fileset dir="${lib}/antlr">
-				<include name="antlr.jar" />
-			</fileset>
-			<fileset dir="${lib}/commons-collections">
-				<include name="commons-collections.jar" />
-			</fileset>
-			<fileset dir="${lib}/dom4j">
-				<include name="dom4j.jar" />
-			</fileset>
-			<fileset dir="${lib}/hibernate">
-				<include name="hibernate3.jar" />
-			</fileset>
-			<fileset dir="${lib}/hibernate/jta">
-				<include name="jta.jar" />
-			</fileset>
-			<fileset dir="${lib}/ehcache">
-				<include name="ehcache.jar" />
-			</fileset>
-			<fileset dir="${lib}/cglib">
-				<include name="asm.jar" />
-				<include name="asm-attrs.jar" />
-				<include name="cglib.jar" />
-			</fileset>
-			<fileset dir="${lib}/hibernate-annotations">
-				<include name="*.jar" />
-			</fileset>
-			<fileset dir="${lib}/hibernate-validator">
-				<include name="*.jar" />
-			</fileset>
-			<fileset dir="${lib}/javassist">
-				<include name="*.jar" />
-			</fileset>
-			<fileset dir="${lib}/slf4j">
-				<include name="*.jar" />
-				<exclude name="src.jar" />
-			</fileset>
-			<fileset dir="${lib}/slf4j/log4j12">
-				<include name="*.jar" />
-				<exclude name="src.jar" />
-			</fileset>
-			<!-- Beanlib -->
-			<fileset dir="${lib}/beanlib">
-				<include name="beanlib.jar" />
-			</fileset>
-			<fileset dir="${lib}/beanlib-hibernate">
-				<include name="beanlib-hibernate.jar" />
-			</fileset>
-			<!-- Hibernate Search -->
-			<fileset dir="${lib}/hibernate-search">
-				<include name="*.jar" />
-			</fileset>
-			<fileset dir="${lib}/lucene">
-				<include name="*.jar" />
-			</fileset>
-			<fileset dir="${lib}/lucene-highlighter">
-				<include name="lucene-highlighter.jar" />
-			</fileset>
-			<fileset dir="${lib}/cisd-args4j">
-				<include name="cisd-args4j.jar" />
-			</fileset>
-			<fileset dir="${lib}/jython">
-				<include name="jython.jar" />
-			</fileset>
-		</copy>
-	</target>
-	<!--
-      // Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.
-      -->
-	<target name="prepare-web-client"
-	        depends="compile"
-	        description="Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.">
-		<java classname="ch.systemsx.cisd.openbis.generic.shared.util.WebClientFilesUpdater"
-		      classpath="${ecp}:../openbis/source/java"
-		      fork="true"
-		      failonerror="true">
-			<arg value="../openbis/source/java" />
-		</java>
-	</target>
+  <!--
+    // Override 'prepare-gwt' target by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating
+    'ClientPluginProvider.java'.
+  -->
+  <target name="prepare-gwt"
+    description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.">
+    <antcall target="prepare-web-client" />
+    <antcall target="compile-tests" />
+    <antcall target="server-common-common.prepare-gwt" />
+    <copy todir="${targets.www.web-inf}/lib">
+      <fileset dir="${lib}/cisd-base">
+        <include name="cisd-base.jar" />
+      </fileset>
+      <fileset dir="${lib}/commons-lang">
+        <include name="commons-lang.jar" />
+      </fileset>
+      <fileset dir="${lib}/commons-logging">
+        <include name="*.jar" />
+      </fileset>
+      <fileset dir="${lib}/commons-io">
+        <include name="commons-io.jar" />
+      </fileset>
+      <fileset dir="${lib}/jline">
+        <include name="jline.jar" />
+      </fileset>
+      <fileset dir="${lib}/commons-codec">
+        <include name="commons-codec.jar" />
+      </fileset>
+      <fileset dir="${lib}/commons-httpclient">
+        <include name="commons-httpclient.jar" />
+      </fileset>
+      <fileset dir="${lib}/log4j">
+        <include name="log4j.jar" />
+      </fileset>
+      <fileset dir="${lib}/spring">
+        <include name="spring.jar" />
+      </fileset>
+      <fileset dir="${lib}/spring/webmvc">
+        <include name="spring-webmvc.jar" />
+      </fileset>
+      <fileset dir="${lib}/activation">
+        <include name="activation.jar" />
+      </fileset>
+      <fileset dir="${lib}/mail">
+        <include name="mail.jar" />
+      </fileset>
+      <fileset dir="${gwt.lib}">
+        <include name="gwt-servlet.jar" />
+      </fileset>
+      <fileset dir="${lib}/commons-fileupload">
+        <include name="*.jar" />
+      </fileset>
+      <fileset dir="${lib}/fastutil">
+        <include name="fastutil.jar" />
+      </fileset>
+      <fileset dir="${lib}/commons-collections-generic">
+        <include name="commons-collections-generic.jar" />
+      </fileset>
+      <fileset dir="${lib}/postgresql">
+        <include name="postgresql.jar" />
+      </fileset>
+      <fileset dir="${lib}/commons-dbcp">
+        <include name="commons-dbcp.jar" />
+      </fileset>
+      <fileset dir="${lib}/commons-pool">
+        <include name="commons-pool.jar" />
+      </fileset>
+      <fileset dir="${lib}/eodsql">
+        <include name="eodsql.jar" />
+      </fileset>
+      <!-- Hibernate -->
+      <fileset dir="${lib}/antlr">
+        <include name="antlr.jar" />
+      </fileset>
+      <fileset dir="${lib}/commons-collections">
+        <include name="commons-collections.jar" />
+      </fileset>
+      <fileset dir="${lib}/dom4j">
+        <include name="dom4j.jar" />
+      </fileset>
+      <fileset dir="${lib}/hibernate">
+        <include name="hibernate3.jar" />
+      </fileset>
+      <fileset dir="${lib}/hibernate/jta">
+        <include name="jta.jar" />
+      </fileset>
+      <fileset dir="${lib}/ehcache">
+        <include name="ehcache.jar" />
+      </fileset>
+      <fileset dir="${lib}/cglib">
+        <include name="asm.jar" />
+        <include name="asm-attrs.jar" />
+        <include name="cglib.jar" />
+      </fileset>
+      <fileset dir="${lib}/hibernate-annotations">
+        <include name="*.jar" />
+      </fileset>
+      <fileset dir="${lib}/hibernate-validator">
+        <include name="*.jar" />
+      </fileset>
+      <fileset dir="${lib}/javassist">
+        <include name="*.jar" />
+      </fileset>
+      <fileset dir="${lib}/slf4j">
+        <include name="*.jar" />
+        <exclude name="src.jar" />
+      </fileset>
+      <fileset dir="${lib}/slf4j/log4j12">
+        <include name="*.jar" />
+        <exclude name="src.jar" />
+      </fileset>
+      <!-- Beanlib -->
+      <fileset dir="${lib}/beanlib">
+        <include name="beanlib.jar" />
+      </fileset>
+      <fileset dir="${lib}/beanlib-hibernate">
+        <include name="beanlib-hibernate.jar" />
+      </fileset>
+      <!-- Hibernate Search -->
+      <fileset dir="${lib}/hibernate-search">
+        <include name="*.jar" />
+      </fileset>
+      <fileset dir="${lib}/lucene">
+        <include name="*.jar" />
+      </fileset>
+      <fileset dir="${lib}/lucene-highlighter">
+        <include name="lucene-highlighter.jar" />
+      </fileset>
+      <fileset dir="${lib}/cisd-args4j">
+        <include name="cisd-args4j.jar" />
+      </fileset>
+      <fileset dir="${lib}/jython">
+        <include name="jython.jar" />
+      </fileset>
+    </copy>
+  </target>
+  <!--
+    // Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.
+  -->
+  <target name="prepare-web-client" depends="compile"
+    description="Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.">
+    <java classname="ch.systemsx.cisd.openbis.generic.shared.util.WebClientFilesUpdater" classpath="${ecp}:../openbis/source/java"
+      fork="true" failonerror="true">
+      <arg value="../openbis/source/java" />
+    </java>
+  </target>
 
-	<!--
+  <!--
       // Creates JAR file.
       -->
-	<target name="jar" depends="compile, build-info" description="Creates project jar file.">
-		<delete file="${jar.file}" />
-		<recursive-jar destfile="${jar.file}">
-			<fileset dir="${classes}">
-				<include name="**/*.class" />
-				<!-- Exclude 'service.properties' and 'log.xml' file. -->
-				<exclude name="service.properties" />
-				<exclude name="log.xml" />
-				<include name="**/*.properties" />
-				<include name="${build.info.filename}" />
-			</fileset>
-		</recursive-jar>
-		<jar update="true" destfile="${jar.file}">
-			<fileset dir="../${ant.project.name}/${classes}"
-			         includes="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class" />
-		</jar>
-		<jar destfile="${client.jar.file}">
-			<zipfileset src="${jar.file}">
-				<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
-				<include name="ch/systemsx/cisd/common/exceptions/*.class" />
-				<include name="**/shared/I*.class" />
-				<include name="**/shared/basic/dto/*.class" />
-				<include name="**/shared/basic/*.class" />
-				<include name="**/shared/dto/*.class" />
-				<exclude name="**/shared/dto/*PE.class" />
-				<include name="**/shared/authorization/annotation/*.class" />
-				<include name="**/shared/authorization/ISessionProvider.class" />
-				<include name="**/*BuildAndEnvironmentInfo.class" />
-				<include name="*.INFO" />
-			</zipfileset>
-			<zipfileset src="${lib}/gwt2.0/gwt-user.jar">
-				<include name="com/google/gwt/user/client/rpc/IsSerializable.class" />
-				<include name="com/google/gwt/user/client/rpc/SerializableException.class" />
-			</zipfileset>
-			<zipfileset src="${lib}/cisd-base/cisd-base.jar">
-				<include name="**/*BuildAndEnvironmentInfo.class" />
-			</zipfileset>
-			<manifest>
-				<attribute name="Main-Class" value="ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo" />
-			</manifest>
-		</jar>
-	</target>
+  <target name="jar" depends="compile, build-info" description="Creates project jar file.">
+    <delete file="${jar.file}" />
+    <recursive-jar destfile="${jar.file}">
+      <fileset dir="${classes}">
+        <include name="**/*.class" />
+        <!-- Exclude 'service.properties' and 'log.xml' file. -->
+        <exclude name="service.properties" />
+        <exclude name="log.xml" />
+        <include name="**/*.properties" />
+        <include name="${build.info.filename}" />
+      </fileset>
+    </recursive-jar>
+    <jar update="true" destfile="${jar.file}">
+      <fileset dir="../${ant.project.name}/${classes}" includes="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class" />
+    </jar>
+    <jar destfile="${client.jar.file}">
+      <zipfileset src="${jar.file}">
+        <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
+        <include name="ch/systemsx/cisd/common/exceptions/*.class" />
+        <include name="**/shared/I*.class" />
+        <include name="**/shared/basic/dto/*.class" />
+        <include name="**/shared/basic/*.class" />
+        <include name="**/shared/dto/*.class" />
+        <exclude name="**/shared/dto/*PE.class" />
+        <include name="**/shared/authorization/annotation/*.class" />
+        <include name="**/shared/authorization/ISessionProvider.class" />
+        <include name="**/*BuildAndEnvironmentInfo.class" />
+        <include name="*.INFO" />
+      </zipfileset>
+      <zipfileset src="${lib}/gwt2.0/gwt-user.jar">
+        <include name="com/google/gwt/user/client/rpc/IsSerializable.class" />
+        <include name="com/google/gwt/user/client/rpc/SerializableException.class" />
+      </zipfileset>
+      <zipfileset src="${lib}/cisd-base/cisd-base.jar">
+        <include name="**/*BuildAndEnvironmentInfo.class" />
+      </zipfileset>
+      <manifest>
+        <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo" />
+      </manifest>
+    </jar>
+  </target>
 
-	<!--
+  <!--
       // Creates WAR file.
       -->
-	<target name="war" depends="jar, compile-javascript" description="Creates project war file.">
-		<mkdir dir="${webapp.dist.web-inf}" />
-		<copy todir="${webapp.dist.web-inf}">
-			<fileset dir="${application.server.resource}">
-				<include name="spring-servlet.xml" />
-			</fileset>
-			<fileset dir="../server-common/${server-resource}">
-				<include name="web-common.xml" />
-			</fileset>
-		</copy>
-		<!-- Create an empty 'gwt.xml' file. -->
-		<echo file="${webapp.dist.web-inf}/gwt.xml" message="" />
-		<mkdir dir="${server.dist}" />
-		<war warfile="${webapp.file}" webxml="${application.server.resource}/web.xml">
-			<fileset dir="${webapp.dist}" />
-			<classes dir="../openbis/source">
-				<include name="**/*.sql" />
-			</classes>
-			<!-- Add 'applicationContext.xml' and related files. -->
-			<classes dir="../server-common/${sources}">
-				<include name="**/*.xml" />
-			</classes>
-			<classes dir="${sources}">
-				<include name="**/*.xml" />
-				<exclude name="**/*.gwt.xml" />
-			</classes>
-			<classes dir="${original.server.dist}">
-				<include name="etc/log.xml" />
-				<include name="etc/passwd" />
-			</classes>
-			<classes dir="${classes}">
-				<include name="${build.info.filename}" />
-			</classes>
-			<lib dir="${dist}">
-				<include name="${jar.file.name}" />
-			</lib>
-			<lib dir="${lib}/cisd-base">
-				<include name="cisd-base.jar" />
-			</lib>
-			<lib dir="${lib}/commons-lang">
-				<include name="commons-lang.jar" />
-			</lib>
-			<lib dir="${lib}/commons-logging">
-				<include name="*.jar" />
-			</lib>
-			<lib dir="${lib}/commons-io">
-				<include name="commons-io.jar" />
-			</lib>
-			<lib dir="${lib}/jline">
-				<include name="jline.jar" />
-			</lib>
-			<lib dir="${lib}/commons-codec">
-				<include name="commons-codec.jar" />
-			</lib>
-			<lib dir="${lib}/commons-httpclient">
-				<include name="commons-httpclient.jar" />
-			</lib>
-			<lib dir="${lib}/log4j">
-				<include name="log4j.jar" />
-			</lib>
-			<lib dir="${lib}/spring">
-				<include name="spring.jar" />
-			</lib>
-			<lib dir="${lib}/spring/webmvc">
-				<include name="spring-webmvc.jar" />
-			</lib>
-			<lib dir="${lib}/activation">
-				<include name="activation.jar" />
-			</lib>
-			<lib dir="${lib}/mail">
-				<include name="mail.jar" />
-			</lib>
-			<lib dir="${gwt.lib}">
-				<include name="gwt-servlet.jar" />
-			</lib>
-			<lib dir="${lib}/commons-fileupload">
-				<include name="*.jar" />
-			</lib>
-			<lib dir="${lib}/fastutil">
-				<include name="fastutil.jar" />
-			</lib>
-			<lib dir="${lib}/commons-collections-generic">
-				<include name="commons-collections-generic.jar" />
-			</lib>
-			<!-- Database -->
-			<lib dir="${lib}/postgresql">
-				<include name="postgresql.jar" />
-			</lib>
-			<lib dir="${lib}/commons-dbcp">
-				<include name="commons-dbcp.jar" />
-			</lib>
-			<lib dir="${lib}/commons-pool">
-				<include name="commons-pool.jar" />
-			</lib>
-			<lib dir="${lib}/eodsql">
-				<include name="eodsql.jar" />
-			</lib>
-			<!-- Hibernate -->
-			<lib dir="${lib}/antlr">
-				<include name="antlr.jar" />
-			</lib>
-			<lib dir="${lib}/commons-collections">
-				<include name="commons-collections.jar" />
-			</lib>
-			<lib dir="${lib}/dom4j">
-				<include name="dom4j.jar" />
-			</lib>
-			<lib dir="${lib}/hibernate">
-				<include name="hibernate3.jar" />
-			</lib>
-			<lib dir="${lib}/hibernate/jta">
-				<include name="jta.jar" />
-			</lib>
-			<lib dir="${lib}/ehcache">
-				<include name="ehcache.jar" />
-			</lib>
-			<lib dir="${lib}/cglib">
-				<include name="asm.jar" />
-				<include name="asm-attrs.jar" />
-				<include name="cglib.jar" />
-			</lib>
-			<lib dir="${lib}/hibernate-annotations">
-				<include name="*.jar" />
-			</lib>
-			<lib dir="${lib}/hibernate-validator">
-				<include name="*.jar" />
-			</lib>
-			<lib dir="${lib}/javassist">
-				<include name="*.jar" />
-			</lib>
-			<lib dir="${lib}/slf4j">
-				<include name="*.jar" />
-				<exclude name="src.jar" />
-			</lib>
-			<lib dir="${lib}/slf4j/log4j12">
-				<include name="*.jar" />
-				<exclude name="src.jar" />
-			</lib>
-			<!-- Beanlib -->
-			<lib dir="${lib}/beanlib">
-				<include name="beanlib.jar" />
-			</lib>
-			<lib dir="${lib}/beanlib-hibernate">
-				<include name="beanlib-hibernate.jar" />
-			</lib>
-			<!-- Hibernate Search -->
-			<lib dir="${lib}/hibernate-search">
-				<include name="*.jar" />
-			</lib>
-			<lib dir="${lib}/lucene">
-				<include name="*.jar" />
-			</lib>
-			<lib dir="${lib}/lucene-highlighter">
-				<include name="lucene-highlighter.jar" />
-			</lib>
-			<lib dir="${lib}/cisd-args4j">
-				<include name="cisd-args4j.jar" />
-			</lib>
-			<lib dir="${lib}/jython">
-				<include name="jython.jar" />
-			</lib>
+  <target name="war" depends="jar, compile-javascript" description="Creates project war file.">
+    <mkdir dir="${webapp.dist.web-inf}" />
+    <copy todir="${webapp.dist.web-inf}">
+      <fileset dir="${application.server.resource}">
+        <include name="spring-servlet.xml" />
+      </fileset>
+      <fileset dir="../server-common/${server-resource}">
+        <include name="web-common.xml" />
+      </fileset>
+    </copy>
+    <!-- Create an empty 'gwt.xml' file. -->
+    <echo file="${webapp.dist.web-inf}/gwt.xml" message="" />
+    <mkdir dir="${server.dist}" />
+    <war warfile="${webapp.file}" webxml="${application.server.resource}/web.xml">
+      <fileset dir="${webapp.dist}" />
+      <classes dir="../openbis/source">
+        <include name="**/*.sql" />
+      </classes>
+      <!-- Add 'applicationContext.xml' and related files. -->
+      <classes dir="../server-common/${sources}">
+        <include name="**/*.xml" />
+      </classes>
+      <classes dir="${sources}">
+        <include name="**/*.xml" />
+        <exclude name="**/*.gwt.xml" />
+      </classes>
+      <classes dir="${original.server.dist}">
+        <include name="etc/log.xml" />
+        <include name="etc/passwd" />
+      </classes>
+      <classes dir="${classes}">
+        <include name="${build.info.filename}" />
+      </classes>
+      <lib dir="${dist}">
+        <include name="${jar.file.name}" />
+      </lib>
+      <lib dir="${lib}/cisd-base">
+        <include name="cisd-base.jar" />
+      </lib>
+      <lib dir="${lib}/commons-lang">
+        <include name="commons-lang.jar" />
+      </lib>
+      <lib dir="${lib}/commons-logging">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/commons-io">
+        <include name="commons-io.jar" />
+      </lib>
+      <lib dir="${lib}/jline">
+        <include name="jline.jar" />
+      </lib>
+      <lib dir="${lib}/commons-codec">
+        <include name="commons-codec.jar" />
+      </lib>
+      <lib dir="${lib}/commons-httpclient">
+        <include name="commons-httpclient.jar" />
+      </lib>
+      <lib dir="${lib}/log4j">
+        <include name="log4j.jar" />
+      </lib>
+      <lib dir="${lib}/spring">
+        <include name="spring.jar" />
+      </lib>
+      <lib dir="${lib}/spring/webmvc">
+        <include name="spring-webmvc.jar" />
+      </lib>
+      <lib dir="${lib}/activation">
+        <include name="activation.jar" />
+      </lib>
+      <lib dir="${lib}/mail">
+        <include name="mail.jar" />
+      </lib>
+      <lib dir="${gwt.lib}">
+        <include name="gwt-servlet.jar" />
+      </lib>
+      <lib dir="${lib}/commons-fileupload">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/fastutil">
+        <include name="fastutil.jar" />
+      </lib>
+      <lib dir="${lib}/commons-collections-generic">
+        <include name="commons-collections-generic.jar" />
+      </lib>
+      <!-- Database -->
+      <lib dir="${lib}/postgresql">
+        <include name="postgresql.jar" />
+      </lib>
+      <lib dir="${lib}/commons-dbcp">
+        <include name="commons-dbcp.jar" />
+      </lib>
+      <lib dir="${lib}/commons-pool">
+        <include name="commons-pool.jar" />
+      </lib>
+      <lib dir="${lib}/eodsql">
+        <include name="eodsql.jar" />
+      </lib>
+      <!-- Hibernate -->
+      <lib dir="${lib}/antlr">
+        <include name="antlr.jar" />
+      </lib>
+      <lib dir="${lib}/commons-collections">
+        <include name="commons-collections.jar" />
+      </lib>
+      <lib dir="${lib}/dom4j">
+        <include name="dom4j.jar" />
+      </lib>
+      <lib dir="${lib}/hibernate">
+        <include name="hibernate3.jar" />
+      </lib>
+      <lib dir="${lib}/hibernate/jta">
+        <include name="jta.jar" />
+      </lib>
+      <lib dir="${lib}/ehcache">
+        <include name="ehcache.jar" />
+      </lib>
+      <lib dir="${lib}/cglib">
+        <include name="asm.jar" />
+        <include name="asm-attrs.jar" />
+        <include name="cglib.jar" />
+      </lib>
+      <lib dir="${lib}/hibernate-annotations">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/hibernate-validator">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/javassist">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/slf4j">
+        <include name="*.jar" />
+        <exclude name="src.jar" />
+      </lib>
+      <lib dir="${lib}/slf4j/log4j12">
+        <include name="*.jar" />
+        <exclude name="src.jar" />
+      </lib>
+      <!-- Beanlib -->
+      <lib dir="${lib}/beanlib">
+        <include name="beanlib.jar" />
+      </lib>
+      <lib dir="${lib}/beanlib-hibernate">
+        <include name="beanlib-hibernate.jar" />
+      </lib>
+      <!-- Hibernate Search -->
+      <lib dir="${lib}/hibernate-search">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/lucene">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/lucene-highlighter">
+        <include name="lucene-highlighter.jar" />
+      </lib>
+      <lib dir="${lib}/cisd-args4j">
+        <include name="cisd-args4j.jar" />
+      </lib>
+      <lib dir="${lib}/jython">
+        <include name="jython.jar" />
+      </lib>
 
-		</war>
-		<!-- Does some cleaning. -->
-		<delete file="${jar.file}" failonerror="true" />
-		<delete dir="${webapp.dist}" failonerror="true" />
-	</target>
+    </war>
+    <!-- Does some cleaning. -->
+    <delete file="${jar.file}" failonerror="true" />
+    <delete dir="${webapp.dist}" failonerror="true" />
+  </target>
 
-	<!--
+  <!--
 	// Duplicate developer database and creates dump file and index files
 	-->
-	<target name="dump-and-index"
-	        description="Dumps developer database and creates a Lucene index files">
-		<java classpath="${eclipse.cp}"
-		      failonerror="true"
-		      fork="true"
-		      dir="."
-		      maxmemory="512m"
-		      classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IndexCreationUtil">
-			<sysproperty key="log4j.configuration" file="etc/log.xml" />
-			<arg value="-d" />
-			<arg value="dev_indexed" />
-			<arg value="${targets}/dev_indexed.sql" />
-			<arg value="dev" />
-			<arg value="${targets}/dev_indexed-index" />
-		</java>
-	</target>
+  <target name="dump-and-index" description="Dumps developer database and creates a Lucene index files">
+    <java classpath="${eclipse.cp}" failonerror="true" fork="true" dir="." maxmemory="512m"
+      classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IndexCreationUtil">
+      <sysproperty key="log4j.configuration" file="etc/log.xml" />
+      <arg value="-d" />
+      <arg value="dev_indexed" />
+      <arg value="${targets}/dev_indexed.sql" />
+      <arg value="dev" />
+      <arg value="${targets}/dev_indexed-index" />
+    </java>
+  </target>
 
-	<!--
+  <!--
         // Replace developer database and index
         -->
-	<target name="replace-database-and-index" description="Replaces developer database and index">
-		<java classpath="${eclipse.cp}"
-		      failonerror="true"
-		      fork="true"
-		      dir="."
-		      classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseAndIndexReplacer">
-			<sysproperty key="log4j.configuration" file="etc/log.xml" />
-			<arg value="dev" />
-			<arg value="${targets}/indices" />
-			<arg value="dev_indexed" />
-			<arg value="${targets}/dev_indexed-index" />
-		</java>
-	</target>
+  <target name="replace-database-and-index" description="Replaces developer database and index">
+    <java classpath="${eclipse.cp}" failonerror="true" fork="true" dir="."
+      classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseAndIndexReplacer">
+      <sysproperty key="log4j.configuration" file="etc/log.xml" />
+      <arg value="dev" />
+      <arg value="${targets}/indices" />
+      <arg value="dev_indexed" />
+      <arg value="${targets}/dev_indexed-index" />
+    </java>
+  </target>
 
 
-	<!-- 
-			//
-			// MODULE TEST
-			//
-			// Run the app with compiled javscript, but using the classes compiled by Eclipse 
-			-->
+  <!--
+    // // MODULE TEST // // Run the app with compiled javscript, but using the classes compiled by Eclipse
+  -->
 
-	<!--
-			// 
-			// Compile Java to javscript, assuming that prepare-gwt has already been run
-			//
-			// Must pass in module-test.path and module-test.module as arguments
-			// e.g.,
-			// <{property,param} name="module-test.path" value="openbis-test" />
-			// <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
-			//
-			-->
-	<target name="compile-module-test" description="Compile the module test mode">
-		<delete dir="${targets.www}/${module-test.path}" />
-		<java classpath="${ecp}:${ecp.gwt}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
-		      classname="com.google.gwt.dev.Compiler"
-		      fork="true">
-			<jvmarg value="-Xmx512M" />
-			<arg value="-war" />
-			<arg value="${targets.www}" />
-			<arg value="${module-test.module}Firefox" />
-			<arg value="-draftCompile" />
-			<arg value="-style" />
-			<arg value="PRETTY" />
-		</java>
-		<move todir="${targets.www}/${module-test.path}">
-			<fileset dir="${targets.www}/${module-test.module}" />
-		</move>
-	</target>
+  <!--
+    // // Compile Java to javscript, assuming that prepare-gwt has already been run // // Must pass in module-test.path
+    and module-test.module as arguments // e.g., // <{property,param} name="module-test.path" value="openbis-test" /> //
+    <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" /> //
+  -->
+  <target name="compile-module-test" description="Compile the module test mode">
+    <delete dir="${targets.www}/${module-test.path}" />
+    <java classpath="${ecp}:${ecp.gwt}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
+      classname="com.google.gwt.dev.Compiler" fork="true">
+      <jvmarg value="-Xmx512M" />
+      <arg value="-war" />
+      <arg value="${targets.www}" />
+      <arg value="${module-test.module}Firefox" />
+      <arg value="-draftCompile" />
+      <arg value="-style" />
+      <arg value="PRETTY" />
+    </java>
+    <move todir="${targets.www}/${module-test.path}">
+      <fileset dir="${targets.www}/${module-test.module}" />
+    </move>
+  </target>
 
-	<!--
-			// 
-			// Run the production mode, assuming compile-module-test has already been run
-			//
-			// Must pass in module-test.path, module-test.module, and module-test.db-kind as arguments
-			// e.g.,
-			// <{property,param} name="module-test.path" value="openbis-test" />
-			// <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
-			//
-			-->
-	<target name="run-module-test" description="Run the module test mode">
-		<java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
-			<classpath>
-				<pathelement location="${sources}" />
-				<pathelement location="../openbis/${sources}" />
-				<pathelement path="${ecp}" />
-				<pathelement path="${ecp.gwt}" />
-				<pathelement location="${gwt.lib}/gwt-dev.jar" />
-				<pathelement location="${gwt.lib}/gwt-user.jar" />
-			</classpath>
-			<jvmarg value="-Xmx512M" />
-			<jvmarg value="-ea" />
-			<sysproperty key="log4j.configuration" file="etc/log.xml" />
-			<sysproperty key="javax.net.ssl.trustStore" file="dist/server/openBIS.keystore" />
+  <!--
+    // // Run the production mode, assuming compile-module-test has already been run // // Must pass in
+    module-test.path, module-test.module, and module-test.db-kind as arguments // e.g., // <{property,param}
+    name="module-test.path" value="openbis-test" /> // <{property,param} name="module-test.module"
+    value="ch.systemsx.cisd.openbis.OpenBIS" /> //
+  -->
+  <target name="run-module-test" description="Run the module test mode">
+    <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
+      <classpath>
+        <pathelement location="${sources}" />
+        <pathelement location="../openbis/${sources}" />
+        <pathelement path="${ecp}" />
+        <pathelement path="${ecp.gwt}" />
+        <pathelement location="${gwt.lib}/gwt-dev.jar" />
+        <pathelement location="${gwt.lib}/gwt-user.jar" />
+      </classpath>
+      <jvmarg value="-Xmx512M" />
+      <jvmarg value="-ea" />
+      <sysproperty key="log4j.configuration" file="etc/log.xml" />
+      <sysproperty key="javax.net.ssl.trustStore" file="dist/server/openBIS.keystore" />
 
-			<!-- Arguments to com.google.gwt.dev.DevMode -->
-			<!-- Provide two startup urls : one for the compiled version, one for the normal dev version -->
-			<arg value="-startupUrl" />
-			<arg value="${module-test.path}/index.html" />
-			<arg value="-startupUrl" />
-			<arg value="${module-test.module}/index.html" />
+      <!-- Arguments to com.google.gwt.dev.DevMode -->
+      <!-- Provide two startup urls : one for the compiled version, one for the normal dev version -->
+      <arg value="-startupUrl" />
+      <arg value="${module-test.path}/index.html" />
+      <arg value="-startupUrl" />
+      <arg value="${module-test.module}/index.html" />
 
-			<arg value="${module-test.module}" />
-			<arg value="-war" />
-			<arg value="targets/www" />
-			<arg value="-logLevel" />
-			<arg value="WARN" />
-		</java>
-	</target>
+      <arg value="${module-test.module}" />
+      <arg value="-war" />
+      <arg value="targets/www" />
+      <arg value="-logLevel" />
+      <arg value="WARN" />
+    </java>
+  </target>
 
-	<target name="prepare-and-run-module-test"
-	        depends="prepare-gwt, module-test"
-	        description="Prepare, compile, and run the module test mode">
-	</target>
+  <target name="prepare-and-run-module-test" depends="prepare-gwt, module-test" description="Prepare, compile, and run the module test mode">
+  </target>
 
-	<target name="module-test"
-	        description="Compile and run the module test mode"
-	        depends="check-dictionary-syntax">
-		<antcall target="compile-module-test">
-			<param name="module-test.path" value="openbis-test" />
-			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
-		</antcall>
-		<antcall target="run-openbis-test" />
-	</target>
+  <target name="module-test" description="Compile and run the module test mode" depends="check-dictionary-syntax">
+    <antcall target="compile-module-test">
+      <param name="module-test.path" value="openbis-test" />
+      <param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
+    </antcall>
+    <antcall target="run-openbis-test" />
+  </target>
 
-	<target name="run-openbis-test" description="Runs the openBIS test mode">
-		<antcall target="run-module-test">
-			<param name="module-test.path" value="openbis-test" />
-			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
-		</antcall>
-	</target>
+  <target name="run-openbis-test" description="Runs the openBIS test mode">
+    <antcall target="run-module-test">
+      <param name="module-test.path" value="openbis-test" />
+      <param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
+    </antcall>
+  </target>
 
-	<target name="check-dictionary-syntax"
-	        description="Parse common-dictionary.js and check that the syntax is correct.">
-		<java failonerror="true" fork="true" jar="${rhino.lib}">
-			<arg value="../openbis/${sources}/ch/systemsx/cisd/openbis/public/common-dictionary.js" />
-		</java>
-	</target>
+  <target name="check-javascript-syntax" description="Callable task for checking that javascript syntax is correct.">
+    <java failonerror="true" fork="true" jar="${rhino.lib}">
+      <arg value="${javascript-file}" />
+    </java>
+  </target>
 
+  <target name="check-dictionary-syntax" description="Parse *-dictionary.js and check that the syntax is correct.">
+    <antcall target="check-javascript-syntax">
+      <param name="javascript-file" value="../openbis/${sources}/ch/systemsx/cisd/openbis/public/common-dictionary.js" />
+    </antcall>
+    <antcall target="check-javascript-syntax">
+      <param name="javascript-file"
+        value="../openbis/${sources}/ch/systemsx/cisd/openbis/plugin/query/client/web/public/query-dictionary.js" />
+    </antcall>
+    <antcall target="check-javascript-syntax">
+      <param name="javascript-file" value="../openbis/${sources}/ch/systemsx/cisd/openbis/generic/client/web/public/generic-dictionary.js" />
+    </antcall>
+  </target>
 </project>

@@ -5,70 +5,81 @@
 
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="rtd_phosphonetx" />
-	<property name="variant" value="-phosphonetx"/>
+	<property name="variant" value="-phosphonetx" />
 
 	<target name="compile" depends="build-common.compile, clean" />
-	
-        <!--
+
+	<!--
         // Task for creating distributions
         -->
-        <target name="dist" depends="openbis.make-dist, datastore_server.make-dist"/>
-	
-        <!--
+	<target name="dist" depends="openbis.make-dist, datastore_server.make-dist" />
+
+	<!--
         // Task for continuous integration server.
         -->
-        <target name="ci" depends="build-common.ci, dist, check-dependencies"/>
-	
-        <!--
+	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
+
+	<!--
         // Compiles the javascript using GWT compiler.
         -->
-        <target name="compile-javascript"
-                depends="prepare-web-client"
-                description="Compiles the javascript using GWT compiler.">
-                <antcall target="compile-gwt-module">
-                        <param name="gwt.module.name" value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
-                </antcall>
-        </target>
+	<target name="compile-javascript"
+	        depends="prepare-web-client"
+	        description="Compiles the javascript using GWT compiler.">
+		<antcall target="compile-gwt-module">
+			<param name="gwt.module.name" value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
+		</antcall>
+	</target>
 
-        <!--
+	<!--
         // Creates WAR file.
         -->
-        <target name="war" depends="openbis.war" description="Creates project war file.">
-        	<war warfile="${webapp.file}" update="true">
-                        <classes prefix="WEB-INF/classes/phosphonetx" dir="source">
-                                <include name="**/*.sql" />
-                        </classes>
-                        <classes dir="../openbis/${sources}">
-                                <include name="**/*.xml" />
-                                <exclude name="**/*.gwt.xml" />
-                        </classes>
-                        <lib dir="${lib}/jaxb">
-                                <include name="*.jar" />
-                        </lib>
-                        <lib dir="${lib}/eodsql">
-                                <include name="*.jar" />
-                        </lib>
-        	</war>
-        </target>
+	<target name="war" depends="openbis.war" description="Creates project war file.">
+		<war warfile="${webapp.file}" update="true">
+			<classes prefix="WEB-INF/classes/phosphonetx" dir="source">
+				<include name="**/*.sql" />
+			</classes>
+			<classes dir="../openbis/${sources}">
+				<include name="**/*.xml" />
+				<exclude name="**/*.gwt.xml" />
+			</classes>
+			<lib dir="${lib}/jaxb">
+				<include name="*.jar" />
+			</lib>
+			<lib dir="${lib}/eodsql">
+				<include name="*.jar" />
+			</lib>
+		</war>
+	</target>
 
 	<target name="prepare-and-run-module-test"
 	        depends="prepare-gwt, module-test"
 	        description="Prepare, compile, and run the module test mode">
 	</target>
-	
-	<target name="compile-and-run-openbis-phosphonetx-from-eclipse" 
-		   description="Compile and run the phosphonetx openbis from Eclipse">
+
+	<target name="compile-and-run-openbis-phosphonetx-from-eclipse"
+	        description="Compile and run the phosphonetx openbis from Eclipse">
 		<antcall target="compile-module-test">
 			<param name="module-test.path" value="openbis-test-phosphonetx" />
-			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
+			<param name="module-test.module"
+			       value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
 		</antcall>
 		<antcall target="run-openbis-phosphonetx-from-eclipse" />
 	</target>
-	
-	<target name="run-openbis-phosphonetx-from-eclipse" description="run the phosphonetx openbis from Eclipse">
+
+	<target name="run-openbis-phosphonetx-from-eclipse"
+	        description="run the phosphonetx openbis from Eclipse">
 		<antcall target="run-module-test">
 			<param name="module-test.path" value="openbis-test-phosphonetx" />
-			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
+			<param name="module-test.module"
+			       value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
+		</antcall>
+	</target>
+
+	<target name="check-dictionary-syntax"
+	        description="Parse *-dictionary.js and check that the syntax is correct.">
+		<antcall target="check-javascript-syntax">
+			<param name="javascript-file"
+			       value="../rtd_phosphonetx/${sources}/ch/systemsx/cisd/openbis/plugin/phosphonetx/client/web/public/phosphonetx-dictionary.js" />
 		</antcall>
 	</target>
 </project>

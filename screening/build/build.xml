@@ -1,74 +1,78 @@
 <project name="screening" default="ci" basedir="..">
-	<import file="../../openbis/build/build.xml" />
-	<import file="../../datastore_server/build/build.xml" />
-	<project-classpath name="ecp" classes="${classes}" />
+  <import file="../../openbis/build/build.xml" />
+  <import file="../../datastore_server/build/build.xml" />
+  <project-classpath name="ecp" classes="${classes}" />
 
-	<property name="original.dist" value="dist" />
-	<property name="mainfolder" value="screening" />
-	<property name="variant" value="-screening"/>
+  <property name="original.dist" value="dist" />
+  <property name="mainfolder" value="screening" />
+  <property name="variant" value="-screening" />
 
-	<target name="compile" depends="build-common.compile, clean" />
+  <target name="compile" depends="build-common.compile, clean" />
 
-        <!--
+  <!--
         // Task for creating distributions
         -->
-        <target name="dist" depends="openbis.make-dist, datastore_server.make-dist"/>
-	
-        <!--
+  <target name="dist" depends="openbis.make-dist, datastore_server.make-dist" />
+
+  <!--
         // Task for continuous integration server.
         -->
-        <target name="ci" depends="build-common.ci, dist, check-dependencies"/>
-	
-        <!--
+  <target name="ci" depends="build-common.ci, dist, check-dependencies" />
+
+  <!--
         // Compiles the javascript using GWT compiler.
         -->
-        <target name="compile-javascript"
-                depends="prepare-web-client"
-                description="Compiles the javascript using GWT compiler.">
-                <antcall target="compile-gwt-module">
-                        <param name="gwt.module.name" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
-                </antcall>
-        </target>
+  <target name="compile-javascript" depends="prepare-web-client" description="Compiles the javascript using GWT compiler.">
+    <antcall target="compile-gwt-module">
+      <param name="gwt.module.name" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+    </antcall>
+  </target>
 
-        <!--
+  <!--
         // Creates WAR file.
         -->
-        <target name="war" depends="openbis.war" description="Creates project war file.">
-        	<war warfile="${webapp.file}" update="true">
-                        <classes prefix="WEB-INF/classes/screening" dir="source">
-                                <include name="**/*.sql" />
-                        </classes>
-                        <classes dir="../openbis/${sources}">
-                                <include name="**/*.xml" />
-                                <exclude name="**/*.gwt.xml" />
-                        </classes>
-                        <lib dir="${lib}/jaxb">
-                                <include name="*.jar" />
-                        </lib>
-                        <lib dir="${lib}/eodsql">
-                                <include name="*.jar" />
-                        </lib>
-        	</war>
-        </target>
+  <target name="war" depends="openbis.war" description="Creates project war file.">
+    <war warfile="${webapp.file}" update="true">
+      <classes prefix="WEB-INF/classes/screening" dir="source">
+        <include name="**/*.sql" />
+      </classes>
+      <classes dir="../openbis/${sources}">
+        <include name="**/*.xml" />
+        <exclude name="**/*.gwt.xml" />
+      </classes>
+      <lib dir="${lib}/jaxb">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/eodsql">
+        <include name="*.jar" />
+      </lib>
+    </war>
+  </target>
 
-	<target name="prepare-compile-and-run-screening-test"
-	        depends="prepare-gwt, compile-and-run-screening-test"
-	        description="Prepare, compile, and run the module test mode">
-	</target>
-	
-	<target name="compile-and-run-screening-test" description="Compile and run the screening openbis from Eclipse">
-		<antcall target="compile-module-test">
-			<param name="module-test.path" value="openbis-test-screening" />
-			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
-		</antcall>
-		<antcall target="run-screening-test" />
-	</target>
-	
-	<target name="run-screening-test" description="run the screening openbis from Eclipse">
-		<antcall target="run-module-test">
-			<param name="module-test.path" value="openbis-test-screening" />
-			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
-		</antcall>
-	</target>
-	
+  <target name="prepare-compile-and-run-screening-test" depends="prepare-gwt, compile-and-run-screening-test"
+    description="Prepare, compile, and run the module test mode">
+  </target>
+
+  <target name="compile-and-run-screening-test" description="Compile and run the screening openbis from Eclipse">
+    <antcall target="compile-module-test">
+      <param name="module-test.path" value="openbis-test-screening" />
+      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+    </antcall>
+    <antcall target="run-screening-test" />
+  </target>
+
+  <target name="run-screening-test" description="run the screening openbis from Eclipse">
+    <antcall target="run-module-test">
+      <param name="module-test.path" value="openbis-test-screening" />
+      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+    </antcall>
+  </target>
+
+  <target name="check-dictionary-syntax" description="Parse *-dictionary.js and check that the syntax is correct.">
+    <antcall target="check-javascript-syntax">
+      <param name="javascript-file"
+        value="../screening/${sources}/ch/systemsx/cisd/openbis/plugin/screening/client/web/public/screening-dictionary.js" />
+    </antcall>
+  </target>
+
 </project>
