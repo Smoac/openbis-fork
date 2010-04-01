@@ -27,13 +27,24 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class CustomFilterInfo<T> implements IsSerializable
 {
-
+    private String name;
+    
     private String expression;
 
     private Set<ParameterWithValue> parameters;
 
     public CustomFilterInfo()
     {
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     public String getExpression()

@@ -141,9 +141,13 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 {
                     Set<IColumnDefinition<T>> availableColumns = config.getAvailableColumns();
                     boolean errorMessageLong = config.isCustomColumnErrorMessageLong();
+                    long time = System.currentTimeMillis();
                     List<PrimitiveValue> values =
                             columnCalculator.evalCustomColumn(originalData, customColumn,
                                     availableColumns, errorMessageLong);
+                    operationLog.info((System.currentTimeMillis() - time)
+                            + "ms for calculating column '" + customColumn.getName() + "' over "
+                            + originalData.size() + " rows.");
                     column = new Column(customColumn);
                     column.setValues(values);
                     calculatedColumns.put(code, column);
@@ -414,8 +418,12 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         CustomFilterInfo<T> customFilterInfo = filters.tryGetCustomFilterInfo();
         if (customFilterInfo != null)
         {
+            long time = System.currentTimeMillis();
             filteredRows =
                     GridExpressionUtils.applyCustomFilter(rows, availableColumns, customFilterInfo);
+            operationLog.info((System.currentTimeMillis() - time) + "ms for filtering "
+                    + rows.size() + " rows with custom filter '" + customFilterInfo.getName()
+                    + "'.");
         }
         List<GridColumnFilterInfo<T>> filterInfos = filters.tryGetFilterInfos();
         if (filterInfos != null)
