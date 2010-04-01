@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -181,6 +182,47 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 fail("Received unexpected file.");
             }
         }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDataSetListingOfChild()
+    {
+        setupStandardExpectations();
+        FileInfoDss[] fileInfos =
+                rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/stuff/", false);
+        assertEquals(2, fileInfos.length);
+        int dirCount = 0;
+        int fileIndex = 0;
+        int i = 0;
+        for (FileInfoDss fileInfo : fileInfos)
+        {
+            if (fileInfo.isDirectory())
+            {
+                ++dirCount;
+            } else
+            {
+                fileIndex = i;
+            }
+            ++i;
+        }
+        assertEquals(1, dirCount);
+        FileInfoDss fileInfo = fileInfos[fileIndex];
+        assertEquals("/stuff/bar.txt", fileInfo.getPath());
+        assertEquals(110, fileInfo.getFileSize());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDataSetListingOfRelativeChild()
+    {
+        setupStandardExpectations();
+        FileInfoDss[] fileInfos =
+                rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/", false);
+        System.err.println(Arrays.toString(fileInfos));
+        assertEquals(2, fileInfos.length);
 
         context.assertIsSatisfied();
     }
