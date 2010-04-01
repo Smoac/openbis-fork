@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.shared;
 
+import java.io.InputStream;
+
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -29,7 +33,20 @@ public interface IDssServiceRpcV1 extends IDssServiceRpc
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
+     * 
+     * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
+     * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
     public FileInfoDss[] listFilesForDataSet(String sessionToken, String dataSetCode,
-            String startPath, boolean isRecursive) throws IllegalArgumentException;
+            String startPath, boolean isRecursive) throws IOExceptionUnchecked,
+            IllegalArgumentException;
+
+    /**
+     * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
+     * 
+     * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
+     * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
+     */
+    public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String startPath)
+            throws IOExceptionUnchecked, IllegalArgumentException;
 }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
@@ -129,4 +130,33 @@ public abstract class AbstractDssServiceRpc
         return dataSetRootDirectory;
     }
 
+    protected File checkAccessAndGetRootDirectory(String sessionToken, String dataSetCode)
+            throws IllegalArgumentException
+    {
+        if (isDatasetAccessible(sessionToken, dataSetCode) == false)
+            throw new IllegalArgumentException("Path does not exist.");
+
+        File dataSetRootDirectory = getRootDirectoryForDataSet(dataSetCode);
+        if (dataSetRootDirectory.exists() == false)
+        {
+            throw new IllegalArgumentException("Path does not exist.");
+        }
+
+        return dataSetRootDirectory;
+    }
+
+    protected File checkAccessAndGetFile(String sessionToken, String dataSetCode, String path)
+            throws IOException, IllegalArgumentException
+    {
+        File dataSetRootDirectory = checkAccessAndGetRootDirectory(sessionToken, dataSetCode);
+
+        String dataSetRootPath = dataSetRootDirectory.getCanonicalPath();
+        File requestedFile = new File(dataSetRootDirectory, path);
+        // Make sure the requested file is under the root of the data set
+        if (requestedFile.getCanonicalPath().startsWith(dataSetRootPath) == false)
+        {
+            throw new IllegalArgumentException("Path does not exist.");
+        }
+        return requestedFile;
+    }
 }

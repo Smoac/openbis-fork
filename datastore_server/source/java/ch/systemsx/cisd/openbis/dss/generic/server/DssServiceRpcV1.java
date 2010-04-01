@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -40,14 +42,7 @@ public class DssServiceRpcV1 extends AbstractDssServiceRpc implements IDssServic
     public FileInfoDss[] listFilesForDataSet(String sessionToken, String dataSetCode,
             String startPath, boolean isRecursive) throws IllegalArgumentException
     {
-        if (isDatasetAccessible(sessionToken, dataSetCode) == false)
-            throw new IllegalArgumentException("Path does not exist.");
-
-        File dataSetRootDirectory = getRootDirectoryForDataSet(dataSetCode);
-        if (dataSetRootDirectory.exists() == false)
-        {
-            throw new IllegalArgumentException("Path does not exist.");
-        }
+        File dataSetRootDirectory = checkAccessAndGetRootDirectory(sessionToken, dataSetCode);
 
         try
         {
@@ -67,6 +62,19 @@ public class DssServiceRpcV1 extends AbstractDssServiceRpc implements IDssServic
         } catch (IOException ex)
         {
             operationLog.info("listFiles: " + startPath + " caused an exception", ex);
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
+    public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String path)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        try
+        {
+            File requestedFile = checkAccessAndGetFile(sessionToken, dataSetCode, path);
+            return new FileInputStream(requestedFile);
+        } catch (IOException ex)
+        {
             throw new IOExceptionUnchecked(ex);
         }
     }

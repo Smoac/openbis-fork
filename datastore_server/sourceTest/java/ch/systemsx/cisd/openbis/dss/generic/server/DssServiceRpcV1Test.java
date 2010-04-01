@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.Arrays;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -221,7 +223,6 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         setupStandardExpectations();
         FileInfoDss[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/", false);
-        System.err.println(Arrays.toString(fileInfos));
         assertEquals(2, fileInfos.length);
 
         context.assertIsSatisfied();
@@ -272,6 +273,33 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         {
             // correct
         }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDataSetFileRetrieval() throws IOException
+    {
+        setupStandardExpectations();
+        FileInfoDss[] fileInfos =
+                rpcService
+                        .listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/bar.txt", false);
+        assertEquals(1, fileInfos.length);
+
+        InputStream is =
+                rpcService.getFileForDataSet(SESSION_TOKEN, DATA_SET_CODE, fileInfos[0].getPath());
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        int readChar;
+        int charCount = 0;
+        while ((readChar = reader.read()) >= 0)
+        {
+            // Wrote many 'a' characters into the file
+            assertEquals(97, readChar);
+            ++charCount;
+        }
+
+        assertEquals(fileInfos[0].getFileSize(), charCount);
 
         context.assertIsSatisfied();
     }

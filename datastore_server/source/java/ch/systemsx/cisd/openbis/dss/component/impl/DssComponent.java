@@ -95,7 +95,8 @@ public class DssComponent implements IDssComponent
         state.checkSession();
     }
 
-    public IDataSetDss getDataSet(String code)
+    public IDataSetDss getDataSet(String code) throws EnvironmentFailureException,
+            IllegalStateException
     {
         return state.getDataSet(code);
     }
@@ -125,14 +126,14 @@ abstract class AbstractDssComponentState implements IDssComponent
         this.service = service;
     }
 
-    public void checkSession() throws InvalidSessionException
+    public void checkSession() throws IllegalStateException
     {
-        throw new UserFailureException("Please log in");
+        throw new IllegalStateException("Please log in");
     }
 
-    public IDataSetDss getDataSet(String code)
+    public IDataSetDss getDataSet(String code) throws IllegalStateException
     {
-        throw new UserFailureException("Please log in");
+        throw new IllegalStateException("Please log in");
     }
 
     /**
@@ -265,9 +266,10 @@ class AuthenticatedState extends AbstractDssComponentState
      * Package visible method to communicate with the server and get a list of files contained in
      * this data set.
      */
-    InputStream getFile(DataSetDss dataSet, String path) throws InvalidSessionException
+    InputStream getFile(DataSetDss dataSetDss, String path) throws InvalidSessionException
     {
-        return null;
+        return dataSetDss.getService().getFileForDataSet(getSessionToken(), dataSetDss.getCode(),
+                path);
     }
 
     /**
