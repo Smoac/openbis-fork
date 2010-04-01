@@ -167,13 +167,20 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
             ++i;
         }
         assertEquals(2, dirCount);
-        FileInfoDss fileInfo = fileInfos[fileIndices[0]];
-        assertEquals("/foo.txt", fileInfo.getPath());
-        assertEquals(100, fileInfo.getFileSize());
-
-        fileInfo = fileInfos[fileIndices[1]];
-        assertEquals("/stuff/bar.txt", fileInfo.getPath());
-        assertEquals(110, fileInfo.getFileSize());
+        for (i = 0; i < 2; ++i)
+        {
+            FileInfoDss fileInfo = fileInfos[fileIndices[i]];
+            if ("/foo.txt".equals(fileInfo.getPath()))
+            {
+                assertEquals(100, fileInfo.getFileSize());
+            } else if ("/stuff/bar.txt".equals(fileInfo.getPath()))
+            {
+                assertEquals(110, fileInfo.getFileSize());
+            } else
+            {
+                fail("Received unexpected file.");
+            }
+        }
 
         context.assertIsSatisfied();
     }

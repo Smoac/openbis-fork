@@ -50,7 +50,7 @@ public class FileInfoDssBuilder
      * @param isRecursive If true, directories will be recursively appended to the list
      */
     public void appendFileInfosForFile(File requestedFile, ArrayList<FileInfoDss> list,
-            boolean isRecursive)
+            boolean isRecursive) throws IOException
     {
         // at the top level, we should list the contents of directories, but only recurse if the
         // search is recursive
@@ -58,7 +58,7 @@ public class FileInfoDssBuilder
     }
 
     private void appendFileInfosForFile(File requestedFile, ArrayList<FileInfoDss> list,
-            int maxDepth)
+            int maxDepth) throws IOException
     {
         FileInfoDss fileInfo = fileInfoForFile(requestedFile);
         list.add(fileInfo);
@@ -76,7 +76,7 @@ public class FileInfoDssBuilder
         }
     }
 
-    private FileInfoDss fileInfoForFile(File file)
+    private FileInfoDss fileInfoForFile(File file) throws IOException
     {
         FileInfoDss fileInfo = new FileInfoDss();
 
@@ -96,17 +96,12 @@ public class FileInfoDssBuilder
     /**
      * Convert the path for file to a path relative to the root of the data set
      */
-    private String pathRelativeToRoot(File file)
+    private String pathRelativeToRoot(File file) throws IOException
     {
         String path;
-        try
-        {
-            path = file.getCanonicalPath();
-            path = path.substring(hierarchyRoot.length());
-            return (path.length() > 0) ? path : "/";
-        } catch (IOException ex)
-        {
-            return "UNKNOWN";
-        }
+        path = file.getCanonicalPath();
+        path = path.substring(hierarchyRoot.length());
+        return (path.length() > 0) ? path : "/";
+
     }
 }

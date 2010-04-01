@@ -91,7 +91,7 @@ public class DssServiceRpcV1 extends AbstractDssServiceRpc implements IDssServic
      * @param isRecursive If true, directories will be recursively appended to the list
      */
     private void appendFileInfosForFile(File requestedFile, String hierarchyRoot,
-            ArrayList<FileInfoDss> list, boolean isRecursive)
+            ArrayList<FileInfoDss> list, boolean isRecursive) throws IOException
     {
         FileInfoDssBuilder factory = new FileInfoDssBuilder(hierarchyRoot);
         factory.appendFileInfosForFile(requestedFile, list, isRecursive);
