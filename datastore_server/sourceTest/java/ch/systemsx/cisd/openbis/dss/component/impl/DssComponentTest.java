@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;

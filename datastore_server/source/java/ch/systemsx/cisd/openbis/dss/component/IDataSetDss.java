@@ -42,13 +42,14 @@ public interface IDataSetDss
      * @param isRecursive If true, the contents of any subdirectories will be listed as well.
      */
     public FileInfoDss[] listFiles(String startPath, boolean isRecursive)
-            throws InvalidSessionException;
+            throws IllegalArgumentException, InvalidSessionException;
 
     /**
      * Get a file contained in this data set.
      * 
      * @param path The path of the file to retrieve.
      */
-    public InputStream getFile(String path) throws InvalidSessionException;
+    public InputStream getFile(String path) throws IllegalArgumentException,
+            InvalidSessionException;
 
 }

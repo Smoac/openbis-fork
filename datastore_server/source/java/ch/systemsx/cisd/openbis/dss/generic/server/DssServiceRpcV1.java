@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssBuilder;
@@ -37,16 +38,15 @@ public class DssServiceRpcV1 extends AbstractDssServiceRpc implements IDssServic
     }
 
     public FileInfoDss[] listFilesForDataSet(String sessionToken, String dataSetCode,
-            String startPath, boolean isRecursive)
+            String startPath, boolean isRecursive) throws IllegalArgumentException
     {
-        FileInfoDss[] defaultReturnValue = new FileInfoDss[0];
         if (isDatasetAccessible(sessionToken, dataSetCode) == false)
-            return defaultReturnValue;
+            throw new IllegalArgumentException("Path does not exist.");
 
         File dataSetRootDirectory = getRootDirectoryForDataSet(dataSetCode);
         if (dataSetRootDirectory.exists() == false)
         {
-            return defaultReturnValue;
+            throw new IllegalArgumentException("Path does not exist.");
         }
 
         try
@@ -56,17 +56,18 @@ public class DssServiceRpcV1 extends AbstractDssServiceRpc implements IDssServic
             // Make sure the requested file is under the root of the data set
             if (requestedFile.getCanonicalPath().startsWith(dataSetRootPath) == false)
             {
-                return defaultReturnValue;
+                throw new IllegalArgumentException("Path does not exist.");
             }
 
             ArrayList<FileInfoDss> list = new ArrayList<FileInfoDss>();
             appendFileInfosForFile(requestedFile, dataSetRootPath, list, isRecursive);
-            return (FileInfoDss[]) list.toArray();
+            FileInfoDss[] fileInfos = new FileInfoDss[list.size()];
+            return list.toArray(fileInfos);
 
         } catch (IOException ex)
         {
             operationLog.info("listFiles: " + startPath + " caused an exception", ex);
-            return defaultReturnValue;
+            throw new IOExceptionUnchecked(ex);
         }
     }
 

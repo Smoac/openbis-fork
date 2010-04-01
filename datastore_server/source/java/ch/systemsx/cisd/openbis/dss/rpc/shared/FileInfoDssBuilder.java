@@ -103,7 +103,7 @@ public class FileInfoDssBuilder
         {
             path = file.getCanonicalPath();
             path = path.substring(hierarchyRoot.length());
-            return "/" + path;
+            return (path.length() > 0) ? path : "/";
         } catch (IOException ex)
         {
             return "UNKNOWN";

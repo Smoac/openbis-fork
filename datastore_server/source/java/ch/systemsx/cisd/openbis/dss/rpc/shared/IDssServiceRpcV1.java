@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.shared;
 
-
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -32,5 +31,5 @@ public interface IDssServiceRpcV1 extends IDssServiceRpc
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
      */
     public FileInfoDss[] listFilesForDataSet(String sessionToken, String dataSetCode,
-            String startPath, boolean isRecursive);
+            String startPath, boolean isRecursive) throws IllegalArgumentException;
 }

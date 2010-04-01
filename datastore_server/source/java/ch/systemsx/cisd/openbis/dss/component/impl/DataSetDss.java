@@ -48,13 +48,14 @@ public class DataSetDss implements IDataSetDss
         return code;
     }
 
-    public InputStream getFile(String path) throws InvalidSessionException
+    public InputStream getFile(String path) throws IllegalArgumentException,
+            InvalidSessionException
     {
         return parent.getFile(this, path);
     }
 
     public FileInfoDss[] listFiles(String startPath, boolean isRecursive)
-            throws InvalidSessionException
+            throws IllegalArgumentException, InvalidSessionException
     {
         return parent.listFiles(this, startPath, isRecursive);
     }

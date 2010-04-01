@@ -226,10 +226,15 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     @Override
-    public IDataSetDss getDataSet(String code) throws EnvironmentFailureException
+    public IDataSetDss getDataSet(String code) throws IllegalArgumentException,
+            EnvironmentFailureException
     {
         // Contact openBIS to find out which DSS server manages the data set
         ExternalData dataSetOpenBis = service.tryGetDataSet(getSessionToken(), code);
+        if (null == dataSetOpenBis)
+        {
+            throw new IllegalArgumentException("Could not retrieve data set with code " + code);
+        }
         DataStore dataStore = dataSetOpenBis.getDataStore();
 
         String url = dataStore.getDownloadUrl();
@@ -252,8 +257,8 @@ class AuthenticatedState extends AbstractDssComponentState
     FileInfoDss[] listFiles(DataSetDss dataSetDss, String startPath, boolean isRecursive)
             throws InvalidSessionException
     {
-        return dataSetDss.getService().listFilesForDataSet(getSessionToken(),
-                dataSetDss.getCode(), startPath, isRecursive);
+        return dataSetDss.getService().listFilesForDataSet(getSessionToken(), dataSetDss.getCode(),
+                startPath, isRecursive);
     }
 
     /**

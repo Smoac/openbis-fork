@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.component;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A component that manages a connection to openBIS and 1 or more data store servers.
@@ -61,7 +62,8 @@ public interface IDssComponent
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public IDataSetDss getDataSet(String code) throws EnvironmentFailureException;
+    public IDataSetDss getDataSet(String code) throws UserFailureException,
+            EnvironmentFailureException;
 
     /**
      * Logs the current user out.

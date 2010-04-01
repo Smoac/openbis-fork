@@ -82,9 +82,21 @@ public class FileInfoDss implements Serializable
     /**
      * Package-visible method for configuring instances.
      */
-    public void setFileSize(long fileSize)
+    void setFileSize(long fileSize)
     {
         this.fileSize = fileSize;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("FileInfoDss[");
+        sb.append(getPath());
+        sb.append(",");
+        sb.append(getFileSize());
+        sb.append("]");
+        return sb.toString();
     }
 
 }
