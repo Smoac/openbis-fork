@@ -28,6 +28,10 @@ import java.util.Map;
 
 import net.lemnik.eodsql.DataSet;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -48,6 +52,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundan
  */
 class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTable
 {
+    protected static final Logger operationLog =
+        LogFactory.getLogger(LogCategory.OPERATION, ProteinInfoTable.class);
+    
     private List<ProteinInfo> infos;
     private final ISampleProvider sampleProvider;
 
@@ -125,6 +132,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         AbundanceManager abundanceManager = new AbundanceManager(sampleProvider);
         IPhosphoNetXDAOFactory specificDAOFactory = getSpecificDAOFactory();
         IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
+        long time = System.currentTimeMillis();
         DataSet<ProteinReferenceWithProtein> dataSet =
                 dao.listProteinReferencesByExperiment(experimentPermID);
         List<ProteinReferenceWithProtein> proteins = new ArrayList<ProteinReferenceWithProtein>();
@@ -140,6 +148,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         {
             dataSet.close();
         }
+        operationLog.info("(" + (System.currentTimeMillis() - time) + "ms) for listProteinReferencesByExperiment");
         Map<Long, List<ProteinAbundance>> abundancesPerProtein = getAbudancesPerProtein(proteinIDs);
         ErrorModel errorModel = new ErrorModel(specificDAOFactory);
         for (ProteinReferenceWithProtein protein : proteins)
@@ -156,25 +165,32 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
     private Map<Long, List<ProteinAbundance>> getAbudancesPerProtein(LongOpenHashSet proteinIDs)
     {
         IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
+        long time = System.currentTimeMillis();
         DataSet<ProteinAbundance> dataSet = dao.listProteinWithAbundanceByExperiment(proteinIDs);
-        Map<Long, List<ProteinAbundance>> abundancesPerProtein =
-                new HashMap<Long, List<ProteinAbundance>>();
+        List<ProteinAbundance> proteinAbundances = new ArrayList<ProteinAbundance>();
         try
         {
             for (ProteinAbundance proteinAbundance : dataSet)
             {
-                long proteinID = proteinAbundance.getId();
-                List<ProteinAbundance> list = abundancesPerProtein.get(proteinID);
-                if (list == null)
-                {
-                    list = new ArrayList<ProteinAbundance>();
-                    abundancesPerProtein.put(proteinID, list);
-                }
-                list.add(proteinAbundance);
+                proteinAbundances.add(proteinAbundance);
             }
         } finally
         {
             dataSet.close();
+        }
+        operationLog.info("(" + (System.currentTimeMillis() - time) + "ms) for listProteinWithAbundanceByExperiment");
+        Map<Long, List<ProteinAbundance>> abundancesPerProtein =
+                new HashMap<Long, List<ProteinAbundance>>();
+        for (ProteinAbundance proteinAbundance : proteinAbundances)
+        {
+            long proteinID = proteinAbundance.getId();
+            List<ProteinAbundance> list = abundancesPerProtein.get(proteinID);
+            if (list == null)
+            {
+                list = new ArrayList<ProteinAbundance>();
+                abundancesPerProtein.put(proteinID, list);
+            }
+            list.add(proteinAbundance);
         }
         return abundancesPerProtein;
     }
