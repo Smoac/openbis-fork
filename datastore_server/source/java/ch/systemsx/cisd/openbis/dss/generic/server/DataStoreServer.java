@@ -41,6 +41,8 @@ import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
+
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -242,11 +244,28 @@ public class DataStoreServer
                 + DATA_STORE_SERVER_SERVICE_NAME + "/*");
         context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
 
-        String rpcPath = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME + "/v1";
-        context.addServlet(new ServletHolder(new HttpInvokerServlet(ServiceProvider
-                .getDssServiceRpcV1(), rpcPath)), rpcPath);
+        initializeRpcServices(context, applicationContext, configParameters);
 
         registerPluginServlets(context, configParameters.getPluginServlets());
+    }
+
+    /**
+     * Initialize RPC service interfaces
+     */
+    // This could be changed to use the config parameters in the future.
+    private static void initializeRpcServices(final Context context,
+            final ApplicationContext applicationContext, final ConfigParameters configParameters)
+    {
+        // Get the spring bean and do some additional configuration
+        StreamSupportingHttpInvokerServiceExporter serviceExporter =
+                ServiceProvider.getDssServiceRpcV1();
+        AbstractDssServiceRpc service = (AbstractDssServiceRpc) serviceExporter.getService();
+        service.setStoreDirectory(applicationContext.getConfigParameters().getStorePath());
+
+        // Export the spring bean to the world by wrapping it in an HttpInvokerServlet
+        String rpcPath = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME + "/v1";
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(serviceExporter, rpcPath)),
+                rpcPath);
     }
 
     private static void registerPluginServlets(Context context, List<PluginServlet> pluginServlets)

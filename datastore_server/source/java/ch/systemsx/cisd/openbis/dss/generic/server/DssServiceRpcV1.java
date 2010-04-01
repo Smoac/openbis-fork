@@ -16,39 +16,58 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import org.apache.log4j.Logger;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class DssServiceRpcV1 implements IDssServiceRpcV1
+public class DssServiceRpcV1 extends AbstractDssServiceRpc implements IDssServiceRpcV1
 {
-    // private static final Logger notificationLog =
-    // LogFactory.getLogger(LogCategory.NOTIFY, DssServiceRpcV1.class);
-
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DssServiceRpcV1.class);
-
-    private final IEncapsulatedOpenBISService openBISService;
-
     public DssServiceRpcV1(IEncapsulatedOpenBISService openBISService)
     {
-        this.openBISService = openBISService;
+        super(openBISService);
         operationLog.info("Started RPC V1 service.");
     }
 
-    public IDataSetDss tryDataSet(String sessionToken, String code)
+    public FileInfoDss[] listFilesForDataSet(String sessionToken, String dataSetCode,
+            String startPath, boolean isRecursive)
     {
-        if (isDatasetAccessible(sessionToken, code) == false)
-            return null;
-        return null;
+        FileInfoDss[] defaultReturnValue = new FileInfoDss[0];
+        if (isDatasetAccessible(sessionToken, dataSetCode) == false)
+            return defaultReturnValue;
+
+        File dataSetRootDirectory = getRootDirectoryForDataSet(dataSetCode);
+        if (dataSetRootDirectory.exists() == false)
+        {
+            return defaultReturnValue;
+        }
+
+        try
+        {
+            String dataSetRootPath = dataSetRootDirectory.getCanonicalPath();
+            File requestedFile = new File(dataSetRootDirectory, startPath);
+            // Make sure the requested file is under the root of the data set
+            if (requestedFile.getCanonicalPath().startsWith(dataSetRootPath) == false)
+            {
+                return defaultReturnValue;
+            }
+
+            ArrayList<FileInfoDss> list = new ArrayList<FileInfoDss>();
+            appendFileInfosForFile(requestedFile, dataSetRootPath, list, isRecursive);
+            return (FileInfoDss[]) list.toArray();
+
+        } catch (IOException ex)
+        {
+            operationLog.info("listFiles: " + startPath + " caused an exception", ex);
+            return defaultReturnValue;
+        }
     }
 
     public int getMinClientVersion()
@@ -61,25 +80,19 @@ public class DssServiceRpcV1 implements IDssServiceRpcV1
         return 1;
     }
 
-    private boolean isDatasetAccessible(String sessionIdOrNull, String dataSetCode)
+    /**
+     * Append file info for the requested file or file hierarchy. Assumes that the parameters have
+     * been verified already.
+     * 
+     * @param requestedFile A file known to be accessible by the user
+     * @param hierarchyRoot The root of the file hierarchy; used to determine the path of the file
+     * @param list The list the files infos are appended to
+     * @param isRecursive If true, directories will be recursively appended to the list
+     */
+    private void appendFileInfosForFile(File requestedFile, String hierarchyRoot,
+            ArrayList<FileInfoDss> list, boolean isRecursive)
     {
-        boolean access;
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("Check access to the data set '%s' at openBIS server.",
-                    dataSetCode));
-        }
-
-        try
-        {
-            openBISService.checkDataSetAccess(sessionIdOrNull, dataSetCode);
-            access = true;
-        } catch (UserFailureException ex)
-        {
-            access = false;
-        }
-
-        return access;
+        FileInfoDssBuilder factory = new FileInfoDssBuilder(hierarchyRoot);
+        factory.appendFileInfosForFile(requestedFile, list, isRecursive);
     }
-
 }

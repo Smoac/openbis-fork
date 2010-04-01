@@ -27,4 +27,64 @@ public class FileInfoDss implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    private String pathInDataSet;
+
+    private boolean isDirectory;
+
+    private long fileSize;
+
+    FileInfoDss()
+    {
+
+    }
+
+    /**
+     * The the path of this file in the data set (i.e., the root of the data set has a path of "/").
+     */
+    public String getPath()
+    {
+        return pathInDataSet;
+    }
+
+    /**
+     * Return true if this FileInfo represents a folder.
+     */
+    public boolean isDirectory()
+    {
+        return isDirectory;
+    }
+
+    /**
+     * Return the file size if this FileInfo represents a file. If this FileInfo represents a
+     * folder, the return value is negative.
+     */
+    public long getFileSize()
+    {
+        return fileSize;
+    }
+
+    /**
+     * Package-visible method for configuring instances.
+     */
+    void setPath(String pathInDataSet)
+    {
+        this.pathInDataSet = pathInDataSet;
+    }
+
+    /**
+     * Package-visible method for configuring instances.
+     */
+    void setDirectory(boolean isDirectory)
+    {
+        this.isDirectory = isDirectory;
+    }
+
+    /**
+     * Package-visible method for configuring instances.
+     */
+    public void setFileSize(long fileSize)
+    {
+        this.fileSize = fileSize;
+    }
+
 }

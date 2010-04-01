@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component;
+package ch.systemsx.cisd.openbis.dss.component.impl;
+
+import java.io.InputStream;
 
 import org.springframework.remoting.RemoteAccessException;
+import org.springframework.remoting.RemoteConnectFailureException;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.rpc.client.DssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -76,7 +82,8 @@ public class DssComponent implements IDssComponent
         this.state = new UnauthenticatedState(service);
     }
 
-    public void login(String user, String password) throws AuthorizationFailureException
+    public void login(String user, String password) throws AuthorizationFailureException,
+            EnvironmentFailureException
     {
         // login and transition to the authenticated state
         state.login(user, password);
@@ -157,9 +164,16 @@ class UnauthenticatedState extends AbstractDssComponentState
         return sessionOrNull;
     }
 
-    public void login(String user, String password) throws AuthorizationFailureException
+    public void login(String user, String password) throws AuthorizationFailureException,
+            EnvironmentFailureException
     {
-        sessionOrNull = service.tryToAuthenticate(user, password);
+        try
+        {
+            sessionOrNull = service.tryToAuthenticate(user, password);
+        } catch (RemoteConnectFailureException e)
+        {
+            throw new EnvironmentFailureException("Could not connect to server", e);
+        }
         if (sessionOrNull == null)
             throw new AuthorizationFailureException("Login or Password invalid");
     }
@@ -208,23 +222,52 @@ class AuthenticatedState extends AbstractDssComponentState
 
     public void logout()
     {
-        service.logout(session.getSessionToken());
+        service.logout(getSessionToken());
     }
 
     @Override
-    public IDataSetDss getDataSet(String code)
+    public IDataSetDss getDataSet(String code) throws EnvironmentFailureException
     {
         // Contact openBIS to find out which DSS server manages the data set
-        ExternalData dataSetOpenBis = service.tryGetDataSet(session.getSessionToken(), code);
+        ExternalData dataSetOpenBis = service.tryGetDataSet(getSessionToken(), code);
         DataStore dataStore = dataSetOpenBis.getDataStore();
 
         String url = dataStore.getDownloadUrl();
-        IDssServiceRpcV1 dssService = getDssServiceForUrl(url);
 
-        // Get a proxy to the data set
-        return dssService.tryDataSet(session.getSessionToken(), code);
+        try
+        {
+            IDssServiceRpcV1 dssService = getDssServiceForUrl(url);
+            // Return a proxy to the data set
+            return new DataSetDss(code, dssService, this);
+        } catch (Exception e)
+        {
+            throw new EnvironmentFailureException("Could not retrieve data set", e);
+        }
     }
 
+    /**
+     * Package visible method to communicate with the server and get a list of files contained in
+     * this data set.
+     */
+    FileInfoDss[] listFiles(DataSetDss dataSetDss, String startPath, boolean isRecursive)
+            throws InvalidSessionException
+    {
+        return dataSetDss.getService().listFilesForDataSet(getSessionToken(),
+                dataSetDss.getCode(), startPath, isRecursive);
+    }
+
+    /**
+     * Package visible method to communicate with the server and get a list of files contained in
+     * this data set.
+     */
+    InputStream getFile(DataSetDss dataSet, String path) throws InvalidSessionException
+    {
+        return null;
+    }
+
+    /**
+     * Create a connection to the DSS server referenced by url
+     */
     private IDssServiceRpcV1 getDssServiceForUrl(String url)
     {
         // Get an RPC service for the DSS server
@@ -245,5 +288,10 @@ class AuthenticatedState extends AbstractDssComponentState
 
         }
         return dssService;
+    }
+
+    private String getSessionToken()
+    {
+        return session.getSessionToken();
     }
 }

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.rpc.shared;
+package ch.systemsx.cisd.openbis.dss.component;
 
-import java.io.OutputStream;
+import java.io.InputStream;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
 
 /**
  * The representation of a Data Set managed by a DSS server. It is safe to use instances in multiple
@@ -28,6 +29,11 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
  */
 public interface IDataSetDss
 {
+    /**
+     * The code of this data set.
+     */
+    public String getCode();
+
     /**
      * List files contained in this data set.
      * 
@@ -43,6 +49,6 @@ public interface IDataSetDss
      * 
      * @param path The path of the file to retrieve.
      */
-    public OutputStream getFile(String path) throws InvalidSessionException;
+    public InputStream getFile(String path) throws InvalidSessionException;
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component;
+package ch.systemsx.cisd.openbis.dss.component.impl;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -22,7 +22,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -75,7 +77,7 @@ public class DssComponentTest extends AssertJUnit
     }
 
     @Test
-    public void testGetDataSet()
+    public void testListDataSetFiles()
     {
         final SessionContextDTO session = getDummySession();
         final ExternalData dataSetExternalData = new ExternalData();
@@ -93,15 +95,19 @@ public class DssComponentTest extends AssertJUnit
                     will(returnValue(session));
                     one(openBisService).tryGetDataSet(DUMMY_SESSSION_TOKEN, dataSetCode);
                     will(returnValue(dataSetExternalData));
-                    one(dssServiceFactory).getServiceV1("http://localhost/path/to/dataset/rpc/v1", false);
+                    one(dssServiceFactory).getServiceV1("http://localhost/path/to/dataset/rpc/v1",
+                            false);
                     will(returnValue(dssService));
-                    one(dssService).tryDataSet(DUMMY_SESSSION_TOKEN, dataSetCode);
+                    one(dssService).listFilesForDataSet(DUMMY_SESSSION_TOKEN, dataSetCode, "/",
+                            true);
                     will(returnValue(null));
                 }
             });
 
         dssComponent.login("foo", "bar");
-        dssComponent.getDataSet("DummyDataSetCode");
+        IDataSetDss dataSetProxy = dssComponent.getDataSet("DummyDataSetCode");
+        dataSetProxy.listFiles("/", true);
+        // Don't check values, just check that the invocation path works
     }
 
     private SessionContextDTO getDummySession()

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.shared;
 
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -28,7 +29,8 @@ public interface IDssServiceRpcV1 extends IDssServiceRpc
     public static final int VERSION = 1;
 
     /**
-     * Get a proxy to the data set object managed by the data store server.
+     * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
      */
-    public IDataSetDss tryDataSet(String sessionToken, String code);
+    public FileInfoDss[] listFilesForDataSet(String sessionToken, String dataSetCode,
+            String startPath, boolean isRecursive);
 }

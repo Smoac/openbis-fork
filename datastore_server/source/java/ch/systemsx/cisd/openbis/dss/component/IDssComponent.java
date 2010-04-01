@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.component;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDataSetDss;
 
 /**
  * A component that manages a connection to openBIS and 1 or more data store servers.
@@ -40,9 +40,13 @@ public interface IDssComponent
 {
     /**
      * Authenticates the <code>user</code> with given <code>password</code>.
+     * 
+     * @throws AuthorizationFailureException Thrown if the username / password do not authenticate.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
      */
     public void login(final String user, final String password)
-            throws AuthorizationFailureException;
+            throws AuthorizationFailureException, EnvironmentFailureException;
 
     /**
      * Checks whether the session is alive.
@@ -53,8 +57,11 @@ public interface IDssComponent
 
     /**
      * Get a proxy to the data set designated by the given data set code.
+     * 
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
      */
-    public IDataSetDss getDataSet(String code);
+    public IDataSetDss getDataSet(String code) throws EnvironmentFailureException;
 
     /**
      * Logs the current user out.
