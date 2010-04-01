@@ -6,7 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/bds"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/dbmigration"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/args4j"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/openbis"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/datastore_server"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/rtd_phosphonetx"/>
