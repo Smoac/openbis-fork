@@ -16,17 +16,23 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.client;
 
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpc;
 
 /**
  * The interface for creating proxies to the data store server.
+ * <p>
+ * Because of the inherent potential variability in the DSS RPC, the interface has been made
+ * flexible to provide clients simultaneous access to several different communication interfaces.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IDssServiceRpcFactory
 {
-
-    public abstract IDssServiceRpcV1 getServiceV1(String serviceURL,
+    public abstract DssServiceRpcInterface[] getSupportedInterfaces(String serverURL,
             boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException;
 
+    public abstract <T extends IDssServiceRpc> T getService(DssServiceRpcInterface iface,
+            Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
+            throws IncompatibleAPIVersionsException;
 }

@@ -46,6 +46,12 @@ public class ServiceProvider
         return ((HttpInvokerServiceExporter) APPLICATION_CONTEXT.getBean("data-store-server"));
     }
 
+    public static StreamSupportingHttpInvokerServiceExporter getDssServiceRpcNameServer()
+    {
+        return ((StreamSupportingHttpInvokerServiceExporter) APPLICATION_CONTEXT
+                .getBean("data-store-rpc-name-server"));
+    }
+
     public static StreamSupportingHttpInvokerServiceExporter getDssServiceRpcV1()
     {
         return ((StreamSupportingHttpInvokerServiceExporter) APPLICATION_CONTEXT

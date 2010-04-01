@@ -124,7 +124,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         setupStandardExpectations();
         FileInfoDss[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false);
-        assertEquals(3, fileInfos.length);
+        assertEquals(2, fileInfos.length);
         int dirCount = 0;
         int fileIndex = 0;
         int i = 0;
@@ -139,7 +139,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
             }
             ++i;
         }
-        assertEquals(2, dirCount);
+        assertEquals(1, dirCount);
         FileInfoDss fileInfo = fileInfos[fileIndex];
         assertEquals("/foo.txt", fileInfo.getPath());
         assertEquals(100, fileInfo.getFileSize());
@@ -153,7 +153,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         setupStandardExpectations();
         FileInfoDss[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", true);
-        assertEquals(4, fileInfos.length);
+        assertEquals(3, fileInfos.length);
         int dirCount = 0;
         int fileCount = 0;
         int[] fileIndices = new int[2];
@@ -169,7 +169,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
             }
             ++i;
         }
-        assertEquals(2, dirCount);
+        assertEquals(1, dirCount);
         for (i = 0; i < 2; ++i)
         {
             FileInfoDss fileInfo = fileInfos[fileIndices[i]];
@@ -194,7 +194,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         setupStandardExpectations();
         FileInfoDss[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/stuff/", false);
-        assertEquals(2, fileInfos.length);
+        assertEquals(1, fileInfos.length);
         int dirCount = 0;
         int fileIndex = 0;
         int i = 0;
@@ -209,7 +209,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
             }
             ++i;
         }
-        assertEquals(1, dirCount);
+        assertEquals(0, dirCount);
         FileInfoDss fileInfo = fileInfos[fileIndex];
         assertEquals("/stuff/bar.txt", fileInfo.getPath());
         assertEquals(110, fileInfo.getFileSize());
@@ -223,7 +223,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         setupStandardExpectations();
         FileInfoDss[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/", false);
-        assertEquals(2, fileInfos.length);
+        assertEquals(1, fileInfos.length);
 
         context.assertIsSatisfied();
     }

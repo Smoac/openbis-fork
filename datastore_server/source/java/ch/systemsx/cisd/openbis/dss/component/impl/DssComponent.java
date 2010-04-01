@@ -24,14 +24,15 @@ import org.springframework.remoting.RemoteConnectFailureException;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.rpc.client.DssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -193,7 +194,7 @@ class UnauthenticatedState extends AbstractDssComponentState
  */
 class AuthenticatedState extends AbstractDssComponentState
 {
-    private static final String RPC_V1 = "/rpc/v1";
+    private static final String V1_INTERFACE_NAME = "V1";
 
     private final SessionContextDTO session;
 
@@ -278,21 +279,43 @@ class AuthenticatedState extends AbstractDssComponentState
     private IDssServiceRpcV1 getDssServiceForUrl(String url)
     {
         // Get an RPC service for the DSS server
-        String serverURL = url + RPC_V1;
-        IDssServiceRpcV1 dssService = null;
+        String serverURL = url;
         try
         {
-            dssService = dssServiceFactory.getServiceV1(serverURL, false);
+            IDssServiceRpcV1 dssService = basicGetDssServiceForUrl(serverURL);
+            return dssService;
         } catch (RemoteAccessException e)
         {
+            IDssServiceRpcV1 dssService = null;
             // if the url begins with https, try http
             if (serverURL.startsWith("https://"))
             {
                 // https:// has 8 characters
                 serverURL = "http://" + serverURL.substring(8);
-                dssService = dssServiceFactory.getServiceV1(serverURL, false);
+                dssService = basicGetDssServiceForUrl(serverURL);
+                return dssService;
             }
+            return dssService;
+        }
+    }
 
+    /**
+     * A less sophisticated implementation of getDssServiceForUrl
+     */
+    private IDssServiceRpcV1 basicGetDssServiceForUrl(String serverURL)
+    {
+        IDssServiceRpcV1 dssService = null;
+        DssServiceRpcInterface[] ifaces =
+                dssServiceFactory.getSupportedInterfaces(serverURL, false);
+        for (DssServiceRpcInterface iface : ifaces)
+        {
+            if (V1_INTERFACE_NAME.equals(iface.getInterfaceName()))
+            {
+                dssService =
+                        dssServiceFactory.getService(iface, IDssServiceRpcV1.class, serverURL,
+                                false);
+                break;
+            }
         }
         return dssService;
     }

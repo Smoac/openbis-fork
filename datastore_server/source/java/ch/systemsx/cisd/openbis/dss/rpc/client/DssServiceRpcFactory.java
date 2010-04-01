@@ -43,8 +43,9 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpc;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcNameServer;
 
 /**
  * Client-side factory for DssServiceRpc objects.
@@ -58,16 +59,36 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
 {
     private static final int SERVER_TIMEOUT_MIN = 5;
 
-    public IDssServiceRpcV1 getServiceV1(String serviceURL, boolean getServerCertificateFromServer)
+    private static final String NAME_SERVER_SUFFIX = "/rpc";
+
+    public DssServiceRpcInterface[] getSupportedInterfaces(String serverURL,
+            boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException
+    {
+        // We assume the location of the name server follows the convention
+        String nameServerURL = serverURL + NAME_SERVER_SUFFIX;
+        Class<IDssServiceRpcNameServer> clazz = IDssServiceRpcNameServer.class;
+        if (getServerCertificateFromServer)
+        {
+            new SslCertificateHelper(nameServerURL, getConfigDirectory()).setUpKeyStore();
+        }
+
+        IDssServiceRpcNameServer nameServer =
+                new ServiceProxyBuilder<IDssServiceRpcNameServer>(nameServerURL, clazz,
+                        SERVER_TIMEOUT_MIN, 1).getServiceInterface();
+        return nameServer.getSupportedInterfaces();
+    }
+
+    public <T extends IDssServiceRpc> T getService(DssServiceRpcInterface iface,
+            Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
             throws IncompatibleAPIVersionsException
     {
-        Class<IDssServiceRpcV1> clazz = IDssServiceRpcV1.class;
+        String serviceURL = serverURL + iface.getInterfaceUrlSuffix();
         if (getServerCertificateFromServer)
         {
             new SslCertificateHelper(serviceURL, getConfigDirectory()).setUpKeyStore();
         }
 
-        return new ServiceProxyBuilder<IDssServiceRpcV1>(serviceURL, clazz, SERVER_TIMEOUT_MIN, 1)
+        return new ServiceProxyBuilder<T>(serviceURL, ifaceClazz, SERVER_TIMEOUT_MIN, 1)
                 .getServiceInterface();
     }
 

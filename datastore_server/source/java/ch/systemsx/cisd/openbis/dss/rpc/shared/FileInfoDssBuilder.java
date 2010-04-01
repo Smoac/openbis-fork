@@ -53,18 +53,24 @@ public class FileInfoDssBuilder
             boolean isRecursive) throws IOException
     {
         // at the top level, we should list the contents of directories, but only recurse if the
-        // search is recursive
-        appendFileInfosForFile(requestedFile, list, isRecursive ? Integer.MAX_VALUE : 0);
+        // search is recursive; and we should skip listing the top directory
+        appendFileInfosForFile(requestedFile, list, isRecursive ? Integer.MAX_VALUE : 0, true);
     }
 
     private void appendFileInfosForFile(File requestedFile, ArrayList<FileInfoDss> list,
-            int maxDepth) throws IOException
+            int maxDepth, boolean excludeTopLevelIfDirectory) throws IOException
     {
         FileInfoDss fileInfo = fileInfoForFile(requestedFile);
-        list.add(fileInfo);
+        if (excludeTopLevelIfDirectory && fileInfo.isDirectory())
+        {
+            // If specified, skip the top level if it is a directory
+        } else
+        {
+            list.add(fileInfo);
+        }
 
         // If this is a file or we have exhausted the depth, return
-        if (requestedFile.isDirectory() == false || maxDepth < 0)
+        if (fileInfo.isDirectory() == false || maxDepth < 0)
         {
             return;
         }
@@ -72,7 +78,7 @@ public class FileInfoDssBuilder
         File[] files = requestedFile.listFiles();
         for (File file : files)
         {
-            appendFileInfosForFile(file, list, maxDepth - 1);
+            appendFileInfosForFile(file, list, maxDepth - 1, false);
         }
     }
 

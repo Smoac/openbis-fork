@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters.PluginServle
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
@@ -263,9 +264,29 @@ public class DataStoreServer
         service.setStoreDirectory(applicationContext.getConfigParameters().getStorePath());
 
         // Export the spring bean to the world by wrapping it in an HttpInvokerServlet
-        String rpcPath = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME + "/v1";
-        context.addServlet(new ServletHolder(new HttpInvokerServlet(serviceExporter, rpcPath)),
-                rpcPath);
+        String rpcV1Path = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME + "/v1";
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(serviceExporter, rpcV1Path)),
+                rpcV1Path);
+
+        // Inform the name server about the services I export
+        // N.b. In the future, this could be done using spring instead of programmatically
+        serviceExporter = ServiceProvider.getDssServiceRpcNameServer();
+        DssServiceRpcNameServer rpcNameServer =
+                (DssServiceRpcNameServer) serviceExporter.getService();
+        DssServiceRpcInterface v1Interface = new DssServiceRpcInterface();
+        v1Interface.setInterfaceName("V1");
+        v1Interface.setInterfaceUrlSuffix(rpcV1Path);
+        rpcNameServer.addSupportedInterface(v1Interface);
+
+        String nameServerPath = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME;
+        DssServiceRpcInterface nameServerInterface = new DssServiceRpcInterface();
+        nameServerInterface.setInterfaceName("NameServer");
+        nameServerInterface.setInterfaceUrlSuffix(nameServerPath);
+        rpcNameServer.addSupportedInterface(nameServerInterface);
+
+        context.addServlet(new ServletHolder(
+                new HttpInvokerServlet(serviceExporter, nameServerPath)), nameServerPath);
+
     }
 
     private static void registerPluginServlets(Context context, List<PluginServlet> pluginServlets)
