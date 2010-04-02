@@ -112,10 +112,10 @@
             <arg value="../libraries/restrictionchecker/jrc" />
             <arg value="-r" />
             <arg value="../${mainfolder}/${classes}" />
-            <arg value="-cp" />
-            <arg value="${ecp}" />
             <arg value="-jd" />
             <arg value="../libraries" />
+            <arg value="-cp" />
+            <arg value="${ecp}" />
         </exec>
     </target>
 
