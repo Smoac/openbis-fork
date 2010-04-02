@@ -359,7 +359,7 @@ public class DatasetLister implements IDatasetLister
     private static <T> List<T> asList(Long2ObjectMap<T> items)
     {
         List<T> result = new ArrayList<T>();
-        org.apache.commons.collections.CollectionUtils.addAll(result, items.values().iterator());
+        result.addAll(items.values());
         return result;
     }
 

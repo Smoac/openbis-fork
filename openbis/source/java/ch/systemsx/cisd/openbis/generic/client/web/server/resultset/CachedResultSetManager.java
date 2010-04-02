@@ -548,7 +548,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return applySortDir(sortDir, comparator);
     }
 
-    @SuppressWarnings("unchecked")
     private static <T> Comparator<T> applySortDir(final SortDir sortDir, Comparator<T> comparator)
     {
         if (sortDir == SortDir.DESC)

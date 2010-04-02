@@ -52,7 +52,6 @@
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/fastutil/fastutil.jar" sourcepath="/libraries/fastutil/fastutil-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/commons-collections-generic/commons-collections-generic.jar" sourcepath="/libraries/commons-collections-generic/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-dbcp/commons-dbcp.jar" sourcepath="/libraries/commons-dbcp/src.zip"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
