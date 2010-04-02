@@ -261,9 +261,6 @@
       <fileset dir="${lib}/fastutil">
         <include name="fastutil.jar" />
       </fileset>
-      <fileset dir="${lib}/commons-collections-generic">
-        <include name="commons-collections-generic.jar" />
-      </fileset>
       <fileset dir="${lib}/postgresql">
         <include name="postgresql.jar" />
       </fileset>
