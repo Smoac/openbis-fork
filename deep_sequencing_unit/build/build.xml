@@ -49,7 +49,7 @@
 		<copy file="${lib}/activation/activation.jar" todir="${dist.tracking.lib}" />
 		<copy file="${lib}/mail/mail.jar" todir="${dist.tracking.lib}" />
 		<copy file="${lib}/log4j/log4j.jar" todir="${dist.tracking.lib}" />
-		<copy file="${lib}/gwt1.7/gwt-isserializable.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/gwt2.0/gwt-isserializable.jar" todir="${dist.tracking.lib}" />
 		<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.tracking.lib}" />
 		<copy file="${lib}/commons-io/commons-io.jar" todir="${dist.tracking.lib}" />
 		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.tracking.lib}" />
