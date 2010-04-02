@@ -479,9 +479,6 @@
       <lib dir="${lib}/fastutil">
         <include name="fastutil.jar" />
       </lib>
-      <lib dir="${lib}/commons-collections-generic">
-        <include name="commons-collections-generic.jar" />
-      </lib>
       <!-- Database -->
       <lib dir="${lib}/postgresql">
         <include name="postgresql.jar" />
