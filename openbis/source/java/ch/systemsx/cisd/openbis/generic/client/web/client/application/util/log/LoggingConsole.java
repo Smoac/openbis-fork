@@ -73,7 +73,7 @@ public class LoggingConsole
     {
         final VerticalPanel panel = new VerticalPanel();
         List<String> events = profilingTable.getLoggedEvents();
-        panel.add(new Label("The header is: [duration]  start-timestamp   description"));
+        panel.add(new Label("The header is: start-timestamp [duration] description"));
         for (String event : events)
         {
             panel.add(new Label(event));

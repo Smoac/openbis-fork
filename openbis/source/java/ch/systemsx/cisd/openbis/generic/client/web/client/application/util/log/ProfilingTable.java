@@ -171,14 +171,14 @@ public class ProfilingTable implements IProfilingTable
 
     private String createEventDescription(ProfilingEventStarted event, Date stopDateOrNull)
     {
-        String eventDesc = createEventDescription(event);
+        String eventDesc = DurationPrinter.printTime(event.getTimestamp());
         if (stopDateOrNull != null)
         {
             long durationInMilisec = stopDateOrNull.getTime() - event.getTimestamp().getTime();
             String durationText = DurationPrinter.printDuration(durationInMilisec);
-            eventDesc = "[" + durationText + "] " + eventDesc;
+            eventDesc += " [" + durationText + "]";
         }
-        return eventDesc;
+        return eventDesc + " " + event.getDescription();
     }
 
     private static class DurationPrinter
@@ -247,11 +247,5 @@ public class ProfilingTable implements IProfilingTable
         {
             return (durationInMilisec / (1000 * 60));
         }
-    }
-
-    private String createEventDescription(ProfilingEventStarted event)
-    {
-        String formattedDate = DurationPrinter.printTime(event.getTimestamp());
-        return formattedDate + " " + event.getDescription();
     }
 }
