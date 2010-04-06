@@ -176,7 +176,7 @@ public class ProfilingTable implements IProfilingTable
         {
             long durationInMilisec = stopDateOrNull.getTime() - event.getTimestamp().getTime();
             String durationText = DurationPrinter.printDuration(durationInMilisec);
-            eventDesc += " [" + durationText + "]";
+            eventDesc += " [" + DurationPrinter.printTime(stopDateOrNull) + ": " + durationText + "]";
         }
         return eventDesc + " " + event.getDescription();
     }
@@ -191,7 +191,7 @@ public class ProfilingTable implements IProfilingTable
             long min = getMinutesPart(durationInMilisec);
             long hour = getHoursPart(durationInMilisec);
             return asTwoDigits(hour) + ":" + asTwoDigits(min) + ":" + asTwoDigits(sec) + "."
-                    + milisec;
+                    + asThreeDigits(milisec);
         }
 
         private static String asTwoDigits(long value)
@@ -205,6 +205,20 @@ public class ProfilingTable implements IProfilingTable
             }
         }
 
+        private static String asThreeDigits(long value)
+        {
+            if (value < 10)
+            {
+                return "00" + value;
+            } else if (value < 100)
+            {
+                return "0" + value;
+            } else
+            {
+                return "" + value;
+            }
+        }
+        
         public static String printDuration(long durationInMilisec)
         {
             long milisec = getMilisecPart(durationInMilisec);
