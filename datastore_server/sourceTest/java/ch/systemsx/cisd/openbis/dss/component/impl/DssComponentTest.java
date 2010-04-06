@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
@@ -105,7 +104,6 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         dssComponent.login("foo", "bar");
         IDataSetDss dataSetProxy = dssComponent.getDataSet("DummyDataSetCode");
         FileInfoDss[] fileInfos = dataSetProxy.listFiles("/", true);
-        System.err.println(Arrays.toString(fileInfos));
         assertEquals(1, fileInfos.length);
 
         context.assertIsSatisfied();
