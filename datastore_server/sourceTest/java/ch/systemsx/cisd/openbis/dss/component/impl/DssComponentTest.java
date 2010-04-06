@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.component.impl;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -137,14 +135,13 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         }
 
         InputStream is = dataSetProxy.getFile(fileFileInfo.getPath());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        int charCount = 0;
-        while (reader.read() >= 0)
+        int byteCount = 0;
+        while (is.read() >= 0)
         {
-            ++charCount;
+            ++byteCount;
         }
 
-        assertEquals(fileFileInfo.getFileSize(), charCount);
+        assertEquals(fileFileInfo.getFileSize(), byteCount);
     }
 
     private void setupExpectations() throws IOException
