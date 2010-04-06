@@ -32,3 +32,9 @@ layer l2 = [etlserver] [private_dss]
 
 check layeringOf l1 l2
 
+######################################################################
+# Check dependencies between the component and the rest of dss
+[dss.component] = ${dss}.component.* ${dss}.rpc.*
+[dss.internal] = ${dss}.* excluding [dss.component]
+
+check [dss.component] independentOf [dss.internal]
