@@ -235,7 +235,7 @@
     </modificationset>
   </project>
   
-  <project name="datamover_console">
+  <!--project name="datamover_console">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
       <buildstatus logdir="logs/libraries"/>
@@ -244,7 +244,7 @@
       <buildstatus logdir="logs/server-common"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
-  </project>
+  </project-->
   
   <project name="datastore_server">
     <modificationset quietperiod="${quiet-period}">
