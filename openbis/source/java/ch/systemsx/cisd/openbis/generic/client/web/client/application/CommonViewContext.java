@@ -51,21 +51,22 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     private IClientPluginFactoryProvider clientPluginFactoryProvider;
 
-    private IMessageProvider messageProvider;
+    private CompositeMessageProvider messageProvider;
 
     private final ViewLocatorResolverRegistry locatorHandlerRegistry;
 
     private final IProfilingTable profilingTable;
 
     CommonViewContext(final ICommonClientServiceAsync service,
-            final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
+            final IGenericImageBundle imageBundle,
             final IPageController pageController, boolean isLoggingEnabled)
     {
         this.service = service;
-        this.messageProvider = new DictonaryBasedMessageProvider(TECHNOLOGY_NAME);
         this.imageBundle = imageBundle;
         this.pageController = pageController;
         this.profilingTable = ProfilingTable.create(isLoggingEnabled);
+        messageProvider = new CompositeMessageProvider();
+        messageProvider.add(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME));
         viewModel = new GenericViewModel();
         locatorHandlerRegistry = new ViewLocatorResolverRegistry();
     }
@@ -169,9 +170,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     public void addMessageSource(String messageSource)
     {
-        messageProvider =
-                new CompositeMessageProvider(new DictonaryBasedMessageProvider(messageSource),
-                        messageProvider);
+        messageProvider.add(new DictonaryBasedMessageProvider(messageSource));
     }
 
     public ViewLocatorResolverRegistry getLocatorResolverRegistry()

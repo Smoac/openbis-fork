@@ -41,10 +41,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Vi
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
@@ -80,7 +78,6 @@ public class Client implements EntryPoint
         endpoint.setServiceEntryPoint(GenericConstants.COMMON_SERVER_NAME);
         final IGenericImageBundle imageBundle =
                 GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
-        final IMessageProvider messageProvider = new DictonaryBasedMessageProvider("common");
         final IPageController pageController = new IPageController()
             {
                 //
@@ -98,8 +95,7 @@ public class Client implements EntryPoint
             };
 
         CommonViewContext commonContext =
-                new CommonViewContext(service, messageProvider, imageBundle, pageController,
-                        isLoggingEnabled());
+                new CommonViewContext(service, imageBundle, pageController, isLoggingEnabled());
         commonContext.setClientPluginFactoryProvider(createPluginFactoryProvider(commonContext));
         initializeLocatorHandlerRegistry(commonContext.getLocatorResolverRegistry(), commonContext);
         return commonContext;
