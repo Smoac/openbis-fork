@@ -77,6 +77,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     public FilterToolbar(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             IDisplayTypeIDProvider displayTypeIDProvider, IDelegatedAction applyFiltersAction)
     {
+        int logID = viewContext.log("create filter toolbar for " + gridId);
         this.messageProvider = viewContext;
         this.columnFilters = new ArrayList<IColumnFilterWidget<T>>();
         this.applyFiltersAction = applyFiltersAction;
@@ -133,7 +134,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                     apply();
                 }
             });
-
+        viewContext.logStop(logID);
     }
 
     public static String createId(String prefix, String gridId)

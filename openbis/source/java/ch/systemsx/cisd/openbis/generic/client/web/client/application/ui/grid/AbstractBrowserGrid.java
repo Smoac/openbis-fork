@@ -35,8 +35,10 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -232,10 +234,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         this.displayTypeIDGenerator = displayTypeIDGenerator;
         this.viewContext = viewContext;
+        int logID = log("create browser grid " + gridId);
         this.refreshAutomatically = refreshAutomatically;
         this.pagingLoader = createPagingLoader();
         this.customColumnsMetadataProvider = new CustomColumnsMetadataProvider();
-
         this.grid = createGrid(pagingLoader, gridId);
         // WORKAROUND
         // Lazy loading of rows causes tests using experiment browser fail (selection of
@@ -278,6 +280,74 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         add(contentPanel);
 
         addRefreshDisplaySettingsListener();
+        pagingLoader.addLoadListener(new LoadListener());
+        prepareLoggingBetweenEvents(contentPanel, EventPair.RENDER);
+        prepareLoggingBetweenEvents(this, EventPair.LAYOUT);
+        prepareLoggingBetweenEvents(grid, EventPair.LAYOUT);
+        prepareLoggingBetweenEvents(contentPanel, EventPair.LAYOUT);
+        prepareLoggingBetweenEvents(bottomToolbars, EventPair.LAYOUT);
+        prepareLoggingBetweenEvents(filterToolbar, EventPair.LAYOUT);
+        viewContext.logStop(logID);
+    }
+    
+    private enum EventPair
+    {
+        RENDER(Events.BeforeRender, Events.Render), LAYOUT(Events.BeforeLayout, Events.AfterLayout);
+        
+        private final EventType beforeEvent;
+        private final EventType afterEvent;
+
+        private EventPair(EventType beforeEvent, EventType afterEvent)
+        {
+            this.beforeEvent = beforeEvent;
+            this.afterEvent = afterEvent;
+        }
+    }
+    
+    private final Map<Object, Integer> logIDs = new HashMap<Object, Integer>();
+    
+    protected void prepareLoggingBetweenEvents(final Component component, final EventPair eventPair)
+    {
+        final Object dummySource = new Object();
+        component.addListener(eventPair.beforeEvent, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    String id = component.getId();
+                    if (id.startsWith("x-"))
+                    {
+                        id = component.getClass().getName();
+                        int lastIndex = id.lastIndexOf('.');
+                        if (lastIndex >= 0)
+                        {
+                            id = id.substring(lastIndex + 1);
+                        }
+                    }
+                    Object key = be.getSource();
+                    if (key == null)
+                    {
+                        key = dummySource;
+                    }
+                    logIDs.put(key, log("event: " + eventPair + " (" + id + ")"));
+                }
+            });
+        component.addListener(eventPair.afterEvent, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    Object key = be.getSource();
+                    if (key == null)
+                    {
+                        key = dummySource;
+                    }
+                    viewContext.logStop(logIDs.get(key));
+                }
+            });
+    }
+    
+    protected int log(String message)
+    {
+        return viewContext.log(message + " [" + getId() + "]");
     }
 
     protected void showEntityInformationHolderViewer(IEntityInformationHolder entity,
@@ -340,8 +410,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected final void refreshGridSilently()
     {
         grid.setLoadMask(false);
+        int id = log("refresh silently");
         refresh();
         grid.setLoadMask(true);
+        viewContext.logStop(id);
     }
 
     /**
@@ -491,8 +563,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         super.onRender(parent, pos);
         if (refreshAutomatically)
         {
+            int id = log("layout automatically");
             layout();
+            viewContext.logStop(id);
+            id = log("refresh automatically");
             refresh();
+            viewContext.logStop(id);
         }
     }
 
@@ -666,6 +742,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         // configuration with which the listing was called
         private final DefaultResultSetConfig<String, T> resultSetConfig;
 
+        private int logID;
+
         public ListEntitiesCallback(final IViewContext<?> viewContext,
                 final AsyncCallback<PagingLoadResult<M>> delegate,
                 final DefaultResultSetConfig<String, T> resultSetConfig)
@@ -673,6 +751,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             super(viewContext);
             this.delegate = delegate;
             this.resultSetConfig = resultSetConfig;
+            logID = log("load data");
         }
 
         //
@@ -693,6 +772,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         @Override
         protected final void process(final ResultSet<T> result)
         {
+            viewContext.logStop(logID);
+            logID = log("process loaded data");
             // save the key of the result, later we can refer to the result in the cache using this
             // key
             saveCacheKey(result.getResultSetKey());
@@ -711,6 +792,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
             filterToolbar.refreshColumnFiltersDistinctValues(rowModels.getColumnDistinctValues());
             onComplete(true);
+            viewContext.logStop(logID);
         }
 
         // notify that the refresh is done
@@ -753,7 +835,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
                 public void refresh()
                 {
+                    int id = log("refresh in action invoker");
                     delegate.refresh();
+                    viewContext.logStop(id);
                 }
 
                 public void configure()
@@ -934,11 +1018,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void execute()
                 {
+                    int id = log("execute refrish grid action");
                     refresh();
+                    viewContext.logStop(id);
                 }
             };
     }
-
+    
     /** Refreshes grid and filters (resets filter selection) */
     protected final void refreshGridWithFilters()
     {
@@ -953,7 +1039,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         filterToolbar.resetFilterFields();
         filterToolbar.resetFilterSelectionWithoutApply();
 
+        int id = log("refresh grid with filters");
         refresh();
+        viewContext.logStop(id);
 
         // Need to refresh the filter toolbar *after* refreshing the grid, because it
         // has a dependency on information from the grid that gets updated with the refresh
@@ -984,6 +1072,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected final void refresh(final IDataRefreshCallback externalRefreshCallbackOrNull,
             boolean refreshColumnsDefinition)
     {
+        int id = log("refresh (refreshColumnsDefinition=" + refreshColumnsDefinition + ")");
         pagingToolbar.updateDefaultRefreshButton(false);
         debug("clean cache for refresh");
         this.refreshCallback = createRefreshCallback(externalRefreshCallbackOrNull);
@@ -992,6 +1081,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             recreateColumnModelAndRefreshColumnsWithFilters();
         }
         reloadData(createDisposeAndRefreshFetchMode());
+        viewContext.logStop(id);
     }
 
     private ResultSetFetchConfig<String> createDisposeAndRefreshFetchMode()
@@ -1488,28 +1578,38 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private static <T> LayoutContainer createBottomToolbars(final ToolBar filterToolbar,
             final ToolBar pagingToolbar, final Container<?> parentContainer)
     {
-        LayoutContainer bottomToolbars = new LayoutContainer()
-            {
-                @Override
-                protected void onWindowResize(int aWidth, int aHeight)
-                {
-                    super.onWindowResize(aWidth, aHeight);
-                    if (isVisible())
-                    {
-                        this.setWidth(parentContainer.getWidth());
-                    }
-                }
-            };
+        LayoutContainer bottomToolbars = new ContainerKeeper(parentContainer);
         bottomToolbars.setMonitorWindowResize(true);
         bottomToolbars.setLayout(new RowLayout(com.extjs.gxt.ui.client.Style.Orientation.VERTICAL));
         bottomToolbars.add(filterToolbar, new RowData(1, -1));
         bottomToolbars.add(pagingToolbar, new RowData(1, -1));
         return bottomToolbars;
     }
+    
+    private static final class ContainerKeeper extends LayoutContainer
+    {
+        private final Container<?> parentContainer;
+
+        private ContainerKeeper(Container<?> parentContainer)
+        {
+            this.parentContainer = parentContainer;
+        }
+
+        @Override
+        protected void onWindowResize(int aWidth, int aHeight)
+        {
+            super.onWindowResize(aWidth, aHeight);
+            if (isVisible())
+            {
+                this.setWidth(parentContainer.getWidth());
+            }
+        }
+    }
 
     private static <T extends ModelData> Grid<T> createGrid(
             PagingLoader<PagingLoadResult<T>> dataLoader, String gridId)
     {
+        
         ListStore<T> listStore = new ListStore<T>(dataLoader);
         ColumnModel columnModel = createColumnModel(new ArrayList<ColumnConfig>());
         final Grid<T> grid = new Grid<T>(listStore, columnModel)

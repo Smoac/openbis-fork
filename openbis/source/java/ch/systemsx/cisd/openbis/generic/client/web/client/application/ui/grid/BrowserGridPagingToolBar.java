@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -57,9 +58,10 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     private int nextTableButtonIndex;
 
     public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker,
-            IMessageProvider messageProvider, int pageSize, String gridId)
+            IViewContext<?> viewContext, int pageSize, String gridId)
     {
         super(pageSize);
+        int logID = viewContext.log("create paging tool bar for " + gridId);
         // Remove the refresh button (since we add our own)
         remove(refresh);
         // Remove the space before the refresh button and replace it with display text
@@ -71,11 +73,11 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         SeparatorToolItem separator = new SeparatorToolItem();
         insertTableButton(separator);
 
-        this.messageProvider = messageProvider;
+        this.messageProvider = viewContext;
 
         insertTableButton(createTableOperationsLabel());
 
-        this.configButton = createConfigButton(messageProvider, invoker, gridId);
+        this.configButton = createConfigButton(viewContext, invoker, gridId);
         insertTableButton(configButton);
         updateDefaultConfigButton(false);
 
@@ -84,11 +86,12 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         updateDefaultRefreshButton(false);
         this.refreshButton.setId(REFRESH_BUTTON_ID);
 
-        this.exportButton = createExportButton(messageProvider, invoker);
+        this.exportButton = createExportButton(viewContext, invoker);
         disableExportButton();
         insertTableButton(exportButton);
 
         insertTableButton(new FillToolItem());
+        viewContext.logStop(logID);
     }
 
     /** Total number of items on all pages */
