@@ -58,7 +58,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -252,7 +251,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 new FilterToolbar<T>(viewContext, gridId, this, createApplyFiltersDelagator());
 
         this.contentPanel = createEmptyContentPanel();
-        bottomToolbars = createBottomToolbars(filterToolbar, pagingToolbar, contentPanel);
+        bottomToolbars = createBottomToolbars(contentPanel);
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(false);
@@ -287,6 +286,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         prepareLoggingBetweenEvents(contentPanel, EventPair.LAYOUT);
         prepareLoggingBetweenEvents(bottomToolbars, EventPair.LAYOUT);
         prepareLoggingBetweenEvents(filterToolbar, EventPair.LAYOUT);
+        prepareLoggingBetweenEvents(pagingToolbar, EventPair.LAYOUT);
         viewContext.logStop(logID);
     }
     
@@ -610,6 +610,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 new ListEntitiesCallback(viewContext, callback, resultSetConfig);
 
         listEntities(resultSetConfig, listCallback);
+        if (bottomToolbars.getItemCount() == 0)
+        {
+            int logID = log("add bottom tool bars");
+            bottomToolbars.add(filterToolbar, new RowData(1, -1));
+            bottomToolbars.add(pagingToolbar, new RowData(1, -1));
+            bottomToolbars.layout(true);
+            viewContext.logStop(logID);
+        }
     }
 
     private void debug(String msg)
@@ -1575,14 +1583,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // creates filter and paging toolbars
-    private static <T> LayoutContainer createBottomToolbars(final ToolBar filterToolbar,
-            final ToolBar pagingToolbar, final Container<?> parentContainer)
+    private static <T> LayoutContainer createBottomToolbars(final Container<?> parentContainer)
     {
         LayoutContainer bottomToolbars = new ContainerKeeper(parentContainer);
         bottomToolbars.setMonitorWindowResize(true);
         bottomToolbars.setLayout(new RowLayout(com.extjs.gxt.ui.client.Style.Orientation.VERTICAL));
-        bottomToolbars.add(filterToolbar, new RowData(1, -1));
-        bottomToolbars.add(pagingToolbar, new RowData(1, -1));
         return bottomToolbars;
     }
     
