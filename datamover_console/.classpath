@@ -20,6 +20,10 @@
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/gwt1.7/gwt-user.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-user.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/gwt2.0/gwt-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
