@@ -16,28 +16,31 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
 
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 /**
- * Superclass for dss command-line client commands.
- * 
  * @author Chandrasekhar Ramakrishnan
  */
-abstract class AbstractCommand implements ICommand
+public class CommandFactoryTest extends AssertJUnit
 {
+    CommandFactory factory;
 
-    /**
-     * How is the program invoked from the command line? Used for displaying help.
-     */
-    protected String getProgramCallString()
+    @BeforeMethod
+    public void setUp()
     {
-        return "dss " + getName();
+        factory = new CommandFactory();
     }
 
-    /**
-     * The text "usage: " + the program call string. Used for displaying help.
-     */
-    protected String getUsagePrefixString(String programCallString)
+    @Test
+    public void testNameMapping()
     {
-        return "usage: " + programCallString;
-    }
+        ICommand cmd;
+        cmd = factory.tryCommandForName("ls", null);
+        assertEquals(CommandLs.class, cmd.getClass());
 
+        cmd = factory.tryCommandForName("get", null);
+        assertEquals(CommandGet.class, cmd.getClass());
+    }
 }

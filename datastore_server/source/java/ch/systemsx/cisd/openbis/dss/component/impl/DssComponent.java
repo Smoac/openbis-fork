@@ -229,7 +229,7 @@ class AuthenticatedState extends AbstractDssComponentState
 
     @Override
     public IDataSetDss getDataSet(String code) throws IllegalArgumentException,
-            EnvironmentFailureException
+            EnvironmentFailureException, RemoteAccessException
     {
         // Contact openBIS to find out which DSS server manages the data set
         ExternalData dataSetOpenBis = service.tryGetDataSet(getSessionToken(), code);
@@ -241,15 +241,10 @@ class AuthenticatedState extends AbstractDssComponentState
 
         String url = dataStore.getDownloadUrl();
 
-        try
-        {
-            IDssServiceRpcV1 dssService = getDssServiceForUrl(url);
-            // Return a proxy to the data set
-            return new DataSetDss(code, dssService, this);
-        } catch (Exception e)
-        {
-            throw new EnvironmentFailureException("Could not retrieve data set", e);
-        }
+        IDssServiceRpcV1 dssService = getDssServiceForUrl(url);
+        // Return a proxy to the data set
+        return new DataSetDss(code, dssService, this);
+
     }
 
     /**
@@ -286,16 +281,17 @@ class AuthenticatedState extends AbstractDssComponentState
             return dssService;
         } catch (RemoteAccessException e)
         {
-            IDssServiceRpcV1 dssService = null;
             // if the url begins with https, try http
             if (serverURL.startsWith("https://"))
             {
                 // https:// has 8 characters
                 serverURL = "http://" + serverURL.substring(8);
-                dssService = basicGetDssServiceForUrl(serverURL);
+                IDssServiceRpcV1 dssService = basicGetDssServiceForUrl(serverURL);
                 return dssService;
             }
-            return dssService;
+
+            // Rethrow the exception
+            throw e;
         }
     }
 

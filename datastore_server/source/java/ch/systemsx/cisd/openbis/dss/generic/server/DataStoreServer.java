@@ -264,7 +264,7 @@ public class DataStoreServer
         service.setStoreDirectory(applicationContext.getConfigParameters().getStorePath());
 
         // Export the spring bean to the world by wrapping it in an HttpInvokerServlet
-        String rpcV1Path = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME + "/v1/";
+        String rpcV1Path = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME + "/v1";
         context.addServlet(new ServletHolder(new HttpInvokerServlet(v1ServiceExporter, rpcV1Path)),
                 rpcV1Path);
 
@@ -276,13 +276,13 @@ public class DataStoreServer
                 (DssServiceRpcNameServer) nameServiceExporter.getService();
         DssServiceRpcInterface v1Interface = new DssServiceRpcInterface();
         v1Interface.setInterfaceName("V1");
-        v1Interface.setInterfaceUrlSuffix("/rpc/v1/");
+        v1Interface.setInterfaceUrlSuffix("/rpc/v1");
         rpcNameServer.addSupportedInterface(v1Interface);
 
         String nameServerPath = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME;
         DssServiceRpcInterface nameServerInterface = new DssServiceRpcInterface();
         nameServerInterface.setInterfaceName("NameServer");
-        nameServerInterface.setInterfaceUrlSuffix("/rpc/");
+        nameServerInterface.setInterfaceUrlSuffix("/rpc");
         rpcNameServer.addSupportedInterface(nameServerInterface);
 
         context.addServlet(new ServletHolder(new HttpInvokerServlet(nameServiceExporter,

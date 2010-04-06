@@ -8,6 +8,13 @@
 	<property name="dist.datastore_server.lib" value="${dist.datastore_server}/lib" />
 	<property name="dss-jar.file" value="${dist.datastore_server.lib}/datastore_server.jar" />
 	<property name="dist.file.prefix" value="${dist}/datastore_server" />
+	
+	<property name="dss_client" value="dss_client" />
+	<property name="dist.dss_client" value="${dist}/dss_client" />
+	<property name="dist.dss_client.lib" value="${dist.dss_client}/lib" />
+  <property name="dss-client-jar.file" value="${dist.dss_client.lib}/dss_client.jar" />
+  <property name="dist.client.file.prefix" value="${dist}/dss_client" />
+	
 	<property name="nativesrc" value="${lib}/unix/native" />
 	<property name="nativeroot" value="${targets}/ant" />
 	<property name="native" value="${nativeroot}/native" />
@@ -119,6 +126,63 @@
 		</zip>
 		<delete dir="${dist.datastore_server}" />
 	</target>
+  
+  <target name="dss-client-jar" depends="compile">
+    <mkdir dir="${dist.dss_client.lib}" />
+    <build-info revision="revision.number" version="version.number" clean="clean.flag" />
+    <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+    <recursive-jar destfile="${dss-client-jar.file}">
+      <fileset dir="${classes}">
+      	<include name="ch/systemsx/cisd/common/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/generic/shared/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/dss/component/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/dss/rpc/**/*.class" />
+        <include name="${build.info.filename}" />
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.rpc.client.cli.DssClient" />
+        <attribute name="Class-Path"
+                   value="cisd-base.jar cisd-args4j.jar cifex.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
+ commons-codec.jar commons-httpclient.jar spring.jar" />
+        <attribute name="Version" value="${version.number}" />
+        <attribute name="Build-Number"
+                   value="${version.number} (r${revision.number},${clean.flag})" />
+      </manifest>
+    </recursive-jar>
+    <jar update="true" destfile="${dss-client-jar.file}">
+      <fileset dir="../${ant.project.name}/${classes}" includes="ch/systemsx/cisd/openbis/dss/BuildAndEnvironmentInfo.class"/>
+    	<zipfileset src="${lib}/gwt2.0/gwt-user.jar"
+    				            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
+    </jar>
+  </target>
+	
+	<target name="dist-client">
+		<antcall target="make-dist-client">
+			<param name="variant" value="" />
+		</antcall>
+	</target>
+  
+  <target name="make-dist-client" depends="dss-client-jar">
+    <copy file="${dss-client-jar.file}" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/cisd-args4j/cisd-args4j.jar" todir="${dist.dss_client.lib}" />
+  	<copy file="${lib}/cifex/cifex.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/log4j/log4j.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/spring/spring.jar" todir="${dist.dss_client.lib}" />
+    <property name="dist.file"
+              value="${dist.client.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
+    <zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar">
+      <zipfileset file="${dss.original.dist}/dss_client.sh"
+                  filemode="755"
+                  prefix="${dss_client}" />
+    </zip>
+    <delete dir="${dist.dss_client}" />
+  </target>
 
 	<target name="ci" depends="run-tests, check-dependencies, dist">
 	</target>

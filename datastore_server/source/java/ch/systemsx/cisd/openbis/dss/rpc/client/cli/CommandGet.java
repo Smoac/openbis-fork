@@ -16,14 +16,21 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.args4j.Argument;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
@@ -34,12 +41,15 @@ import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class CommandLs extends AbstractCommand
+class CommandGet extends AbstractCommand
 {
-    private static class CommandLsArguments
+    private static class CommandGetArguments
     {
         @Option(name = "r", longName = "recursive", usage = "Recurse into directories")
         private boolean recursive = false;
+
+        @Option(name = "o", longName = "output", usage = "Path for output")
+        private String output = "";
 
         @Argument
         private final List<String> arguments = new ArrayList<String>();
@@ -49,20 +59,18 @@ class CommandLs extends AbstractCommand
             return recursive;
         }
 
-        // Accessed via reflection
-        @SuppressWarnings("unused")
-        public void setRecursive(boolean recursive)
-        {
-            this.recursive = recursive;
-        }
-
         public List<String> getArguments()
         {
             return arguments;
         }
+
+        public String getOutput()
+        {
+            return output;
+        }
     }
 
-    private final CommandLsArguments arguments;
+    private final CommandGetArguments arguments;
 
     private final CmdLineParser parser;
 
@@ -74,9 +82,9 @@ class CommandLs extends AbstractCommand
      * 
      * @param dataSet
      */
-    CommandLs(IDataSetDss dataSet)
+    CommandGet(IDataSetDss dataSet)
     {
-        arguments = new CommandLsArguments();
+        arguments = new CommandGetArguments();
         parser = new CmdLineParser(arguments);
         this.dataSet = dataSet;
     }
@@ -84,7 +92,7 @@ class CommandLs extends AbstractCommand
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
     {
         FileInfoDss[] fileInfos = getFileInfos(args);
-        printFileInfos(fileInfos);
+        downloadFiles(fileInfos);
 
         return 0;
     }
@@ -105,27 +113,65 @@ class CommandLs extends AbstractCommand
         return dataSet.listFiles(path, arguments.isRecursive());
     }
 
-    private void printFileInfos(FileInfoDss[] fileInfos)
+    /**
+     * Download the files, printing status information to System.out.
+     */
+    private void downloadFiles(FileInfoDss[] fileInfos)
     {
+        File outputDir;
+        if (arguments.getOutput().length() > 0)
+        {
+            // create the directory specified by output
+            outputDir = new File(arguments.getOutput());
+            outputDir.mkdirs();
+        } else
+        {
+            outputDir = new File(".");
+        }
+
+        try
+        {
+            System.out.println("output dir :  " + outputDir.getCanonicalPath());
+
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+
+        // Download file in this thread -- could spawn threads for d/l in a future iteration
         for (FileInfoDss fileInfo : fileInfos)
         {
-            StringBuilder sb = new StringBuilder();
             if (fileInfo.isDirectory())
             {
-                sb.append(" \t");
+                System.out.println("mkdir " + fileInfo.getPath());
+                File dir = new File(outputDir, fileInfo.getPath());
+                dir.mkdirs();
             } else
             {
-                sb.append(fileInfo.getFileSize());
-                sb.append("\t");
+                System.out.println("downloading " + fileInfo.getPath());
+                File file = new File(outputDir, fileInfo.getPath());
+                downloadFile(fileInfo, file);
             }
-            sb.append(fileInfo.getPath());
-            System.out.println(sb.toString());
+        }
+        System.out.println("Finished.");
+    }
+
+    private void downloadFile(FileInfoDss fileInfo, File file)
+    {
+        try
+        {
+            FileOutputStream fos = new FileOutputStream(file);
+            InputStream is = dataSet.getFile(fileInfo.getPath());
+            IOUtils.copyLarge(is, fos);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
         }
     }
 
     public String getName()
     {
-        return "ls";
+        return "get";
     }
 
     public void printHelp(String programCallString, PrintStream out)

@@ -31,17 +31,23 @@ class CommandFactory
         if ("ls".equals(name))
         {
             return new CommandLs(dataSet);
+        } else if ("get".equals(name))
+        {
+            return new CommandGet(dataSet);
         }
-
         return null;
     }
 
-    void printHelpForName(String name, PrintStream out)
+    void printHelpForName(String name, String programCallString, PrintStream out)
     {
         if ("ls".equals(name))
         {
             CommandLs command = new CommandLs(null);
-            command.printHelp(out);
+            command.printHelp(programCallString, out);
+        } else if ("get".equals(name))
+        {
+            CommandGet command = new CommandGet(null);
+            command.printHelp(programCallString, out);
         }
     }
 }

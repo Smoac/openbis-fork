@@ -25,8 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
+import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
-import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.MasqueradingException;
@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.dss.component.impl.DssComponent;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class dss
+public class DssClient
 {
     static
     {
@@ -64,7 +64,7 @@ public class dss
 
     private final IExitHandler exitHandler;
 
-    private dss()
+    private DssClient()
     {
         this.exitHandler = SystemExit.SYSTEM_EXIT;
         this.arguments = new GlobalArguments();
@@ -74,7 +74,14 @@ public class dss
 
     private void runWithArgs(String[] args)
     {
-        parser.parseArgument(args);
+        try
+        {
+            parser.parseArgument(args);
+        } catch (CmdLineException e)
+        {
+            printUsage(System.err);
+            exitHandler.exit(1);
+        }
 
         // Show help and exit
         if (arguments.isHelp())
@@ -102,9 +109,16 @@ public class dss
 
             // Find the command and run it
             ICommand cmd = commandFactory.tryCommandForName(arguments.getCommand(), dataSet);
-            String[] cmdArgs = new String[arguments.getCommandArguments().size()];
-            arguments.getCommandArguments().toArray(cmdArgs);
-            resultCode = cmd.execute(cmdArgs);
+            if (null == cmd)
+            {
+                printUsage(System.err);
+                resultCode = 1;
+            } else
+            {
+                String[] cmdArgs = new String[arguments.getCommandArguments().size()];
+                arguments.getCommandArguments().toArray(cmdArgs);
+                resultCode = cmd.execute(cmdArgs);
+            }
         } catch (final InvalidSessionException ex)
         {
             System.err
@@ -262,23 +276,31 @@ public class dss
     {
         if (arguments.hasCommand())
         {
-            commandFactory.printHelpForName(arguments.getCommand(), out);
+            commandFactory.printHelpForName(arguments.getCommand(), getProgramCallString(), out);
         } else
         {
             printUsage(out);
         }
     }
 
+    private String getProgramCallString()
+    {
+        return "dss_client.sh";
+    }
+
     private void printUsage(PrintStream out)
     {
-        out.println("usage: dss [options...] COMMAND [ARGS]");
+        out.println("usage: " + getProgramCallString()
+                + " [options...] -- DATA_SET_CODE COMMAND [ARGS]");
+        out
+                .println(" (Note: it is necessary to add two dashes \"--\" after options have been specified and before the dataset code.)");
+        out.println("Options:");
         parser.printUsage(out);
-        out.println("  Example : dss " + parser.printExample(ExampleMode.ALL));
     }
 
     public static void main(String[] args)
     {
-        dss newMe = new dss();
+        DssClient newMe = new DssClient();
         newMe.runWithArgs(args);
     }
 
