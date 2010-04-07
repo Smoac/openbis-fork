@@ -65,7 +65,7 @@ public final class PredicateExecutor
     {
         PredicateExecutor.predicateFactory = predicateProvider;
     }
-    
+
     static final IPredicateFactory getPredicateFactory()
     {
         return predicateFactory;
@@ -78,14 +78,14 @@ public final class PredicateExecutor
     {
         PredicateExecutor.authorizationDataProvider = new AuthorizationDataProvider(daoFactory);
     }
-    
 
     static final IAuthorizationDataProvider getAuthorizationDataProvider()
     {
         return authorizationDataProvider;
     }
 
-    static final void setAuthorizationDataProvider(IAuthorizationDataProvider authorizationDataProvider)
+    static final void setAuthorizationDataProvider(
+            IAuthorizationDataProvider authorizationDataProvider)
     {
         PredicateExecutor.authorizationDataProvider = authorizationDataProvider;
     }
@@ -233,7 +233,13 @@ public final class PredicateExecutor
         public ProjectPE tryToGetProject(String dataSetCode)
         {
             DataPE dataSet = daoFactory.getExternalDataDAO().tryToFindDataSetByCode(dataSetCode);
-            return dataSet.getExperiment().getProject();
+            if (dataSet != null && dataSet.getExperiment() != null)
+            {
+                return dataSet.getExperiment().getProject();
+            } else
+            {
+                return null;
+            }
         }
 
         public GroupPE tryToGetGroup(SpaceOwnerKind kind, TechId techId)
