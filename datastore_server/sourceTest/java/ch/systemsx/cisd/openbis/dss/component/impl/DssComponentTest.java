@@ -34,7 +34,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -103,7 +103,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         dssComponent.login("foo", "bar");
         IDataSetDss dataSetProxy = dssComponent.getDataSet("DummyDataSetCode");
-        FileInfoDss[] fileInfos = dataSetProxy.listFiles("/", true);
+        FileInfoDssDTO[] fileInfos = dataSetProxy.listFiles("/", true);
         assertEquals(1, fileInfos.length);
 
         context.assertIsSatisfied();
@@ -116,9 +116,9 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         dssComponent.login("foo", "bar");
         IDataSetDss dataSetProxy = dssComponent.getDataSet("DummyDataSetCode");
-        FileInfoDss[] fileInfos = dataSetProxy.listFiles("/", true);
-        FileInfoDss fileFileInfo = null;
-        for (FileInfoDss fid : fileInfos)
+        FileInfoDssDTO[] fileInfos = dataSetProxy.listFiles("/", true);
+        FileInfoDssDTO fileFileInfo = null;
+        for (FileInfoDssDTO fid : fileInfos)
         {
             if (fid.isDirectory() == false)
             {
@@ -132,7 +132,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             return;
         }
 
-        InputStream is = dataSetProxy.getFile(fileFileInfo.getPath());
+        InputStream is = dataSetProxy.getFile(fileFileInfo.getPathInDataSet());
         int byteCount = 0;
         while (is.read() >= 0)
         {
@@ -150,10 +150,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         dataStore.setDownloadUrl(DUMMY_DSS_URL);
         dataSetExternalData.setDataStore(dataStore);
         final IDssServiceRpcGeneric dssService = context.mock(IDssServiceRpcGeneric.class);
-        ArrayList<FileInfoDss> list = new ArrayList<FileInfoDss>();
-        FileInfoDssBuilder builder = new FileInfoDssBuilder(workingDirectory.getCanonicalPath());
+        ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
+        FileInfoDssBuilder builder =
+                new FileInfoDssBuilder(workingDirectory.getCanonicalPath(), workingDirectory
+                        .getCanonicalPath());
         builder.appendFileInfosForFile(workingDirectory, list, true);
-        final FileInfoDss[] fileInfos = new FileInfoDss[list.size()];
+        final FileInfoDssDTO[] fileInfos = new FileInfoDssDTO[list.size()];
         list.toArray(fileInfos);
 
         final DssServiceRpcInterface[] ifaces = new DssServiceRpcInterface[1];

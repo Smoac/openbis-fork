@@ -23,17 +23,19 @@ import java.io.Serializable;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class FileInfoDss implements Serializable
+public class FileInfoDssDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     private String pathInDataSet;
 
+    private String pathInListing;
+
     private boolean isDirectory;
 
     private long fileSize;
 
-    FileInfoDss()
+    FileInfoDssDTO()
     {
 
     }
@@ -41,9 +43,17 @@ public class FileInfoDss implements Serializable
     /**
      * The the path of this file in the data set (i.e., the root of the data set has a path of "/").
      */
-    public String getPath()
+    public String getPathInDataSet()
     {
         return pathInDataSet;
+    }
+
+    /**
+     * The the path of this file relative to the path of the request that produced this FileInfoDss
+     */
+    public String getPathInListing()
+    {
+        return pathInListing;
     }
 
     /**
@@ -66,9 +76,17 @@ public class FileInfoDss implements Serializable
     /**
      * Package-visible method for configuring instances.
      */
-    void setPath(String pathInDataSet)
+    void setPathInDataSet(String pathInDataSet)
     {
         this.pathInDataSet = pathInDataSet;
+    }
+
+    /**
+     * Package-visible method for configuring instances.
+     */
+    void setPathInListing(String relativePath)
+    {
+        this.pathInListing = relativePath;
     }
 
     /**
@@ -92,7 +110,7 @@ public class FileInfoDss implements Serializable
     {
         StringBuilder sb = new StringBuilder();
         sb.append("FileInfoDss[");
-        sb.append(getPath());
+        sb.append(getPathInDataSet());
         sb.append(",");
         sb.append(getFileSize());
         sb.append("]");

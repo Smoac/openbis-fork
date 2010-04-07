@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 
@@ -41,7 +41,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
         operationLog.info("Started RPC V1 service.");
     }
 
-    public FileInfoDss[] listFilesForDataSet(String sessionToken, String dataSetCode,
+    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
             String startPath, boolean isRecursive) throws IllegalArgumentException
     {
         File dataSetRootDirectory = checkAccessAndGetRootDirectory(sessionToken, dataSetCode);
@@ -56,9 +56,12 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
                 throw new IllegalArgumentException("Path does not exist.");
             }
 
-            ArrayList<FileInfoDss> list = new ArrayList<FileInfoDss>();
-            appendFileInfosForFile(requestedFile, dataSetRootPath, list, isRecursive);
-            FileInfoDss[] fileInfos = new FileInfoDss[list.size()];
+            String listingRoot =
+                    (requestedFile.isDirectory()) ? requestedFile.getCanonicalPath()
+                            : requestedFile.getParentFile().getCanonicalPath();
+            ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
+            appendFileInfosForFile(requestedFile, dataSetRootPath, listingRoot, list, isRecursive);
+            FileInfoDssDTO[] fileInfos = new FileInfoDssDTO[list.size()];
             return list.toArray(fileInfos);
 
         } catch (IOException ex)
@@ -96,14 +99,17 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
      * been verified already.
      * 
      * @param requestedFile A file known to be accessible by the user
-     * @param hierarchyRoot The root of the file hierarchy; used to determine the path of the file
+     * @param dataSetRoot The root of the file hierarchy; used to determine the absolute path of the
+     *            file
+     * @param listingRoot The root of the list hierarchy; used to determine the relative path of the
+     *            file
      * @param list The list the files infos are appended to
      * @param isRecursive If true, directories will be recursively appended to the list
      */
-    private void appendFileInfosForFile(File requestedFile, String hierarchyRoot,
-            ArrayList<FileInfoDss> list, boolean isRecursive) throws IOException
+    private void appendFileInfosForFile(File requestedFile, String dataSetRoot, String listingRoot,
+            ArrayList<FileInfoDssDTO> list, boolean isRecursive) throws IOException
     {
-        FileInfoDssBuilder factory = new FileInfoDssBuilder(hierarchyRoot);
+        FileInfoDssBuilder factory = new FileInfoDssBuilder(dataSetRoot, listingRoot);
         factory.appendFileInfosForFile(requestedFile, list, isRecursive);
     }
 }

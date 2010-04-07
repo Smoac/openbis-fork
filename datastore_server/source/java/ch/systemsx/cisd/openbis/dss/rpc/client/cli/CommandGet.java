@@ -34,7 +34,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 
 /**
  * Comand that lists files in the data set.
@@ -91,13 +91,13 @@ class CommandGet extends AbstractCommand
 
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
     {
-        FileInfoDss[] fileInfos = getFileInfos(args);
+        FileInfoDssDTO[] fileInfos = getFileInfos(args);
         downloadFiles(fileInfos);
 
         return 0;
     }
 
-    private FileInfoDss[] getFileInfos(String[] args)
+    private FileInfoDssDTO[] getFileInfos(String[] args)
     {
         parser.parseArgument(args);
 
@@ -116,7 +116,7 @@ class CommandGet extends AbstractCommand
     /**
      * Download the files, printing status information to System.out.
      */
-    private void downloadFiles(FileInfoDss[] fileInfos)
+    private void downloadFiles(FileInfoDssDTO[] fileInfos)
     {
         File outputDir;
         if (arguments.getOutput().length() > 0)
@@ -139,17 +139,17 @@ class CommandGet extends AbstractCommand
         }
 
         // Download file in this thread -- could spawn threads for d/l in a future iteration
-        for (FileInfoDss fileInfo : fileInfos)
+        for (FileInfoDssDTO fileInfo : fileInfos)
         {
             if (fileInfo.isDirectory())
             {
-                System.out.println("mkdir " + fileInfo.getPath());
-                File dir = new File(outputDir, fileInfo.getPath());
+                System.out.println("mkdir " + fileInfo.getPathInDataSet());
+                File dir = new File(outputDir, fileInfo.getPathInDataSet());
                 dir.mkdirs();
             } else
             {
-                System.out.println("downloading " + fileInfo.getPath());
-                File file = new File(outputDir, fileInfo.getPath());
+                System.out.println("downloading " + fileInfo.getPathInDataSet());
+                File file = new File(outputDir, fileInfo.getPathInDataSet());
                 // Make sure the parent exists
                 file.getParentFile().mkdirs();
 
@@ -159,12 +159,12 @@ class CommandGet extends AbstractCommand
         System.out.println("Finished.");
     }
 
-    private void downloadFile(FileInfoDss fileInfo, File file)
+    private void downloadFile(FileInfoDssDTO fileInfo, File file)
     {
         try
         {
             FileOutputStream fos = new FileOutputStream(file);
-            InputStream is = dataSet.getFile(fileInfo.getPath());
+            InputStream is = dataSet.getFile(fileInfo.getPathInDataSet());
             IOUtils.copyLarge(is, fos);
         } catch (IOException e)
         {

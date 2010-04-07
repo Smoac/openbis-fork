@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.component;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 
 /**
  * The representation of a Data Set managed by a DSS server. It is safe to use instances in multiple
@@ -41,7 +41,7 @@ public interface IDataSetDss
      *            set.
      * @param isRecursive If true, the contents of any subdirectories will be listed as well.
      */
-    public FileInfoDss[] listFiles(String startPath, boolean isRecursive)
+    public FileInfoDssDTO[] listFiles(String startPath, boolean isRecursive)
             throws IllegalArgumentException, InvalidSessionException;
 
     /**

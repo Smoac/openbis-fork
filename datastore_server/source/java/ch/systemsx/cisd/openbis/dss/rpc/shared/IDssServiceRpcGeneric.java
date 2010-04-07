@@ -39,7 +39,7 @@ public interface IDssServiceRpcGeneric extends IDssServiceRpc
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
-    public FileInfoDss[] listFilesForDataSet(String sessionToken, String dataSetCode,
+    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
             String startPath, boolean isRecursive) throws IOExceptionUnchecked,
             IllegalArgumentException;
 

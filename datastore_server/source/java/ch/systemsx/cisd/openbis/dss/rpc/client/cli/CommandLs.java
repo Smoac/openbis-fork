@@ -27,7 +27,7 @@ import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 
 /**
  * Comand that lists files in the data set.
@@ -83,13 +83,13 @@ class CommandLs extends AbstractCommand
 
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
     {
-        FileInfoDss[] fileInfos = getFileInfos(args);
+        FileInfoDssDTO[] fileInfos = getFileInfos(args);
         printFileInfos(fileInfos);
 
         return 0;
     }
 
-    private FileInfoDss[] getFileInfos(String[] args)
+    private FileInfoDssDTO[] getFileInfos(String[] args)
     {
         parser.parseArgument(args);
 
@@ -111,9 +111,9 @@ class CommandLs extends AbstractCommand
         return path;
     }
 
-    private void printFileInfos(FileInfoDss[] fileInfos)
+    private void printFileInfos(FileInfoDssDTO[] fileInfos)
     {
-        for (FileInfoDss fileInfo : fileInfos)
+        for (FileInfoDssDTO fileInfo : fileInfos)
         {
             StringBuilder sb = new StringBuilder();
             if (fileInfo.isDirectory())
@@ -124,7 +124,7 @@ class CommandLs extends AbstractCommand
                 sb.append(fileInfo.getFileSize());
                 sb.append("\t");
             }
-            sb.append(fileInfo.getPath());
+            sb.append(fileInfo.getPathInDataSet());
             System.out.println(sb.toString());
         }
     }

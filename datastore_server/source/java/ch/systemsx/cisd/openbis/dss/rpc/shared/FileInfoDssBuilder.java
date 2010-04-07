@@ -28,17 +28,20 @@ import java.util.ArrayList;
 public class FileInfoDssBuilder
 {
 
-    private final String hierarchyRoot;
+    private final String dataSetRoot;
+
+    private final String listingRoot;
 
     /**
      * Constructor for FileInfoDssFactory
      * 
-     * @param hierarchyRoot The root of the directory structure; used to determine the path for
+     * @param dataSetRoot The root of the directory structure; used to determine the path for
      *            FileInfoDss objects
      */
-    public FileInfoDssBuilder(String hierarchyRoot)
+    public FileInfoDssBuilder(String dataSetRoot, String relativeRoot)
     {
-        this.hierarchyRoot = hierarchyRoot;
+        this.dataSetRoot = dataSetRoot;
+        this.listingRoot = relativeRoot;
     }
 
     /**
@@ -49,7 +52,7 @@ public class FileInfoDssBuilder
      * @param list The list the files infos are appended to
      * @param isRecursive If true, directories will be recursively appended to the list
      */
-    public void appendFileInfosForFile(File requestedFile, ArrayList<FileInfoDss> list,
+    public void appendFileInfosForFile(File requestedFile, ArrayList<FileInfoDssDTO> list,
             boolean isRecursive) throws IOException
     {
         // at the top level, we should list the contents of directories, but only recurse if the
@@ -57,10 +60,10 @@ public class FileInfoDssBuilder
         appendFileInfosForFile(requestedFile, list, isRecursive ? Integer.MAX_VALUE : 0, true);
     }
 
-    private void appendFileInfosForFile(File requestedFile, ArrayList<FileInfoDss> list,
+    private void appendFileInfosForFile(File requestedFile, ArrayList<FileInfoDssDTO> list,
             int maxDepth, boolean excludeTopLevelIfDirectory) throws IOException
     {
-        FileInfoDss fileInfo = fileInfoForFile(requestedFile);
+        FileInfoDssDTO fileInfo = fileInfoForFile(requestedFile);
         if (excludeTopLevelIfDirectory && fileInfo.isDirectory())
         {
             // If specified, skip the top level if it is a directory
@@ -82,11 +85,12 @@ public class FileInfoDssBuilder
         }
     }
 
-    private FileInfoDss fileInfoForFile(File file) throws IOException
+    private FileInfoDssDTO fileInfoForFile(File file) throws IOException
     {
-        FileInfoDss fileInfo = new FileInfoDss();
+        FileInfoDssDTO fileInfo = new FileInfoDssDTO();
 
-        fileInfo.setPath(pathRelativeToRoot(file));
+        fileInfo.setPathInDataSet(pathRelativeToDataSetRoot(file));
+        fileInfo.setPathInListing(pathRelativeToListingRoot(file));
         fileInfo.setDirectory(file.isDirectory());
         if (fileInfo.isDirectory())
         {
@@ -102,12 +106,28 @@ public class FileInfoDssBuilder
     /**
      * Convert the path for file to a path relative to the root of the data set
      */
-    private String pathRelativeToRoot(File file) throws IOException
+    private String pathRelativeToDataSetRoot(File file) throws IOException
     {
         String path;
         path = file.getCanonicalPath();
-        path = path.substring(hierarchyRoot.length());
+        path = path.substring(dataSetRoot.length());
         return (path.length() > 0) ? path : "/";
+
+    }
+
+    /**
+     * Convert the path for file to a path relative to the root of the listing
+     */
+    private String pathRelativeToListingRoot(File file) throws IOException
+    {
+        String path;
+        path = file.getCanonicalPath();
+        path = path.substring(listingRoot.length());
+        if (path.startsWith("/"))
+        {
+            path = path.substring(1);
+        }
+        return (path.length() > 0) ? path : "";
 
     }
 }

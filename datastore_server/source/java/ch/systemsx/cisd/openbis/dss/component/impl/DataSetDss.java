@@ -20,7 +20,7 @@ import java.io.InputStream;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 
 /**
@@ -54,7 +54,7 @@ public class DataSetDss implements IDataSetDss
         return parent.getFile(this, path);
     }
 
-    public FileInfoDss[] listFiles(String startPath, boolean isRecursive)
+    public FileInfoDssDTO[] listFiles(String startPath, boolean isRecursive)
             throws IllegalArgumentException, InvalidSessionException
     {
         return parent.listFiles(this, startPath, isRecursive);

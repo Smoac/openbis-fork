@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.rpc.client.DssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -251,7 +251,7 @@ class AuthenticatedState extends AbstractDssComponentState
      * Package visible method to communicate with the server and get a list of files contained in
      * this data set.
      */
-    FileInfoDss[] listFiles(DataSetDss dataSetDss, String startPath, boolean isRecursive)
+    FileInfoDssDTO[] listFiles(DataSetDss dataSetDss, String startPath, boolean isRecursive)
             throws InvalidSessionException
     {
         return dataSetDss.getService().listFilesForDataSet(getSessionToken(), dataSetDss.getCode(),

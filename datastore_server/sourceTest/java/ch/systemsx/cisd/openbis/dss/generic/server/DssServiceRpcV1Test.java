@@ -32,7 +32,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
@@ -122,13 +122,13 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     public void testDataSetListingNonRecursive()
     {
         setupStandardExpectations();
-        FileInfoDss[] fileInfos =
+        FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false);
         assertEquals(2, fileInfos.length);
         int dirCount = 0;
         int fileIndex = 0;
         int i = 0;
-        for (FileInfoDss fileInfo : fileInfos)
+        for (FileInfoDssDTO fileInfo : fileInfos)
         {
             if (fileInfo.isDirectory())
             {
@@ -140,8 +140,9 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
             ++i;
         }
         assertEquals(1, dirCount);
-        FileInfoDss fileInfo = fileInfos[fileIndex];
-        assertEquals("/foo.txt", fileInfo.getPath());
+        FileInfoDssDTO fileInfo = fileInfos[fileIndex];
+        assertEquals("/foo.txt", fileInfo.getPathInDataSet());
+        assertEquals("foo.txt", fileInfo.getPathInListing());
         assertEquals(100, fileInfo.getFileSize());
 
         context.assertIsSatisfied();
@@ -151,14 +152,14 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     public void testDataSetListingRecursive()
     {
         setupStandardExpectations();
-        FileInfoDss[] fileInfos =
+        FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", true);
         assertEquals(3, fileInfos.length);
         int dirCount = 0;
         int fileCount = 0;
         int[] fileIndices = new int[2];
         int i = 0;
-        for (FileInfoDss fileInfo : fileInfos)
+        for (FileInfoDssDTO fileInfo : fileInfos)
         {
             if (fileInfo.isDirectory())
             {
@@ -172,12 +173,14 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         assertEquals(1, dirCount);
         for (i = 0; i < 2; ++i)
         {
-            FileInfoDss fileInfo = fileInfos[fileIndices[i]];
-            if ("/foo.txt".equals(fileInfo.getPath()))
+            FileInfoDssDTO fileInfo = fileInfos[fileIndices[i]];
+            if ("/foo.txt".equals(fileInfo.getPathInDataSet()))
             {
+                assertEquals("foo.txt", fileInfo.getPathInListing());
                 assertEquals(100, fileInfo.getFileSize());
-            } else if ("/stuff/bar.txt".equals(fileInfo.getPath()))
+            } else if ("/stuff/bar.txt".equals(fileInfo.getPathInDataSet()))
             {
+                assertEquals("stuff/bar.txt", fileInfo.getPathInListing());
                 assertEquals(110, fileInfo.getFileSize());
             } else
             {
@@ -192,13 +195,13 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     public void testDataSetListingOfChild()
     {
         setupStandardExpectations();
-        FileInfoDss[] fileInfos =
+        FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/stuff/", false);
         assertEquals(1, fileInfos.length);
         int dirCount = 0;
         int fileIndex = 0;
         int i = 0;
-        for (FileInfoDss fileInfo : fileInfos)
+        for (FileInfoDssDTO fileInfo : fileInfos)
         {
             if (fileInfo.isDirectory())
             {
@@ -210,8 +213,9 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
             ++i;
         }
         assertEquals(0, dirCount);
-        FileInfoDss fileInfo = fileInfos[fileIndex];
-        assertEquals("/stuff/bar.txt", fileInfo.getPath());
+        FileInfoDssDTO fileInfo = fileInfos[fileIndex];
+        assertEquals("/stuff/bar.txt", fileInfo.getPathInDataSet());
+        assertEquals("bar.txt", fileInfo.getPathInListing());
         assertEquals(110, fileInfo.getFileSize());
 
         context.assertIsSatisfied();
@@ -221,9 +225,27 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     public void testDataSetListingOfRelativeChild()
     {
         setupStandardExpectations();
-        FileInfoDss[] fileInfos =
+        FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/", false);
         assertEquals(1, fileInfos.length);
+        FileInfoDssDTO fileInfo = fileInfos[0];
+        assertEquals("/stuff/bar.txt", fileInfo.getPathInDataSet());
+        assertEquals("bar.txt", fileInfo.getPathInListing());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDataSetListingOfFile()
+    {
+        setupStandardExpectations();
+        FileInfoDssDTO[] fileInfos =
+                rpcService
+                        .listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/bar.txt", false);
+        assertEquals(1, fileInfos.length);
+        FileInfoDssDTO fileInfo = fileInfos[0];
+        assertEquals("/stuff/bar.txt", fileInfo.getPathInDataSet());
+        assertEquals("bar.txt", fileInfo.getPathInListing());
 
         context.assertIsSatisfied();
     }
@@ -281,13 +303,14 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     public void testDataSetFileRetrieval() throws IOException
     {
         setupStandardExpectations();
-        FileInfoDss[] fileInfos =
+        FileInfoDssDTO[] fileInfos =
                 rpcService
                         .listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/bar.txt", false);
         assertEquals(1, fileInfos.length);
 
         InputStream is =
-                rpcService.getFileForDataSet(SESSION_TOKEN, DATA_SET_CODE, fileInfos[0].getPath());
+                rpcService.getFileForDataSet(SESSION_TOKEN, DATA_SET_CODE, fileInfos[0]
+                        .getPathInDataSet());
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         int readChar;
