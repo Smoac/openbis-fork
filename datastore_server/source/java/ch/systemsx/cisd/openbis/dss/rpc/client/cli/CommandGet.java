@@ -150,6 +150,9 @@ class CommandGet extends AbstractCommand
             {
                 System.out.println("downloading " + fileInfo.getPath());
                 File file = new File(outputDir, fileInfo.getPath());
+                // Make sure the parent exists
+                file.getParentFile().mkdirs();
+
                 downloadFile(fileInfo, file);
             }
         }
@@ -173,13 +176,12 @@ class CommandGet extends AbstractCommand
     {
         return "get";
     }
-
+    
     public void printHelp(String programCallString, PrintStream out)
     {
         out.println(getUsagePrefixString(programCallString) + " [options] <path>");
         parser.printUsage(out);
-        out
-                .println("  Example : " + programCallString + " "
-                        + parser.printExample(ExampleMode.ALL));
+        out.println("  Example : " + getCommandCallString(programCallString) + " "
+                + parser.printExample(ExampleMode.ALL));
     }
 }

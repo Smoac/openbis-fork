@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
 
+
 /**
  * Superclass for dss command-line client commands.
  * 
@@ -23,13 +24,9 @@ package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
  */
 abstract class AbstractCommand implements ICommand
 {
-
-    /**
-     * How is the program invoked from the command line? Used for displaying help.
-     */
-    protected String getProgramCallString()
+    protected String getCommandCallString(String programCallString)
     {
-        return "dss " + getName();
+        return programCallString + " " + getName();
     }
 
     /**
@@ -37,7 +34,6 @@ abstract class AbstractCommand implements ICommand
      */
     protected String getUsagePrefixString(String programCallString)
     {
-        return "usage: " + programCallString;
+        return "usage: " + getCommandCallString(programCallString);
     }
-
 }

@@ -84,6 +84,24 @@ public class GlobalArgumentsTest extends AssertJUnit
         {
             parser.parseArgument(args);
             assertTrue(arguments.isComplete());
+            assertFalse(arguments.hasCommand());
+        } catch (CmdLineException c)
+        {
+            fail("Should have parsed arguments");
+        }
+    }
+
+    @Test
+    public void testHelpWithCommand()
+    {
+        String[] args =
+            { "-h", "get" };
+        try
+        {
+            parser.parseArgument(args);
+            assertTrue(arguments.isComplete());
+            assertTrue(arguments.hasCommand());
+            assertEquals("get", arguments.getCommand());
         } catch (CmdLineException c)
         {
             fail("Should have parsed arguments");

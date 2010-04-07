@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
 
 import java.io.PrintStream;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -294,6 +295,14 @@ public class DssClient
                 + " [options...] -- DATA_SET_CODE COMMAND [ARGS]");
         out
                 .println(" (Note: it is necessary to add two dashes \"--\" after options have been specified and before the dataset code.)");
+        List<String> commands = commandFactory.getKnownCommands();
+        out.println("\nCommands:");
+        for (String cmd : commands)
+        {
+            out.print(" ");
+            out.println(cmd);
+        }
+        out.print("\n");
         out.println("Options:");
         parser.printUsage(out);
     }

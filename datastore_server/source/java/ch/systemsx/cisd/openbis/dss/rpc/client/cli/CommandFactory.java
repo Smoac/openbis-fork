@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
 
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 
@@ -49,5 +51,12 @@ class CommandFactory
             CommandGet command = new CommandGet(null);
             command.printHelp(programCallString, out);
         }
+    }
+
+    List<String> getKnownCommands()
+    {
+        String[] commands =
+            { "ls", "get" };
+        return Arrays.asList(commands);
     }
 }

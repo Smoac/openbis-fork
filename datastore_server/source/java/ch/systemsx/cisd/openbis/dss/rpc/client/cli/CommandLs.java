@@ -93,6 +93,13 @@ class CommandLs extends AbstractCommand
     {
         parser.parseArgument(args);
 
+        String path = getRequestedPath();
+
+        return dataSet.listFiles(path, arguments.isRecursive());
+    }
+
+    private String getRequestedPath()
+    {
         String path;
         if (arguments.getArguments().isEmpty())
         {
@@ -101,8 +108,7 @@ class CommandLs extends AbstractCommand
         {
             path = arguments.getArguments().get(0);
         }
-
-        return dataSet.listFiles(path, arguments.isRecursive());
+        return path;
     }
 
     private void printFileInfos(FileInfoDss[] fileInfos)
@@ -132,8 +138,7 @@ class CommandLs extends AbstractCommand
     {
         out.println(getUsagePrefixString(programCallString) + " [options] <path>");
         parser.printUsage(out);
-        out
-                .println("  Example : " + programCallString + " "
-                        + parser.printExample(ExampleMode.ALL));
+        out.println("  Example : " + getCommandCallString(programCallString) + " "
+                + parser.printExample(ExampleMode.ALL));
     }
 }

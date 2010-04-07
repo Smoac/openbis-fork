@@ -100,17 +100,19 @@ class GlobalArguments
 
     public String getCommand()
     {
-        List<String> args = getArguments();
-        if (args.size() < 2)
-        {
-            return "";
-        }
-        return args.get(1);
+        return hasCommand() ? getArguments().get(getHelpIndex()) : "";
+
     }
 
     public boolean hasCommand()
     {
-        return getArguments().size() > 1;
+        return getArguments().size() > getHelpIndex();
+    }
+
+    private int getHelpIndex()
+    {
+        // If this is help, then the first argument is the command, otherwise the second
+        return isHelp() ? 0 : 1;
     }
 
     public List<String> getCommandArguments()
