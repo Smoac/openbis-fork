@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -39,6 +40,7 @@ public class LoggingConsole
     public static Component create(final IProfilingTable profilingTable)
     {
         final ContentPanel mainPanel = new ContentPanel();
+        mainPanel.setScrollMode(Scroll.AUTO);
 
         mainPanel.add(createContent(profilingTable));
         Button clearButton = new Button("Clear");
@@ -73,7 +75,9 @@ public class LoggingConsole
     {
         final VerticalPanel panel = new VerticalPanel();
         List<String> events = profilingTable.getLoggedEvents();
-        panel.add(new Label("The header is: start-timestamp [stop-timestamp: duration] description"));
+        panel
+                .add(new Label(
+                        "The header is: start-timestamp [stop-timestamp: duration] description"));
         for (String event : events)
         {
             panel.add(new Label(event));
