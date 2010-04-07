@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.google.gwt.core.client.GWT;
@@ -132,7 +133,10 @@ public final class GWTUtils
         ModelData model = tryFindModel(tree.getTreeStore().getAllItems(), property, value);
         if (model != null)
         {
-            tree.getSelectionModel().select(model, false);
+            GridSelectionModel<ModelData> selectionModel = tree.getSelectionModel();
+            selectionModel.select(model, false);
+            int row = tree.getStore().indexOf(model);
+            tree.getView().ensureVisible(row, 0, false);
         }
     }
 
