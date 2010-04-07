@@ -47,7 +47,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     public static final String CONFIG_BUTTON_ID =
             GenericConstants.ID_PREFIX + "paged-grid-config-button";
 
-    private final IMessageProvider messageProvider;
+    private final IViewContext<?> messageProvider;
 
     private final Button exportButton;
 
@@ -169,6 +169,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         exportButton.setEnabled(true);
         String title = messageProvider.getMessage(Dict.TOOLTIP_EXPORT_ENABLED);
         GWTUtils.setToolTip(exportButton, title);
+        messageProvider.log("export button enabled");
     }
 
     public final void disableExportButton()

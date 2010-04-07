@@ -612,11 +612,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         listEntities(resultSetConfig, listCallback);
         if (bottomToolbars.getItemCount() == 0)
         {
-            int logID = log("add bottom tool bars");
+            int addLogID = log("add bottom tool bars");
             bottomToolbars.add(filterToolbar, new RowData(1, -1));
             bottomToolbars.add(pagingToolbar, new RowData(1, -1));
             bottomToolbars.layout(true);
-            viewContext.logStop(logID);
+            viewContext.logStop(addLogID);
         }
     }
 
