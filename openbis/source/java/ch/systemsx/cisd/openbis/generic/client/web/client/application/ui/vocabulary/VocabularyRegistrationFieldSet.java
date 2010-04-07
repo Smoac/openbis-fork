@@ -126,7 +126,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
                 CommonVocabularyRegistrationAndEditionFieldsFactory
                         .createChosenFromListCheckbox(messageProvider);
         checkBox.setId(idPrefix + "_chosen-from-list");
-        FieldUtil.setValueWithoutEvents(checkBox, false);
+        FieldUtil.setValueWithoutEvents(checkBox, true);
         return checkBox;
     }
 
