@@ -226,18 +226,19 @@ public class ProfilingTable implements IProfilingTable
             String result = "";
             if (min > 0)
             {
-                result += min + "min ";
+                result += asTwoDigits(min) + "min ";
             }
             if (sec > 0)
             {
-                result += sec + "sec ";
+                result += asTwoDigits(sec) + "sec ";
             }
-            result += milisec + "msec";
+            result += asThreeDigits(milisec) + "msec";
             return result;
         }
 
         private static long getMilisecPart(long durationInMilisec)
         {
+
             return durationInMilisec % 1000;
         }
 
