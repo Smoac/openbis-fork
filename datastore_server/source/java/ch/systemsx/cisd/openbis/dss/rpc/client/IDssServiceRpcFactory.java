@@ -29,9 +29,15 @@ import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpc;
  */
 public interface IDssServiceRpcFactory
 {
+    /**
+     * Get an array of RPC service interfaces supported by the server.
+     */
     public abstract DssServiceRpcInterface[] getSupportedInterfaces(String serverURL,
             boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException;
 
+    /**
+     * Get get RPC service interface specified by <code>iface</code>.
+     */
     public abstract <T extends IDssServiceRpc> T getService(DssServiceRpcInterface iface,
             Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
             throws IncompatibleAPIVersionsException;
