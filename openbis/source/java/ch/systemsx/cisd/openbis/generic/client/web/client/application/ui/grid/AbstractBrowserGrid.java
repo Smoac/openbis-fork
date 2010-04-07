@@ -922,7 +922,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     List<M> selectedItems = getSelectedItems();
                     if (selectedItems.isEmpty() == false)
                     {
-                        invoker.invoke(selectedItems.get(0), true);
+                        invoker.invoke(selectedItems.get(0), false);
                     }
                 }
             });
