@@ -21,7 +21,7 @@ import java.io.InputStream;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -30,13 +30,13 @@ public class DataSetDss implements IDataSetDss
 {
     private final String code;
 
-    private final IDssServiceRpcV1 service;
+    private final IDssServiceRpcGeneric service;
 
     private final AuthenticatedState parent;
 
     // private String ownerUrl;
 
-    public DataSetDss(String code, IDssServiceRpcV1 service, AuthenticatedState parent)
+    public DataSetDss(String code, IDssServiceRpcGeneric service, AuthenticatedState parent)
     {
         this.code = code;
         this.service = service;
@@ -60,7 +60,7 @@ public class DataSetDss implements IDataSetDss
         return parent.listFiles(this, startPath, isRecursive);
     }
 
-    IDssServiceRpcV1 getService()
+    IDssServiceRpcGeneric getService()
     {
         return service;
     }

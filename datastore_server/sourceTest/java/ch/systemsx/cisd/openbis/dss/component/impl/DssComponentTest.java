@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssBuilder;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -149,7 +149,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         DataStore dataStore = new DataStore();
         dataStore.setDownloadUrl(DUMMY_DSS_URL);
         dataSetExternalData.setDataStore(dataStore);
-        final IDssServiceRpcV1 dssService = context.mock(IDssServiceRpcV1.class);
+        final IDssServiceRpcGeneric dssService = context.mock(IDssServiceRpcGeneric.class);
         ArrayList<FileInfoDss> list = new ArrayList<FileInfoDss>();
         FileInfoDssBuilder builder = new FileInfoDssBuilder(workingDirectory.getCanonicalPath());
         builder.appendFileInfosForFile(workingDirectory, list, true);
@@ -173,7 +173,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                     will(returnValue(dataSetExternalData));
                     allowing(dssServiceFactory).getSupportedInterfaces(DUMMY_DSS_URL, false);
                     will(returnValue(ifaces));
-                    allowing(dssServiceFactory).getService(iface, IDssServiceRpcV1.class,
+                    allowing(dssServiceFactory).getService(iface, IDssServiceRpcGeneric.class,
                             DUMMY_DSS_URL, false);
                     will(returnValue(dssService));
                     allowing(dssService).listFilesForDataSet(DUMMY_SESSSION_TOKEN, dataSetCode,

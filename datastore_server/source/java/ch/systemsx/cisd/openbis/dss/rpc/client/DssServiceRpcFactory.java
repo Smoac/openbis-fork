@@ -233,7 +233,7 @@ class SslCertificateHelper
                 keyStore.load(null, null);
                 for (int i = 0; i < certificates.length; i++)
                 {
-                    keyStore.setCertificateEntry("cifex" + i, certificates[i]);
+                    keyStore.setCertificateEntry("dss" + i, certificates[i]);
                 }
             } catch (Exception ex)
             {

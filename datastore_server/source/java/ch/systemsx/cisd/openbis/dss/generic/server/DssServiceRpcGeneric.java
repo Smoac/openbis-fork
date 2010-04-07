@@ -26,14 +26,16 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssBuilder;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 
 /**
+ * Implementation of the generic RPC interface.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DssServiceRpcV1 extends AbstractDssServiceRpc implements IDssServiceRpcV1
+public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssServiceRpcGeneric
 {
-    public DssServiceRpcV1(IEncapsulatedOpenBISService openBISService)
+    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService)
     {
         super(openBISService);
         operationLog.info("Started RPC V1 service.");

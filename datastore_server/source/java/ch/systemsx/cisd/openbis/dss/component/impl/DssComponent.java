@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.dss.rpc.client.DssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDss;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcV1;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -241,7 +241,7 @@ class AuthenticatedState extends AbstractDssComponentState
 
         String url = dataStore.getDownloadUrl();
 
-        IDssServiceRpcV1 dssService = getDssServiceForUrl(url);
+        IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
         // Return a proxy to the data set
         return new DataSetDss(code, dssService, this);
 
@@ -271,13 +271,13 @@ class AuthenticatedState extends AbstractDssComponentState
     /**
      * Create a connection to the DSS server referenced by url
      */
-    private IDssServiceRpcV1 getDssServiceForUrl(String url)
+    private IDssServiceRpcGeneric getDssServiceForUrl(String url)
     {
         // Get an RPC service for the DSS server
         String serverURL = url;
         try
         {
-            IDssServiceRpcV1 dssService = basicGetDssServiceForUrl(serverURL);
+            IDssServiceRpcGeneric dssService = basicGetDssServiceForUrl(serverURL);
             return dssService;
         } catch (RemoteAccessException e)
         {
@@ -286,7 +286,7 @@ class AuthenticatedState extends AbstractDssComponentState
             {
                 // https:// has 8 characters
                 serverURL = "http://" + serverURL.substring(8);
-                IDssServiceRpcV1 dssService = basicGetDssServiceForUrl(serverURL);
+                IDssServiceRpcGeneric dssService = basicGetDssServiceForUrl(serverURL);
                 return dssService;
             }
 
@@ -298,9 +298,9 @@ class AuthenticatedState extends AbstractDssComponentState
     /**
      * A less sophisticated implementation of getDssServiceForUrl
      */
-    private IDssServiceRpcV1 basicGetDssServiceForUrl(String serverURL)
+    private IDssServiceRpcGeneric basicGetDssServiceForUrl(String serverURL)
     {
-        IDssServiceRpcV1 dssService = null;
+        IDssServiceRpcGeneric dssService = null;
         DssServiceRpcInterface[] ifaces =
                 dssServiceFactory.getSupportedInterfaces(serverURL, false);
         for (DssServiceRpcInterface iface : ifaces)
@@ -308,7 +308,7 @@ class AuthenticatedState extends AbstractDssComponentState
             if (V1_INTERFACE_NAME.equals(iface.getInterfaceName()))
             {
                 dssService =
-                        dssServiceFactory.getService(iface, IDssServiceRpcV1.class, serverURL,
+                        dssServiceFactory.getService(iface, IDssServiceRpcGeneric.class, serverURL,
                                 false);
                 break;
             }

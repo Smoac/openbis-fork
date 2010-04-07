@@ -21,9 +21,11 @@ import java.io.InputStream;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
 /**
+ * Generic functionality for interacting with the DSS.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IDssServiceRpcV1 extends IDssServiceRpc
+public interface IDssServiceRpcGeneric extends IDssServiceRpc
 {
     //
     // Protocol versioning

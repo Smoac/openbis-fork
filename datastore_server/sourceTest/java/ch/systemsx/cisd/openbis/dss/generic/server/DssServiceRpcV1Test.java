@@ -42,7 +42,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 {
     private Mockery context;
 
-    private DssServiceRpcV1 rpcService;
+    private DssServiceRpcGeneric rpcService;
 
     private IEncapsulatedOpenBISService openBisService;
 
@@ -59,7 +59,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         super.setUp();
         context = new Mockery();
         openBisService = context.mock(IEncapsulatedOpenBISService.class);
-        rpcService = new DssServiceRpcV1(openBisService);
+        rpcService = new DssServiceRpcGeneric(openBisService);
         rpcService.setStoreDirectory(workingDirectory);
         initializeDirectories();
     }
