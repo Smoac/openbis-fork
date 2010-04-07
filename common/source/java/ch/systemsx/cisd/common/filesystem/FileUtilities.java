@@ -667,7 +667,7 @@ public final class FileUtilities
                         loggerOrNull.log(LogLevel.INFO, String.format("Deleting file '%s'", file
                                 .getPath()));
                     }
-                    file.delete();
+                    delete(file);
                 }
             }
         }
@@ -676,7 +676,7 @@ public final class FileUtilities
             loggerOrNull.log(LogLevel.INFO, String
                     .format("Deleting directory '%s'", path.getPath()));
         }
-        return path.delete();
+        return delete(path);
     }
 
     /** @return true if file is a symbolic link */
@@ -700,7 +700,25 @@ public final class FileUtilities
             loggerOrNull.log(LogLevel.INFO, String.format(
                     "Deleting symbolic link to a directory '%s'", path.getPath()));
         }
-        return path.delete();
+        return delete(path);
+    }
+    
+    /**
+     * Deletes the <var>file</var>, setting it to read-write mode if necessary.
+     */
+    public static boolean delete(File file)
+    {
+        final boolean OK = file.delete();
+        if (OK)
+        {
+            return true;
+        }
+        if (Unix.isOperational())
+        {
+            Unix.setAccessMode(file.getPath(), (short) 0777);
+            return file.delete();
+        }
+        return false;
     }
 
     /**
