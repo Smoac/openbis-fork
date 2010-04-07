@@ -52,10 +52,10 @@ public class ServiceProvider
                 .getBean("data-store-rpc-name-server"));
     }
 
-    public static StreamSupportingHttpInvokerServiceExporter getDssServiceRpcV1()
+    public static StreamSupportingHttpInvokerServiceExporter getDssServiceRpcGeneric()
     {
         return ((StreamSupportingHttpInvokerServiceExporter) APPLICATION_CONTEXT
-                .getBean("data-store-rpc-service-v1"));
+                .getBean("data-store-rpc-service-generic"));
     }
 
     private ServiceProvider()
