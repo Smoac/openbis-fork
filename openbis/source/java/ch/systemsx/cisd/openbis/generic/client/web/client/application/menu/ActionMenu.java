@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -61,13 +62,18 @@ public class ActionMenu extends MenuItem
         this(actionMenu.getMenuId(), actionMenu.getMenuText(messageProvider), action);
     }
 
-    public ActionMenu(final IActionMenuItem actionMenu, IMessageProvider messageProvider,
+    public ActionMenu(final IActionMenuItem actionMenu, final IMessageProvider messageProvider,
             final AbstractTabItemFactory tabToOpen)
     {
         this(actionMenu, messageProvider, new IDelegatedAction()
             {
                 public void execute()
                 {
+                    if (messageProvider instanceof IViewContext<?>)
+                    {
+                        IViewContext<?> context = (IViewContext<?>) messageProvider;
+                        context.log("open tab " + actionMenu.getMenuId());
+                    }
                     DispatcherHelper.dispatchNaviEvent(tabToOpen);
                 }
             });

@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.administration;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -33,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class AdministrationMenu extends TopMenuItem
 {
-    public AdministrationMenu(IViewContext<?> viewContext, ComponentProvider componentProvider)
+    public AdministrationMenu(final IViewContext<?> viewContext, ComponentProvider componentProvider)
     {
         super(viewContext.getMessage(Dict.MENU_ADMINISTRATION));
 
@@ -53,5 +56,19 @@ public class AdministrationMenu extends TopMenuItem
                     componentProvider.getLoggingConsole()));
         }
         setMenu(submenu);
+        submenu.addListener(Events.BeforeHide, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    viewContext.log("start hiding menu '" + getText() + "'");
+                }
+            });
+        submenu.addListener(Events.Hide, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    viewContext.log("finished hiding menu '" + getText() + "'");
+                }
+            });
     }
 }
