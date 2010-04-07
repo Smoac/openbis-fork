@@ -19,9 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Class for profiling and debugging by developers. Stores debug information about logged events,
@@ -31,7 +29,7 @@ import java.util.Set;
  */
 public class ProfilingTable implements IProfilingTable
 {
-    private final Set<ProfilingEventStarted> startEvents;
+    private final ArrayList<ProfilingEventStarted> startEvents;
 
     private final HashMap<Integer/* task id */, Date/* stop timestamp */> stopEvents;
 
@@ -81,7 +79,7 @@ public class ProfilingTable implements IProfilingTable
 
     private ProfilingTable()
     {
-        this.startEvents = new HashSet<ProfilingEventStarted>();
+        this.startEvents = new ArrayList<ProfilingEventStarted>();
         this.stopEvents = new HashMap<Integer, Date>();
     }
 
@@ -176,7 +174,8 @@ public class ProfilingTable implements IProfilingTable
         {
             long durationInMilisec = stopDateOrNull.getTime() - event.getTimestamp().getTime();
             String durationText = DurationPrinter.printDuration(durationInMilisec);
-            eventDesc += " [" + DurationPrinter.printTime(stopDateOrNull) + ": " + durationText + "]";
+            eventDesc +=
+                    " [" + DurationPrinter.printTime(stopDateOrNull) + ": " + durationText + "]";
         }
         return eventDesc + " " + event.getDescription();
     }
@@ -218,7 +217,7 @@ public class ProfilingTable implements IProfilingTable
                 return "" + value;
             }
         }
-        
+
         public static String printDuration(long durationInMilisec)
         {
             long milisec = getMilisecPart(durationInMilisec);
