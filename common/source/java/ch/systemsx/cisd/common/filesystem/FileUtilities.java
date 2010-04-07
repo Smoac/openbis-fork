@@ -713,7 +713,7 @@ public final class FileUtilities
         {
             return true;
         }
-        if (Unix.isOperational())
+        if (file.exists() && Unix.isOperational())
         {
             Unix.setAccessMode(file.getPath(), (short) 0777);
             return file.delete();
