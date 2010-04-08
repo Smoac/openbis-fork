@@ -29,6 +29,7 @@ import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
+import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
@@ -202,8 +203,12 @@ final class RetryingPathRemover implements IPathRemover
             return result.booleanValue();
         } else
         {
-            operationLog.error("Operation terminated with an error status: "
+            operationLog.error("Removal operation terminated with an error status: "
                     + executionResult.getStatus());
+            if (executionResult.getStatus() == ExecutionStatus.EXCEPTION)
+            {
+                operationLog.error(executionResult.tryGetException());
+            }
             return false;
         }
     }
