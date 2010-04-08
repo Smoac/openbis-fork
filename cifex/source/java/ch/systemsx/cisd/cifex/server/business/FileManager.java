@@ -366,16 +366,7 @@ final class FileManager extends AbstractManager implements IFileManager
             ResumingAndChecksummingOutputStream outputStream = null;
             try
             {
-                outputStream =
-                        new ResumingAndChecksummingOutputStream(file, 1024,
-                                new IWriteProgressListener()
-                                    {
-                                        public void update(long bytesWritten, int crc32Value)
-                                        {
-                                            System.err.printf("Progress: %d bytes, crc=%x\n",
-                                                    bytesWritten, crc32Value);
-                                        }
-                                    });
+                outputStream = new ResumingAndChecksummingOutputStream(file, 1024, null);
                 IOUtils.copyLarge(inputStream, outputStream);
                 outputStream.close();
                 final long byteCount = outputStream.getByteCount();
