@@ -26,8 +26,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public enum DataStoreServiceKind implements Serializable, IsSerializable
 {
     // Do not refactor names - they are stored in database.
-    PROCESSING("Processing"), QUERIES("Query"), ARCHIVE("Archive"), UNARCHIVE("Unarchive"), LOCK(
-            "Disable Archiving"), UNLOCK("Enable Archiving");
+    PROCESSING("Processing"), QUERIES("Query"), ARCHIVE("Archiving"), UNARCHIVE("Unarchiving"),
+    LOCK("Disable Archiving"), UNLOCK("Enable Archiving");
 
     private final String description;
 
