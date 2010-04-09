@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -2067,28 +2068,30 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void archiveDatasets(
+    public ArchivingResult archiveDatasets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
         try
         {
             final String sessionToken = getSessionToken();
             List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-            commonServer.archiveDatasets(sessionToken, datasetCodes);
+            int result = commonServer.archiveDatasets(sessionToken, datasetCodes);
+            return new ArchivingResult(datasetCodes.size(), result);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public void unarchiveDatasets(
+    public ArchivingResult unarchiveDatasets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
         try
         {
             final String sessionToken = getSessionToken();
             List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-            commonServer.unarchiveDatasets(sessionToken, datasetCodes);
+            int result = commonServer.unarchiveDatasets(sessionToken, datasetCodes);
+            return new ArchivingResult(datasetCodes.size(), result);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -2408,28 +2411,30 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void lockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+    public ArchivingResult lockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             List<String> datasetCodes = extractDatasetCodes(criteria);
-            commonServer.lockDatasets(sessionToken, datasetCodes);
+            int result = commonServer.lockDatasets(sessionToken, datasetCodes);
+            return new ArchivingResult(datasetCodes.size(), result);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public void unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+    public ArchivingResult unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             List<String> datasetCodes = extractDatasetCodes(criteria);
-            commonServer.unlockDatasets(sessionToken, datasetCodes);
+            int result = commonServer.unlockDatasets(sessionToken, datasetCodes);
+            return new ArchivingResult(datasetCodes.size(), result);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

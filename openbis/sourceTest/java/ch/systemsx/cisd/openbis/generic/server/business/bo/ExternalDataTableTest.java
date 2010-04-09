@@ -571,7 +571,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), true);
-        externalDataTable.archiveDatasets();
+        int archived = externalDataTable.archiveDatasets();
+        assertEquals(3, archived);
 
         context.assertIsSatisfied();
     }
@@ -608,7 +609,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), true);
-        externalDataTable.unarchiveDatasets();
+        int unarchived = externalDataTable.unarchiveDatasets();
+        assertEquals(3, unarchived);
 
         context.assertIsSatisfied();
     }

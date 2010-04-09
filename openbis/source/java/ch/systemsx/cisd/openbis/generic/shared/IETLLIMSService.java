@@ -319,20 +319,24 @@ public interface IETLLIMSService extends IServer, ISessionProvider
 
     /**
      * Schedules archiving of specified data sets.
+     * 
+     * @return number of data sets scheduled for archiving.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void archiveDatasets(String sessionToken,
+    public int archiveDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
     /**
      * Schedules unarchiving of specified data sets.
+     * 
+     * @return number of data sets scheduled for unarchiving.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void unarchiveDatasets(String sessionToken,
+    public int unarchiveDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
 }

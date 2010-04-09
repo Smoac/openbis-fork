@@ -74,11 +74,31 @@ public interface IExternalDataTable
     /**
      * Schedules archiving of loaded data sets. Only available data sets that are not locked will be
      * archived.
+     * 
+     * @return number of data sets scheduled for archiving.
      */
-    void archiveDatasets();
+    int archiveDatasets();
 
-    /** Schedules unarchiving of loaded data sets. Only archived datasets will be unarchived. */
-    void unarchiveDatasets();
+    /**
+     * Schedules unarchiving of loaded data sets. Only archived datasets will be unarchived.
+     * 
+     * @return number of data sets scheduled for unarchiving.
+     */
+    int unarchiveDatasets();
+
+    /**
+     * Locks loaded data sets.
+     * 
+     * @return number of data sets scheduled for locking.
+     */
+    int lockDatasets();
+
+    /**
+     * Unlocks loaded data sets.
+     * 
+     * @return number of data sets scheduled for unlocking.
+     */
+    int unlockDatasets();
 
     /** Creates a report from specified datasets using the specified datastore service. */
     TableModel createReportFromDatasets(String datastoreServiceKey, String datastoreCode,
@@ -91,15 +111,5 @@ public interface IExternalDataTable
      * Loads data sets that belong to chosen data store.
      */
     public void loadByDataStore(DataStorePE dataStore);
-
-    /**
-     * Locks loaded data sets.
-     */
-    void lockDatasets();
-
-    /**
-     * Unlocks loaded data sets.
-     */
-    void unlockDatasets();
 
 }

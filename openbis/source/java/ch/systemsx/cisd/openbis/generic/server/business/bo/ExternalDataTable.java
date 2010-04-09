@@ -515,25 +515,44 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     // Archiving
     //
 
-    public void archiveDatasets()
+    public int archiveDatasets()
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
-        filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
-                DataSetArchivingStatus.ARCHIVE_PENDING);
+        int result =
+                filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
+                        DataSetArchivingStatus.ARCHIVE_PENDING);
         performArchiving(datasetsByStore);
+        return result;
     }
 
-    public void unarchiveDatasets()
+    public int unarchiveDatasets()
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
-        filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.ARCHIVED,
-                DataSetArchivingStatus.UNARCHIVE_PENDING);
+        int result =
+                filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.ARCHIVED,
+                        DataSetArchivingStatus.UNARCHIVE_PENDING);
         performUnarchiving(datasetsByStore);
+        return result;
     }
 
-    private void filterByStatusAndUpdate(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
+    public int lockDatasets()
+    {
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        return filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
+                DataSetArchivingStatus.LOCKED);
+    }
+
+    public int unlockDatasets()
+    {
+        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
+        return filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.LOCKED,
+                DataSetArchivingStatus.AVAILABLE);
+    }
+
+    private int filterByStatusAndUpdate(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
             DataSetArchivingStatus oldStatus, DataSetArchivingStatus newStatus)
     {
+        int counter = 0;
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
         for (List<ExternalDataPE> dataSets : datasetsByStore.values())
         {
@@ -548,9 +567,11 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 {
                     dataSet.setStatus(newStatus);
                     externalDataDAO.validateAndSaveUpdatedEntity(dataSet);
+                    counter++;
                 }
             }
         }
+        return counter;
     }
 
     private interface IArchivingAction
@@ -617,17 +638,4 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
-    public void lockDatasets()
-    {
-        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
-        filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
-                DataSetArchivingStatus.LOCKED);
-    }
-
-    public void unlockDatasets()
-    {
-        Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
-        filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.LOCKED,
-                DataSetArchivingStatus.AVAILABLE);
-    }
 }

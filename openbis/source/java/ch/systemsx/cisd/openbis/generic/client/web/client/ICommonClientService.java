@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -723,13 +724,13 @@ public interface ICommonClientService extends IClientService
     /**
      * Schedules archiving of the specified datasets.
      */
-    public void archiveDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+    public ArchivingResult archiveDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws UserFailureException;
 
     /**
      * Schedules unarchiving of the specified datasets.
      */
-    public void unarchiveDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+    public ArchivingResult unarchiveDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws UserFailureException;
 
     /**
@@ -858,13 +859,13 @@ public interface ICommonClientService extends IClientService
     /**
      * Locks the specified datasets.
      */
-    public void lockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+    public ArchivingResult lockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws UserFailureException;
 
     /**
      * Unlocks the specified datasets.
      */
-    public void unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+    public ArchivingResult unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws UserFailureException;
 
 }

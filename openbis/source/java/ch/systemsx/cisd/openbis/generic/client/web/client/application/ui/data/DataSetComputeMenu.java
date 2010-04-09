@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -99,11 +100,10 @@ public class DataSetComputeMenu extends TextToolItem
     private static enum DssTaskActionMenuKind implements IActionMenuItem
     {
         COMPUTE_MENU_QUERIES(DataStoreServiceKind.QUERIES), COMPUTE_MENU_PROCESSING(
-                DataStoreServiceKind.PROCESSING), COMPUTE_MENU_ARCHIVE(
-                DataStoreServiceKind.ARCHIVE), COMPUTE_MENU_UNARCHIVE(
-                DataStoreServiceKind.UNARCHIVE),
-        COMPUTE_MENU_LOCK(DataStoreServiceKind.LOCK), COMPUTE_MENU_UNLOCK(
-                DataStoreServiceKind.UNLOCK);
+                DataStoreServiceKind.PROCESSING),
+        COMPUTE_MENU_ARCHIVE(DataStoreServiceKind.ARCHIVE), COMPUTE_MENU_UNARCHIVE(
+                DataStoreServiceKind.UNARCHIVE), COMPUTE_MENU_LOCK(DataStoreServiceKind.LOCK),
+        COMPUTE_MENU_UNLOCK(DataStoreServiceKind.UNLOCK);
 
         private final DataStoreServiceKind dssTaskKind;
 
@@ -191,25 +191,25 @@ public class DataSetComputeMenu extends TextToolItem
                             viewContext.getService().archiveDatasets(
                                     criteria,
                                     new ArchivingDisplayCallback(viewContext, dssTaskKind
-                                            .getDescription()));
+                                            .getDescription(), computeOnSelected));
                             break;
                         case UNARCHIVE:
                             viewContext.getService().unarchiveDatasets(
                                     criteria,
                                     new ArchivingDisplayCallback(viewContext, dssTaskKind
-                                            .getDescription()));
+                                            .getDescription(), computeOnSelected));
                             break;
                         case LOCK:
                             viewContext.getService().lockDatasets(
                                     criteria,
                                     new ArchivingDisplayCallback(viewContext, dssTaskKind
-                                            .getDescription()));
+                                            .getDescription(), computeOnSelected));
                             break;
                         case UNLOCK:
                             viewContext.getService().unlockDatasets(
                                     criteria,
                                     new ArchivingDisplayCallback(viewContext, dssTaskKind
-                                            .getDescription()));
+                                            .getDescription(), computeOnSelected));
                             break;
                     }
                 }
@@ -236,21 +236,36 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private final class ArchivingDisplayCallback extends AbstractAsyncCallback<Void>
+    private final class ArchivingDisplayCallback extends AbstractAsyncCallback<ArchivingResult>
     {
         private final String actionName;
 
-        private ArchivingDisplayCallback(IViewContext<?> viewContext, String actionName)
+        private final boolean computeOnSelected;
+
+        private ArchivingDisplayCallback(IViewContext<?> viewContext, String actionName,
+                boolean computeOnSelected)
         {
             super(viewContext);
             this.actionName = actionName;
+            this.computeOnSelected = computeOnSelected;
         }
 
         @Override
-        public final void process(final Void result)
+        public final void process(final ArchivingResult result)
         {
-            MessageBox.info(actionName, actionName + " has been scheduled successfully.", null);
-            postArchivingAction.execute();
+            final String source = computeOnSelected ? "selected" : "provided";
+            System.err.println(result.getProvided() + " " + result.getScheduled());
+            if (result.getScheduled() == 0)
+            {
+                MessageBox.info(actionName, actionName + " coulndn't be performed on " + source
+                        + " data set(s).", null);
+            } else
+            {
+                boolean subset = result.getProvided() > result.getScheduled();
+                MessageBox.info(actionName, actionName + " has been scheduled on "
+                        + (subset ? "a subset of " : "all ") + source + " data set(s).", null);
+                postArchivingAction.execute();
+            }
         }
     }
 
@@ -325,8 +340,7 @@ public class DataSetComputeMenu extends TextToolItem
                         requiredStatusName);
             } else
             {
-                String dictKey =
-                        Dict.PERFORM_ARCHIVING_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE;
+                String dictKey = Dict.PERFORM_ARCHIVING_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE;
                 return viewContext.getMessage(dictKey, computationName, size, requiredStatusName);
             }
         }

@@ -901,20 +901,46 @@ public interface ICommonServer extends IServer
 
     /**
      * Schedules archiving of specified data sets.
+     * 
+     * @return number of data sets scheduled for archiving.
      */
     @Transactional
     @RolesAllowed(RoleSet.SPACE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void archiveDatasets(String sessionToken,
+    public int archiveDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
     /**
      * Schedules unarchiving of specified data sets.
+     * 
+     * @return number of data sets scheduled for unarchiving.
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void unarchiveDatasets(String sessionToken,
+    public int unarchiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
+    /**
+     * Locks data sets.
+     * 
+     * @return number of data sets scheduled for locking.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public int lockDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+
+    /**
+     * Unlocks data sets.
+     * 
+     * @return number of data sets scheduled for unlocking.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public int unlockDatasets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
     /**
@@ -1046,23 +1072,5 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason);
-
-    /**
-     * Locks data sets
-     */
-    @Transactional
-    @RolesAllowed(RoleSet.SPACE_ADMIN)
-    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void lockDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
-
-    /**
-     * Unlocks data sets
-     */
-    @Transactional
-    @RolesAllowed(RoleSet.SPACE_ADMIN)
-    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void unlockDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
 }

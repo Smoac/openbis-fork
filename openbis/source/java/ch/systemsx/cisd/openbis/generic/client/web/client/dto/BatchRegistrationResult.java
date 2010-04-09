@@ -30,18 +30,6 @@ public class BatchRegistrationResult implements IsSerializable
 
     private String message;
 
-    private String[] identifiers;
-
-    public String[] getIdentifiers()
-    {
-        return identifiers;
-    }
-
-    public void setIdentifiers(String[] identifiers)
-    {
-        this.identifiers = identifiers;
-    }
-
     public BatchRegistrationResult()
     {
     }

@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -628,13 +629,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#archiveDatasets(DisplayedOrSelectedDatasetCriteria)
      */
     public void archiveDatasets(DisplayedOrSelectedDatasetCriteria criteria,
-            AsyncCallback<Void> callback);
+            AsyncCallback<ArchivingResult> callback);
 
     /**
      * @see ICommonClientService#unarchiveDatasets(DisplayedOrSelectedDatasetCriteria)
      */
     public void unarchiveDatasets(DisplayedOrSelectedDatasetCriteria criteria,
-            AsyncCallback<Void> callback);
+            AsyncCallback<ArchivingResult> callback);
 
     /**
      * @see ICommonClientService#deleteAuthorizationGroups(List, String)
@@ -761,13 +762,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#lockDatasets(DisplayedOrSelectedDatasetCriteria)
      */
     public void lockDatasets(DisplayedOrSelectedDatasetCriteria criteria,
-            AsyncCallback<Void> callback);
+            AsyncCallback<ArchivingResult> callback);
 
     /**
      * @see ICommonClientService#unlockDatasets(DisplayedOrSelectedDatasetCriteria)
      */
     public void unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria,
-            AsyncCallback<Void> callback);
+            AsyncCallback<ArchivingResult> callback);
 
     // --
 }

@@ -250,13 +250,15 @@ public abstract class AbstractServerLogger implements IServer
             { userID });
     }
 
-    public void unarchiveDatasets(String sessionToken, List<String> datasetCodes)
+    public int unarchiveDatasets(String sessionToken, List<String> datasetCodes)
     {
         logTracking(sessionToken, "unarchiveDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
+        return 0;
     }
 
-    public void archiveDatasets(String sessionToken, List<String> datasetCodes)
+    public int archiveDatasets(String sessionToken, List<String> datasetCodes)
     {
         logTracking(sessionToken, "archiveDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
+        return 0;
     }
 }

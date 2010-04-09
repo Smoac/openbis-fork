@@ -96,22 +96,22 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
 
     }
 
-    public void archiveDatasets(String sessionToken, List<String> datasetCodes)
+    public int archiveDatasets(String sessionToken, List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadByDataSetCodes(datasetCodes, true);
-        externalDataTable.archiveDatasets();
+        return externalDataTable.archiveDatasets();
     }
 
-    public void unarchiveDatasets(String sessionToken, List<String> datasetCodes)
+    public int unarchiveDatasets(String sessionToken, List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadByDataSetCodes(datasetCodes, true);
-        externalDataTable.unarchiveDatasets();
+        return externalDataTable.unarchiveDatasets();
     }
 
     protected IDatasetLister createDatasetLister(Session session)
