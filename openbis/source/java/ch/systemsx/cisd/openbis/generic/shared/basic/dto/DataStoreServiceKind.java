@@ -27,7 +27,7 @@ public enum DataStoreServiceKind implements Serializable, IsSerializable
 {
     // Do not refactor names - they are stored in database.
     PROCESSING("Processing"), QUERIES("Query"), ARCHIVE("Archive"), UNARCHIVE("Unarchive"), LOCK(
-            "Lock"), UNLOCK("Unlock");
+            "Disable Archiving"), UNLOCK("Enable Archiving");
 
     private final String description;
 
