@@ -21,7 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * A bean that contains information about the application.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class ApplicationInfo implements IsSerializable
 {
@@ -30,6 +30,8 @@ public final class ApplicationInfo implements IsSerializable
     private String cifexURL;
 
     private String cifexRecipient;
+
+    private boolean archivingConfigured;
 
     public String getCifexRecipient()
     {
@@ -59,6 +61,16 @@ public final class ApplicationInfo implements IsSerializable
     public final String getCIFEXURL()
     {
         return cifexURL;
+    }
+
+    public boolean isArchivingConfigured()
+    {
+        return archivingConfigured;
+    }
+
+    public void setArchivingConfigured(boolean archivingConfigured)
+    {
+        this.archivingConfigured = archivingConfigured;
     }
 
 }

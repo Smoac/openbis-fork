@@ -83,7 +83,6 @@ public class DataSetArchivingMenu extends MenuItem
                 ArchivingServiceKind.UNARCHIVE), ARCHIVING_MENU_LOCK(ArchivingServiceKind.LOCK),
         ARCHIVING_MENU_UNLOCK(ArchivingServiceKind.UNLOCK);
 
-        // TODO don't use it
         private final ArchivingServiceKind taskKind;
 
         ArchivingActionMenuKind(ArchivingServiceKind taskKind)
@@ -232,7 +231,6 @@ public class DataSetArchivingMenu extends MenuItem
         public final void process(final ArchivingResult result)
         {
             final String source = computeOnSelected ? "selected" : "provided";
-            System.err.println(result.getProvided() + " " + result.getScheduled());
             if (result.getScheduled() == 0)
             {
                 MessageBox.info(actionName, actionName + " coulndn't be performed on " + source

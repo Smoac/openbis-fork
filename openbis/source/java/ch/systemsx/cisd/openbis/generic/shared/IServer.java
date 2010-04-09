@@ -50,6 +50,12 @@ public interface IServer extends ISessionProvider
     public int getVersion();
 
     /**
+     * @return 'true' if archiving is configured for at least one data store, 'false' otherwise.
+     */
+	@Transactional(readOnly = true)
+    public boolean isArchivingConfigured(final String sessionToken);
+
+    /**
      * Tries to authenticate the specified user with given password.
      * 
      * @return <code>null</code> if authentication failed.
@@ -87,7 +93,7 @@ public interface IServer extends ISessionProvider
      * Logout the session with the specified session token.
      */
     public void logout(final String sessionToken) throws UserFailureException;
-    
+
     /**
      * Sets the user that owns this session. All methods called after this method are called with
      * the privileges of the user specified by <var>userCode</code>.

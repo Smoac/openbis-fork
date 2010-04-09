@@ -200,7 +200,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         // is performed before.
         // So if it happens that services with the same keys are registered, we have a unique
         // constraint violation. This is a recognized hibernate bug HHH-2421.
-        dataStore.setServices(new HashSet<DataStoreServicePE>());
+        dataStore.setServices(new HashSet<DataStoreServicePE>()); // TODO
         dataStoreDAO.createOrUpdateDataStore(dataStore);
 
         Set<DataStoreServicePE> dataStoreServices = createDataStoreServices(serviceDescs);

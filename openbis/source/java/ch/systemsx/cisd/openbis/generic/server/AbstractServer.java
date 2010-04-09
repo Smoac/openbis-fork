@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
@@ -304,6 +305,19 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         {
             return null;
         }
+    }
+
+    public boolean isArchivingConfigured(String sessionToken)
+    {
+        final List<DataStorePE> stores = daoFactory.getDataStoreDAO().listDataStores();
+        for (DataStorePE store : stores)
+        {
+            if (store.isArchivingConfigured())
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings)

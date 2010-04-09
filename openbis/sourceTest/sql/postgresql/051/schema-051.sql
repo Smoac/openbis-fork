@@ -473,7 +473,8 @@ CREATE TABLE data_stores (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     remote_url character varying(250) NOT NULL,
     session_token character varying(50) NOT NULL,
-    modification_timestamp time_stamp DEFAULT now()
+    modification_timestamp time_stamp DEFAULT now(),
+    is_archiving_configured boolean_char DEFAULT false NOT NULL
 );
 CREATE SEQUENCE data_type_id_seq
     START WITH 1

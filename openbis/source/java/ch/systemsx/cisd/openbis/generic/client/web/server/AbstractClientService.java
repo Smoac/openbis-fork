@@ -372,6 +372,7 @@ public abstract class AbstractClientService implements IClientService,
             applicationInfo.setCIFEXURL(commonApplicationInfo.getCIFEXURL());
             applicationInfo.setCifexRecipient(commonApplicationInfo.getCifexRecipient());
         }
+        applicationInfo.setArchivingConfigured(isArchivingConfigured());
         applicationInfo.setVersion(getVersion());
         return applicationInfo;
     }
@@ -379,6 +380,18 @@ public abstract class AbstractClientService implements IClientService,
     protected String getVersion()
     {
         return BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
+    }
+
+    private boolean isArchivingConfigured()
+    {
+        try
+        {
+            return getServer().isArchivingConfigured(getSessionToken());
+        } catch (InvalidSessionException e)
+        {
+            // ignored
+        }
+        return false;
     }
 
     public final SessionContext tryToGetCurrentSessionContext()

@@ -216,6 +216,12 @@ public abstract class AbstractServerLogger implements IServer
         // No logging because already done by the session manager
     }
 
+    public boolean isArchivingConfigured(String sessionToken)
+    {
+        logAccess(sessionToken, "isArchivingConfigured");
+        return false;
+    }
+
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings)
     {
         logTracking(sessionToken, "save_display_settings", "");
