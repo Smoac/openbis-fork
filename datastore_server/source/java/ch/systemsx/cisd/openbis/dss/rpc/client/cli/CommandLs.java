@@ -50,7 +50,6 @@ class CommandLs extends AbstractCommand
         }
 
         // Accessed via reflection
-        @SuppressWarnings("unused")
         public void setRecursive(boolean recursive)
         {
             this.recursive = recursive;
