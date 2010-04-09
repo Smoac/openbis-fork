@@ -50,9 +50,9 @@ public interface IServer extends ISessionProvider
     public int getVersion();
 
     /**
-     * @return 'true' if archiving is configured for at least one data store, 'false' otherwise.
+     * @return 'true' if archiver is configured for at least one data store, 'false' otherwise.
      */
-	@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public boolean isArchivingConfigured(final String sessionToken);
 
     /**

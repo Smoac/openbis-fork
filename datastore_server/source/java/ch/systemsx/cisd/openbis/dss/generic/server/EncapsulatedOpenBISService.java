@@ -99,6 +99,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private final DatastoreServiceDescriptions pluginTaskDescriptions;
 
+    private final boolean archiverConfigured;
+
     public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager, String serverURL,
             PluginTaskProviders pluginTaskParameters)
     {
@@ -116,6 +118,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         this.sessionTokenManager = sessionTokenManager;
         this.service = service;
         this.pluginTaskDescriptions = pluginTaskParameters.getPluginTaskDescriptions();
+        this.archiverConfigured =
+                pluginTaskParameters.getArchiverTaskFactory().isArchiverConfigured();
     }
 
     public final void setPort(int port)
@@ -193,6 +197,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         dataStoreServerInfo.setDownloadUrl(downloadUrl);
         dataStoreServerInfo.setSessionToken(sessionTokenManager.drawSessionToken());
         dataStoreServerInfo.setServicesDescriptions(pluginTaskDescriptions);
+        dataStoreServerInfo.setArchiverConfigured(archiverConfigured);
         service.registerDataStoreServer(sessionToken, dataStoreServerInfo);
     }
 
@@ -424,8 +429,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         service.addPropertiesToDataSet(sessionToken, properties, code, space);
     }
 
-    synchronized public final void updateDataSetStatus(String code,
-            DataSetArchivingStatus newStatus) throws UserFailureException
+    synchronized public final void updateDataSetStatus(String code, DataSetArchivingStatus newStatus)
+            throws UserFailureException
 
     {
         assert code != null : "missing data set code";

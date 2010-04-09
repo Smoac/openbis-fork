@@ -53,16 +53,20 @@ public class ArchiverTaskFactory
         this.archiverProperties = sectionProperties.getProperties();
     }
 
+    public boolean isArchiverConfigured()
+    {
+        return className != null;
+    }
+
     public IArchiverTask createInstance(File storeRoot)
     {
-        if (className == null)
+        if (isArchiverConfigured())
         {
             throw new ConfigurationFailureException("Archiver class is not configured.");
         }
         try
         {
-            return ClassUtils.create(IArchiverTask.class, className, archiverProperties,
-                    storeRoot);
+            return ClassUtils.create(IArchiverTask.class, className, archiverProperties, storeRoot);
         } catch (ConfigurationFailureException ex)
         {
             throw ex; // rethrow the exception without changing the message

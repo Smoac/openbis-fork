@@ -312,7 +312,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         final List<DataStorePE> stores = daoFactory.getDataStoreDAO().listDataStores();
         for (DataStorePE store : stores)
         {
-            if (store.isArchivingConfigured())
+            if (store.isArchiverConfigured())
             {
                 return true;
             }

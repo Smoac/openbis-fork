@@ -32,7 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * <li>the DSS session token which has to used when invoking methods on the DSS.
  * <li>the download URL which is the URL at which the DSS Web server can be accessed from a Web
  * browser.
- * <li>the unique code of the DSS.
+ * <li>the unique code of the DSS,
+ * <li>information about available services.
  * </ul>
  * 
  * @author Franz-Josef Elmer
@@ -52,6 +53,8 @@ public class DataStoreServerInfo implements Serializable
     private String sessionToken;
 
     private DatastoreServiceDescriptions servicesDescriptions;
+
+    private boolean archiverConfigured;
 
     public final int getPort()
     {
@@ -111,6 +114,16 @@ public class DataStoreServerInfo implements Serializable
     public void setServicesDescriptions(DatastoreServiceDescriptions servicesDescriptions)
     {
         this.servicesDescriptions = servicesDescriptions;
+    }
+
+    public boolean isArchiverConfigured()
+    {
+        return archiverConfigured;
+    }
+
+    public void setArchiverConfigured(boolean archiverConfigured)
+    {
+        this.archiverConfigured = archiverConfigured;
     }
 
 }

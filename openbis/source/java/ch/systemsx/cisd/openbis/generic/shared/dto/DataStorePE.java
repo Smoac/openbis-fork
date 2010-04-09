@@ -78,7 +78,7 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
 
     private Date modificationDate;
 
-    private boolean archivingConfigured;
+    private boolean archiverConfigured;
 
     private Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
 
@@ -166,15 +166,15 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     }
 
     @NotNull
-    @Column(name = ColumnNames.IS_ARCHIVING_CONFIGURED, updatable = true)
-    public boolean isArchivingConfigured()
+    @Column(name = ColumnNames.IS_ARCHIVER_CONFIGURED, updatable = true)
+    public boolean isArchiverConfigured()
     {
-        return archivingConfigured;
+        return archiverConfigured;
     }
 
-    public void setArchivingConfigured(final boolean archivingConfigured)
+    public void setArchiverConfigured(final boolean archiverConfigured)
     {
-        this.archivingConfigured = archivingConfigured;
+        this.archiverConfigured = archiverConfigured;
     }
 
     //

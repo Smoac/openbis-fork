@@ -474,7 +474,7 @@ CREATE TABLE data_stores (
     remote_url character varying(250) NOT NULL,
     session_token character varying(50) NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
-    is_archiving_configured boolean_char DEFAULT false NOT NULL
+    is_archiver_configured boolean_char DEFAULT false NOT NULL
 );
 CREATE SEQUENCE data_type_id_seq
     START WITH 1

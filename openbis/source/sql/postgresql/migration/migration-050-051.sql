@@ -14,5 +14,5 @@ ALTER DOMAIN archiving_status ADD CONSTRAINT archiving_status_check
 ALTER TABLE external_data ALTER COLUMN status TYPE archiving_status;
 ALTER TABLE external_data ALTER COLUMN status SET DEFAULT 'AVAILABLE';
 
--- add is_archiving_configured flag to data_stores table
-ALTER TABLE data_stores ADD COLUMN is_archiving_configured BOOLEAN_CHAR NOT NULL DEFAULT 'F';
+-- add is_archiver_configured flag to data_stores table
+ALTER TABLE data_stores ADD COLUMN is_archiver_configured BOOLEAN_CHAR NOT NULL DEFAULT 'F';
