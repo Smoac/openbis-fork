@@ -326,10 +326,12 @@ var common = {
   menu_compute: "Perform",
   COMPUTE_MENU_QUERIES: "Query",
   COMPUTE_MENU_PROCESSING: "Processing",
-  COMPUTE_MENU_ARCHIVE: "Archive",
-  COMPUTE_MENU_UNARCHIVE: "Unarchive",
-  COMPUTE_MENU_LOCK: "Disable Archiving",
-  COMPUTE_MENU_UNLOCK: "Enable Archiving",
+  
+  menu_archiving: "Archiving",
+  ARCHIVING_MENU_ARCHIVE: "Archive",
+  ARCHIVING_MENU_UNARCHIVE: "Unarchive",
+  ARCHIVING_MENU_LOCK: "Disable Archiving",
+  ARCHIVING_MENU_UNLOCK: "Enable Archiving",
   
   menu_modules: "Utilities",
     

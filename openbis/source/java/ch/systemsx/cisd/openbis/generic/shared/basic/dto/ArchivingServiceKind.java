@@ -21,16 +21,16 @@ import java.io.Serializable;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * @author Tomasz Pylak
+ * @author Piotr Buczek
  */
-public enum DataStoreServiceKind implements Serializable, IsSerializable
+public enum ArchivingServiceKind implements Serializable, IsSerializable
 {
-    // Do not refactor names - they are stored in database.
-    PROCESSING("Processing"), QUERIES("Query");
+    ARCHIVE("Archiving"), UNARCHIVE("Unarchiving"), LOCK("Disable Archiving"), UNLOCK(
+            "Enable Archiving");
 
     private final String description;
 
-    private DataStoreServiceKind(final String description)
+    private ArchivingServiceKind(final String description)
     {
         this.description = description;
     }

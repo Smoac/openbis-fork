@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -32,7 +31,6 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
@@ -45,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.Actio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.SelectedOrAllDataSetsRadioProvider.ISelectedDataSetsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -52,9 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -62,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * 'Compute' menu for Data Sets.
+ * 'Perform' menu for Data Sets.
  * 
  * @author Piotr Buczek
  */
@@ -73,8 +70,6 @@ public class DataSetComputeMenu extends TextToolItem
 
     private final IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedDataSetsGetter;
 
-    private final IDelegatedAction postArchivingAction;
-
     public DataSetComputeMenu(IViewContext<ICommonClientServiceAsync> viewContext,
             IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedDataSetsGetter,
             IDelegatedAction postArchivingAction)
@@ -82,15 +77,12 @@ public class DataSetComputeMenu extends TextToolItem
         super(viewContext.getMessage(Dict.MENU_COMPUTE));
         this.viewContext = viewContext;
         this.selectedDataSetsGetter = selectedDataSetsGetter;
-        this.postArchivingAction = postArchivingAction;
 
         Menu submenu = new Menu();
         addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_QUERIES);
         addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_PROCESSING);
-        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_ARCHIVE);
-        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_UNARCHIVE);
-        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_LOCK);
-        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_UNLOCK);
+        submenu.add(new DataSetArchivingMenu(viewContext, selectedDataSetsGetter,
+                postArchivingAction));
         setMenu(submenu);
     }
 
@@ -100,10 +92,7 @@ public class DataSetComputeMenu extends TextToolItem
     private static enum DssTaskActionMenuKind implements IActionMenuItem
     {
         COMPUTE_MENU_QUERIES(DataStoreServiceKind.QUERIES), COMPUTE_MENU_PROCESSING(
-                DataStoreServiceKind.PROCESSING),
-        COMPUTE_MENU_ARCHIVE(DataStoreServiceKind.ARCHIVE), COMPUTE_MENU_UNARCHIVE(
-                DataStoreServiceKind.UNARCHIVE), COMPUTE_MENU_LOCK(DataStoreServiceKind.LOCK),
-        COMPUTE_MENU_UNLOCK(DataStoreServiceKind.UNLOCK);
+                DataStoreServiceKind.PROCESSING);
 
         private final DataStoreServiceKind dssTaskKind;
 
@@ -154,16 +143,7 @@ public class DataSetComputeMenu extends TextToolItem
                 private Window createPerformComputationDialog(ComputationData data)
                 {
                     final String title = "Perform " + dssTaskKind.getDescription();
-                    switch (dssTaskKind)
-                    {
-                        case ARCHIVE:
-                        case UNARCHIVE:
-                        case LOCK:
-                        case UNLOCK:
-                            return new PerformArchivingDialog(viewContext, data, title);
-                        default:
-                            return new PerformComputationDialog(viewContext, data, title);
-                    }
+                    return new PerformComputationDialog(viewContext, data, title);
                 }
             };
     }
@@ -177,7 +157,7 @@ public class DataSetComputeMenu extends TextToolItem
                 public void execute(DatastoreServiceDescription service, boolean computeOnSelected)
                 {
                     DisplayedOrSelectedDatasetCriteria criteria =
-                            createCriteria(selectedAndDisplayedItems, computeOnSelected);
+                            selectedAndDisplayedItems.createCriteria(computeOnSelected);
                     switch (dssTaskKind)
                     {
                         case QUERIES:
@@ -187,39 +167,9 @@ public class DataSetComputeMenu extends TextToolItem
                             viewContext.getService().processDatasets(service, criteria,
                                     new ProcessingDisplayCallback(viewContext));
                             break;
-                        case ARCHIVE:
-                            viewContext.getService().archiveDatasets(
-                                    criteria,
-                                    new ArchivingDisplayCallback(viewContext, dssTaskKind
-                                            .getDescription(), computeOnSelected));
-                            break;
-                        case UNARCHIVE:
-                            viewContext.getService().unarchiveDatasets(
-                                    criteria,
-                                    new ArchivingDisplayCallback(viewContext, dssTaskKind
-                                            .getDescription(), computeOnSelected));
-                            break;
-                        case LOCK:
-                            viewContext.getService().lockDatasets(
-                                    criteria,
-                                    new ArchivingDisplayCallback(viewContext, dssTaskKind
-                                            .getDescription(), computeOnSelected));
-                            break;
-                        case UNLOCK:
-                            viewContext.getService().unlockDatasets(
-                                    criteria,
-                                    new ArchivingDisplayCallback(viewContext, dssTaskKind
-                                            .getDescription(), computeOnSelected));
-                            break;
                     }
                 }
             };
-    }
-
-    private static DisplayedOrSelectedDatasetCriteria createCriteria(
-            SelectedAndDisplayedItems selectedAndDisplayedItems, boolean computeOnSelected)
-    {
-        return selectedAndDisplayedItems.createCriteria(computeOnSelected);
     }
 
     private final class ProcessingDisplayCallback extends AbstractAsyncCallback<Void>
@@ -236,40 +186,7 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private final class ArchivingDisplayCallback extends AbstractAsyncCallback<ArchivingResult>
-    {
-        private final String actionName;
-
-        private final boolean computeOnSelected;
-
-        private ArchivingDisplayCallback(IViewContext<?> viewContext, String actionName,
-                boolean computeOnSelected)
-        {
-            super(viewContext);
-            this.actionName = actionName;
-            this.computeOnSelected = computeOnSelected;
-        }
-
-        @Override
-        public final void process(final ArchivingResult result)
-        {
-            final String source = computeOnSelected ? "selected" : "provided";
-            System.err.println(result.getProvided() + " " + result.getScheduled());
-            if (result.getScheduled() == 0)
-            {
-                MessageBox.info(actionName, actionName + " coulndn't be performed on " + source
-                        + " data set(s).", null);
-            } else
-            {
-                boolean subset = result.getProvided() > result.getScheduled();
-                MessageBox.info(actionName, actionName + " has been scheduled on "
-                        + (subset ? "a subset of " : "all ") + source + " data set(s).", null);
-                postArchivingAction.execute();
-            }
-        }
-    }
-
-    private static class ComputationData
+    private static class ComputationData implements ISelectedDataSetsProvider
     {
         private final DataStoreServiceKind dssTaskKind;
 
@@ -303,99 +220,6 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private static class PerformArchivingDialog extends
-            AbstractDataConfirmationDialog<ComputationData>
-    {
-        private static final int LABEL_WIDTH = ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 20;
-
-        private static final int FIELD_WIDTH = 2 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 20;
-
-        private static final int DIALOG_WIDTH = 4 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH + 30;
-
-        private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-        private final ComputationDataSetsRadioProvider radioProvider;
-
-        protected PerformArchivingDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-                ComputationData data, String title)
-        {
-            super(viewContext, data, title);
-            this.viewContext = viewContext;
-            this.radioProvider = new ComputationDataSetsRadioProvider(data);
-
-            setWidth(DIALOG_WIDTH);
-        }
-
-        @Override
-        protected String createMessage()
-        {
-            int size = data.getSelectedDataSets().size();
-            String computationName = data.getDssTaskKind().getDescription();
-            String requiredStatusName = getRequiredStatus(data.getDssTaskKind()).getDescription();
-            if (size == 0)
-            {
-                final String msgIntroduction = viewContext.getMessage(Dict.NO_DATASETS_SELECTED);
-                String dictKey = Dict.PERFORM_ARCHIVING_ON_ALL_DATASETS_MSG_TEMPLATE;
-                return viewContext.getMessage(dictKey, msgIntroduction, computationName,
-                        requiredStatusName);
-            } else
-            {
-                String dictKey = Dict.PERFORM_ARCHIVING_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE;
-                return viewContext.getMessage(dictKey, computationName, size, requiredStatusName);
-            }
-        }
-
-        private DataSetArchivingStatus getRequiredStatus(DataStoreServiceKind dssTaskKind)
-        {
-            switch (dssTaskKind)
-            {
-                case ARCHIVE:
-                    return DataSetArchivingStatus.AVAILABLE;
-                case UNARCHIVE:
-                    return DataSetArchivingStatus.ARCHIVED;
-                case LOCK:
-                    return DataSetArchivingStatus.AVAILABLE;
-                case UNLOCK:
-                    return DataSetArchivingStatus.LOCKED;
-                default:
-                    return null; // not possible
-            }
-        }
-
-        @Override
-        protected void executeConfirmedAction()
-        {
-            final IComputationAction computationAction = data.getComputationAction();
-            final boolean computeOnSelected = getComputeOnSelected();
-            computationAction.execute(null, computeOnSelected);
-        }
-
-        @Override
-        protected void extendForm()
-        {
-            formPanel.setLabelWidth(LABEL_WIDTH);
-            formPanel.setFieldWidth(FIELD_WIDTH);
-
-            if (data.getSelectedDataSets().size() > 0)
-            {
-                formPanel.add(createComputationDataSetsRadio());
-            }
-            Button confirmButton = getButtonById(Dialog.OK);
-            confirmButton.setText("Run");
-        }
-
-        private final RadioGroup createComputationDataSetsRadio()
-        {
-            return radioProvider.createComputationDataSetsRadio();
-        }
-
-        private boolean getComputeOnSelected()
-        {
-            return radioProvider.getComputeOnSelected();
-        }
-
-    }
-
     private static class PerformComputationDialog extends
             AbstractDataConfirmationDialog<ComputationData>
     {
@@ -415,7 +239,7 @@ public class DataSetComputeMenu extends TextToolItem
         // not null only if all selected datasets come from the same datastore
         private final DataStore dataStoreOrNull;
 
-        private final ComputationDataSetsRadioProvider radioProvider;
+        private final SelectedOrAllDataSetsRadioProvider radioProvider;
 
         private Html selectedDataSetTypesText;
 
@@ -426,7 +250,7 @@ public class DataSetComputeMenu extends TextToolItem
         {
             super(viewContext, data, title);
             this.viewContext = viewContext;
-            this.radioProvider = new ComputationDataSetsRadioProvider(data);
+            this.radioProvider = new SelectedOrAllDataSetsRadioProvider(data);
 
             this.dataStoreOrNull = tryGetSingleDatastore(data);
             setWidth(DIALOG_WIDTH);
@@ -678,59 +502,6 @@ public class DataSetComputeMenu extends TextToolItem
         {
             return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.PERFORM_COMPUTATION,
                     HelpPageIdentifier.HelpPageAction.ACTION);
-        }
-    }
-
-    private static interface IComputationAction
-    {
-        void execute(DatastoreServiceDescription pluginTask, boolean computeOnSelected);
-    }
-
-    private static class ComputationDataSetsRadioProvider
-    {
-        private Radio computeOnSelectedRadio;
-
-        private Radio computeOnAllRadio;
-
-        private final ComputationData data;
-
-        public ComputationDataSetsRadioProvider(ComputationData data)
-        {
-            this.data = data;
-        }
-
-        public boolean getComputeOnSelected()
-        {
-            if (computeOnSelectedRadio == null)
-            {
-                return false;
-            } else
-            {
-                return computeOnSelectedRadio.getValue();
-            }
-        }
-
-        public final RadioGroup createComputationDataSetsRadio()
-        {
-            final RadioGroup result = new RadioGroup();
-            result.setFieldLabel("Data Sets");
-            result.setSelectionRequired(true);
-            result.setOrientation(Orientation.HORIZONTAL);
-            computeOnAllRadio = createRadio("all");
-            computeOnSelectedRadio =
-                    createRadio("selected (" + data.getSelectedDataSets().size() + ")");
-            result.add(computeOnSelectedRadio);
-            result.add(computeOnAllRadio);
-            result.setValue(computeOnSelectedRadio);
-            result.setAutoHeight(true);
-            return result;
-        }
-
-        private final Radio createRadio(final String label)
-        {
-            Radio result = new Radio();
-            result.setBoxLabel(label);
-            return result;
         }
     }
 

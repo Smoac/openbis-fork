@@ -518,6 +518,8 @@ public abstract class Dict
 
     public static final String MENU_COMPUTE = "menu_compute";
 
+    public static final String MENU_ARCHIVING = "menu_archiving";
+
     //
     // Tab Titles
     //
