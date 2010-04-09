@@ -115,7 +115,7 @@ public class DataSetPropertiesPanel extends ContentPanel
 
         properties.put(messageProvider.getMessage(Dict.SOURCE_TYPE), dataset.getSourceType());
         properties.put(messageProvider.getMessage(Dict.LOCATION), dataset.getLocation());
-        properties.put(messageProvider.getMessage(Dict.ARCHIVIZATION_STATUS), dataset.getStatus()
+        properties.put(messageProvider.getMessage(Dict.ARCHIVING_STATUS), dataset.getStatus()
                 .getDescription());
         properties.put(messageProvider.getMessage(Dict.DATA_STORE), dataset.getDataStore());
         properties.put(messageProvider.getMessage(Dict.IS_COMPLETE), dataset.getComplete());

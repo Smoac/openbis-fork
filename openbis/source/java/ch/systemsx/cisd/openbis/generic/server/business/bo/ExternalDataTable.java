@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -512,27 +512,27 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     }
 
     //
-    // Archivization
+    // Archiving
     //
 
     public void archiveDatasets()
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
-        filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.ACTIVE,
-                DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS);
-        performArchivization(datasetsByStore);
+        filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
+                DataSetArchivingStatus.ARCHIVE_PENDING);
+        performArchiving(datasetsByStore);
     }
 
     public void unarchiveDatasets()
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
-        filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.ARCHIVED,
-                DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS);
-        performUnarchivization(datasetsByStore);
+        filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.ARCHIVED,
+                DataSetArchivingStatus.UNARCHIVE_PENDING);
+        performUnarchiving(datasetsByStore);
     }
 
     private void filterByStatusAndUpdate(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
-            DataSetArchivizationStatus oldStatus, DataSetArchivizationStatus newStatus)
+            DataSetArchivingStatus oldStatus, DataSetArchivingStatus newStatus)
     {
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
         for (List<ExternalDataPE> dataSets : datasetsByStore.values())
@@ -553,15 +553,15 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
-    private interface IArchivizationAction
+    private interface IArchivingAction
     {
         public void execute(String sessionToken, IDataStoreService service,
                 List<DatasetDescription> descriptions, String userEmailOrNull);
     }
 
-    private void performUnarchivization(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore)
+    private void performUnarchiving(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore)
     {
-        performArchivizationAction(datasetsByStore, new IArchivizationAction()
+        performArchivingAction(datasetsByStore, new IArchivingAction()
             {
                 public void execute(String sessionToken, IDataStoreService service,
                         List<DatasetDescription> descriptions, String userEmailOrNull)
@@ -572,9 +572,9 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     }
 
-    private void performArchivization(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore)
+    private void performArchiving(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore)
     {
-        performArchivizationAction(datasetsByStore, new IArchivizationAction()
+        performArchivingAction(datasetsByStore, new IArchivingAction()
             {
                 public void execute(String sessionToken, IDataStoreService service,
                         List<DatasetDescription> descriptions, String userEmailOrNull)
@@ -584,8 +584,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             });
     }
 
-    private void performArchivizationAction(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
-            IArchivizationAction archivizationAction)
+    private void performArchivingAction(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
+            IArchivingAction archivingAction)
     {
         for (Entry<DataStorePE, List<ExternalDataPE>> entry : datasetsByStore.entrySet())
         {
@@ -605,7 +605,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             String userEmailOrNull = tryGetLoggedUserEmail();
             try
             {
-                archivizationAction.execute(sessionToken, service, descriptions, userEmailOrNull);
+                archivingAction.execute(sessionToken, service, descriptions, userEmailOrNull);
             } catch (Exception e)
             {
                 throw UserFailureException
@@ -620,14 +620,14 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     public void lockDatasets()
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
-        filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.ACTIVE,
-                DataSetArchivizationStatus.LOCKED);
+        filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
+                DataSetArchivingStatus.LOCKED);
     }
 
     public void unlockDatasets()
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupDataSetsByDataStores();
-        filterByStatusAndUpdate(datasetsByStore, DataSetArchivizationStatus.LOCKED,
-                DataSetArchivizationStatus.ACTIVE);
+        filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.LOCKED,
+                DataSetArchivingStatus.AVAILABLE);
     }
 }

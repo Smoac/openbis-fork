@@ -263,11 +263,11 @@ public abstract class Dict
     public static final String PERFORM_COMPUTATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE =
             "perform_computation_on_selected_or_all_datasets_msg_template";
 
-    public static final String PERFORM_ARCHIVIZATION_ON_ALL_DATASETS_MSG_TEMPLATE =
-            "perform_archivization_on_all_datasets_msg_template";
+    public static final String PERFORM_ARCHIVING_ON_ALL_DATASETS_MSG_TEMPLATE =
+            "perform_archiving_on_all_datasets_msg_template";
 
-    public static final String PERFORM_ARCHIVIZATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE =
-            "perform_archivization_on_selected_or_all_datasets_msg_template";
+    public static final String PERFORM_ARCHIVING_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE =
+            "perform_archiving_on_selected_or_all_datasets_msg_template";
 
     //
     // Entity Type Browser
@@ -448,7 +448,7 @@ public abstract class Dict
 
     public static final String IS_COMPLETE = "is_complete";
 
-    public static final String ARCHIVIZATION_STATUS = "archivization_status";
+    public static final String ARCHIVING_STATUS = "archiving_status";
 
     public static final String PRODUCTION_DATE = "production_date";
 

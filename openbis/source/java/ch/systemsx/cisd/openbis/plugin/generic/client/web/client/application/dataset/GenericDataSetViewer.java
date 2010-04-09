@@ -259,7 +259,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         }
     }
 
-    /** Updates data displayed in the browser when shown dataset is not active. */
+    /** Updates data displayed in the browser when shown dataset is not available. */
     public void setupUnavailableDataSetView(final ExternalData result)
     {
         setToolBarButtonsEnabled(false);

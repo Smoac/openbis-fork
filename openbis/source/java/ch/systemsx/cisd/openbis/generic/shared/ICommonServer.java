@@ -900,7 +900,7 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
     /**
-     * Schedules archivization of specified data sets.
+     * Schedules archiving of specified data sets.
      */
     @Transactional
     @RolesAllowed(RoleSet.SPACE_ADMIN)
@@ -909,7 +909,7 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
     /**
-     * Schedules unarchivization of specified data sets.
+     * Schedules unarchiving of specified data sets.
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)

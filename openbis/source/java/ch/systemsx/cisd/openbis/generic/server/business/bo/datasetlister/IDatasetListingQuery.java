@@ -71,23 +71,23 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
             int lastSeenDatasetId);
 
     /**
-     * Returns datasets from store with given id that have 'ACTIVE' status and were modified before
-     * given date.
+     * Returns datasets from store with given id that have status equal 'AVAILABLE' and were
+     * modified before given date.
      */
     @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
-            + "    WHERE data.dast_id = ?{1} AND external_data.status = 'ACTIVE' "
+            + "    WHERE data.dast_id = ?{1} AND external_data.status = 'AVAILABLE' "
             + "    AND data.registration_timestamp < ?{2}", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getActiveDataSetsRegisteredBefore(long dataStoreId,
+    public DataIterator<DatasetRecord> getAvailableDataSetsRegisteredBefore(long dataStoreId,
             Date lastModificationDate);
 
     /**
-     * Like {@link #getActiveDataSetsRegisteredBefore(long, Date)} with additional condition for
+     * Like {@link #getAvailableDataSetsRegisteredBefore(long, Date)} with additional condition for
      * data set type id.
      */
     @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
-            + "    WHERE data.dast_id = ?{1} AND external_data.status = 'ACTIVE' "
+            + "    WHERE data.dast_id = ?{1} AND external_data.status = 'AVAILABLE' "
             + "    AND data.registration_timestamp < ?{2} AND data.dsty_id = ?{3}", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getActiveDataSetsRegisteredBeforeWithDataSetType(
+    public DataIterator<DatasetRecord> getAvailableDataSetsRegisteredBeforeWithDataSetType(
             long dataStoreId, Date lastModificationDate, long dataSetTypeId);
 
     /**

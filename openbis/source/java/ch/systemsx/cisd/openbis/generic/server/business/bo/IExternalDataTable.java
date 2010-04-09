@@ -71,10 +71,13 @@ public interface IExternalDataTable
      */
     String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext);
 
-    /** Schedules archivization of loaded data sets. Only active data sets will be archived. */
+    /**
+     * Schedules archiving of loaded data sets. Only available data sets that are not locked will be
+     * archived.
+     */
     void archiveDatasets();
 
-    /** Schedules unarchivization of loaded data sets. Only archived datasets will be unarchived. */
+    /** Schedules unarchiving of loaded data sets. Only archived datasets will be unarchived. */
     void unarchiveDatasets();
 
     /** Creates a report from specified datasets using the specified datastore service. */

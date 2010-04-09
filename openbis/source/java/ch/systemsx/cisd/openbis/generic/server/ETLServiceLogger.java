@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -198,11 +198,11 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public List<ExternalData> listActiveDataSets(String sessionToken, String dataStoreCode,
+    public List<ExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
             ArchiverDataSetCriteria criteria)
     {
-        logAccess(sessionToken, "listActiveDataSets", "DATA_STORE(%s) CRITERIA(%s)", dataStoreCode,
-                criteria);
+        logAccess(sessionToken, "listAvailableDataSets", "DATA_STORE(%s) CRITERIA(%s)",
+                dataStoreCode, criteria);
         return null;
     }
 
@@ -232,7 +232,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     }
 
     public void updateDataSetStatus(String sessionToken, String dataSetCode,
-            DataSetArchivizationStatus newStatus) throws UserFailureException
+            DataSetArchivingStatus newStatus) throws UserFailureException
     {
         logTracking(sessionToken, "updateDataSetStatus", "DATA_SET_CODE(%s) STATUS(%s)",
                 dataSetCode, newStatus);

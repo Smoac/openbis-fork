@@ -35,7 +35,7 @@ import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.Location;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
@@ -71,7 +71,7 @@ public final class ExternalDataPE extends DataPE
 
     private BooleanOrUnknown complete = BooleanOrUnknown.U;
 
-    private DataSetArchivizationStatus status = DataSetArchivizationStatus.ACTIVE;
+    private DataSetArchivingStatus status = DataSetArchivingStatus.AVAILABLE;
 
     /**
      * Returns the id of the locator type of the location of this external data, or
@@ -171,12 +171,12 @@ public final class ExternalDataPE extends DataPE
     @NotNull(message = ValidationMessages.STATUS_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.STATUS)
     @Enumerated(EnumType.STRING)
-    public DataSetArchivizationStatus getStatus()
+    public DataSetArchivingStatus getStatus()
     {
         return status;
     }
 
-    public void setStatus(DataSetArchivizationStatus status)
+    public void setStatus(DataSetArchivingStatus status)
     {
         this.status = status;
     }

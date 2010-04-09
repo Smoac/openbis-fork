@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -200,12 +200,12 @@ public class DatasetLister implements IDatasetLister
         final String dataSetTypeCodeOrNull = criteria.tryGetDataSetTypeCode();
         if (dataSetTypeCodeOrNull == null)
         {
-            return enrichDatasets(query.getActiveDataSetsRegisteredBefore(dataStoreId,
+            return enrichDatasets(query.getAvailableDataSetsRegisteredBefore(dataStoreId,
                     lastRegistrationDate));
         } else
         {
             Long dataSetTypeId = extractDataSetTypeId(dataSetTypeCodeOrNull);
-            return enrichDatasets(query.getActiveDataSetsRegisteredBeforeWithDataSetType(
+            return enrichDatasets(query.getAvailableDataSetsRegisteredBeforeWithDataSetType(
                     dataStoreId, lastRegistrationDate, dataSetTypeId));
         }
     }
@@ -381,7 +381,7 @@ public class DatasetLister implements IDatasetLister
         dataset.setDataProducerCode(escapeHtml(record.data_producer_code));
         dataset.setDataStore(dataStores.get(record.dast_id));
         dataset.setDerived(record.is_derived);
-        dataset.setStatus(DataSetArchivizationStatus.valueOf(record.status));
+        dataset.setStatus(DataSetArchivingStatus.valueOf(record.status));
 
         dataset.setFileFormatType(fileFormatTypes.get(record.ffty_id));
         dataset.setLocation(escapeHtml(record.location));

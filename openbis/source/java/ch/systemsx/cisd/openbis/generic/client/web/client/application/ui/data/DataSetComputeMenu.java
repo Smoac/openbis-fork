@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -72,22 +72,22 @@ public class DataSetComputeMenu extends TextToolItem
 
     private final IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedDataSetsGetter;
 
-    private final IDelegatedAction postArchivizationAction;
+    private final IDelegatedAction postArchivingAction;
 
     public DataSetComputeMenu(IViewContext<ICommonClientServiceAsync> viewContext,
             IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedDataSetsGetter,
-            IDelegatedAction postArchivizationAction)
+            IDelegatedAction postArchivingAction)
     {
         super(viewContext.getMessage(Dict.MENU_COMPUTE));
         this.viewContext = viewContext;
         this.selectedDataSetsGetter = selectedDataSetsGetter;
-        this.postArchivizationAction = postArchivizationAction;
+        this.postArchivingAction = postArchivingAction;
 
         Menu submenu = new Menu();
         addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_QUERIES);
         addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_PROCESSING);
-        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_ARCHIVIZATION);
-        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_UNARCHIVIZATION);
+        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_ARCHIVE);
+        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_UNARCHIVE);
         addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_LOCK);
         addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_UNLOCK);
         setMenu(submenu);
@@ -99,9 +99,9 @@ public class DataSetComputeMenu extends TextToolItem
     private static enum DssTaskActionMenuKind implements IActionMenuItem
     {
         COMPUTE_MENU_QUERIES(DataStoreServiceKind.QUERIES), COMPUTE_MENU_PROCESSING(
-                DataStoreServiceKind.PROCESSING), COMPUTE_MENU_ARCHIVIZATION(
-                DataStoreServiceKind.ARCHIVIZATION), COMPUTE_MENU_UNARCHIVIZATION(
-                DataStoreServiceKind.UNARCHIVIZATION),
+                DataStoreServiceKind.PROCESSING), COMPUTE_MENU_ARCHIVE(
+                DataStoreServiceKind.ARCHIVE), COMPUTE_MENU_UNARCHIVE(
+                DataStoreServiceKind.UNARCHIVE),
         COMPUTE_MENU_LOCK(DataStoreServiceKind.LOCK), COMPUTE_MENU_UNLOCK(
                 DataStoreServiceKind.UNLOCK);
 
@@ -156,11 +156,11 @@ public class DataSetComputeMenu extends TextToolItem
                     final String title = "Perform " + dssTaskKind.getDescription();
                     switch (dssTaskKind)
                     {
-                        case ARCHIVIZATION:
-                        case UNARCHIVIZATION:
+                        case ARCHIVE:
+                        case UNARCHIVE:
                         case LOCK:
                         case UNLOCK:
-                            return new PerformArchivizationDialog(viewContext, data, title);
+                            return new PerformArchivingDialog(viewContext, data, title);
                         default:
                             return new PerformComputationDialog(viewContext, data, title);
                     }
@@ -187,28 +187,28 @@ public class DataSetComputeMenu extends TextToolItem
                             viewContext.getService().processDatasets(service, criteria,
                                     new ProcessingDisplayCallback(viewContext));
                             break;
-                        case ARCHIVIZATION:
+                        case ARCHIVE:
                             viewContext.getService().archiveDatasets(
                                     criteria,
-                                    new ArchivizationDisplayCallback(viewContext, dssTaskKind
+                                    new ArchivingDisplayCallback(viewContext, dssTaskKind
                                             .getDescription()));
                             break;
-                        case UNARCHIVIZATION:
+                        case UNARCHIVE:
                             viewContext.getService().unarchiveDatasets(
                                     criteria,
-                                    new ArchivizationDisplayCallback(viewContext, dssTaskKind
+                                    new ArchivingDisplayCallback(viewContext, dssTaskKind
                                             .getDescription()));
                             break;
                         case LOCK:
                             viewContext.getService().lockDatasets(
                                     criteria,
-                                    new ArchivizationDisplayCallback(viewContext, dssTaskKind
+                                    new ArchivingDisplayCallback(viewContext, dssTaskKind
                                             .getDescription()));
                             break;
                         case UNLOCK:
                             viewContext.getService().unlockDatasets(
                                     criteria,
-                                    new ArchivizationDisplayCallback(viewContext, dssTaskKind
+                                    new ArchivingDisplayCallback(viewContext, dssTaskKind
                                             .getDescription()));
                             break;
                     }
@@ -236,11 +236,11 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private final class ArchivizationDisplayCallback extends AbstractAsyncCallback<Void>
+    private final class ArchivingDisplayCallback extends AbstractAsyncCallback<Void>
     {
         private final String actionName;
 
-        private ArchivizationDisplayCallback(IViewContext<?> viewContext, String actionName)
+        private ArchivingDisplayCallback(IViewContext<?> viewContext, String actionName)
         {
             super(viewContext);
             this.actionName = actionName;
@@ -250,7 +250,7 @@ public class DataSetComputeMenu extends TextToolItem
         public final void process(final Void result)
         {
             MessageBox.info(actionName, actionName + " has been scheduled successfully.", null);
-            postArchivizationAction.execute();
+            postArchivingAction.execute();
         }
     }
 
@@ -288,7 +288,7 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private static class PerformArchivizationDialog extends
+    private static class PerformArchivingDialog extends
             AbstractDataConfirmationDialog<ComputationData>
     {
         private static final int LABEL_WIDTH = ColumnConfigFactory.DEFAULT_COLUMN_WIDTH - 20;
@@ -301,7 +301,7 @@ public class DataSetComputeMenu extends TextToolItem
 
         private final ComputationDataSetsRadioProvider radioProvider;
 
-        protected PerformArchivizationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
+        protected PerformArchivingDialog(IViewContext<ICommonClientServiceAsync> viewContext,
                 ComputationData data, String title)
         {
             super(viewContext, data, title);
@@ -320,29 +320,29 @@ public class DataSetComputeMenu extends TextToolItem
             if (size == 0)
             {
                 final String msgIntroduction = viewContext.getMessage(Dict.NO_DATASETS_SELECTED);
-                String dictKey = Dict.PERFORM_ARCHIVIZATION_ON_ALL_DATASETS_MSG_TEMPLATE;
+                String dictKey = Dict.PERFORM_ARCHIVING_ON_ALL_DATASETS_MSG_TEMPLATE;
                 return viewContext.getMessage(dictKey, msgIntroduction, computationName,
                         requiredStatusName);
             } else
             {
                 String dictKey =
-                        Dict.PERFORM_ARCHIVIZATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE;
+                        Dict.PERFORM_ARCHIVING_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE;
                 return viewContext.getMessage(dictKey, computationName, size, requiredStatusName);
             }
         }
 
-        private DataSetArchivizationStatus getRequiredStatus(DataStoreServiceKind dssTaskKind)
+        private DataSetArchivingStatus getRequiredStatus(DataStoreServiceKind dssTaskKind)
         {
             switch (dssTaskKind)
             {
-                case ARCHIVIZATION:
-                    return DataSetArchivizationStatus.ACTIVE;
-                case UNARCHIVIZATION:
-                    return DataSetArchivizationStatus.ARCHIVED;
+                case ARCHIVE:
+                    return DataSetArchivingStatus.AVAILABLE;
+                case UNARCHIVE:
+                    return DataSetArchivingStatus.ARCHIVED;
                 case LOCK:
-                    return DataSetArchivizationStatus.ACTIVE;
+                    return DataSetArchivingStatus.AVAILABLE;
                 case UNLOCK:
-                    return DataSetArchivizationStatus.LOCKED;
+                    return DataSetArchivingStatus.LOCKED;
                 default:
                     return null; // not possible
             }

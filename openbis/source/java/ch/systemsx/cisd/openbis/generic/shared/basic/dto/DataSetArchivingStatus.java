@@ -19,21 +19,20 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Status of data set archivization.
+ * Status of data set archiving process.
  * 
  * @author Piotr Buczek
  */
-public enum DataSetArchivizationStatus implements IsSerializable
+public enum DataSetArchivingStatus implements IsSerializable
 {
-    ACTIVE("AVAILABLE", true), LOCKED("AVAILABLE (LOCKED)", true), ARCHIVED("ARCHIVED", false),
-    ACTIVATION_IN_PROGRESS("PENDING UNARCHIVIZATION", false), ARCHIVIZATION_IN_PROGRESS(
-            "PENDING ARCHIVIZATION", false);
+    AVAILABLE("AVAILABLE", true), LOCKED("AVAILABLE (LOCKED)", true), ARCHIVED("ARCHIVED", false),
+    UNARCHIVE_PENDING("UNARCHIVE PENDING", false), ARCHIVE_PENDING("ARCHIVE PENDING", false);
 
     private final String description;
 
     private final boolean available;
 
-    DataSetArchivizationStatus(String description, boolean available)
+    DataSetArchivingStatus(String description, boolean available)
     {
         this.description = description;
         this.available = available;

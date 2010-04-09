@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus.ACTIVATION_IN_PROGRESS;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus.ACTIVE;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus.ARCHIVED;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus.ARCHIVIZATION_IN_PROGRESS;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus.LOCKED;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.ARCHIVED;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.ARCHIVE_PENDING;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.AVAILABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.LOCKED;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.UNARCHIVE_PENDING;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -273,11 +273,11 @@ public final class ExternalDataTableTest extends AbstractBOTest
     @Test
     public void testDeleteLoadedDataSetsButNotAllAreAvailable()
     {
-        final ExternalDataPE d1 = createDataSet("d1", dss1, ACTIVE);
+        final ExternalDataPE d1 = createDataSet("d1", dss1, AVAILABLE);
         final ExternalDataPE d2 = createDataSet("d2", dss2, LOCKED);
         final ExternalDataPE d3 = createDataSet("d3n", dss2, ARCHIVED);
-        final ExternalDataPE d4 = createDataSet("d4n", dss2, ARCHIVIZATION_IN_PROGRESS);
-        final ExternalDataPE d5 = createDataSet("d5n", dss2, ACTIVATION_IN_PROGRESS);
+        final ExternalDataPE d4 = createDataSet("d4n", dss2, ARCHIVE_PENDING);
+        final ExternalDataPE d5 = createDataSet("d5n", dss2, UNARCHIVE_PENDING);
         final ExternalDataPE[] allDataSets =
             { d1, d2, d3, d4, d5 };
         context.checking(new Expectations()
@@ -310,7 +310,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
     @Test
     public void testDeleteLoadedDataSets()
     {
-        final ExternalDataPE d1 = createDataSet("d1", dss1, ACTIVE);
+        final ExternalDataPE d1 = createDataSet("d1", dss1, AVAILABLE);
         final ExternalDataPE d2 = createDataSet("d2", dss2, LOCKED);
         final String reason = "reason";
         context.checking(new Expectations()
@@ -349,7 +349,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
     @Test
     public void testUploadDataSets()
     {
-        final ExternalDataPE d1PE = createDataSet("d1", dss1, ACTIVE);
+        final ExternalDataPE d1PE = createDataSet("d1", dss1, AVAILABLE);
         final ExternalDataPE d2PE = createDataSet("d2", dss2, LOCKED);
         final DataSetUploadContext uploadContext = new DataSetUploadContext();
         uploadContext.setCifexURL("cifexURL");
@@ -403,11 +403,11 @@ public final class ExternalDataTableTest extends AbstractBOTest
     @Test
     public void testUploadDataSetsButNotAllAreAvailable()
     {
-        final ExternalDataPE d1 = createDataSet("d1", dss1, ACTIVE);
+        final ExternalDataPE d1 = createDataSet("d1", dss1, AVAILABLE);
         final ExternalDataPE d2 = createDataSet("d2", dss2, LOCKED);
         final ExternalDataPE d3 = createDataSet("d3n", dss2, ARCHIVED);
-        final ExternalDataPE d4 = createDataSet("d4n", dss2, ARCHIVIZATION_IN_PROGRESS);
-        final ExternalDataPE d5 = createDataSet("d5n", dss2, ACTIVATION_IN_PROGRESS);
+        final ExternalDataPE d4 = createDataSet("d4n", dss2, ARCHIVE_PENDING);
+        final ExternalDataPE d5 = createDataSet("d5n", dss2, UNARCHIVE_PENDING);
         final ExternalDataPE[] allDataSets =
             { d1, d2, d3, d4, d5 };
         final DataSetUploadContext uploadContext = new DataSetUploadContext();
@@ -520,7 +520,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     private ExternalDataPE createDataSet(String code, DataStorePE dataStore,
-            DataSetArchivizationStatus status)
+            DataSetArchivingStatus status)
     {
         ExternalDataPE data = createDataSet(code, dataStore);
         data.setStatus(status);
@@ -542,16 +542,16 @@ public final class ExternalDataTableTest extends AbstractBOTest
     @Test
     public void testArchiveDataSets()
     {
-        final ExternalDataPE d2Active1 = createDataSet("d2a1", dss2, ACTIVE);
-        final ExternalDataPE d2Active2 = createDataSet("d2a2", dss2, ACTIVE);
-        final ExternalDataPE d2NonActive1 = createDataSet("d2n1", dss2, ACTIVATION_IN_PROGRESS);
-        final ExternalDataPE d2NonActive2 = createDataSet("d2n2", dss2, ARCHIVIZATION_IN_PROGRESS);
-        final ExternalDataPE d2NonActive3 = createDataSet("d2n3", dss2, LOCKED);
-        final ExternalDataPE d3Active = createDataSet("d3a", dss3, ACTIVE);
-        final ExternalDataPE d3NonActive = createDataSet("d3n", dss3, ARCHIVED);
+        final ExternalDataPE d2Available1 = createDataSet("d2a1", dss2, AVAILABLE);
+        final ExternalDataPE d2Available2 = createDataSet("d2a2", dss2, AVAILABLE);
+        final ExternalDataPE d2NonAvailable1 = createDataSet("d2n1", dss2, UNARCHIVE_PENDING);
+        final ExternalDataPE d2NonAvailable2 = createDataSet("d2n2", dss2, ARCHIVE_PENDING);
+        final ExternalDataPE d2NonAvailable3 = createDataSet("d2n3", dss2, LOCKED);
+        final ExternalDataPE d3Available = createDataSet("d3a", dss3, AVAILABLE);
+        final ExternalDataPE d3NonAvailable = createDataSet("d3n", dss3, ARCHIVED);
         final ExternalDataPE[] allDataSets =
-                    { d2Active1, d2Active2, d2NonActive1, d2NonActive2, d3Active, d3NonActive,
-                            d2NonActive3 };
+                    { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
+                            d3NonAvailable, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {
@@ -560,12 +560,12 @@ public final class ExternalDataTableTest extends AbstractBOTest
                         prepareFindFullDataset(dataSet, true, true);
                     }
 
-                    prepareUpdateDatasetStatus(d2Active1, ARCHIVIZATION_IN_PROGRESS);
-                    prepareUpdateDatasetStatus(d2Active2, ARCHIVIZATION_IN_PROGRESS);
-                    prepareUpdateDatasetStatus(d3Active, ARCHIVIZATION_IN_PROGRESS);
+                    prepareUpdateDatasetStatus(d2Available1, ARCHIVE_PENDING);
+                    prepareUpdateDatasetStatus(d2Available2, ARCHIVE_PENDING);
+                    prepareUpdateDatasetStatus(d3Available, ARCHIVE_PENDING);
 
-                    prepareArchivization(dataStoreService2, dss2, d2Active1, d2Active2);
-                    prepareArchivization(dataStoreService3, dss3, d3Active);
+                    prepareArchiving(dataStoreService2, dss2, d2Available1, d2Available2);
+                    prepareArchiving(dataStoreService3, dss3, d3Available);
                 }
             });
 
@@ -581,15 +581,14 @@ public final class ExternalDataTableTest extends AbstractBOTest
     {
         final ExternalDataPE d2Archived1 = createDataSet("d2a1", dss2, ARCHIVED);
         final ExternalDataPE d2Archived2 = createDataSet("d2a2", dss2, ARCHIVED);
-        final ExternalDataPE d2NonArchived1 = createDataSet("d2n1", dss2, ACTIVATION_IN_PROGRESS);
-        final ExternalDataPE d2NonArchived2 =
-                createDataSet("d2n2", dss2, ARCHIVIZATION_IN_PROGRESS);
-        final ExternalDataPE d2NonActive3 = createDataSet("d2n3", dss2, LOCKED);
+        final ExternalDataPE d2NonArchived1 = createDataSet("d2n1", dss2, UNARCHIVE_PENDING);
+        final ExternalDataPE d2NonArchived2 = createDataSet("d2n2", dss2, ARCHIVE_PENDING);
+        final ExternalDataPE d2NonAvailable3 = createDataSet("d2n3", dss2, LOCKED);
         final ExternalDataPE d3Archived = createDataSet("d3a", dss3, ARCHIVED);
-        final ExternalDataPE d3NonArchived = createDataSet("d3n", dss3, ACTIVE);
+        final ExternalDataPE d3NonArchived = createDataSet("d3n", dss3, AVAILABLE);
         final ExternalDataPE[] allDataSets =
                     { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
-                            d3NonArchived, d2NonActive3 };
+                            d3NonArchived, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {
@@ -598,12 +597,12 @@ public final class ExternalDataTableTest extends AbstractBOTest
                         prepareFindFullDataset(dataSet, true, true);
                     }
 
-                    prepareUpdateDatasetStatus(d2Archived1, ACTIVATION_IN_PROGRESS);
-                    prepareUpdateDatasetStatus(d2Archived2, ACTIVATION_IN_PROGRESS);
-                    prepareUpdateDatasetStatus(d3Archived, ACTIVATION_IN_PROGRESS);
+                    prepareUpdateDatasetStatus(d2Archived1, UNARCHIVE_PENDING);
+                    prepareUpdateDatasetStatus(d2Archived2, UNARCHIVE_PENDING);
+                    prepareUpdateDatasetStatus(d3Archived, UNARCHIVE_PENDING);
 
-                    prepareUnarchivization(dataStoreService2, dss2, d2Archived1, d2Archived2);
-                    prepareUnarchivization(dataStoreService3, dss3, d3Archived);
+                    prepareUnarchiving(dataStoreService2, dss2, d2Archived1, d2Archived2);
+                    prepareUnarchiving(dataStoreService3, dss3, d3Archived);
                 }
             });
 
@@ -615,7 +614,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     private void prepareUpdateDatasetStatus(final ExternalDataPE dataSet,
-            final DataSetArchivizationStatus newStatus)
+            final DataSetArchivingStatus newStatus)
     {
         context.checking(new Expectations()
             {
@@ -648,7 +647,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     @SuppressWarnings("unchecked")
-    private void prepareArchivization(final IDataStoreService service, final DataStorePE store,
+    private void prepareArchiving(final IDataStoreService service, final DataStorePE store,
             final ExternalDataPE... dataSets)
     {
         context.checking(new Expectations()
@@ -662,7 +661,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
     }
 
     @SuppressWarnings("unchecked")
-    private void prepareUnarchivization(final IDataStoreService service, final DataStorePE store,
+    private void prepareUnarchiving(final IDataStoreService service, final DataStorePE store,
             final ExternalDataPE... dataSets)
     {
         context.checking(new Expectations()

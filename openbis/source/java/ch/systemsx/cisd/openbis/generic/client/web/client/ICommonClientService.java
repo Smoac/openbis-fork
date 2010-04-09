@@ -721,13 +721,13 @@ public interface ICommonClientService extends IClientService
             DisplayedOrSelectedDatasetCriteria criteria) throws UserFailureException;
 
     /**
-     * Schedules archivization of the specified datasets.
+     * Schedules archiving of the specified datasets.
      */
     public void archiveDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws UserFailureException;
 
     /**
-     * Schedules unarchivization of the specified datasets.
+     * Schedules unarchiving of the specified datasets.
      */
     public void unarchiveDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws UserFailureException;

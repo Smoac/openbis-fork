@@ -159,7 +159,7 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    STATUS(new AbstractColumnDefinitionKind<ExternalData>(Dict.ARCHIVIZATION_STATUS, 200, true)
+    STATUS(new AbstractColumnDefinitionKind<ExternalData>(Dict.ARCHIVING_STATUS, 200, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)

@@ -192,8 +192,8 @@ var common = {
   datasets_from_different_stores_selected: "Data Sets from different Data Stores were selected, so no operation can be performed on all of them.",
   perform_computation_on_all_datasets_msg_template: "{0} Select a data store service to perform {1} computation on all Data Sets from the table that have type and data store appropriate to the selected service and click on a Run button.",
   perform_computation_on_selected_or_all_datasets_msg_template: "Select between performing {0} computation only on selected Data Sets ({1}) or on all Data Sets of appropriate types from the table, then select a data store service and click on a Run button.",
-  perform_archivization_on_all_datasets_msg_template: "{0} {1} will be performed on all Data Sets from the table that are '{2}' (see their status) after you click on a Run button.",
-  perform_archivization_on_selected_or_all_datasets_msg_template: "Select between performing {0} only on selected Data Sets ({1}) or on all Data Sets from the table and click on a Run button. Note that only Data Sets that are '{2}' (see their status) will be processed.",
+  perform_archiving_on_all_datasets_msg_template: "{0} {1} will be performed on all Data Sets from the table that are '{2}' (see their status) after you click on a Run button.",
+  perform_archiving_on_selected_or_all_datasets_msg_template: "Select between performing {0} only on selected Data Sets ({1}) or on all Data Sets from the table and click on a Run button. Note that only Data Sets that are '{2}' (see their status) will be processed.",
   
   //
   // Entity Type Browser
@@ -326,10 +326,10 @@ var common = {
   menu_compute: "Perform",
   COMPUTE_MENU_QUERIES: "Query",
   COMPUTE_MENU_PROCESSING: "Processing",
-  COMPUTE_MENU_ARCHIVIZATION: "Archivization",
-  COMPUTE_MENU_UNARCHIVIZATION: "Unarchivization",
-  COMPUTE_MENU_LOCK: "Lock",
-  COMPUTE_MENU_UNLOCK: "Unlock",
+  COMPUTE_MENU_ARCHIVE: "Archive",
+  COMPUTE_MENU_UNARCHIVE: "Unarchive",
+  COMPUTE_MENU_LOCK: "Disable Archiving",
+  COMPUTE_MENU_UNLOCK: "Enable Archiving",
   
   menu_modules: "Utilities",
     
@@ -540,7 +540,7 @@ var common = {
  source_type: "Source Type",
  is_complete: "Complete?",
  complete: "Complete",
- archivization_status: "Archivization Status",
+ archiving_status: "Archiving Status",
  data_set_type: "Data Set Type",
  parent: "Parent",
  parent_code: "Parent Code",

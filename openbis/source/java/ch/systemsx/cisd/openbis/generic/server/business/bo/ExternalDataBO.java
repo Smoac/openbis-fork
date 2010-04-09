@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -655,7 +655,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         return result;
     }
 
-    public void updateStatus(String dataSetCode, DataSetArchivizationStatus newStatus)
+    public void updateStatus(String dataSetCode, DataSetArchivingStatus newStatus)
     {
         // WORKAROUND: clearing session solved StaleObjectStateException problem
         getExternalDataDAO().clearSession();

@@ -78,7 +78,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private String permlink;
 
-    private DataSetArchivizationStatus status;
+    private DataSetArchivingStatus status;
 
     public String getPermlink()
     {
@@ -160,12 +160,12 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.derived = derived;
     }
 
-    public DataSetArchivizationStatus getStatus()
+    public DataSetArchivingStatus getStatus()
     {
         return status;
     }
 
-    public void setStatus(DataSetArchivizationStatus status)
+    public void setStatus(DataSetArchivingStatus status)
     {
         this.status = status;
     }

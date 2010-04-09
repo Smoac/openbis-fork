@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -302,8 +302,8 @@ public class ExternalDataBOTest extends AbstractBOTest
             });
 
         IExternalDataBO dataBO = createExternalDataBO();
-        dataBO.updateStatus(dataSet.getCode(), DataSetArchivizationStatus.ARCHIVED);
-        assertEquals(DataSetArchivizationStatus.ARCHIVED, dataSet.getStatus());
+        dataBO.updateStatus(dataSet.getCode(), DataSetArchivingStatus.ARCHIVED);
+        assertEquals(DataSetArchivingStatus.ARCHIVED, dataSet.getStatus());
 
         context.assertIsSatisfied();
     }

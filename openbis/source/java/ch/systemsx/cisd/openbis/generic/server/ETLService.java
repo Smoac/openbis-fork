@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -545,7 +545,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     }
 
     public void updateDataSetStatus(String sessionToken, String dataSetCode,
-            DataSetArchivizationStatus newStatus) throws UserFailureException
+            DataSetArchivingStatus newStatus) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
@@ -594,7 +594,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return SimpleDataSetHelper.translate(dataSets);
     }
 
-    public List<ExternalData> listActiveDataSets(String sessionToken, String dataStoreCode,
+    public List<ExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
             ArchiverDataSetCriteria criteria)
     {
         Session session = getSession(sessionToken);

@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIden
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -287,11 +287,11 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             Long lastSeenDeletionEventIdOrNull);
 
     /**
-     * List 'ACTIVE' data sets that match given criteria.
+     * List 'AVAILABLE' data sets (not locked) that match given criteria.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public List<ExternalData> listActiveDataSets(String sessionToken, String dataStoreCode,
+    public List<ExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
             ArchiverDataSetCriteria criteria);
 
     /**
@@ -315,10 +315,10 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void updateDataSetStatus(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode,
-            final DataSetArchivizationStatus newStatus) throws UserFailureException;
+            final DataSetArchivingStatus newStatus) throws UserFailureException;
 
     /**
-     * Schedules archivization of specified data sets.
+     * Schedules archiving of specified data sets.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
@@ -327,7 +327,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 
     /**
-     * Schedules unarchivization of specified data sets.
+     * Schedules unarchiving of specified data sets.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
