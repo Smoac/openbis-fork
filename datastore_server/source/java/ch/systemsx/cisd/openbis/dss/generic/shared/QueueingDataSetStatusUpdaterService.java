@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.filesystem.ICloseable;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodeWithStatus;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 
 /**
  * A service for updating data set status in openBIS. It provides a method
@@ -160,7 +160,7 @@ public class QueueingDataSetStatusUpdaterService
         return new IDataSetStatusUpdater()
             {
                 public void updateDataSetStatus(String dataSetCode,
-                        DataSetArchivizationStatus newStatus)
+                        DataSetArchivingStatus newStatus)
                 {
                     ServiceProvider.getOpenBISService().updateDataSetStatus(dataSetCode, newStatus);
                     operationLog
@@ -309,7 +309,7 @@ public class QueueingDataSetStatusUpdaterService
          * @param dataSetCode code of data set to be updated
          * @param newStatus status to be set
          */
-        public void updateDataSetStatus(String dataSetCode, DataSetArchivizationStatus newStatus);
+        public void updateDataSetStatus(String dataSetCode, DataSetArchivingStatus newStatus);
     }
 
 }

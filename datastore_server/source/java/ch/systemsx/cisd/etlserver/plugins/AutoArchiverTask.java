@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * {@link IMaintenanceTask} performing automatic archivization of data sets.
+ * {@link IMaintenanceTask} performing automatic archiving of data sets.
  * 
  * @author Piotr Buczek
  */
@@ -65,7 +65,7 @@ public class AutoArchiverTask implements IMaintenanceTask
     public void execute()
     {
         operationLog.info("start");
-        List<ExternalData> dataSets = policy.filter(openBISService.listActiveDataSets(criteria));
+        List<ExternalData> dataSets = policy.filter(openBISService.listAvailableDataSets(criteria));
         if (dataSets.isEmpty())
         {
             operationLog.info("nothing to archive");

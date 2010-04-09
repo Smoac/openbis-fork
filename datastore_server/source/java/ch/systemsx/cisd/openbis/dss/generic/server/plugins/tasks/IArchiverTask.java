@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public interface IArchiverTask extends Serializable
 {
     /**
-     * Asynchronously processes archivization the specified datasets.
+     * Asynchronously processes archiving of the specified datasets.
      * 
      * @returns {@link ProcessingStatus} of the finished processing with statuses of processing for
      *          all scheduled data sets or null if processing succeeded for all datasets and no
@@ -38,7 +38,7 @@ public interface IArchiverTask extends Serializable
     ProcessingStatus archive(List<DatasetDescription> datasets);
 
     /**
-     * Asynchronously processes unarchivization the specified datasets.
+     * Asynchronously processes unarchiving of the specified datasets.
      * 
      * @returns {@link ProcessingStatus} of the finished processing with statuses of processing for
      *          all scheduled data sets or null if processing succeeded for all datasets and no

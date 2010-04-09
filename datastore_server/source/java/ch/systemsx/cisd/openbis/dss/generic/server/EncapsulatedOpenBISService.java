@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -425,7 +425,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     synchronized public final void updateDataSetStatus(String code,
-            DataSetArchivizationStatus newStatus) throws UserFailureException
+            DataSetArchivingStatus newStatus) throws UserFailureException
 
     {
         assert code != null : "missing data set code";
@@ -446,7 +446,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    private void primUpdateDataSetStatus(String code, DataSetArchivizationStatus newStatus)
+    private void primUpdateDataSetStatus(String code, DataSetArchivingStatus newStatus)
     {
         service.updateDataSetStatus(sessionToken, code, newStatus);
     }
@@ -560,23 +560,23 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.listDataSets(sessionToken, dataStoreCode);
     }
 
-    synchronized public List<ExternalData> listActiveDataSets(ArchiverDataSetCriteria criteria)
+    synchronized public List<ExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
             throws UserFailureException
     {
         checkSessionToken();
         try
         {
-            return primListActiveDataSets(criteria);
+            return primListAvailableDataSets(criteria);
         } catch (final InvalidSessionException ex)
         {
             authenticate();
-            return primListActiveDataSets(criteria);
+            return primListAvailableDataSets(criteria);
         }
     }
 
-    private List<ExternalData> primListActiveDataSets(ArchiverDataSetCriteria criteria)
+    private List<ExternalData> primListAvailableDataSets(ArchiverDataSetCriteria criteria)
     {
-        return service.listActiveDataSets(sessionToken, dataStoreCode, criteria);
+        return service.listAvailableDataSets(sessionToken, dataStoreCode, criteria);
     }
 
     public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull)

@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivizationStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -177,11 +177,11 @@ public interface IEncapsulatedOpenBISService
             throws UserFailureException;
 
     // 
-    // Archivization
+    // Archiving
     //
 
-    /** See {@link IETLLIMSService#listActiveDataSets(String, String, ArchiverDataSetCriteria)} */
-    public List<ExternalData> listActiveDataSets(ArchiverDataSetCriteria criteria)
+    /** See {@link IETLLIMSService#listAvailableDataSets(String, String, ArchiverDataSetCriteria)} */
+    public List<ExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
             throws UserFailureException;
 
     /** See {@link IETLLIMSService#archiveDatasets(String, List)} */
@@ -190,7 +190,7 @@ public interface IEncapsulatedOpenBISService
     /** See {@link IETLLIMSService#unarchiveDatasets(String, List)} */
     public void unarchiveDataSets(List<String> dataSetCodes) throws UserFailureException;
 
-    /** See {@link IETLLIMSService#updateDataSetStatus(String, String, DataSetArchivizationStatus)} */
-    public void updateDataSetStatus(String code, DataSetArchivizationStatus newStatus)
+    /** See {@link IETLLIMSService#updateDataSetStatus(String, String, DataSetArchivingStatus)} */
+    public void updateDataSetStatus(String code, DataSetArchivingStatus newStatus)
             throws UserFailureException;
 }
