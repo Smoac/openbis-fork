@@ -5,7 +5,7 @@
 
 SQL_DIR=../../source/sql/
 
-PREV_NUM=`ls -1 $SQL_DIR/postgresql | grep 0 | sort | tail -n 1 | tr -d "0"`
+PREV_NUM=`ls -1 $SQL_DIR/postgresql | grep 0 | sort | tail -n 1 | sed /0/s///`
 PREV_VER=0$PREV_NUM
 CUR_VER=0$(( $PREV_NUM+1 ))
 
