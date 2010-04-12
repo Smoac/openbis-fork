@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -41,10 +42,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public class DataSetInfoExtractorForSearchExperiment extends AbstractDataSetInfoExtractorWithService
 {
-    private static final String EXPERIMENT_TYPE_CODE = "MS_SEARCH";
-    private static final String SEPARATOR_KEY = "separator";
-    private static final String DEFAULT_SEPARATOR = "&";
-    private static final String SEARCH_PROPERTIES = "search.properties";
+    @Private static final String EXPERIMENT_TYPE_CODE = "MS_SEARCH";
+    @Private static final String SEPARATOR_KEY = "separator";
+    @Private static final String DEFAULT_SEPARATOR = "&";
+    @Private static final String SEARCH_PROPERTIES = "search.properties";
     
     private final String separator;
     
@@ -87,11 +88,14 @@ public class DataSetInfoExtractorForSearchExperiment extends AbstractDataSetInfo
     
     private IEntityProperty[] getProperties(File propertiesFile, EntityType entityType)
     {
+        Properties properties;
         if (propertiesFile.exists() == false)
         {
-            return new IEntityProperty[0];
+            properties = new Properties();
+        } else
+        {
+            properties = PropertyUtils.loadProperties(propertiesFile);
         }
-        Properties properties = PropertyUtils.loadProperties(propertiesFile);
         return Util.getAndCheckProperties(properties, entityType);
     }
 
