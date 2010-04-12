@@ -142,7 +142,7 @@
       <manifest>
         <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.rpc.client.cli.DssClient" />
         <attribute name="Class-Path"
-                   value="cisd-base.jar cisd-args4j.jar cifex.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
+                   value="cisd-base.jar cisd-args4j.jar stream-supporting-httpinvoker.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
  commons-codec.jar commons-httpclient.jar spring.jar" />
         <attribute name="Version" value="${version.number}" />
         <attribute name="Build-Number"
@@ -166,7 +166,7 @@
     <copy file="${dss-client-jar.file}" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/cisd-args4j/cisd-args4j.jar" todir="${dist.dss_client.lib}" />
-  	<copy file="${lib}/cifex/cifex.jar" todir="${dist.dss_client.lib}" />
+  	<copy file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/log4j/log4j.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.dss_client.lib}" />
