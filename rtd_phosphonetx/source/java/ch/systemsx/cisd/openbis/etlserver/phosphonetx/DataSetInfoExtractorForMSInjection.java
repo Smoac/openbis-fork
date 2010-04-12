@@ -23,7 +23,6 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -158,31 +157,6 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             throw new UserFailureException("Properties file '" + msInjectionPropertiesFileName
                     + "' is a folder.");
         }
-        return loadPropertiesFile(msInjectionPropertiesFile);
-    }
-
-    private Properties loadPropertiesFile(File msInjectionPropertiesFile)
-    {
-        Properties properties = new Properties();
-        List<String> lines = FileUtilities.loadToStringList(msInjectionPropertiesFile);
-        for (int i = 0; i < lines.size(); i++)
-        {
-            String line = lines.get(i);
-            if (line.length() == 0 || line.startsWith("#"))
-            {
-                continue;
-            }
-            int indexOfEqualSymbol = line.indexOf('=');
-            if (indexOfEqualSymbol < 0)
-            {
-                throw new UserFailureException("Missing '=' in line " + (i + 1)
-                        + " of MS injection properties file " + msInjectionPropertiesFileName
-                        + ": " + line);
-            }
-            String key = line.substring(0, indexOfEqualSymbol).trim();
-            String value = line.substring(indexOfEqualSymbol + 1).trim();
-            properties.setProperty(key, value);
-        }
-        return properties;
+        return PropertyUtils.loadProperties(msInjectionPropertiesFile);
     }
 }
