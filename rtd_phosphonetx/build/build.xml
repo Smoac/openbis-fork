@@ -82,4 +82,21 @@
 			       value="../rtd_phosphonetx/${sources}/ch/systemsx/cisd/openbis/plugin/phosphonetx/client/web/public/phosphonetx-dictionary.js" />
 		</antcall>
 	</target>
+	
+  <target name="api-doc">
+    <javadoc 
+    	destdir="targets/docs/api" 
+    	access="public" 
+    	author="true" 
+    	version="true" 
+    	classpath="../libraries/hibernate-annotations/hibernate-annotations.jar:../libraries/jetty/servlet-api-2.5.jar:../libraries/hibernate-search/hibernate-search.jar:../libraries/fast-md5/fast-md5.jar:../libraries/jmock/objenesis/objenesis-1.0.jar:../libraries/restrictionchecker/restrictions.jar:../libraries/slf4j/slf4j.jar:../openbis/targets/www/WEB-INF/classes:../libraries/csv/csv.jar:../libraries/hibernate-annotations/hibernate-commons-annotations.jar:../libraries/commons-io/commons-io.jar:../libraries/cifex/cifex.jar:../server-common/targets/classes:../libraries/unix:../libraries/commons-dbcp/commons-dbcp.jar:../libraries/apgdiff/apgdiff.jar:../libraries/jmock/jmock-legacy.jar:../libraries/gwt2.0/gwt-servlet.jar:../libraries/javassist/javassist.jar:../libraries/junit/junit.jar:../libraries/beanlib-hibernate/beanlib-hibernate.jar:../libraries/hibernate-annotations/ejb3-persistence.jar:../libraries/commons-logging/commons-logging.jar:../libraries/jmock/hamcrest/hamcrest-core.jar:../libraries/hibernate/jta/jta.jar:../libraries/commons-pool/commons-pool.jar:../libraries/commons-codec/commons-codec.jar:../libraries/cglib/cglib-nodep.jar:../libraries/jaxb/jsr173_1.0_api.jar:../libraries/gxt2.1/gxt.jar:../libraries/lucene/lucene-core.jar:../libraries/fastutil/fastutil.jar:../libraries/hibernate-search/jms.jar:../libraries/slf4j/log4j12/slf4j-log4j12.jar:../libraries/antlr/antlr.jar:../libraries/beanlib/beanlib.jar:../libraries/spring/spring.jar:../libraries/dom4j/dom4j.jar:../libraries/activation/activation.jar:../libraries/jaxb/jaxb-impl.jar:../libraries/eodsql/eodsql.jar:../bds/targets/classes:../authentication/targets/classes:../libraries/cisd-base/cisd-base-test.jar:../libraries/ehcache/ehcache.jar:../libraries/testng/testng-jdk15.jar:../libraries/jython/jython.jar:../libraries/jaxb/jaxb-api.jar:../libraries/jline/jline.jar:../libraries/jetty/jetty.jar:../libraries/spring/test/spring-test.jar:../libraries/jmock/jmock.jar:../libraries/hibernate/hibernate3.jar:../libraries/imagej/ij.jar:../libraries/jetty/jetty-util.jar:../libraries/hibernate-validator/hibernate-validator.jar:../libraries/mail/mail.jar:../libraries/h2/h2.jar:../libraries/cisd-base/cisd-base.jar:../libraries/commons-fileupload/commons-fileupload.jar:../libraries/postgresql/postgresql.jar:../libraries/lucene-highlighter/lucene-highlighter.jar:../libraries/log4j/log4j.jar:../libraries/jmock/hamcrest/hamcrest-library.jar:../libraries/commons-lang/commons-lang.jar:../libraries/commons-collections/commons-collections.jar:../libraries/commons-httpclient/commons-httpclient.jar:../datastore_server/targets/classes:../libraries/gwt2.0/gwt-user.jar:../common/targets/classes:../libraries/cisd-args4j/cisd-args4j.jar:../dbmigration/targets/classes:../libraries/spring/webmvc/spring-webmvc.jar">
+      <fileset dir="../openbis/source/java">
+      	<include name="ch/systemsx/cisd/openbis/generic/shared/IServer.java" />
+      </fileset>
+      <fileset dir="${sources}">
+        <include name="ch/systemsx/cisd/openbis/generic/shared/basic/dto/DatastoreServiceDescription.java" />
+      	<include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/shared/IRawDataService.java" />
+      </fileset>
+    </javadoc>
+  </target>
 </project>
