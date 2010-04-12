@@ -37,10 +37,31 @@ public class CommandFactoryTest extends AssertJUnit
     public void testNameMapping()
     {
         ICommand cmd;
-        cmd = factory.tryCommandForName("ls", null);
+        cmd = factory.tryCommandForName("ls");
         assertEquals(CommandLs.class, cmd.getClass());
 
-        cmd = factory.tryCommandForName("get", null);
+        cmd = factory.tryCommandForName("get");
         assertEquals(CommandGet.class, cmd.getClass());
+    }
+
+    @Test
+    public void testHelp()
+    {
+        ICommand cmd;
+        cmd = factory.tryCommandForName("help");
+        String[] noArgs = {};
+        cmd.execute(noArgs);
+
+        System.out.print("\n");
+        cmd = factory.tryCommandForName("help");
+        String[] lsArgs =
+            { "ls" };
+        cmd.execute(lsArgs);
+
+        System.out.print("\n");
+        cmd = factory.tryCommandForName("help");
+        String[] getArgs =
+            { "get" };
+        cmd.execute(getArgs);
     }
 }

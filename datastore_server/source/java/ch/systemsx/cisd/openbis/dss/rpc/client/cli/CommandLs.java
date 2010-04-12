@@ -16,17 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
 
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import ch.systemsx.cisd.args4j.Argument;
 import ch.systemsx.cisd.args4j.CmdLineParser;
-import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 
 /**
@@ -36,108 +31,112 @@ import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
  */
 class CommandLs extends AbstractCommand
 {
-    private static class CommandLsArguments
+    private static class CommandLsArguments extends GlobalArguments
     {
         @Option(name = "r", longName = "recursive", usage = "Recurse into directories")
         private boolean recursive = false;
-
-        @Argument
-        private final List<String> arguments = new ArrayList<String>();
 
         public boolean isRecursive()
         {
             return recursive;
         }
+    }
 
-        // Accessed via reflection
-        public void setRecursive(boolean recursive)
+    private static class CommandLsExecutor
+    {
+        private final CommandLsArguments arguments;
+
+        private final IDataSetDss dataSet;
+
+        CommandLsExecutor(IDataSetDss dataSet, CommandLsArguments arguments)
         {
-            this.recursive = recursive;
+            this.arguments = arguments;
+            this.dataSet = dataSet;
         }
 
-        public List<String> getArguments()
+        int execute()
         {
-            return arguments;
+            FileInfoDssDTO[] fileInfos = getFileInfos();
+            printFileInfos(fileInfos);
+
+            return 0;
+        }
+
+        private FileInfoDssDTO[] getFileInfos()
+        {
+
+            String path = getRequestedPath();
+            return dataSet.listFiles(path, arguments.isRecursive());
+        }
+
+        private String getRequestedPath()
+        {
+            return arguments.getRequestedPath();
+        }
+
+        private void printFileInfos(FileInfoDssDTO[] fileInfos)
+        {
+            for (FileInfoDssDTO fileInfo : fileInfos)
+            {
+                StringBuilder sb = new StringBuilder();
+                if (fileInfo.isDirectory())
+                {
+                    sb.append(" \t");
+                } else
+                {
+                    sb.append(fileInfo.getFileSize());
+                    sb.append("\t");
+                }
+                sb.append(fileInfo.getPathInDataSet());
+                System.out.println(sb.toString());
+            }
         }
     }
 
     private final CommandLsArguments arguments;
 
-    private final CmdLineParser parser;
-
-    private final IDataSetDss dataSet;
-
-    /**
-     * Constructor for the command. The dataSet may be null if this command will only be used to
-     * print help.
-     * 
-     * @param dataSet
-     */
-    CommandLs(IDataSetDss dataSet)
+    CommandLs()
     {
         arguments = new CommandLsArguments();
         parser = new CmdLineParser(arguments);
-        this.dataSet = dataSet;
     }
 
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
     {
-        FileInfoDssDTO[] fileInfos = getFileInfos(args);
-        printFileInfos(fileInfos);
-
-        return 0;
-    }
-
-    private FileInfoDssDTO[] getFileInfos(String[] args)
-    {
         parser.parseArgument(args);
 
-        String path = getRequestedPath();
-
-        return dataSet.listFiles(path, arguments.isRecursive());
-    }
-
-    private String getRequestedPath()
-    {
-        String path;
-        if (arguments.getArguments().isEmpty())
+        // Show help and exit
+        if (arguments.isHelp())
         {
-            path = "/";
-        } else
-        {
-            path = arguments.getArguments().get(0);
+            printUsage(System.out);
+            return 0;
         }
-        return path;
-    }
 
-    private void printFileInfos(FileInfoDssDTO[] fileInfos)
-    {
-        for (FileInfoDssDTO fileInfo : fileInfos)
+        // Show usage and exit
+        if (arguments.isComplete() == false)
         {
-            StringBuilder sb = new StringBuilder();
-            if (fileInfo.isDirectory())
+            printUsage(System.err);
+            return 1;
+        }
+
+        IDssComponent component = null;
+        try
+        {
+            component = login(arguments);
+            IDataSetDss dataSet = getDataSet(component, arguments);
+            return new CommandLsExecutor(dataSet, arguments).execute();
+        } finally
+        {
+            // Cleanup
+            if (null != component)
             {
-                sb.append(" \t");
-            } else
-            {
-                sb.append(fileInfo.getFileSize());
-                sb.append("\t");
+                component.logout();
             }
-            sb.append(fileInfo.getPathInDataSet());
-            System.out.println(sb.toString());
         }
     }
 
     public String getName()
     {
         return "ls";
-    }
-
-    public void printHelp(String programCallString, PrintStream out)
-    {
-        out.println(getUsagePrefixString(programCallString) + " [options] <path>");
-        parser.printUsage(out);
-        out.println("  Example : " + getCommandCallString(programCallString) + " "
-                + parser.printExample(ExampleMode.ALL));
     }
 }

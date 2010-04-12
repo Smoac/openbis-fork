@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
 
-import java.io.PrintStream;
 import java.net.UnknownHostException;
-import java.util.List;
+import java.util.Arrays;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -26,8 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
-import ch.systemsx.cisd.args4j.CmdLineException;
-import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.MasqueradingException;
@@ -35,9 +32,6 @@ import ch.systemsx.cisd.common.exceptions.SystemExitException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.SystemExit;
-import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
-import ch.systemsx.cisd.openbis.dss.component.impl.DssComponent;
 
 /**
  * The dss command which supports
@@ -57,69 +51,27 @@ public class DssClient
                 "org.apache.commons.logging.impl.NoOpLog");
     }
 
-    private final GlobalArguments arguments;
-
-    private final CmdLineParser parser;
-
-    private final CommandFactory commandFactory;
+    private CommandFactory commandFactory;
 
     private final IExitHandler exitHandler;
 
     private DssClient()
     {
         this.exitHandler = SystemExit.SYSTEM_EXIT;
-        this.arguments = new GlobalArguments();
-        this.parser = new CmdLineParser(arguments);
         this.commandFactory = new CommandFactory();
     }
 
     private void runWithArgs(String[] args)
     {
-        try
-        {
-            parser.parseArgument(args);
-        } catch (CmdLineException e)
-        {
-            printUsage(System.err);
-            exitHandler.exit(1);
-        }
-
-        // Show help and exit
-        if (arguments.isHelp())
-        {
-            printHelp(System.out);
-            exitHandler.exit(0);
-        }
-
-        // Show usage and exit
-        if (arguments.isComplete() == false)
-        {
-            printUsage(System.err);
-            exitHandler.exit(1);
-        }
-
-        // Login to DSS
-        IDssComponent component = loginOrDie();
+        ICommand command = getCommandOrDie(args);
 
         int resultCode = 0;
-
         try
         {
-            // Get the data set
-            IDataSetDss dataSet = component.getDataSet(arguments.getDataSetCode());
-
-            // Find the command and run it
-            ICommand cmd = commandFactory.tryCommandForName(arguments.getCommand(), dataSet);
-            if (null == cmd)
-            {
-                printUsage(System.err);
-                resultCode = 1;
-            } else
-            {
-                String[] cmdArgs = new String[arguments.getCommandArguments().size()];
-                arguments.getCommandArguments().toArray(cmdArgs);
-                resultCode = cmd.execute(cmdArgs);
-            }
+            // Strip the name of the command and pass the rest of the arguments to the command
+            String[] cmdArgs = new String[args.length - 1];
+            Arrays.asList(args).subList(1, args.length).toArray(cmdArgs);
+            resultCode = command.execute(cmdArgs);
         } catch (final InvalidSessionException ex)
         {
             System.err
@@ -186,125 +138,36 @@ public class DssClient
             System.err.println();
             e.printStackTrace();
             resultCode = 1;
-        } finally
-        {
-            // Cleanup
-            component.logout();
         }
 
         exitHandler.exit(resultCode);
     }
 
-    /**
-     * Log in to openBIS or exit if login fails.
-     */
-    private IDssComponent loginOrDie()
+    private ICommand getCommandOrDie(String[] args)
     {
-        try
+        // No arguments supplied -- print help
+        if (args.length < 1)
         {
-            IDssComponent component = new DssComponent(arguments.getServerBaseUrl());
-            component.login(arguments.getUsername(), arguments.getPassword());
-            return component;
-        } catch (final InvalidSessionException ex)
-        {
-            System.err
-                    .println("Your session is no longer valid. Please login again. [server said: '"
-                            + ex.getMessage() + "']");
+            CommandHelp help = new CommandHelp(commandFactory);
+            help.printUsage(System.err);
             exitHandler.exit(1);
-        } catch (final UserFailureException ex)
-        {
-            System.err.println();
-            System.err.println(ex.getMessage());
-            exitHandler.exit(1);
-        } catch (final EnvironmentFailureException ex)
-        {
-            System.err.println();
-            System.err.println(ex.getMessage() + " (environment failure)");
-            exitHandler.exit(1);
-        } catch (final RemoteConnectFailureException ex)
-        {
-            System.err.println();
-            System.err.println("Remote server cannot be reached (environment failure)");
-            exitHandler.exit(1);
-        } catch (final RemoteAccessException ex)
-        {
-            System.err.println();
-            final Throwable cause = ex.getCause();
-            if (cause != null)
-            {
-                if (cause instanceof UnknownHostException)
-                {
-                    System.err.println(String.format(
-                            "Given host '%s' can not be reached  (environment failure)", cause
-                                    .getMessage()));
-                } else if (cause instanceof IllegalArgumentException)
-                {
-                    System.err.println(cause.getMessage());
-                } else if (cause instanceof SSLHandshakeException)
-                {
-                    final String property = "javax.net.ssl.trustStore";
-                    System.err.println(String.format(
-                            "Validation of SSL certificate failed [%s=%s] (configuration failure)",
-                            property, StringUtils.defaultString(System.getProperty(property))));
-                } else
-                {
-                    ex.printStackTrace();
-                }
-            } else
-            {
-                ex.printStackTrace();
-            }
-            exitHandler.exit(1);
-        } catch (final SystemExitException e)
-        {
-            exitHandler.exit(1);
-        } catch (MasqueradingException e)
-        {
-            System.err.println(e);
-            exitHandler.exit(1);
-        } catch (final Exception e)
-        {
-            System.err.println();
-            e.printStackTrace();
-            exitHandler.exit(1);
+
+            // Never gets here
+            return null;
         }
 
-        // never reached
-        return null;
-    }
+        String commandName = args[0];
+        ICommand command = commandFactory.tryCommandForName(commandName);
+        if (null == command)
+        {
+            CommandHelp help = new CommandHelp(commandFactory);
+            help.printUsage(System.err);
+            exitHandler.exit(1);
 
-    private void printHelp(PrintStream out)
-    {
-        if (arguments.hasCommand())
-        {
-            commandFactory.printHelpForName(arguments.getCommand(), getProgramCallString(), out);
-        } else
-        {
-            printUsage(out);
+            // Never gets here
+            return null;
         }
-    }
-
-    private String getProgramCallString()
-    {
-        return "dss_client.sh";
-    }
-
-    private void printUsage(PrintStream out)
-    {
-        out.println("usage: " + getProgramCallString()
-                + " [options...] -- DATA_SET_CODE COMMAND [ARGS]");
-        out
-                .println(" (Note: it is necessary to add two dashes \"--\" after options have been specified and before the dataset code.)");
-        List<String> commands = commandFactory.getKnownCommands();
-        out.println("\nCommands:");
-        for (String cmd : commands)
-        {
-            out.print(" ");
-            out.println(cmd);
-        }
-        out.print("\n");
-        out.println("Options:");
-        parser.printUsage(out);
+        return command;
     }
 
     public static void main(String[] args)

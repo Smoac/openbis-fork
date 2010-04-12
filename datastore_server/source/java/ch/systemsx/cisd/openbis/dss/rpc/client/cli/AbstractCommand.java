@@ -16,24 +16,81 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
 
+import java.io.PrintStream;
+
+import ch.systemsx.cisd.args4j.CmdLineParser;
+import ch.systemsx.cisd.args4j.ExampleMode;
+import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.component.impl.DssComponent;
 
 /**
  * Superclass for dss command-line client commands.
+ * <p>
+ * Provides services used by most subclasses. In order for the AbstractCommand to work, subclasses
+ * must do the following:
+ * <ul>
+ * <li>Set the parser ivar in their constructor
+ * </ul>
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 abstract class AbstractCommand implements ICommand
 {
-    protected String getCommandCallString(String programCallString)
+    // The parser for command-line arguments; set by subclasses in the constructor.
+    protected CmdLineParser parser;
+
+    /**
+     * Print usage information about the command.
+     */
+    public void printUsage(PrintStream out)
     {
-        return programCallString + " " + getName();
+        out.println(getUsagePrefixString() + " [options] <path>");
+        parser.printUsage(out);
+        out.println("  Example : " + getCommandCallString() + " "
+                + parser.printExample(ExampleMode.ALL));
     }
 
     /**
-     * The text "usage: " + the program call string. Used for displaying help.
+     * How is this command invoked from the command line? This is the program call string + command
+     * name
      */
-    protected String getUsagePrefixString(String programCallString)
+    protected String getCommandCallString()
     {
-        return "usage: " + getCommandCallString(programCallString);
+        return getProgramCallString() + " " + getName();
+    }
+
+    /**
+     * Used for displaying help.
+     */
+    protected String getUsagePrefixString()
+    {
+        return "usage: " + getCommandCallString();
+    }
+
+    /**
+     * How is this program invoked from the command line?
+     */
+    protected String getProgramCallString()
+    {
+        return "dss_client.sh";
+    }
+
+    /**
+     * Creates the DSS Component object and logs into the server.
+     */
+    protected IDssComponent login(GlobalArguments arguments)
+    {
+        IDssComponent component = new DssComponent(arguments.getServerBaseUrl());
+        component.login(arguments.getUsername(), arguments.getPassword());
+        return component;
+    }
+
+    /**
+     * Retuns a proxy to the DSS object referenced by the arguments.
+     */
+    protected IDataSetDss getDataSet(IDssComponent component, GlobalArguments arguments)
+    {
+        return component.getDataSet(arguments.getDataSetCode());
     }
 }

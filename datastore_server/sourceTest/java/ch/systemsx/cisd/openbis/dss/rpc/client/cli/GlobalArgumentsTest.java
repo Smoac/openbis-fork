@@ -54,6 +54,7 @@ public class GlobalArgumentsTest extends AssertJUnit
             assertEquals("http://localhost:8888/openbis", arguments.getServerBaseUrl());
             assertEquals("20100318094819344-4", arguments.getDataSetCode());
             assertTrue(arguments.isComplete());
+            assertFalse(arguments.isHelp());
         } catch (CmdLineException c)
         {
             fail("Should have parsed arguments");
@@ -84,7 +85,7 @@ public class GlobalArgumentsTest extends AssertJUnit
         {
             parser.parseArgument(args);
             assertTrue(arguments.isComplete());
-            assertFalse(arguments.hasCommand());
+            assertTrue(arguments.isHelp());
         } catch (CmdLineException c)
         {
             fail("Should have parsed arguments");
@@ -100,8 +101,7 @@ public class GlobalArgumentsTest extends AssertJUnit
         {
             parser.parseArgument(args);
             assertTrue(arguments.isComplete());
-            assertTrue(arguments.hasCommand());
-            assertEquals("get", arguments.getCommand());
+            assertTrue(arguments.isHelp());
         } catch (CmdLineException c)
         {
             fail("Should have parsed arguments");

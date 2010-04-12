@@ -26,7 +26,7 @@ import ch.systemsx.cisd.args4j.Option;
  * Command line arguments for the dss command. The format is:
  * <p>
  * <code>
- * [options] DATA_SET_CODE COMMAND [COMMAND_ARGS]
+ * [options] DATA_SET_CODE
  * </code>
  * 
  * @author Chandrasekhar Ramakrishnan
@@ -34,19 +34,19 @@ import ch.systemsx.cisd.args4j.Option;
 class GlobalArguments
 {
     @Option(name = "u", longName = "username", usage = "User login name (required)")
-    private String username = "";
+    protected String username = "";
 
     @Option(name = "p", longName = "password", usage = "User login password (required)")
-    private String password = "";
+    protected String password = "";
 
     @Option(name = "s", longName = "server-base-url", usage = "URL for openBIS Server (required)")
-    private String serverBaseUrl = "";
+    protected String serverBaseUrl = "";
 
     @Option(name = "h", longName = "help", skipForExample = true)
-    private boolean isHelp = false;
+    protected boolean isHelp = false;
 
     @Argument
-    private List<String> arguments = new ArrayList<String>();
+    protected List<String> arguments = new ArrayList<String>();
 
     public boolean isHelp()
     {
@@ -98,34 +98,21 @@ class GlobalArguments
         return args.get(0);
     }
 
-    public String getCommand()
-    {
-        return hasCommand() ? getArguments().get(getHelpIndex()) : "";
-
-    }
-
-    public boolean hasCommand()
-    {
-        return getArguments().size() > getHelpIndex();
-    }
-
-    private int getHelpIndex()
-    {
-        // If this is help, then the first argument is the command, otherwise the second
-        return isHelp() ? 0 : 1;
-    }
-
-    public List<String> getCommandArguments()
+    public String getRequestedPath()
     {
         List<String> args = getArguments();
-        if (args.size() < 3)
+        String path;
+        if (args.size() < 2)
         {
-            return new ArrayList<String>();
+            path = "/";
+        } else
+        {
+            path = args.get(1);
         }
-        return args.subList(2, args.size());
+        return path;
     }
 
-    private List<String> getArguments()
+    public List<String> getArguments()
     {
         return arguments;
     }

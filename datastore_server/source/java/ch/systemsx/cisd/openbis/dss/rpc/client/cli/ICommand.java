@@ -55,9 +55,8 @@ public interface ICommand
     /**
      * Prints usage information for this command.
      * 
-     * @param programCallString The command used to invoke the program
      * @param out The stream to which help is printed
      */
-    public void printHelp(String programCallString, PrintStream out);
+    public void printUsage(PrintStream out);
 
 }

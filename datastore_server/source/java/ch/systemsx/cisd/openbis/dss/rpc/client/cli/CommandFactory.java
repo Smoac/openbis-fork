@@ -16,41 +16,54 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
 
-import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
-
-import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
 class CommandFactory
 {
-
-    ICommand tryCommandForName(String name, IDataSetDss dataSet)
+    private static enum Command
     {
-        if ("ls".equals(name))
-        {
-            return new CommandLs(dataSet);
-        } else if ("get".equals(name))
-        {
-            return new CommandGet(dataSet);
-        }
-        return null;
+        LS, GET, HELP
     }
 
-    void printHelpForName(String name, String programCallString, PrintStream out)
+    /**
+     * Find the command that matches the name.
+     */
+    ICommand tryCommandForName(String name)
     {
-        if ("ls".equals(name))
+        // special handling of "-h" and "--help"
+        if ("-h".equals(name) || "--help".equals(name))
         {
-            CommandLs command = new CommandLs(null);
-            command.printHelp(programCallString, out);
-        } else if ("get".equals(name))
-        {
-            CommandGet command = new CommandGet(null);
-            command.printHelp(programCallString, out);
+            return new CommandHelp(this);
         }
+
+        Command command = Command.valueOf(name.toUpperCase());
+        if (null == command)
+        {
+            return null;
+        }
+
+        ICommand result;
+        switch (command)
+        {
+            case LS:
+                result = new CommandLs();
+                break;
+            case GET:
+                result = new CommandGet();
+                break;
+            case HELP:
+                result = new CommandHelp(this);
+                break;
+            default:
+                result = null;
+                break;
+        }
+
+        return result;
     }
 
     List<String> getKnownCommands()
