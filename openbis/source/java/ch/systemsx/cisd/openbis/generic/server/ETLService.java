@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
@@ -71,7 +73,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -88,9 +92,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
@@ -356,6 +362,24 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             return;
         }
         HibernateUtils.initialize(experiment.getProperties());
+    }
+
+    public ExperimentType getExperimentType(String sessionToken, String experimentTypeCode)
+            throws UserFailureException
+    {
+        checkSession(sessionToken);
+
+        IEntityTypeDAO entityTypeDAO = getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT);
+        EntityTypePE entityType = entityTypeDAO.tryToFindEntityTypeByCode(experimentTypeCode);
+        if (entityType == null)
+        {
+            throw new UserFailureException("No Experiment type found with code '" + experimentTypeCode
+                    + "'.");
+        }
+        assert entityType instanceof ExperimentTypePE : "Not an ExperimentTypePE: " + entityType;
+        ExperimentTypePE experimentType = (ExperimentTypePE) entityType;
+        HibernateUtils.initialize(experimentType.getExperimentTypePropertyTypes());
+        return ExperimentTypeTranslator.translate(experimentType);
     }
 
     public SampleType getSampleType(String sessionToken, String sampleTypeCode)

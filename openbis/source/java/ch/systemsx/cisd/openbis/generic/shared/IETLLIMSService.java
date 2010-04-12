@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabula
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -110,12 +111,20 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
+     * Returns the ExperimentType together with assigned property types for specified experiment type code.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public ExperimentType getExperimentType(String sessionToken, String experimentTypeCode)
+            throws UserFailureException;
+    
+    /**
      * Returns the SampleType together with assigned property types for specified sample type code.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
     public SampleType getSampleType(String sessionToken, String sampleTypeCode)
-            throws UserFailureException;
+    throws UserFailureException;
 
     /**
      * Returns the data set type together with assigned property types for specified data set type
