@@ -20,7 +20,7 @@ import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpc;
 
 /**
- * The interface for creating proxies to the data store server.
+ * A factory for creating proxies to RPC services on a data store server.
  * <p>
  * Because of the inherent potential variability in the DSS RPC, the interface has been made
  * flexible to provide clients simultaneous access to several different communication interfaces.
@@ -31,9 +31,14 @@ public interface IDssServiceRpcFactory
 {
     /**
      * Get an array of RPC service interfaces supported by the server.
+     * 
+     * @param serverURL The URL of the data store server to query.
+     * @param shouldGetServerCertificateFromServer If the URL scheme is https and
+     *            shouldGetServerCertificateFromServer is true, the factory will retrieve the SSL
+     *            certificate from the server.
      */
     public abstract DssServiceRpcInterface[] getSupportedInterfaces(String serverURL,
-            boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException;
+            boolean shouldGetServerCertificateFromServer) throws IncompatibleAPIVersionsException;
 
     /**
      * Get get RPC service interface specified by <code>iface</code>.

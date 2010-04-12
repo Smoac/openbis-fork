@@ -32,7 +32,8 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
  * </ol>
  * <p>
  * The IDssComponent itself is designed to be used in a single thread, though it may return objects
- * that can be used in multiple threads.
+ * that can be used in multiple threads. Documentation for the return values clairifies their level
+ * of thread safety.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -58,6 +59,7 @@ public interface IDssComponent
     /**
      * Get a proxy to the data set designated by the given data set code.
      * 
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */

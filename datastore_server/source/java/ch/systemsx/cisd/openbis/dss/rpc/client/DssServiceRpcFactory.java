@@ -50,8 +50,7 @@ import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcNameServer;
 /**
  * Client-side factory for DssServiceRpc objects.
  * <p>
- * Create client-side proxies to server RPC interface objects. The server does not require a
- * factory, since it is configured by Spring.
+ * Create client-side proxies to server RPC interface objects.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -60,7 +59,7 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
     private static final int SERVER_TIMEOUT_MIN = 5;
 
     private static final String NAME_SERVER_SUFFIX = "/rpc";
-
+    
     public DssServiceRpcInterface[] getSupportedInterfaces(String serverURL,
             boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException
     {

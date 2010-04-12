@@ -47,7 +47,8 @@ public interface IDataSetDss
     /**
      * Get a file contained in this data set.
      * 
-     * @param path The path of the file to retrieve.
+     * @param path The path of the file to retrieve. The path must be absolute with respect to the
+     *            data set, such as the path returned by {@link FileInfoDssDTO#getPathInDataSet}.
      */
     public InputStream getFile(String path) throws IllegalArgumentException,
             InvalidSessionException;
