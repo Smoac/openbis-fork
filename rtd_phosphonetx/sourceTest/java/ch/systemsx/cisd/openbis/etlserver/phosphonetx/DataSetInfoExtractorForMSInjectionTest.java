@@ -160,6 +160,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         
         properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
         save(properties, DEFAULT_MS_INJECTION_PROPERTIES_FILE);
+        prepareGetSampleType();
         
         try
         {
@@ -181,6 +182,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
         properties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
         save(properties, DEFAULT_MS_INJECTION_PROPERTIES_FILE);
+        prepareGetSampleType();
         
         try
         {
@@ -296,13 +298,23 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                         one(service).registerExperiment(
                                 new NewExperiment(identifier.toString(), EXPERIMENT_TYPE_CODE));
                     }
-                    
-                    one(service).getSampleType(DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE);
-                    SampleType sampleType = new SampleType();
-                    sampleType.setSampleTypePropertyTypes(Arrays.asList(sampleTypePropertyTypes));
-                    will(returnValue(sampleType));
                 }
             });
+        prepareGetSampleType(sampleTypePropertyTypes);
+    }
+    
+    private void prepareGetSampleType(final SampleTypePropertyType... sampleTypePropertyTypes)
+    {
+        context.checking(new Expectations()
+        {
+            {
+                one(service).getSampleType(DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE);
+                SampleType sampleType = new SampleType();
+                sampleType.setCode(DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE);
+                sampleType.setSampleTypePropertyTypes(Arrays.asList(sampleTypePropertyTypes));
+                will(returnValue(sampleType));
+            }
+        });
     }
     
     private void save(Properties properties, String fileName)

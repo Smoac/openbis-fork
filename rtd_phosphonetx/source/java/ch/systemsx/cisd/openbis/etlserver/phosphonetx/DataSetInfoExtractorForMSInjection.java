@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -27,13 +25,10 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
@@ -83,13 +78,11 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         info.setSpaceCode(Constants.MS_DATA_SPACE);
         info.setSampleCode(PropertyUtils.getMandatoryProperty(properties, SAMPLE_CODE_KEY));
         NewSample sample = new NewSample();
-        SampleType sampleType = new SampleType();
-        sampleType.setCode(SAMPLE_TYPE_CODE);
+        SampleType sampleType = service.getSampleType(SAMPLE_TYPE_CODE);
         sample.setSampleType(sampleType);
         sample.setExperimentIdentifier(getOrCreateExperiment(properties));
         sample.setIdentifier(info.getSampleIdentifier().toString());
-        List<EntityProperty> sampleProperties = createSampleProperties(properties);
-        sample.setProperties(sampleProperties.toArray(new EntityProperty[sampleProperties.size()]));
+        sample.setProperties(Util.getAndCheckProperties(properties, sampleType));
         service.registerSample(sample, properties.getProperty(USER_KEY));
         return info;
     }
@@ -100,49 +93,17 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, PROJECT_CODE_KEY);
         String experimentCode =
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, EXPERIMENT_CODE_KEY);
-        ExperimentIdentifier identifier = new ExperimentIdentifier(null, Constants.MS_DATA_SPACE, projectCode, experimentCode);
+        ExperimentIdentifier identifier =
+                new ExperimentIdentifier(null, Constants.MS_DATA_SPACE, projectCode, experimentCode);
         Experiment experiment = service.tryToGetExperiment(identifier);
         if (experiment == null)
         {
-            service.registerExperiment(new NewExperiment(identifier.toString(), EXPERIMENT_TYPE_CODE));
+            service.registerExperiment(new NewExperiment(identifier.toString(),
+                    EXPERIMENT_TYPE_CODE));
         }
         return identifier.toString();
     }
 
-    private List<EntityProperty> createSampleProperties(Properties msInjectionProperties)
-    {
-        List<String> missingMandatoryProperties = new ArrayList<String>();
-        List<EntityProperty> sampleProperties = new ArrayList<EntityProperty>();
-        SampleType sampleType = service.getSampleType(SAMPLE_TYPE_CODE);
-        List<SampleTypePropertyType> sampleTypePropertyTypes = sampleType.getAssignedPropertyTypes();
-        for (SampleTypePropertyType sampleTypePropertyType : sampleTypePropertyTypes)
-        {
-            boolean mandatory = sampleTypePropertyType.isMandatory();
-            PropertyType propertyType = sampleTypePropertyType.getPropertyType();
-            String key = propertyType.getCode();
-            String value = msInjectionProperties.getProperty(key);
-            if (value == null)
-            {
-                if (mandatory)
-                {
-                    missingMandatoryProperties.add(key);
-                }
-            } else
-            {
-                EntityProperty property = new EntityProperty();
-                property.setPropertyType(propertyType);
-                property.setValue(value);
-                sampleProperties.add(property);
-            }
-        }
-        if (missingMandatoryProperties.isEmpty() == false)
-        {
-            throw new UserFailureException("The following mandatory properties are missed: "
-                    + missingMandatoryProperties);
-        }
-        return sampleProperties;
-    }
-    
     private Properties loadMSInjectionProperties(File incomingDataSetDirectory)
     {
         File msInjectionPropertiesFile =
