@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabula
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -83,6 +84,11 @@ public interface IEncapsulatedOpenBISService
     public Sample tryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
 
+    /**
+     * Gets the experiment type with assigned property types for the specified experiment type code.
+     */
+    public ExperimentType getExperimentType(String experimentTypeCode) throws UserFailureException;
+    
     /**
      * Gets the sample type with assigned property types for the specified sample type code.
      */

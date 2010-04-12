@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabula
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -303,6 +304,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             authenticate();
             return primTryGetSampleWithExperiment(sampleIdentifier);
+        }
+    }
+
+    synchronized public ExperimentType getExperimentType(String experimentTypeCode) throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            return service.getExperimentType(sessionToken, experimentTypeCode);
+        } catch (InvalidSessionException ex)
+        {
+            authenticate();
+            return service.getExperimentType(sessionToken, experimentTypeCode);
         }
     }
 
