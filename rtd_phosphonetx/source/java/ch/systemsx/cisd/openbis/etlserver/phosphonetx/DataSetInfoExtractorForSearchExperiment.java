@@ -23,9 +23,13 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -40,6 +44,7 @@ public class DataSetInfoExtractorForSearchExperiment extends AbstractDataSetInfo
     private static final String EXPERIMENT_TYPE_CODE = "MS_SEARCH";
     private static final String SEPARATOR_KEY = "separator";
     private static final String DEFAULT_SEPARATOR = "&";
+    private static final String SEARCH_PROPERTIES = "search.properties";
     
     private final String separator;
     
@@ -69,11 +74,25 @@ public class DataSetInfoExtractorForSearchExperiment extends AbstractDataSetInfo
         ProjectIdentifier projectIdentifier = new ProjectIdentifier(items[0], items[1]);
         ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifier(projectIdentifier, "E" + service.drawANewUniqueID());
-        service.registerExperiment(new NewExperiment(experimentIdentifier.toString(),
-                EXPERIMENT_TYPE_CODE));
+        NewExperiment experiment = new NewExperiment(experimentIdentifier.toString(),
+                EXPERIMENT_TYPE_CODE);
+        ExperimentType experimentType = service.getExperimentType(EXPERIMENT_TYPE_CODE);
+        experiment.setProperties(getProperties(new File(incomingDataSetPath, SEARCH_PROPERTIES),
+                experimentType));
+        service.registerExperiment(experiment);
         DataSetInformation info = new DataSetInformation();
         info.setExperimentIdentifier(experimentIdentifier);
         return info;
+    }
+    
+    private IEntityProperty[] getProperties(File propertiesFile, EntityType entityType)
+    {
+        if (propertiesFile.exists() == false)
+        {
+            return new IEntityProperty[0];
+        }
+        Properties properties = PropertyUtils.loadProperties(propertiesFile);
+        return Util.getAndCheckProperties(properties, entityType);
     }
 
 }
