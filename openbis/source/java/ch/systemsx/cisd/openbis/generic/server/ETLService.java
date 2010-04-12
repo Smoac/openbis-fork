@@ -373,8 +373,8 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         EntityTypePE entityType = entityTypeDAO.tryToFindEntityTypeByCode(experimentTypeCode);
         if (entityType == null)
         {
-            throw new UserFailureException("No Experiment type found with code '" + experimentTypeCode
-                    + "'.");
+            throw new UserFailureException("No Experiment type found with code '"
+                    + experimentTypeCode + "'.");
         }
         assert entityType instanceof ExperimentTypePE : "Not an ExperimentTypePE: " + entityType;
         ExperimentTypePE experimentType = (ExperimentTypePE) entityType;
@@ -589,8 +589,11 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
         externalDataBO.loadByCode(dataSetCode);
         externalDataBO.enrichWithParentsAndExperiment();
-        return ExternalDataTranslator.translate(externalDataBO.getExternalData(),
-                dataStoreBaseURLProvider.getDataStoreBaseURL(), session.getBaseIndexURL());
+        ExternalDataPE externalDataPE = externalDataBO.tryExternalData();
+        if (null == externalDataPE)
+            return null;
+        return ExternalDataTranslator.translate(externalDataPE, dataStoreBaseURLProvider
+                .getDataStoreBaseURL(), session.getBaseIndexURL());
     }
 
     public void checkDataSetAccess(String sessionToken, String dataSetCode)

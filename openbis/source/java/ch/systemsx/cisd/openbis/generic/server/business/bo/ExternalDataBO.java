@@ -85,8 +85,15 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         this.entityPropertiesConverter = entityPropertiesConverter;
     }
 
+    public ExternalDataPE tryExternalData()
+    {
+        return externalData;
+    }
+
     public ExternalDataPE getExternalData()
     {
+        // TODO This should throw an exception if the external data is null -- will that cause
+        // problems with clients?
         return externalData;
     }
 

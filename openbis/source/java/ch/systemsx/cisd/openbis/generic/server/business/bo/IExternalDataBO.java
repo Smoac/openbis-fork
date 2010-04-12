@@ -34,6 +34,12 @@ public interface IExternalDataBO extends IEntityBusinessObject
 {
     /**
      * Returns the external data item which has been created by
+     * {@link #define(NewExternalData, SamplePE, SourceType)} or null.
+     */
+    public ExternalDataPE tryExternalData();
+
+    /**
+     * Returns the external data item which has been created by
      * {@link #define(NewExternalData, SamplePE, SourceType)}.
      */
     public ExternalDataPE getExternalData();
