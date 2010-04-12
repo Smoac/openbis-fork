@@ -42,6 +42,7 @@ function restore_loginHeader {
 
 function add_yeastx_plugin {
 	 echo copying yeastx...
+	 cd ~openbis/config
 	 unzip ~openbis/config/datastore_server_plugin*.zip
 	 mv ~openbis/config/lib/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
 	 rmdir ~openbis/config/lib
