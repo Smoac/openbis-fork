@@ -172,9 +172,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    // the toolbar has the refresh and export buttons besides the paging controls
-    protected final BrowserGridPagingToolBar pagingToolbar;
-
     // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
 
     private static final int PAGE_SIZE = 50;
@@ -191,6 +188,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private final ColumnListener<T, M> columnListener;
 
     private final boolean refreshAutomatically;
+
+    // the toolbar has the refresh and export buttons besides the paging controls
+    private final BrowserGridPagingToolBar pagingToolbar;
 
     // used to change displayed filter widgets
     private final FilterToolbar<T> filterToolbar;
@@ -280,21 +280,25 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         addRefreshDisplaySettingsListener();
         pagingLoader.addLoadListener(new LoadListener());
-        prepareLoggingBetweenEvents(contentPanel, EventPair.RENDER);
-        prepareLoggingBetweenEvents(this, EventPair.LAYOUT);
-        prepareLoggingBetweenEvents(grid, EventPair.LAYOUT);
-        prepareLoggingBetweenEvents(contentPanel, EventPair.LAYOUT);
-        prepareLoggingBetweenEvents(bottomToolbars, EventPair.LAYOUT);
-        prepareLoggingBetweenEvents(filterToolbar, EventPair.LAYOUT);
-        prepareLoggingBetweenEvents(pagingToolbar, EventPair.LAYOUT);
-        viewContext.logStop(logID);
+        if (viewContext.isLoggingEnabled())
+        {
+            prepareLoggingBetweenEvents(contentPanel, EventPair.RENDER);
+            prepareLoggingBetweenEvents(this, EventPair.LAYOUT);
+            prepareLoggingBetweenEvents(grid, EventPair.LAYOUT);
+            prepareLoggingBetweenEvents(contentPanel, EventPair.LAYOUT);
+            prepareLoggingBetweenEvents(bottomToolbars, EventPair.LAYOUT);
+            prepareLoggingBetweenEvents(filterToolbar, EventPair.LAYOUT);
+            prepareLoggingBetweenEvents(pagingToolbar, EventPair.LAYOUT);
+            viewContext.logStop(logID);
+        }
     }
-    
+
     private enum EventPair
     {
         RENDER(Events.BeforeRender, Events.Render), LAYOUT(Events.BeforeLayout, Events.AfterLayout);
-        
+
         private final EventType beforeEvent;
+
         private final EventType afterEvent;
 
         private EventPair(EventType beforeEvent, EventType afterEvent)
@@ -303,9 +307,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             this.afterEvent = afterEvent;
         }
     }
-    
+
     private final Map<Object, Integer> logIDs = new HashMap<Object, Integer>();
-    
+
     protected void prepareLoggingBetweenEvents(final Component component, final EventPair eventPair)
     {
         final Object dummySource = new Object();
@@ -344,7 +348,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 }
             });
     }
-    
+
     protected int log(String message)
     {
         return viewContext.log(message + " [" + getId() + "]");
@@ -1032,7 +1036,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 }
             };
     }
-    
+
     /** Refreshes grid and filters (resets filter selection) */
     protected final void refreshGridWithFilters()
     {
@@ -1590,7 +1594,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         bottomToolbars.setLayout(new RowLayout(com.extjs.gxt.ui.client.Style.Orientation.VERTICAL));
         return bottomToolbars;
     }
-    
+
     private static final class ContainerKeeper extends LayoutContainer
     {
         private final Container<?> parentContainer;
@@ -1614,7 +1618,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private static <T extends ModelData> Grid<T> createGrid(
             PagingLoader<PagingLoadResult<T>> dataLoader, String gridId)
     {
-        
+
         ListStore<T> listStore = new ListStore<T>(dataLoader);
         ColumnModel columnModel = createColumnModel(new ArrayList<ColumnConfig>());
         final Grid<T> grid = new Grid<T>(listStore, columnModel)

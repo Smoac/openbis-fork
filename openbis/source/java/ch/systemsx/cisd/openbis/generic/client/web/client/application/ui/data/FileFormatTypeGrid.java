@@ -97,7 +97,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                                 }
                             });
         createItem.setId(ADD_NEW_TYPE_BUTTON_ID);
-        pagingToolbar.add(createItem);
+        addButton(createItem);
         Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
                         new ISelectedEntityInvoker<BaseEntityModel<AbstractType>>()
@@ -111,11 +111,11 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                                 }
 
                             });
-        pagingToolbar.add(editButton);
+        addButton(editButton);
 
         Button deleteButton = createDeleteButton(viewContext);
         enableButtonOnSelectedItems(deleteButton);
-        pagingToolbar.add(deleteButton);
+        addButton(deleteButton);
 
         addEntityOperationsSeparator();
     }

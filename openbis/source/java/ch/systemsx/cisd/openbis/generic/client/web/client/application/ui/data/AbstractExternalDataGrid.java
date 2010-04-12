@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
@@ -46,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -132,7 +132,7 @@ public abstract class AbstractExternalDataGrid
             uploadButton.disable();
         }
         addButton(uploadButton);
-        pagingToolbar.add(createComputeMenu());
+        addButton(createComputeMenu());
         addEntityOperationsSeparator();
         allowMultipleSelection();
 
@@ -226,7 +226,7 @@ public abstract class AbstractExternalDataGrid
 
     }
 
-    private final Component createComputeMenu()
+    private final TextToolItem createComputeMenu()
     {
         return new DataSetComputeMenu(viewContext, getSelectedAndDisplayedItemsAction(),
                 createRefreshGridAction());

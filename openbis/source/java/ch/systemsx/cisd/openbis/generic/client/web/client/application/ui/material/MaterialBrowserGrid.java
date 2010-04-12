@@ -173,11 +173,11 @@ public class MaterialBrowserGrid extends
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-        pagingToolbar.add(showDetailsButton);
+        addButton(showDetailsButton);
 
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
-        pagingToolbar.add(editButton);
+        addButton(editButton);
 
         final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);
         final String deleteAllTitle = deleteTitle + " All";
@@ -193,7 +193,7 @@ public class MaterialBrowserGrid extends
                 }
             });
         changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
-        pagingToolbar.add(deleteButton);
+        addButton(deleteButton);
         allowMultipleSelection(); // we allow deletion of multiple materials
     }
 

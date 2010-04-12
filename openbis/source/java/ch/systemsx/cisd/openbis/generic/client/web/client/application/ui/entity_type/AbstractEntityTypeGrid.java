@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -82,7 +81,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
         addEntityOperationsLabel();
 
         final EntityKind entityKind = getEntityKind();
-        pagingToolbar.add(new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
+        addButton(new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
                 new SelectionListener<ButtonEvent>()
                     {
                         @Override
@@ -91,8 +90,6 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
                             createRegisterEntityTypeDialog(entityKind).show();
                         }
                     }));
-
-        pagingToolbar.add(new SeparatorToolItem());
 
         Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
@@ -107,10 +104,10 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
                                 }
 
                             });
-        pagingToolbar.add(editButton);
+        addButton(editButton);
         Button deleteButton = createDeleteButton(viewContext);
         enableButtonOnSelectedItems(deleteButton);
-        pagingToolbar.add(deleteButton);
+        addButton(deleteButton);
 
         addEntityOperationsSeparator();
     }
