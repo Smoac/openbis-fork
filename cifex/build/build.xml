@@ -15,7 +15,7 @@
 	<property name="cifex.server.resource" value="../${ant.project.name}/${server-resource}" />
 
 	<property name="cifex.client.jarfiles"
-	          value="cifex.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar" />
+	          value="cifex.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar" />
 
 	<property name="webapp.dist" value="${dist}/webapp" />
 	<property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
@@ -211,6 +211,10 @@
 		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${lib}/spring/third-party" />
 			<param name="jar" value="aopalliance.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/spring/third-party" />
+			<param name="jar" value="stream-supporting-httpinvoker.jar" />
 		</antcall>
 		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${lib}/commons-httpclient" />
