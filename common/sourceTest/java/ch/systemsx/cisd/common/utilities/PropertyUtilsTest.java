@@ -16,11 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
-
+import java.io.File;
 import java.util.Properties;
 
 import org.apache.commons.lang.math.NumberUtils;
@@ -28,7 +24,10 @@ import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
@@ -38,16 +37,44 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
  * 
  * @author Christian Ribeaud
  */
-public final class PropertyUtilsTest
+public final class PropertyUtilsTest extends AbstractFileSystemTestCase
 {
 
     private BufferedAppender appender;
 
     @BeforeMethod
-    public final void setUp()
+    public final void beforeMethod()
     {
         appender = new BufferedAppender();
         appender.resetLogContent();
+    }
+    
+    @Test
+    public void testLoadProperties()
+    {
+        File propertiesFile = new File(workingDirectory, "p.properties");
+        FileUtilities.writeToFile(propertiesFile, "answer = 42\n\n# comment\n  key=4711  ");
+        Properties properties = PropertyUtils.loadProperties(propertiesFile);
+        
+        assertEquals("42", properties.getProperty("answer"));
+        assertEquals("4711", properties.getProperty("key"));
+    }
+    
+    @Test
+    public void testLoadInvalidProperties()
+    {
+        File propertiesFile = new File(workingDirectory, "p.properties");
+        FileUtilities.writeToFile(propertiesFile, "answer=42\nquestion");
+        
+        try
+        {
+            PropertyUtils.loadProperties(propertiesFile);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Missing '=' in line 2 of properties file '" + propertiesFile
+                    + "': question", ex.getMessage());
+        }
     }
 
     @Test

@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -29,6 +31,8 @@ import org.apache.commons.lang.math.NumberUtils;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 
@@ -72,7 +76,7 @@ public final class PropertyUtils
         assert properties != null : "Given properties can not be null.";
         assert propertyKey != null : "Given property key can not be null.";
     }
-
+    
     /**
      * Searches for the property with the specified key in this property list.
      * 
@@ -462,4 +466,40 @@ public final class PropertyUtils
             IOUtils.closeQuietly(is);
         }
     }
+
+    /**
+     * Loads properties from the specified file. This is a simpler version of
+     * {@link #loadProperties(String)} which does not use {@link Properties#load(InputStream)}:
+     * <ul>
+     * <li>Empty lines and lines starting with a hash symbol '#' are ignored.
+     * <li>All other lines should have a equals symbol '='. The trimmed part before/after '='
+     * specify property key and value , respectively.
+     * </ul>
+     * There is no character escaping as in {@link Properties#load(InputStream)} because this can
+     * lead to problems if this syntax isn't known by the creator of a properties file.
+     */
+    public static Properties loadProperties(File propertiesFile) 
+    {
+        Properties properties = new Properties();
+        List<String> lines = FileUtilities.loadToStringList(propertiesFile);
+        for (int i = 0; i < lines.size(); i++)
+        {
+            String line = lines.get(i);
+            if (line.length() == 0 || line.startsWith("#"))
+            {
+                continue;
+            }
+            int indexOfEqualSymbol = line.indexOf('=');
+            if (indexOfEqualSymbol < 0)
+            {
+                throw new UserFailureException("Missing '=' in line " + (i + 1)
+                        + " of properties file '" + propertiesFile + "': " + line);
+            }
+            String key = line.substring(0, indexOfEqualSymbol).trim();
+            String value = line.substring(indexOfEqualSymbol + 1).trim();
+            properties.setProperty(key, value);
+        }
+        return properties;
+    }
+
 }
