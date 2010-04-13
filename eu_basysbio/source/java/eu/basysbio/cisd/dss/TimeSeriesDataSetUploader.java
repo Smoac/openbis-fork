@@ -60,10 +60,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 class TimeSeriesDataSetUploader
 {
     private static final String LCA_MTP_TIME_SERIES = "LCA_MTP_TIME_SERIES";
+    private static final String LCA_MTP_PCAV_TIME_SERIES = "LCA_MTP_PCAV_TIME_SERIES";
 
     static final String TIME_SERIES = "TIME_SERIES";
 
-    static final List<String> DATA_SET_TYPES = Arrays.asList(TIME_SERIES, LCA_MTP_TIME_SERIES);
+    static final List<String> DATA_SET_TYPES =
+            Arrays.asList(TIME_SERIES, LCA_MTP_TIME_SERIES, LCA_MTP_PCAV_TIME_SERIES);
+    
+    private final Set<String> DATA_SET_TYPES_FOR_SPLITTING =
+            new HashSet<String>(Arrays.asList(TIME_SERIES, LCA_MTP_PCAV_TIME_SERIES));
 
     private final ITimeSeriesDAO dao;
 
@@ -206,7 +211,7 @@ class TimeSeriesDataSetUploader
             assertExperiment(dataSetInformation, dataColumns);
             ExperimentIdentifier experimentIdentifier =
                     dataSetInformation.getExperimentIdentifier();
-            if (dataSetInformation.getDataSetType().getCode().equals(TIME_SERIES))
+            if (DATA_SET_TYPES_FOR_SPLITTING.contains(dataSetInformation.getDataSetType().getCode()))
             {
                 long dataSetID = getOrCreateDataSet(dataSetInformation, experimentIdentifier);
                 RowIDManager rowIDManager = createRowsAndCommonColumns(dataSetID, commonColumns);
