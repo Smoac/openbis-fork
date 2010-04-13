@@ -83,7 +83,7 @@
 	<!-- parameters: 
 					variant - will be used in the distribution file name  
 		-->
-	<target name="make-dist" depends="dss-jar">
+	<target name="make-dist" depends="dss-jar, dist-client">
 		<copy file="${dss-jar.file}" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/cisd-args4j/cisd-args4j.jar" todir="${dist.datastore_server.lib}" />
@@ -115,7 +115,7 @@
 		          value="${dist.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
 		<zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar">
 			<zipfileset dir="${dss.original.dist}" 
-				    excludes="**/datastore_server.sh, **/service.properties, **/log.xml" 
+				    excludes="**/datastore_server.sh, **/dss_client.sh, **/service.properties, **/log.xml" 
 				    prefix="${dss}" />
 			<zipfileset dir="dist" 
 				    includes="**/service.properties, **/log.xml" 
@@ -127,7 +127,10 @@
 		<delete dir="${dist.datastore_server}" />
 	</target>
   
-  <target name="dss-client-jar" depends="compile">
+  <!--  
+    dss-client-jar is designed to be called from make-dist. Thus, it does not depend on compile, but
+    should be called after dss-jar. -->
+  <target name="dss-client-jar" depends="">
     <mkdir dir="${dist.dss_client.lib}" />
     <build-info revision="revision.number" version="version.number" clean="clean.flag" />
     <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
@@ -176,12 +179,16 @@
     <copy file="${lib}/spring/spring.jar" todir="${dist.dss_client.lib}" />
     <property name="dist.file"
               value="${dist.client.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
-    <zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar">
+    
+    <zip destfile="${dist.file}">
+      <zipfileset dir="${dist.dss_client.lib}"
+                  prefix="${dss_client}/lib" />
       <zipfileset file="${dss.original.dist}/dss_client.sh"
                   filemode="755"
                   prefix="${dss_client}" />
     </zip>
     <delete dir="${dist.dss_client}" />
+    
   </target>
 
 	<target name="ci" depends="run-tests, check-dependencies, dist">
