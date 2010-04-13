@@ -45,7 +45,7 @@ abstract class AbstractCommand implements ICommand
      */
     public void printUsage(PrintStream out)
     {
-        out.println(getUsagePrefixString() + " [options] <path>");
+        out.println(getUsagePrefixString() + " [options] <data set code> <path>");
         parser.printUsage(out);
         out.println("  Example : " + getCommandCallString() + " "
                 + parser.printExample(ExampleMode.ALL));
