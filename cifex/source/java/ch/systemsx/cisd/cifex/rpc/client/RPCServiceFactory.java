@@ -17,25 +17,12 @@
 package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
-import java.net.URL;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -43,10 +30,10 @@ import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecuto
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 
 /**
  * The factory for the CIFEX RPC service.
@@ -162,117 +149,7 @@ public final class RPCServiceFactory
 
     private static void setUpKeyStore(String serviceURL)
     {
-        if (serviceURL.startsWith("https"))
-        {
-            Certificate[] certificates = getServerCertificate(serviceURL);
-            KeyStore keyStore;
-            try
-            {
-                keyStore = KeyStore.getInstance("JKS");
-                keyStore.load(null, null);
-                for (int i = 0; i < certificates.length; i++)
-                {
-                    keyStore.setCertificateEntry("cifex" + i, certificates[i]);
-                }
-            } catch (Exception ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
-            FileOutputStream fileOutputStream = null;
-            try
-            {
-                File cifexDir = getCIFEXConfigDir();
-                File keyStoreFile = new File(cifexDir, "keystore");
-                fileOutputStream = new FileOutputStream(keyStoreFile);
-                keyStore.store(fileOutputStream, "changeit".toCharArray());
-                fileOutputStream.close();
-                System.setProperty("javax.net.ssl.trustStore", keyStoreFile.getAbsolutePath());
-            } catch (Exception ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            } finally
-            {
-                IOUtils.closeQuietly(fileOutputStream);
-            }
-        }
-    }
-
-    private static Certificate[] getServerCertificate(String serviceURL)
-    {
-        workAroundABugInJava6();
-
-        // Create a trust manager that does not validate certificate chains
-        setUpAllAcceptingTrustManager();
-        SSLSocket socket = null;
-        try
-        {
-            URL url = new URL(serviceURL);
-            int port = url.getPort();
-            String hostname = url.getHost();
-            SSLSocketFactory factory = HttpsURLConnection.getDefaultSSLSocketFactory();
-            socket = (SSLSocket) factory.createSocket(hostname, port);
-            socket.startHandshake();
-            return socket.getSession().getPeerCertificates();
-        } catch (Exception e)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(e);
-        } finally
-        {
-            if (socket != null)
-            {
-                try
-                {
-                    socket.close();
-                } catch (IOException ex)
-                {
-                    // ignored
-                }
-            }
-        }
-    }
-
-    private static void setUpAllAcceptingTrustManager()
-    {
-        TrustManager[] trustAllCerts = new TrustManager[]
-            { new X509TrustManager()
-                {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers()
-                    {
-                        return null;
-                    }
-
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
-                            String authType)
-                    {
-                    }
-
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
-                            String authType)
-                    {
-                    }
-                } };
-        // Install the all-trusting trust manager
-        try
-        {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (Exception e)
-        {
-        }
-    }
-
-    // WORKAROUND: see comment submitted on 31-JAN-2008 for
-    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6514454
-    private static void workAroundABugInJava6()
-    {
-        try
-        {
-            SSLContext.getInstance("SSL").createSSLEngine();
-        } catch (Exception ex)
-        {
-            // Ignore this one.
-        }
+        new SslCertificateHelper(serviceURL, getCIFEXConfigDir(), "cifex").setUpKeyStore();
     }
 
 }

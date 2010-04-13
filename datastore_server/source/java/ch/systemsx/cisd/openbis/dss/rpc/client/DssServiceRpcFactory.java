@@ -17,32 +17,19 @@
 package ch.systemsx.cisd.openbis.dss.rpc.client;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
-import java.net.URL;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcNameServer;
@@ -59,7 +46,7 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
     private static final int SERVER_TIMEOUT_MIN = 5;
 
     private static final String NAME_SERVER_SUFFIX = "/rpc";
-    
+
     public DssServiceRpcInterface[] getSupportedInterfaces(String serverURL,
             boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException
     {
@@ -68,7 +55,7 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
         Class<IDssServiceRpcNameServer> clazz = IDssServiceRpcNameServer.class;
         if (getServerCertificateFromServer)
         {
-            new SslCertificateHelper(nameServerURL, getConfigDirectory()).setUpKeyStore();
+            new SslCertificateHelper(nameServerURL, getConfigDirectory(), "dss").setUpKeyStore();
         }
 
         IDssServiceRpcNameServer nameServer =
@@ -84,7 +71,7 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
         String serviceURL = serverURL + iface.getInterfaceUrlSuffix();
         if (getServerCertificateFromServer)
         {
-            new SslCertificateHelper(serviceURL, getConfigDirectory()).setUpKeyStore();
+            new SslCertificateHelper(serviceURL, getConfigDirectory(), "dss").setUpKeyStore();
         }
 
         return new ServiceProxyBuilder<T>(serviceURL, ifaceClazz, SERVER_TIMEOUT_MIN, 1)
@@ -199,138 +186,6 @@ class ServiceProxyBuilder<T extends IDssServiceRpc>
             {
                 throw ex.getCause();
             }
-        }
-    }
-}
-
-/**
- * Internal helper class for handling SSL overhead.
- * 
- * @author Chandrasekhar Ramakrishnan
- */
-class SslCertificateHelper
-{
-    private final String serviceURL;
-
-    private final File configDirectory;
-
-    SslCertificateHelper(String serviceURL, File configDirectory)
-    {
-        this.serviceURL = serviceURL;
-        this.configDirectory = configDirectory;
-    }
-
-    void setUpKeyStore()
-    {
-        if (serviceURL.startsWith("https"))
-        {
-            Certificate[] certificates = getServerCertificate();
-            KeyStore keyStore;
-            try
-            {
-                keyStore = KeyStore.getInstance("JKS");
-                keyStore.load(null, null);
-                for (int i = 0; i < certificates.length; i++)
-                {
-                    keyStore.setCertificateEntry("dss" + i, certificates[i]);
-                }
-            } catch (Exception ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
-            FileOutputStream fileOutputStream = null;
-            try
-            {
-                File keyStoreFile = new File(configDirectory, "keystore");
-                fileOutputStream = new FileOutputStream(keyStoreFile);
-                keyStore.store(fileOutputStream, "changeit".toCharArray());
-                fileOutputStream.close();
-                System.setProperty("javax.net.ssl.trustStore", keyStoreFile.getAbsolutePath());
-            } catch (Exception ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            } finally
-            {
-                IOUtils.closeQuietly(fileOutputStream);
-            }
-        }
-    }
-
-    private Certificate[] getServerCertificate()
-    {
-        workAroundABugInJava6();
-
-        // Create a trust manager that does not validate certificate chains
-        setUpAllAcceptingTrustManager();
-        SSLSocket socket = null;
-        try
-        {
-            URL url = new URL(serviceURL);
-            int port = url.getPort();
-            String hostname = url.getHost();
-            SSLSocketFactory factory = HttpsURLConnection.getDefaultSSLSocketFactory();
-            socket = (SSLSocket) factory.createSocket(hostname, port);
-            socket.startHandshake();
-            return socket.getSession().getPeerCertificates();
-        } catch (Exception e)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(e);
-        } finally
-        {
-            if (socket != null)
-            {
-                try
-                {
-                    socket.close();
-                } catch (IOException ex)
-                {
-                    // ignored
-                }
-            }
-        }
-    }
-
-    private void setUpAllAcceptingTrustManager()
-    {
-        TrustManager[] trustAllCerts = new TrustManager[]
-            { new X509TrustManager()
-                {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers()
-                    {
-                        return null;
-                    }
-
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
-                            String authType)
-                    {
-                    }
-
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
-                            String authType)
-                    {
-                    }
-                } };
-        // Install the all-trusting trust manager
-        try
-        {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (Exception e)
-        {
-        }
-    }
-
-    // WORKAROUND: see comment submitted on 31-JAN-2008 for
-    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6514454
-    private void workAroundABugInJava6()
-    {
-        try
-        {
-            SSLContext.getInstance("SSL").createSSLEngine();
-        } catch (Exception ex)
-        {
-            // Ignore this one.
         }
     }
 }
