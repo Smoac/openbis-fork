@@ -63,7 +63,7 @@ public interface ITimeSeriesDAO extends BaseQuery
             + "   ?{1.timePoint}, ?{1.timePointType}, ?{1.technicalReplicateCode}, ?{1.celLoc}, "
             + "   ?{1.timeSeriesDataSetType}, ?{1.valueType}, ?{1.scale}, ?{1.biID}, ?{1.controlledGene}, "
             + "   ?{2}, ?{3}) returning id")
-    public long createDataColumn(DataColumnHeader dataColumnHeader, long dataSetID, long sampleID);
+    public long createDataColumn(DataColumnHeader dataColumnHeader, long dataSetID, Long sampleID);
     
     @Update("insert into data_column_values (daco_id, row_id, value) values (?{1}, ?{2}, ?{3})")
     public void createDataValue(long columnID, long rowID, Double value);

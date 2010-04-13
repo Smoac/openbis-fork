@@ -119,7 +119,7 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
         feeder = new MockDropBoxFeeder();
         uploader =
                 new TimeSeriesDataSetUploader(dao, service,
-                        new TimeSeriesDataSetUploaderParameters(new Properties(), true));
+                        new TimeSeriesDataSetUploaderParameters(new Properties(), true), false);
         dropBox = new File(workingDirectory, "drop-box");
         dropBox.mkdirs();
     }
@@ -155,7 +155,7 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
     {
         File file = createDataExample();
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetUploader.TIME_SERIES);
+                createDataSetInformation(TimeSeriesDataSetHandler.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
 
         try
@@ -198,7 +198,7 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
             });
 
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetUploader.TIME_SERIES);
+                createDataSetInformation(TimeSeriesDataSetHandler.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
                 "GM_BR_B1"));
         try
@@ -296,7 +296,7 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
             });
 
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetUploader.TIME_SERIES);
+                createDataSetInformation(TimeSeriesDataSetHandler.TIME_SERIES);
         dataSetInformation.setUploadingUserEmail("ab@c.de");
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
                 "GM_BR_B1"));

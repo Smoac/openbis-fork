@@ -18,11 +18,7 @@ package eu.basysbio.cisd.dss;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,12 +26,8 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.utils.Column;
@@ -43,7 +35,6 @@ import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -58,13 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 /**
  * @author Franz-Josef Elmer
  */
-class TimeSeriesDataSetUploader implements IDataSetUploader
+class TimeSeriesDataSetUploader extends AbstractDataSetUploader
 {
-    private static final String LCA_MTP_TIME_SERIES = "LCA_MTP_TIME_SERIES";
-    private static final String LCA_MTP_PCAV_TIME_SERIES = "LCA_MTP_PCAV_TIME_SERIES";
-
-    static final String TIME_SERIES = "TIME_SERIES";
-    
     static final IDataSetUploaderFactory FACTORY = new IDataSetUploaderFactory()
         {
             
@@ -72,137 +58,53 @@ class TimeSeriesDataSetUploader implements IDataSetUploader
                     DataSource dataSource, IEncapsulatedOpenBISService service,
                     TimeSeriesDataSetUploaderParameters parameters)
             {
-                return new TimeSeriesDataSetUploader(dataSource, service, parameters);
+                return new TimeSeriesDataSetUploader(dataSource, service, parameters, false);
             }
 
             public IDataSetUploader create(DataSetInformation dataSetInformation,
                     ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
                     TimeSeriesDataSetUploaderParameters parameters)
             {
-                return new TimeSeriesDataSetUploader(dao, service, parameters);
+                return new TimeSeriesDataSetUploader(dao, service, parameters, false);
             }
         };
 
-    @Private static final List<String> DATA_SET_TYPES =
-            Arrays.asList(TIME_SERIES, LCA_MTP_TIME_SERIES, LCA_MTP_PCAV_TIME_SERIES);
-    
-    private final Set<String> DATA_SET_TYPES_FOR_SPLITTING =
-            new HashSet<String>(Arrays.asList(TIME_SERIES, LCA_MTP_PCAV_TIME_SERIES));
-
-    private final ITimeSeriesDAO dao;
-
-    private final IEncapsulatedOpenBISService service;
-
-    private final TimeSeriesDataSetUploaderParameters parameters;
-
-    private Connection connection;
+        static final IDataSetUploaderFactory FACTORY_WO_TIME_POINT = new IDataSetUploaderFactory()
+        {
+            
+            public IDataSetUploader create(DataSetInformation dataSetInformation,
+                    DataSource dataSource, IEncapsulatedOpenBISService service,
+                    TimeSeriesDataSetUploaderParameters parameters)
+            {
+                return new TimeSeriesDataSetUploader(dataSource, service, parameters, true);
+            }
+            
+            public IDataSetUploader create(DataSetInformation dataSetInformation,
+                    ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
+                    TimeSeriesDataSetUploaderParameters parameters)
+            {
+                return new TimeSeriesDataSetUploader(dao, service, parameters, true);
+            }
+        };
+        
+    private final boolean ignoringTimePointDataSetCreation;
 
     TimeSeriesDataSetUploader(DataSource dataSource, IEncapsulatedOpenBISService service,
-            TimeSeriesDataSetUploaderParameters parameters)
+            TimeSeriesDataSetUploaderParameters parameters, boolean ignoringTimePointDataSetCreation)
     {
-        this.service = service;
-        this.parameters = parameters;
-        try
-        {
-            connection = dataSource.getConnection();
-            connection.setAutoCommit(false);
-            dao = QueryTool.getQuery(connection, ITimeSeriesDAO.class);
-        } catch (SQLException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        super(dataSource, service, parameters);
+        this.ignoringTimePointDataSetCreation = ignoringTimePointDataSetCreation;
     }
 
     TimeSeriesDataSetUploader(ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
-            TimeSeriesDataSetUploaderParameters parameters)
+            TimeSeriesDataSetUploaderParameters parameters, boolean ignoringTimePointDataSetCreation)
     {
-        this.dao = dao;
-        this.service = service;
-        this.parameters = parameters;
+        super(dao, service, parameters);
+        this.ignoringTimePointDataSetCreation = ignoringTimePointDataSetCreation;
     }
 
-    /** the uploader should not be used after calling this method */
-    public void commit()
-    {
-        try
-        {
-            if (connection != null)
-            {
-                connection.commit();
-            }
-            dao.close();
-        } catch (SQLException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            connection = null;
-        }
-    }
-
-    /** the uploader should not be used after calling this method */
-    public void rollback()
-    {
-        try
-        {
-            if (connection != null)
-            {
-                connection.rollback();
-            }
-            dao.close();
-        } catch (SQLException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            connection = null;
-        }
-    }
-
-    public void upload(File originalData, DataSetInformation dataSetInformation, IDropBoxFeeder feeder)
-    {
-        ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
-        if (experimentIdentifier == null)
-        {
-            throw new UserFailureException(
-                    "Data set should be registered for an experiment and not for a sample.");
-        }
-        DataSetType dataSetType = dataSetInformation.getDataSetType();
-        if (dataSetType == null || DATA_SET_TYPES.contains(dataSetType.getCode()) == false)
-        {
-            String message =
-                    "Data has to be uploaded for data set type ["
-                            + StringUtils.join(DATA_SET_TYPES, ",") + "] instead of " + dataSetType
-                            + ".";
-            throw new UserFailureException(message);
-        }
-        if (originalData.isFile())
-        {
-            cleaveFileIntoDataSets(originalData, dataSetInformation, feeder);
-        } else
-        {
-            File[] tsvFiles = originalData.listFiles(new FilenameFilter()
-                {
-                    public boolean accept(File dir, String name)
-                    {
-                        String lowerCaseName = name.toLowerCase();
-                        return lowerCaseName.endsWith(".txt") || lowerCaseName.endsWith(".tsv");
-                    }
-                });
-            if (tsvFiles == null || tsvFiles.length == 0)
-            {
-                throw new UserFailureException("No files of type "
-                        + "'.txt', '.TXT', '.tsv', or '.TSV'. found in " + originalData);
-            }
-            for (File tsvFile : tsvFiles)
-            {
-                cleaveFileIntoDataSets(tsvFile, dataSetInformation, feeder);
-            }
-        }
-
-    }
-
-    private void cleaveFileIntoDataSets(File tsvFile, DataSetInformation dataSetInformation,
+    @Override
+    protected void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation,
             IDropBoxFeeder feeder)
     {
         FileReader reader = null;
@@ -229,19 +131,13 @@ class TimeSeriesDataSetUploader implements IDataSetUploader
             assertExperiment(dataSetInformation, dataColumns);
             ExperimentIdentifier experimentIdentifier =
                     dataSetInformation.getExperimentIdentifier();
-            if (DATA_SET_TYPES_FOR_SPLITTING.contains(dataSetInformation.getDataSetType().getCode()))
+            long dataSetID = getOrCreateDataSet(dataSetInformation, experimentIdentifier);
+            RowIDManager rowIDManager = createRowsAndCommonColumns(dataSetID, commonColumns);
+            Set<DataColumnHeader> headers = new HashSet<DataColumnHeader>();
+            for (Column dataColumn : dataColumns)
             {
-                long dataSetID = getOrCreateDataSet(dataSetInformation, experimentIdentifier);
-                RowIDManager rowIDManager = createRowsAndCommonColumns(dataSetID, commonColumns);
-                Set<DataColumnHeader> headers = new HashSet<DataColumnHeader>();
-                for (Column dataColumn : dataColumns)
-                {
-                    createDataSet(commonColumns, dataColumn, dataSetInformation, headers,
-                            dataSetID, rowIDManager, feeder);
-                }
-            } else if (dataSetInformation.getDataSetType().getCode().equals(LCA_MTP_TIME_SERIES))
-            {
-                // Do nothing (until splitting into smaller data chunks implemented)
+                createDataSet(commonColumns, dataColumn, dataSetInformation, headers, dataSetID,
+                        rowIDManager, feeder);
             }
         } catch (RuntimeException ex)
         {
@@ -301,26 +197,32 @@ class TimeSeriesDataSetUploader implements IDataSetUploader
         createSampleAndDataColumn(dataColumn, dataSetID, rowIDManager, dataColumnHeader,
                 experiment, sampleCode);
 
-        feeder.feed(dataSetInformation.tryGetUploadingUserEmail(), sampleCode, commonColumns,
-                dataColumn);
+        if (ignoringTimePointDataSetCreation == false)
+        {
+            feeder.feed(dataSetInformation.tryGetUploadingUserEmail(), sampleCode, commonColumns,
+                    dataColumn);
+        }
     }
 
     private void createSampleIfNecessary(DataColumnHeader dataColumnHeader, Experiment experiment,
             String sampleCode)
     {
-        long sampleID =
-                createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
-        if (parameters.isCheckExistingDataSets())
+        if (ignoringTimePointDataSetCreation == false)
         {
-            List<ExternalData> dataSets = service.listDataSetsBySampleID(sampleID, true);
-            for (ExternalData dataSet : dataSets)
+            long sampleID =
+                    createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
+            if (parameters.isCheckExistingDataSets())
             {
-                DataColumnHeader header = new DataColumnHeader(dataColumnHeader, dataSet);
-                if (dataColumnHeader.equals(header))
+                List<ExternalData> dataSets = service.listDataSetsBySampleID(sampleID, true);
+                for (ExternalData dataSet : dataSets)
                 {
-                    throw new UserFailureException("For data column '" + dataColumnHeader
-                            + "' the data set '" + dataSet.getCode()
-                            + "' has already been registered.");
+                    DataColumnHeader header = new DataColumnHeader(dataColumnHeader, dataSet);
+                    if (dataColumnHeader.equals(header))
+                    {
+                        throw new UserFailureException("For data column '" + dataColumnHeader
+                                + "' the data set '" + dataSet.getCode()
+                                + "' has already been registered.");
+                    }
                 }
             }
         }
@@ -442,7 +344,11 @@ class TimeSeriesDataSetUploader implements IDataSetUploader
             RowIDManager rowIDManager, DataColumnHeader dataColumnHeader, Experiment experiment,
             String sampleCode)
     {
-        long sampleID = getOrCreateSample(experiment, sampleCode);
+        Long sampleID = null;
+        if (ignoringTimePointDataSetCreation == false)
+        {
+            sampleID = getOrCreateSample(experiment, sampleCode);
+        }
         long columnID = dao.createDataColumn(dataColumnHeader, dataSetID, sampleID);
         createDataValues(dataColumn, rowIDManager, columnID);
     }

@@ -96,7 +96,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
             String dataSetType = dataSet.getDataSetType();
-            if (TimeSeriesDataSetUploader.TIME_SERIES.equals(dataSetType)
+            if (TimeSeriesDataSetHandler.TIME_SERIES.equals(dataSetType)
                     && knownDataSets.contains(dataSet.getDataSetCode()) == false)
             {
                 File pathToDataSet = new File(storeRoot, dataSet.getDataSetLocation());
@@ -106,7 +106,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                     for (File dataSetFile : dataSetFiles)
                     {
                         TimeSeriesDataSetUploader uploader =
-                                new TimeSeriesDataSetUploader(dataSource, service, parameters);
+                                new TimeSeriesDataSetUploader(dataSource, service, parameters, false);
                         DataSetInformation dataSetInformation = createDataSetInformation(dataSet);
                         try
                         {

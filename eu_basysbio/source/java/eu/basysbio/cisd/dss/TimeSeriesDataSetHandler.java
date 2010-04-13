@@ -68,8 +68,8 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         dropBoxFeeder = new TimePointDataDropBoxFeeder(properties, this, service);
         factory = new DataSetUploaderFactory();
         factory.register(TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);
-        factory.register(LCA_MTP_PCAV_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);
-        factory.register(LCA_MTP_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);
+        factory.register(LCA_MTP_PCAV_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
+        factory.register(LCA_MTP_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
     }
     
     @Override
