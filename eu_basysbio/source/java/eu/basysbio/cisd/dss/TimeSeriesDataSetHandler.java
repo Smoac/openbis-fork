@@ -40,6 +40,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     static final String TIME_SERIES = "TIME_SERIES";
     private static final String LCA_MTP_TIME_SERIES = "LCA_MTP_TIME_SERIES";
     private static final String LCA_MTP_PCAV_TIME_SERIES = "LCA_MTP_PCAV_TIME_SERIES";
+    private static final String LCA_MIC_TIME_SERIES = "LCA_MIC_TIME_SERIES";
 
     private final IEncapsulatedOpenBISService service;
 
@@ -49,7 +50,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     
     private final TimePointDataDropBoxFeeder dropBoxFeeder;
     
-    @Private final DataSetUploaderFactory factory;
+    final DataSetUploaderFactory factory;
     
     private eu.basysbio.cisd.dss.IDataSetUploader uploader;
 
@@ -70,6 +71,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         factory.register(TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);
         factory.register(LCA_MTP_PCAV_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
         factory.register(LCA_MTP_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
+        factory.register(LCA_MIC_TIME_SERIES, LcaMicDataSetUploader.FACTORY);
     }
     
     @Override
