@@ -35,6 +35,7 @@ import net.lemnik.eodsql.QueryTool;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.utils.Column;
@@ -57,14 +58,32 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 /**
  * @author Franz-Josef Elmer
  */
-class TimeSeriesDataSetUploader
+class TimeSeriesDataSetUploader implements IDataSetUploader
 {
     private static final String LCA_MTP_TIME_SERIES = "LCA_MTP_TIME_SERIES";
     private static final String LCA_MTP_PCAV_TIME_SERIES = "LCA_MTP_PCAV_TIME_SERIES";
 
     static final String TIME_SERIES = "TIME_SERIES";
+    
+    static final IDataSetUploaderFactory FACTORY = new IDataSetUploaderFactory()
+        {
+            
+            public IDataSetUploader create(DataSetInformation dataSetInformation,
+                    DataSource dataSource, IEncapsulatedOpenBISService service,
+                    TimeSeriesDataSetUploaderParameters parameters)
+            {
+                return new TimeSeriesDataSetUploader(dataSource, service, parameters);
+            }
 
-    static final List<String> DATA_SET_TYPES =
+            public IDataSetUploader create(DataSetInformation dataSetInformation,
+                    ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
+                    TimeSeriesDataSetUploaderParameters parameters)
+            {
+                return new TimeSeriesDataSetUploader(dao, service, parameters);
+            }
+        };
+
+    @Private static final List<String> DATA_SET_TYPES =
             Arrays.asList(TIME_SERIES, LCA_MTP_TIME_SERIES, LCA_MTP_PCAV_TIME_SERIES);
     
     private final Set<String> DATA_SET_TYPES_FOR_SPLITTING =
@@ -103,7 +122,7 @@ class TimeSeriesDataSetUploader
     }
 
     /** the uploader should not be used after calling this method */
-    void commit()
+    public void commit()
     {
         try
         {
@@ -122,7 +141,7 @@ class TimeSeriesDataSetUploader
     }
 
     /** the uploader should not be used after calling this method */
-    void rollback()
+    public void rollback()
     {
         try
         {
@@ -140,7 +159,7 @@ class TimeSeriesDataSetUploader
         }
     }
 
-    void upload(File originalData, DataSetInformation dataSetInformation, IDropBoxFeeder feeder)
+    public void upload(File originalData, DataSetInformation dataSetInformation, IDropBoxFeeder feeder)
     {
         ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
         if (experimentIdentifier == null)
@@ -157,10 +176,9 @@ class TimeSeriesDataSetUploader
                             + ".";
             throw new UserFailureException(message);
         }
-        Set<DataColumnHeader> headers = new HashSet<DataColumnHeader>();
         if (originalData.isFile())
         {
-            cleaveFileIntoDataSets(originalData, dataSetInformation, headers, feeder);
+            cleaveFileIntoDataSets(originalData, dataSetInformation, feeder);
         } else
         {
             File[] tsvFiles = originalData.listFiles(new FilenameFilter()
@@ -178,14 +196,14 @@ class TimeSeriesDataSetUploader
             }
             for (File tsvFile : tsvFiles)
             {
-                cleaveFileIntoDataSets(tsvFile, dataSetInformation, headers, feeder);
+                cleaveFileIntoDataSets(tsvFile, dataSetInformation, feeder);
             }
         }
 
     }
 
     private void cleaveFileIntoDataSets(File tsvFile, DataSetInformation dataSetInformation,
-            Set<DataColumnHeader> headers, IDropBoxFeeder feeder)
+            IDropBoxFeeder feeder)
     {
         FileReader reader = null;
         try
@@ -215,6 +233,7 @@ class TimeSeriesDataSetUploader
             {
                 long dataSetID = getOrCreateDataSet(dataSetInformation, experimentIdentifier);
                 RowIDManager rowIDManager = createRowsAndCommonColumns(dataSetID, commonColumns);
+                Set<DataColumnHeader> headers = new HashSet<DataColumnHeader>();
                 for (Column dataColumn : dataColumns)
                 {
                     createDataSet(commonColumns, dataColumn, dataSetInformation, headers,

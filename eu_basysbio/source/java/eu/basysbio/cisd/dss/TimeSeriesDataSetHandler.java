@@ -37,6 +37,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo implements IDataSetUploader, IFileManager
 {
+    static final String TIME_SERIES = "TIME_SERIES";
+    private static final String LCA_MTP_TIME_SERIES = "LCA_MTP_TIME_SERIES";
+    private static final String LCA_MTP_PCAV_TIME_SERIES = "LCA_MTP_PCAV_TIME_SERIES";
+
     private final IEncapsulatedOpenBISService service;
 
     private final DataSource dataSource;
@@ -45,7 +49,9 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     
     private final TimePointDataDropBoxFeeder dropBoxFeeder;
     
-    private TimeSeriesDataSetUploader uploader;
+    @Private final DataSetUploaderFactory factory;
+    
+    private eu.basysbio.cisd.dss.IDataSetUploader uploader;
 
     TimeSeriesDataSetHandler(Properties properties, IEncapsulatedOpenBISService service)
     {
@@ -60,11 +66,10 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         this.service = service;
         parameters = new TimeSeriesDataSetUploaderParameters(properties, true);
         dropBoxFeeder = new TimePointDataDropBoxFeeder(properties, this, service);
-    }
-    
-    @Private TimeSeriesDataSetUploader createUploader()
-    {
-        return new TimeSeriesDataSetUploader(dataSource, service, parameters);
+        factory = new DataSetUploaderFactory();
+        factory.register(TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);
+        factory.register(LCA_MTP_PCAV_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);
+        factory.register(LCA_MTP_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);
     }
     
     @Override
@@ -103,9 +108,15 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
 
     public Status handle(File originalData, DataSetInformation dataSetInformation)
     {
-        uploader = createUploader();
+        uploader = createUploader(dataSetInformation);
         uploader.upload(originalData, dataSetInformation, dropBoxFeeder);
         return Status.OK;
+    }
+
+    @Private eu.basysbio.cisd.dss.IDataSetUploader createUploader(
+            DataSetInformation dataSetInformation)
+    {
+        return factory.create(dataSetInformation, dataSource, service, parameters);
     }
     
 }
