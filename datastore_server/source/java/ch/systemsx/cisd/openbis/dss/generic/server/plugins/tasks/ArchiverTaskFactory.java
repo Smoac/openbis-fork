@@ -60,7 +60,7 @@ public class ArchiverTaskFactory
 
     public IArchiverTask createInstance(File storeRoot)
     {
-        if (isArchiverConfigured())
+        if (isArchiverConfigured() == false)
         {
             throw new ConfigurationFailureException("Archiver class is not configured.");
         }
