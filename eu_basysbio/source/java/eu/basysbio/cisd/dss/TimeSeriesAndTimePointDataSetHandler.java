@@ -59,17 +59,32 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
             }
         };
 
+    private static enum TypeOfDerivedDataSet
+    {
+        TIME_POINT("time point"), LCA_MIC_TIME_SERIES("LCA MIC time series");
+
+        private final String name;
+
+        TypeOfDerivedDataSet(String name)
+        {
+            this.name = name;
+        }
+    }
+
     private static final class MessageBuilder
     {
+
         private final String userEMail;
 
         private final ITimeProvider timeProvider;
         
         private String dataSetFileName;
 
-        private int numberOfTimePoints;
+        private int numberOfDerivedDataSets;
 
         private int count;
+
+        private TypeOfDerivedDataSet type;
 
         MessageBuilder(String userEMail, ITimeProvider timeProvider)
         {
@@ -77,7 +92,7 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
             this.timeProvider = timeProvider;
         }
 
-        void setTimeSeriesDataSetFileName(File dataSet)
+        void setDataSetFileName(File dataSet)
         {
             dataSetFileName = dataSet.getName();
             if (dataSetFileName.endsWith(CIFEX_DIR_ENDING))
@@ -86,50 +101,56 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
                 dataSetFileName = dataSetFileName.substring(0, until);
             }
         }
-
-        void setNumberOfExpectedTimePointDataSets(int numberOfTimePoints)
+        
+        void setNumberOfExpectedDerivedDataSets(TypeOfDerivedDataSet type, int numberOfDerivedDataSets)
         {
-            this.numberOfTimePoints = numberOfTimePoints;
+            this.type = type;
+            this.numberOfDerivedDataSets = numberOfDerivedDataSets;
         }
 
-        void addTimePointDataSetCode(String code)
+        void addDerivedDataSetCode(String code)
         {
             count++;
         }
 
-        void logAndSendEMail(Logger logger, IMailClient mailClient)
+        void logAndSendOptinallyAnEMail(Logger logger, IMailClient mailClient, boolean sendEMail)
         {
-            if (count < numberOfTimePoints)
+            if (count < numberOfDerivedDataSets)
             {
-                operationLog.error("Only " + count + " time point data sets instead of "
-                        + numberOfTimePoints + " have been registered.");
-                String subject =
-                        "BaSysBio: Failed uploading of time series data set '" + dataSetFileName
-                                + "'";
-                String timeStamp =
+                operationLog.error("Only " + count + " " + type.name + " data sets instead of "
+                        + numberOfDerivedDataSets + " have been registered.");
+                if (sendEMail)
+                {
+                    String subject =
+                        "BaSysBio: Failed uploading of data set '" + dataSetFileName
+                        + "'";
+                    String timeStamp =
                         Constants.DATE_FORMAT.get().format(
                                 new Date(timeProvider.getTimeInMilliseconds()));
-                String message =
-                        "Uploading of time series data set '" + dataSetFileName
-                                + "' failed because only " + count + " of " + numberOfTimePoints
-                                + " time point data sets could be registered in openBIS.\n\n"
-                                + "Please, contact the help desk for support: " + HELPDESK_EMAIL
-                                + "\n(Time stamp of failure: " + timeStamp + ")";
-                mailClient.sendMessage(subject, message, null, null, userEMail, HELPDESK_EMAIL);
+                    String message =
+                        "Uploading of data set '" + dataSetFileName
+                        + "' failed because only " + count + " of " + numberOfDerivedDataSets
+                        + " " + type.name + " data sets could be registered in openBIS.\n\n"
+                        + "Please, contact the help desk for support: " + HELPDESK_EMAIL
+                        + "\n(Time stamp of failure: " + timeStamp + ")";
+                    mailClient.sendMessage(subject, message, null, null, userEMail, HELPDESK_EMAIL);
+                }
             } else
             {
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info(count + " time point data sets have been registered.");
+                    operationLog.info(count + " " + type.name + " data sets have been registered.");
                 }
-                String subject =
-                        "BaSysBio: Successful uploading of time series data set '"
-                                + dataSetFileName + "'";
-                String message =
+                if (sendEMail)
+                {
+                    String subject =
+                            "BaSysBio: Successful uploading of data set '" + dataSetFileName + "'";
+                    String message =
                         "The time series data set '" + dataSetFileName
-                                + "' has been successfully uploaded and registered in openBIS.";
-
-                mailClient.sendMessage(subject, message, null, null, userEMail);
+                        + "' has been successfully uploaded and registered in openBIS.";
+                    
+                    mailClient.sendMessage(subject, message, null, null, userEMail);
+                }
             }
         }
 
@@ -175,7 +196,8 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
     
     @Private
     TimeSeriesAndTimePointDataSetHandler(IDataSetHandler delegator, IMailClient mailClient,
-            IDataSetHandler timePointDataSetHandler, File timePointDataSetFolder, ITimeProvider timeProvider)
+            IDataSetHandler timePointDataSetHandler, File timePointDataSetFolder,
+            ITimeProvider timeProvider)
     {
         this.delegator = delegator;
         this.mailClient = mailClient;
@@ -188,41 +210,53 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
     {
         List<DataSetInformation> dataSetInfos = new ArrayList<DataSetInformation>();
         List<DataSetInformation> result = delegator.handleDataSet(dataSet);
+        boolean lcaMicTimeSeries = isLcaMicTimeSeries(result);
         dataSetInfos.addAll(result);
         boolean successful = result.isEmpty() == false;
         if (successful)
         {
             MessageBuilder builder =
                     new MessageBuilder(result.get(0).tryGetUploadingUserEmail(), timeProvider);
-            builder.setTimeSeriesDataSetFileName(dataSet);
-            handleTimePointDataSets(dataSetInfos, builder);
-            File[] files = dataSet.getParentFile().listFiles(LCA_MIC_TIME_SERIES_FILE_FILTER);
-            for (File file : files)
-            {
-                dataSetInfos.addAll(delegator.handleDataSet(file));
-            }
-            builder.logAndSendEMail(operationLog, mailClient);
+            builder.setDataSetFileName(dataSet);
+            File[] files = timePointDataSetFolder.listFiles();
+            handleDerivedDataSets(files, TypeOfDerivedDataSet.TIME_POINT, timePointDataSetHandler,
+                    dataSetInfos, builder);
+            files = dataSet.getParentFile().listFiles(LCA_MIC_TIME_SERIES_FILE_FILTER);
+            handleDerivedDataSets(files, TypeOfDerivedDataSet.LCA_MIC_TIME_SERIES, delegator,
+                    dataSetInfos, builder);
+            builder.logAndSendOptinallyAnEMail(operationLog, mailClient, lcaMicTimeSeries == false);
         }
         return dataSetInfos;
     }
 
-    private void handleTimePointDataSets(List<DataSetInformation> dataSetInfos,
-            MessageBuilder builder)
+    private boolean isLcaMicTimeSeries(List<DataSetInformation> list)
     {
-        File[] files = timePointDataSetFolder.listFiles();
-        if (operationLog.isInfoEnabled())
+        if (list.size() != 1)
         {
-            operationLog.info("Starting registration of " + files.length
-                    + " time point data sets.");
+            return false;
         }
-        builder.setNumberOfExpectedTimePointDataSets(files.length);
-        for (File file : files)
+        return list.get(0).getDataSetType().getCode().equals(DataSetHandler.LCA_MIC_TIME_SERIES);
+    }
+    
+    private void handleDerivedDataSets(File[] files, TypeOfDerivedDataSet type,
+            IDataSetHandler handler, List<DataSetInformation> dataSetInfos, MessageBuilder builder)
+    {
+        if (files != null && files.length > 0)
         {
-            List<DataSetInformation> result = timePointDataSetHandler.handleDataSet(file);
-            dataSetInfos.addAll(result);
-            if (result.isEmpty() == false)
+            if (operationLog.isInfoEnabled())
             {
-                builder.addTimePointDataSetCode(getDataSetCode(result));
+                operationLog.info("Starting registration of " + files.length
+                        + " " + type.name + " data sets.");
+            }
+            builder.setNumberOfExpectedDerivedDataSets(type, files.length);
+            for (File file : files)
+            {
+                List<DataSetInformation> result = handler.handleDataSet(file);
+                dataSetInfos.addAll(result);
+                if (result.isEmpty() == false)
+                {
+                    builder.addDerivedDataSetCode(getDataSetCode(result));
+                }
             }
         }
     }
