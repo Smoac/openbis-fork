@@ -221,7 +221,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         } catch (UserFailureException ex)
         {
             assertEquals("Data has to be uploaded for data set type "
-                    + "[TIME_SERIES, LCA_MTP_PCAV_TIME_SERIES, LCA_MTP_TIME_SERIES] "
+                    + "[TIME_SERIES, LCA_MTP_PCAV_TIME_SERIES, LCA_MTP_TIME_SERIES, LCA_MIC_TIME_SERIES] "
                     + "instead of BLABLA.", ex.getMessage());
         }
 
