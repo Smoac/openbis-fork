@@ -11,5 +11,5 @@ public interface IBrowserGridActionInvoker
 
     void configure();
 
-    void showFilters();
+    void toggleFilters(boolean show);
 }

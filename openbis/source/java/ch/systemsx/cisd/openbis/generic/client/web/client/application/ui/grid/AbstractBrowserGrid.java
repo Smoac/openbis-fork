@@ -857,13 +857,21 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     delegate.configureColumnSettings();
                 }
 
-                public void showFilters()
+                public void toggleFilters(boolean show)
                 {
-                    int logId = log("adding filters");
-                    bottomToolbars.insert(filterToolbar, 0);
-                    bottomToolbars.layout();
-                    // TODO filterToolbar.setApplyFiltersAction(createApplyFiltersDelagator());
-                    viewContext.logStop(logId);
+                    if (show)
+                    {
+                        int logId = log("adding filters");
+                        bottomToolbars.insert(filterToolbar, 0);
+                        bottomToolbars.layout();
+                        viewContext.logStop(logId);
+                    } else
+                    {
+                        int logId = log("removing filters");
+                        bottomToolbars.remove(filterToolbar);
+                        bottomToolbars.layout();
+                        viewContext.logStop(logId);
+                    }
                 }
             };
     }
@@ -1144,7 +1152,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         this.columnDefinitions = defsAndConfigs.getColumnDefs();
         ColumnModel columnModel = createColumnModel(defsAndConfigs.getColumnConfigs());
-      
+
         refreshColumnsAndFilters(columnModel);
 
         viewContext.logStop(logId);

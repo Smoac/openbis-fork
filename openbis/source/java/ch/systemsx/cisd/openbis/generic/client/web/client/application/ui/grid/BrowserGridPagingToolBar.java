@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
@@ -55,10 +56,12 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
 
     private final Button configButton;
 
+    private final Button showFiltersButton;
+
     private int nextTableButtonIndex;
 
-    public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker,
-            IViewContext<?> viewContext, int pageSize, String gridId)
+    public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker, IViewContext<?> viewContext,
+            int pageSize, String gridId)
     {
         super(pageSize);
         int logID = viewContext.log("create paging tool bar for " + gridId);
@@ -89,6 +92,9 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         this.exportButton = createExportButton(viewContext, invoker);
         disableExportButton();
         insertTableButton(exportButton);
+
+        this.showFiltersButton = createShowFiltersButton(viewContext, invoker);
+        insertTableButton(showFiltersButton);
 
         insertTableButton(new FillToolItem());
         viewContext.logStop(logID);
@@ -136,13 +142,18 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     public static final void updateConfigButton(Button button, boolean isEnabled,
             IMessageProvider messageProvider)
     {
-        button.setEnabled(isEnabled);
-        if (isEnabled)
+        if (button.isEnabled() != isEnabled)
         {
-            GWTUtils.setToolTip(button, messageProvider.getMessage(Dict.TOOLTIP_CONFIG_ENABLED));
-        } else
-        {
-            GWTUtils.setToolTip(button, messageProvider.getMessage(Dict.TOOLTIP_CONFIG_DISABLED));
+            button.setEnabled(isEnabled);
+            if (isEnabled)
+            {
+                GWTUtils
+                        .setToolTip(button, messageProvider.getMessage(Dict.TOOLTIP_CONFIG_ENABLED));
+            } else
+            {
+                GWTUtils.setToolTip(button, messageProvider
+                        .getMessage(Dict.TOOLTIP_CONFIG_DISABLED));
+            }
         }
     }
 
@@ -152,31 +163,39 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     public static final void updateRefreshButton(Button refreshButton, boolean isEnabled,
             IMessageProvider messageProvider)
     {
-        refreshButton.setEnabled(isEnabled);
-        if (isEnabled)
+        if (refreshButton.isEnabled() != isEnabled)
         {
-            GWTUtils.setToolTip(refreshButton, messageProvider
-                    .getMessage(Dict.TOOLTIP_REFRESH_ENABLED));
-        } else
-        {
-            GWTUtils.setToolTip(refreshButton, messageProvider
-                    .getMessage(Dict.TOOLTIP_REFRESH_DISABLED));
+            refreshButton.setEnabled(isEnabled);
+            if (isEnabled)
+            {
+                GWTUtils.setToolTip(refreshButton, messageProvider
+                        .getMessage(Dict.TOOLTIP_REFRESH_ENABLED));
+            } else
+            {
+                GWTUtils.setToolTip(refreshButton, messageProvider
+                        .getMessage(Dict.TOOLTIP_REFRESH_DISABLED));
+            }
         }
     }
 
     public final void enableExportButton()
     {
-        exportButton.setEnabled(true);
-        String title = messageProvider.getMessage(Dict.TOOLTIP_EXPORT_ENABLED);
-        GWTUtils.setToolTip(exportButton, title);
-        messageProvider.log("export button enabled");
+        if (exportButton.isEnabled() == false)
+        {
+            exportButton.enable();
+            String title = messageProvider.getMessage(Dict.TOOLTIP_EXPORT_ENABLED);
+            GWTUtils.setToolTip(exportButton, title);
+        }
     }
 
     public final void disableExportButton()
     {
-        exportButton.setEnabled(false);
-        String title = messageProvider.getMessage(Dict.TOOLTIP_EXPORT_DISABLED);
-        GWTUtils.setToolTip(exportButton, title);
+        if (exportButton.isEnabled())
+        {
+            exportButton.disable();
+            String title = messageProvider.getMessage(Dict.TOOLTIP_EXPORT_DISABLED);
+            GWTUtils.setToolTip(exportButton, title);
+        }
     }
 
     private Button createRefreshButton(final IBrowserGridActionInvoker invoker)
@@ -237,6 +256,21 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
                                 }
                             });
         button.setId(CONFIG_BUTTON_ID + gridId);
+        return button;
+    }
+
+    public static Button createShowFiltersButton(IMessageProvider messageProvider,
+            final IBrowserGridActionInvoker invoker)
+    {
+        final ToggleButton button = new ToggleButton("Filters");
+        button.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    invoker.toggleFilters(button.isPressed());
+                }
+            });
         return button;
     }
 
