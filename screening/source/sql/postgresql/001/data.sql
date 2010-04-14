@@ -117,6 +117,8 @@ COPY experiment_type_property_types (id, exty_id, prty_id, is_mandatory, is_mana
 COPY file_format_types (id, code, description, dbin_id) FROM stdin;
 7	PNG	\N	1
 8	CSV	files with values separated by comma or semicolon	1
+9	JPG	\N	1
+10 TIFF \N 1
 \.
 
 
