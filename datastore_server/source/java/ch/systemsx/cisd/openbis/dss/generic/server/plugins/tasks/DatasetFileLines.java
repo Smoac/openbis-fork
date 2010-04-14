@@ -38,12 +38,17 @@ public class DatasetFileLines
 
     public DatasetFileLines(File file, DatasetDescription dataset, List<String[]> lines)
     {
+        this(file, dataset.getDatasetCode(), lines);
+    }
+
+    public DatasetFileLines(File file, String datasetCode, List<String[]> lines)
+    {
         this.file = file;
         if (lines.size() < 2)
         {
             throw UserFailureException.fromTemplate(
-                    "Data Set '%s' file should have at least 2 lines instead of %s.", dataset
-                            .getDatasetCode(), lines.size());
+                    "Data Set '%s' file should have at least 2 lines instead of %s.", datasetCode,
+                    lines.size());
         }
         this.headerTokens = lines.get(0);
         dataLines = new ArrayList<String[]>(lines.size());
@@ -55,7 +60,7 @@ public class DatasetFileLines
                 throw UserFailureException.fromTemplate(
                         "Number of columns in header (%s) does not match number of columns "
                                 + "in %d data row (%s) in Data Set '%s' file.",
-                        headerTokens.length, i, dataTokens.length, dataset.getDatasetCode());
+                        headerTokens.length, i, dataTokens.length, datasetCode);
             }
             dataLines.add(dataTokens);
         }
