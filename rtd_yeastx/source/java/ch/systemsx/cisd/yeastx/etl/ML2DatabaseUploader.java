@@ -85,6 +85,21 @@ public class ML2DatabaseUploader implements IDataSetUploader
     public void upload(File dataSet, DataSetInformation dataSetInformation)
             throws EnvironmentFailureException
     {
+        uploadData(dataSet, dataSetInformation.tryToGetSample(), dataSetInformation
+                .tryToGetExperiment(), dataSetInformation.getDataSetCode(), dataSetInformation);
+    }
+
+    /**
+     * Uploads files with recognized extensions to the additional database.
+     */
+    public void upload(File dataSet, Sample sampleOrNull, Experiment experiment, String dataSetCode)
+    {
+        uploadData(dataSet, sampleOrNull, experiment, dataSetCode, null);
+    }
+
+    private void uploadData(File dataSet, Sample sample, Experiment experiment, String dataSetCode,
+            DataSetInformation dataSetInformationOrNull)
+    {
         try
         {
             if (currentTransaction != null)
@@ -92,10 +107,12 @@ public class ML2DatabaseUploader implements IDataSetUploader
                 throw new IllegalStateException(
                         "Current transaction has been neither commited nor rollbacked.");
             }
-            this.currentTransaction = tryGetDatasetUploader(dataSet, dataSetInformation);
+            this.currentTransaction =
+                    tryGetDatasetUploader(dataSet, isMZXMLWithNoConversion(dataSet,
+                            dataSetInformationOrNull));
             if (currentTransaction != null)
             {
-                DMDataSetDTO openbisBacklink = createBacklink(dataSetInformation);
+                DMDataSetDTO openbisBacklink = createBacklink(dataSetCode, sample, experiment);
                 currentTransaction.upload(dataSet, openbisBacklink);
             }
         } catch (SQLException e)
@@ -104,12 +121,11 @@ public class ML2DatabaseUploader implements IDataSetUploader
                     .fromTemplate(
                             e,
                             "A database error occured while extracting additional information from '%s' file content for '%s' dataset.",
-                            dataSet.getPath(), dataSetInformation.getDataSetCode());
+                            dataSet.getPath(), dataSetCode);
         }
     }
 
-    private IDatasetLoader tryGetDatasetUploader(File dataSet, DataSetInformation dataSetInformation)
-            throws SQLException
+    private IDatasetLoader tryGetDatasetUploader(File dataSet, boolean isMZXML) throws SQLException
     {
         String extension = getExtension(dataSet);
         if (extension.equalsIgnoreCase(ConstantsYeastX.FIAML_EXT))
@@ -121,15 +137,21 @@ public class ML2DatabaseUploader implements IDataSetUploader
         } else if (extension.equalsIgnoreCase(ConstantsYeastX.QUANTML_EXT))
         {
             return quantML2Database;
-        } else if (extension.equalsIgnoreCase(ConstantsYeastX.MZXML_EXT))
+        } else if (isMZXML)
         {
-            DataSetInformationYeastX info = (DataSetInformationYeastX) dataSetInformation;
-            if (info.getConversion() == MLConversionType.NONE)
-            {
-                return mzXml2Database;
-            }
+            return mzXml2Database;
         }
         return null;
+    }
+
+    private static boolean isMZXMLWithNoConversion(File dataSet,
+            DataSetInformation dataSetInformationOrNull)
+    {
+        boolean isMZXMLExtension =
+                getExtension(dataSet).equalsIgnoreCase(ConstantsYeastX.MZXML_EXT);
+        boolean dataSetUndefined = dataSetInformationOrNull == null;
+        return (isMZXMLExtension && (dataSetUndefined || ((dataSetInformationOrNull instanceof DataSetInformationYeastX && ((DataSetInformationYeastX) dataSetInformationOrNull)
+                .getConversion() == MLConversionType.NONE))));
     }
 
     public void commit()
@@ -160,10 +182,8 @@ public class ML2DatabaseUploader implements IDataSetUploader
         }
     }
 
-    private DMDataSetDTO createBacklink(DataSetInformation dataSetInformation)
+    private DMDataSetDTO createBacklink(String datasetPermId, Sample sample, Experiment experiment)
     {
-        String datasetPermId = dataSetInformation.getDataSetCode();
-        Sample sample = dataSetInformation.tryToGetSample();
         String sampleName = UNKNOWN_NAME;
         String sampPermIdOrNull = null;
         if (sample != null)
@@ -171,12 +191,10 @@ public class ML2DatabaseUploader implements IDataSetUploader
             sampleName = findSampleName(sample.getProperties());
             sampPermIdOrNull = sample.getPermId();
         }
-        Experiment experiment = dataSetInformation.tryToGetExperiment();
         if (experiment == null)
         {
             throw new EnvironmentFailureException(
-                    "No information about the experiment connected to a dataset "
-                            + dataSetInformation);
+                    "No information about the experiment connected to a dataset " + datasetPermId);
         }
         String experimentName = findExperimentName(experiment.getProperties());
 

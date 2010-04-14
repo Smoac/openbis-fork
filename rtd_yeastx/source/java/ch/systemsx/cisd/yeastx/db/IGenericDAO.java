@@ -62,4 +62,7 @@ public interface IGenericDAO extends TransactionQuery
     @Update(sql = "delete from DATA_SETS where PERM_ID=?{1.permId}", batchUpdate = true)
     public void deleteDataSets(List<DMDataSetDTO> dataSets);
 
+    @Update(sql = "delete from DATA_SETS where PERM_ID=?{1}")
+    public void deleteDataSet(String permId);
+
 }
