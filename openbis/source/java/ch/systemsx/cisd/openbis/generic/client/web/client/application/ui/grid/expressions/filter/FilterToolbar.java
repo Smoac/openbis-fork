@@ -112,9 +112,12 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 public void postRefresh(boolean wasSuccessful)
                 {
                     updateFilterFields();
-                    // TODO 2009-11-24, Tomasz Pylak: IMPR this apply is usually unnecessary and
+					// TODO 2009-11-24, Tomasz Pylak: IMPR this apply is usually unnecessary and
                     // causes screen flickering
-                    apply();
+                    if (isCustomFilterSelected())
+                    {
+                        apply();
+                    }
                 }
             });
         applyTool.addSelectionListener(new SelectionListener<ButtonEvent>()
@@ -311,9 +314,12 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private void apply()
     {
-        if (disableApply == false) // FIXME don't do this after first render
+        if (disableApply == false)
         {
-            applyFiltersAction.execute();
+            if (isValid())
+            {
+                applyFiltersAction.execute();
+            }
         }
     }
 
