@@ -37,13 +37,15 @@ public class TabSeparatedValueTable
     {
         private final LineIterator lineIterator;
         private final boolean ignoreEmptyLines;
+        private final boolean ignoreHashedLines;
         
         private String currentLine;
 
-        RowLineIterator(LineIterator lineIterator, boolean ignoreEmptyLines)
+        RowLineIterator(LineIterator lineIterator, boolean ignoreEmptyLines, boolean ignoreHashedLines)
         {
             this.lineIterator = lineIterator;
             this.ignoreEmptyLines = ignoreEmptyLines;
+            this.ignoreHashedLines = ignoreHashedLines;
             
         }
         public boolean hasNext()
@@ -84,8 +86,9 @@ public class TabSeparatedValueTable
                     return null;
                 }
                 String line = lineIterator.nextLine();
-                if (ignoreEmptyLines == false || line == null || StringUtils.isNotBlank(line))
-                {
+                if ((ignoreEmptyLines == false || line == null || StringUtils.isNotBlank(line))
+                        && (ignoreHashedLines == false || line == null || line.startsWith("#") == false))
+              {
                     return line;
                 }
             }
@@ -96,6 +99,16 @@ public class TabSeparatedValueTable
     private final List<String> headers;
 
     /**
+     * Creates a new instance. Short cut for
+     * <code>new TabSeparatedValueTable(reader, nameOfReadingSource, ignoreEmptyLines, false)</code>.
+     */
+    public TabSeparatedValueTable(Reader reader, String nameOfReadingSource,
+            boolean ignoreEmptyLines)
+    {
+        this(reader, nameOfReadingSource, ignoreEmptyLines, false);
+    }
+    
+    /**
      * Creates an instance for the specified reader. The constructor already reads the header line.
      * It will be immediately available via {@link #getHeaders()}.
      * 
@@ -103,10 +116,12 @@ public class TabSeparatedValueTable
      * @param nameOfReadingSource Source (usually file name) from which the table will be read. This
      *            is used for error messages only.
      * @param ignoreEmptyLines If <code>true</code> lines with only white spaces will be ignored.
+     * @param ignoreHashedLines If <code>true</code> lines starting with '#' will be ignored.
      */
-    public TabSeparatedValueTable(Reader reader, String nameOfReadingSource, boolean ignoreEmptyLines)
+    public TabSeparatedValueTable(Reader reader, String nameOfReadingSource,
+            boolean ignoreEmptyLines, boolean ignoreHashedLines)
     {
-        rowLineIterator = new RowLineIterator(IOUtils.lineIterator(reader), ignoreEmptyLines);
+        rowLineIterator = new RowLineIterator(IOUtils.lineIterator(reader), ignoreEmptyLines, ignoreHashedLines);
         if (rowLineIterator.hasNext() == false)
         {
             throw new IllegalArgumentException("Empty file '" + nameOfReadingSource + "'.");

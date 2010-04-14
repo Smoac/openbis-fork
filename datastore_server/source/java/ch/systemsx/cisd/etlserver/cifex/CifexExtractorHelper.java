@@ -31,7 +31,7 @@ public class CifexExtractorHelper
 {
     private static final String COMMENT_KEY = "comment";
 
-    private static final String REQUEST_PROPERTIES_FILE = "request.properties";
+    public static final String REQUEST_PROPERTIES_FILE = "request.properties";
 
     private static final String UPLOADING_USER_EMAIL_KEY = "user-email";
 
