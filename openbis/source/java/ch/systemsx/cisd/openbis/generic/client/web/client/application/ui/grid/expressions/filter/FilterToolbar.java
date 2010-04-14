@@ -311,7 +311,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private void apply()
     {
-        if (disableApply == false)
+        if (disableApply == false) // FIXME don't do this after first render
         {
             applyFiltersAction.execute();
         }

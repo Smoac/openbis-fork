@@ -255,7 +255,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(false);
-        filterToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
+        pagingToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {
@@ -279,10 +279,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         add(contentPanel);
 
         addRefreshDisplaySettingsListener();
-        pagingLoader.addLoadListener(new LoadListener());
+        pagingLoader.addLoadListener(new LoadListener()); // TODO why do we need this?
         if (viewContext.isLoggingEnabled())
         {
-            prepareLoggingBetweenEvents(contentPanel, EventPair.RENDER);
             prepareLoggingBetweenEvents(this, EventPair.LAYOUT);
             prepareLoggingBetweenEvents(grid, EventPair.LAYOUT);
             prepareLoggingBetweenEvents(contentPanel, EventPair.LAYOUT);
@@ -614,10 +613,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 new ListEntitiesCallback(viewContext, callback, resultSetConfig);
 
         listEntities(resultSetConfig, listCallback);
+
+        // TODO it is a bit faster for small tables to add this after data are loaded
         if (bottomToolbars.getItemCount() == 0)
         {
-            int addLogID = log("add bottom tool bars");
-            bottomToolbars.add(filterToolbar, new RowData(1, -1));
+            int addLogID = log("add bottom toolbars");
             bottomToolbars.add(pagingToolbar, new RowData(1, -1));
             bottomToolbars.layout(true);
             viewContext.logStop(addLogID);
@@ -855,6 +855,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 public void configure()
                 {
                     delegate.configureColumnSettings();
+                }
+
+                public void showFilters()
+                {
+                    int logId = log("adding filters");
+                    bottomToolbars.insert(filterToolbar, 0);
+                    bottomToolbars.layout();
+                    // TODO filterToolbar.setApplyFiltersAction(createApplyFiltersDelagator());
+                    viewContext.logStop(logId);
                 }
             };
     }
@@ -1109,6 +1118,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final void recreateColumnModelAndRefreshColumnsWithFilters()
     {
+        int logId = log("recreateColumnModelAndRefreshColumnsWithFilters");
+
         ColumnDefsAndConfigs<T> defsAndConfigs = createColumnsDefinition();
         // add custom columns
         List<GridCustomColumnInfo> customColumnsMetadata =
@@ -1133,8 +1144,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         this.columnDefinitions = defsAndConfigs.getColumnDefs();
         ColumnModel columnModel = createColumnModel(defsAndConfigs.getColumnConfigs());
-
+      
         refreshColumnsAndFilters(columnModel);
+
+        viewContext.logStop(logId);
     }
 
     private static <T> List<IColumnDefinitionUI<T>> createCustomColumnDefinitions(
@@ -1188,7 +1201,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private void changeColumnModel(ColumnModel columnModel)
     {
+        int logId = log("grid reconfigure");
         grid.reconfigure(grid.getStore(), columnModel);
+        viewContext.logStop(logId);
         registerGridSettingsChangesListener();
     }
 
@@ -1293,6 +1308,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     }
 
                     updateDefaultRefreshButton();
+
                     if (wasSuccessful)
                     {
                         pagingToolbar.updateDefaultConfigButton(true);
