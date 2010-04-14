@@ -155,7 +155,7 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
     {
         File file = createDataExample();
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetHandler.TIME_SERIES);
+                createDataSetInformation(DataSetHandler.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
 
         try
@@ -198,7 +198,7 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
             });
 
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetHandler.TIME_SERIES);
+                createDataSetInformation(DataSetHandler.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
                 "GM_BR_B1"));
         try
@@ -296,7 +296,7 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
             });
 
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetHandler.TIME_SERIES);
+                createDataSetInformation(DataSetHandler.TIME_SERIES);
         dataSetInformation.setUploadingUserEmail("ab@c.de");
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
                 "GM_BR_B1"));

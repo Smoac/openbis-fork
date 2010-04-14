@@ -17,11 +17,23 @@
 package eu.basysbio.cisd.dss;
 
 import java.io.File;
+import java.io.FileReader;
+import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.etlserver.cifex.CifexExtractorHelper;
+import ch.systemsx.cisd.etlserver.utils.Column;
+import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * 
@@ -64,8 +76,79 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
     protected void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation,
             IDropBoxFeeder feeder)
     {
-        // TODO Auto-generated method stub
-
+        FileReader reader = null;
+        try
+        {
+            reader = new FileReader(tsvFile);
+            String fileName = tsvFile.toString();
+            TabSeparatedValueTable table =
+                    new TabSeparatedValueTable(reader, fileName, parameters.isIgnoreEmptyLines(), true);
+            List<Column> columns = table.getColumns();
+            if (columns.size() != 4)
+            {
+                throw new UserFailureException("Error in file " + tsvFile.getName()
+                        + ": Exactly four columns expected in stead of " + columns.size());
+            }
+            File timeSeriesDropBox = parameters.getTimeSeriesDropBox();
+            List<String> timeValues = columns.get(0).getValues();
+            List<NewProperty> properties = dataSetInformation.getDataSetProperties();
+            for (NewProperty property : properties)
+            {
+                if (property.getPropertyCode().equals(TimeSeriesPropertyType.TIME_POINT_LIST.toString()))
+                {
+                    System.out.println(property);
+                    property.setValue(HeaderUtils.join(timeValues));
+                }
+            }
+            for (int i = 1; i < columns.size(); i++)
+            {
+                Column column = columns.get(i);
+                String header = column.getHeader();
+                File dataSet = new File(timeSeriesDropBox, DataSetHandler.LCA_MIC_TIME_SERIES + i);
+                dataSet.mkdir();
+                String[] items = header.split(DataColumnHeader.SEPARATOR);
+                if (items.length < 11)
+                {
+                    throw new UserFailureException("Invalid header: Missing BBA ID: " + header);
+                }
+                String bbaID = items[10];
+                if (bbaID.startsWith("BBA") == false)
+                {
+                    throw new UserFailureException("Invalid header: BBA ID doesn't start with 'BBA': " + header);
+                }
+                items[10] = "NB";
+                StringBuilder builder = new StringBuilder("BBA ID");
+                for (String value : timeValues)
+                {
+                    items[3] = value;
+                    builder.append("\t").append(StringUtils.join(items, DataColumnHeader.SEPARATOR));
+                }
+                builder.append("\n").append(bbaID);
+                List<String> values = column.getValues();
+                for (String value : values)
+                {
+                    builder.append("\t").append(value);
+                }
+                builder.append("\n");
+                FileUtilities.writeToFile(new File(dataSet, header + ".txt"), builder.toString());
+                builder.setLength(0);
+                builder.append("comment=null,");
+                builder.append(dataSetInformation.getExperimentIdentifier()).append(",");
+                builder.append(dataSetInformation.getDataSetCode()).append(",");
+                builder.append(DataSetHandler.LCA_MIC_TIME_SERIES).append(",PROPRIETARY\n");
+                builder.append("user-email=").append(dataSetInformation.tryGetUploadingUserEmail());
+                FileUtilities.writeToFile(new File(dataSet, CifexExtractorHelper.REQUEST_PROPERTIES_FILE), builder.toString());
+            }
+        } catch (RuntimeException ex)
+        {
+            throw ex;
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(reader);
+        }
     }
 
 }

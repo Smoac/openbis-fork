@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = TimeSeriesDataSetHandler.class)
+@Friend(toClasses = DataSetHandler.class)
 public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
 {
 
@@ -209,7 +209,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
         properties.setProperty(Util.TRANSLATION_KEY + "a", "Alpha");
         prepareDataSetPropertiesValidator("Alpha", "B");
-        TimeSeriesDataSetHandler handler = createHandler(properties);
+        DataSetHandler handler = createHandler(properties);
         File file = createDataExample();
         DataSetInformation dataSetInformation = createDataSetInformation("BLABLA");
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
@@ -239,13 +239,13 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
         properties.setProperty(Util.TRANSLATION_KEY + "a", "Alpha");
         prepareDataSetPropertiesValidator("Alpha", "B");
-        TimeSeriesDataSetHandler handler = createHandler(properties);
+        DataSetHandler handler = createHandler(properties);
 
         File file = createDataExample();
 
         try
         {
-            handler.handle(file, createDataSetInformation(TimeSeriesDataSetHandler.TIME_SERIES));
+            handler.handle(file, createDataSetInformation(DataSetHandler.TIME_SERIES));
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -267,10 +267,10 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS");
         properties.setProperty(Util.TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
         prepareDataSetPropertiesValidator("METABOLITE_LCMS");
-        TimeSeriesDataSetHandler handler = createHandler(properties);
+        DataSetHandler handler = createHandler(properties);
         File file = createDataExample();
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetHandler.TIME_SERIES);
+                createDataSetInformation(DataSetHandler.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
 
         try
@@ -296,7 +296,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 DATA_SET_PROPERTIES_FILE);
         properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "b");
         prepareDataSetPropertiesValidator("B");
-        TimeSeriesDataSetHandler handler = createHandler(properties);
+        DataSetHandler handler = createHandler(properties);
         File file = createDataExample();
         prepareGetOrCreateDataSet(true);
         prepareCreateRows();
@@ -321,7 +321,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             });
 
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetHandler.TIME_SERIES);
+                createDataSetInformation(DataSetHandler.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
                 "GM_BR_B1"));
         try
@@ -349,7 +349,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS, b");
         properties.setProperty(Util.TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
         prepareDataSetPropertiesValidator("METABOLITE_LCMS", "B");
-        TimeSeriesDataSetHandler handler = createHandler(properties);
+        DataSetHandler handler = createHandler(properties);
         File file = createDataExample();
         prepareGetOrCreateDataSet(false);
         prepareCreateRows();
@@ -427,7 +427,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             });
 
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetHandler.TIME_SERIES);
+                createDataSetInformation(DataSetHandler.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
                 "GM_BR_B1"));
         handler.handle(file, dataSetInformation);
@@ -620,9 +620,9 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             });
     }
 
-    private TimeSeriesDataSetHandler createHandler(final Properties properties)
+    private DataSetHandler createHandler(final Properties properties)
     {
-        return new TimeSeriesDataSetHandler(properties, dataSource, service)
+        return new DataSetHandler(properties, dataSource, service)
             {
                 @Override
                 IDataSetUploader createUploader(DataSetInformation dataSetInformation)

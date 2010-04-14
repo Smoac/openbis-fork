@@ -35,12 +35,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 /**
  * @author Franz-Josef Elmer
  */
-class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo implements IDataSetUploader, IFileManager
+class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo implements IDataSetUploader, IFileManager
 {
     static final String TIME_SERIES = "TIME_SERIES";
-    private static final String LCA_MTP_TIME_SERIES = "LCA_MTP_TIME_SERIES";
-    private static final String LCA_MTP_PCAV_TIME_SERIES = "LCA_MTP_PCAV_TIME_SERIES";
-    private static final String LCA_MIC_TIME_SERIES = "LCA_MIC_TIME_SERIES";
+    static final String LCA_MTP_TIME_SERIES = "LCA_MTP_TIME_SERIES";
+    static final String LCA_MTP_PCAV_TIME_SERIES = "LCA_MTP_PCAV_TIME_SERIES";
+    static final String LCA_MIC_TIME_SERIES = "LCA_MIC_TIME_SERIES";
+    static final String LCA_MIC = "LCA_MIC";
 
     private final IEncapsulatedOpenBISService service;
 
@@ -54,12 +55,12 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     
     private eu.basysbio.cisd.dss.IDataSetUploader uploader;
 
-    TimeSeriesDataSetHandler(Properties properties, IEncapsulatedOpenBISService service)
+    DataSetHandler(Properties properties, IEncapsulatedOpenBISService service)
     {
         this(properties, DBUtils.createAndInitDBContext(properties).getDataSource(), service);
     }
     
-    TimeSeriesDataSetHandler(Properties properties, DataSource dataSource,
+    DataSetHandler(Properties properties, DataSource dataSource,
             IEncapsulatedOpenBISService service)
     {
         super(FileOperations.getInstance());
@@ -71,7 +72,8 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         factory.register(TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);
         factory.register(LCA_MTP_PCAV_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
         factory.register(LCA_MTP_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
-        factory.register(LCA_MIC_TIME_SERIES, LcaMicDataSetUploader.FACTORY);
+        factory.register(LCA_MIC_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
+        factory.register(LCA_MIC, LcaMicDataSetUploader.FACTORY);
     }
     
     @Override

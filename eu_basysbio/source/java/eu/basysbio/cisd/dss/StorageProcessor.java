@@ -54,10 +54,10 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
 
     public StorageProcessor(Properties properties)
     {
-        this(properties, new TimeSeriesDataSetHandler(properties, ServiceProvider.getOpenBISService()));
+        this(properties, new DataSetHandler(properties, ServiceProvider.getOpenBISService()));
     }
     
-    StorageProcessor(Properties properties, TimeSeriesDataSetHandler handler)
+    StorageProcessor(Properties properties, DataSetHandler handler)
     {
         super(properties, handler);
         storageProcessorWithUploader = new StorageProcessorWithUploader(new IStorageProcessor()

@@ -64,7 +64,7 @@ public class TimeSeriesPropertiesUpdateProcessingPlugin extends AbstractDatastor
         {
             File file = getDataSubDir(dataset);
             List<NewProperty> newProperties =
-                    TimeSeriesHeaderUtils.extractHeaderProperties(file, true);
+                    HeaderUtils.extractHeaderProperties(file, true);
             SpaceIdentifier space =
                     new SpaceIdentifier(dataset.getDatabaseInstanceCode(), dataset.getGroupCode());
             ServiceProvider.getOpenBISService().updateDataSet(dataset.getDatasetCode(),

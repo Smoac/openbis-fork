@@ -16,9 +16,11 @@
 
 package eu.basysbio.cisd.dss;
 
+import java.io.File;
 import java.text.MessageFormat;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
@@ -26,6 +28,8 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 class TimeSeriesDataSetUploaderParameters
 {
+    static final String TIME_SERIES_DATA_SET_DROP_BOX_PATH = "time-series-data-set-drop-box-path";
+
     static final String EXPERIMENT_CODE_TEMPLATE_KEY = "experiment-code-template";
 
     static final String DEFAULT_EXPERIMENT_CODE_TEMPLATE = "{0}_{1}_{2}";
@@ -50,9 +54,24 @@ class TimeSeriesDataSetUploaderParameters
 
     private final boolean checkExistingDataSets;
 
+    private final File timeSeriesDropBox;
+
     TimeSeriesDataSetUploaderParameters(Properties properties, boolean checkExistingDataSets)
     {
         this.checkExistingDataSets = checkExistingDataSets;
+        String timeSeriesDataSetDropBoxPath =
+                PropertyUtils.getMandatoryProperty(properties, TIME_SERIES_DATA_SET_DROP_BOX_PATH);
+        timeSeriesDropBox = new File(timeSeriesDataSetDropBoxPath);
+        if (timeSeriesDropBox.exists() == false)
+        {
+            throw new ConfigurationFailureException(
+                    "Time series data set drop box does not exist: " + timeSeriesDropBox);
+        }
+        if (timeSeriesDropBox.isDirectory() == false)
+        {
+            throw new ConfigurationFailureException(
+                    "Time series data set drop box is not a folder: " + timeSeriesDropBox);
+        }
         sampleTypeCode = properties.getProperty(SAMPLE_TYPE_CODE_KEY, DEFAULT_SAMPLE_TYPE_CODE);
         ignoreEmptyLines = PropertyUtils.getBoolean(properties, IGNORE_EMPTY_LINES_KEY, true);
         experimentCodeFormat =
@@ -61,6 +80,11 @@ class TimeSeriesDataSetUploaderParameters
         sampleCodeFormat =
                 new MessageFormat(properties.getProperty(SAMPLE_CODE_TEMPLATE_KEY,
                         DEFAULT_SAMPLE_CODE_TEMPLATE));
+    }
+    
+    File getTimeSeriesDropBox()
+    {
+        return timeSeriesDropBox;
     }
 
     MessageFormat getExperimentCodeFormat()

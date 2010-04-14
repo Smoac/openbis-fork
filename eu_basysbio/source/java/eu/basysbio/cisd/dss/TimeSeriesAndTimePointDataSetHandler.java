@@ -17,6 +17,7 @@
 package eu.basysbio.cisd.dss;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -136,6 +137,15 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, TimeSeriesAndTimePointDataSetHandler.class);
+    
+    private static final FilenameFilter LCA_MIC_TIME_SERIES_FILE_FILTER = new FilenameFilter()
+        {
+
+            public boolean accept(File dir, String name)
+            {
+                return name.startsWith(DataSetHandler.LCA_MIC_TIME_SERIES);
+            }
+        };
 
     private final IDataSetHandler delegator;
 
@@ -185,25 +195,36 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
             MessageBuilder builder =
                     new MessageBuilder(result.get(0).tryGetUploadingUserEmail(), timeProvider);
             builder.setTimeSeriesDataSetFileName(dataSet);
-            File[] files = timePointDataSetFolder.listFiles();
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info("Starting registration of " + files.length
-                        + " time point data sets.");
-            }
-            builder.setNumberOfExpectedTimePointDataSets(files.length);
+            handleTimePointDataSets(dataSetInfos, builder);
+            File[] files = dataSet.getParentFile().listFiles(LCA_MIC_TIME_SERIES_FILE_FILTER);
             for (File file : files)
             {
-                result = timePointDataSetHandler.handleDataSet(file);
-                dataSetInfos.addAll(result);
-                if (result.isEmpty() == false)
-                {
-                    builder.addTimePointDataSetCode(getDataSetCode(result));
-                }
+                dataSetInfos.addAll(delegator.handleDataSet(file));
             }
             builder.logAndSendEMail(operationLog, mailClient);
         }
         return dataSetInfos;
+    }
+
+    private void handleTimePointDataSets(List<DataSetInformation> dataSetInfos,
+            MessageBuilder builder)
+    {
+        File[] files = timePointDataSetFolder.listFiles();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Starting registration of " + files.length
+                    + " time point data sets.");
+        }
+        builder.setNumberOfExpectedTimePointDataSets(files.length);
+        for (File file : files)
+        {
+            List<DataSetInformation> result = timePointDataSetHandler.handleDataSet(file);
+            dataSetInfos.addAll(result);
+            if (result.isEmpty() == false)
+            {
+                builder.addTimePointDataSetCode(getDataSetCode(result));
+            }
+        }
     }
     
     private String getDataSetCode(List<DataSetInformation> result)

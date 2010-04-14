@@ -120,7 +120,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
             for (Column column : columns)
             {
                 String header = column.getHeader();
-                if (TimeSeriesHeaderUtils.isDataColumnHeader(header))
+                if (HeaderUtils.isDataColumnHeader(header))
                 {
                     dataColumns.add(column);
                 } else

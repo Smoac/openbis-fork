@@ -50,7 +50,7 @@ public class TimeSeriesPropertiesReportingPlugin extends AbstractDatastorePlugin
         List<String> headers = new ArrayList<String>();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         addHeader(builder, headers, "CODE");
-        for (TimeSeriesPropertyType pt : TimeSeriesHeaderUtils.TIME_SERIES_HEADER_PROPERTIES)
+        for (TimeSeriesPropertyType pt : HeaderUtils.TIME_SERIES_HEADER_PROPERTIES)
         {
             addHeader(builder, headers, pt.name());
         }
@@ -59,7 +59,7 @@ public class TimeSeriesPropertiesReportingPlugin extends AbstractDatastorePlugin
             List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
             addTableCellValue(row, headers, "CODE", dataset.getDatasetCode());
             File file = getDataSubDir(dataset);
-            List<NewProperty> properies = TimeSeriesHeaderUtils.extractHeaderProperties(file, true);
+            List<NewProperty> properies = HeaderUtils.extractHeaderProperties(file, true);
             for (NewProperty p : properies)
             {
                 addTableCellValue(row, headers, p.getPropertyCode(), p.getValue());

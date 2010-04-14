@@ -106,6 +106,12 @@ public final class DataColumnHeader
 
     DataColumnHeader(String header)
     {
+        this(header, true);
+    }
+    
+    
+    DataColumnHeader(String header, boolean ignoreTimePoint)
+    {
         this.header = header;
         String[] parts = header.split(SEPARATOR);
         if (parts.length < HEADER_PARTS)
@@ -117,7 +123,7 @@ public final class DataColumnHeader
         experimentCode = parts[0];
         cultivationMethod = parts[1];
         biologicalReplicateCode = parts[2];
-        timePoint = parseTimePoint(parts[TIME_POINT_INDEX], header);
+        timePoint = ignoreTimePoint ? 0 : parseTimePoint(parts[TIME_POINT_INDEX], header);
         timePointType = parts[TIME_POINT_TYPE_INDEX];
         technicalReplicateCode = parts[5];
         celLoc = parts[6];

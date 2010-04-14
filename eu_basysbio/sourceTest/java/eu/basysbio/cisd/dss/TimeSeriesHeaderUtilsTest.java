@@ -31,11 +31,11 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Test cases for {@link TimeSeriesHeaderUtils}.
+ * Test cases for {@link HeaderUtils}.
  * 
  * @author Izabela Adamczyk
  */
-@Friend(toClasses = TimeSeriesHeaderUtils.class)
+@Friend(toClasses = HeaderUtils.class)
 public class TimeSeriesHeaderUtilsTest extends AssertJUnit
 {
     private static final String QUANTIFIED_PEPTIDES = "QuantifiedPeptides";
@@ -58,7 +58,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         String header = new Header().toString();
         assertEquals(DEFAULT_HEADER, header);
         Collection<DataColumnHeader> headers = Arrays.asList(new DataColumnHeader(header));
-        TimeSeriesHeaderUtils
+        HeaderUtils
                 .assertMetadataConsistent(headers, new ArrayList<DataHeaderProperty>());
     }
 
@@ -68,7 +68,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         String header = new Header().toString();
         assertEquals(DEFAULT_HEADER, header);
         Collection<DataColumnHeader> headers = Arrays.asList(new DataColumnHeader(header));
-        TimeSeriesHeaderUtils.assertMetadataConsistent(headers, Arrays
+        HeaderUtils.assertMetadataConsistent(headers, Arrays
                 .asList(DataHeaderProperty.BiologicalReplicatateCode));
     }
 
@@ -78,7 +78,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         String header = new Header().toString();
         assertEquals(DEFAULT_HEADER, header);
         Collection<DataColumnHeader> headers = Arrays.asList(new DataColumnHeader(header));
-        TimeSeriesHeaderUtils.assertMetadataConsistent(headers, Arrays.asList(
+        HeaderUtils.assertMetadataConsistent(headers, Arrays.asList(
                 DataHeaderProperty.BiologicalReplicatateCode, DataHeaderProperty.TimePoint));
     }
 
@@ -91,7 +91,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         assertTrue(header1.equals(header2));
         Collection<DataColumnHeader> headers =
                 Arrays.asList(new DataColumnHeader(header1), new DataColumnHeader(header2));
-        TimeSeriesHeaderUtils.assertMetadataConsistent(headers, Arrays
+        HeaderUtils.assertMetadataConsistent(headers, Arrays
                 .asList(DataHeaderProperty.BiologicalReplicatateCode));
     }
 
@@ -105,7 +105,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         assertFalse(header1.equals(header2));
         Collection<DataColumnHeader> headers =
                 Arrays.asList(new DataColumnHeader(header1), new DataColumnHeader(header2));
-        TimeSeriesHeaderUtils.assertMetadataConsistent(headers, Arrays
+        HeaderUtils.assertMetadataConsistent(headers, Arrays
                 .asList(DataHeaderProperty.BiologicalReplicatateCode));
     }
 
@@ -122,7 +122,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            TimeSeriesHeaderUtils.assertMetadataConsistent(headers, Arrays.asList(property));
+            HeaderUtils.assertMetadataConsistent(headers, Arrays.asList(property));
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -154,7 +154,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            TimeSeriesHeaderUtils.assertMetadataConsistent(headers, Arrays.asList(property));
+            HeaderUtils.assertMetadataConsistent(headers, Arrays.asList(property));
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -188,7 +188,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            TimeSeriesHeaderUtils.assertMetadataConsistent(headers, Arrays.asList(firstRequirement,
+            HeaderUtils.assertMetadataConsistent(headers, Arrays.asList(firstRequirement,
                     secondRequirement));
         } catch (UserFailureException ex)
         {
@@ -245,7 +245,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            TimeSeriesHeaderUtils.getPropertyValue(property, map, true);
+            HeaderUtils.getPropertyValue(property, map, true);
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -265,7 +265,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            TimeSeriesHeaderUtils.getPropertyValue(property, map, true);
+            HeaderUtils.getPropertyValue(property, map, true);
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -283,7 +283,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         HashSet<String> set = new HashSet<String>();
         set.add(VAL1);
         map.put(property, set);
-        assertEquals(VAL1, TimeSeriesHeaderUtils.getPropertyValue(property, map, true));
+        assertEquals(VAL1, HeaderUtils.getPropertyValue(property, map, true));
     }
 
     @Test
@@ -296,7 +296,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         set.add(VAL1);
         set.add(VAL2);
         map.put(property, set);
-        String result = TimeSeriesHeaderUtils.getPropertyValue(property, map, true);
+        String result = HeaderUtils.getPropertyValue(property, map, true);
         assertTrue((VAL1 + ", " + VAL2).equals(result) || (VAL2 + ", " + VAL1).equals(result));
     }
 
@@ -314,7 +314,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            TimeSeriesHeaderUtils.getPropertyValue(property, map, false);
+            HeaderUtils.getPropertyValue(property, map, false);
         } catch (UserFailureException e)
         {
             exceptionThrown = true;
@@ -336,7 +336,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         set.add(PROTEIN_LCMS_RATIO);
         set.add(QUANTIFIED_PEPTIDES);
         map.put(property, set);
-        assertEquals(PROTEIN_LCMS_RATIO, TimeSeriesHeaderUtils.getPropertyValue(property, map,
+        assertEquals(PROTEIN_LCMS_RATIO, HeaderUtils.getPropertyValue(property, map,
                 false, true));
     }
 
@@ -354,7 +354,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            TimeSeriesHeaderUtils.getPropertyValue(property, map, false, false);
+            HeaderUtils.getPropertyValue(property, map, false, false);
         } catch (UserFailureException e)
         {
             exceptionThrown = true;

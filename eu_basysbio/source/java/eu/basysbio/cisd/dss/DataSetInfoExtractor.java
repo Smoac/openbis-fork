@@ -17,30 +17,46 @@
 package eu.basysbio.cisd.dss;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.cifex.CifexDataSetInfoExtractor;
+import ch.systemsx.cisd.etlserver.cifex.CifexTypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class TimeSeriesDataSetInfoExtractor implements IDataSetInfoExtractor
+public class DataSetInfoExtractor implements IDataSetInfoExtractor
 {
     private final CifexDataSetInfoExtractor infoExtractor;
 
+    private final CifexTypeExtractor typeExtractor;
+    
     private final Properties properties;
+    
+    private final Map<String, IDataSetPropertiesExtractor> propertiesExtractors =
+            new HashMap<String, IDataSetPropertiesExtractor>();
 
-    public TimeSeriesDataSetInfoExtractor(Properties globalProperties)
+    public DataSetInfoExtractor(Properties globalProperties)
     {
         this.properties = globalProperties;
         infoExtractor = new CifexDataSetInfoExtractor(globalProperties);
+        typeExtractor = new CifexTypeExtractor(globalProperties);
+        IDataSetPropertiesExtractor timeSeriesExtractor = new TimeSeriesDataSetPropertiesExtractor(properties);
+        propertiesExtractors.put(DataSetHandler.TIME_SERIES, timeSeriesExtractor);
+        propertiesExtractors.put(DataSetHandler.LCA_MTP_TIME_SERIES, timeSeriesExtractor);
+        propertiesExtractors.put(DataSetHandler.LCA_MTP_PCAV_TIME_SERIES, timeSeriesExtractor);
+        propertiesExtractors.put(DataSetHandler.LCA_MIC_TIME_SERIES, timeSeriesExtractor);
+        propertiesExtractors.put(DataSetHandler.LCA_MIC, new LcaMicDataSetPropertiesExtractor(properties));
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
@@ -55,12 +71,14 @@ public class TimeSeriesDataSetInfoExtractor implements IDataSetInfoExtractor
             info.getDataSetProperties().add(
                     new NewProperty(TimeSeriesPropertyType.UPLOADER_EMAIL.toString(), email));
         }
-        boolean ignoreEmptyLines =
-                new TimeSeriesDataSetUploaderParameters(properties, false).isIgnoreEmptyLines();
-        List<NewProperty> headerProperties =
-                TimeSeriesHeaderUtils.extractHeaderProperties(incomingDataSetPath, ignoreEmptyLines);
+        DataSetType dataSetType = typeExtractor.getDataSetType(incomingDataSetPath);
+        IDataSetPropertiesExtractor extractor = propertiesExtractors.get(dataSetType.getCode());
+        if (extractor == null)
+        {
+            throw new UserFailureException("Unknown data set type: " + dataSetType);
+        }
+        List<NewProperty> headerProperties = extractor.extractDataSetProperties(incomingDataSetPath);
         info.getDataSetProperties().addAll(headerProperties);
         return info;
     }
-
 }
