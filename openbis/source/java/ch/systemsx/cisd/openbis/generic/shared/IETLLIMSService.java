@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSample
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -135,6 +136,18 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public DataSetTypeWithVocabularyTerms getDataSetType(String sessionToken, String dataSetTypeCode)
             throws UserFailureException;
 
+    /**
+     * For given experiment {@link TechId} returns the corresponding list of {@link ExternalData}.
+     * 
+     * @return a sorted list of {@link ExternalData}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public List<ExternalData> listDataSetsByExperimentID(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) final TechId experimentID)
+            throws UserFailureException;
+    
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
      * 

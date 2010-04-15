@@ -31,17 +31,17 @@ public class DataSetTypeWithVocabularyTerms implements IsSerializable, Serializa
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
     
-    private String code; 
+    private DataSetType dataSetType;
     private List<PropertyTypeWithVocabulary> propertyTypes = new ArrayList<PropertyTypeWithVocabulary>();
 
-    public String getCode()
+    public DataSetType getDataSetType()
     {
-        return code;
+        return dataSetType;
     }
 
-    public void setCode(String code)
+    public void setDataSetType(DataSetType dataSetType)
     {
-        this.code = code;
+        this.dataSetType = dataSetType;
     }
 
     public void addPropertyType(PropertyTypeWithVocabulary propertyType)

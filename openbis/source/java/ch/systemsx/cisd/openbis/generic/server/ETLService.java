@@ -93,6 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -411,7 +412,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
                     + "'.");
         }
         DataSetTypeWithVocabularyTerms result = new DataSetTypeWithVocabularyTerms();
-        result.setCode(dataSetType.getCode());
+        result.setDataSetType(DataSetTypeTranslator.translate(dataSetType, null));
         Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes =
                 dataSetType.getDataSetTypePropertyTypes();
         HibernateUtils.initialize(dataSetTypePropertyTypes);
@@ -430,6 +431,16 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             result.addPropertyType(propertyType);
         }
         return result;
+    }
+
+    public List<ExternalData> listDataSetsByExperimentID(String sessionToken, TechId experimentID)
+            throws UserFailureException
+    {
+        final Session session = getSession(sessionToken);
+        
+        IExternalDataTable dataSetTable = businessObjectFactory.createExternalDataTable(session);
+        dataSetTable.loadByExperimentTechId(experimentID);
+        return ExternalDataTranslator.translate(dataSetTable.getExternalData(), "", "");
     }
 
     public List<ExternalData> listDataSetsBySampleID(final String sessionToken,

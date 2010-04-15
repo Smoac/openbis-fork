@@ -164,6 +164,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public List<ExternalData> listDataSetsByExperimentID(String sessionToken, TechId experimentID)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "listDataSetsByExperimentID", "EXPERIMENT_ID(%s)", experimentID);
+        return null;
+    }
+
     public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
