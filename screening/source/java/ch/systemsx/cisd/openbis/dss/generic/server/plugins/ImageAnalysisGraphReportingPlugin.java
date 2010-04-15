@@ -131,7 +131,7 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
 
     private List<String> getGraphTypeCodes()
     {
-        return configuration.getGraphTypeCodes();
+        return configuration.getGraphNames();
     }
 
     private int getImageWidth()

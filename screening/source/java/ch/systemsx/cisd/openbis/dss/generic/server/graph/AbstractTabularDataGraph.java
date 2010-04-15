@@ -63,6 +63,20 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
                 .getImageHeight());
     }
 
+    /**
+     * Create an image,overriding the width and height in the configuration from the file lines and
+     * write it to the output stream.
+     * 
+     * @param imageWidth The desired width of the image
+     * @param imageHeight The desired height of the image
+     * @throws IOException
+     */
+    public void generateImage(int imageWidth, int imageHeight) throws IOException
+    {
+        JFreeChart chart = createChart();
+        ChartUtilities.writeChartAsPNG(out, chart, imageWidth, imageHeight);
+    }
+
     // For Subclasses
     /**
      * Return the configuration for this graph.

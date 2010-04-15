@@ -70,14 +70,14 @@ public class TabularDataGraphServlet extends AbstractDatasetDownloadServlet
 
         private final String filePath;
 
-        private final String graphTypeCode;
+        private final String graphName;
 
         public RequestParams(HttpServletRequest request)
         {
             sessionId = getRequiredParameter(request, SESSION_ID_PARAM);
             datasetCode = getRequiredParameter(request, DATASET_CODE_PARAM);
             filePath = getRequiredParameter(request, FILE_PATH_PARAM);
-            graphTypeCode = getRequiredParameter(request, GRAPH_TYPE_CODE);
+            graphName = getRequiredParameter(request, GRAPH_TYPE_CODE);
         }
 
         private static String getRequiredParameter(final HttpServletRequest request,
@@ -135,7 +135,7 @@ public class TabularDataGraphServlet extends AbstractDatasetDownloadServlet
 
             // Generate an image image into the stream
             ITabularDataGraph generator =
-                    configuration.getGraph(params.graphTypeCode, fileLines, response
+                    configuration.getGraph(params.graphName, fileLines, response
                             .getOutputStream());
             generator.generateImage();
 
