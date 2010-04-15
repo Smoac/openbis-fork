@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -75,5 +77,20 @@ class Util
                     + missingMandatoryProperties);
         }
         return sampleProperties.toArray(new IEntityProperty[sampleProperties.size()]);
+    }
+
+    static Properties loadPropertiesFile(File incomingDataSetDirectory, String propertiesFileName)
+    {
+        File propertiesFile = new File(incomingDataSetDirectory, propertiesFileName);
+        if (propertiesFile.exists() == false)
+        {
+            throw new UserFailureException("Missing properties file '" + propertiesFileName + "'.");
+        }
+        if (propertiesFile.isFile() == false)
+        {
+            throw new UserFailureException("Properties file '" + propertiesFileName
+                    + "' is a folder.");
+        }
+        return PropertyUtils.loadProperties(propertiesFile);
     }
 }
