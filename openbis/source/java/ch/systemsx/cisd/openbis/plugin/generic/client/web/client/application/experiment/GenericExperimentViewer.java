@@ -89,6 +89,9 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
             final ExperimentType experimentType, final IIdentifiable experimentId)
     {
         super(viewContext, createId(experimentId));
+
+        int logID = viewContext.log("create experiment viewer");
+
         this.experimentId = experimentId;
         this.experimentType = experimentType;
         this.viewContext = viewContext;
@@ -96,6 +99,8 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         extendToolBar();
 
         reloadAllData();
+
+        viewContext.logStop(logID);
     }
 
     private void extendToolBar()
@@ -130,6 +135,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
     private void layoutExperimentDetailView(Experiment experiment)
     {
+        int logId = viewContext.log("layoutExperimentDetailView");
         updateOriginalData(experiment);
         removeAll();
 
@@ -139,6 +145,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         final Html loadingLabel = new Html(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         add(loadingLabel, createRightBorderLayoutData());
         layout();
+        viewContext.logStop(logId);
 
         executeDelayed(new IDelegatedAction()
             {
