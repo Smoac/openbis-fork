@@ -44,7 +44,7 @@ public class TabularDataGraphConfiguration
      * @param imageWidth The desired width of the resulting image
      * @param imageHeight The desired height of the resulting image
      */
-    protected TabularDataGraphConfiguration(String title, String xAxisColumn,
+    public TabularDataGraphConfiguration(String title, String xAxisColumn,
             String yAxisColumn, int imageWidth, int imageHeight)
     {
         this.title = title;
@@ -57,7 +57,7 @@ public class TabularDataGraphConfiguration
     /**
      * The title for the resulting image.
      */
-    protected String getTitle()
+    public String getTitle()
     {
         return title;
     }

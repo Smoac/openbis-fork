@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.GrayPaintScale;
@@ -46,6 +47,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLine
 public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeatmapConfiguration>
 {
 
+    private final Pattern xySplitterPattern;
+
     /**
      * @param configuration
      */
@@ -53,6 +56,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
             DatasetFileLines fileLines, OutputStream out)
     {
         super(configuration, fileLines, out);
+        xySplitterPattern = Pattern.compile("([A-Z])([0-9]*)");
     }
 
     @Override
@@ -103,6 +107,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
         }
         NumberAxis xAxis = new NumberAxis(xAxisLabel);
         xAxis.setAutoRangeIncludesZero(false);
+        xAxis.setTickUnit(new NumberTickUnit(1.));
         NumberAxis yAxis = new NumberAxis(yAxisLabel);
 
         XYBlockRenderer renderer = new XYBlockRenderer();
@@ -170,7 +175,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
 
     private void splitColumnIntoXandY(String string, HeatmapElement element)
     {
-        Pattern p = Pattern.compile("([A-Z])([0-9]*)");
+        Pattern p = xySplitterPattern;
         Matcher m = p.matcher(string);
         if (m.matches())
         {

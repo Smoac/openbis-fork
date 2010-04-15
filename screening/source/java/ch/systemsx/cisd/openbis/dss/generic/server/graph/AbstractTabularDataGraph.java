@@ -34,7 +34,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLine
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
+abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration> implements
+        ITabularDataGraph
 {
     protected final T configuration;
 
