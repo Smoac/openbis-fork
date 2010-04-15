@@ -35,7 +35,6 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.LoadListener;
@@ -82,6 +81,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InternalLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MultilineStringCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ComponentEventLogger;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ComponentEventLogger.EventPair;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -282,70 +283,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         pagingLoader.addLoadListener(new LoadListener()); // TODO why do we need this?
         if (viewContext.isLoggingEnabled())
         {
-            prepareLoggingBetweenEvents(this, EventPair.LAYOUT);
-            prepareLoggingBetweenEvents(grid, EventPair.LAYOUT);
-            prepareLoggingBetweenEvents(contentPanel, EventPair.LAYOUT);
-            prepareLoggingBetweenEvents(bottomToolbars, EventPair.LAYOUT);
-            prepareLoggingBetweenEvents(filterToolbar, EventPair.LAYOUT);
-            prepareLoggingBetweenEvents(pagingToolbar, EventPair.LAYOUT);
+            ComponentEventLogger logger = new ComponentEventLogger(viewContext, getId());
+            logger.prepareLoggingBetweenEvents(contentPanel, EventPair.RENDER);
+            logger.prepareLoggingBetweenEvents(this, EventPair.LAYOUT);
+            logger.prepareLoggingBetweenEvents(grid, EventPair.LAYOUT);
+            logger.prepareLoggingBetweenEvents(contentPanel, EventPair.LAYOUT);
+            logger.prepareLoggingBetweenEvents(bottomToolbars, EventPair.LAYOUT);
+            logger.prepareLoggingBetweenEvents(filterToolbar, EventPair.LAYOUT);
+            logger.prepareLoggingBetweenEvents(pagingToolbar, EventPair.LAYOUT);
             viewContext.logStop(logID);
         }
-    }
-
-    private enum EventPair
-    {
-        RENDER(Events.BeforeRender, Events.Render), LAYOUT(Events.BeforeLayout, Events.AfterLayout);
-
-        private final EventType beforeEvent;
-
-        private final EventType afterEvent;
-
-        private EventPair(EventType beforeEvent, EventType afterEvent)
-        {
-            this.beforeEvent = beforeEvent;
-            this.afterEvent = afterEvent;
-        }
-    }
-
-    private final Map<Object, Integer> logIDs = new HashMap<Object, Integer>();
-
-    protected void prepareLoggingBetweenEvents(final Component component, final EventPair eventPair)
-    {
-        final Object dummySource = new Object();
-        component.addListener(eventPair.beforeEvent, new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    String id = component.getId();
-                    if (id.startsWith("x-"))
-                    {
-                        id = component.getClass().getName();
-                        int lastIndex = id.lastIndexOf('.');
-                        if (lastIndex >= 0)
-                        {
-                            id = id.substring(lastIndex + 1);
-                        }
-                    }
-                    Object key = be.getSource();
-                    if (key == null)
-                    {
-                        key = dummySource;
-                    }
-                    logIDs.put(key, log("event: " + eventPair + " (" + id + ")"));
-                }
-            });
-        component.addListener(eventPair.afterEvent, new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    Object key = be.getSource();
-                    if (key == null)
-                    {
-                        key = dummySource;
-                    }
-                    viewContext.logStop(logIDs.get(key));
-                }
-            });
     }
 
     protected int log(String message)
