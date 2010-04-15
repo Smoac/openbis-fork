@@ -26,6 +26,9 @@
   <property name="jar.file.name" value="${ant.project.name}.jar" />
   <property name="jar.file" value="${dist}/${jar.file.name}" />
   <property name="client.jar.file" value="${dist}/${ant.project.name}-client.jar" />
+  <property name="admin.console" value="openbis-admin-console" />
+  <property name="admin.jar.file" value="${dist}/${admin.console}.jar" />
+  <property name="admin.dist.file" value="${dist}/${admin.console}.zip" />
 
   <property name="webapp.file.name" value="openBIS.war" />
   <property name="webapp.file" value="${server.dist}/${webapp.file.name}" />
@@ -138,7 +141,23 @@
     </antcall>
   </target>
 
-  <target name="make-dist" description="Makes a distribution file." depends="check-dictionary-syntax, clean, war">
+  <target name="admin-console-dist" depends="jar" 
+  	description="Makes a distribution file for the admin console.">
+    <zip destfile="${admin.dist.file}">
+      <zipfileset prefix="${admin.console}" file="${admin.jar.file}"/>
+      <zipfileset prefix="${admin.console}" file="${lib}/cisd-base/cisd-base.jar"/>
+      <zipfileset prefix="${admin.console}" file="${lib}/commons-codec/commons-codec.jar"/>
+      <zipfileset prefix="${admin.console}" file="${lib}/commons-httpclient/commons-httpclient.jar"/>
+      <zipfileset prefix="${admin.console}" file="${lib}/commons-io/commons-io.jar"/>
+      <zipfileset prefix="${admin.console}" file="${lib}/commons-logging/commons-logging.jar"/>
+      <zipfileset prefix="${admin.console}" file="${lib}/jline/jline.jar"/>
+      <zipfileset prefix="${admin.console}" file="${lib}/log4j/log4j.jar"/>
+      <zipfileset prefix="${admin.console}" file="${lib}/spring/spring.jar"/>
+    </zip>
+  </target>
+
+  <target name="make-dist" description="Makes a distribution file." 
+  		depends="check-dictionary-syntax, clean, war, admin-console-dist">
     <copy file="${lib}/tomcat5/apache-tomcat.zip" todir="${server.dist}" />
     <loadfile property="tomcat.version" srcFile="${lib}/tomcat5/version.txt">
       <filterchain>
@@ -148,6 +167,7 @@
     <echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
     <copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
     <move file="${client.jar.file}" todir="${server.dist}" />
+    <move file="${admin.dist.file}" todir="${server.dist}" />
     <copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
     <copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
     <copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
@@ -375,7 +395,7 @@
         <include name="**/shared/I*.class" />
         <include name="**/shared/basic/dto/*.class" />
         <include name="**/shared/basic/*.class" />
-        <include name="**/shared/dto/*.class" />
+        <include name="**/shared/dto/**/*.class" />
         <exclude name="**/shared/dto/*PE.class" />
         <include name="**/shared/authorization/annotation/*.class" />
         <include name="**/shared/authorization/ISessionProvider.class" />
@@ -393,6 +413,33 @@
         <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo" />
       </manifest>
     </jar>
+  	<jar destfile="${admin.jar.file}">
+      <zipfileset src="${jar.file}">
+        <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
+        <include name="ch/systemsx/cisd/common/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/generic/client/console/**/*.class" />
+        <include name="**/shared/I*.class" />
+        <include name="**/shared/basic/dto/*.class" />
+        <include name="**/shared/basic/*.class" />
+        <include name="**/shared/dto/**/*.class" />
+        <exclude name="**/shared/dto/*PE.class" />
+        <include name="**/shared/authorization/annotation/*.class" />
+        <include name="**/shared/authorization/ISessionProvider.class" />
+        <include name="**/*BuildAndEnvironmentInfo.class" />
+        <include name="*.INFO" />
+      </zipfileset>
+      <zipfileset src="${lib}/gwt2.0/gwt-user.jar">
+        <include name="com/google/gwt/user/client/rpc/IsSerializable.class" />
+        <include name="com/google/gwt/user/client/rpc/SerializableException.class" />
+      </zipfileset>
+      <manifest>
+        <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.generic.client.console.AdminConsole" />
+        <attribute name="Class-Path"
+                   value="${admin.console}.jar cisd-base.jar commons-codec.jar 
+                          commons-httpclient.jar commons-io.jar commons-logging.jar 
+        	                log4j.jar jline.jar spring.jar"/>
+      </manifest>
+  	</jar>
   </target>
 
   <!--
