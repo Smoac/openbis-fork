@@ -84,11 +84,6 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
             TabSeparatedValueTable table =
                     new TabSeparatedValueTable(reader, fileName, parameters.isIgnoreEmptyLines(), true);
             List<Column> columns = table.getColumns();
-            if (columns.size() != 4)
-            {
-                throw new UserFailureException("Error in file " + tsvFile.getName()
-                        + ": Exactly four columns expected in stead of " + columns.size());
-            }
             File timeSeriesDropBox = parameters.getTimeSeriesDropBox();
             List<String> timeValues = columns.get(0).getValues();
             List<NewProperty> properties = dataSetInformation.getDataSetProperties();
@@ -149,5 +144,5 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
             IOUtils.closeQuietly(reader);
         }
     }
-
+    
 }

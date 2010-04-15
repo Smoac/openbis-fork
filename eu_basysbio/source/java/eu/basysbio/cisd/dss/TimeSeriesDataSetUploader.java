@@ -19,9 +19,11 @@ package eu.basysbio.cisd.dss;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -87,6 +89,8 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
             }
         };
         
+    private final Map<ExperimentIdentifier, Experiment> experimentCache = new HashMap<ExperimentIdentifier, Experiment>();
+
     private final boolean ignoringTimePointDataSetCreation;
 
     TimeSeriesDataSetUploader(DataSource dataSource, IEncapsulatedOpenBISService service,
@@ -262,7 +266,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
     {
         ExperimentIdentifier experimentIdentifier =
                 createExperimentIdentifier(dataColumnHeader, dataSetInformation);
-        Experiment experiment = service.tryToGetExperiment(experimentIdentifier);
+        Experiment experiment = tryToGetExperiment(experimentIdentifier);
         if (experiment == null)
         {
             throw new UserFailureException("No experiment found for experiment identifier "
@@ -304,7 +308,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
     private long getOrCreateDataSet(DataSetInformation dataSetInformation,
             ExperimentIdentifier experimentIdentifier)
     {
-        Experiment experiment = service.tryToGetExperiment(experimentIdentifier);
+        Experiment experiment = tryToGetExperiment(experimentIdentifier);
         if (experiment == null)
         {
             throw new UserFailureException("Unknown experiment: " + experimentIdentifier);
@@ -382,6 +386,17 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
             }
             dao.createDataValue(columnID, rowIDManager.getOrCreateRow(i), value);
         }
+    }
+    
+    private Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
+    {
+        Experiment experiment = experimentCache.get(experimentIdentifier);
+        if (experiment == null)
+        {
+            experiment = service.tryToGetExperiment(experimentIdentifier);
+            experimentCache.put(experimentIdentifier, experiment);
+        }
+        return experiment;
     }
 
 }
