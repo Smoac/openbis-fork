@@ -121,27 +121,7 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
             throws ParserException, ParsingException, IllegalArgumentException,
             IOExceptionUnchecked
     {
-        assert dir != null : "Given file must not be null";
-        assert dir.isDirectory() : "Given file '" + dir.getAbsolutePath() + "' is not a directory.";
-
-        File[] datasetFiles = FileUtilities.listFiles(dir);
-        List<File> datasetFilesToMerge = new ArrayList<File>();
-        for (File datasetFile : datasetFiles)
-        {
-            if (datasetFile.isDirectory())
-            {
-                // recursively go down the directories
-                return loadFromDirectory(dataset, datasetFile);
-            } else
-            {
-                // exclude files with properties
-                if (isFileExcluded(datasetFile) == false)
-                {
-                    datasetFilesToMerge.add(datasetFile);
-                }
-            }
-
-        }
+        List<File> datasetFilesToMerge = findMatchingFiles(dataset, dir);
         if (datasetFilesToMerge.size() != 1)
         {
             throw UserFailureException
@@ -153,6 +133,38 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
         {
             return loadFromFile(dataset, datasetFilesToMerge.get(0));
         }
+    }
+
+    /**
+     * Scan the specified directory to find files that match the dataset description.
+     * 
+     * @throws IOExceptionUnchecked if a {@link IOException} has occurred.
+     */
+    protected List<File> findMatchingFiles(DatasetDescription dataset, final File dir)
+            throws IllegalArgumentException, IOExceptionUnchecked
+    {
+        assert dir != null : "Given file must not be null";
+        assert dir.isDirectory() : "Given file '" + dir.getAbsolutePath() + "' is not a directory.";
+
+        File[] datasetFiles = FileUtilities.listFiles(dir);
+        List<File> matchingFiles = new ArrayList<File>();
+        for (File datasetFile : datasetFiles)
+        {
+            if (datasetFile.isDirectory())
+            {
+                // recursively go down the directories
+                return findMatchingFiles(dataset, datasetFile);
+            } else
+            {
+                // exclude files with properties
+                if (isFileExcluded(datasetFile) == false)
+                {
+                    matchingFiles.add(datasetFile);
+                }
+            }
+
+        }
+        return matchingFiles;
     }
 
     protected boolean isFileExcluded(File file)
