@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -96,7 +97,15 @@ public class ExperimentBrowserGrid extends
                 }
             };
         browserGrid.addGridRefreshListener(toolbar);
-        return browserGrid.asDisposableWithToolbarAndTree(toolbar, tree);
+        return createExperimentBrowser(tree, toolbar, browserGrid, viewContext);
+    }
+
+    private static DisposableEntityChooser<Experiment> createExperimentBrowser(
+            final ProjectSelectionTreeGridContainer tree, final ExperimentBrowserToolbar toolbar,
+            final ExperimentBrowserGrid browserGrid, IMessageProvider messageProvider)
+    {
+        return browserGrid.asDisposableWithToolbarAndTree(toolbar, tree, messageProvider
+                .getMessage(Dict.EXPEIRMENTS_GRID_HEADER));
     }
 
     /**
@@ -114,7 +123,7 @@ public class ExperimentBrowserGrid extends
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
-        return browserGrid.asDisposableWithToolbarAndTree(toolbar, tree);
+        return createExperimentBrowser(tree, toolbar, browserGrid, viewContext);
     }
 
     /** Create a grid with the toolbar and a tree with no initial selection. */

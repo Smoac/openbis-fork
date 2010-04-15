@@ -229,6 +229,8 @@ public abstract class Dict
     // Experiment Browser
     //
 
+    public static final String EXPEIRMENTS_GRID_HEADER = "experiments_grid_header";
+
     public static final String EXPERIMENT_TYPE = "experiment_type";
 
     public static final String PROJECT_SELECTOR_TITLE = "project_selector_title";

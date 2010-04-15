@@ -283,7 +283,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         pagingLoader.addLoadListener(new LoadListener()); // TODO why do we need this?
         if (viewContext.isLoggingEnabled())
         {
-            ComponentEventLogger logger = new ComponentEventLogger(viewContext, getId());
+           ComponentEventLogger logger = new ComponentEventLogger(viewContext, getId());
             logger.prepareLoggingBetweenEvents(contentPanel, EventPair.RENDER);
             logger.prepareLoggingBetweenEvents(this, EventPair.LAYOUT);
             logger.prepareLoggingBetweenEvents(grid, EventPair.LAYOUT);
@@ -449,7 +449,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      *         the left.
      */
     protected final DisposableEntityChooser<T> asDisposableWithToolbarAndTree(
-            final Component toolbar, final Component tree)
+            final Component toolbar, final Component tree, String headerOrNull)
     {
         // WORKAROUND: BorderLayout causes problems when rendered in a tab
         // We use RowLayout here but we loose the split this way.
@@ -460,6 +460,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         final LayoutContainer subContainer = new LayoutContainer();
         subContainer.setLayout(new RowLayout(Orientation.HORIZONTAL));
         subContainer.add(tree, new RowData(300, 1));
+        if (headerOrNull != null)
+        {
+            this.contentPanel.setHeaderVisible(true);
+            this.contentPanel.setHeading(headerOrNull);
+        }
         subContainer.add(this, new RowData(1, 1));
         container.add(subContainer, new RowData(1, 1));
 

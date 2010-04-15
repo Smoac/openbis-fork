@@ -174,6 +174,7 @@ var common = {
   // Experiment Browser
   //
   
+  experiments_grid_header: "Experiments",
   experiment_type: "Experiment Type",
   project_selector_title: "Project Selection",
   project_selector_tooltip: "Click on a row with project code to select it.",
@@ -332,7 +333,7 @@ var common = {
   ARCHIVING_MENU_UNARCHIVE: "Unarchive",
   ARCHIVING_MENU_LOCK: "Disable Archiving",
   ARCHIVING_MENU_UNLOCK: "Enable Archiving",
-  
+    
   menu_modules: "Utilities",
     
   //
