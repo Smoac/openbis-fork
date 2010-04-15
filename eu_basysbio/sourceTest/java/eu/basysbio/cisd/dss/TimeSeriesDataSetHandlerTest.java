@@ -628,7 +628,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                     {
                         one(service).getDataSetType(dataSetTypeCode);
                         DataSetTypeWithVocabularyTerms type = new DataSetTypeWithVocabularyTerms();
-                        type.setCode(dataSetTypeCode);
+                        type.setDataSetType(new DataSetType(dataSetTypeCode));
                         for (TimePointPropertyType timePointPropertyType : TimePointPropertyType
                                 .values())
                         {

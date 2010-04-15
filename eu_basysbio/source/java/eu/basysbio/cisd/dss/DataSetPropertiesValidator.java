@@ -107,12 +107,13 @@ class DataSetPropertiesValidator
         }
         StringBuilder errorMessage =
                 createErrorMessage(missingPropertyTypes, wrongDataTypePropertyTypes);
+        String dataSetTypeCode = dataSetType.getDataSetType().getCode();
         if (errorMessage.length() > 0)
         {
             throw new ConfigurationFailureException("Wrong property assignments for data set type "
-                    + dataSetType.getCode() + ":\n" + errorMessage);
+                    + dataSetTypeCode + ":\n" + errorMessage);
         }
-        dataSetType2PropertyTypeMap.put(dataSetType.getCode(), map);
+        dataSetType2PropertyTypeMap.put(dataSetTypeCode, map);
     }
 
     private StringBuilder createErrorMessage(List<TimePointPropertyType> missingPropertyTypes,
