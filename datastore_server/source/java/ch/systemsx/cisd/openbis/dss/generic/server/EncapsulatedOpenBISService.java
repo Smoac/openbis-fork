@@ -346,6 +346,21 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
+    synchronized public List<ExternalData> listDataSetsByExperimentID(long experimentID)
+            throws UserFailureException
+    {
+        checkSessionToken();
+        TechId id = new TechId(experimentID);
+        try
+        {
+            return service.listDataSetsByExperimentID(sessionToken, id);
+        } catch (InvalidSessionException ex)
+        {
+            authenticate();
+            return service.listDataSetsByExperimentID(sessionToken, id);
+        }
+    }
+
     synchronized public List<ExternalData> listDataSetsBySampleID(long sampleID,
             boolean showOnlyDirectlyConnected)
     {

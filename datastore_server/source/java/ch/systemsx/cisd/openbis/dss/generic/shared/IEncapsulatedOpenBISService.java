@@ -101,6 +101,12 @@ public interface IEncapsulatedOpenBISService
     public DataSetTypeWithVocabularyTerms getDataSetType(String dataSetTypeCode);
 
     /**
+     * Lists all data sets of the specified experiment ID.
+     */
+    public List<ExternalData> listDataSetsByExperimentID(long experimentID)
+            throws UserFailureException;
+
+    /**
      * Lists all data sets of the specified sample ID.
      * 
      * @param showOnlyDirectlyConnected If <code>true</code> only directly connected data sets are
