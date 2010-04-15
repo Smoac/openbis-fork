@@ -66,7 +66,7 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
         super(dataSource, service, parameters);
     }
 
-    public LcaMicDataSetUploader(ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
+    LcaMicDataSetUploader(ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
             TimeSeriesDataSetUploaderParameters parameters)
     {
         super(dao, service, parameters);

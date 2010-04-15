@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 class LcaMicDataSetPropertiesExtractor extends TimeSeriesDataSetPropertiesExtractor
 {
 
+    static final String GROWTH_RATE = "GROWTH_RATE";
+
     LcaMicDataSetPropertiesExtractor(Properties properties)
     {
         super(properties);
@@ -49,7 +51,7 @@ class LcaMicDataSetPropertiesExtractor extends TimeSeriesDataSetPropertiesExtrac
             throw new UserFailureException("Empty file: " + file);
         }
         String[] items = StringUtils.split(lines.get(0), " \t");
-        NewProperty growthRate = new NewProperty("GROWTH_RATE", items[items.length - 1]);
+        NewProperty growthRate = new NewProperty(GROWTH_RATE, items[items.length - 1]);
         List<NewProperty> properties =
                 HeaderUtils.extractHeaderProperties(incomingDataSetPath, ignoreEmptyLines, true, true);
         properties.add(growthRate);
