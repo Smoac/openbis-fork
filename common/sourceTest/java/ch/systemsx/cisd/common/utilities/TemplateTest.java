@@ -19,6 +19,8 @@ package ch.systemsx.cisd.common.utilities;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Set;
+
 import org.testng.annotations.Test;
 
 /**
@@ -53,6 +55,7 @@ public class TemplateTest
     {
         Template template = new Template("hello ${name}${name}");
         template.bind("name", "world");
+        assertEquals(1, template.getPlaceholderNames().size());
         assertEquals("hello worldworld", template.createText());
     }
 
@@ -62,6 +65,10 @@ public class TemplateTest
         Template template = new Template("hello ${name}, do you know ${name2}?");
         template.bind("name", "world");
         template.bind("name2", "Albert Einstein");
+        Set<String> placeholderNames = template.getPlaceholderNames();
+        assertEquals(true, placeholderNames.contains("name"));
+        assertEquals(true, placeholderNames.contains("name2"));
+        assertEquals(2, placeholderNames.size());
         assertEquals("hello world, do you know Albert Einstein?", template.createText());
     }
 

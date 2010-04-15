@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A little template engine. Usage example:
@@ -279,6 +280,14 @@ public class Template
             }
         }
         return new Template(map, list);
+    }
+    
+    /**
+     * Returns all placeholder names.
+     */
+    public Set<String> getPlaceholderNames()
+    {
+        return variableTokens.keySet();
     }
 
     /**
