@@ -117,11 +117,14 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
         dao = context.mock(ITimeSeriesDAO.class);
         service = context.mock(IEncapsulatedOpenBISService.class);
         feeder = new MockDropBoxFeeder();
-        uploader =
-                new TimeSeriesDataSetUploader(dao, service,
-                        new TimeSeriesDataSetUploaderParameters(new Properties(), true), false);
         dropBox = new File(workingDirectory, "drop-box");
         dropBox.mkdirs();
+        Properties properties = new Properties();
+        properties.setProperty(
+                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox.toString());
+        uploader =
+                new TimeSeriesDataSetUploader(dao, service,
+                        new TimeSeriesDataSetUploaderParameters(properties, true), false);
     }
     
     @AfterMethod

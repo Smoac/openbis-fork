@@ -138,16 +138,17 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testMissingDropBoxProperty()
+    public void testMissingTimeSeriesDropBoxProperty()
     {
         try
         {
-            createHandler(new Properties());
+            Properties properties = new Properties();
+            createHandler(properties);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
             assertEquals("Given key '"
-                    + TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY
+                    + TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH
                     + "' not found in properties '[]'", ex.getMessage());
         }
 
@@ -155,11 +156,37 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testMissingDataSetProertiesFileNameProperty()
+    public void testMissingTimePointDropBoxProperty()
     {
         try
         {
             Properties properties = new Properties();
+            properties.setProperty(
+                    TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
+                    .getAbsolutePath());
+            createHandler(properties);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Given key '"
+                    + TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY
+                    + "' not found in properties '["
+                    + TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH
+                    + "]'", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testMissingDataSetPropertiesFileNameProperty()
+    {
+        try
+        {
+            Properties properties = new Properties();
+            properties.setProperty(
+                    TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
+                            .getAbsolutePath());
             properties.setProperty(
                     TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox
                             .getAbsolutePath());
@@ -167,11 +194,9 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Given key '"
+            AssertionUtil.assertContains("Given key '"
                     + TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY
-                    + "' not found in properties '["
-                    + TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY + "]'", ex
-                    .getMessage());
+                    + "' not found in properties", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -185,6 +210,9 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             Properties properties = new Properties();
             properties.setProperty(
                     TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox
+                            .getAbsolutePath());
+            properties.setProperty(
+                    TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
                             .getAbsolutePath());
             properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
                     "p.txt");
@@ -202,6 +230,12 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     public void testWrongDataSetType() throws IOException
     {
         Properties properties = new Properties();
+        properties.setProperty(
+                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
+                        .getAbsolutePath());
+        properties.setProperty(
+                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
+                        .getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
                 dropBox.getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
@@ -221,7 +255,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         } catch (UserFailureException ex)
         {
             assertEquals("Data has to be uploaded for data set type "
-                    + "[TIME_SERIES, LCA_MTP_PCAV_TIME_SERIES, LCA_MTP_TIME_SERIES, LCA_MIC_TIME_SERIES] "
+                    + "[TIME_SERIES, LCA_MTP_PCAV_TIME_SERIES, LCA_MTP_TIME_SERIES, LCA_MIC_TIME_SERIES, LCA_MIC] "
                     + "instead of BLABLA.", ex.getMessage());
         }
 
@@ -232,6 +266,9 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     public void testMissingExperiment() throws IOException
     {
         Properties properties = new Properties();
+        properties.setProperty(
+                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
+                        .getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
                 dropBox.getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
@@ -260,6 +297,9 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     public void testWrongExperiment() throws IOException
     {
         Properties properties = new Properties();
+        properties.setProperty(
+                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
+                        .getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
                 dropBox.getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
@@ -290,6 +330,9 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     public void testDataSetAlreadyExists()
     {
         Properties properties = new Properties();
+        properties.setProperty(
+                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
+                        .getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
                 dropBox.getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
@@ -342,6 +385,9 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     public void test()
     {
         Properties properties = new Properties();
+        properties.setProperty(
+                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
+                        .getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
                 dropBox.getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,

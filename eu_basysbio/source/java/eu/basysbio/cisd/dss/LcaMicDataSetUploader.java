@@ -96,7 +96,6 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
             {
                 if (property.getPropertyCode().equals(TimeSeriesPropertyType.TIME_POINT_LIST.toString()))
                 {
-                    System.out.println(property);
                     property.setValue(HeaderUtils.join(timeValues));
                 }
             }

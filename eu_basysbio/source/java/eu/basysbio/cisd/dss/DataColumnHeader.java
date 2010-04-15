@@ -106,7 +106,7 @@ public final class DataColumnHeader
 
     DataColumnHeader(String header)
     {
-        this(header, true);
+        this(header, false);
     }
     
     
