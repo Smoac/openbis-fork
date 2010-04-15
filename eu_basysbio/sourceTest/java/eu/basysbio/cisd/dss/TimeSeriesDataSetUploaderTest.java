@@ -185,7 +185,7 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    exactly(2).of(service).tryToGetExperiment(
+                    one(service).tryToGetExperiment(
                             new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
                     will(returnValue(createExperiment("GM_BR_B1")));
 
@@ -238,7 +238,7 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    exactly(3).of(service).tryToGetExperiment(
+                    one(service).tryToGetExperiment(
                             new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
                     will(returnValue(createExperiment("GM_BR_B1")));
 
