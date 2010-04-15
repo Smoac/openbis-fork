@@ -265,24 +265,51 @@ class HeaderUtils
         return join(list, HeaderUtils.LIST_SEPARATOR, 1024);
     }
     
-    private static String join(List<String> list, String separator, int maxSize)
+    @Private static String join(List<String> list, String separator, int maxSize)
     {
-        StringBuilder builder = new StringBuilder();
         String lastElement = list.get(list.size() - 1);
-        int rest = 2 * separator.length() + DOTS.length() + lastElement.length();
-        for (String element : list)
+        int maxSizeWithoutLastElement = maxSize - separator.length() - lastElement.length();
+        int n = 0;
+        int totalLength = 0;
+        for (; n < list.size() - 1; n++)
+        {
+            int length = calculateLengthOfElement(list, n, separator);
+            totalLength += length;
+            if (totalLength > maxSizeWithoutLastElement)
+            {
+                totalLength -= length;
+                length = (n == 0 ? 0 : separator.length()) + DOTS.length();
+                if (totalLength + length > maxSizeWithoutLastElement)
+                {
+                    n--;
+                }
+                break;
+            }
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < n; i++)
         {
             if (builder.length() > 0)
             {
                 builder.append(separator);
             }
-            if (builder.length() + element.length() + rest >= maxSize)
-            {
-                builder.append(DOTS).append(separator).append(lastElement);
-            }
-            builder.append(element);
+            builder.append(list.get(i));
         }
+        if (n < list.size() - 1)
+        {
+            if (builder.length() > 0)
+            {
+                builder.append(separator);
+            }
+            builder.append(DOTS);
+        }
+        builder.append(separator).append(lastElement);
         return builder.toString();
+    }
+
+    private static int calculateLengthOfElement(List<String> list, int i, String separator)
+    {
+        return (i == 0 ? 0 : separator.length()) + list.get(i).length();
     }
 
     private static boolean equal(String first, String second, String expectedFirst,

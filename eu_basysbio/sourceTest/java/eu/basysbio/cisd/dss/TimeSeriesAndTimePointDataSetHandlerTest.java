@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
  * 
@@ -82,7 +83,7 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
     private IMailClient mailClient;
     private IDataSetHandler handler;
     private File dropBox;
-    private File tinePointFolder;
+    private File timePointFolder;
     private ITimeProvider timeProvider;
 
     @BeforeMethod
@@ -96,11 +97,11 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
         mailClient = context.mock(IMailClient.class);
         timeProvider = context.mock(ITimeProvider.class);
         dropBox = new File(workingDirectory, "drop-box");
-        tinePointFolder = new File(workingDirectory, "time-point-folder");
-        tinePointFolder.mkdirs();
+        timePointFolder = new File(workingDirectory, "time-point-folder");
+        timePointFolder.mkdirs();
         handler =
                 new TimeSeriesAndTimePointDataSetHandler(delegator, mailClient,
-                        timePointDataSetHandler, tinePointFolder, timeProvider);
+                        timePointDataSetHandler, timePointFolder, timeProvider);
     }
 
     @AfterMethod
@@ -131,18 +132,18 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
     @Test
     public void testHandleSuccesfullyTwoTimePointDataSets() throws IOException
     {
-        final File tp1 = new File(tinePointFolder, "tp1");
+        final File tp1 = new File(timePointFolder, "tp1");
         tp1.createNewFile();
         final DataSetInformation ds1 = new DataSetInformation();
-        final File tp2 = new File(tinePointFolder, "tp2");
+        final File tp2 = new File(timePointFolder, "tp2");
         tp2.createNewFile();
         final DataSetInformation ds2 = new DataSetInformation();
         final DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setUploadingUserEmail("john.doe@abc.de");
-        String expectedSubject =
-                "BaSysBio: Successful uploading of " + "time series data set 'drop-box'";
+        dataSetInformation.setDataSetType(new DataSetType(DataSetHandler.TIME_SERIES));
+        String expectedSubject = "BaSysBio: Successful uploading of data set 'drop-box'";
         String expectedMessage =
-                "The time series data set 'drop-box' "
+                "The data set 'drop-box' "
                         + "has been successfully uploaded and registered in openBIS.";
         prepareSendingEMail(expectedSubject, expectedMessage, dataSetInformation, false);
         context.checking(new Expectations()
@@ -150,10 +151,10 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
                 {
                     one(delegator).handleDataSet(dropBox);
                     will(returnValue(Arrays.asList(dataSetInformation)));
-                    
+
                     one(timePointDataSetHandler).handleDataSet(tp1);
                     will(returnValue(Arrays.asList(ds1)));
-                    
+
                     one(timePointDataSetHandler).handleDataSet(tp2);
                     will(returnValue(Arrays.asList(ds2)));
                 }
@@ -168,21 +169,20 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
         context.assertIsSatisfied();
     }
 
-    
     @Test
     public void testHandleNotSuccesfullyTwoTimePointDataSets() throws IOException
     {
-        final File tp1 = new File(tinePointFolder, "tp1");
+        final File tp1 = new File(timePointFolder, "tp1");
         tp1.createNewFile();
-        final File tp2 = new File(tinePointFolder, "tp2");
+        final File tp2 = new File(timePointFolder, "tp2");
         tp2.createNewFile();
         final DataSetInformation ds2 = new DataSetInformation();
         final DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setUploadingUserEmail("john.doe@abc.de");
-        String expectedSubject =
-                "BaSysBio: Failed uploading of " + "time series data set 'drop-box'";
+        dataSetInformation.setDataSetType(new DataSetType(DataSetHandler.TIME_SERIES));
+        String expectedSubject = "BaSysBio: Failed uploading of data set 'drop-box'";
         String expectedMessage =
-                "Uploading of time series data set 'drop-box' failed "
+                "Uploading of data set 'drop-box' failed "
                         + "because only 1 of 2 time point data sets could be registered in openBIS.\n\n"
                         + "Please, contact the help desk for support: " + HELPDESK_EMAIL + "\n"
                         + "(Time stamp of failure: 1970-01-01 01:01:14 +0100)";
@@ -212,6 +212,75 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testHandleNotSuccesfullyTwoLcaMicTimeSeriesDataSets() throws IOException
+    {
+        final File tp1 = new File(workingDirectory, DataSetHandler.LCA_MIC_TIME_SERIES + "1");
+        tp1.createNewFile();
+        final File tp2 = new File(workingDirectory, DataSetHandler.LCA_MIC_TIME_SERIES + "2");
+        tp2.createNewFile();
+        final DataSetInformation ds2 = new DataSetInformation();
+        final DataSetInformation dataSetInformation = new DataSetInformation();
+        dataSetInformation.setUploadingUserEmail("john.doe@abc.de");
+        dataSetInformation.setDataSetType(new DataSetType(DataSetHandler.LCA_MIC));
+        String expectedSubject = "BaSysBio: Failed uploading of data set 'drop-box'";
+        String expectedMessage =
+            "Uploading of data set 'drop-box' failed "
+            + "because only 1 of 2 LCA MIC time series data sets could be registered in openBIS.\n\n"
+            + "Please, contact the help desk for support: " + HELPDESK_EMAIL + "\n"
+                        + "(Time stamp of failure: 1970-01-01 01:01:14 +0100)";
+        prepareSendingEMail(expectedSubject, expectedMessage, dataSetInformation, true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(delegator).handleDataSet(dropBox);
+                    will(returnValue(Arrays.asList(dataSetInformation)));
+
+                    one(delegator).handleDataSet(tp1);
+                    will(returnValue(Arrays.asList()));
+
+                    one(delegator).handleDataSet(tp2);
+                    will(returnValue(Arrays.asList(ds2)));
+
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(42 * 42 * 42L));
+                }
+            });
+
+        List<DataSetInformation> dataSets = handler.handleDataSet(dropBox);
+        
+        assertEquals(2, dataSets.size());
+        assertSame(dataSetInformation, dataSets.get(0));
+        assertSame(ds2, dataSets.get(1));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testHandleLcaMicTimeSeriesDataSet() throws IOException
+    {
+        final DataSetInformation dataSetInformation = new DataSetInformation();
+        dataSetInformation.setUploadingUserEmail("john.doe@abc.de");
+        dataSetInformation.setDataSetType(new DataSetType(DataSetHandler.LCA_MIC));
+        String expectedSubject = "BaSysBio: Successful uploading of data set 'drop-box'";
+        String expectedMessage =
+                "The data set 'drop-box' "
+                        + "has been successfully uploaded and registered in openBIS.";
+        prepareSendingEMail(expectedSubject, expectedMessage, dataSetInformation, false);
+        context.checking(new Expectations()
+            {
+                {
+                    one(delegator).handleDataSet(dropBox);
+                    will(returnValue(Arrays.asList(dataSetInformation)));
+                }
+            });
+
+        List<DataSetInformation> dataSets = handler.handleDataSet(dropBox);
+
+        assertEquals(1, dataSets.size());
+        assertSame(dataSetInformation, dataSets.get(0));
+        context.assertIsSatisfied();
+    }
+    
     private void prepareSendingEMail(final String expectedSubject, final String expectedMessage,
             final DataSetInformation dataSetInformation, final boolean alsoToHelpDesk)
     {

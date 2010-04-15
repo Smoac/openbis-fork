@@ -137,7 +137,7 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
                 }
             } else
             {
-                if (operationLog.isInfoEnabled())
+                if (count > 0 && operationLog.isInfoEnabled())
                 {
                     operationLog.info(count + " " + type.name + " data sets have been registered.");
                 }
@@ -146,9 +146,9 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
                     String subject =
                             "BaSysBio: Successful uploading of data set '" + dataSetFileName + "'";
                     String message =
-                        "The time series data set '" + dataSetFileName
-                        + "' has been successfully uploaded and registered in openBIS.";
-                    
+                            "The data set '" + dataSetFileName
+                                    + "' has been successfully uploaded and registered in openBIS.";
+
                     mailClient.sendMessage(subject, message, null, null, userEMail);
                 }
             }
@@ -210,13 +210,13 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
     {
         List<DataSetInformation> dataSetInfos = new ArrayList<DataSetInformation>();
         List<DataSetInformation> result = delegator.handleDataSet(dataSet);
-        boolean lcaMicTimeSeries = isLcaMicTimeSeries(result);
         dataSetInfos.addAll(result);
         boolean successful = result.isEmpty() == false;
         if (successful)
         {
+            DataSetInformation dataSetInformation = result.get(0);
             MessageBuilder builder =
-                    new MessageBuilder(result.get(0).tryGetUploadingUserEmail(), timeProvider);
+                    new MessageBuilder(dataSetInformation.tryGetUploadingUserEmail(), timeProvider);
             builder.setDataSetFileName(dataSet);
             File[] files = timePointDataSetFolder.listFiles();
             handleDerivedDataSets(files, TypeOfDerivedDataSet.TIME_POINT, timePointDataSetHandler,
@@ -224,20 +224,13 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
             files = dataSet.getParentFile().listFiles(LCA_MIC_TIME_SERIES_FILE_FILTER);
             handleDerivedDataSets(files, TypeOfDerivedDataSet.LCA_MIC_TIME_SERIES, delegator,
                     dataSetInfos, builder);
+            DataSetType dataSetType = dataSetInformation.getDataSetType();
+            boolean lcaMicTimeSeries = dataSetType.getCode().equals(DataSetHandler.LCA_MIC_TIME_SERIES);
             builder.logAndSendOptinallyAnEMail(operationLog, mailClient, lcaMicTimeSeries == false);
         }
         return dataSetInfos;
     }
 
-    private boolean isLcaMicTimeSeries(List<DataSetInformation> list)
-    {
-        if (list.size() != 1)
-        {
-            return false;
-        }
-        return list.get(0).getDataSetType().getCode().equals(DataSetHandler.LCA_MIC_TIME_SERIES);
-    }
-    
     private void handleDerivedDataSets(File[] files, TypeOfDerivedDataSet type,
             IDataSetHandler handler, List<DataSetInformation> dataSetInfos, MessageBuilder builder)
     {
