@@ -23,6 +23,13 @@ package ch.systemsx.cisd.openbis.dss.generic.server.graph;
  */
 public class TabularDataGraphConfiguration
 {
+    public enum GraphType
+    {
+        SCATTERPLOT, HISTOGRAM, HEATMAP
+    }
+
+    private final GraphType graphType;
+
     private final String title;
 
     // the column that is used as the x-axis
@@ -44,9 +51,10 @@ public class TabularDataGraphConfiguration
      * @param imageWidth The desired width of the resulting image
      * @param imageHeight The desired height of the resulting image
      */
-    public TabularDataGraphConfiguration(String title, String xAxisColumn,
+    protected TabularDataGraphConfiguration(GraphType graphType, String title, String xAxisColumn,
             String yAxisColumn, int imageWidth, int imageHeight)
     {
+        this.graphType = graphType;
         this.title = title;
         this.xAxisColumn = xAxisColumn;
         this.yAxisColumn = yAxisColumn;
@@ -60,6 +68,11 @@ public class TabularDataGraphConfiguration
     public String getTitle()
     {
         return title;
+    }
+
+    public GraphType getGraphType()
+    {
+        return graphType;
     }
 
     /**

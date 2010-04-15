@@ -28,6 +28,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration.GraphType;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
@@ -88,11 +89,6 @@ public class TabularDataGraphCollectionConfiguration
     private final ArrayList<String> graphNames;
 
     private final HashMap<String, TabularDataGraphConfiguration> graphTypeMap;
-
-    private enum GraphType
-    {
-        SCATTERPLOT, HISTOGRAM, HEATMAP
-    }
 
     /**
      * Create a configuration from the properties file located at path.
@@ -192,9 +188,10 @@ public class TabularDataGraphCollectionConfiguration
                         .getMandatoryProperty(props, COLUMN_KEY), getThumbnailWidth(),
                         getThumbnailHeight(), PropertyUtils.getInt(props, NUMBER_OF_BINS_KEY, 10));
             case SCATTERPLOT:
-                return new TabularDataGraphConfiguration(title, PropertyUtils.getMandatoryProperty(
-                        props, X_AXIS_KEY), PropertyUtils.getMandatoryProperty(props, Y_AXIS_KEY),
-                        getThumbnailWidth(), getThumbnailHeight());
+                return new TabularDataScatterplotConfiguration(title, PropertyUtils
+                        .getMandatoryProperty(props, X_AXIS_KEY), PropertyUtils
+                        .getMandatoryProperty(props, Y_AXIS_KEY), getThumbnailWidth(),
+                        getThumbnailHeight());
         }
 
         // should never get here
@@ -231,7 +228,23 @@ public class TabularDataGraphCollectionConfiguration
         {
             throw new IllegalArgumentException("No graph associated with code " + graphName);
         }
-        return new TabularDataScatterplot(config, fileLines, out);
+        GraphType type = config.getGraphType();
+        switch (type)
+        {
+            case HEATMAP:
+                return new TabularDataHeatmap((TabularDataHeatmapConfiguration) config, fileLines,
+                        out);
+            case HISTOGRAM:
+                return new TabularDataHistogram((TabularDataHistogramConfiguration) config,
+                        fileLines, out);
+            case SCATTERPLOT:
+                return new TabularDataScatterplot((TabularDataScatterplotConfiguration) config,
+                        fileLines, out);
+
+        }
+
+        // should never get here
+        return null;
     }
 
     public char getColumnDelimiter()

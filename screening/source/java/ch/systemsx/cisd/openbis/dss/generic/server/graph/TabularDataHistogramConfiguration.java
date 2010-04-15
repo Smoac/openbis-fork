@@ -36,7 +36,7 @@ public class TabularDataHistogramConfiguration extends TabularDataGraphConfigura
     protected TabularDataHistogramConfiguration(String title, String histogramColumn,
             int imageWidth, int imageHeight, int numberOfBins)
     {
-        super(title, histogramColumn, histogramColumn, imageWidth, imageHeight);
+        super(GraphType.HISTOGRAM, title, histogramColumn, histogramColumn, imageWidth, imageHeight);
         assert numberOfBins > 0;
         this.numberOfBins = numberOfBins;
     }

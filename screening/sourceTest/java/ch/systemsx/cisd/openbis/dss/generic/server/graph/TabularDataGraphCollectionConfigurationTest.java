@@ -60,8 +60,13 @@ public class TabularDataGraphCollectionConfigurationTest extends AssertJUnit
         assertEquals(30, graphConfig.getImageWidth());
 
         assertEquals("hist", graphNames.get(1));
-        assertEquals("heat", graphNames.get(2));
-        assertEquals("scatter2", graphNames.get(3));
+        graphConfig = configuration.getGraphConfiguration(graphNames.get(1));
+        assertEquals("Total Cells Histogram", graphConfig.getTitle());
 
+        assertEquals("heat", graphNames.get(2));
+        graphConfig = configuration.getGraphConfiguration(graphNames.get(2));
+        assertEquals("Infected Cells", graphConfig.getTitle());
+
+        assertEquals("scatter2", graphNames.get(3));
     }
 }

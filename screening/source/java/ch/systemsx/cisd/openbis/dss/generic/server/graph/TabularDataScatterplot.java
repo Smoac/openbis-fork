@@ -31,13 +31,14 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLine
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class TabularDataScatterplot extends AbstractTabularDataGraph<TabularDataGraphConfiguration>
+public class TabularDataScatterplot extends
+        AbstractTabularDataGraph<TabularDataScatterplotConfiguration>
 {
 
     /**
      * @param configuration
      */
-    public TabularDataScatterplot(TabularDataGraphConfiguration configuration,
+    public TabularDataScatterplot(TabularDataScatterplotConfiguration configuration,
             DatasetFileLines fileLines, OutputStream out)
     {
         super(configuration, fileLines, out);

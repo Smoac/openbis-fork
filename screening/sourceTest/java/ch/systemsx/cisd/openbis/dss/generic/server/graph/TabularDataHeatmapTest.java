@@ -29,7 +29,7 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
     @Test
     public void testHeatmap() throws IOException
     {
-        File outputFile = getImageOutputFile();
+        File outputFile = getTestImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
                 new TabularDataHeatmapConfiguration("Test", "WellName", "InfectionIndex", 300, 200);

@@ -40,7 +40,7 @@ public class TabularDataHeatmapConfiguration extends TabularDataGraphConfigurati
     protected TabularDataHeatmapConfiguration(String title, String xAxisColumn, String yAxisColumn,
             String zAxisColumn, int imageWidth, int imageHeight)
     {
-        super(title, xAxisColumn, yAxisColumn, imageWidth, imageHeight);
+        super(GraphType.HISTOGRAM, title, xAxisColumn, yAxisColumn, imageWidth, imageHeight);
         this.zAxisColumn = zAxisColumn;
         isXYSplit = true;
     }
@@ -58,7 +58,7 @@ public class TabularDataHeatmapConfiguration extends TabularDataGraphConfigurati
     protected TabularDataHeatmapConfiguration(String title, String indexColumn, String zAxisColumn,
             int imageWidth, int imageHeight)
     {
-        super(title, indexColumn, indexColumn, imageWidth, imageHeight);
+        super(GraphType.HEATMAP, title, indexColumn, indexColumn, imageWidth, imageHeight);
         this.zAxisColumn = zAxisColumn;
         isXYSplit = false;
     }

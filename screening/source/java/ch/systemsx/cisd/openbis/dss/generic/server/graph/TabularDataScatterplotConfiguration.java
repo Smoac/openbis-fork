@@ -16,30 +16,26 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
-import java.io.IOException;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public interface ITabularDataGraph
+public class TabularDataScatterplotConfiguration extends TabularDataGraphConfiguration
 {
 
-    // Public API
     /**
-     * Create an image from the file lines and write it to the output stream.
+     * Construct a configuration for a scatterplot.
      * 
-     * @throws IOException
+     * @param title
+     * @param xAxisColumn
+     * @param yAxisColumn
+     * @param imageWidth
+     * @param imageHeight
      */
-    public abstract void generateImage() throws IOException;
-
-    /**
-     * Create an image,overriding the width and height in the configuration from the file lines and
-     * write it to the output stream.
-     * 
-     * @param imageWidth The desired width of the image
-     * @param imageHeight The desired height of the image
-     * @throws IOException
-     */
-    public abstract void generateImage(int imageWidth, int imageHeight) throws IOException;
+    public TabularDataScatterplotConfiguration(String title, String xAxisColumn,
+            String yAxisColumn, int imageWidth, int imageHeight)
+    {
+        super(GraphType.SCATTERPLOT, title, xAxisColumn, yAxisColumn, imageWidth, imageHeight);
+    }
 
 }

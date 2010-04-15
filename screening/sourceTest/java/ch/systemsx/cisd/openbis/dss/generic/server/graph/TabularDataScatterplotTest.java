@@ -31,9 +31,10 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        TabularDataGraphConfiguration config =
-                new TabularDataGraphConfiguration("Test", "TotalCells", "InfectedCells", 300, 200);
-        AbstractTabularDataGraph<TabularDataGraphConfiguration> graph =
+        TabularDataScatterplotConfiguration config =
+                new TabularDataScatterplotConfiguration("Test", "TotalCells", "InfectedCells", 300,
+                        200);
+        TabularDataScatterplot graph =
                 new TabularDataScatterplot(config, getDatasetFileLines(),
                         getOutputStream(outputFile));
         assertNotSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
@@ -48,9 +49,10 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        TabularDataGraphConfiguration config =
-                new TabularDataGraphConfiguration("Test", "TotalCells", "Non-existant", 300, 200);
-        AbstractTabularDataGraph<TabularDataGraphConfiguration> graph =
+        TabularDataScatterplotConfiguration config =
+                new TabularDataScatterplotConfiguration("Test", "TotalCells", "Non-existant", 300,
+                        200);
+        TabularDataScatterplot graph =
                 new TabularDataScatterplot(config, getDatasetFileLines(),
                         getOutputStream(outputFile));
         assertTrue(graph.tryYColumnNumber() < 0);

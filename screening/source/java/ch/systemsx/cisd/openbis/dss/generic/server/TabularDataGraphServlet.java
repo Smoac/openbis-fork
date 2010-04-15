@@ -64,6 +64,11 @@ public class TabularDataGraphServlet extends AbstractDatasetDownloadServlet
      */
     private static class RequestParams
     {
+        // optional parameters
+        public final static String WIDTH_PARAM = "w";
+
+        public final static String HEIGHT_PARAM = "h";
+
         private final String sessionId;
 
         private final String datasetCode;
@@ -72,12 +77,35 @@ public class TabularDataGraphServlet extends AbstractDatasetDownloadServlet
 
         private final String graphName;
 
+        private final int width;
+
+        private final int height;
+
         public RequestParams(HttpServletRequest request)
         {
             sessionId = getRequiredParameter(request, SESSION_ID_PARAM);
             datasetCode = getRequiredParameter(request, DATASET_CODE_PARAM);
             filePath = getRequiredParameter(request, FILE_PATH_PARAM);
             graphName = getRequiredParameter(request, GRAPH_TYPE_CODE);
+            width = getIntParam(request, WIDTH_PARAM, 0);
+            height = getIntParam(request, HEIGHT_PARAM, 0);
+        }
+
+        private static int getIntParam(HttpServletRequest request, String paramName,
+                int defaultValue)
+        {
+            String value = request.getParameter(paramName);
+            if (value == null)
+                return defaultValue;
+
+            try
+            {
+                return Integer.valueOf(value);
+            } catch (NumberFormatException e)
+            {
+                throw new UserFailureException("parameter " + paramName
+                        + " should be an integer, but is: " + value);
+            }
         }
 
         private static String getRequiredParameter(final HttpServletRequest request,
@@ -135,9 +163,15 @@ public class TabularDataGraphServlet extends AbstractDatasetDownloadServlet
 
             // Generate an image image into the stream
             ITabularDataGraph generator =
-                    configuration.getGraph(params.graphName, fileLines, response
-                            .getOutputStream());
-            generator.generateImage();
+                    configuration.getGraph(params.graphName, fileLines, response.getOutputStream());
+
+            if (params.height > 0 && params.width > 0)
+            {
+                generator.generateImage(params.width, params.height);
+            } else
+            {
+                generator.generateImage();
+            }
 
         } catch (Exception e)
         {

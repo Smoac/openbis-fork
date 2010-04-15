@@ -165,9 +165,6 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
             {
                 heatmapData.maxY = element.y;
             }
-
-            // DEBUG
-            System.out.println("" + element.x + "," + element.y + "," + element.z);
         }
 
         return heatmapData;
