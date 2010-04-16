@@ -21,8 +21,10 @@ import java.io.File;
 import java.io.IOException;
 
 import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
+import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.TileImageReference;
 
 /**
  * Allows to download screening images in a chosen size for a specified channels or with all
@@ -36,28 +38,28 @@ public class SplittingImagesDownloadServlet extends AbstractImagesDownloadServle
     private static final long serialVersionUID = 1L;
 
     /** throws {@link EnvironmentFailureException} when image does not exist */
-    private File getImagePath(File datasetRoot, RequestParams params)
+    private File getImagePath(File datasetRoot, TileImageReference params)
+            throws EnvironmentFailureException
     {
         HCSDatasetLoader imageAccessor = new HCSDatasetLoader(datasetRoot);
+        Location wellLocation = params.getWellLocation();
+        Location tileLocation = params.getTileLocation();
         int channel = 1; // NOTE: we assume that there is only one channel
-        File path = getPath(imageAccessor, params, channel);
+        File path =
+                ImageChannelsUtils.getImagePath(imageAccessor, wellLocation, tileLocation, channel);
         imageAccessor.close();
         return path;
     }
 
+    /**
+     * @throws EnvironmentFailureException if image does not exist
+     **/
     @Override
-    protected final ResponseContentStream createImageResponse(RequestParams params, File datasetRoot)
-            throws IOException, EnvironmentFailureException /* if image does not exist */
+    protected final ResponseContentStream createImageResponse(TileImageReference params,
+            File datasetRoot) throws IOException, EnvironmentFailureException
     {
         File imageFile = getImagePath(datasetRoot, params);
-        BufferedImage image = ImageUtil.loadImage(imageFile);
-        if (params.isMergeAllChannels() == false)
-        {
-            image = transformToChannel(image, params.getChannel());
-        }
-        image = asThumbnailIfRequested(params, image);
-
+        BufferedImage image = ImageChannelsUtils.mergeImageChannels(params, imageFile);
         return createResponseContentStream(image, imageFile);
     }
-
 }
