@@ -20,5 +20,4 @@ function copy_or_die {
 
 copy_or_die $CONFIG_DIR/eicmlDropboxProcessingPlugin.properties $DSS/etc/
 copy_or_die $CONFIG_DIR/fiamlDropboxProcessingPlugin.properties $DSS/etc/
-copy_or_die $CONFIG_DIR/datastore_server-plugins.jar $DSS/lib/
 
