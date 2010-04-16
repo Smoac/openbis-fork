@@ -316,7 +316,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         }
     }
 
-    protected static final class Size
+    public static final class Size
     {
         private final int width;
 
@@ -343,9 +343,10 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     {
         DatabaseInstance databaseInstance = getDatabaseInstance(session);
         File storeDir = applicationContext.getConfigParameters().getStorePath();
+        String databaseUuid = databaseInstance.getUuid();
+
         File dataSetRootDirectory =
-                DatasetLocationUtil.getDatasetLocationPath(storeDir, dataSetCode, databaseInstance
-                        .getUuid());
+                DatasetLocationUtil.getDatasetLocationPath(storeDir, dataSetCode, databaseUuid);
         if (dataSetRootDirectory.exists() == false)
         {
             throw new UserFailureException("Data set '" + dataSetCode + "' not found in the store.");
