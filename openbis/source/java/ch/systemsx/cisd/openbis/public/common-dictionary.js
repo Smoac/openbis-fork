@@ -85,6 +85,7 @@ var common = {
   button_view: "View",
   button_delete: "Delete",
   button_configure: "Settings",  
+  button_filters: "Filters",  
   button_upload_data_via_cifex: "Upload Data",
   button_process: "Process",
   button_top: "Files",

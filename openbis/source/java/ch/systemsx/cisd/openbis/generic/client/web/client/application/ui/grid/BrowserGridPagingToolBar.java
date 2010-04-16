@@ -80,11 +80,14 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
 
         insertTableButton(createTableOperationsLabel());
 
+        this.showFiltersButton = createShowFiltersButton(viewContext, invoker);
+        insertTableButton(showFiltersButton);
+
         this.configButton = createConfigButton(viewContext, invoker, gridId);
         insertTableButton(configButton);
         updateDefaultConfigButton(false);
 
-        this.refreshButton = createRefreshButton(invoker);
+        this.refreshButton = createRefreshButton(viewContext, invoker);
         insertTableButton(refreshButton);
         updateDefaultRefreshButton(false);
         this.refreshButton.setId(REFRESH_BUTTON_ID);
@@ -92,9 +95,6 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         this.exportButton = createExportButton(viewContext, invoker);
         disableExportButton();
         insertTableButton(exportButton);
-
-        this.showFiltersButton = createShowFiltersButton(viewContext, invoker);
-        insertTableButton(showFiltersButton);
 
         insertTableButton(new FillToolItem());
         viewContext.logStop(logID);
@@ -198,25 +198,23 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         }
     }
 
-    private Button createRefreshButton(final IBrowserGridActionInvoker invoker)
-    {
-        return createRefreshButton(messageProvider.getMessage(Dict.BUTTON_REFRESH), invoker);
-    }
-
     /** creates a new refresh button, the caller has to add it to a parent container */
-    public static Button createRefreshButton(String title, final IBrowserGridActionInvoker invoker)
+    public static Button createRefreshButton(IMessageProvider messageProvider,
+            final IBrowserGridActionInvoker invoker)
     {
-        final Button button = new Button(title, new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public void componentSelected(ButtonEvent ce)
-                {
-                    if (ce.getButton().isEnabled())
-                    {
-                        invoker.refresh();
-                    }
-                }
-            });
+        final Button button =
+                new Button(messageProvider.getMessage(Dict.BUTTON_REFRESH),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    if (ce.getButton().isEnabled())
+                                    {
+                                        invoker.refresh();
+                                    }
+                                }
+                            });
         return button;
     }
 
@@ -262,7 +260,8 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     public static Button createShowFiltersButton(IMessageProvider messageProvider,
             final IBrowserGridActionInvoker invoker)
     {
-        final ToggleButton button = new ToggleButton("Filters");
+        final ToggleButton button =
+                new ToggleButton(messageProvider.getMessage(Dict.BUTTON_FILTERS));
         button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
