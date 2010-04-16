@@ -27,12 +27,6 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
  */
 public interface IDssServiceRpcGeneric extends IDssServiceRpc
 {
-    //
-    // Protocol versioning
-    //
-    /** The version of this service interface. */
-    public static final int VERSION = 1;
-
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
      * 
