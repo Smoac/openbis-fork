@@ -46,7 +46,7 @@ function add_yeastx_plugin {
 	 unzip ~openbis/config/datastore_server_plugin*.zip
 	 mv -f ~openbis/config/lib/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
 	 rmdir ~openbis/config/lib
-	 rm -f ~openbis/config/datastore_server_plugin*.zip
+	 mv -f ~openbis/config/datastore_server_plugin*.zip ~openbis/old/
 }
 
 case "$SERVER" in
