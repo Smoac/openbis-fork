@@ -112,12 +112,19 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 public void postRefresh(boolean wasSuccessful)
                 {
                     updateFilterFields();
-					// TODO 2009-11-24, Tomasz Pylak: IMPR this apply is usually unnecessary and
-                    // causes screen flickering
-                    if (isCustomFilterSelected())
-                    {
-                        apply();
-                    }
+                    // TODO 2010-04-16, Piotr Buczek: not needed if column filter is selected
+                    // Because of this code there is a reload of data visible on the client
+                    // when user shows filter toolbar. It is quite fast as data are taken from cache
+                    // but the loading mask is visible.
+                    // On the other hand if we don't perform apply here column filters are not
+                    // working properly. Somehow they are not refreshed correctly first load of
+                    // data. To reproduce it show Database Instance and Code columns and filters in
+                    // experiment detail sample browser:
+                    // - Database Instance filter should be a combo box filter
+                    // - Database Instance filter removes all letters on first usage (after refresh)
+                    // - Code filter looses focus on first usage after refresh
+                    // Refreshing the data fixes all problems.
+                    apply();
                 }
             });
         applyTool.addSelectionListener(new SelectionListener<ButtonEvent>()
@@ -287,8 +294,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         }
         if (changed)
         {
-            // contentPanel of AbstractBrowserGrid is listening on this layout and synchronizes size
-            layout();
+            // contentPanel of AbstractBrowserGrid was listening on this layout and synchronized size
+            layout(); // TODO 2010-04-16, Piotr Buczek: second layout
         }
     }
 

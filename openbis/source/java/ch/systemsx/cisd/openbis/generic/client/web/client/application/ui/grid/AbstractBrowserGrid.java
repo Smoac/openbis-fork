@@ -37,7 +37,6 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -281,7 +280,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         add(contentPanel);
 
         addRefreshDisplaySettingsListener();
-        pagingLoader.addLoadListener(new LoadListener()); // TODO why do we need this?
         if (viewContext.isLoggingEnabled())
         {
             ComponentEventLogger logger = new ComponentEventLogger(viewContext, getId());
