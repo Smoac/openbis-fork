@@ -89,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -283,7 +284,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         pagingLoader.addLoadListener(new LoadListener()); // TODO why do we need this?
         if (viewContext.isLoggingEnabled())
         {
-           ComponentEventLogger logger = new ComponentEventLogger(viewContext, getId());
+            ComponentEventLogger logger = new ComponentEventLogger(viewContext, getId());
             logger.prepareLoggingBetweenEvents(contentPanel, EventPair.RENDER);
             logger.prepareLoggingBetweenEvents(this, EventPair.LAYOUT);
             logger.prepareLoggingBetweenEvents(grid, EventPair.LAYOUT);
@@ -566,13 +567,31 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         listEntities(resultSetConfig, listCallback);
 
-        // TODO it is a bit faster for small tables to add this after data are loaded
+        // NOTE: Adding paging toolbar takes approximately:
+        // - 0,1s on Chrome 5
+        // - 0,3s on Firefox 3.6
+        // It is best to call server for data as soon as we can. That is why we add this toolbar
+        // after listing. We could defer it even more - until processing of received data
+        // is finished but it doesn't improve overall performance even on views with more than
+        // one grid visible. It is even slower if loading data takes longer than displaying
+        // the toolbar (browser is idle while it could use the time to display the toolbar).
+        addPagingToolbarIfNeeded();
+    }
+
+    private void addPagingToolbarIfNeeded()
+    {
         if (bottomToolbars.getItemCount() == 0)
         {
-            int addLogID = log("add bottom toolbars");
-            bottomToolbars.add(pagingToolbar, new RowData(1, -1));
-            bottomToolbars.layout(true);
-            viewContext.logStop(addLogID);
+            GWTUtils.executeDelayed(new IDelegatedAction()
+                {
+                    public void execute()
+                    {
+                        int addLogID = log("add bottom toolbars");
+                        bottomToolbars.add(pagingToolbar, new RowData(1, -1));
+                        bottomToolbars.layout(true);
+                        viewContext.logStop(addLogID);
+                    }
+                });
         }
     }
 
@@ -1140,8 +1159,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             filterToolbar.rebuildColumnFilters(getInitialFilters());
         }
         changeColumnModel(newColumnModel);
-
-        hideLoadingMask();
     }
 
     private void hideLoadingMask()
@@ -1271,6 +1288,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
                     if (wasSuccessful)
                     {
+                        hideLoadingMask();
                         pagingToolbar.updateDefaultConfigButton(true);
                         pagingToolbar.enableExportButton();
                     }
@@ -1597,20 +1615,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         ListStore<T> listStore = new ListStore<T>(dataLoader);
         ColumnModel columnModel = createColumnModel(new ArrayList<ColumnConfig>());
-        final Grid<T> grid = new Grid<T>(listStore, columnModel)
-            {
-
-                // Fixes the problem with mask appearing during window resize
-                @Override
-                protected void onResize(int w, int h)
-                {
-                    super.onResize(w, h);
-                    if (isLoadMask())
-                    {
-                        unmask();
-                    }
-                }
-            };
+        final Grid<T> grid = new Grid<T>(listStore, columnModel);
         grid.setId(gridId);
         grid.setLoadMask(true);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
