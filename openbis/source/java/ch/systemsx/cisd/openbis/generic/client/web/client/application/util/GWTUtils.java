@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -67,6 +68,14 @@ public final class GWTUtils
     public static void testing()
     {
         testing = true;
+    }
+
+    /**
+     * Deferrs a task allowing browser to handle events.
+     */
+    public static void executeDelayed(final IDelegatedAction delegatedAction)
+    {
+        DeferredCommand.addCommand(delegatedAction);
     }
 
     /**

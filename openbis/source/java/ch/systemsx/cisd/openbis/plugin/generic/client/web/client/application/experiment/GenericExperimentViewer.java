@@ -21,9 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.util.DelayedTask;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 
@@ -42,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
@@ -147,7 +145,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         layout();
         viewContext.logStop(logId);
 
-        executeDelayed(new IDelegatedAction()
+        GWTUtils.executeDelayed(new IDelegatedAction()
             {
                 public void execute()
                 {
@@ -158,18 +156,6 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
                     layout();
                 }
             });
-    }
-
-    private static void executeDelayed(final IDelegatedAction delegatedAction)
-    {
-        DelayedTask delayedTask = new DelayedTask(new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    delegatedAction.execute();
-                }
-            });
-        delayedTask.delay(1);
     }
 
     public static final String createId(final IIdentifiable identifiable)

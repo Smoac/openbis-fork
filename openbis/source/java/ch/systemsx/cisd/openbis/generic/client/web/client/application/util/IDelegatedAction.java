@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
+import com.google.gwt.user.client.Command;
+
 /**
  * Use this interface to delegate any kind of action to a different part of code without adding an
  * explicit dependency.
  * 
  * @author Tomasz Pylak
  */
-public interface IDelegatedAction
+public interface IDelegatedAction extends Command
 {
     void execute();
 }
