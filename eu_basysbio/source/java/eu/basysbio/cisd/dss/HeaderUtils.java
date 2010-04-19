@@ -262,7 +262,7 @@ class HeaderUtils
 
     static String join(List<String> list)
     {
-        return join(list, HeaderUtils.LIST_SEPARATOR, 100);
+        return join(list, HeaderUtils.LIST_SEPARATOR, 200);
     }
     
     @Private static String join(List<String> list, String separator, int maxSize)
