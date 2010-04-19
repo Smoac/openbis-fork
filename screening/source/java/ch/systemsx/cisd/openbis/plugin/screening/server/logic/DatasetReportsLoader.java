@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * 
  * @author Tomasz Pylak
  */
-public class DatasetLoader
+public class DatasetReportsLoader
 {
     public static TableModel loadAnalysisResults(List<String> datasets, String datastoreCode,
             IExternalDataTable externalDataTable)

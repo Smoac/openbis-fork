@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -46,6 +50,35 @@ public class ScreeningUtils
         DataStorePE dataStore = dataset.getDataStore();
         return new DatasetReference(dataset.getId(), dataset.getCode(), dataset.getDataSetType()
                 .getCode(), dataStore.getCode(), dataStore.getDownloadUrl());
+    }
+
+    public static List<ExternalDataPE> filterImageAnalysisDatasets(List<ExternalDataPE> datasets)
+    {
+        return filterDatasetsByType(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+    }
+
+    public static List<ExternalDataPE> filterImageDatasets(List<ExternalDataPE> datasets)
+    {
+        return filterDatasetsByType(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
+    }
+
+    private static List<ExternalDataPE> filterDatasetsByType(List<ExternalDataPE> datasets,
+            String datasetTypeCode)
+    {
+        List<ExternalDataPE> chosenDatasets = new ArrayList<ExternalDataPE>();
+        for (ExternalDataPE dataset : datasets)
+        {
+            if (isTypeEqual(dataset, datasetTypeCode))
+            {
+                chosenDatasets.add(dataset);
+            }
+        }
+        return chosenDatasets;
+    }
+
+    private static boolean isTypeEqual(ExternalDataPE dataset, String datasetType)
+    {
+        return dataset.getDataSetType().getCode().equals(datasetType);
     }
 
 }

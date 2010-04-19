@@ -156,7 +156,7 @@ public class GenePlateLocationsLoader
         // NOTE: assumes that all datasets are from the same datastore
         String datastoreCode = imageDatasets.get(0).getDataStore().getCode();
         List<PlateImageParameters> imageParameters =
-                DatasetLoader.loadPlateImageParameters(datasetCodes, datastoreCode, externalDataTable);
+                DatasetReportsLoader.loadPlateImageParameters(datasetCodes, datastoreCode, externalDataTable);
         return asDatasetToParamsMap(imageParameters);
     }
 

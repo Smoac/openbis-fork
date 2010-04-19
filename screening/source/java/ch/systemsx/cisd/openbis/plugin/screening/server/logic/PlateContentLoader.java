@@ -152,18 +152,17 @@ public class PlateContentLoader
             List<ExternalDataPE> datasets)
     {
         List<ExternalDataPE> analysisDatasets =
-                filterDatasetsByType(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+                ScreeningUtils.filterImageAnalysisDatasets(datasets);
         List<String> datasetCodes = extractCodes(analysisDatasets);
         String dataStoreCode = extractDataStoreCode(analysisDatasets);
-        return DatasetLoader.loadAnalysisResults(datasetCodes, dataStoreCode, externalDataTable);
+        return DatasetReportsLoader.loadAnalysisResults(datasetCodes, dataStoreCode, externalDataTable);
     }
 
     private List<PlateSingleImageReference> loadAllImages(TechId plateId)
     {
         IExternalDataTable externalDataTable = createExternalDataTable();
         List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
-        List<ExternalDataPE> imageDatasets =
-                filterDatasetsByType(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
+        List<ExternalDataPE> imageDatasets = ScreeningUtils.filterImageDatasets(datasets);
         List<PlateSingleImageReference> imagePaths = new ArrayList<PlateSingleImageReference>();
         if (imageDatasets.size() > 0)
         {
@@ -171,7 +170,7 @@ public class PlateContentLoader
             // NOTE: we assume that all datasets for one plate come from the same datastore
             String dataStoreCode = extractDataStoreCode(imageDatasets);
             imagePaths =
-                    DatasetLoader.loadPlateImages(datasetCodes, dataStoreCode, externalDataTable);
+                    DatasetReportsLoader.loadPlateImages(datasetCodes, dataStoreCode, externalDataTable);
         }
         return imagePaths;
     }
@@ -222,8 +221,7 @@ public class PlateContentLoader
         List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
         List<WellMetadata> wells = loadWells(plateId);
 
-        List<ExternalDataPE> imageDatasets =
-                filterDatasetsByType(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
+        List<ExternalDataPE> imageDatasets = ScreeningUtils.filterImageDatasets(datasets);
         DatasetImagesReference imageDataset = null;
         if (imageDatasets.size() == 1)
         {
@@ -231,7 +229,7 @@ public class PlateContentLoader
         }
 
         List<ExternalDataPE> analysisDatasets =
-                filterDatasetsByType(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+                ScreeningUtils.filterImageAnalysisDatasets(datasets);
         DatasetReference analysisDataset = null;
         if (analysisDatasets.size() == 1)
         {
@@ -304,29 +302,10 @@ public class PlateContentLoader
         String datasetCode = dataset.getCode();
         List<String> datasets = Arrays.asList(datasetCode);
         List<PlateImageParameters> imageParamsReports =
-                DatasetLoader.loadPlateImageParameters(datasets, dataStore.getCode(),
+                DatasetReportsLoader.loadPlateImageParameters(datasets, dataStore.getCode(),
                         externalDataTable);
         assert imageParamsReports.size() == 1;
         return imageParamsReports.get(0);
-    }
-
-    private static List<ExternalDataPE> filterDatasetsByType(List<ExternalDataPE> datasets,
-            String datasetTypeCode)
-    {
-        List<ExternalDataPE> chosenDatasets = new ArrayList<ExternalDataPE>();
-        for (ExternalDataPE dataset : datasets)
-        {
-            if (isTypeEqual(dataset, datasetTypeCode))
-            {
-                chosenDatasets.add(dataset);
-            }
-        }
-        return chosenDatasets;
-    }
-
-    private static boolean isTypeEqual(ExternalDataPE dataset, String datasetType)
-    {
-        return dataset.getDataSetType().getCode().equals(datasetType);
     }
 
     private static List<WellMetadata> createWells(List<Sample> wellSamples)
