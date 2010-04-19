@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * 
@@ -94,8 +95,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
     {
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
-        extractor =
-                new DataSetInfoExtractorForMSInjection(service);
+        extractor = new DataSetInfoExtractorForMSInjection(service);
         dataSet = new File(workingDirectory, "data-set");
         dataSet.mkdirs();
     }
@@ -167,7 +167,6 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         
         properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
         save(properties, MS_INJECTION_PROPERTIES_FILE);
-        prepareGetSampleType();
         
         try
         {
@@ -189,7 +188,6 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
         properties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
         save(properties, MS_INJECTION_PROPERTIES_FILE);
-        prepareGetSampleType();
         
         try
         {
@@ -282,7 +280,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         
         assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(SAMPLE_CODE, info.getSampleCode());
-        assertEquals(null, info.getExperimentIdentifier());
+        assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
         List<NewProperty> dProps = info.getDataSetProperties();
         assertEquals(1, dProps.size());
         assertEquals("CENTROID", dProps.get(0).getPropertyCode());
@@ -303,7 +301,15 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         SampleTypePropertyType pt2 = createPropertyType("VOLUME", true);
         SampleTypePropertyType pt3 = createPropertyType("TEMPERATURE", true);
         prepareGetExperimentAndGetSampleType(true, pt1, pt2, pt3);
-        
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetSampleWithExperiment(
+                            SampleIdentifierFactory.parse(SAMPLE_IDENTIFIER));
+                    will(returnValue(null));
+                }
+            });
+
         try
         {
             extractor.getDataSetInformation(dataSet, service);
@@ -375,6 +381,9 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         context.checking(new Expectations()
             {
                 {
+                    one(service).tryGetSampleWithExperiment(SampleIdentifierFactory.parse(SAMPLE_IDENTIFIER));
+                    will(returnValue(null));
+                    
                     one(service).registerSample(with(new BaseMatcher<NewSample>()
                         {
                             public boolean matches(Object item)
