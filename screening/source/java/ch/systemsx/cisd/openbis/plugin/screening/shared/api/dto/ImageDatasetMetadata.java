@@ -1,12 +1,16 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
 
+import java.io.Serializable;
+
 /**
  * Metadata information about images in a specified dataset.
  * 
  * @author Tomasz Pylak
  */
-public class ImageDatasetMetadata
+public class ImageDatasetMetadata implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final IDatasetIdentifier imageDataset;
 
     private final int channelsNumber;

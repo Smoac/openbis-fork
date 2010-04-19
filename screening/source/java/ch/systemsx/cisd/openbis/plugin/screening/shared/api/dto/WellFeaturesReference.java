@@ -1,12 +1,16 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
 
+import java.io.Serializable;
+
 /**
  * Identifies one well in a dataset containing feature vectors.
  * 
  * @author Tomasz Pylak
  */
-public class WellFeaturesReference
+public class WellFeaturesReference implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final WellPosition wellPosition;
 
     private final IDatasetIdentifier featureVectorDataset;

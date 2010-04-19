@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
 
 import java.io.InputStream;
+import java.io.Serializable;
 
 /**
  * Contains a stream with a single image from a plate and information from which well, channel and
@@ -8,8 +9,10 @@ import java.io.InputStream;
  * 
  * @author Tomasz Pylak
  */
-public class PlateSingleImage
+public class PlateSingleImage implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final WellPosition wellPosition;
 
     private final int tile;

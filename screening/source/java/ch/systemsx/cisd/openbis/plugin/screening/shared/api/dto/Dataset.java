@@ -1,12 +1,16 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
 
+import java.io.Serializable;
+
 /**
  * Description of one dataset.
  * 
  * @author Tomasz Pylak
  */
-public class Dataset implements IDatasetIdentifier
+public class Dataset implements IDatasetIdentifier, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final String datasetCode;
 
     private final String datastoreCode;
@@ -36,5 +40,11 @@ public class Dataset implements IDatasetIdentifier
     public IPlateIdentifier getPlate()
     {
         return plate;
+    }
+
+    @Override
+    public String toString()
+    {
+        return datasetCode;
     }
 }

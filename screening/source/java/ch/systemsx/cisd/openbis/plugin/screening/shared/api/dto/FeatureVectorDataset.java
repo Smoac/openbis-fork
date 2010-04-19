@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -7,8 +8,10 @@ import java.util.List;
  * 
  * @author Tomasz Pylak
  */
-public class FeatureVectorDataset
+public class FeatureVectorDataset implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final IDatasetIdentifier dataset;
 
     private final List<String> featureNames;

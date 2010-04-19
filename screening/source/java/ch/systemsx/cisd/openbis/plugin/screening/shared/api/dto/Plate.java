@@ -1,12 +1,16 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
 
+import java.io.Serializable;
+
 /**
  * Describes a plate and its context in a hierarchy
  * 
  * @author Tomasz Pylak
  */
-public class Plate implements IPlateIdentifier
+public class Plate implements IPlateIdentifier, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private String plateCode, experimentCode, projectCode, spaceCodeOrNull;
 
     public Plate(String plateCode, String experimentCode, String projectCode, String spaceCodeOrNull)
@@ -39,6 +43,13 @@ public class Plate implements IPlateIdentifier
     public String tryGetSpaceCode()
     {
         return spaceCodeOrNull;
+    }
+
+    @Override
+    public String toString()
+    {
+        return (spaceCodeOrNull != null ? "/" + spaceCodeOrNull : "shared") + "/" + projectCode
+                + "/" + experimentCode + "/" + plateCode;
     }
 
 }

@@ -1,12 +1,16 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
 
+import java.io.Serializable;
+
 /**
  * Point to the well on a plate, contains row and column number.
  * 
  * @author Tomasz Pylak
  */
-public class WellPosition
+public class WellPosition implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final int wellRow, wellColumn;
 
     public WellPosition(int wellRow, int wellColumn)
