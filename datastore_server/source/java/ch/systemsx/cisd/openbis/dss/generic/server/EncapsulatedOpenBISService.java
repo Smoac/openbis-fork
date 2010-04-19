@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -404,6 +405,21 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             authenticate();
             return service.registerSample(sessionToken, newSample, userIDOrNull);
+        }
+    }
+
+    synchronized public void updateSample(SampleUpdatesDTO sampleUpdate) throws UserFailureException
+    {
+        assert sampleUpdate != null : "Unspecified sample.";
+
+        checkSessionToken();
+        try
+        {
+            service.updateSample(sessionToken, sampleUpdate);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            service.updateSample(sessionToken, sampleUpdate);
         }
     }
 
