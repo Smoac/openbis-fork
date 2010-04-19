@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 
 /**
@@ -24,20 +23,12 @@ import com.extjs.gxt.ui.client.widget.TabItem;
  * 
  * @author Christian Ribeaud
  */
-public interface ITabItem
+public interface ITabItem extends IClosableItem
 {
     /**
      * Returns the title updater.
      */
     public TabTitleUpdater getTabTitleUpdater();
-
-    /**
-     * Returns the {@link Component} which composes this tab item.
-     */
-    public Component getComponent();
-
-    /** Performs cleaning operations, should be called before the tab is closed. */
-    public void onClose();
 
     /**
      * Performs operations relevant to the tab when it is activated, namely when we opened this tab

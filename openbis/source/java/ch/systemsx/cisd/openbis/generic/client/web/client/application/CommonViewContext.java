@@ -51,19 +51,22 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     private IClientPluginFactoryProvider clientPluginFactoryProvider;
 
-    private CompositeMessageProvider messageProvider;
+    private final CompositeMessageProvider messageProvider;
 
     private final ViewLocatorResolverRegistry locatorHandlerRegistry;
 
     private final IProfilingTable profilingTable;
 
+    private final boolean simpleMode;
+
     CommonViewContext(final ICommonClientServiceAsync service,
-            final IGenericImageBundle imageBundle,
-            final IPageController pageController, boolean isLoggingEnabled)
+            final IGenericImageBundle imageBundle, final IPageController pageController,
+            boolean isLoggingEnabled, boolean isSimpleMode)
     {
         this.service = service;
         this.imageBundle = imageBundle;
         this.pageController = pageController;
+        this.simpleMode = isSimpleMode;
         this.profilingTable = ProfilingTable.create(isLoggingEnabled);
         messageProvider = new CompositeMessageProvider();
         messageProvider.add(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME));
@@ -208,6 +211,11 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     public boolean isLoggingEnabled()
     {
         return profilingTable.isLoggingEnabled();
+    }
+
+    public boolean isSimpleMode()
+    {
+        return simpleMode;
     }
 
 }

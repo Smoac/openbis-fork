@@ -33,9 +33,10 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -51,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
  * 
  * @author Izabela Adamczyk
  */
-public class MainTabPanel extends TabPanel
+public class MainTabPanel extends TabPanel implements IMainPanel
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "main-tab-panel_";
 
@@ -72,6 +73,10 @@ public class MainTabPanel extends TabPanel
         setTabScroll(true);
         setId(ID);
         setCloseContextMenu(true);
+        setPlain(true);
+        setBodyBorder(false);
+        setBorders(false);
+        setBorderStyle(false);
         add(createWelcomePanel());
     }
 
@@ -108,7 +113,7 @@ public class MainTabPanel extends TabPanel
      * be generated out of given {@link ITabItem}.
      * </p>
      */
-    public final void openTab(final AbstractTabItemFactory tabItemFactory)
+    public final void open(final AbstractTabItemFactory tabItemFactory)
     {
         boolean inBackground = tabItemFactory.isInBackground();
         final MainTabItem tab = tryFindTab(tabItemFactory);
@@ -241,6 +246,10 @@ public class MainTabPanel extends TabPanel
         {
             tabItem.onClose();
             openTabs.remove(idPrefix);
+            if (openTabs.size() == 0)
+            {
+                MainTabPanel.this.syncSize();
+            }
         }
 
         private Listener<ComponentEvent> createCloseViewerListener()
@@ -304,5 +313,10 @@ public class MainTabPanel extends TabPanel
                     }
                 };
         }
+    }
+
+    public Widget asWidget()
+    {
+        return this;
     }
 }

@@ -33,11 +33,12 @@ public class PermlinkUtilities
     public static final String ENTITY_KIND_PARAMETER_KEY = "entity";
 
     public final static String createPermlinkURL(final String baseIndexURL,
-            final EntityKind entityKind, final String identifier)
+            final EntityKind entityKind, final String permId)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
+        ulrWithParameters.startHistoryToken();
         ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
-        ulrWithParameters.addParameter(PERM_ID_PARAMETER_KEY, identifier);
+        ulrWithParameters.addParameter(PERM_ID_PARAMETER_KEY, permId);
         return ulrWithParameters.toString();
     }
 

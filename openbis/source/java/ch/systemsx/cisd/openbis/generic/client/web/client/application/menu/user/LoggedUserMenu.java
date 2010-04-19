@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IMainPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
@@ -88,7 +88,7 @@ public final class LoggedUserMenu extends TopMenuItem
             {
                 public void execute()
                 {
-                    final MainTabPanel tabPanelOrNull = componentProvider.tryGetMainTabPanel();
+                    final IMainPanel tabPanelOrNull = componentProvider.tryGetMainTabPanel();
                     if (tabPanelOrNull == null)
                     {
                         // ignore

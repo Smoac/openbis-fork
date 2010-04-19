@@ -68,6 +68,14 @@ public class URLMethodWithParameters implements IsSerializable
     }
 
     /**
+     * Sets '#' as the next separator.
+     */
+    public void startHistoryToken()
+    {
+        delim = '#';
+    }
+
+    /**
      * Adds a parameter with specified name and value with optional encoding.
      */
     private void addParameter(String parameterName, Object value, boolean withEncoding)

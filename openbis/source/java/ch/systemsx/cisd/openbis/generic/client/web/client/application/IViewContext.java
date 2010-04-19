@@ -29,7 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.I
  * 
  * @author Christian Ribeaud
  */
-public interface IViewContext<T extends IClientServiceAsync> extends IMessageProvider, IProfilingTable
+public interface IViewContext<T extends IClientServiceAsync> extends IMessageProvider,
+        IProfilingTable
 {
     public void addMessageSource(String messageSource);
 
@@ -52,4 +53,7 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
     public ICommonClientServiceAsync getCommonService();
 
     public ViewLocatorResolverRegistry getLocatorResolverRegistry();
+
+    public boolean isSimpleMode();
+
 }

@@ -67,7 +67,7 @@ public final class ComponentProvider
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private MainTabPanel mainTabPanelOrNull;
+    private IMainPanel mainTabPanelOrNull;
 
     public ComponentProvider(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -870,12 +870,12 @@ public final class ComponentProvider
             };
     }
 
-    public MainTabPanel tryGetMainTabPanel()
+    public IMainPanel tryGetMainTabPanel()
     {
         return mainTabPanelOrNull;
     }
 
-    public void setMainTabPanel(MainTabPanel mainTabPanel)
+    public void setMainPanel(IMainPanel mainTabPanel)
     {
         this.mainTabPanelOrNull = mainTabPanel;
     }

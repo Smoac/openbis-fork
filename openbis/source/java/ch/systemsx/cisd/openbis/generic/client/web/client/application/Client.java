@@ -23,7 +23,8 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
@@ -55,6 +56,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public class Client implements EntryPoint
 {
+    private static final String SIMPLE = "simple";
+
+    private static final String VIEW_MODE_KEY = "viewMode";
+
     /** name of the URL parameter which decides if looging is switched on or off */
     private static final String LOGGING_PARAM = "log";
 
@@ -63,7 +68,7 @@ public class Client implements EntryPoint
 
     private IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private List<Controller> controllers = new ArrayList<Controller>();
+    private final List<Controller> controllers = new ArrayList<Controller>();
 
     public final IViewContext<ICommonClientServiceAsync> tryToGetViewContext()
     {
@@ -92,13 +97,21 @@ public class Client implements EntryPoint
                     }
                     onModuleLoad();
                 }
+
             };
 
         CommonViewContext commonContext =
-                new CommonViewContext(service, imageBundle, pageController, isLoggingEnabled());
+                new CommonViewContext(service, imageBundle, pageController, isLoggingEnabled(),
+                        isSimpleMode());
         commonContext.setClientPluginFactoryProvider(createPluginFactoryProvider(commonContext));
         initializeLocatorHandlerRegistry(commonContext.getLocatorResolverRegistry(), commonContext);
         return commonContext;
+    }
+
+    private boolean isSimpleMode()
+    {
+        String viewModeParameter = Window.Location.getParameter(VIEW_MODE_KEY);
+        return viewModeParameter != null && viewModeParameter.equals(SIMPLE);
     }
 
     private boolean isLoggingEnabled()
@@ -154,8 +167,7 @@ public class Client implements EntryPoint
             viewContext = createViewContext(openUrlController);
             initializeControllers(openUrlController);
         }
-
-        final ViewLocator locator = createViewLocator(GWTUtils.getParamString());
+        final ViewLocator locator = createViewLocator(History.getToken());
 
         final IClientServiceAsync service = getServiceForRetrievingApplicationInfo(viewContext);
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
@@ -180,9 +192,10 @@ public class Client implements EntryPoint
             });
     }
 
-    public static ViewLocator createViewLocator(String urlParams)
+    public static ViewLocator createViewLocator(String historyToken)
     {
-        return new ViewLocator(URL.decodeComponent(urlParams));
+        // String decodeComponent = URL.decodeComponent(historyToken);FIXME?
+        return new ViewLocator(historyToken);
     }
 
     protected IClientServiceAsync getServiceForRetrievingApplicationInfo(

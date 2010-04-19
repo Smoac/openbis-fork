@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 
 /**
@@ -58,13 +59,13 @@ public class ViewLocator
 
     // Public API
     /**
-     * Create a ViewLocator initialized from the url parameters
+     * Create a ViewLocator initialized from the history token
      * 
-     * @param urlParams
+     * @param token
      */
-    public ViewLocator(String urlParams)
+    public ViewLocator(String token)
     {
-        initializeFromURLParameterString(urlParams);
+        initializeFromHistoryToken(token);
     }
 
     /**
@@ -112,13 +113,15 @@ public class ViewLocator
 
     // Private methods
     /**
-     * Extract the information for locating a view from the URL parameters
+     * Extract the information for locating a view from the history token
      */
-    private void initializeFromURLParameterString(String urlParams)
+    private void initializeFromHistoryToken(String token)
     {
-        assert urlParams != null;
-
-        final String[] params = urlParams.split(PARAMETER_SEPARATOR);
+        if (StringUtils.isBlank(token))
+        {
+            return;
+        }
+        final String[] params = token.split(PARAMETER_SEPARATOR);
         for (int i = 0; i < params.length; i++)
         {
             final String[] paramPair = params[i].split(KEY_VALUE_SEPARATOR);

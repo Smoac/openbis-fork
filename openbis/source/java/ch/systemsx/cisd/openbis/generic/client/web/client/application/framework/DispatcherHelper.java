@@ -48,13 +48,12 @@ public final class DispatcherHelper
     public final static void dispatchNaviEvent(final AbstractTabItemFactory tabItemFactory)
     {
         AppEvent event = createEvent(AppEvents.NAVI_EVENT, tabItemFactory);
-        Dispatcher.get().dispatch(event);
+        Dispatcher.get().dispatch(event);// FIXME: add history token
     }
 
     private final static AppEvent createEvent(EventType eventType, Object data)
     {
-        final AppEvent event = new AppEvent(eventType);
-        event.setData(data);
+        final AppEvent event = new AppEvent(eventType, data);
         return event;
     }
 }

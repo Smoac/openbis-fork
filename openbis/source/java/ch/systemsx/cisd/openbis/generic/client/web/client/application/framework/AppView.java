@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -41,7 +40,7 @@ final class AppView extends View
 
     private Viewport viewport;
 
-    private MainTabPanel center;
+    private IMainPanel mainPanel;
 
     private TopMenu north;
 
@@ -58,16 +57,19 @@ final class AppView extends View
         return event.getData();
     }
 
-    private final void activateTab(final AbstractTabItemFactory tabItemFactory)
+    private final void activate(final AbstractTabItemFactory tabItemFactory)
     {
-        center.openTab(tabItemFactory);
+        mainPanel.open(tabItemFactory);
     }
 
     private final void initUI()
     {
         viewport = new Viewport();
         viewport.setLayout(new BorderLayout());
-        createNorth();
+        if (viewContext.isSimpleMode() == false)
+        {
+            createNorth();
+        }
         createCenter();
         createSouth();
         RootPanel.get().clear();
@@ -83,11 +85,10 @@ final class AppView extends View
 
     private final void createCenter()
     {
-        center = new MainTabPanel(viewContext);
-        componentProvider.setMainTabPanel(center);
+        mainPanel = createMainPanel(viewContext);
+        componentProvider.setMainPanel(mainPanel);
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
-        data.setMargins(new Margins(5));
-        viewport.add(center, data);
+        viewport.add(mainPanel.asWidget(), data);
     }
 
     private final void createSouth()
@@ -116,7 +117,18 @@ final class AppView extends View
             initUI();
         } else if (event.getType() == AppEvents.NAVI_EVENT)
         {
-            activateTab(getData(event));
+            activate(getData(event));
+        }
+    }
+
+    private static IMainPanel createMainPanel(CommonViewContext context)
+    {
+        if (context.isSimpleMode())
+        {
+            return new MainPagePanel(context);
+        } else
+        {
+            return new MainTabPanel(context);
         }
     }
 }
