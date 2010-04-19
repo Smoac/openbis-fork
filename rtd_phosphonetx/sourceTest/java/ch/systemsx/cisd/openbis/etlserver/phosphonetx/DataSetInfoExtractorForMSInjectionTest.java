@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtracto
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.EXPERIMENT_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.EXPERIMENT_TYPE_CODE;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.MS_INJECTION_PROPERTIES_FILE;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.PARENT_TYPE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.PROJECT_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SAMPLE_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,14 +56,18 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -84,6 +90,8 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + PROJECT_CODE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + EXPERIMENT_CODE;
     private static final long EXPERIMENT_ID = 42;
+    private static final long SAMPLE_ID = 43;
+    private static final String SAMPLE_PROPERTY = "name";
     
     private Mockery context;
     private IEncapsulatedOpenBISService service;
@@ -256,7 +264,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
     }
     
     @Test
-    public void test()
+    public void testRegisterRawData()
     {
         Properties sampleProperties = new Properties();
         sampleProperties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
@@ -266,7 +274,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         sampleProperties.setProperty("TEMPERATURE", "47.11");
         save(sampleProperties, MS_INJECTION_PROPERTIES_FILE);
         Properties dataSetProperties = new Properties();
-        dataSetProperties.setProperty(DATA_SET_TYPE_KEY, "MZXML_DATA");
+        dataSetProperties.setProperty(DATA_SET_TYPE_KEY, "RAW_DATA");
         dataSetProperties.setProperty("CENTROID", "true");
         dataSetProperties.setProperty("BLABLA", "blub");
         save(dataSetProperties, DATA_SET_PROPERTIES_FILE);
@@ -274,7 +282,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         SampleTypePropertyType pt2 = createPropertyType("VOLUME", false);
         prepareGetExperimentAndGetSampleType(false, pt1, pt2);
         prepareRegisterSample();
-        prepareGetDataSetType(createDataSetPropertyType("CENTROID", false));
+        prepareGetDataSetType("RAW_DATA", createDataSetPropertyType("CENTROID", false));
         
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
         
@@ -285,6 +293,78 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         assertEquals(1, dProps.size());
         assertEquals("CENTROID", dProps.get(0).getPropertyCode());
         assertEquals("true", dProps.get(0).getValue());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testRegisterSupersedingRawDataWhichUpdatesSampleProperties()
+    {
+        Properties sampleProperties = new Properties();
+        sampleProperties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
+        sampleProperties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
+        sampleProperties.setProperty(EXPERIMENT_CODE_KEY, EXPERIMENT_CODE);
+        sampleProperties.setProperty(SAMPLE_PROPERTY, "Isaac");
+        sampleProperties.setProperty("TEMPERATURE", "47.11");
+        save(sampleProperties, MS_INJECTION_PROPERTIES_FILE);
+        Properties dataSetProperties = new Properties();
+        dataSetProperties.setProperty(DATA_SET_TYPE_KEY, "RAW_DATA");
+        dataSetProperties.setProperty("CENTROID", "true");
+        dataSetProperties.setProperty("BLABLA", "blub");
+        save(dataSetProperties, DATA_SET_PROPERTIES_FILE);
+        prepareGetExperimentAndGetSampleType(false);
+        prepareUpdateSample("Isaac");
+        prepareGetDataSetType("RAW_DATA", createDataSetPropertyType("CENTROID", false));
+        
+        DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
+        
+        assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
+        assertEquals(SAMPLE_CODE, info.getSampleCode());
+        assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
+        List<NewProperty> dProps = info.getDataSetProperties();
+        assertEquals(1, dProps.size());
+        assertEquals("CENTROID", dProps.get(0).getPropertyCode());
+        assertEquals("true", dProps.get(0).getValue());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testRegisterParentDataSet()
+    {
+        Properties sampleProperties = new Properties();
+        sampleProperties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
+        sampleProperties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
+        sampleProperties.setProperty(EXPERIMENT_CODE_KEY, EXPERIMENT_CODE);
+        save(sampleProperties, MS_INJECTION_PROPERTIES_FILE);
+        Properties dataSetProperties = new Properties();
+        dataSetProperties.setProperty(DATA_SET_TYPE_KEY, "MZXML_DATA");
+        dataSetProperties.setProperty(PARENT_TYPE_KEY, "RAW_DATA");
+        save(dataSetProperties, DATA_SET_PROPERTIES_FILE);
+        prepareGetExperimentAndGetSampleType(true);
+        prepareUpdateSample(null);
+        prepareGetDataSetType("MZXML_DATA");
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listDataSetsByExperimentID(EXPERIMENT_ID);
+                    ExternalData ds1 = createDataSet("RAW_DATA", "raw1", 11);
+                    ExternalData ds2 = createDataSet("MZXML_DATA", "mzxml1", 13);
+                    ExternalData ds3 = createDataSet("RAW_DATA", "raw2", 12);
+                    will(returnValue(Arrays.asList(ds1, ds2, ds3)));
+                }
+            });
+        
+        DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
+        
+        assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
+        assertEquals(null, info.getSampleCode());
+        assertEquals(null, info.getSampleIdentifier());
+        assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
+        assertEquals(0, info.getDataSetProperties().size());
+        List<String> parentDataSetCodes = info.getParentDataSetCodes();
+        assertEquals("raw2", parentDataSetCodes.get(0));
+        assertEquals(1, parentDataSetCodes.size());
         
         context.assertIsSatisfied();
     }
@@ -361,16 +441,16 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             });
     }
 
-    private void prepareGetDataSetType(final DataSetTypePropertyType... types)
+    private void prepareGetDataSetType(final String dataSetType, final DataSetTypePropertyType... types)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(service).getDataSetType("MZXML_DATA");
+                    one(service).getDataSetType(dataSetType);
                     DataSetTypeWithVocabularyTerms result = new DataSetTypeWithVocabularyTerms();
-                    DataSetType dataSetType = new DataSetType("MZXML_DATA");
-                    dataSetType.setDataSetTypePropertyTypes(Arrays.asList(types));
-                    result.setDataSetType(dataSetType);
+                    DataSetType type = new DataSetType(dataSetType);
+                    type.setDataSetTypePropertyTypes(Arrays.asList(types));
+                    result.setDataSetType(type);
                     will(returnValue(result));
                 }
             });
@@ -418,6 +498,57 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             });
     }
     
+    private void prepareUpdateSample(final String newName)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetSampleWithExperiment(
+                            SampleIdentifierFactory.parse(SAMPLE_IDENTIFIER));
+                    Sample sample = new Sample();
+                    sample.setId(SAMPLE_ID);
+                    sample.setModificationDate(new Date(4711));
+                    sample.setProperties(Arrays.<IEntityProperty> asList(createProperty(SAMPLE_PROPERTY,
+                            "Albert")));
+                    SampleType sampleType = new SampleType();
+                    sampleType.setSampleTypePropertyTypes(Arrays.asList(createPropertyType(SAMPLE_PROPERTY,
+                            true)));
+                    sample.setSampleType(sampleType);
+                    will(returnValue(sample));
+
+                    one(service).updateSample(with(new BaseMatcher<SampleUpdatesDTO>()
+                        {
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof SampleUpdatesDTO)
+                                {
+                                    SampleUpdatesDTO sampleUpdate = (SampleUpdatesDTO) item;
+                                    assertEquals(SAMPLE_ID, sampleUpdate.getSampleIdOrNull().getId().longValue());
+                                    assertEquals(0, sampleUpdate.getAttachments().size());
+                                    assertEquals(null, sampleUpdate.getContainerIdentifierOrNull());
+                                    assertEquals(null, sampleUpdate.getParentIdentifierOrNull());
+                                    assertEquals(EXPERIMENT_IDENTIFIER, sampleUpdate
+                                            .getExperimentIdentifierOrNull().toString());
+                                    assertEquals(SAMPLE_IDENTIFIER, sampleUpdate
+                                            .getSampleIdentifier().toString());
+                                    List<IEntityProperty> properties = sampleUpdate.getProperties();
+                                    assertEquals(SAMPLE_PROPERTY, properties.get(0).getPropertyType()
+                                            .getCode());
+                                    assertEquals(newName == null ? "Albert" : newName, properties.get(0).getValue());
+                                    assertEquals(1, properties.size());
+                                    return true;
+                                }
+                                return false;
+                            }
+
+                            public void describeTo(Description description)
+                            {
+                            }
+                        }));
+                }
+            });
+    }
+
     private void save(Properties properties, String fileName)
     {
         File propertiesFile = new File(dataSet, fileName);
@@ -454,4 +585,24 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         etpt.setPropertyType(propertyType);
         return etpt;
     }
+    
+    private EntityProperty createProperty(String name, String value)
+    {
+        EntityProperty entityProperty = new EntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(name);
+        entityProperty.setPropertyType(propertyType);
+        entityProperty.setValue(value);
+        return entityProperty;
+    }
+    
+    private ExternalData createDataSet(String type, String code, int timestamp)
+    {
+        ExternalData ds = new ExternalData();
+        ds.setDataSetType(new DataSetType(type));
+        ds.setCode(code);
+        ds.setRegistrationDate(new Date(timestamp));
+        return ds;
+    }
+    
 }
