@@ -37,6 +37,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 public class TypeExtractorForMSInjection implements ITypeExtractor
 {
     private static final LocatorType LOCATOR_TYPE = new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
+    
+    public TypeExtractorForMSInjection(Properties properties)
+    {
+    }
 
     public DataSetType getDataSetType(File incomingDataSetPath)
     {

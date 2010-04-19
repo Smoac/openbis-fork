@@ -19,8 +19,11 @@ package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -28,15 +31,20 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Data set info extractor for MS injection data sets. Information is extracted from a properties
@@ -83,15 +91,11 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         DataSetInformation info = new DataSetInformation();
         info.setSpaceCode(Constants.MS_DATA_SPACE);
         info.setSampleCode(PropertyUtils.getMandatoryProperty(sampleProperties, SAMPLE_CODE_KEY));
-        NewSample sample = new NewSample();
-        SampleType sampleType = service.getSampleType(SAMPLE_TYPE_CODE);
-        sample.setSampleType(sampleType);
+        SampleIdentifier sampleIdentifier = info.getSampleIdentifier();
         ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(sampleProperties);
         long experimentID = getOrCreateExperiment(experimentIdentifier);
-        sample.setExperimentIdentifier(experimentIdentifier.toString());
-        sample.setIdentifier(info.getSampleIdentifier().toString());
-        sample.setProperties(Util.getAndCheckProperties(sampleProperties, sampleType));
-        service.registerSample(sample, sampleProperties.getProperty(USER_KEY));
+        info.setExperimentIdentifier(experimentIdentifier);
+        registerOrUpdateSample(sampleIdentifier, experimentIdentifier, sampleProperties);
         
         Properties dataSetProperties =
                 Util.loadPropertiesFile(incomingDataSetPath, DATA_SET_PROPERTIES_FILE);
@@ -118,9 +122,36 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             if (youngestDataSet != null)
             {
                 info.setParentDataSetCodes(Arrays.asList(youngestDataSet.getCode()));
+                info.setSampleCode(null);
             }
         }
         return info;
+    }
+
+    private void registerOrUpdateSample(SampleIdentifier sampleIdentifier,
+            ExperimentIdentifier experimentIdentifier, Properties properties)
+    {
+        SampleType sampleType = service.getSampleType(SAMPLE_TYPE_CODE);
+        Sample sample = service.tryGetSampleWithExperiment(sampleIdentifier);
+        if (sample == null)
+        {
+            NewSample newSample = new NewSample();
+            newSample.setSampleType(sampleType);
+            newSample.setExperimentIdentifier(experimentIdentifier.toString());
+            newSample.setIdentifier(sampleIdentifier.toString());
+            IEntityProperty[] sampleProperties = Util.getAndCheckProperties(properties, sampleType);
+            newSample.setProperties(sampleProperties);
+            service.registerSample(newSample, properties.getProperty(USER_KEY));
+        } else
+        {
+            TechId sampleID = new TechId(sample.getId());
+            List<IEntityProperty> propertiesList =
+                    Util.getUpdatedProperties(sample, sample.getEntityType(), properties);
+            Set<NewAttachment> emptySet = Collections.<NewAttachment> emptySet();
+            Date version = sample.getModificationDate();
+            service.updateSample(new SampleUpdatesDTO(sampleID, propertiesList,
+                    experimentIdentifier, emptySet, version, sampleIdentifier, null, null));
+        }
     }
 
     private long timeStamp(ExternalData dataSet)
