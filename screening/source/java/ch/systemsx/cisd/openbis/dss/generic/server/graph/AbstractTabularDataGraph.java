@@ -222,8 +222,6 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
         chart.setBackgroundPaint(Color.WHITE);
 
         XYPlot plot = (XYPlot) chart.getPlot();
-        // setAxisLabelFontSize(plot.getDomainAxis());
-        // setAxisLabelFontSize(plot.getRangeAxis());
         plot.setBackgroundPaint(Color.WHITE);
         plot.setDomainGridlinesVisible(false);
         plot.setRangeGridlinesVisible(true);

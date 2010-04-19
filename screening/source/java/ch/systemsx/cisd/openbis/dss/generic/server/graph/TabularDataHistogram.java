@@ -21,6 +21,10 @@ import java.io.OutputStream;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.statistics.HistogramDataset;
 
@@ -79,6 +83,14 @@ public class TabularDataHistogram extends
                 false, // generate tooltips?
                 false // generate URLs?
                 );
+
+        XYItemRenderer r = ((XYPlot) chart.getPlot()).getRenderer();
+        if (r instanceof XYBarRenderer)
+        {
+            XYBarRenderer renderer = (XYBarRenderer) r;
+            renderer.setShadowVisible(false);
+            renderer.setBarPainter(new StandardXYBarPainter());
+        }
 
         return chart;
     }
