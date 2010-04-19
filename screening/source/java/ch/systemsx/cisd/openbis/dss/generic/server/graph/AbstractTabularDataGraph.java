@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -23,7 +25,10 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.Axis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.DefaultXYDataset;
 
@@ -162,7 +167,9 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
             return createErrorChart();
         }
 
-        return createDataChart(dataset);
+        JFreeChart chart = createDataChart(dataset);
+        configureChart(chart);
+        return chart;
     }
 
     /**
@@ -208,6 +215,35 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
         }
 
         return true;
+    }
+
+    protected void configureChart(JFreeChart chart)
+    {
+        chart.setBackgroundPaint(Color.WHITE);
+
+        XYPlot plot = (XYPlot) chart.getPlot();
+        // setAxisLabelFontSize(plot.getDomainAxis());
+        // setAxisLabelFontSize(plot.getRangeAxis());
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinesVisible(false);
+        plot.setRangeGridlinesVisible(true);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+        plot.setDomainCrosshairVisible(false);
+        plot.setRangeCrosshairVisible(false);
+
+        ValueAxis axis = plot.getDomainAxis();
+        axis.setAutoRange(true);
+    }
+
+    protected void setAxisLabelFontSize(Axis axis)
+    {
+        Font labelFont = axis.getLabelFont();
+        axis.setLabelFont(cloneFontWithNewSize(labelFont, 10));
+    }
+
+    protected Font cloneFontWithNewSize(Font font, int newSize)
+    {
+        return new Font(font.getName(), font.getStyle(), newSize);
     }
 
 }

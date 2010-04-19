@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
@@ -109,6 +110,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
         xAxis.setAutoRangeIncludesZero(false);
         xAxis.setTickUnit(new NumberTickUnit(1.));
         NumberAxis yAxis = new NumberAxis(yAxisLabel);
+        yAxis.setAutoRangeIncludesZero(false);
 
         XYBlockRenderer renderer = new XYBlockRenderer();
         renderer.setBlockAnchor(RectangleAnchor.BOTTOM_LEFT);
@@ -119,12 +121,12 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
         plot.setOrientation(orientation);
         plot.setForegroundAlpha(0.5f);
         plot.setRenderer(renderer);
-        plot.setBackgroundPaint(Color.lightGray);
-        plot.setRangeGridlinePaint(Color.white);
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
 
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, legend);
-        // ChartFactory.getChartTheme().apply(chart);
+        ChartFactory.getChartTheme().apply(chart);
 
         NumberAxis scaleAxis = new NumberAxis("Scale");
         PaintScaleLegend psl = new PaintScaleLegend(paintScale, scaleAxis);
@@ -178,7 +180,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
         {
             String wellX = m.group(1);
             // The x index is the index of the letter minus the index of 'A'
-            element.x = (wellX.charAt(0) - 'A');
+            element.x = (wellX.charAt(0) - 'A') + 1;
             element.y = Integer.parseInt(m.group(2));
         }
     }
