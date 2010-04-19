@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
@@ -54,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -214,6 +214,7 @@ final class SampleListingWorker
         retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForTrackedSamples());
+        retrievePrimaryBasicSamples(tryGetIteratorForNewTrackedSamples());
         if (operationLog.isDebugEnabled())
         {
             watch.stop();
@@ -452,6 +453,18 @@ final class SampleListingWorker
         Long sampleTypeId =
                 referencedEntityDAO.getSampleTypeIdForSampleTypeCode(criteria.getSampleTypeCode());
         return query.getNewSamplesForSampleType(sampleTypeId, criteria.getLastSeenSampleId());
+    }
+
+    private Iterable<SampleRecord> tryGetIteratorForNewTrackedSamples()
+    {
+        final String propertyTypeCode = criteria.getPropertyTypeCode();
+        if (propertyTypeCode == null)
+        {
+            return null;
+        }
+        final String propertyValue = criteria.getPropertyValue();
+        return query.getSamplesWithPropertyValue(propertyTypeCode, propertyValue,
+                new LongOpenHashSet(criteria.getAlreadyTrackedSampleIds()));
     }
 
     private void retrievePrimaryBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull)

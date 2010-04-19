@@ -1,6 +1,8 @@
 package ch.systemsx.cisd.openbis.generic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -15,6 +17,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewTrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -118,6 +121,18 @@ public class OpenbisClientTest
                 trackingServer.listDataSets(session.getSessionToken(), dataSetCriteria);
         System.out
                 .println(TrackingHelper.trackedEntitiesInformation(dataSets, EntityKind.DATA_SET));
+
+        final String propertyTypeCode = "IS_VALID";
+        final String propertyValue = "true";
+        final Collection<Long> alreadyTracked = Arrays.asList(new Long[]
+            { 986L, 987L });
+
+        final NewTrackingSampleCriteria newSampleCriteria =
+                new NewTrackingSampleCriteria(propertyTypeCode, propertyValue, alreadyTracked);
+        final List<Sample> newSamples =
+                trackingServer.listSamples(session.getSessionToken(), newSampleCriteria);
+        System.out
+                .println(TrackingHelper.trackedEntitiesInformation(newSamples, EntityKind.SAMPLE));
     }
 
     /**
@@ -215,8 +230,25 @@ public class OpenbisClientTest
 
         private static String toString(List<IEntityProperty> properties)
         {
-            // output just collection size or null if not initialized
-            return properties == null ? null : new Integer(properties.size()).toString();
+            if (properties == null)
+            {
+                return null;
+            } else
+            {
+                final StringBuilder sb = new StringBuilder();
+                sb.append("{");
+                for (IEntityProperty property : properties)
+                {
+                    sb.append(property.getPropertyType() + "=" + property.getValue() + ",");
+                }
+                if (properties.size() > 0)
+                {
+                    sb.setLength(sb.length() - 1);
+                }
+                sb.append("}");
+                return sb.toString();
+            }
         }
+
     }
 }

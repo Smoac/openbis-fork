@@ -41,6 +41,8 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 
     private TrackingSampleCriteria trackingCriteria;
 
+    private NewTrackingSampleCriteria newTrackingCriteria;
+
     private Collection<Long> sampleIds;
 
     private boolean enrichDependentSamplesWithProperties = false;
@@ -59,6 +61,13 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         this.trackingCriteria = trackingCriteria;
     }
 
+    /** Creates criteria that delegates to given {@link NewTrackingSampleCriteria}. */
+    public ListOrSearchSampleCriteria(NewTrackingSampleCriteria newTrackingCriteria)
+    {
+        assert newTrackingCriteria != null;
+        this.newTrackingCriteria = newTrackingCriteria;
+    }
+
     /** Creates criteria for detailed search of samples with given ids. */
     public ListOrSearchSampleCriteria(final Collection<Long> sampleIds)
     {
@@ -71,6 +80,24 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     public Collection<Long> getSampleIds()
     {
         return sampleIds;
+    }
+
+    // delegation to NewTrackingSampleCriteria
+
+    public String getPropertyTypeCode()
+    {
+        return newTrackingCriteria == null ? null : newTrackingCriteria.getPropertyTypeCode();
+    }
+
+    public String getPropertyValue()
+    {
+        return newTrackingCriteria == null ? null : newTrackingCriteria.getPropertyValue();
+    }
+
+    public Collection<Long> getAlreadyTrackedSampleIds()
+    {
+        return newTrackingCriteria == null ? null : newTrackingCriteria
+                .getAlreadyTrackedSampleIds();
     }
 
     // delegation to TrackingSampleCriteria
