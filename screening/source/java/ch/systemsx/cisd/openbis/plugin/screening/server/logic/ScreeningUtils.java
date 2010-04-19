@@ -62,7 +62,7 @@ public class ScreeningUtils
         return filterDatasetsByType(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
     }
 
-    private static List<ExternalDataPE> filterDatasetsByType(List<ExternalDataPE> datasets,
+    public static List<ExternalDataPE> filterDatasetsByType(List<ExternalDataPE> datasets,
             String datasetTypeCode)
     {
         List<ExternalDataPE> chosenDatasets = new ArrayList<ExternalDataPE>();

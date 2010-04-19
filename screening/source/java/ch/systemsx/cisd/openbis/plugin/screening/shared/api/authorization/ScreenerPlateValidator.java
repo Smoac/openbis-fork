@@ -25,6 +25,12 @@ public final class ScreenerPlateValidator extends AbstractValidator<Plate>
             final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
             for (final RoleAssignmentPE roleAssignment : roleAssignments)
             {
+                if (roleAssignment.getDatabaseInstance() != null)
+                {
+                    // all roles on db level allow full access (we assume that we operate on home db
+                    // always)
+                    return true;
+                }
                 final GroupPE group = roleAssignment.getGroup();
                 if (group != null && group.getCode().equals(spaceCode))
                 {

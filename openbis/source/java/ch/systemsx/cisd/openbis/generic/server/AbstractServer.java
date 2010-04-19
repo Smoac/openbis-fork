@@ -62,8 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractServer<T extends IServer> extends AbstractServiceWithLogger<T>
-        implements IServer
+public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> implements IServer
 {
     // For testing purpose.
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;

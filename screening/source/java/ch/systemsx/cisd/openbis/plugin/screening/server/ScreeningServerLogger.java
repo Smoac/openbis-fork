@@ -34,6 +34,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Dataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IPlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
@@ -44,7 +48,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
  * 
  * @author Tomasz Pylak
  */
-final class ScreeningServerLogger extends AbstractServerLogger implements IScreeningServer
+final class ScreeningServerLogger extends AbstractServerLogger implements IScreeningServer,
+        IScreeningApiServer
 {
     ScreeningServerLogger(final ISessionManager<Session> sessionManager,
             IInvocationLoggerContext context)
@@ -120,6 +125,39 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException
     {
         logAccess(sessionToken, "getVocabulary", "CODE(%s)", code);
+        return null;
+    }
+
+    // --- IGenedataScreeningServer
+
+    public List<Dataset> listFeatureVectorDatasets(String sessionToken,
+            List<? extends IPlateIdentifier> plates)
+    {
+        logAccess(sessionToken, "listFeatureVectorDatasets", "plates(%s)", plates);
+        return null;
+    }
+
+    public List<Dataset> listImageDatasets(String sessionToken,
+            List<? extends IPlateIdentifier> plates)
+    {
+        logAccess(sessionToken, "listImageDatasets", "plates(%s)", plates);
+        return null;
+    }
+
+    public List<Plate> listPlates(String sessionToken)
+    {
+        logAccess(sessionToken, "listPlates");
+        return null;
+    }
+
+    public void logoutScreening(String sessionToken)
+    {
+        // No logging because already done by the session manager
+    }
+
+    public String tryLoginScreening(String userId, String userPassword)
+    {
+        // No logging because already done by the session manager
         return null;
     }
 }

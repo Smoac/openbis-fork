@@ -31,12 +31,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IPlateIdentifier
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Plate;
 
 /**
- * This interface is a part of API used by Genedata. It is forbidden to change it in a
- * non-backward-compatible manner.
+ * This interface is a part of the official public screening API. It is forbidden to change it in a
+ * non-backward-compatible manner without discussing it with all screening customers.
  * 
  * @author Tomasz Pylak
  */
-public interface IScreeningOpenbisServer
+public interface IScreeningApiServer
 {
     /**
      * Authenticates the user with a given password.
@@ -44,22 +44,22 @@ public interface IScreeningOpenbisServer
      *@return sessionToken if authentication suceeded, null otherwise
      */
     @Transactional(readOnly = true)
-    String tryLoginScreening(String userId, String userPassword);
+    String tryLoginScreening(String userId, String userPassword) throws IllegalArgumentException;
 
     /**
      * Logout the session with the specified session token.
      */
     @Transactional(readOnly = true)
-    void logoutScreening(final String sessionToken);
+    void logoutScreening(final String sessionToken) throws IllegalArgumentException;
 
     /**
-     * Return the list of all (visible) plates, along with their hierarchical context (i.e. space,
-     * project, experiment)
+     * Return the list of all visible plates assigned to any experiment, along with their
+     * hierarchical context (space, project, experiment).
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = ScreenerPlateValidator.class)
-    List<Plate> listPlates(String sessionToken);
+    List<Plate> listPlates(String sessionToken) throws IllegalArgumentException;
 
     /**
      * For a given set of plates (given by space / plate bar code), provide the list of all data
@@ -69,7 +69,8 @@ public interface IScreeningOpenbisServer
     @RolesAllowed(RoleSet.OBSERVER)
     List<Dataset> listFeatureVectorDatasets(
             String sessionToken,
-            @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<IPlateIdentifier> plates);
+            @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<? extends IPlateIdentifier> plates)
+            throws IllegalArgumentException;
 
     /**
      * For a given set of plates provide the list of all data sets containing images for each of
@@ -79,5 +80,6 @@ public interface IScreeningOpenbisServer
     @RolesAllowed(RoleSet.OBSERVER)
     List<Dataset> listImageDatasets(
             String sessionToken,
-            @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<IPlateIdentifier> plates);
+            @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<? extends IPlateIdentifier> plates)
+            throws IllegalArgumentException;
 }

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
@@ -50,8 +51,13 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.GenePlateLocationsLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Dataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IPlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
@@ -64,9 +70,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
  */
 @Component(ResourceNames.SCREENING_PLUGIN_SERVER)
 public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
-        IScreeningServer
+        IScreeningServer, IScreeningApiServer
 {
-
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
 
@@ -177,4 +182,89 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         VocabularyPE vocabulary = vocabularyDAO.tryFindVocabularyByCode(code);
         return VocabularyTranslator.translate(vocabulary);
     }
+
+    // --------- IScreeningOpenbisServer - method signature should be changed with care
+
+    public List<Dataset> listFeatureVectorDatasets(String sessionToken,
+            List<? extends IPlateIdentifier> plates)
+    {
+        try
+        {
+            return createScreeningApiImpl(sessionToken).listFeatureVectorDatasets(plates);
+        } catch (UserFailureException e)
+        {
+            throw translateException(e);
+        }
+    }
+
+    public List<Dataset> listImageDatasets(String sessionToken,
+            List<? extends IPlateIdentifier> plates)
+    {
+        try
+        {
+            return createScreeningApiImpl(sessionToken).listImageDatasets(plates);
+        } catch (UserFailureException e)
+        {
+            throw translateException(e);
+        }
+    }
+
+    public List<Plate> listPlates(String sessionToken)
+    {
+        try
+        {
+            return createScreeningApiImpl(sessionToken).listPlates();
+        } catch (UserFailureException e)
+        {
+            throw translateException(e);
+        }
+    }
+
+    private ScreeningApiImpl createScreeningApiImpl(String sessionToken)
+    {
+        try
+        {
+            final Session session = getSession(sessionToken);
+            return new ScreeningApiImpl(session, businessObjectFactory, getDAOFactory());
+        } catch (UserFailureException e)
+        {
+            throw translateException(e);
+        }
+    }
+
+    public void logoutScreening(String sessionToken)
+    {
+        try
+        {
+            logout(sessionToken);
+        } catch (UserFailureException e)
+        {
+            throw translateException(e);
+        }
+    }
+
+    public String tryLoginScreening(String userId, String userPassword)
+    {
+        SessionContextDTO sessionContext;
+        try
+        {
+            sessionContext = tryToAuthenticate(userId, userPassword);
+        } catch (UserFailureException e)
+        {
+            throw translateException(e);
+        }
+        if (sessionContext != null)
+        {
+            return sessionContext.getSessionToken();
+        } else
+        {
+            return null;
+        }
+    }
+
+    private static RuntimeException translateException(UserFailureException e)
+    {
+        return new IllegalArgumentException(e.getMessage());
+    }
+
 }

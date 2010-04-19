@@ -1,9 +1,9 @@
-package ch.systemsx.cisd.openbis.plugin.screening.client;
+package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
 import java.util.List;
 
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.IScreeningOpenbisServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Dataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IDatasetIdentifier;
@@ -14,7 +14,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateSingleImage
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.WellFeaturesReference;
 
 /**
- * A facade of openBIS API for Genedata Screener integration.
+ * A facade of openBIS and Datastore Server API.
  * 
  * @author Tomasz Pylak
  */
@@ -22,18 +22,20 @@ public class ScreeningOpenbisServiceFacade
 {
     private static final int SERVER_TIMEOUT_MIN = 5;
 
-    private final IScreeningOpenbisServer screeningServer;
+    private final IScreeningApiServer screeningServer;
 
     private final String sessionToken;
 
     /**
      * Creates a service facade which communicates with the openBIS server at the specified URL.
      * Authenticates the user.
+     * 
+     * @return null if the user could not be authenticated.
      */
-    public static ScreeningOpenbisServiceFacade create(String userId, String userPassword,
+    public static ScreeningOpenbisServiceFacade tryCreate(String userId, String userPassword,
             String serverUrl)
     {
-        IScreeningOpenbisServer server = createScreeningServer(serverUrl);
+        IScreeningApiServer server = createScreeningServer(serverUrl);
         String sessionToken = server.tryLoginScreening(userId, userPassword);
         if (sessionToken == null)
         {
@@ -42,14 +44,13 @@ public class ScreeningOpenbisServiceFacade
         return new ScreeningOpenbisServiceFacade(server, sessionToken);
     }
 
-    private static IScreeningOpenbisServer createScreeningServer(String serverUrl)
+    private static IScreeningApiServer createScreeningServer(String serverUrl)
     {
-        return HttpInvokerUtils.createServiceStub(IScreeningOpenbisServer.class, serverUrl
-                + "/rmi-screening", SERVER_TIMEOUT_MIN);
+        return HttpInvokerUtils.createServiceStub(IScreeningApiServer.class, serverUrl
+                + "/rmi-screening-api", SERVER_TIMEOUT_MIN);
     }
 
-    private ScreeningOpenbisServiceFacade(IScreeningOpenbisServer screeningServer,
-            String sessionToken)
+    private ScreeningOpenbisServiceFacade(IScreeningApiServer screeningServer, String sessionToken)
     {
         this.screeningServer = screeningServer;
         this.sessionToken = sessionToken;
@@ -62,8 +63,8 @@ public class ScreeningOpenbisServiceFacade
     }
 
     /**
-     * Return the list of all visible plates, along with their hierarchical context (space, project,
-     * experiment).
+     * Return the list of all visible plates assigned to any experiment, along with their
+     * hierarchical context (space, project, experiment).
      */
     public List<Plate> listPlates()
     {
@@ -74,7 +75,7 @@ public class ScreeningOpenbisServiceFacade
      * For a given set of plates provides the list of all connected data sets containing feature
      * vectors.
      */
-    public List<Dataset> listFeatureVectorDatasets(List<IPlateIdentifier> plates)
+    public List<Dataset> listFeatureVectorDatasets(List<? extends IPlateIdentifier> plates)
     {
         return screeningServer.listFeatureVectorDatasets(sessionToken, plates);
     }
@@ -82,7 +83,7 @@ public class ScreeningOpenbisServiceFacade
     /**
      * For a given set of plates provides the list of all connected data sets containing images.
      */
-    public List<Dataset> listImageDatasets(List<IPlateIdentifier> plates)
+    public List<Dataset> listImageDatasets(List<? extends IPlateIdentifier> plates)
     {
         return screeningServer.listImageDatasets(sessionToken, plates);
     }
@@ -92,7 +93,7 @@ public class ScreeningOpenbisServiceFacade
      * is just the name of the feature. If for different data sets different sets of features are
      * available, provides the union of the feature names of all data sets.
      */
-    public List<String> listAvailableFeatureNames(List<IDatasetIdentifier> featureDatasets)
+    public List<String> listAvailableFeatureNames(List<? extends IDatasetIdentifier> featureDatasets)
     {
         // TODO 2010-04-16, Tomasz Pylak:
         return null;
@@ -105,8 +106,8 @@ public class ScreeningOpenbisServiceFacade
     // Q: what result structure do you prefer? The one below is the easiest to use in Java,
     // but it could be also a simple String[][] table like:
     // plate-barcode well-row well-column feature1 feature2 ....
-    public List<FeatureVectorDataset> loadFeatures(List<IDatasetIdentifier> featureDatasets,
-            List<String> featureNames)
+    public List<FeatureVectorDataset> loadFeatures(
+            List<? extends IDatasetIdentifier> featureDatasets, List<String> featureNames)
     {
         // TODO 2010-04-16, Tomasz Pylak:
         return null;
@@ -126,7 +127,8 @@ public class ScreeningOpenbisServiceFacade
      * For a given set of image data sets, provide all image channels that have been acquired and
      * the available (natural) image size(s).
      */
-    public List<ImageDatasetMetadata> listImageMetadata(List<IDatasetIdentifier> imageDatasets)
+    public List<ImageDatasetMetadata> listImageMetadata(
+            List<? extends IDatasetIdentifier> imageDatasets)
     {
         // TODO 2010-04-16, Tomasz Pylak:
         return null;

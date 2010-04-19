@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleIma
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
- * The <i>screening</i> server.
+ * The <i>screening</i> server. Used internally.
  * 
  * @author Tomasz Pylak
  */
