@@ -85,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -411,11 +412,11 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             throw new UserFailureException("No data set type found with code '" + dataSetTypeCode
                     + "'.");
         }
-        DataSetTypeWithVocabularyTerms result = new DataSetTypeWithVocabularyTerms();
-        result.setDataSetType(DataSetTypeTranslator.translate(dataSetType, null));
         Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes =
                 dataSetType.getDataSetTypePropertyTypes();
         HibernateUtils.initialize(dataSetTypePropertyTypes);
+        DataSetTypeWithVocabularyTerms result = new DataSetTypeWithVocabularyTerms();
+        result.setDataSetType(DataSetTypeTranslator.translate(dataSetType, null));
         for (DataSetTypePropertyTypePE dataSetTypePropertyTypePE : dataSetTypePropertyTypes)
         {
             PropertyTypePE propertyTypePE = dataSetTypePropertyTypePE.getPropertyType();
@@ -518,6 +519,14 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         }
         List<PersonPE> persons = registerPersons(sessionToken, Collections.singletonList(userID));
         return persons.get(0);
+    }
+
+    public void updateSample(String sessionToken, SampleUpdatesDTO updates)
+    {
+        final Session session = getSession(sessionToken);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.update(updates);
+        sampleBO.save();
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,

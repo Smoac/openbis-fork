@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -100,6 +101,11 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         logTracking(sessionToken, "registerSample", "SAMPLE_TYPE(%s) SAMPLE(%S) USER(%s)",
                 newSample.getSampleType(), newSample.getIdentifier(), userIDOrNull);
         return 0;
+    }
+
+    public void updateSample(String sessionToken, SampleUpdatesDTO updates)
+    {
+        logTracking(sessionToken, "updateSample", "SAMPLE(%S)", updates.getSampleIdentifier());
     }
 
     public long registerExperiment(String sessionToken, NewExperiment experiment)
