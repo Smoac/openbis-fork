@@ -123,6 +123,7 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
 
     }
 
+    /** can be null */
     public Space getSpace()
     {
         return space;
