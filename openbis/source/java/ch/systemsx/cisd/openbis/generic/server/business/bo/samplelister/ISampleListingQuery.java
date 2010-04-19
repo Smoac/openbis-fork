@@ -211,33 +211,22 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     //
 
     /**
-     * Returns all samples of sample type with given <var>sampleTypeId</var> that are newer than
-     * sample with given id (<var>lastSeenSampleId</var>).
+     * Returns all samples with a <var>propertyType</var> attached having specified
+     * <var>popertyValue</var>. Additionally id of the sample SHOULDN'T be in the specified set of
+     * ids.
      */
     @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.dbin_id, "
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
-            + "   from samples s where s.saty_id=?{1} and s.id > ?{2}", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getNewSamplesForSampleType(long sampleTypeId,
-            int lastSeenSampleId);
-
-    /**
-     * Returns all samples with a <var>propertyType</var> attached having specified 
-     * <var>popertyValue</var>. Additionally id of the sample SHOULDN'T be in the specified
-     * set of ids. 
-     */
-    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.dbin_id, "
-            + "       s.registration_timestamp, s.pers_id_registerer, "
-            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
-            + "   from samples s where id in ("
+            + "   from samples s where s.saty_id=?{1} and id in ("
             + "       select samp_id from sample_properties sp where sp.stpt_id in ("
             + "              select id from sample_type_property_types stpt where stpt.prty_id = "
-            + "                     (select id from property_types where code=?{1})"
-            + "              ) and value=?{2}"
-            + "       ) and not id = any(?{3})", parameterBindings =
-        { TypeMapper.class, TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSamplesWithPropertyValue(String propertyTypeCode,
-            String propertyValue, LongSet sampleIds);
+            + "                     (select id from property_types where code=?{2})"
+            + "              ) and value=?{3}" 
+            + "       ) and not id = any(?{4})", parameterBindings =
+        { TypeMapper.class, TypeMapper.class, TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamplesWithPropertyValue(long sampleTypeId,
+            String propertyTypeCode, String propertyValue, LongSet sampleIds);
 
     //
     // Shared samples

@@ -213,7 +213,6 @@ final class SampleListingWorker
         retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples());
-        retrievePrimaryBasicSamples(tryGetIteratorForTrackedSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForNewTrackedSamples());
         if (operationLog.isDebugEnabled())
         {
@@ -443,27 +442,17 @@ final class SampleListingWorker
         }
     }
 
-    private Iterable<SampleRecord> tryGetIteratorForTrackedSamples()
-    {
-        final String sampleTypeCode = criteria.getSampleTypeCode();
-        if (sampleTypeCode == null)
-        {
-            return null;
-        }
-        Long sampleTypeId =
-                referencedEntityDAO.getSampleTypeIdForSampleTypeCode(criteria.getSampleTypeCode());
-        return query.getNewSamplesForSampleType(sampleTypeId, criteria.getLastSeenSampleId());
-    }
-
     private Iterable<SampleRecord> tryGetIteratorForNewTrackedSamples()
     {
-        final String propertyTypeCode = criteria.getPropertyTypeCode();
-        if (propertyTypeCode == null)
+        if (criteria.getSampleTypeCode() == null)
         {
             return null;
         }
+        final long sampleTypeId =
+                referencedEntityDAO.getSampleTypeIdForSampleTypeCode(criteria.getSampleTypeCode());
+        final String propertyTypeCode = criteria.getPropertyTypeCode();
         final String propertyValue = criteria.getPropertyValue();
-        return query.getSamplesWithPropertyValue(propertyTypeCode, propertyValue,
+        return query.getSamplesWithPropertyValue(sampleTypeId, propertyTypeCode, propertyValue,
                 new LongOpenHashSet(criteria.getAlreadyTrackedSampleIds()));
     }
 

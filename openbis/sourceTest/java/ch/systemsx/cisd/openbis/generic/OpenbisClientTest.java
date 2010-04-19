@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -106,14 +105,7 @@ public class OpenbisClientTest
         SessionContextDTO session = trackingServer.tryToAuthenticate(USER_ID, USER_PASSWORD);
 
         final String sampleTypeCode = "CELL_PLATE";
-        final int lastSeenSampleId = 1000; // compare with 0
         final int lastSeenDataSetId = 0; // compare with 3
-
-        final TrackingSampleCriteria sampleCriteria =
-                new TrackingSampleCriteria(sampleTypeCode, lastSeenSampleId);
-        final List<Sample> samples =
-                trackingServer.listSamples(session.getSessionToken(), sampleCriteria);
-        System.out.println(TrackingHelper.trackedEntitiesInformation(samples, EntityKind.SAMPLE));
 
         final TrackingDataSetCriteria dataSetCriteria =
                 new TrackingDataSetCriteria(sampleTypeCode, lastSeenDataSetId);
@@ -128,7 +120,8 @@ public class OpenbisClientTest
             { 986L, 987L });
 
         final NewTrackingSampleCriteria newSampleCriteria =
-                new NewTrackingSampleCriteria(propertyTypeCode, propertyValue, alreadyTracked);
+                new NewTrackingSampleCriteria(sampleTypeCode, propertyTypeCode, propertyValue,
+                        alreadyTracked);
         final List<Sample> newSamples =
                 trackingServer.listSamples(session.getSessionToken(), newSampleCriteria);
         System.out

@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewTrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 
 /**
  * Definition of the client-server interface for tracking creation of samples and datasets.
@@ -36,15 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
  */
 public interface ITrackingServer extends IServer
 {
-
-    /**
-     * Lists samples using given criteria.
-     * 
-     * @return a sorted list of {@link Sample}.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    public List<Sample> listSamples(final String sessionToken, final TrackingSampleCriteria criteria);
 
     /**
      * Lists samples using given criteria.

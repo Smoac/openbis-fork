@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewTrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 public final class TrackingServer extends AbstractServer<ITrackingServer> implements
@@ -68,16 +67,6 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
     //
     // ITrackingServer
     //
-
-    public List<Sample> listSamples(String sessionToken, TrackingSampleCriteria criteria)
-    {
-        final Session session = getSession(sessionToken);
-
-        final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-        final ListOrSearchSampleCriteria listerCriteria = new ListOrSearchSampleCriteria(criteria);
-        listerCriteria.setEnrichDependentSamplesWithProperties(true);
-        return sampleLister.list(listerCriteria);
-    }
 
     public List<Sample> listSamples(String sessionToken, NewTrackingSampleCriteria criteria)
     {

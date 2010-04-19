@@ -20,7 +20,8 @@ import java.io.Serializable;
 import java.util.Collection;
 
 /**
- * Criteria for tracking <i>samples</i> with a particular property having certain property value.
+ * Criteria for tracking <i>samples</i> of particular type with certain property set to specified
+ * value.
  * <p>
  * Parent and Container samples should be loaded according to {@link SampleType} hierarchy depths.
  * All referenced samples should have all properties loaded.
@@ -32,8 +33,7 @@ public class NewTrackingSampleCriteria implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    // TODO
-    // private final String sampleTypeCode;
+    private final String sampleTypeCode;
 
     private final String propertyTypeCode;
 
@@ -41,14 +41,21 @@ public class NewTrackingSampleCriteria implements Serializable
 
     private final Collection<Long> alreadyTrackedSampleIds;
 
-    public NewTrackingSampleCriteria(String propertyTypeCode, String propertyValue,
-            Collection<Long> alreadyTrackedSampleIds)
+    public NewTrackingSampleCriteria(String sampleTypeCode, String propertyTypeCode,
+            String propertyValue, Collection<Long> alreadyTrackedSampleIds)
     {
         assert propertyTypeCode != null;
         assert propertyValue != null;
+        assert sampleTypeCode != null;
+        this.sampleTypeCode = sampleTypeCode;
         this.propertyTypeCode = propertyTypeCode;
         this.propertyValue = propertyValue;
         this.alreadyTrackedSampleIds = alreadyTrackedSampleIds;
+    }
+
+    public String getSampleTypeCode()
+    {
+        return sampleTypeCode;
     }
 
     public String getPropertyTypeCode()

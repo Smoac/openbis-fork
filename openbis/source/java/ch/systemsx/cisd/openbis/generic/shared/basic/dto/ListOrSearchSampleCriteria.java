@@ -39,8 +39,6 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 
     private ListSampleCriteria listCriteria;
 
-    private TrackingSampleCriteria trackingCriteria;
-
     private NewTrackingSampleCriteria newTrackingCriteria;
 
     private Collection<Long> sampleIds;
@@ -52,13 +50,6 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         assert listCriteria != null;
         this.listCriteria = listCriteria;
-    }
-
-    /** Creates criteria that delegates to given {@link TrackingSampleCriteria}. */
-    public ListOrSearchSampleCriteria(TrackingSampleCriteria trackingCriteria)
-    {
-        assert trackingCriteria != null;
-        this.trackingCriteria = trackingCriteria;
     }
 
     /** Creates criteria that delegates to given {@link NewTrackingSampleCriteria}. */
@@ -84,6 +75,11 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 
     // delegation to NewTrackingSampleCriteria
 
+    public String getSampleTypeCode()
+    {
+        return newTrackingCriteria == null ? null : newTrackingCriteria.getSampleTypeCode();
+    }
+
     public String getPropertyTypeCode()
     {
         return newTrackingCriteria == null ? null : newTrackingCriteria.getPropertyTypeCode();
@@ -98,18 +94,6 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         return newTrackingCriteria == null ? null : newTrackingCriteria
                 .getAlreadyTrackedSampleIds();
-    }
-
-    // delegation to TrackingSampleCriteria
-
-    public String getSampleTypeCode()
-    {
-        return trackingCriteria == null ? null : trackingCriteria.getSampleTypeCode();
-    }
-
-    public int getLastSeenSampleId()
-    {
-        return trackingCriteria == null ? null : trackingCriteria.getLastSeenSampleId();
     }
 
     // delegation to ListSampleCriteria
