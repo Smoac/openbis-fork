@@ -82,14 +82,14 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
      * </p>
      */
     @Override
-    protected final int getChannelWavelength(final String value)
+    protected final int getChannelWavelength(final String channel)
     {
         final String startsWith = "w";
-        if (value.startsWith(startsWith))
+        if (channel.startsWith(startsWith))
         {
             try
             {
-                return Integer.parseInt(value.substring(startsWith.length()));
+                return Integer.parseInt(channel.substring(startsWith.length()));
             } catch (final NumberFormatException ex)
             {
                 // Nothing to do here. Rest of the code can handle this.
@@ -111,9 +111,9 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
      * </p>
      */
     @Override
-    protected final Location tryGetWellLocation(final String value)
+    protected final Location tryGetWellLocation(final String wellLocation)
     {
-        return tryGetZigZagWellLocation(value, wellGeometry);
+        return tryGetZigZagWellLocation(wellLocation, wellGeometry);
     }
 
     public static Location tryGetZigZagWellLocation(String value, Geometry wellGeometry)

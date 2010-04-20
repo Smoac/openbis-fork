@@ -50,20 +50,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 abstract public class AbstractHCSImageFileExtractor
 {
-    /**
-     * Extracts the channel from given <var>value</var>, following the convention adopted here.
-     * <p>
-     * Returns <code>0</code> if the operation fails.
-     * </p>
-     */
-    abstract protected int getChannelWavelength(final String value);
-
-    /**
-     * Extracts the well location from given <var>value</var>. Returns <code>null</code> if the
-     * operation fails.
-     */
-    abstract protected Location tryGetWellLocation(final String value);
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractHCSImageFileExtractor.class);
 
@@ -71,7 +57,7 @@ abstract public class AbstractHCSImageFileExtractor
             "Image file '%s' could not be standardized given following tokens [plateLocation=%s,wellLocation=%s,channel=%s].";
 
     static final String IMAGE_FILE_NOT_ENOUGH_ENTITIES =
-            "Image file '%s' does not have enough entities.";
+            "The name of image file '%s' could not be splitted into enough entities.";
 
     static final String IMAGE_FILE_BELONGS_TO_WRONG_SAMPLE =
             "Image file '%s' belongs to the wrong sample [expected=%s,found=%s].";
@@ -109,18 +95,6 @@ abstract public class AbstractHCSImageFileExtractor
                     "Could not create a geometry from property value '%s'.", property));
         }
         return geometry;
-    }
-
-    /**
-     * Extracts the plate location from given <var>value</var>, following the convention adopted
-     * here.
-     * <p>
-     * Returns <code>null</code> if the operation fails.
-     * </p>
-     */
-    protected final static Location tryGetPlateLocation(final String value)
-    {
-        return Location.tryCreateLocationFromMatrixCoordinate(value);
     }
 
     /** Perform channel wavelength sorting on images. */
@@ -214,8 +188,8 @@ abstract public class AbstractHCSImageFileExtractor
                 operationLog.debug(String.format("Processing image file '%s'", imageFile));
             }
             final String baseName = FilenameUtils.getBaseName(imageFile.getPath());
-            final String[] tokens = StringUtils.split(baseName, TOKEN_SEPARATOR);
-            if (tokens.length < 4)
+            final String[] tokens = tryToSplitIntoTokens(baseName);
+            if (tokens == null || tokens.length < 4)
             {
                 if (operationLog.isDebugEnabled())
                 {
@@ -225,7 +199,7 @@ abstract public class AbstractHCSImageFileExtractor
                 continue;
             }
             final String sampleCode = tokens[tokens.length - 4];
-            if (sampleCode.equals(dataSetInformation.getSampleCode()) == false)
+            if (sampleCode != null && sampleCode.equals(dataSetInformation.getSampleCode()) == false)
             {
                 if (operationLog.isDebugEnabled())
                 {
@@ -264,4 +238,42 @@ abstract public class AbstractHCSImageFileExtractor
                 .size(), Collections.unmodifiableList(invalidFiles), accepterDecorator
                 .getChannels());
     }
+
+    /**
+     * Splits specified image file name into at least four tokens. Only the last four tokens
+     * will be considered. They are sample code, plate location, well location, and channel.
+     * Note, that sample code could be <code>null</code>.
+     * <p>
+     * Subclasses may override this method.
+     * 
+     * @return <code>null</code> if the argument could not be splitted into tokens.
+     */
+    protected String[] tryToSplitIntoTokens(final String imageFileName)
+    {
+        return StringUtils.split(imageFileName, TOKEN_SEPARATOR);
+    }
+    
+    /**
+     * Extracts the channel from specified channel string. 
+     * <p>
+     * Returns <code>0</code> if the operation fails. Otherwise a positive number is returned.
+     * </p>
+     */
+    abstract protected int getChannelWavelength(final String channel);
+
+    /**
+     * Extracts the well location from argument. Returns <code>null</code> if the operation fails.
+     */
+    abstract protected Location tryGetWellLocation(final String wellLocation);
+
+    /**
+     * Extracts the plate location from argument. Returns <code>null</code> if the operation fails.
+     * <p>
+     * Subclasses may override this method.
+     */
+    protected Location tryGetPlateLocation(final String plateLocation)
+    {
+        return Location.tryCreateLocationFromMatrixCoordinate(plateLocation);
+    }
+
 }
