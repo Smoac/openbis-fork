@@ -132,7 +132,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final MaterialType materialType,
+        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType materialType,
                 final IIdentifiable materialId)
         {
             return createGeneMaterialViewerTabFactory(materialId, null, getViewContext());
@@ -196,7 +196,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final DataSetType dataSetType,
+        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType dataSetType,
                 final IIdentifiable identifiable)
         {
             return new AbstractTabItemFactory()
@@ -237,7 +237,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final SampleType sampleType,
+        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType sampleType,
                 final IIdentifiable identifiable)
         {
             return new AbstractTabItemFactory()
@@ -315,7 +315,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             return clientPluginFactory;
         }
 
-        public AbstractTabItemFactory createEntityViewer(final T entityType,
+        public AbstractTabItemFactory createEntityViewer(final BasicEntityType entityType,
                 final IIdentifiable identifiable)
         {
             return delegator.createEntityViewer(entityType, identifiable);
