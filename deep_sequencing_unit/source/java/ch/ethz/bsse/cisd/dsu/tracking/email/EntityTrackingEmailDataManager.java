@@ -64,13 +64,13 @@ class EntityTrackingEmailDataManager
     private static void groupSequencingSamplesToBeProcessed(
             Map<String, EntityTrackingEmailData> result, TrackedEntities trackedEntities)
     {
-        for (Sample sequencingSample : trackedEntities.getSequencingSamplesProcessed())
+        for (Sample sequencingSample : trackedEntities.getSequencingSamplesToBeProcessed())
         {
             for (String recipient : getSequencingSampleTrackingRecipients(sequencingSample))
             {
                 final EntityTrackingEmailData emailData =
                         getOrCreateRecipientEmailData(result, recipient);
-                emailData.addSequencingSample(sequencingSample);
+                emailData.addSequencingSampleToBeProcessed(sequencingSample);
             }
         }
     }
@@ -85,7 +85,7 @@ class EntityTrackingEmailDataManager
             {
                 final EntityTrackingEmailData emailData =
                         getOrCreateRecipientEmailData(result, recipient);
-                emailData.addSequencingSample(sequencingSample);
+                emailData.addSequencingSampleProcessed(sequencingSample);
             }
         }
     }

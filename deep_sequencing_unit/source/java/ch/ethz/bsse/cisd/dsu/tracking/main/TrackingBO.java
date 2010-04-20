@@ -16,7 +16,6 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -167,11 +166,11 @@ public class TrackingBO
             ITrackingServer trackingServer, SessionContextDTO session)
     {
         List<Sample> sequencingSamplesToBeProcessed =
-                listSamples(SEQUENCING_SAMPLE_TYPE, PROCESSING_POSSIBLE_PROPERTY_CODE, TRUE,
-                        trackingServer, session);
+                listSequencingSamples(PROCESSING_POSSIBLE_PROPERTY_CODE, trackingState
+                        .getAlreadyTrackedSampleIdsToBeProcessed(), trackingServer, session);
         List<Sample> sequencingSamplesSuccessfullyProcessed =
-                listSamples(SEQUENCING_SAMPLE_TYPE, PROCESSING_SUCCESSFUL_PROPERTY_CODE, TRUE,
-                        trackingServer, session);
+                listSequencingSamples(PROCESSING_SUCCESSFUL_PROPERTY_CODE, trackingState
+                        .getAlreadyTrackedSampleIdsProcessed(), trackingServer, session);
 
         TrackingDataSetCriteria dataSetCriteria =
                 new TrackingDataSetCriteria(FLOW_LANE_SAMPLE_TYPE, trackingState
@@ -183,13 +182,21 @@ public class TrackingBO
                 sequencingSamplesSuccessfullyProcessed, dataSets);
     }
 
-    @SuppressWarnings("unchecked")
+    private static List<Sample> listSequencingSamples(String propertyTypeCode,
+            Set<Long> alreadyTrackedSampleIds, ITrackingServer trackingServer,
+            SessionContextDTO session)
+    {
+        return listSamples(SEQUENCING_SAMPLE_TYPE, propertyTypeCode, TRUE, alreadyTrackedSampleIds,
+                trackingServer, session);
+    }
+
     private static List<Sample> listSamples(String sampleType, String propertyTypeCode,
-            String propertyValue, ITrackingServer trackingServer, SessionContextDTO session)
+            String propertyValue, Set<Long> alreadyTrackedSampleIds,
+            ITrackingServer trackingServer, SessionContextDTO session)
     {
         TrackingSampleCriteria criteria =
                 new TrackingSampleCriteria(sampleType, propertyTypeCode, propertyValue,
-                        Collections.EMPTY_LIST);
+                        alreadyTrackedSampleIds);
         return trackingServer.listSamples(session.getSessionToken(), criteria);
     }
 

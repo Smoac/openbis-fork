@@ -31,9 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class EntityTrackingEmailData
 {
-    private List<Sample> sequencingSamplesToBeProcessed;
+    private List<Sample> sequencingSamplesToBeProcessed = new ArrayList<Sample>(0);
 
-    private List<Sample> sequencingSamplesProcessed;
+    private List<Sample> sequencingSamplesProcessed = new ArrayList<Sample>(0);
 
     private final List<ExternalData> dataSets = new ArrayList<ExternalData>(0);
 
@@ -57,7 +57,7 @@ public class EntityTrackingEmailData
 
     public List<Sample> getSequencingSamplesProcessed()
     {
-        return sequencingSamplesToBeProcessed;
+        return sequencingSamplesProcessed;
     }
 
     public List<ExternalData> getDataSets()
@@ -72,9 +72,9 @@ public class EntityTrackingEmailData
     }
 
     /** adds info about newly tracked sequencing sample successfully processed */
-    public void addSequencingSample(Sample sequencingSample)
+    public void addSequencingSampleProcessed(Sample sequencingSample)
     {
-        sequencingSamplesToBeProcessed.add(sequencingSample);
+        sequencingSamplesProcessed.add(sequencingSample);
     }
 
     /** adds info about newly tracked data set */
@@ -96,12 +96,12 @@ public class EntityTrackingEmailData
     private void appendSamplesInfo(final StringBuilder sb, final List<Sample> samples,
             final String actionDescription)
     {
-        if (sequencingSamplesToBeProcessed.isEmpty())
+        if (samples.isEmpty())
         {
             sb.append(String.format("no new samples are %s\n", actionDescription));
         } else
         {
-            for (Sample seqencingSample : sequencingSamplesToBeProcessed)
+            for (Sample seqencingSample : samples)
             {
                 final String sequencingSampleIdentifier = seqencingSample.getIdentifier();
                 sb.append(String.format("Sequencing sample: '%s' is %s",

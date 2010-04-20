@@ -167,14 +167,14 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 // append Sequencing sample details
                 if (processed)
                 {
-                    appendSampleDetails(sb, String.format(
-                            "Library processing for sample '%s' was successful.",
-                            externalSampleName), sequencingSample);
+                    appendSampleDetails(sb, String
+                            .format("Library processing of sample '%s' was successful.",
+                                    externalSampleName), sequencingSample);
                     appendln(sb, SUBSECTION_SEPARATOR_LINE);
                 } else
                 {
                     appendSampleDetails(sb, String.format(
-                            "Library processing for sample '%s' is possible.", externalSampleName),
+                            "Library processing of sample '%s' is possible.", externalSampleName),
                             sequencingSample);
                     appendln(sb, SUBSECTION_SEPARATOR_LINE);
                 }
