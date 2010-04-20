@@ -17,9 +17,9 @@
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
@@ -33,9 +33,9 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -158,43 +158,9 @@ public class TrackingBO
     private static void saveTrackingState(TrackingStateDTO prevState,
             TrackedEntities changedEntities, ITrackingDAO trackingDAO)
     {
-        TrackingStateDTO state = calcNewTrackingState(prevState, changedEntities);
+        TrackingStateDTO state =
+                TrackingStateUpdateHelper.calcNewTrackingState(prevState, changedEntities);
         trackingDAO.saveTrackingState(state);
-    }
-
-    private static TrackingStateDTO calcNewTrackingState(TrackingStateDTO prevState,
-            TrackedEntities changedEntities)
-    {
-        TrackingStateDTO state = new TrackingStateDTO();
-        Set<Long> sequencingSamplesProcessed =
-                new HashSet<Long>(prevState.getAlreadyTrackedSampleIdsProcessed());
-        addNewSampleIds(sequencingSamplesProcessed, changedEntities.getSequencingSamplesProcessed());
-        state.setAlreadyTrackedSampleIdsProcessed(sequencingSamplesProcessed);
-
-        int lastSeenDatasetId =
-                calcMaxId(changedEntities.getDataSets(), prevState.getLastSeenDatasetId());
-        state.setLastSeenDatasetId(lastSeenDatasetId);
-        return state;
-    }
-
-    private static void addNewSampleIds(Set<Long> alreadyTrackedSampleIdsProcessed,
-            List<Sample> sequencingSamplesProcessed)
-    {
-        for (Sample sample : sequencingSamplesProcessed)
-        {
-            alreadyTrackedSampleIdsProcessed.add(sample.getId());
-        }
-    }
-
-    private static int calcMaxId(List<? extends IIdentifiable> entities, int initialValue)
-    {
-        long max = initialValue;
-        for (IIdentifiable entity : entities)
-        {
-            max = Math.max(max, entity.getId());
-        }
-        // TODO 2009-12-01, Tomasz Pylak: refactor ids to long everywhere
-        return (int) max;
     }
 
     private static TrackedEntities fetchChangedEntities(TrackingStateDTO trackingState,
@@ -225,5 +191,51 @@ public class TrackingBO
                 new TrackingSampleCriteria(sampleType, propertyTypeCode, propertyValue,
                         Collections.EMPTY_LIST);
         return trackingServer.listSamples(session.getSessionToken(), criteria);
+    }
+
+    public static class TrackingStateUpdateHelper
+    {
+
+        public static TrackingStateDTO calcNewTrackingState(TrackingStateDTO prevState,
+                TrackedEntities changedEntities)
+        {
+            TrackingStateDTO state = new TrackingStateDTO();
+            Set<Long> sequencingSamplesToBeProcessed =
+                    new TreeSet<Long>(prevState.getAlreadyTrackedSampleIdsToBeProcessed());
+            addNewSampleIds(sequencingSamplesToBeProcessed, changedEntities
+                    .getSequencingSamplesToBeProcessed());
+            state.setAlreadyTrackedSampleIdsToBeProcessed(sequencingSamplesToBeProcessed);
+
+            Set<Long> sequencingSamplesProcessed =
+                    new TreeSet<Long>(prevState.getAlreadyTrackedSampleIdsProcessed());
+            addNewSampleIds(sequencingSamplesProcessed, changedEntities
+                    .getSequencingSamplesProcessed());
+            state.setAlreadyTrackedSampleIdsProcessed(sequencingSamplesProcessed);
+
+            int lastSeenDatasetId =
+                    calcMaxId(changedEntities.getDataSets(), prevState.getLastSeenDatasetId());
+            state.setLastSeenDatasetId(lastSeenDatasetId);
+            return state;
+        }
+
+        private static void addNewSampleIds(Set<Long> alreadyTrackedSampleIdsProcessed,
+                List<Sample> sequencingSamplesProcessed)
+        {
+            for (Sample sample : sequencingSamplesProcessed)
+            {
+                alreadyTrackedSampleIdsProcessed.add(sample.getId());
+            }
+        }
+
+        private static int calcMaxId(List<? extends IIdentifiable> entities, int initialValue)
+        {
+            long max = initialValue;
+            for (IIdentifiable entity : entities)
+            {
+                max = Math.max(max, entity.getId());
+            }
+            // TODO 2009-12-01, Tomasz Pylak: refactor ids to long everywhere
+            return (int) max;
+        }
     }
 }

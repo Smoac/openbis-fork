@@ -22,9 +22,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -75,7 +75,7 @@ public class FileBasedTrackingDAO implements ITrackingDAO
             String[] toBeProcessed = lines.get(1).split("\t");
             String[] processed = lines.get(2).split("\t");
             state.setLastSeenDatasetId(Integer.parseInt(datasetId[1]));
-            state.setAlreadyTrackedSamplesIdsToBeProcessed(parseIds(toBeProcessed));
+            state.setAlreadyTrackedSampleIdsToBeProcessed(parseIds(toBeProcessed));
             state.setAlreadyTrackedSampleIdsProcessed(parseIds(processed));
             return state;
         } catch (Exception e)
@@ -86,7 +86,7 @@ public class FileBasedTrackingDAO implements ITrackingDAO
 
     private static Set<Long> parseIds(String[] array)
     {
-        Set<Long> ids = new HashSet<Long>();
+        Set<Long> ids = new TreeSet<Long>();
         for (int i = 1; i < array.length; i++)
         {
             ids.add(Long.parseLong(array[i]));

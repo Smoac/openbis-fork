@@ -41,7 +41,7 @@ public class TrackingStateDTO
         return alreadyTrackedSampleIdsToBeProcessed;
     }
 
-    public void setAlreadyTrackedSamplesIdsToBeProcessed(
+    public void setAlreadyTrackedSampleIdsToBeProcessed(
             Set<Long> alreadyTrackedSampleIdsToBeProcessed)
     {
         this.alreadyTrackedSampleIdsToBeProcessed = alreadyTrackedSampleIdsToBeProcessed;
