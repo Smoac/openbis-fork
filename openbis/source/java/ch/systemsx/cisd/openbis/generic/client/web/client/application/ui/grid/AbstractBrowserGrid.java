@@ -56,6 +56,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -88,7 +89,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -252,7 +252,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 new FilterToolbar<T>(viewContext, gridId, this, createApplyFiltersDelagator());
 
         this.contentPanel = createEmptyContentPanel();
-        bottomToolbars = createBottomToolbars(contentPanel);
+        bottomToolbars = createBottomToolbars(contentPanel, pagingToolbar);
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(false);
@@ -564,33 +564,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 new ListEntitiesCallback(viewContext, callback, resultSetConfig);
 
         listEntities(resultSetConfig, listCallback);
-
-        // NOTE: Adding paging toolbar takes approximately:
-        // - 0,1s on Chrome 5
-        // - 0,3s on Firefox 3.6
-        // It is best to call server for data as soon as we can. That is why we add this toolbar
-        // after listing. We could defer it even more - until processing of received data
-        // is finished but it doesn't improve overall performance even on views with more than
-        // one grid visible. It is even slower if loading data takes longer than displaying
-        // the toolbar (browser is idle while it could use the time to display the toolbar).
-        addPagingToolbarIfNeeded();
-    }
-
-    private void addPagingToolbarIfNeeded()
-    {
-        if (bottomToolbars.getItemCount() == 0)
-        {
-            GWTUtils.executeDelayed(new IDelegatedAction()
-                {
-                    public void execute()
-                    {
-                        int addLogID = log("add bottom toolbars");
-                        bottomToolbars.add(pagingToolbar, new RowData(1, -1));
-                        bottomToolbars.layout(true);
-                        viewContext.logStop(addLogID);
-                    }
-                });
-        }
     }
 
     private void debug(String msg)
@@ -1579,11 +1552,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // creates filter and paging toolbars
-    private static <T> LayoutContainer createBottomToolbars(final Container<?> parentContainer)
+    private static <T> LayoutContainer createBottomToolbars(final Container<?> parentContainer,
+            ToolBar pagingToolbar)
     {
         LayoutContainer bottomToolbars = new ContainerKeeper(parentContainer);
         bottomToolbars.setMonitorWindowResize(true);
         bottomToolbars.setLayout(new RowLayout(com.extjs.gxt.ui.client.Style.Orientation.VERTICAL));
+        // Adding paging toolbar before data are loaded fixes problems with the toolbar not visible
+        // if user quickly changes tab / hides section before it is layouted. On the other hand
+        // it is slower than adding it after requesting server for data.
+        bottomToolbars.add(pagingToolbar, new RowData(1, -1));
         return bottomToolbars;
     }
 

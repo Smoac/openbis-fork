@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -213,10 +212,6 @@ public class MainTabPanel extends TabPanel implements IMainPanel
             this.helpPageIdentifier = helpPageIdentifier;
             setId(idPrefix + TAB_SUFFIX);
             setClosable(true);
-            // WORKAROUND to fix layout of grid toolbars invoked when tab is not visible
-            // (on Ext GWT Forum they claim that it is a known issue and will be fixed
-            // with one of the next releases)
-            setHideMode(HideMode.OFFSETS);
             setLayout(new FitLayout());
             addStyleName("pad-text");
             add(tabItem.getComponent());
