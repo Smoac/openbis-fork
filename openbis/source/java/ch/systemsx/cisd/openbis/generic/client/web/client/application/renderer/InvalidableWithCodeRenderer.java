@@ -29,11 +29,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 public class InvalidableWithCodeRenderer
 {
 
-    public static String render(IInvalidationProvider entity, String code)
+    public static String render(IInvalidationProvider entity, String code, String href)
     {
         final Element anchor = DOM.createAnchor();
         anchor.setInnerText(code);
-        DOM.setElementProperty(anchor, "href", "#");
+        DOM.setElementProperty(anchor, "href", "#" + (href != null ? href : ""));
         String link = DOM.toString(anchor);
         boolean isValid = entity.getInvalidation() == null;
         if (isValid)

@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * {@link AbstractColumnDefinitionKind#tryGetValue(Object)}.
  * <p>
  * Usually this class is extended anonymously in {@link IColumnDefinitionKind} implementation and
- * used as a data holder. It is useful because all {@link IColumnDefinitionKind} implementations
- * are similar, but cannot extend a class directly (they are enums, not classes).
+ * used as a data holder. It is useful because all {@link IColumnDefinitionKind} implementations are
+ * similar, but cannot extend a class directly (they are enums, not classes).
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -57,7 +57,7 @@ public abstract class AbstractColumnDefinitionKind<T>
     {
         this(headerMsgKey, width, isHidden, false);
     }
-    
+
     public AbstractColumnDefinitionKind(final String headerMsgKey, final int width,
             final boolean isHidden, boolean numeric)
     {
@@ -99,7 +99,7 @@ public abstract class AbstractColumnDefinitionKind<T>
     {
         return headerMsgKey;
     }
-    
+
     public boolean isNumeric()
     {
         return numeric;
@@ -129,5 +129,10 @@ public abstract class AbstractColumnDefinitionKind<T>
     protected final String renderInvalidationFlag(final IInvalidationProvider invalidationProvider)
     {
         return SimpleYesNoRenderer.render(invalidationProvider.getInvalidation() != null);
+    }
+
+    public String tryGetLink(T entity)
+    {
+        return null;
     }
 }

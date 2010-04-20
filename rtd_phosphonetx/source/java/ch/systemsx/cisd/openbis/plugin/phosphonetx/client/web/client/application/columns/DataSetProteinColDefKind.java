@@ -34,7 +34,9 @@ public enum DataSetProteinColDefKind implements IColumnDefinitionKind<DataSetPro
             {
                 return entity.getDataSetPermID();
             }
-        }), SEQUENCE_NAME(new AbstractColumnDefinitionKind<DataSetProtein>(Dict.SEQUENCE_NAME, 80)
+        }),
+
+    SEQUENCE_NAME(new AbstractColumnDefinitionKind<DataSetProtein>(Dict.SEQUENCE_NAME, 80)
         {
             @Override
             public String tryGetValue(DataSetProtein entity)

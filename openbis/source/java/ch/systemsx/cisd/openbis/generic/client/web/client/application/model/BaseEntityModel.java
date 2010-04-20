@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.CommonColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -64,6 +65,12 @@ public class BaseEntityModel<T> extends NonHierarchicalBaseModelData
         {
             String value = renderColumnValue(entity, column);
             set(column.getIdentifier(), value);
+            if (column instanceof AbstractColumnDefinition<?>)
+            {
+                set(ModelDataPropertyNames.link(column.getIdentifier()),
+                        ((AbstractColumnDefinition<T>) column).tryGetLink(entity
+                                .getOriginalObject()));// FIXME
+            }
         }
         addCustomColumns(entity.getCalculatedColumnValues());
     }
@@ -79,6 +86,11 @@ public class BaseEntityModel<T> extends NonHierarchicalBaseModelData
     public final T getBaseObject()
     {
         return get(ModelDataPropertyNames.OBJECT);
+    }
+
+    public final String tryGetLink(String columnId)
+    {
+        return get(ModelDataPropertyNames.link(columnId));
     }
 
     /** render specified column as a link (using div) */
@@ -114,6 +126,7 @@ public class BaseEntityModel<T> extends NonHierarchicalBaseModelData
         this.set(columnId, value);
     }
 
+    // FIXME: unify renderers and remove code below
     // ugly, ugly, ugly!
     protected String renderColumnValue(final GridRowModel<T> entity, IColumnDefinition<T> column)
     {
@@ -131,11 +144,13 @@ public class BaseEntityModel<T> extends NonHierarchicalBaseModelData
                     value = PersonRenderer.createPersonAnchor(registrator, value);
                 }
             } else if (headerMsgKey.equals(Dict.CODE)
-                    && originalRecord instanceof IInvalidationProvider)
+                    && originalRecord instanceof IInvalidationProvider
+                    && column instanceof AbstractColumnDefinition<?>)
             {
                 value =
                         InvalidableWithCodeRenderer.render((IInvalidationProvider) originalRecord,
-                                value);
+                                value, ((AbstractColumnDefinition<T>) column)
+                                        .tryGetLink(originalRecord));
             }
         }
         return value;

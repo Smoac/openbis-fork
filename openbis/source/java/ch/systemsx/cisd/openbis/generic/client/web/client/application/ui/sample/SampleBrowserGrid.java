@@ -305,8 +305,8 @@ public class SampleBrowserGrid extends
         super(viewContext, gridId, refreshAutomatically, displayTypeIDGenerator);
         this.propertyTypesAndCriteriaProvider = criteriaProvider;
         this.previousPropertyTypes = null;
-
-        registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT.id(),
+      
+              registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT.id(),
                 new OpenEntityDetailsTabCellClickListener()
                     {
                         @Override
@@ -326,7 +326,7 @@ public class SampleBrowserGrid extends
                     });
         setId(browserId);
     }
-
+    
     private abstract class OpenEntityDetailsTabCellClickListener implements ICellListener<Sample>
     {
         protected abstract IEntityInformationHolder getEntity(Sample rowItem);
@@ -339,7 +339,7 @@ public class SampleBrowserGrid extends
             new OpenEntityDetailsTabAction(entity, viewContext, keyPressed).execute();
         }
     }
-
+    
     @Override
     protected ICriteriaProvider<ListSampleDisplayCriteria> getCriteriaProvider()
     {
@@ -512,7 +512,7 @@ public class SampleBrowserGrid extends
         for (final AbstractParentSampleColDef parentColDef : parentColumnsSchema)
         {
             schema.setGridCellRendererFor(parentColDef.getIdentifier(), linkCellRenderer);
-            registerLinkClickListenerFor(parentColDef.getIdentifier(),
+             registerLinkClickListenerFor(parentColDef.getIdentifier(),
                     new OpenEntityDetailsTabCellClickListener()
                         {
                             @Override

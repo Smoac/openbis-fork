@@ -20,6 +20,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 public abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sample> implements
@@ -48,6 +49,12 @@ public abstract class AbstractParentSampleColDef extends AbstractColumnDefinitio
         {
             return null;
         }
+    }
+
+    @Override
+    public String tryGetLink(Sample sample)
+    {
+        return LinkExtractor.tryExtract(tryGetParentSample(sample));
     }
 
     public String getIdentifier()

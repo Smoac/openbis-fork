@@ -92,6 +92,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
         setId(createId());
 
         updateDefaultRefreshButton();
+
         registerLinkClickListenerFor(MatchingEntityColumnKind.IDENTIFIER.id(),
                 new ICellListener<MatchingEntity>()
                     {

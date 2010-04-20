@@ -40,13 +40,15 @@ public class LinkRenderer
     public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
-            {
-
+            {// FIXME: almost the same as InternalLinkCellRenderer#createLinkRenderer()
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
                 {
-                    return LinkRenderer.renderAsLinkWithAnchor(model.get(property).toString());
+                    String text = model.get(property).toString();
+                    String tokenOrNull = model.tryGetLink(property);
+                    String href = "#" + (tokenOrNull != null ? tokenOrNull : "");
+                    return LinkRenderer.renderAsLinkWithAnchor(text, href, false);
                 }
             };
     }
@@ -125,7 +127,7 @@ public class LinkRenderer
      */
     public static Widget getLinkWidget(final String text, final ClickHandler listener)
     {
-        return getLinkWidget(text, listener, false);
+        return getLinkWidget(text, listener, false, null);
     }
 
     /**
@@ -134,14 +136,18 @@ public class LinkRenderer
      *         based on <var>invalidate</var> (default style is for false).
      */
     public static Widget getLinkWidget(final String text, final ClickHandler listener,
-            boolean invalidate)
+            boolean invalidate, String href)
     {
         Anchor link = new Anchor();
         link.setText(text);
         link.setStyleName(LINK_STYLE);
-        if (listener != null)
+        if (href == null && listener != null)
         {
             link.addClickHandler(listener);
+        }
+        if (href != null)
+        {
+            link.setHref(href);
         }
         if (invalidate)
         {

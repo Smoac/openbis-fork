@@ -68,4 +68,9 @@ public final class ModelDataPropertyNames
         // Can not be instantiated.
     }
 
+    public static String link(String columnId)
+    {
+        return columnId + "__href";
+    }
+
 }

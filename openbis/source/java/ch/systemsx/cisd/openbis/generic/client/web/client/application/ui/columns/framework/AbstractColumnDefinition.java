@@ -42,7 +42,8 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
     /**
      * if headerTextOrNull is null, it means that we never want to call {@link #getHeader()} method
      */
-    protected AbstractColumnDefinition(String headerTextOrNull, int width, boolean isHidden, boolean numeric)
+    protected AbstractColumnDefinition(String headerTextOrNull, int width, boolean isHidden,
+            boolean numeric)
     {
         this.headerText = headerTextOrNull;
         this.width = width;
@@ -88,6 +89,11 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
     }
 
     public String tryToGetProperty(String key)
+    {
+        return null;
+    }
+
+    public String tryGetLink(T entity)
     {
         return null;
     }

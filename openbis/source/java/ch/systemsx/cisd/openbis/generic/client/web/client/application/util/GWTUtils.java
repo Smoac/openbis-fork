@@ -316,4 +316,5 @@ public final class GWTUtils
     {
         return GWT.isScript();
     }
+
 }

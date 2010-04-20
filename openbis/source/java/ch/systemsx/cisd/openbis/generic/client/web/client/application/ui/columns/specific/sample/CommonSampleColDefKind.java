@@ -19,11 +19,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
 {
@@ -58,6 +59,12 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             {
                 return entity.getCode();
             }
+
+            @Override
+            public String tryGetLink(Sample entity)
+            {
+                return LinkExtractor.tryExtract(entity);
+            }
         }),
 
     SUBCODE(new AbstractColumnDefinitionKind<Sample>(Dict.SUBCODE, true)
@@ -67,6 +74,12 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             {
                 return entity.getSubCode();
             }
+
+            @Override
+            public String tryGetLink(Sample entity)
+            {
+                return LinkExtractor.tryExtract(entity);
+            }
         }),
 
     SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<Sample>(Dict.SAMPLE_IDENTIFIER, 150, true)
@@ -75,6 +88,12 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             public String tryGetValue(Sample entity)
             {
                 return entity.getIdentifier();
+            }
+
+            @Override
+            public String tryGetLink(Sample entity)
+            {
+                return LinkExtractor.tryExtract(entity);
             }
         }),
 
@@ -113,6 +132,12 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
                 final Experiment exp = entity.getExperiment();
                 return exp == null ? null : exp.getCode();
             }
+
+            @Override
+            public String tryGetLink(Sample entity)
+            {
+                return LinkExtractor.tryExtract(entity.getExperiment());
+            }
         }),
 
     EXPERIMENT_IDENTIFIER(new AbstractColumnDefinitionKind<Sample>(Dict.EXPERIMENT_IDENTIFIER, 200,
@@ -123,6 +148,12 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             {
                 final Experiment exp = entity.getExperiment();
                 return exp == null ? null : exp.getIdentifier();
+            }
+
+            @Override
+            public String tryGetLink(Sample entity)
+            {
+                return LinkExtractor.tryExtract(entity.getExperiment());
             }
         }),
 

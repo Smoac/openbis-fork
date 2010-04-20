@@ -76,6 +76,7 @@ public class RowCalculatorTest extends AssertJUnit
                 {
                     return rowModel.getOriginalObject().getValue();
                 }
+
             });
     }
 
@@ -216,24 +217,26 @@ public class RowCalculatorTest extends AssertJUnit
         assertEquals(0.0, calculator.evalToDouble());
 
     }
-    
+
     @Test
     public void testMinOrDefaultFunction()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
         RowCalculator<Data> calculator =
                 createCalculator(parameters, "minOrDefault([${x},None,'  ',-2,'-3'])");
-        
-        try {
+
+        try
+        {
             calculator.evalToDouble();
             fail("EvaluatorException expected");
-        } catch (EvaluatorException e){
+        } catch (EvaluatorException e)
+        {
             // do nothing -- this is expected
         }
-        
+
         calculator = createCalculator(parameters, "minOrDefault([${x},None,'  ',-2,'-3'], 38.6)");
         assertEquals(-3.0, calculator.evalToDouble());
-        
+
         calculator = createCalculator(parameters, "minOrDefault([], 38.6)");
         assertEquals(38.6, calculator.evalToDouble());
 
@@ -245,16 +248,18 @@ public class RowCalculatorTest extends AssertJUnit
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
         RowCalculator<Data> calculator =
                 createCalculator(parameters, "maxOrDefault([${x},None,'  ',-2,'-3'])");
-        try {
+        try
+        {
             calculator.evalToDouble();
             fail("EvaluatorException expected");
-        } catch (EvaluatorException e){
+        } catch (EvaluatorException e)
+        {
             // do nothing -- this is expected
         }
-        
+
         calculator = createCalculator(parameters, "maxOrDefault([${x},None,'  ',-2,'-3'], 38.6)");
         assertEquals(0.0, calculator.evalToDouble());
-        
+
         calculator = createCalculator(parameters, "maxOrDefault([], 38.6)");
         assertEquals(38.6, calculator.evalToDouble());
     }

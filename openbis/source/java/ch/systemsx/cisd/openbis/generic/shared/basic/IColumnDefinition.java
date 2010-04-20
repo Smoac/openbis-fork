@@ -40,4 +40,5 @@ public interface IColumnDefinition<T> extends IsSerializable
 
     /** Tries to get specified property or <code>null</code> if not found. */
     String tryToGetProperty(String key);
+
 }

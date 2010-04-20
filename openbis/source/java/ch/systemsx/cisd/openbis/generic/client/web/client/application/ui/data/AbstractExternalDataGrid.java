@@ -135,7 +135,6 @@ public abstract class AbstractExternalDataGrid
         addButton(createComputeMenu());
         addEntityOperationsSeparator();
         allowMultipleSelection();
-
         ICellListener<ExternalData> experimentClickListener =
                 new OpenEntityDetailsTabCellClickListener()
                     {
@@ -149,18 +148,7 @@ public abstract class AbstractExternalDataGrid
                 experimentClickListener);
         registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT_IDENTIFIER.id(),
                 experimentClickListener);
-        ICellListener<ExternalData> sampleClickListener =
-                new OpenEntityDetailsTabCellClickListener()
-                    {
-                        @Override
-                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
-                        {
-                            return rowItem.getSample();
-                        }
-                    };
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE.id(), sampleClickListener);
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
-                sampleClickListener);
+
     }
 
     @Override

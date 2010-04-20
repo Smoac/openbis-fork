@@ -18,12 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * Main panel - where the pages will open.
@@ -35,16 +30,12 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
 
     private IClosableItem content;
 
-    private final IMessageProvider messageProvider;
-
-    public MainPagePanel(IMessageProvider messageProvider)
+    public MainPagePanel()
     {
-        this.messageProvider = messageProvider;
         setLayout(new FitLayout());
         setBodyBorder(false);
         setBorders(false);
         setHeaderVisible(false);
-        getElement().setInnerText(createWelcomeText());
     }
 
     public final void open(final AbstractTabItemFactory tabItemFactory)
@@ -59,22 +50,14 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
     {
         if (content != null)
         {
-            remove(content.getComponent());
             content.onClose();
+            removeAll();
         }
     }
 
     public Widget asWidget()
     {
         return this;
-    }
-
-    private final String createWelcomeText()
-    {
-        final Element div = DOM.createDiv();
-        div.setClassName("intro-tab");
-        div.setInnerText(messageProvider.getMessage(Dict.WELCOME));
-        return div.getString();
     }
 
 }

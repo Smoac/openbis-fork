@@ -70,4 +70,10 @@ public class CommonColumnDefinition<T> extends AbstractColumnDefinition<T>
         return columnDefinitionKind.id();
     }
 
+    @Override
+    public String tryGetLink(T entity)
+    {
+        return columnDefinitionKind.getDescriptor().tryGetLink(entity);
+    }
+
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -38,6 +39,12 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             {
                 return entity.getCode();
             }
+
+            @Override
+            public String tryGetLink(ExternalData entity)
+            {
+                return LinkExtractor.tryExtract(entity);
+            }
         }),
 
     SAMPLE(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE, 100, true)
@@ -46,6 +53,12 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             public String tryGetValue(ExternalData entity)
             {
                 return entity.getSampleCode();
+            }
+
+            @Override
+            public String tryGetLink(ExternalData entity)
+            {
+                return LinkExtractor.tryExtract(entity);
             }
         }),
 
@@ -56,6 +69,12 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             public String tryGetValue(ExternalData entity)
             {
                 return entity.getSampleIdentifier();
+            }
+
+            @Override
+            public String tryGetLink(ExternalData entity)
+            {
+                return LinkExtractor.tryExtract(entity.getSample());
             }
         }),
 
@@ -81,6 +100,12 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
                 }
                 return exp.getCode();
             }
+
+            @Override
+            public String tryGetLink(ExternalData entity)
+            {
+                return LinkExtractor.tryExtract(entity.getExperiment());
+            }
         }),
 
     EXPERIMENT_IDENTIFIER(new AbstractColumnDefinitionKind<ExternalData>(
@@ -95,6 +120,12 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
                     return null;
                 }
                 return exp.getIdentifier();
+            }
+
+            @Override
+            public String tryGetLink(ExternalData entity)
+            {
+                return LinkExtractor.tryExtract(entity.getExperiment());
             }
         }),
 

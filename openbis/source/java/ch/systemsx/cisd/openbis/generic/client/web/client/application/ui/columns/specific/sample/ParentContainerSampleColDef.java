@@ -47,4 +47,5 @@ public class ParentContainerSampleColDef extends AbstractParentSampleColDef
     {
         return sample.getContainer();
     }
+
 }

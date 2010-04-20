@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.rend
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractSimplePropertyValueRenderer;
@@ -404,11 +405,13 @@ public final class PropertyValueRenderers
         public FlowPanel getAsWidget(final T entity)
         {
             final String displayText = getDisplayText(entity);
-
             final boolean invalidate = getInvalidate(entity);
             final ClickHandler listener =
                     new OpenEntityDetailsTabClickListener(entity, viewContext);
-            final Widget link = LinkRenderer.getLinkWidget(displayText, listener, invalidate);
+            String href = LinkExtractor.tryExtract(entity);
+            final Widget link =
+                    LinkRenderer.getLinkWidget(displayText, listener, invalidate,
+                            href != null ? "#" + href : null);
 
             // putting link into a panel makes it a block/row
             // which is important if they are rendered as an array

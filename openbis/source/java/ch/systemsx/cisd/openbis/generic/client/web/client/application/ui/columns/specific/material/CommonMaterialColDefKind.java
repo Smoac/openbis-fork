@@ -35,6 +35,7 @@ public enum CommonMaterialColDefKind implements IColumnDefinitionKind<Material>
             {
                 return entity.getCode();
             }
+
         }),
 
     MATERIAL_TYPE(new AbstractColumnDefinitionKind<Material>(Dict.MATERIAL_TYPE, true)

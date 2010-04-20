@@ -23,6 +23,8 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
@@ -54,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
-public class Client implements EntryPoint
+public class Client implements EntryPoint, ValueChangeHandler<String>
 {
     private static final String SIMPLE = "simple";
 
@@ -156,6 +158,7 @@ public class Client implements EntryPoint
 
     public final void onModuleLoad()
     {
+        History.addValueChangeHandler(this);
         onModuleLoad(WindowUtils.createOpenUrlController());
     }
 
@@ -299,5 +302,13 @@ public class Client implements EntryPoint
 
         handlerRegistry.registerHandler(new SearchLocatorResolver(context));
         handlerRegistry.registerHandler(new BrowserLocatorResolver(context));
+    }
+
+    public void onValueChange(ValueChangeEvent<String> event)
+    {
+        ViewLocatorResolverRegistry resolver = viewContext.getLocatorResolverRegistry();
+        ViewLocator viewLocator = createViewLocator(History.getToken());
+        OpenViewAction openViewAction = new OpenViewAction(resolver, viewLocator);
+        openViewAction.execute();
     }
 }
