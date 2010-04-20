@@ -56,14 +56,13 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
     }
 
     @Override
-    protected final int getChannelWavelength(final String value)
+    protected final int getChannelWavelength(final String channel)
     {
-        int channel;
-        for (channel = 1; channel <= CHANNEL_NAMES.length; channel++)
+        for (int channelIndex = 1; channelIndex <= CHANNEL_NAMES.length; channelIndex++)
         {
-            if (value.equalsIgnoreCase(CHANNEL_NAMES[channel - 1]))
+            if (channel.equalsIgnoreCase(CHANNEL_NAMES[channelIndex - 1]))
             {
-                return channel;
+                return channelIndex;
             }
         }
         return 0; // unknown channel name
@@ -81,11 +80,11 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
      * </p>
      */
     @Override
-    protected final Location tryGetWellLocation(final String value)
+    protected final Location tryGetWellLocation(final String wellLocation)
     {
         try
         {
-            int tileNumber = Integer.parseInt(value);
+            int tileNumber = Integer.parseInt(wellLocation);
             Location letterLoc = Location.tryCreateLocationFromPosition(tileNumber, wellGeometry);
             // transpose rows with columns
             return new Location(letterLoc.getY(), letterLoc.getX());
