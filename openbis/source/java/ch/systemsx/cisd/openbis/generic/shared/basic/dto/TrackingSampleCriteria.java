@@ -29,7 +29,7 @@ import java.util.Collection;
  * @author Piotr Buczek
  */
 // NOTE: It doesn't implement IsSerializable as it is not supposed to be used on the GWT client side
-public class NewTrackingSampleCriteria implements Serializable
+public class TrackingSampleCriteria implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -41,7 +41,7 @@ public class NewTrackingSampleCriteria implements Serializable
 
     private final Collection<Long> alreadyTrackedSampleIds;
 
-    public NewTrackingSampleCriteria(String sampleTypeCode, String propertyTypeCode,
+    public TrackingSampleCriteria(String sampleTypeCode, String propertyTypeCode,
             String propertyValue, Collection<Long> alreadyTrackedSampleIds)
     {
         assert propertyTypeCode != null;

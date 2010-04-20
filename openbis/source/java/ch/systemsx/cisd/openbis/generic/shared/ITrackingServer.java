@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewTrackingSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
@@ -44,7 +44,7 @@ public interface ITrackingServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public List<Sample> listSamples(final String sessionToken,
-            final NewTrackingSampleCriteria criteria);
+            final TrackingSampleCriteria criteria);
 
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.

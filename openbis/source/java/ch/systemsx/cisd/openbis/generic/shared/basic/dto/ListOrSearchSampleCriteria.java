@@ -39,7 +39,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 
     private ListSampleCriteria listCriteria;
 
-    private NewTrackingSampleCriteria newTrackingCriteria;
+    private TrackingSampleCriteria newTrackingCriteria;
 
     private Collection<Long> sampleIds;
 
@@ -52,8 +52,8 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         this.listCriteria = listCriteria;
     }
 
-    /** Creates criteria that delegates to given {@link NewTrackingSampleCriteria}. */
-    public ListOrSearchSampleCriteria(NewTrackingSampleCriteria newTrackingCriteria)
+    /** Creates criteria that delegates to given {@link TrackingSampleCriteria}. */
+    public ListOrSearchSampleCriteria(TrackingSampleCriteria newTrackingCriteria)
     {
         assert newTrackingCriteria != null;
         this.newTrackingCriteria = newTrackingCriteria;

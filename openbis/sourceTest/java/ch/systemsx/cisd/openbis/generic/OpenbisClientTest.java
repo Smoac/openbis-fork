@@ -17,7 +17,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewTrackingSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -119,8 +119,8 @@ public class OpenbisClientTest
         final Collection<Long> alreadyTracked = Arrays.asList(new Long[]
             { 986L, 987L });
 
-        final NewTrackingSampleCriteria newSampleCriteria =
-                new NewTrackingSampleCriteria(sampleTypeCode, propertyTypeCode, propertyValue,
+        final TrackingSampleCriteria newSampleCriteria =
+                new TrackingSampleCriteria(sampleTypeCode, propertyTypeCode, propertyValue,
                         alreadyTracked);
         final List<Sample> newSamples =
                 trackingServer.listSamples(session.getSessionToken(), newSampleCriteria);

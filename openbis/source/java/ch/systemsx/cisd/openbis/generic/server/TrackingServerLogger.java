@@ -22,7 +22,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewTrackingSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -56,7 +56,7 @@ final class TrackingServerLogger extends AbstractServerLogger implements ITracki
         return null;
     }
 
-    public List<Sample> listSamples(String sessionToken, NewTrackingSampleCriteria criteria)
+    public List<Sample> listSamples(String sessionToken, TrackingSampleCriteria criteria)
     {
         logTracking(sessionToken, "list_samples",
                 "PROPERTY(%s) VALUE(%s) ALREADY_TRACKED_SIZE(%s)", criteria.getPropertyTypeCode(),

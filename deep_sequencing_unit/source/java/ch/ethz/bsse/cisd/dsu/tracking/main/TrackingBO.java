@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewTrackingSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -221,8 +221,8 @@ public class TrackingBO
     private static List<Sample> listSamples(String sampleType, String propertyTypeCode,
             String propertyValue, ITrackingServer trackingServer, SessionContextDTO session)
     {
-        NewTrackingSampleCriteria criteria =
-                new NewTrackingSampleCriteria(sampleType, propertyTypeCode, propertyValue,
+        TrackingSampleCriteria criteria =
+                new TrackingSampleCriteria(sampleType, propertyTypeCode, propertyValue,
                         Collections.EMPTY_LIST);
         return trackingServer.listSamples(session.getSessionToken(), criteria);
     }
