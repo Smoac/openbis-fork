@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
-import ch.ethz.bsse.cisd.dsu.tracking.email.EntityTrackingEmailData.SequencingSampleData;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -150,35 +149,33 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         {
             StringBuilder sb = new StringBuilder();
             appendDataSetsData(sb, emailData.getDataSets());
-            appendSequencingSamplesData(sb, emailData.getSequencingSamplesData());
+            appendSequencingSamplesData(sb, emailData.getSequencingSamplesToBeProcessed(), false);
+            appendSequencingSamplesData(sb, emailData.getSequencingSamplesProcessed(), true);
             return sb.toString();
         }
 
         private static void appendSequencingSamplesData(StringBuilder sb,
-                Collection<SequencingSampleData> sequencingSamplesData)
+                Collection<Sample> sequencingSamples, boolean processed)
         {
-            for (SequencingSampleData sequencingSampleData : sequencingSamplesData)
+            for (Sample sequencingSample : sequencingSamples)
             {
-                final String externalSampleName =
-                        getExternalSampleName(sequencingSampleData.getSequencingSample());
-                final int flowLaneSamplesSize = sequencingSampleData.getFlowLaneSamples().size();
+                final String externalSampleName = getExternalSampleName(sequencingSample);
 
                 appendln(sb, SECTION_SEPARATOR_LINE);
                 appendln(sb, SUBSECTION_SEPARATOR_LINE);
 
                 // append Sequencing sample details
-                if (flowLaneSamplesSize == 0)
+                if (processed)
                 {
                     appendSampleDetails(sb, String.format(
-                            "Your order for sample '%s' has been queued for sequencing.",
-                            externalSampleName), sequencingSampleData.getSequencingSample());
+                            "Library processing for sample '%s' was successful.",
+                            externalSampleName), sequencingSample);
                     appendln(sb, SUBSECTION_SEPARATOR_LINE);
                 } else
                 {
                     appendSampleDetails(sb, String.format(
-                            "Sample '%s' is now being sequenced in %d flow lanes.",
-                            externalSampleName, flowLaneSamplesSize), sequencingSampleData
-                            .getSequencingSample());
+                            "Library processing for sample '%s' is possible.", externalSampleName),
+                            sequencingSample);
                     appendln(sb, SUBSECTION_SEPARATOR_LINE);
                 }
             }

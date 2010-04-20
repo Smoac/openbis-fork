@@ -54,17 +54,17 @@ class EntityTrackingEmailDataManager
         // <recipients email, email data>
         final Map<String, EntityTrackingEmailData> dataByRecipient =
                 new HashMap<String, EntityTrackingEmailData>();
-        groupSequencingSamples(dataByRecipient, trackedEntities);
-        groupFlowLaneSamples(dataByRecipient, trackedEntities);
+        groupSequencingSamplesToBeProcessed(dataByRecipient, trackedEntities);
+        groupSequencingSamplesProcessed(dataByRecipient, trackedEntities);
         groupDataSetSamples(dataByRecipient, trackedEntities);
         return dataByRecipient.values();
     }
 
-    /** Puts tracked sequencing samples grouped by recipient into <var>result</var>. */
-    private static void groupSequencingSamples(Map<String, EntityTrackingEmailData> result,
-            TrackedEntities trackedEntities)
+    /** Puts tracked sequencing samples to be processed grouped by recipient into <var>result</var>. */
+    private static void groupSequencingSamplesToBeProcessed(
+            Map<String, EntityTrackingEmailData> result, TrackedEntities trackedEntities)
     {
-        for (Sample sequencingSample : trackedEntities.getSequencingSamples())
+        for (Sample sequencingSample : trackedEntities.getSequencingSamplesProcessed())
         {
             for (String recipient : getSequencingSampleTrackingRecipients(sequencingSample))
             {
@@ -75,17 +75,17 @@ class EntityTrackingEmailDataManager
         }
     }
 
-    /** Puts tracked flow lane samples grouped by recipient into <var>result</var>. */
-    private static void groupFlowLaneSamples(Map<String, EntityTrackingEmailData> result,
-            TrackedEntities trackedEntities)
+    /** Puts tracked processed sequencing samples grouped by recipient into <var>result</var>. */
+    private static void groupSequencingSamplesProcessed(
+            Map<String, EntityTrackingEmailData> result, TrackedEntities trackedEntities)
     {
-        for (Sample flowLaneSample : trackedEntities.getFlowLaneSamples())
+        for (Sample sequencingSample : trackedEntities.getSequencingSamplesProcessed())
         {
-            for (String recipient : getFlowLaneSampleTrackingRecipients(flowLaneSample))
+            for (String recipient : getSequencingSampleTrackingRecipients(sequencingSample))
             {
                 final EntityTrackingEmailData emailData =
                         getOrCreateRecipientEmailData(result, recipient);
-                emailData.addFlowLaneSample(flowLaneSample);
+                emailData.addSequencingSample(sequencingSample);
             }
         }
     }

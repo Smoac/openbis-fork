@@ -16,46 +16,45 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.dto;
 
-import ch.systemsx.cisd.common.annotation.BeanProperty;
+import java.util.Set;
 
 public class TrackingStateDTO
 {
-    private int lastSeenSequencingSampleId;
+    private Set<Long> alreadyTrackedSampleIdsToBeProcessed;
 
-    private int lastSeenFlowLaneSampleId;
+    private Set<Long> alreadyTrackedSampleIdsProcessed;
 
     private int lastSeenDatasetId;
-
-    public int getLastSeenSequencingSampleId()
-    {
-        return lastSeenSequencingSampleId;
-    }
-
-    @BeanProperty(label = "lastSeenSequencingSampleId")
-    public void setLastSeenSequencingSampleId(int lastSeenSequencingSampleId)
-    {
-        this.lastSeenSequencingSampleId = lastSeenSequencingSampleId;
-    }
-
-    public int getLastSeenFlowLaneSampleId()
-    {
-        return lastSeenFlowLaneSampleId;
-    }
-
-    @BeanProperty(label = "lastSeenFlowLaneSampleId")
-    public void setLastSeenFlowLaneSampleId(int lastSeenFlowLaneSampleId)
-    {
-        this.lastSeenFlowLaneSampleId = lastSeenFlowLaneSampleId;
-    }
 
     public int getLastSeenDatasetId()
     {
         return lastSeenDatasetId;
     }
 
-    @BeanProperty(label = "lastSeenDatasetId")
     public void setLastSeenDatasetId(int lastSeenDatasetId)
     {
         this.lastSeenDatasetId = lastSeenDatasetId;
     }
+
+    public Set<Long> getAlreadyTrackedSampleIdsToBeProcessed()
+    {
+        return alreadyTrackedSampleIdsToBeProcessed;
+    }
+
+    public void setAlreadyTrackedSamplesIdsToBeProcessed(
+            Set<Long> alreadyTrackedSampleIdsToBeProcessed)
+    {
+        this.alreadyTrackedSampleIdsToBeProcessed = alreadyTrackedSampleIdsToBeProcessed;
+    }
+
+    public Set<Long> getAlreadyTrackedSampleIdsProcessed()
+    {
+        return alreadyTrackedSampleIdsProcessed;
+    }
+
+    public void setAlreadyTrackedSampleIdsProcessed(Set<Long> alreadyTrackedSampleIdsProcessed)
+    {
+        this.alreadyTrackedSampleIdsProcessed = alreadyTrackedSampleIdsProcessed;
+    }
+
 }

@@ -28,28 +28,29 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class TrackedEntities
 {
-    private final List<Sample> sequencingSamples;
 
-    private final List<Sample> flowLaneSamples;
+    private final List<Sample> sequencingSamplesToBeProcessed;
+
+    private final List<Sample> sequencingSamplesProcessed;
 
     private final List<ExternalData> dataSets;
 
-    public TrackedEntities(List<Sample> sequencingSamples, List<Sample> flowLaneSamples,
-            List<ExternalData> dataSets)
+    public TrackedEntities(List<Sample> sequencingSamplesToBeProcessed,
+            List<Sample> sequencingSamplesProcessed, List<ExternalData> dataSets)
     {
-        this.sequencingSamples = sequencingSamples;
-        this.flowLaneSamples = flowLaneSamples;
+        this.sequencingSamplesToBeProcessed = sequencingSamplesToBeProcessed;
+        this.sequencingSamplesProcessed = sequencingSamplesProcessed;
         this.dataSets = dataSets;
     }
 
-    public List<Sample> getSequencingSamples()
+    public List<Sample> getSequencingSamplesToBeProcessed()
     {
-        return sequencingSamples;
+        return sequencingSamplesToBeProcessed;
     }
 
-    public List<Sample> getFlowLaneSamples()
+    public List<Sample> getSequencingSamplesProcessed()
     {
-        return flowLaneSamples;
+        return sequencingSamplesProcessed;
     }
 
     public List<ExternalData> getDataSets()

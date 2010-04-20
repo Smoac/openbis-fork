@@ -18,20 +18,19 @@ package ch.ethz.bsse.cisd.dsu.tracking.main;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
-import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
-import ch.systemsx.cisd.common.parser.IParserObjectFactory;
-import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
-import ch.systemsx.cisd.common.parser.IPropertyMapper;
-import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.common.parser.TabFileLoader;
 
 /**
  * @author Tomasz Pylak
@@ -48,40 +47,51 @@ public class FileBasedTrackingDAO implements ITrackingDAO
     public void saveTrackingState(TrackingStateDTO state)
     {
         List<String> lines = new ArrayList<String>();
-        lines.add("lastSeenSequencingSampleId\tlastSeenFlowLaneSampleId\tlastSeenDatasetId");
-        lines.add("" + state.getLastSeenSequencingSampleId() + "\t"
-                + state.getLastSeenFlowLaneSampleId() + "\t" + state.getLastSeenDatasetId());
+        lines.add("lastSeenDatasetId\t" + state.getLastSeenDatasetId());
+        lines.add("trackedSamplesToBeProcessed\t"
+                + sampleIdsAsString(state.getAlreadyTrackedSampleIdsToBeProcessed()));
+        lines.add("trackedSamplesProcessedSuccessfully\t"
+                + sampleIdsAsString(state.getAlreadyTrackedSampleIdsProcessed()));
         writeLines(new File(filePath), lines);
     }
 
+    private String sampleIdsAsString(Collection<Long> sampleIds)
+    {
+        return StringUtils.join(sampleIds, "\t");
+    }
+
+    @SuppressWarnings("unchecked")
     public TrackingStateDTO getTrackingState()
     {
-        TabFileLoader<TrackingStateDTO> tabFileLoader =
-                new TabFileLoader<TrackingStateDTO>(
-                        new IParserObjectFactoryFactory<TrackingStateDTO>()
-                            {
-                                public IParserObjectFactory<TrackingStateDTO> createFactory(
-                                        IPropertyMapper propertyMapper) throws ParserException
-                                {
-                                    return new AbstractParserObjectFactory<TrackingStateDTO>(
-                                            TrackingStateDTO.class, propertyMapper)
-                                        {
-                                        };
-                                }
-                            });
         try
         {
-            List<TrackingStateDTO> trackingState = tabFileLoader.load(new File(filePath));
-            if (trackingState.size() != 1)
+            List<String> lines = IOUtils.readLines(new FileReader(filePath));
+            if (lines.size() != 3)
             {
-                throw LogUtils.environmentError(
-                        "File %s has to many rows, it should have exactly 1.", filePath);
+                throw LogUtils.environmentError("File %s should have exactly 3 rows.", filePath);
             }
-            return trackingState.get(0);
+            TrackingStateDTO state = new TrackingStateDTO();
+            String[] datasetId = lines.get(0).split("\t");
+            String[] toBeProcessed = lines.get(1).split("\t");
+            String[] processed = lines.get(2).split("\t");
+            state.setLastSeenDatasetId(Integer.parseInt(datasetId[1]));
+            state.setAlreadyTrackedSamplesIdsToBeProcessed(parseIds(toBeProcessed));
+            state.setAlreadyTrackedSampleIdsProcessed(parseIds(processed));
+            return state;
         } catch (Exception e)
         {
             throw LogUtils.environmentError("Incorrect file format", e);
         }
+    }
+
+    private static Set<Long> parseIds(String[] array)
+    {
+        Set<Long> ids = new HashSet<Long>();
+        for (int i = 1; i < array.length; i++)
+        {
+            ids.add(Long.parseLong(array[i]));
+        }
+        return ids;
     }
 
     private static void writeLines(File file, List<String> lines)
@@ -91,8 +101,8 @@ public class FileBasedTrackingDAO implements ITrackingDAO
             IOUtils.writeLines(lines, "\n", new FileOutputStream(file));
         } catch (IOException ex)
         {
-            throw LogUtils.environmentError(String.format("Cannot save the file %s with content: %s", file
-                    .getPath(), lines), ex);
+            throw LogUtils.environmentError(String.format(
+                    "Cannot save the file %s with content: %s", file.getPath(), lines), ex);
         }
     }
 }

@@ -16,7 +16,10 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
@@ -30,9 +33,9 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewTrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -43,6 +46,13 @@ public class TrackingBO
     private static final String SEQUENCING_SAMPLE_TYPE = "ILLUMINA_SEQUENCING";
 
     private static final String FLOW_LANE_SAMPLE_TYPE = "ILLUMINA_FLOW_LANE";
+
+    private static final String PROCESSING_POSSIBLE_PROPERTY_CODE = "LIBRARY_PROCESSING_POSSIBLE";
+
+    private static final String PROCESSING_SUCCESSFUL_PROPERTY_CODE =
+            "LIBRARY_PROCESSING_SUCCESSFUL";
+
+    private static final String TRUE = "true";
 
     private final ITrackingServer trackingServer;
 
@@ -156,20 +166,24 @@ public class TrackingBO
             TrackedEntities changedEntities)
     {
         TrackingStateDTO state = new TrackingStateDTO();
-        int lastSeenSequencingSampleId =
-                calcMaxId(changedEntities.getSequencingSamples(), prevState
-                        .getLastSeenSequencingSampleId());
-        state.setLastSeenSequencingSampleId(lastSeenSequencingSampleId);
-
-        int lastSeenFlowLaneSampleId =
-                calcMaxId(changedEntities.getFlowLaneSamples(), prevState
-                        .getLastSeenFlowLaneSampleId());
-        state.setLastSeenFlowLaneSampleId(lastSeenFlowLaneSampleId);
+        Set<Long> sequencingSamplesProcessed =
+                new HashSet<Long>(prevState.getAlreadyTrackedSampleIdsProcessed());
+        addNewSampleIds(sequencingSamplesProcessed, changedEntities.getSequencingSamplesProcessed());
+        state.setAlreadyTrackedSampleIdsProcessed(sequencingSamplesProcessed);
 
         int lastSeenDatasetId =
                 calcMaxId(changedEntities.getDataSets(), prevState.getLastSeenDatasetId());
         state.setLastSeenDatasetId(lastSeenDatasetId);
         return state;
+    }
+
+    private static void addNewSampleIds(Set<Long> alreadyTrackedSampleIdsProcessed,
+            List<Sample> sequencingSamplesProcessed)
+    {
+        for (Sample sample : sequencingSamplesProcessed)
+        {
+            alreadyTrackedSampleIdsProcessed.add(sample.getId());
+        }
     }
 
     private static int calcMaxId(List<? extends IIdentifiable> entities, int initialValue)
@@ -186,12 +200,11 @@ public class TrackingBO
     private static TrackedEntities fetchChangedEntities(TrackingStateDTO trackingState,
             ITrackingServer trackingServer, SessionContextDTO session)
     {
-        List<Sample> sequencingSamples =
-                listSamples(SEQUENCING_SAMPLE_TYPE, trackingState.getLastSeenSequencingSampleId(),
+        List<Sample> sequencingSamplesToBeProcessed =
+                listSamples(SEQUENCING_SAMPLE_TYPE, PROCESSING_POSSIBLE_PROPERTY_CODE, TRUE,
                         trackingServer, session);
-
-        List<Sample> flowLaneSamples =
-                listSamples(FLOW_LANE_SAMPLE_TYPE, trackingState.getLastSeenFlowLaneSampleId(),
+        List<Sample> sequencingSamplesSuccessfullyProcessed =
+                listSamples(SEQUENCING_SAMPLE_TYPE, PROCESSING_SUCCESSFUL_PROPERTY_CODE, TRUE,
                         trackingServer, session);
 
         TrackingDataSetCriteria dataSetCriteria =
@@ -200,13 +213,17 @@ public class TrackingBO
         List<ExternalData> dataSets =
                 trackingServer.listDataSets(session.getSessionToken(), dataSetCriteria);
 
-        return new TrackedEntities(sequencingSamples, flowLaneSamples, dataSets);
+        return new TrackedEntities(sequencingSamplesToBeProcessed,
+                sequencingSamplesSuccessfullyProcessed, dataSets);
     }
 
-    private static List<Sample> listSamples(String sampleType, int lastSeenSampleId,
-            ITrackingServer trackingServer, SessionContextDTO session)
+    @SuppressWarnings("unchecked")
+    private static List<Sample> listSamples(String sampleType, String propertyTypeCode,
+            String propertyValue, ITrackingServer trackingServer, SessionContextDTO session)
     {
-        TrackingSampleCriteria criteria = new TrackingSampleCriteria(sampleType, lastSeenSampleId);
+        NewTrackingSampleCriteria criteria =
+                new NewTrackingSampleCriteria(sampleType, propertyTypeCode, propertyValue,
+                        Collections.EMPTY_LIST);
         return trackingServer.listSamples(session.getSessionToken(), criteria);
     }
 }

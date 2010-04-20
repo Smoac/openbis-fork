@@ -17,10 +17,7 @@
 package ch.ethz.bsse.cisd.dsu.tracking.email;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -34,45 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class EntityTrackingEmailData
 {
-    public static class SequencingSampleData
-    {
-        private final boolean newlyTracked;
+    private List<Sample> sequencingSamplesToBeProcessed;
 
-        private final Sample sequencingSample;
-
-        private final List<Sample> flowLaneSamples = new ArrayList<Sample>(0);
-
-        public SequencingSampleData(Sample sequencingSample, boolean newlyTracked)
-        {
-            super();
-            this.sequencingSample = sequencingSample;
-            this.newlyTracked = newlyTracked;
-        }
-
-        public void addFlowLaneSample(Sample flowLaneSample)
-        {
-            flowLaneSamples.add(flowLaneSample);
-        }
-
-        public Sample getSequencingSample()
-        {
-            return sequencingSample;
-        }
-
-        public List<Sample> getFlowLaneSamples()
-        {
-            return flowLaneSamples;
-        }
-
-        public boolean isNewlyTracked()
-        {
-            return newlyTracked;
-        }
-    }
-
-    // data grouped by sequencing sample: <sequencing sample id, data>
-    private final Map<Long, SequencingSampleData> sequencingSampleDataById =
-            new HashMap<Long, SequencingSampleData>(0);
+    private List<Sample> sequencingSamplesProcessed;
 
     private final List<ExternalData> dataSets = new ArrayList<ExternalData>(0);
 
@@ -89,9 +50,14 @@ public class EntityTrackingEmailData
         return recipient;
     }
 
-    public Collection<SequencingSampleData> getSequencingSamplesData()
+    public List<Sample> getSequencingSamplesToBeProcessed()
     {
-        return sequencingSampleDataById.values();
+        return sequencingSamplesToBeProcessed;
+    }
+
+    public List<Sample> getSequencingSamplesProcessed()
+    {
+        return sequencingSamplesToBeProcessed;
     }
 
     public List<ExternalData> getDataSets()
@@ -99,36 +65,16 @@ public class EntityTrackingEmailData
         return dataSets;
     }
 
-    /** adds info about newly tracked sequencing */
+    /** adds info about newly tracked sequencing sample to be processed */
+    public void addSequencingSampleToBeProcessed(Sample sequencingSample)
+    {
+        sequencingSamplesToBeProcessed.add(sequencingSample);
+    }
+
+    /** adds info about newly tracked sequencing sample successfully processed */
     public void addSequencingSample(Sample sequencingSample)
     {
-        createSequencingSampleData(sequencingSample, true);
-    }
-
-    /** adds info about newly tracked flow lane sample */
-    public void addFlowLaneSample(Sample flowLaneSample)
-    {
-        // if data about sequencing sample is not yet added add it too
-        final Sample sequencingSample = flowLaneSample.getGeneratedFrom();
-        assert sequencingSample != null;
-
-        SequencingSampleData infoOrNull = sequencingSampleDataById.get(sequencingSample.getId());
-        if (infoOrNull == null)
-        {
-            // because sequencing samples are processed before flow lane samples
-            // the sequencing sample we have here must have existed before
-            infoOrNull = createSequencingSampleData(sequencingSample, false);
-        }
-
-        infoOrNull.addFlowLaneSample(flowLaneSample);
-    }
-
-    private SequencingSampleData createSequencingSampleData(Sample sequencingSample,
-            boolean newlyTracked)
-    {
-        final SequencingSampleData data = new SequencingSampleData(sequencingSample, newlyTracked);
-        sequencingSampleDataById.put(sequencingSample.getId(), data);
-        return data;
+        sequencingSamplesToBeProcessed.add(sequencingSample);
     }
 
     /** adds info about newly tracked data set */
@@ -141,31 +87,32 @@ public class EntityTrackingEmailData
     public String getDescription()
     {
         final StringBuilder sb = new StringBuilder();
+        appendSamplesInfo(sb, sequencingSamplesToBeProcessed, "possible for processing");
+        appendSamplesInfo(sb, sequencingSamplesProcessed, "successfully processed");
+        appendDataSetsInfo(sb);
+        return sb.toString();
+    }
 
-        // append info about tracked samples
-        if (getSequencingSamplesData().isEmpty())
+    private void appendSamplesInfo(final StringBuilder sb, final List<Sample> samples,
+            final String actionDescription)
+    {
+        if (sequencingSamplesToBeProcessed.isEmpty())
         {
-            sb.append("no new samples tracked\n");
+            sb.append(String.format("no new samples are %s\n", actionDescription));
         } else
         {
-            for (SequencingSampleData seqencingSampleData : getSequencingSamplesData())
+            for (Sample seqencingSample : sequencingSamplesToBeProcessed)
             {
-                final int flowLaneSamplesSize = seqencingSampleData.getFlowLaneSamples().size();
-                final String sequencingSampleIdentifier =
-                        seqencingSampleData.getSequencingSample().getIdentifier();
-                final boolean newlyTracked = seqencingSampleData.isNewlyTracked();
-                sb.append(String.format(
-                        "%sSequencing sample: '%s' with %d new Flow Lane sample(s) tracked%s",
-                        newlyTracked ? "new " : "", sequencingSampleIdentifier,
-                        flowLaneSamplesSize, flowLaneSamplesSize > 0 ? ": \n" : ""));
-                for (Sample flowLaneSample : seqencingSampleData.getFlowLaneSamples())
-                {
-                    sb.append("\t" + flowLaneSample.getIdentifier());
-                }
+                final String sequencingSampleIdentifier = seqencingSample.getIdentifier();
+                sb.append(String.format("Sequencing sample: '%s' is %s",
+                        sequencingSampleIdentifier, actionDescription));
                 sb.append("\n");
             }
         }
-        // append info about tracked data sets
+    }
+
+    private void appendDataSetsInfo(final StringBuilder sb)
+    {
         if (getDataSets().isEmpty())
         {
             sb.append("no new data sets tracked");
@@ -178,7 +125,6 @@ public class EntityTrackingEmailData
             }
         }
         sb.append("\n");
-        return sb.toString();
     }
 
     //
