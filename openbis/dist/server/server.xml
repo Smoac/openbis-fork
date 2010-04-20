@@ -90,7 +90,8 @@
                keystoreFile="openBIS.keystore"
                enableLookups="false" disableUploadTimeout="true"
                acceptCount="100" scheme="https" secure="true"
-               clientAuth="false" sslProtocol="TLS" />
+               clientAuth="false" sslProtocol="TLS" 
+               compression="on" compressableMimeType="text/html,text/xml,text/css,text/javascript"/>
 
     <!-- Define a Proxied HTTP/1.1 Connector on port 8082 -->
     <!-- See proxy documentation for more information about using this. -->
