@@ -36,6 +36,15 @@
             ch.systemsx.cisd.openbis.generic.server.GenericHttpSessionListener
         </listener-class>
     </listener>
+    
+    <filter>
+        <filter-name>CacheFilter</filter-name>
+        <filter-class>ch.systemsx.cisd.openbis.generic.server.CacheFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CacheFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
     <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
     <servlet-mapping>
