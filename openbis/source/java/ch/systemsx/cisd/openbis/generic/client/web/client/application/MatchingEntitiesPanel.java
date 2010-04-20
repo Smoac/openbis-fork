@@ -149,17 +149,19 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     }
 
     @Override
-    protected void showEntityViewer(MatchingEntity matchingEntity, boolean editMode, boolean inBackground)
+    protected void showEntityViewer(MatchingEntity matchingEntity, boolean editMode,
+            boolean inBackground)
     {
         final EntityKind entityKind = matchingEntity.getEntityKind();
         BasicEntityType entityType = matchingEntity.getEntityType();
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         entityType);
-        final IClientPlugin<BasicEntityType, IIdentifiable> createClientPlugin =
+        // NOTE: createEntityViewer is the only allowed operation for MatchingEntityPanel
+        final IClientPlugin<BasicEntityType, IIdentifiable> clientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         final AbstractTabItemFactory tabView =
-                createClientPlugin.createEntityViewer(entityType, matchingEntity.asIdentifiable());
+                clientPlugin.createEntityViewer(entityType, matchingEntity.asIdentifiable());
         tabView.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }

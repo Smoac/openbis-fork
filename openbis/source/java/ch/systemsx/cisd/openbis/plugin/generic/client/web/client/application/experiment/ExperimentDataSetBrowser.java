@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
@@ -39,7 +39,7 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     static IDisposableComponent create(IViewContext<?> viewContext, TechId experimentId,
-            final ExperimentType experimentType)
+            final BasicEntityType experimentType)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();

@@ -70,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -163,7 +162,7 @@ public class SampleBrowserGrid extends
 
     public static IDisposableComponent createGridForExperimentSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId experimentId,
-            final String gridId, final ExperimentType experimentType)
+            final String gridId, final BasicEntityType experimentType)
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForExperiment(experimentId);

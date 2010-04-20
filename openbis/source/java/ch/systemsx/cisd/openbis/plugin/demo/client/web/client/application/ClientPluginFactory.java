@@ -25,11 +25,11 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -112,7 +112,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         // IViewClientPlugin
         //
 
-        public final AbstractTabItemFactory createEntityViewer(final SampleType sampleType,
+        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType sampleType,
                 final IIdentifiable identifiable)
         {
             final TechId sampleId = TechId.create(identifiable);
@@ -196,8 +196,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         //
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final ExperimentType experimentType,
-                final IIdentifiable identifiable)
+        public final AbstractTabItemFactory createEntityViewer(
+                final BasicEntityType experimentType, final IIdentifiable identifiable)
         {
             return new AbstractTabItemFactory()
                 {

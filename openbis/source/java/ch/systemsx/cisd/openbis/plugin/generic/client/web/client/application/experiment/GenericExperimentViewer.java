@@ -45,9 +45,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -68,7 +68,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
     protected final IIdentifiable experimentId;
 
-    protected final ExperimentType experimentType;
+    protected final BasicEntityType experimentType;
 
     private ExperimentPropertiesPanel propertiesPanelOrNull;
 
@@ -76,7 +76,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
-            final ExperimentType experimentType, final IIdentifiable identifiable)
+            final BasicEntityType experimentType, final IIdentifiable identifiable)
     {
         GenericExperimentViewer viewer =
                 new GenericExperimentViewer(viewContext, experimentType, identifiable);
@@ -84,7 +84,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
     }
 
     protected GenericExperimentViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
-            final ExperimentType experimentType, final IIdentifiable experimentId)
+            final BasicEntityType experimentType, final IIdentifiable experimentId)
     {
         super(viewContext, createId(experimentId));
 

@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 
 /**
  * {@link SingleSectionPanel} containing experiment samples.
@@ -37,11 +37,11 @@ public class ExperimentSamplesSection extends DisposableSectionPanel
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final ExperimentType experimentType;
+    private final BasicEntityType experimentType;
 
     private final TechId experimentId;
 
-    public ExperimentSamplesSection(IViewContext<?> viewContext, ExperimentType experimentType,
+    public ExperimentSamplesSection(IViewContext<?> viewContext, BasicEntityType experimentType,
             IIdentifiable experimentId)
     {
         super("Samples", viewContext);

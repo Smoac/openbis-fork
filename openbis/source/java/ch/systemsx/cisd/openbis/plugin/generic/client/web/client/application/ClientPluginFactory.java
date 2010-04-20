@@ -24,11 +24,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -139,7 +139,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         // IViewClientPlugin
         //
 
-        public AbstractTabItemFactory createEntityViewer(final SampleType sampleType,
+        public AbstractTabItemFactory createEntityViewer(final BasicEntityType sampleType,
                 final IIdentifiable identifiable)
         {
             return new AbstractTabItemFactory()
@@ -226,7 +226,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final MaterialType materialType,
+        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType materialType,
                 final IIdentifiable identifiable)
         {
             final TechId techId = TechId.create(identifiable);
@@ -295,8 +295,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         //
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final ExperimentType experimentType,
-                final IIdentifiable experimentId)
+        public final AbstractTabItemFactory createEntityViewer(
+                final BasicEntityType experimentType, final IIdentifiable experimentId)
         {
             return new AbstractTabItemFactory()
                 {
@@ -370,7 +370,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
     {
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final DataSetType dataSetType,
+        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType dataSetType,
                 final IIdentifiable identifiable)
         {
             return new AbstractTabItemFactory()
