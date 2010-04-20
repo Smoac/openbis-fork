@@ -24,14 +24,14 @@ public class TrackingStateDTO
 
     private Set<Long> alreadyTrackedSampleIdsProcessed;
 
-    private int lastSeenDatasetId;
+    private long lastSeenDatasetId;
 
-    public int getLastSeenDatasetId()
+    public long getLastSeenDatasetId()
     {
         return lastSeenDatasetId;
     }
 
-    public void setLastSeenDatasetId(int lastSeenDatasetId)
+    public void setLastSeenDatasetId(long lastSeenDatasetId)
     {
         this.lastSeenDatasetId = lastSeenDatasetId;
     }

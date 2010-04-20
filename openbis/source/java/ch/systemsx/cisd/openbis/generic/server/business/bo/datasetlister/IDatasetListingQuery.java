@@ -68,7 +68,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
             + "    WHERE data.id > ?{2} AND data.samp_id IN (SELECT id FROM samples s WHERE s.saty_id=?{1})", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getNewDataSetsForSampleType(long sampleTypeId,
-            int lastSeenDatasetId);
+            long lastSeenDatasetId);
 
     /**
      * Returns datasets from store with given id that have status equal 'AVAILABLE' and were

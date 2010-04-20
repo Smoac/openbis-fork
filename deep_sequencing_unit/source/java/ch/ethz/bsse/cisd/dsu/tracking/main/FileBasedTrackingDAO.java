@@ -74,7 +74,7 @@ public class FileBasedTrackingDAO implements ITrackingDAO
             String[] datasetId = lines.get(0).split("\t");
             String[] toBeProcessed = lines.get(1).split("\t");
             String[] processed = lines.get(2).split("\t");
-            state.setLastSeenDatasetId(Integer.parseInt(datasetId[1]));
+            state.setLastSeenDatasetId(Long.parseLong(datasetId[1]));
             state.setAlreadyTrackedSampleIdsToBeProcessed(parseIds(toBeProcessed));
             state.setAlreadyTrackedSampleIdsProcessed(parseIds(processed));
             return state;

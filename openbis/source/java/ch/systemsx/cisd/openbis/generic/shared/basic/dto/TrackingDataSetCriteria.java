@@ -35,9 +35,9 @@ public class TrackingDataSetCriteria implements IsSerializable, Serializable
 
     private final String connectedSampleTypeCode;
 
-    private int lastSeenDataSetId;
+    private long lastSeenDataSetId;
 
-    public TrackingDataSetCriteria(String connectedSampleTypeCode, int lastSeenDataSetId)
+    public TrackingDataSetCriteria(String connectedSampleTypeCode, long lastSeenDataSetId)
     {
         assert connectedSampleTypeCode != null;
         this.lastSeenDataSetId = lastSeenDataSetId;
@@ -49,12 +49,12 @@ public class TrackingDataSetCriteria implements IsSerializable, Serializable
         return connectedSampleTypeCode;
     }
 
-    public int getLastSeenDataSetId()
+    public long getLastSeenDataSetId()
     {
         return lastSeenDataSetId;
     }
 
-    public void setLastSeenDataSetId(int lastSeenDataSetId)
+    public void setLastSeenDataSetId(long lastSeenDataSetId)
     {
         this.lastSeenDataSetId = lastSeenDataSetId;
     }

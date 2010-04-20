@@ -219,7 +219,7 @@ public class TrackingBO
                     .getSequencingSamplesProcessed());
             state.setAlreadyTrackedSampleIdsProcessed(sequencingSamplesProcessed);
 
-            int lastSeenDatasetId =
+            long lastSeenDatasetId =
                     calcMaxId(changedEntities.getDataSets(), prevState.getLastSeenDatasetId());
             state.setLastSeenDatasetId(lastSeenDatasetId);
             return state;
@@ -234,15 +234,14 @@ public class TrackingBO
             }
         }
 
-        private static int calcMaxId(List<? extends IIdentifiable> entities, int initialValue)
+        private static long calcMaxId(List<? extends IIdentifiable> entities, long initialValue)
         {
             long max = initialValue;
             for (IIdentifiable entity : entities)
             {
                 max = Math.max(max, entity.getId());
             }
-            // TODO 2009-12-01, Tomasz Pylak: refactor ids to long everywhere
-            return (int) max;
+            return max;
         }
     }
 }
