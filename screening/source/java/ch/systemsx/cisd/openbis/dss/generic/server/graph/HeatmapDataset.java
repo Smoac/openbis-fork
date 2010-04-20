@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
-import java.util.List;
-
 import org.jfree.data.DomainOrder;
 import org.jfree.data.Range;
 import org.jfree.data.general.DatasetChangeListener;
@@ -30,11 +28,9 @@ import org.jfree.data.xy.XYZDataset;
  */
 public class HeatmapDataset implements XYZDataset
 {
-    DefaultXYZDataset wrappedDataset;
+    private final DefaultXYZDataset wrappedDataset;
 
-    Range range;
-
-    List<String> yLabels;
+    private Range range;
 
     public HeatmapDataset(DefaultXYZDataset dataset)
     {
@@ -55,22 +51,6 @@ public class HeatmapDataset implements XYZDataset
     public void setRange(Range range)
     {
         this.range = range;
-    }
-
-    /**
-     * The labels for the y axis.
-     */
-    public List<String> yLabels()
-    {
-        return yLabels;
-    }
-
-    /**
-     * Set the labels for the y axis.
-     */
-    public void setYLabels(List<String> yLabels)
-    {
-        this.yLabels = yLabels;
     }
 
     // XYZDataset

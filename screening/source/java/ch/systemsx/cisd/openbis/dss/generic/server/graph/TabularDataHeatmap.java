@@ -24,7 +24,6 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
@@ -85,8 +84,9 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
     protected JFreeChart createDataChart(Dataset dataset)
     {
         JFreeChart chart = createHeatmap(getTitle(), // title
-                configuration.getXAxisColumn(), // x-axis label
-                configuration.getYAxisColumn(), // y-axis label
+                // don't use the use-provided label for the wells, just use a blank string
+                "", // x-axis label
+                "", // y-axis label
                 (HeatmapDataset) dataset, // data
                 PlotOrientation.HORIZONTAL, // plot orientation
                 false, // create legend?
@@ -106,19 +106,16 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
             throw new IllegalArgumentException("Null 'orientation' argument.");
         }
         NumberAxis xAxis = new NumberAxis(xAxisLabel);
-        xAxis.setAutoRangeIncludesZero(false);
-        xAxis.setTickUnit(new NumberTickUnit(1.));
         NumberAxis yAxis = new NumberAxis(yAxisLabel);
-        yAxis.setAutoRangeIncludesZero(false);
 
         XYBlockRenderer renderer = new XYBlockRenderer();
-        renderer.setBlockAnchor(RectangleAnchor.BOTTOM_LEFT);
+        renderer.setBlockAnchor(RectangleAnchor.CENTER);
         PaintScale paintScale = getPaintScale(dataset);
         renderer.setPaintScale(paintScale);
 
         XYPlot plot = new XYPlot(dataset, xAxis, yAxis, null);
         plot.setOrientation(orientation);
-        plot.setForegroundAlpha(0.5f);
+        plot.setForegroundAlpha(1.f);
         plot.setRenderer(renderer);
         plot.setBackgroundPaint(Color.WHITE);
         plot.setRangeGridlinePaint(Color.BLACK);
@@ -143,13 +140,12 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
      */
     private static PaintScale getPaintScale(HeatmapDataset dataset)
     {
-        LookupPaintScale paintScale = new LookupPaintScale();
         // Use the Color Brewer RdBu color scheme with 11 steps
         Range range = dataset.getRange();
+        LookupPaintScale paintScale =
+                new LookupPaintScale(range.getLowerBound(), range.getUpperBound(), Color.WHITE);
         double binMin = range.getLowerBound();
         double binStep = range.getLength() / 11;
-        // 0
-        paintScale.add(0, new Color(255, 255, 255));
         // 1
         paintScale.add(binMin, new Color(5, 48, 97));
         // 2
@@ -204,9 +200,8 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
             } else
             {
                 Location loc = Location.tryCreateLocationFromMatrixCoordinate(line[xColumn]);
-                // transpose the x and y here
-                element.x = loc.getY();
-                element.y = loc.getX();
+                element.x = loc.getX();
+                element.y = loc.getY();
             }
             element.z = Double.parseDouble(line[zColumn]);
             if (false == areZBoundsInitialized)
