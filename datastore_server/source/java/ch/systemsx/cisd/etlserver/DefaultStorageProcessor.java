@@ -64,7 +64,19 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             throw new EnvironmentFailureException(String.format(NO_RENAME,
                     incomingDataSetDirectory, targetFile));
         }
+        transform(targetFile, rootDir);
         return rootDir;
+    }
+
+    /**
+     * Transforms the specified original data set and stores it in the specified folder. Note, that
+     * the target folder is the rootDir argument of
+     * {@link IStorageProcessor#storeData(DataSetInformation, ITypeExtractor, IMailClient, File, File)}.
+     * This implementation does nothing. 
+     */
+    protected void transform(File originalDataSet, File targetFolderForTransformedDataSet)
+    {
+        
     }
 
     public UnstoreDataAction rollback(final File incomingDataSetDirectory,
