@@ -115,6 +115,7 @@ public final class RPCServiceFactory
         return new CIFEXComponent(proxy);
     }
 
+    // TODO 2010-04-21, Tomasz Pylak: refactor to use HttpInvokerUtils.createStreamSupportingServiceStub() 
     private static ICIFEXRPCService createService(String serviceURL,
             boolean getServerCertificateFromServer)
     {
