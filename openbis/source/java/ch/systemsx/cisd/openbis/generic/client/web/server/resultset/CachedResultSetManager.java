@@ -215,6 +215,11 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             {
                 ids.addAll(idsOfPresentedColumns);
             }
+            IColumnDefinition<T> sortField = resultConfig.getSortInfo().getSortField();
+            if (sortField != null)
+            {
+                ids.add(sortField.getIdentifier());
+            }
             GridFilters<T> filters = resultConfig.getFilters();
             List<GridColumnFilterInfo<T>> filterInfos = filters.tryGetFilterInfos();
             if (filterInfos != null)
