@@ -106,65 +106,13 @@ public class DataStoreServer
         }
     }
 
-    /**
-     * A more generic version of the DataStoreServlet above.
-     * 
-     * @author Chandrasekhar Ramakrishnan
-     */
-    // TODO Refactor to make the reference to DataStoreServlet use the HttpInvokerServlet.
-    private static final class HttpInvokerServlet extends HttpServlet
-    {
-        private static final long serialVersionUID = 1L;
-
-        private final HttpRequestHandler target;
-
-        private final String canonicalPath;
-
-        HttpInvokerServlet(HttpRequestHandler target, String canonicalPath)
-        {
-            this.target = target;
-            this.canonicalPath = canonicalPath;
-        }
-
-        @Override
-        public void init() throws ServletException
-        {
-            operationLog.info("HTTP invoker-based RPC service available at " + canonicalPath);
-        }
-
-        // Code copied from org.springframework.web.context.support.HttpRequestHandlerServlet
-        @Override
-        protected void service(HttpServletRequest request, HttpServletResponse response)
-                throws ServletException, IOException
-        {
-
-            LocaleContextHolder.setLocale(request.getLocale());
-            try
-            {
-                this.target.handleRequest(request, response);
-            } catch (HttpRequestMethodNotSupportedException ex)
-            {
-                String[] supportedMethods = ex.getSupportedMethods();
-                if (supportedMethods != null)
-                {
-                    response.setHeader("Allow", StringUtils.arrayToDelimitedString(
-                            supportedMethods, ", "));
-                }
-                response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, ex.getMessage());
-            } finally
-            {
-                LocaleContextHolder.resetLocaleContext();
-            }
-        }
-    }
-
     static final String APPLICATION_CONTEXT_KEY = "application-context";
 
     private static final String PREFIX = "data-set-download.";
 
     private static final int PREFIX_LENGTH = PREFIX.length();
 
-    private static final Logger operationLog =
+    static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataStoreServer.class);
 
     private static Server server;

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
  * Abstract superclass of DssServiceRpc implementations.
@@ -37,9 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
  */
 public abstract class AbstractDssServiceRpc
 {
-    // private static final Logger notificationLog =
-    // LogFactory.getLogger(LogCategory.NOTIFY, DssServiceRpcV1.class);
-
     static protected final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractDssServiceRpc.class);
 
@@ -134,14 +132,19 @@ public abstract class AbstractDssServiceRpc
             throws IllegalArgumentException
     {
         if (isDatasetAccessible(sessionToken, dataSetCode) == false)
+        {
             throw new IllegalArgumentException("Path does not exist.");
+        }
+        return getRootDirectory(dataSetCode);
+    }
 
+    private File getRootDirectory(String dataSetCode)
+    {
         File dataSetRootDirectory = getRootDirectoryForDataSet(dataSetCode);
         if (dataSetRootDirectory.exists() == false)
         {
             throw new IllegalArgumentException("Path does not exist.");
         }
-
         return dataSetRootDirectory;
     }
 
@@ -149,7 +152,11 @@ public abstract class AbstractDssServiceRpc
             throws IOException, IllegalArgumentException
     {
         File dataSetRootDirectory = checkAccessAndGetRootDirectory(sessionToken, dataSetCode);
+        return getDatasetFile(path, dataSetRootDirectory);
+    }
 
+    private static File getDatasetFile(String path, File dataSetRootDirectory) throws IOException
+    {
         String dataSetRootPath = dataSetRootDirectory.getCanonicalPath();
         File requestedFile = new File(dataSetRootDirectory, path);
         // Make sure the requested file is under the root of the data set
@@ -158,5 +165,10 @@ public abstract class AbstractDssServiceRpc
             throw new IllegalArgumentException("Path does not exist.");
         }
         return requestedFile;
+    }
+
+    protected ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
+    {
+        return openBISService.tryGetDataSet(sessionToken, dataSetCode);
     }
 }

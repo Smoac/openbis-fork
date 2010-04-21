@@ -135,6 +135,7 @@ class ServiceProxyBuilder<T extends IDssServiceRpc>
         return service;
     }
 
+    // TODO 2010-04-21, Tomasz Pylak: refactor to use HttpInvokerUtils.createStreamSupportingServiceStub() 
     private T getRawServiceProxy()
     {
         final StreamSupportingHttpInvokerProxyFactoryBean httpInvokerProxy =
