@@ -266,6 +266,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     pagingToolbar.syncSize();
                 }
             });
+        pagingToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    // fixes for problems of:
+                    // - hidden paging toolbar
+                    contentPanel.syncSize();
+                }
+            });
         columnListener = new ColumnListener<T, M>(grid);
         registerLinkClickListenerFor(Dict.CODE, new ICellListener<T>()
             {
