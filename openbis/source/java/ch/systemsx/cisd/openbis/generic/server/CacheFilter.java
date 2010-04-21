@@ -35,12 +35,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class CacheFilter implements Filter
 {
-    @SuppressWarnings("unused")
-    private FilterConfig filterConfig;
+    private static final int HOUR_IN_SECONDS = 60 * 60;
 
     private static final int DAY_IN_SECONDS = 24 * 60 * 60;
-
-    private static final int YEAR_IN_SECONDS = 365 * DAY_IN_SECONDS;
 
     private static final int SPRINT_IN_SECONDS = 14 * DAY_IN_SECONDS;
 
@@ -55,24 +52,24 @@ public class CacheFilter implements Filter
         {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.addHeader("Cache-Control", "max-age="
-                    + (isPicture(requestURI) ? YEAR_IN_SECONDS : SPRINT_IN_SECONDS));
+                    + (isPictureOrCache(requestURI) ? SPRINT_IN_SECONDS : HOUR_IN_SECONDS));
         }
         filterChain.doFilter(request, response);
 
     }
 
-    private boolean isPicture(String requestURI)
+    private boolean isPictureOrCache(String requestURI)
     {
-        return requestURI.endsWith(".gif") || requestURI.endsWith(".png");
-    }
-
-    public void init(FilterConfig config) throws ServletException
-    {
-        this.filterConfig = config;
+        return requestURI.contains(".cache.") || requestURI.endsWith(".gif")
+                || requestURI.endsWith(".png");
     }
 
     public void destroy()
     {
-        this.filterConfig = null;
     }
+
+    public void init(FilterConfig arg0) throws ServletException
+    {
+    }
+
 }
