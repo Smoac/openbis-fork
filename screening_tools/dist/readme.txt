@@ -85,7 +85,7 @@ V. Register image analysis results
 ------
 Any csv file (with columns separated by ',') with image analysis results can be registered as a dataset and connected to a plate.
 The name of the file should be equal to the plate code, e.g. 'H001-1A.csv' for H001-1A plate.
-It's enough to copy such a file into the 'incoming-segmented-jpg' dropbox directory.
+It's enough to copy such a file into the 'incoming-plate-analysis' dropbox directory.
 
 If analysis results for all plates are stored in one file, it has to be splitted into one file per plate.
 There is a "image-analysis-spliter" tool to do that.
