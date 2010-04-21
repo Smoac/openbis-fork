@@ -34,6 +34,7 @@ public class SearchlinkUtilities
             final EntityKind entityKind, final String searchString)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
+        ulrWithParameters.startHistoryToken();
         ulrWithParameters.addParameter(ViewLocator.ACTION_PARAMETER,
                 SearchLocatorResolver.SEARCH_ACTION);
         ulrWithParameters.addParameter(ViewLocator.ENTITY_PARAMETER, entityKind.name());
