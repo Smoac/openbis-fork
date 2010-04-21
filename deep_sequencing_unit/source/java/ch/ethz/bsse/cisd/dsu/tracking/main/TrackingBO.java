@@ -200,10 +200,10 @@ public class TrackingBO
         return trackingServer.listSamples(session.getSessionToken(), criteria);
     }
 
-    public static class TrackingStateUpdateHelper
+    static class TrackingStateUpdateHelper
     {
 
-        public static TrackingStateDTO calcNewTrackingState(TrackingStateDTO prevState,
+        static TrackingStateDTO calcNewTrackingState(TrackingStateDTO prevState,
                 TrackedEntities changedEntities)
         {
             TrackingStateDTO state = new TrackingStateDTO();

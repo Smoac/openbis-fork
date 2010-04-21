@@ -37,6 +37,14 @@ import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
  */
 public class FileBasedTrackingDAO implements ITrackingDAO
 {
+    static String LAST_SEEN_DATASET_ID = "lastSeenDatasetId";
+
+    static String TO_BE_PROCESSED = "trackedSamplesToBeProcessed";
+
+    static String PROCESSED = "trackedSamplesProcessedSuccessfully";
+
+    static String SEPARATOR = " ";
+
     private final String filePath;
 
     public FileBasedTrackingDAO(String filePath)
@@ -47,17 +55,17 @@ public class FileBasedTrackingDAO implements ITrackingDAO
     public void saveTrackingState(TrackingStateDTO state)
     {
         List<String> lines = new ArrayList<String>();
-        lines.add("lastSeenDatasetId\t" + state.getLastSeenDatasetId());
-        lines.add("trackedSamplesToBeProcessed\t"
+        lines.add(LAST_SEEN_DATASET_ID + SEPARATOR + state.getLastSeenDatasetId());
+        lines.add(TO_BE_PROCESSED + SEPARATOR
                 + sampleIdsAsString(state.getAlreadyTrackedSampleIdsToBeProcessed()));
-        lines.add("trackedSamplesProcessedSuccessfully\t"
+        lines.add(PROCESSED + SEPARATOR
                 + sampleIdsAsString(state.getAlreadyTrackedSampleIdsProcessed()));
         writeLines(new File(filePath), lines);
     }
 
     private String sampleIdsAsString(Collection<Long> sampleIds)
     {
-        return StringUtils.join(sampleIds, "\t");
+        return StringUtils.join(sampleIds, SEPARATOR);
     }
 
     @SuppressWarnings("unchecked")
@@ -71,9 +79,9 @@ public class FileBasedTrackingDAO implements ITrackingDAO
                 throw LogUtils.environmentError("File %s should have exactly 3 rows.", filePath);
             }
             TrackingStateDTO state = new TrackingStateDTO();
-            String[] datasetId = lines.get(0).split("\t");
-            String[] toBeProcessed = lines.get(1).split("\t");
-            String[] processed = lines.get(2).split("\t");
+            String[] datasetId = lines.get(0).split(SEPARATOR);
+            String[] toBeProcessed = lines.get(1).split(SEPARATOR);
+            String[] processed = lines.get(2).split(SEPARATOR);
             state.setLastSeenDatasetId(Long.parseLong(datasetId[1]));
             state.setAlreadyTrackedSampleIdsToBeProcessed(parseIds(toBeProcessed));
             state.setAlreadyTrackedSampleIdsProcessed(parseIds(processed));
