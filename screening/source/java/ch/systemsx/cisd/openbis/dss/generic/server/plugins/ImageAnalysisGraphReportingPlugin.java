@@ -86,7 +86,7 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
                         "Found multiple candidate files in the dataset %s ", dataset
                                 .getDatasetCode());
             }
-            builder.addRow(createRow(dataset.getDatasetCode(), matchingFiles.get(0)));
+            builder.addRow(createRow(dataset, matchingFiles.get(0)));
         }
         return builder.getTableModel();
     }
@@ -97,6 +97,7 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
     private void addHeaders(SimpleTableModelBuilder builder)
     {
         builder.addHeader("Data Set Code");
+        builder.addHeader("Sample Code");
         int width = getThumbnailWidth();
         for (String graphTypeCode : getGraphTypeCodes())
         {
@@ -106,12 +107,13 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
         }
     }
 
-    private List<ISerializableComparable> createRow(String datasetCode, File file)
+    private List<ISerializableComparable> createRow(DatasetDescription dataset, File file)
     {
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
 
-        // The data set code
-        row.add(SimpleTableModelBuilder.asText(datasetCode));
+        // The data set and sample code
+        row.add(SimpleTableModelBuilder.asText(dataset.getDatasetCode()));
+        row.add(SimpleTableModelBuilder.asText(dataset.getSampleCode()));
 
         for (String graphTypeCode : getGraphTypeCodes())
         {
@@ -119,13 +121,14 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
             GeneratedImageTableCell imageCell =
                     new GeneratedImageTableCell(graphServletPath, getImageWidth(),
                             getImageHeight(), getThumbnailWidth(), getThumbnailHeight());
-            imageCell.addParameter(TabularDataGraphServlet.DATASET_CODE_PARAM, datasetCode);
+            imageCell.addParameter(TabularDataGraphServlet.DATASET_CODE_PARAM, dataset
+                    .getDatasetCode());
             imageCell.addParameter(TabularDataGraphServlet.FILE_PATH_PARAM, file.getAbsolutePath());
             imageCell.addParameter(TabularDataGraphServlet.GRAPH_TYPE_CODE, graphTypeCode);
 
             row.add(imageCell);
         }
-        
+
         return row;
     }
 
