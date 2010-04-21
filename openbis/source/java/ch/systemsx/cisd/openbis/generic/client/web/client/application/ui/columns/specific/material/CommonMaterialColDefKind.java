@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 
 /**
@@ -34,6 +35,12 @@ public enum CommonMaterialColDefKind implements IColumnDefinitionKind<Material>
             public String tryGetValue(Material entity)
             {
                 return entity.getCode();
+            }
+
+            @Override
+            public String tryGetLink(Material entity)
+            {
+                return LinkExtractor.tryExtract(entity);
             }
 
         }),

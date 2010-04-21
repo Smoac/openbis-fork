@@ -69,7 +69,7 @@ public class BaseEntityModel<T> extends NonHierarchicalBaseModelData
             {
                 set(ModelDataPropertyNames.link(column.getIdentifier()),
                         ((AbstractColumnDefinition<T>) column).tryGetLink(entity
-                                .getOriginalObject()));// FIXME
+                                .getOriginalObject()));
             }
         }
         addCustomColumns(entity.getCalculatedColumnValues());

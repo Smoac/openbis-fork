@@ -197,7 +197,6 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
 
     public static ViewLocator createViewLocator(String historyToken)
     {
-        // String decodeComponent = URL.decodeComponent(historyToken);FIXME?
         return new ViewLocator(historyToken);
     }
 

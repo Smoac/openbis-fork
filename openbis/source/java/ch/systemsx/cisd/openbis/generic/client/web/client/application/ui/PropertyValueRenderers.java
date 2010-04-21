@@ -282,7 +282,10 @@ public final class PropertyValueRenderers
                 final ClickHandler listener =
                         new OpenEntityDetailsTabClickListener(material, viewContext);
 
-                final Widget link = LinkRenderer.getLinkWidget(material.getCode(), listener);
+                String href = LinkExtractor.tryExtract(material);
+                final Widget link =
+                        LinkRenderer.getLinkWidget(material.getCode(), listener, false,
+                                href != null ? ("#" + href) : null);
 
                 FlowPanel panel = new FlowPanel();
                 panel.add(link);
