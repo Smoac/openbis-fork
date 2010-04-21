@@ -46,6 +46,9 @@
       <lib dir="${lib}/eodsql">
         <include name="*.jar" />
       </lib>
+      <lib dir="${lib}/csv">
+        <include name="*.jar" />
+      </lib>
     </war>
   </target>
 
@@ -73,6 +76,20 @@
       <param name="javascript-file"
         value="../screening/${sources}/ch/systemsx/cisd/openbis/plugin/screening/client/web/public/screening-dictionary.js" />
     </antcall>
+  </target>
+  
+    <target name="api-doc">
+    <javadoc 
+      destdir="targets/docs/api" 
+      access="public" 
+      author="false" 
+      version="false" 
+      classpath="${ecp}:../screening/targets/www/WEB-INF/classes">
+      <fileset dir="${sources}">
+        <include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/ScreeningOpenbisServiceFacade.java" />
+        <include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/dto/*" />
+      </fileset>
+    </javadoc>
   </target>
 
 </project>
