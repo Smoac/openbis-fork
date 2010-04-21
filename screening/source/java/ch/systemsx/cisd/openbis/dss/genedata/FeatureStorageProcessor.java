@@ -48,14 +48,10 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
         
         public void startNewColumn(String columnName)
         {
-            if (tableBuilder != null)
-            {
-                columns.addAll(tableBuilder.getColumns());
-            }
+            addColumn();
             tableBuilder = new TableBuilder(columnName);
-            
         }
-        
+
         public void checkColumnsLine(int lineIndex, String line)
         {
             int columnCount = new StringTokenizer(line).countTokens();
@@ -94,6 +90,11 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
             }
         }
         
+        public void finish()
+        {
+            addColumn();
+        }
+        
         public int getNumberOfWells()
         {
             return numberOfColumns * rowLetters.size();
@@ -101,7 +102,7 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
         
         public String getRowLetter(int index)
         {
-            return rowLetters.get(index % rowLetters.size());
+            return rowLetters.get((index / numberOfColumns) % rowLetters.size());
         }
         
         public int getColumnNumber(int index)
@@ -113,6 +114,15 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
         {
             return columns;
         }
+        
+        private void addColumn()
+        {
+            if (tableBuilder != null)
+            {
+                columns.addAll(tableBuilder.getColumns());
+            }
+        }
+        
     }
     
     public FeatureStorageProcessor(Properties properties)
@@ -149,6 +159,7 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
                 columnsBuilder.addRow(i, line);
             }
         }
+        columnsBuilder.finish();
         List<Column> columns = columnsBuilder.getColumns();
         StringBuilder builder = new StringBuilder();
         builder.append("barcode").append(DELIMITER).append("row").append(DELIMITER).append("col");
