@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
@@ -143,13 +142,6 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
         this.tableHeader = tableModelReference.getHeader();
         this.resultSetKey = tableModelReference.getResultSetKey();
         this.reportKind = reportKind;
-        registerLinkClickListenerFor(Dict.CODE, new ICellListener<TableModelRow>()
-            {
-                public void handle(TableModelRow rowItem, boolean keyPressed)
-                {
-                    showEntityViewer(rowItem, false, keyPressed);
-                }
-            });
         updateDefaultRefreshButton();
     }
 

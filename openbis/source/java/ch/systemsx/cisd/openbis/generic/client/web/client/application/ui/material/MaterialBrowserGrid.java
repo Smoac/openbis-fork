@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
@@ -151,13 +150,6 @@ public class MaterialBrowserGrid extends
                 DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         this.criteriaProvider = criteriaProvider;
         setId(BROWSER_ID);
-        registerLinkClickListenerFor(Dict.CODE, new ICellListener<Material>()
-            {
-                public void handle(Material rowItem, boolean keyPressed)
-                {
-                    showEntityViewer(rowItem, false, keyPressed);
-                }
-            });
     }
 
     @Override

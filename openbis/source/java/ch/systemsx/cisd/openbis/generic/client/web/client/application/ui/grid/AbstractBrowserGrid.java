@@ -268,7 +268,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 }
             });
         columnListener = new ColumnListener<T, M>(grid);
-
+        registerLinkClickListenerFor(Dict.CODE, new ICellListener<T>()
+            {
+                public void handle(T rowItem, boolean keyPressed)
+                {
+                    showEntityViewer(rowItem, false, keyPressed);
+                }
+            });
         setLayout(new FitLayout());
         add(contentPanel);
 

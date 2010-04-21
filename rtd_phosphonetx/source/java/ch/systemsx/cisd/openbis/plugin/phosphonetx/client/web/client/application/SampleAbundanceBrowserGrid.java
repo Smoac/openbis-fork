@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
@@ -182,15 +181,6 @@ public class SampleAbundanceBrowserGrid
         this.propertyTypesAndCriteriaProvider = criteriaProvider;
         this.previousPropertyTypes = null;
         setId(BROWSER_ID);
-        registerLinkClickListenerFor(Dict.CODE,
-                new ICellListener<SampleWithPropertiesAndAbundance>()
-                    {
-                        public void handle(SampleWithPropertiesAndAbundance rowItem,
-                                boolean keyPressed)
-                        {
-                            showEntityViewer(rowItem, false, keyPressed);
-                        }
-                    });
     }
 
     @Override

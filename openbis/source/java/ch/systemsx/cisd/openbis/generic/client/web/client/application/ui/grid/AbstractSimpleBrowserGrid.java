@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
@@ -50,13 +49,6 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
         super(viewContext, gridId, refreshAutomatically, displayTypeIDGenerator);
         setId(browserId);
         updateDefaultRefreshButton();
-        registerLinkClickListenerFor(Dict.CODE, new ICellListener<T>()
-            {
-                public void handle(T rowItem, boolean keyPressed)
-                {
-                    showEntityViewer(rowItem, false, keyPressed);
-                }
-            });
     }
 
     @Override

@@ -25,7 +25,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
@@ -77,13 +76,6 @@ public abstract class GenericTableBrowserGrid extends
             throw new IllegalArgumentException("Invalid browser ID: " + browserId);
         }
         setId(browserId);
-        registerLinkClickListenerFor(Dict.CODE, new ICellListener<GenericTableRow>()
-            {
-                public void handle(GenericTableRow rowItem, boolean keyPressed)
-                {
-                    showEntityViewer(rowItem, false, keyPressed);
-                }
-            });
     }
 
     /**
