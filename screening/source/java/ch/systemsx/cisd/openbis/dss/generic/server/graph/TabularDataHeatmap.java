@@ -24,6 +24,7 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
@@ -106,6 +107,8 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
             throw new IllegalArgumentException("Null 'orientation' argument.");
         }
         NumberAxis xAxis = new NumberAxis(xAxisLabel);
+        xAxis.setTickUnit(new NumberTickUnit(1.0));
+        xAxis.setInverted(true);
         NumberAxis yAxis = new NumberAxis(yAxisLabel);
 
         XYBlockRenderer renderer = new XYBlockRenderer();
@@ -200,8 +203,9 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
             } else
             {
                 Location loc = Location.tryCreateLocationFromMatrixCoordinate(line[xColumn]);
-                element.x = loc.getX();
-                element.y = loc.getY();
+                // Transpose the x and y
+                element.x = loc.getY();
+                element.y = loc.getX();
             }
             element.z = Double.parseDouble(line[zColumn]);
             if (false == areZBoundsInitialized)

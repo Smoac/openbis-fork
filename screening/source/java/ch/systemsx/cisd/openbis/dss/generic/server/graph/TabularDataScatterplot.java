@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
+import java.awt.Shape;
 import java.io.OutputStream;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -82,6 +85,19 @@ public class TabularDataScatterplot extends
                 );
 
         return chart;
+    }
+
+    @Override
+    protected void configureChart(JFreeChart chart, int imageWidth, int imageHeight)
+    {
+        super.configureChart(chart, imageWidth, imageHeight);
+
+        XYPlot plot = (XYPlot) chart.getPlot();
+        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+        float width = Math.max(1, imageWidth / 300);
+        float height = width;
+        Shape plotShape = new java.awt.geom.Ellipse2D.Float(0.f, 0.f, width, height);
+        renderer.setSeriesShape(0, plotShape);
     }
 
 }

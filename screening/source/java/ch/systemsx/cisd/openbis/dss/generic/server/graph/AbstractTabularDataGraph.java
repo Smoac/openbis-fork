@@ -63,9 +63,7 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
      */
     public void generateImage() throws IOException
     {
-        JFreeChart chart = createChart();
-        ChartUtilities.writeChartAsPNG(out, chart, configuration.getImageWidth(), configuration
-                .getImageHeight());
+        generateImage(configuration.getImageWidth(), configuration.getImageHeight());
     }
 
     /**
@@ -78,7 +76,7 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
      */
     public void generateImage(int imageWidth, int imageHeight) throws IOException
     {
-        JFreeChart chart = createChart();
+        JFreeChart chart = createChart(imageWidth, imageHeight);
         ChartUtilities.writeChartAsPNG(out, chart, imageWidth, imageHeight);
     }
 
@@ -158,8 +156,10 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     /**
      * Convert the data to a {@link Dataset}. If there were problems converting, create an error
      * chart. If conversion was successful, create a chart using the data set.
+     * @param imageWidth TODO
+     * @param imageHeight TODO
      */
-    protected JFreeChart createChart()
+    protected JFreeChart createChart(int imageWidth, int imageHeight)
     {
         Dataset dataset = tryCreateChartDataset();
         if (null == dataset)
@@ -168,7 +168,7 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
         }
 
         JFreeChart chart = createDataChart(dataset);
-        configureChart(chart);
+        configureChart(chart, imageWidth, imageHeight);
         return chart;
     }
 
@@ -217,7 +217,7 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
         return true;
     }
 
-    protected void configureChart(JFreeChart chart)
+    protected void configureChart(JFreeChart chart, int imageWidth, int imageHeight)
     {
         chart.setBackgroundPaint(Color.WHITE);
 
