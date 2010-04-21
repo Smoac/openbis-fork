@@ -153,9 +153,10 @@ COPY material_type_property_types (id, maty_id, prty_id, is_mandatory, registrat
 --
 
 COPY sample_types (id, code, description, dbin_id, is_listable, generated_from_depth, part_of_depth, modification_timestamp, is_auto_generated_code, generated_code_prefix) FROM stdin;
+3	PLATE	Cell Plate	1	t	2	0	2009-11-27 16:02:26.451046+01	f	S
 7	OLIGO_WELL	\N	1	f	0	1	2009-11-27 19:42:03.483115+01	f	O
 8	CONTROL_WELL	\N	1	f	0	1	2009-11-27 19:42:25.791288+01	f	C
-3	PLATE	Cell Plate	1	t	2	0	2009-11-27 16:02:26.451046+01	f	S
+9	LIBRARY	\N	1	f	0	0	2009-11-27 19:42:25.791288+01	f	L
 \.
 
 
