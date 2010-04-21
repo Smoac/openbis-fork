@@ -7,24 +7,17 @@ import java.io.Serializable;
  * 
  * @author Tomasz Pylak
  */
-public class Plate implements IPlateIdentifier, Serializable
+public class Plate extends PlateIdentifier implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private String plateCode, experimentCode, projectCode, spaceCodeOrNull;
+    private String experimentCode, projectCode;
 
     public Plate(String plateCode, String experimentCode, String projectCode, String spaceCodeOrNull)
     {
-        this.plateCode = plateCode;
+        super(plateCode, spaceCodeOrNull);
         this.experimentCode = experimentCode;
         this.projectCode = projectCode;
-        this.spaceCodeOrNull = spaceCodeOrNull;
-    }
-
-    /** a code of the plate */
-    public String getPlateCode()
-    {
-        return plateCode;
     }
 
     /** a code of the experiment to which the plate belongs */
@@ -38,18 +31,4 @@ public class Plate implements IPlateIdentifier, Serializable
     {
         return projectCode;
     }
-
-    /** a code of the space to which the plate belongs or null if it is a shared plate */
-    public String tryGetSpaceCode()
-    {
-        return spaceCodeOrNull;
-    }
-
-    @Override
-    public String toString()
-    {
-        return (spaceCodeOrNull != null ? "/" + spaceCodeOrNull : "shared") + "/" + projectCode
-                + "/" + experimentCode + "/" + plateCode;
-    }
-
 }

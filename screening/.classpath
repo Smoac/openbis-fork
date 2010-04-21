@@ -38,5 +38,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/jfreechart/jfreechart-1.0.13-javadocs.zip!/jfreechart-1.0.13-javadocs"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

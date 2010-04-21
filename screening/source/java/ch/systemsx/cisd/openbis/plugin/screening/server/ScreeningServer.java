@@ -55,8 +55,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.IScreeningApiServer;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Dataset;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IPlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -185,8 +187,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     // --------- IScreeningOpenbisServer - method signature should be changed with care
 
-    public List<Dataset> listFeatureVectorDatasets(String sessionToken,
-            List<? extends IPlateIdentifier> plates)
+    public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
+            List<? extends PlateIdentifier> plates)
     {
         try
         {
@@ -197,8 +199,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         }
     }
 
-    public List<Dataset> listImageDatasets(String sessionToken,
-            List<? extends IPlateIdentifier> plates)
+    public List<ImageDatasetReference> listImageDatasets(String sessionToken,
+            List<? extends PlateIdentifier> plates)
     {
         try
         {
@@ -214,6 +216,18 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         try
         {
             return createScreeningApiImpl(sessionToken).listPlates();
+        } catch (UserFailureException e)
+        {
+            throw translateException(e);
+        }
+    }
+
+    public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
+            List<String> datasetCodes)
+    {
+        try
+        {
+            return createScreeningApiImpl(sessionToken).getDatasetIdentifiers(datasetCodes);
         } catch (UserFailureException e)
         {
             throw translateException(e);

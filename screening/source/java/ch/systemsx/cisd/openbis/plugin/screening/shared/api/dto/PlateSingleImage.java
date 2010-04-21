@@ -13,41 +13,35 @@ public class PlateSingleImage implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final WellPosition wellPosition;
-
-    private final int tile;
-
-    private final int channel;
+    private final PlateImageReference imageReference;
 
     private final InputStream image;
 
-    public PlateSingleImage(WellPosition wellPosition, int tile, int channel, InputStream image)
+    public PlateSingleImage(PlateImageReference imageReference, InputStream image)
     {
-        this.wellPosition = wellPosition;
-        this.tile = tile;
-        this.channel = channel;
+        this.imageReference = imageReference;
         this.image = image;
     }
 
     /** position of the well to which the image belongs */
     public WellPosition getWellPosition()
     {
-        return wellPosition;
+        return imageReference.getWellPosition();
     }
 
     /**
-     * tile (a.k.a. field) number. Each well can be separated into many tiles, for each tile one
-     * image is acquired.
+     * tile (aka field) number, each well can be separated into many tiles, for each tile one image
+     * is acquired.
      */
     public int getTile()
     {
-        return tile;
+        return imageReference.getTile();
     }
 
     /** Index of the channel. Starts from 1. */
     public int getChannel()
     {
-        return channel;
+        return imageReference.getChannel();
     }
 
     /** stream with a png image */

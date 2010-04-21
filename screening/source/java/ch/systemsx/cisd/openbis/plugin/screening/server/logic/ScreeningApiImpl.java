@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -30,7 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -40,8 +43,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Dataset;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IPlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.DatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -66,56 +72,90 @@ public class ScreeningApiImpl
         this.daoFactory = daoFactory;
     }
 
-    public List<Dataset> listFeatureVectorDatasets(List<? extends IPlateIdentifier> plates)
+    public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
+            List<? extends PlateIdentifier> plates)
     {
-        return loadDatasets(plates, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+        List<ExternalDataPE> datasets =
+                loadDatasets(plates, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+        return asFeatureVectorDatasets(datasets);
     }
 
-    public List<Dataset> listImageDatasets(List<? extends IPlateIdentifier> plates)
+    public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
     {
-        return loadDatasets(plates, ScreeningConstants.IMAGE_DATASET_TYPE);
+        List<ExternalDataPE> datasets = loadDatasets(plates, ScreeningConstants.IMAGE_DATASET_TYPE);
+        return asImageDatasets(datasets);
     }
 
     // NOTE: this method is slow when a number of plates is big
-    private List<Dataset> loadDatasets(List<? extends IPlateIdentifier> plates,
+    private List<ExternalDataPE> loadDatasets(List<? extends PlateIdentifier> plates,
             String datasetTypeCode)
     {
         ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        List<Dataset> datasets = new ArrayList<Dataset>();
-        for (IPlateIdentifier plate : plates)
+        List<ExternalDataPE> datasets = new ArrayList<ExternalDataPE>();
+        for (PlateIdentifier plate : plates)
         {
-            List<Dataset> plateDatasets = loadDatasets(plate, datasetTypeCode, sampleBO);
+            List<ExternalDataPE> plateDatasets = loadDatasets(plate, datasetTypeCode, sampleBO);
             datasets.addAll(plateDatasets);
         }
         return datasets;
     }
 
-    private List<Dataset> loadDatasets(IPlateIdentifier plate, String datasetTypeCode,
+    private List<ExternalDataPE> loadDatasets(PlateIdentifier plate, String datasetTypeCode,
             ISampleBO sampleBO)
     {
         sampleBO.loadBySampleIdentifier(createSampleIdentifier(plate));
         SamplePE sample = sampleBO.getSample();
         List<ExternalDataPE> datasets = daoFactory.getExternalDataDAO().listExternalData(sample);
         datasets = ScreeningUtils.filterDatasetsByType(datasets, datasetTypeCode);
-        return asDatasets(datasets, plate);
+        return datasets;
     }
 
-    private static List<Dataset> asDatasets(List<ExternalDataPE> datasets, IPlateIdentifier plate)
+    private static List<FeatureVectorDatasetReference> asFeatureVectorDatasets(
+            List<ExternalDataPE> datasets)
     {
-        List<Dataset> result = new ArrayList<Dataset>();
+        List<FeatureVectorDatasetReference> result = new ArrayList<FeatureVectorDatasetReference>();
         for (ExternalDataPE externalData : datasets)
         {
-            result.add(asDataset(externalData, plate));
+            result.add(asFeatureVectorDataset(externalData));
         }
         return result;
     }
 
-    private static Dataset asDataset(ExternalDataPE externalData, IPlateIdentifier plate)
+    private static FeatureVectorDatasetReference asFeatureVectorDataset(ExternalDataPE externalData)
     {
-        return new Dataset(externalData.getCode(), externalData.getDataStore().getCode(), plate);
+        DataStorePE dataStore = externalData.getDataStore();
+        return new FeatureVectorDatasetReference(externalData.getCode(),
+                dataStore.getDownloadUrl(), createPlateIdentifier(externalData));
     }
 
-    private static SampleIdentifier createSampleIdentifier(IPlateIdentifier plate)
+    private static List<ImageDatasetReference> asImageDatasets(List<ExternalDataPE> datasets)
+    {
+        List<ImageDatasetReference> result = new ArrayList<ImageDatasetReference>();
+        for (ExternalDataPE externalData : datasets)
+        {
+            result.add(asImageDataset(externalData));
+        }
+        return result;
+    }
+
+    private static ImageDatasetReference asImageDataset(ExternalDataPE externalData)
+    {
+        DataStorePE dataStore = externalData.getDataStore();
+        return new ImageDatasetReference(externalData.getCode(), dataStore.getDownloadUrl(),
+                createPlateIdentifier(externalData));
+    }
+
+    private static PlateIdentifier createPlateIdentifier(ExternalDataPE externalData)
+    {
+        SamplePE sample = externalData.tryGetSample();
+        assert sample != null : "dataset not connected to a sample: " + externalData;
+        final String plateCode = sample.getCode();
+        GroupPE group = sample.getGroup();
+        final String spaceCodeOrNull = (group != null) ? group.getCode() : null;
+        return new PlateIdentifier(plateCode, spaceCodeOrNull);
+    }
+
+    private static SampleIdentifier createSampleIdentifier(PlateIdentifier plate)
     {
         SampleOwnerIdentifier owner;
         String spaceCode = plate.tryGetSpaceCode();
@@ -170,5 +210,24 @@ public class ScreeningApiImpl
                 sampleTypeDAO.tryFindSampleTypeByCode(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
         assert plateTypePE != null : "plate type not found";
         return SampleTypeTranslator.translate(plateTypePE, null);
+    }
+
+    public List<IDatasetIdentifier> getDatasetIdentifiers(List<String> datasetCodes)
+    {
+        IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        List<IDatasetIdentifier> identifiers = new ArrayList<IDatasetIdentifier>();
+        for (String datasetCode : datasetCodes)
+        {
+            identifiers.add(getDatasetIdentifier(externalDataBO, datasetCode));
+        }
+        return identifiers;
+    }
+
+    private IDatasetIdentifier getDatasetIdentifier(IExternalDataBO externalDataBO,
+            String datasetCode)
+    {
+        externalDataBO.loadByCode(datasetCode);
+        ExternalDataPE externalData = externalDataBO.getExternalData();
+        return new DatasetIdentifier(datasetCode, externalData.getDataStore().getDownloadUrl());
     }
 }

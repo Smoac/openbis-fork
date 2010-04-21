@@ -24,11 +24,14 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreenerPlateValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreenerReadonlyPlatePredicate;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Dataset;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IPlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Plate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateIdentifier;
 
 /**
  * This interface is a part of the official public screening API. It is forbidden to change it in a
@@ -67,9 +70,9 @@ public interface IScreeningApiServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    List<Dataset> listFeatureVectorDatasets(
+    List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             String sessionToken,
-            @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<? extends IPlateIdentifier> plates)
+            @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<? extends PlateIdentifier> plates)
             throws IllegalArgumentException;
 
     /**
@@ -78,8 +81,16 @@ public interface IScreeningApiServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    List<Dataset> listImageDatasets(
+    List<ImageDatasetReference> listImageDatasets(
             String sessionToken,
-            @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<? extends IPlateIdentifier> plates)
+            @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<? extends PlateIdentifier> plates)
             throws IllegalArgumentException;
+
+    /**
+     * Converts a given list of dataset codes to dataset identifiers.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
 }

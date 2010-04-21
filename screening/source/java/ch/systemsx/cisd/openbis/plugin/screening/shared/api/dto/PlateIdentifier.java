@@ -1,0 +1,52 @@
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
+
+import java.io.Serializable;
+
+/**
+ * Contains data which uniquely define a plate
+ * 
+ * @author Tomasz Pylak
+ */
+public class PlateIdentifier implements Serializable
+{
+    private static final long serialVersionUID = 1L;
+
+    private String plateCode, spaceCodeOrNull;
+
+    public PlateIdentifier(String plateCode, String spaceCodeOrNull)
+    {
+        this.plateCode = plateCode;
+        this.spaceCodeOrNull = spaceCodeOrNull;
+    }
+
+    /** a code of the plate */
+    public String getPlateCode()
+    {
+        return plateCode;
+    }
+
+    /** a code of the space to which the plate belongs or null if it is a shared plate */
+    public String tryGetSpaceCode()
+    {
+        return spaceCodeOrNull;
+    }
+
+    @Override
+    public String toString()
+    {
+        return (spaceCodeOrNull != null ? "/" + spaceCodeOrNull : "") + "/" + plateCode;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null || obj instanceof Plate == false)
+        {
+            return false;
+        }
+        Plate that = (Plate) obj;
+        return plateCode.equals(that.getPlateCode())
+                && ((spaceCodeOrNull != null && spaceCodeOrNull.equals(that.tryGetSpaceCode())) || (spaceCodeOrNull == null && that
+                        .tryGetSpaceCode() == null));
+    }
+}

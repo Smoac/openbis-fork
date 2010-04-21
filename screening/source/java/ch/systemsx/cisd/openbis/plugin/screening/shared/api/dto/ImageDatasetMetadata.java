@@ -15,15 +15,18 @@ public class ImageDatasetMetadata implements Serializable
 
     private final int channelsNumber;
 
+    private final int tilesNumber;
+
     private final int width;
 
     private final int height;
 
-    public ImageDatasetMetadata(IDatasetIdentifier dataset, int channelsNumber, int width,
-            int height)
+    public ImageDatasetMetadata(IDatasetIdentifier dataset, int channelsNumber, int tilesNumber,
+            int width, int height)
     {
         this.imageDataset = dataset;
         this.channelsNumber = channelsNumber;
+        this.tilesNumber = tilesNumber;
         this.width = width;
         this.height = height;
     }
@@ -40,6 +43,14 @@ public class ImageDatasetMetadata implements Serializable
     public int getChannelsNumber()
     {
         return channelsNumber;
+    }
+
+    /**
+     * number of image tiles (aka fields) into which each well is splited
+     */
+    public int getTilesNumber()
+    {
+        return tilesNumber;
     }
 
     /** width of all the images in the described dataset */

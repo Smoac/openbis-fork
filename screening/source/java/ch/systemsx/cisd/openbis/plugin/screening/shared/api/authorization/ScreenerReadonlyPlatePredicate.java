@@ -21,13 +21,13 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwn
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IPlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateIdentifier;
 
 /**
  * @author Tomasz Pylak
  */
 public class ScreenerReadonlyPlatePredicate extends
-        DelegatedPredicate<SampleOwnerIdentifier, IPlateIdentifier>
+        DelegatedPredicate<SampleOwnerIdentifier, PlateIdentifier>
 {
 
     public ScreenerReadonlyPlatePredicate()
@@ -36,7 +36,7 @@ public class ScreenerReadonlyPlatePredicate extends
     }
 
     @Override
-    public SampleOwnerIdentifier convert(IPlateIdentifier value)
+    public SampleOwnerIdentifier convert(PlateIdentifier value)
     {
         return new SampleOwnerIdentifier(new SpaceIdentifier(DatabaseInstanceIdentifier
                 .createHome(), value.tryGetSpaceCode()));

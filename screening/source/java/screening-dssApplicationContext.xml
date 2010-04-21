@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/tx
+			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+      
+    <!--
+        // Replaces ${...} with corresponding values found in 'location' property. A value
+        // can be overridden by setting a corresponding system property.
+    -->
+    <bean id="propertyConfigurer"
+        class="ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer">
+        <property name="location" value="file:etc/service.properties" />
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+    </bean>
+    
+    <!-- 
+        // Screening specific configuration
+    -->
+    
+    <bean id="data-store-rpc-service-screening"
+        class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
+        <property name="service">
+            <bean class="ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening" >
+               <constructor-arg value="${storeroot-dir}" />
+            </bean>
+        </property>
+        <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.screening.shared.api.IDssServiceRpcScreening" />
+    </bean>
+        
+    
+</beans>

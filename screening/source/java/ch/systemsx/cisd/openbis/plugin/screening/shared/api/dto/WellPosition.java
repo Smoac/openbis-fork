@@ -30,4 +30,10 @@ public class WellPosition implements Serializable
     {
         return wellColumn;
     }
+
+    @Override
+    public String toString()
+    {
+        return "[" + wellRow + ", " + wellColumn + "]";
+    }
 }
