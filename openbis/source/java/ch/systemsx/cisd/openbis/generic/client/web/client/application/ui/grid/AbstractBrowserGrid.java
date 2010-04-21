@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.Loader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -256,13 +257,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(false);
-        pagingToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
+        pagingLoader.addListener(Loader.Load, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {
                     // fixes for problems of:
-                    // - hidden paging toolbar
-                    contentPanel.syncSize();
                     // - no 'overflow' button when some buttons don't fit into pagingToolbar
                     pagingToolbar.syncSize();
                 }
@@ -745,6 +744,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
             filterToolbar.refreshColumnFiltersDistinctValues(rowModels.getColumnDistinctValues());
             onComplete(true);
+
             viewContext.logStop(logID);
         }
 
