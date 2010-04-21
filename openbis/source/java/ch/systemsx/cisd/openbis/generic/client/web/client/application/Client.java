@@ -158,7 +158,6 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
 
     public final void onModuleLoad()
     {
-        History.addValueChangeHandler(this);
         onModuleLoad(WindowUtils.createOpenUrlController());
     }
 
@@ -169,6 +168,10 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         {
             viewContext = createViewContext(openUrlController);
             initializeControllers(openUrlController);
+            if (viewContext.isSimpleMode())
+            {
+                History.addValueChangeHandler(this);
+            }
         }
         final ViewLocator locator = createViewLocator(History.getToken());
 
