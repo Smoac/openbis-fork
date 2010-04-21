@@ -200,9 +200,13 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             return BINARY_CONTENT_TYPE;
         } else
         {
-            if (FilenameUtils.getExtension(f.getName()).length() == 0)
+            String extension = FilenameUtils.getExtension(f.getName());
+            if (extension.length() == 0)
             {
                 return PLAIN_TEXT_CONTENT_TYPE;
+            } else if (extension.equalsIgnoreCase("png"))
+            {
+                return CONTENT_TYPE_PNG;
             } else
             {
                 return MIMETYPES.getContentType(f.getName().toLowerCase());
