@@ -141,7 +141,7 @@ public class LinkRenderer
         Anchor link = new Anchor();
         link.setText(text);
         link.setStyleName(LINK_STYLE);
-        if (href == null && listener != null)
+        if (listener != null)
         {
             link.addClickHandler(listener);
         }
