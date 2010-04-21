@@ -5,7 +5,7 @@
 
 [screening_openbis] = ${screening}.*
 [private_openbis] = ${root}.* excluding ${root}.dss.generic.shared.* ${root}.generic.shared.*
-[dss] = ${root}.dss.* ch.systemsx.cisd.etlserver.*
+[dss] = ${root}.dss.* ch.systemsx.cisd.etlserver.* excluding ${root}.dss.screening.shared.api.*
 check sets [screening_openbis] [dss]
 
 check [screening_openbis] independentOf [dss]
