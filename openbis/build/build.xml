@@ -511,6 +511,9 @@
       <lib dir="${lib}/spring/webmvc">
         <include name="spring-webmvc.jar" />
       </lib>
+    	<lib dir="${lib}/spring/third-party/">
+    		<include name="stream-supporting-httpinvoker.jar" />
+    	</lib>
       <lib dir="${lib}/activation">
         <include name="activation.jar" />
       </lib>
