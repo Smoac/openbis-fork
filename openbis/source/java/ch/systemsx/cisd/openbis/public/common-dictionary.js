@@ -332,8 +332,8 @@ var common = {
   menu_archiving: "Archiving",
   ARCHIVING_MENU_ARCHIVE: "Archive",
   ARCHIVING_MENU_UNARCHIVE: "Unarchive",
-  ARCHIVING_MENU_LOCK: "Disable Archiving",
-  ARCHIVING_MENU_UNLOCK: "Enable Archiving",
+  ARCHIVING_MENU_LOCK: "Disable",
+  ARCHIVING_MENU_UNLOCK: "Enable",
     
   menu_modules: "Utilities",
     
