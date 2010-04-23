@@ -36,11 +36,9 @@ import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=HCSImageFileExtractor.class)
+@Friend(toClasses = HCSImageFileExtractor.class)
 public class HCSImageFileExtractorTest extends AssertJUnit
 {
     private Mockery context;
@@ -56,7 +54,7 @@ public class HCSImageFileExtractorTest extends AssertJUnit
     private IFile file1;
 
     private IFile file2;
-    
+
     @BeforeMethod
     public final void setUp() throws IOException
     {
@@ -68,7 +66,7 @@ public class HCSImageFileExtractorTest extends AssertJUnit
         extractor = new HCSImageFileExtractor(new WellGeometry(1, 1));
         dataSetInformation = new DataSetInformation();
     }
-    
+
     @AfterMethod
     public final void tearDown()
     {
@@ -76,7 +74,7 @@ public class HCSImageFileExtractorTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void test()
     {
@@ -85,31 +83,31 @@ public class HCSImageFileExtractorTest extends AssertJUnit
                 {
                     one(directory).listFiles(null, false);
                     will(returnValue(Arrays.asList(file1, file2)));
-                    
+
                     one(fileAccepter).accept(1, new Location(1, 1), new Location(1, 1), file1);
-                    one(fileAccepter).accept(2, new Location(2, 5), new Location(1, 1), file2);
+                    one(fileAccepter).accept(2, new Location(5, 2), new Location(1, 1), file2);
                 }
             });
-        
-        HCSImageFileExtractionResult result = extractor.process(directory, dataSetInformation, fileAccepter);
-        
+
+        HCSImageFileExtractionResult result =
+                extractor.process(directory, dataSetInformation, fileAccepter);
+
         assertEquals("[channel1[1=1], channel2[2=2]]", result.getChannels().toString());
         assertEquals(2, result.getTotalFiles());
         assertEquals(0, result.getInvalidFiles().size());
         context.assertIsSatisfied();
     }
-    
+
     private IFile createImageFileMock(final String fileName)
     {
         final IFile file = context.mock(IFile.class, fileName);
         context.checking(new Expectations()
-        {
             {
-                one(file).getPath();
-                will(returnValue(fileName));
-            }
-        });
+                {
+                    one(file).getPath();
+                    will(returnValue(fileName));
+                }
+            });
         return file;
     }
 }
-
