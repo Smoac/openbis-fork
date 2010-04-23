@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening;
+package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,27 +27,35 @@ import java.util.List;
 
 import org.apache.log4j.lf5.util.StreamUtils;
 
-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateSingleImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
+ * A test class which shows how to use API.
+ * 
  * @author Tomasz Pylak
  */
 public class ScreeningClientApiTest
 {
-    private static final String USER_ID = "a";
-
-    private static final String USER_PASSWORD = "x";
-
-    private static final String OPENBIS_SERVER_URL = "http://localhost:8888/openbis";
-
     public static void main(String[] args) throws IOException
     {
+        if (args.length != 3)
+        {
+            System.err.println("Usage: <user> <password> <openbis-server-url>");
+            System.err
+                    .println("Example parameters: test-user my-password http://localhost:8888/openbis");
+            return;
+        }
+        String userId = args[0];
+        String userPassword = args[1];
+        String serverUrl = args[2];
+
+        System.out.println(String.format("Connecting to the server '%s' as a user '%s.", serverUrl,
+                userId));
         ScreeningOpenbisServiceFacade facade =
-                ScreeningOpenbisServiceFacade.tryCreate(USER_ID, USER_PASSWORD, OPENBIS_SERVER_URL);
+                ScreeningOpenbisServiceFacade.tryCreate(userId, userPassword, serverUrl);
         // List<Plate> plates = facade.listPlates();
         // System.out.println("Plates: " + plates);
         // List<ImageDatasetReference> imageDatasets = facade.listImageDatasets(plates);
