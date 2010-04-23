@@ -158,36 +158,37 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
         }
     }
 
-    // The properties needed for connecting to the database
-    private Properties dbProperties;
+    private DataSource dataSource;
 
     @Override
     protected synchronized void doSpecificInitialization(Enumeration<String> parameterNames,
             ServletConfig servletConfig)
     {
-        // Only initialize the db properties once
-        if (dbProperties != null)
+        // Only initialize the dataSource once
+        if (dataSource != null)
             return;
 
-        dbProperties = new Properties();
+        Properties dbProperties = new Properties();
         String name;
         while (parameterNames.hasMoreElements())
         {
             name = parameterNames.nextElement();
             dbProperties.setProperty(name, servletConfig.getInitParameter(name));
         }
+
+        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(dbProperties);
+        this.dataSource = dbContext.getDataSource();
+
     }
 
     // remember to close the query after using it!
     private IEICMSRunDAO createQuery()
     {
-        return createQuery(dbProperties);
+        return createQuery(dataSource);
     }
 
-    private static IEICMSRunDAO createQuery(Properties properties)
+    private static IEICMSRunDAO createQuery(DataSource dataSource)
     {
-        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(properties);
-        DataSource dataSource = dbContext.getDataSource();
         return QueryTool.getQuery(dataSource, IEICMSRunDAO.class);
     }
 
