@@ -11,7 +11,7 @@ public class ImageDatasetMetadata implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final IDatasetIdentifier imageDataset;
+    private final IImageDatasetIdentifier imageDataset;
 
     private final int channelsNumber;
 
@@ -21,8 +21,8 @@ public class ImageDatasetMetadata implements Serializable
 
     private final int height;
 
-    public ImageDatasetMetadata(IDatasetIdentifier dataset, int channelsNumber, int tilesNumber,
-            int width, int height)
+    public ImageDatasetMetadata(IImageDatasetIdentifier dataset, int channelsNumber,
+            int tilesNumber, int width, int height)
     {
         this.imageDataset = dataset;
         this.channelsNumber = channelsNumber;
@@ -31,8 +31,8 @@ public class ImageDatasetMetadata implements Serializable
         this.height = height;
     }
 
-    /** identifier of a dataset which contains images described in this class */
-    public IDatasetIdentifier getImageDataset()
+    /** identifier of an image dataset which contains images described in this class */
+    public IImageDatasetIdentifier getImageDataset()
     {
         return imageDataset;
     }
@@ -63,5 +63,12 @@ public class ImageDatasetMetadata implements Serializable
     public int getHeight()
     {
         return height;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Dataset " + imageDataset + " has " + channelsNumber + " channels, " + tilesNumber
+                + " tiles. Images resolution: " + width + "x" + height;
     }
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.server;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,11 +32,13 @@ import com.csvreader.CsvReader;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
@@ -152,7 +155,41 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     private ImageDatasetMetadata extractImageMetadata(String sessionToken,
             IImageDatasetIdentifier dataset) throws IOException
     {
-        return null; // TODO
+        File datasetRoot = checkAccessAndGetRootDirectory(sessionToken, dataset.getDatasetCode());
+        return extractImageMetadata(dataset, datasetRoot);
+    }
+
+    private static ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,
+            File datasetRoot)
+    {
+        HCSDatasetLoader imageAccessor = new HCSDatasetLoader(datasetRoot);
+        File imageFile = getAnyImagePath(imageAccessor, dataset);
+        Geometry wellGeometry = imageAccessor.getWellGeometry();
+        int channelsNumber = imageAccessor.getChannelCount();
+        int tilesNumber = wellGeometry.getColumns() * wellGeometry.getRows();
+        BufferedImage image = ImageUtil.loadImage(imageFile);
+        return new ImageDatasetMetadata(dataset, channelsNumber, tilesNumber, image.getWidth(),
+                image.getHeight());
+    }
+
+    private static File getAnyImagePath(HCSDatasetLoader imageAccessor,
+            IImageDatasetIdentifier dataset)
+    {
+        Geometry plateGeometry = imageAccessor.getPlateGeometry();
+        for (int row = 1; row <= plateGeometry.getRows(); row++)
+        {
+            for (int col = 1; col <= plateGeometry.getColumns(); col++)
+            {
+                INode node =
+                        imageAccessor.tryGetStandardNodeAt(1, new Location(col, row), new Location(
+                                1, 1));
+                if (node != null)
+                {
+                    return new File(node.getPath());
+                }
+            }
+        }
+        throw new IllegalStateException("Cannot find any image in a dataset: " + dataset);
     }
 
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
@@ -218,14 +255,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         }
     }
 
-    private static IllegalArgumentException wrapIOException(IOException exception)
+    private static IllegalStateException wrapIOException(IOException exception)
     {
-        return new IllegalArgumentException(exception.getMessage());
+        return new IllegalStateException(exception.getMessage());
     }
 
-    private static IllegalArgumentException createNoImageException(PlateImageReference imageRef)
+    private static IllegalStateException createNoImageException(PlateImageReference imageRef)
     {
-        return new IllegalArgumentException("No image found: " + imageRef);
+        return new IllegalStateException("No image found: " + imageRef);
     }
 
     private static Location getTileLocation(int tile, Geometry wellGeometry)
@@ -306,7 +343,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             reader = CsvFileReaderHelper.getCsvReader(datasetFile);
             if (reader.readHeaders())
             {
-                return reader.getHeaders();
+                String[] headers = reader.getHeaders();
+                if (reader.readRecord())
+                {
+                    String[] values = reader.getValues();
+                    return chooseNumericValues(headers, values);
+                } else
+                {
+                    return headers;
+                }
             }
             return new String[0]; // empty file
         } finally
@@ -316,6 +361,26 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 reader.close();
             }
         }
+    }
+
+    // a heuristic to choose only those features which contain numbers. We check the first feature
+    // vector to do that.
+    private static String[] chooseNumericValues(String[] headers, String[] values)
+    {
+        List<String> featureNames = new ArrayList<String>();
+        for (int i = 0; i < Math.min(headers.length, values.length); i++)
+        {
+            if (isWellColumnName(headers[i]) == false && isNumber(values[i]))
+            {
+                featureNames.add(headers[i]);
+            }
+        }
+        return featureNames.toArray(new String[0]);
+    }
+
+    private static boolean isNumber(String value)
+    {
+        return tryGetDouble(value) != null;
     }
 
     // exposed for testing
@@ -400,22 +465,34 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             double[] values = new double[existingFeaturesSize];
             for (int i = 0; i < headerTokenFeatureIndexes.length; i++)
             {
-                try
+                if (headerTokenFeatureIndexes[i] > -1)
                 {
-                    if (headerTokenFeatureIndexes[i] > -1)
+                    Double value = tryGetDouble(dataLine[i]);
+                    if (value != null)
                     {
-                        values[headerTokenFeatureIndexes[i]] = Double.parseDouble(dataLine[i]);
+                        values[headerTokenFeatureIndexes[i]] = value;
+                    } else
+                    {
+                        operationLog.warn("feature " + i
+                                + " has wrong format - expected double, found: " + dataLine[i]);
+                        return null;
                     }
-                } catch (NumberFormatException ex)
-                {
-                    operationLog.warn("feature " + i
-                            + " has wrong format - expected double, found: " + dataLine[i]);
-                    return null;
                 }
             }
             return new FeatureVector(wellPositionOrNull, values);
         }
         return null;
+    }
+
+    private static Double tryGetDouble(String text)
+    {
+        try
+        {
+            return Double.parseDouble(text);
+        } catch (NumberFormatException ex)
+        {
+            return null;
+        }
     }
 
     private static WellPosition tryExtractWellPosition(String[] fileLine, int[] wellIndexes)

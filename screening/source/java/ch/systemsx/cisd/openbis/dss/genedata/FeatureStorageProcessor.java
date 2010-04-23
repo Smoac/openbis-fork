@@ -29,23 +29,26 @@ import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TableBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FeatureStorageProcessor extends DefaultStorageProcessor
 {
-    private static final char DELIMITER = ',';
+    private static final char DELIMITER = ';';
+
     private static final String LAYER_PREFIX = "<Layer=";
+
     private File originalFile;
-    
+
     private final class ColumnsBuilder
     {
         private final List<Column> columns = new ArrayList<Column>();
+
         private final List<String> rowLetters = new ArrayList<String>();
+
         private TableBuilder tableBuilder;
+
         private int numberOfColumns;
-        
+
         public void startNewColumn(String columnName)
         {
             addColumn();
@@ -64,9 +67,9 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
                 throw error(lineIndex, line, "Inconsistent number of columns: Expected "
                         + numberOfColumns + " but was " + columnCount);
             }
-            
+
         }
-        
+
         public void addRow(int lineIndex, String line)
         {
             StringTokenizer tokenizer = new StringTokenizer(line);
@@ -89,32 +92,32 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
                 }
             }
         }
-        
+
         public void finish()
         {
             addColumn();
         }
-        
+
         public int getNumberOfWells()
         {
             return numberOfColumns * rowLetters.size();
         }
-        
+
         public String getRowLetter(int index)
         {
             return rowLetters.get((index / numberOfColumns) % rowLetters.size());
         }
-        
+
         public int getColumnNumber(int index)
         {
             return index % numberOfColumns + 1;
         }
-        
+
         public List<Column> getColumns()
         {
             return columns;
         }
-        
+
         private void addColumn()
         {
             if (tableBuilder != null)
@@ -122,14 +125,14 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
                 columns.addAll(tableBuilder.getColumns());
             }
         }
-        
+
     }
-    
+
     public FeatureStorageProcessor(Properties properties)
     {
         super(properties);
     }
-    
+
     @Override
     protected void transform(File originalDataSet, File targetFolderForTransformedDataSet)
     {
@@ -181,7 +184,7 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
         File file = new File(originalDirectory, originalDataSet.getName() + ".txt");
         FileUtilities.writeToFile(file, builder.toString());
     }
-    
+
     @Override
     public void commit()
     {
@@ -213,8 +216,8 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
 
     private UserFailureException error(int lineIndex, String line, String reason)
     {
-        return new UserFailureException("Error in line " + lineIndex + 1
-                + ": " + reason + ": " + line);
+        return new UserFailureException("Error in line " + lineIndex + 1 + ": " + reason + ": "
+                + line);
     }
 
 }
