@@ -122,8 +122,6 @@
       </fileset>
     	<manifest>
       	<attribute name="Main-Class" value="ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningClientApiTest" />
-        <attribute name="Class-Path"
-                   value="spring.jar commons-logging.jar stream-supporting-httpinvoker.jar commons-httpclient.jar commons-codec.jar log4j.jar" />
         <attribute name="Version" value="${version.number}" />
         <attribute name="Build-Number"
                    value="${version.number} (r${revision.number},${clean.flag})" />
@@ -133,13 +131,13 @@
   		<fileset dir="${classes.common-server}">
   		     	<include name="ch/systemsx/cisd/common/spring/*.class" />
   		</fileset> 
+      <zipfileset src="${lib}/spring/spring.jar" />
+      <zipfileset src="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" />
+      <zipfileset src="${lib}/commons-logging/commons-logging.jar" />
+      <zipfileset src="${lib}/commons-httpclient/commons-httpclient.jar" />
+      <zipfileset src="${lib}/commons-codec/commons-codec.jar" />
+      <zipfileset src="${lib}/log4j/log4j.jar" />     
   	</jar>
-  	<copy file="${lib}/spring/spring.jar" todir="${dist.screening-api.lib}" />
-  	<copy file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" todir="${dist.screening-api.lib}" />
-  	<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.screening-api.lib}" />
-  	<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.screening-api.lib}" />
-  	<copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.screening-api.lib}" />
-  	<copy file="${lib}/log4j/log4j.jar" todir="${dist.screening-api.lib}" />
   </target>
 	
 	<target name="screening-api" depends="screening-api-doc, screening-api-libs" />
