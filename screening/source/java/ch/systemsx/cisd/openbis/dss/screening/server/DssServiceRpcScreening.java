@@ -24,11 +24,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.csvreader.CsvReader;
 
@@ -82,6 +78,29 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
     // ------------------ impl -----------------
 
+    private File getDatasetFile(String sessionToken, IDatasetIdentifier dataset) throws IOException
+    {
+        File originalDir =
+                checkAccessAndGetFile(sessionToken, dataset.getDatasetCode(), "original");
+        if (originalDir.isDirectory() == false)
+        {
+            throw new IllegalArgumentException(String.format(
+                    "Dataset %s directory '%s' does not exist.", dataset.getDatasetCode(),
+                    originalDir.getPath()));
+        }
+        File[] datasetFiles = originalDir.listFiles();
+        if (datasetFiles.length == 1)
+        {
+            return datasetFiles[0];
+        } else
+        {
+            throw new IllegalArgumentException(String.format(
+                    "Exactly one item was expected in the '%s' directory,"
+                            + " but %d have been found.", originalDir.getPath(),
+                    datasetFiles.length));
+        }
+    }
+
     public List<String> listAvailableFeatureNames(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -103,9 +122,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             return result;
         } catch (IOException ex)
         {
-            wrapIOException(ex);
+            throw wrapIOException(ex);
         }
-        return null;
     }
 
     private String[] extractFeatureNames(String sessionToken,
@@ -114,19 +132,27 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return extractFeatureNames(getDatasetFile(sessionToken, dataset));
     }
 
-    private File getDatasetFile(String sessionToken, IDatasetIdentifier dataset)
-    {
-        // FIXME return file in subdirectory
-        return checkAccessAndGetRootDirectory(sessionToken, dataset.getDatasetCode());
-    }
-
-    //
-
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
-        // TODO Auto-generated method stub
-        return null;
+        try
+        {
+            List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
+            for (IImageDatasetIdentifier dataset : imageDatasets)
+            {
+                result.add(extractImageMetadata(sessionToken, dataset));
+            }
+            return result;
+        } catch (IOException ex)
+        {
+            throw wrapIOException(ex);
+        }
+    }
+
+    private ImageDatasetMetadata extractImageMetadata(String sessionToken,
+            IImageDatasetIdentifier dataset) throws IOException
+    {
+        return null; // TODO
     }
 
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
@@ -144,9 +170,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             return result;
         } catch (IOException ex)
         {
-            wrapIOException(ex);
+            throw wrapIOException(ex);
         }
-        return null;
     }
 
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
@@ -266,6 +291,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     // helper methods and classes
     //
 
+    private static final String WELL_POSITION_HEADER_NAME = "WellName";
+
+    private static final String WELL_ROW_HEADER_NAME = "Row";
+
+    private static final String WELL_COLUMN_HEADER_NAME = "Col";
+
     // exposed for testing
     static String[] extractFeatureNames(File datasetFile) throws IOException
     {
@@ -295,20 +326,26 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         String[] headerTokens = fileLines.getHeaderTokens();
 
         List<String> existingFeatureNames = new ArrayList<String>();
-        Set<String> columnNames = new HashSet<String>(Arrays.asList(headerTokens));
+        int[] headerTokenFeatureIndexes = new int[headerTokens.length];
+        Arrays.fill(headerTokenFeatureIndexes, -1);
         for (String featureName : featureNames)
         {
-            if (columnNames.contains(featureName))
+            if (isWellColumnName(featureName) == false) // well position columns have wrong format
             {
-                existingFeatureNames.add(featureName);
+                int index = getColumnIndexForHeader(featureName, headerTokens);
+                if (index > -1)
+                {
+                    existingFeatureNames.add(featureName);
+                    headerTokenFeatureIndexes[index] = existingFeatureNames.size() - 1;
+                }
             }
         }
 
-        Map<String, Integer> indexByName = new HashMap<String, Integer>();
-        for (int i = 0; i < headerTokens.length; i++)
-        {
-            indexByName.put(headerTokens[i].toLowerCase(), i);
-        }
+        int[] wellIndexes = new int[3];
+        Arrays.fill(wellIndexes, -1);
+        wellIndexes[0] = getColumnIndexForHeader(WELL_POSITION_HEADER_NAME, headerTokens);
+        wellIndexes[1] = getColumnIndexForHeader(WELL_ROW_HEADER_NAME, headerTokens);
+        wellIndexes[2] = getColumnIndexForHeader(WELL_COLUMN_HEADER_NAME, headerTokens);
 
         FeatureVectorDatasetBuilder builder =
                 new FeatureVectorDatasetBuilder(dataset, existingFeatureNames);
@@ -316,38 +353,63 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         for (String[] dataLine : fileLines.getDataLines())
         {
             FeatureVector vector =
-                    tryExtractFeatureVector(dataLine, indexByName, existingFeatureNames);
+                    tryExtractFeatureVector(dataLine, wellIndexes, headerTokenFeatureIndexes,
+                            existingFeatureNames.size());
             if (vector != null)
             {
                 builder.addFeatureVector(vector);
             } else
             {
-                operationLog.warn(String.format(
-                        "wrong data format or well not found for data set %s (file: %s, line: %s)",
-                        dataset.getDatasetCode(), datasetFile, lineNumber));
+                String logMsg =
+                        "wrong data format or well position not found for data set %s (file: %s, line: %s)";
+                operationLog.warn(String.format(logMsg, dataset.getDatasetCode(), datasetFile,
+                        lineNumber));
             }
             lineNumber++;
         }
         return builder.create();
     }
 
-    private static FeatureVector tryExtractFeatureVector(String[] dataLine,
-            Map<String, Integer> indexByName, List<String> featureNames)
+    private static boolean isWellColumnName(String string)
     {
-        WellPosition wellPositionOrNull = tryExtractWellPosition(dataLine, indexByName);
+        return string.equalsIgnoreCase(WELL_POSITION_HEADER_NAME)
+                || string.equalsIgnoreCase(WELL_ROW_HEADER_NAME)
+                || string.equalsIgnoreCase(WELL_COLUMN_HEADER_NAME);
+    }
+
+    /** @return the column index for the column header or -1 if none was found */
+    private static int getColumnIndexForHeader(String columnHeader, String[] headers)
+    {
+        for (int i = 0; i < headers.length; i++)
+        {
+            if (columnHeader.equalsIgnoreCase(headers[i]))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static FeatureVector tryExtractFeatureVector(String[] dataLine, int[] wellIndexes,
+            int[] headerTokenFeatureIndexes, int existingFeaturesSize)
+    {
+        WellPosition wellPositionOrNull = tryExtractWellPosition(dataLine, wellIndexes);
 
         if (wellPositionOrNull != null)
         {
-            double[] values = new double[featureNames.size()];
-            for (int i = 0; i < featureNames.size(); i++)
+            double[] values = new double[existingFeaturesSize];
+            for (int i = 0; i < headerTokenFeatureIndexes.length; i++)
             {
                 try
                 {
-                    int index = indexByName.get(featureNames.get(i));
-                    values[i] = Double.parseDouble(dataLine[index]);
+                    if (headerTokenFeatureIndexes[i] > -1)
+                    {
+                        values[headerTokenFeatureIndexes[i]] = Double.parseDouble(dataLine[i]);
+                    }
                 } catch (NumberFormatException ex)
                 {
-                    // skip this feature
+                    operationLog.warn("feature " + i
+                            + " has wrong format - expected double, found: " + dataLine[i]);
                     return null;
                 }
             }
@@ -356,24 +418,24 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return null;
     }
 
-    private static WellPosition tryExtractWellPosition(String[] fileLine,
-            Map<String, Integer> indexByName)
+    private static WellPosition tryExtractWellPosition(String[] fileLine, int[] wellIndexes)
     {
+        int wellIndex = wellIndexes[0];
+        int rowIndex = wellIndexes[1];
+        int colIndex = wellIndexes[2];
+
         String coordinate;
-        Integer wellIndexOrNull = indexByName.get("WellName".toLowerCase());
-        if (wellIndexOrNull != null)
+        if (wellIndex > -1)
         {
-            coordinate = fileLine[wellIndexOrNull];
+            coordinate = fileLine[wellIndex];
         } else
         {
-            Integer rowIndexOrNull = indexByName.get("row".toLowerCase());
-            Integer colIndexOrNull = indexByName.get("col".toLowerCase());
-            if (rowIndexOrNull == null || colIndexOrNull == null)
+            if (rowIndex == -1 || colIndex == -1)
             {
-                operationLog.warn("well position missing");
+                operationLog.warn("well not found");
                 return null;
             }
-            coordinate = fileLine[rowIndexOrNull] + fileLine[colIndexOrNull];
+            coordinate = fileLine[rowIndex] + fileLine[colIndex];
         }
 
         Location location = Location.tryCreateLocationFromMatrixCoordinate(coordinate);

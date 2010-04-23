@@ -79,11 +79,7 @@ public class DssServiceRpcScreeningTest extends AbstractFileSystemTestCase
                                     { "f0", "f2", "f3" }));
 
                 assertEquals(dataset, result.getDataset());
-
-                assertEquals(2, result.getFeatureNames().size());
-                assertEquals("f0", result.getFeatureNames().get(0));
-                assertEquals("f2", result.getFeatureNames().get(1));
-
+                assertEquals("[f0, f2]", result.getFeatureNames().toString());
                 assertEquals(3, result.getFeatureVectors().size());
 
                 assertEquals("[1, 1]", result.getFeatureVectors().get(0).getWellPosition()

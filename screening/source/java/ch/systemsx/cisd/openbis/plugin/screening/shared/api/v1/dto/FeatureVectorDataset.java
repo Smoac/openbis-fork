@@ -50,11 +50,7 @@ public class FeatureVectorDataset implements Serializable
         StringBuilder sb = new StringBuilder();
         sb.append("datasetCode: " + dataset.getDatasetCode());
         sb.append(", storeUrl: " + dataset.getDatastoreServerUrl());
-        sb.append("\n\tfeatures: ");
-        for (int i = 0; i < featureNames.size(); i++)
-        {
-            sb.append(featureNames.get(i) + ", ");
-        }
+        sb.append("\n\tfeatures: " + featureNames);
         for (int i = 0; i < featureVectors.size(); i++)
         {
             sb.append("\n\t" + featureVectors.get(i));
