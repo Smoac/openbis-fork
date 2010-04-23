@@ -27,7 +27,10 @@ import java.util.List;
 
 import org.apache.log4j.lf5.util.StreamUtils;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateSingleImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
@@ -56,13 +59,13 @@ public class ScreeningClientApiTest
                 userId));
         ScreeningOpenbisServiceFacade facade =
                 ScreeningOpenbisServiceFacade.tryCreate(userId, userPassword, serverUrl);
-        // List<Plate> plates = facade.listPlates();
-        // System.out.println("Plates: " + plates);
-        // List<ImageDatasetReference> imageDatasets = facade.listImageDatasets(plates);
-        // System.out.println("Image datasets: " + imageDatasets);
-        // List<FeatureVectorDatasetReference> featureVectorDatasets =
-        // facade.listFeatureVectorDatasets(plates);
-        // System.out.println("Feature vector datasets: " + featureVectorDatasets);
+        List<Plate> plates = facade.listPlates();
+        System.out.println("Plates: " + plates);
+        List<ImageDatasetReference> imageDatasets = facade.listImageDatasets(plates);
+        System.out.println("Image datasets: " + imageDatasets);
+        List<FeatureVectorDatasetReference> featureVectorDatasets =
+                facade.listFeatureVectorDatasets(plates);
+        System.out.println("Feature vector datasets: " + featureVectorDatasets);
 
         // test for feature vector dataset
         // String datasetCode = "20091214153212961-474922"; // feature vector

@@ -2,7 +2,7 @@
   <import file="../../openbis/build/build.xml" />
   <import file="../../datastore_server/build/build.xml" />
   <project-classpath name="ecp" classes="${classes}" />
-
+	
   <property name="original.dist" value="dist" />
   <property name="mainfolder" value="screening" />
   <property name="variant" value="-screening" />
@@ -12,6 +12,9 @@
   <property name="dist.screening-api.jar" value="${dist.screening-api.lib}/openbis_screening_api.jar" />
 	<property name="dist.screening-api.javadoc" value="${dist.screening-api}/doc" />
 
+	<property name="classes.screening" value="../screening/targets/www/WEB-INF/classes" />
+	<property name="classes.common-server" value="../server-common/targets/ant/classes" />
+		
   <target name="compile" depends="build-common.compile, clean" />
 
   <!--
@@ -94,7 +97,7 @@
       access="public" 
       author="false" 
       version="false" 
-      classpath="${ecp}:../screening/targets/www/WEB-INF/classes">
+      classpath="${ecp}:${classes.screening}">
       <fileset dir="${sources}">
         <include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/*" />
         <include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/*" />
@@ -102,29 +105,41 @@
     </javadoc>
   </target>
 
+  <!-- 
+  		To test the API you can use
+  		   java -jar lib/openbis_screening_api.jar USER PASSWD OPENBIS_SERVER_URL
+   -->
   <target name="screening-api-libs">
     <mkdir dir="${dist.screening-api.lib}" />
     <build-info revision="revision.number" version="version.number" clean="clean.flag" />
     <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
     <recursive-jar destfile="${dist.screening-api.jar}">
-      <fileset dir="${classes}">
-      	<include name="ch/systemsx/cisd/common/spring/*.class" />
+      <fileset dir="${classes.screening}">
         <include name="ch/systemsx/cisd/openbis/dss/screening/shared/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/**/*.class" />
-      	<include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/**/*.class" />
-      	<include name="${build.info.filename}" />
+       	<include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/**/*.class" />
+       	<include name="${build.info.filename}" />
       </fileset>
-      <manifest>
+    	<manifest>
       	<attribute name="Main-Class" value="ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningClientApiTest" />
         <attribute name="Class-Path"
-                   value="spring.jar stream-supporting-httpinvoker.jar" />
+                   value="spring.jar commons-logging.jar stream-supporting-httpinvoker.jar commons-httpclient.jar commons-codec.jar log4j.jar" />
         <attribute name="Version" value="${version.number}" />
         <attribute name="Build-Number"
                    value="${version.number} (r${revision.number},${clean.flag})" />
       </manifest>
     </recursive-jar>
+  	<jar update="true" destfile="${dist.screening-api.jar}">
+  		<fileset dir="${classes.common-server}">
+  		     	<include name="ch/systemsx/cisd/common/spring/*.class" />
+  		</fileset> 
+  	</jar>
   	<copy file="${lib}/spring/spring.jar" todir="${dist.screening-api.lib}" />
   	<copy file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" todir="${dist.screening-api.lib}" />
+  	<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.screening-api.lib}" />
+  	<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.screening-api.lib}" />
+  	<copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.screening-api.lib}" />
+  	<copy file="${lib}/log4j/log4j.jar" todir="${dist.screening-api.lib}" />
   </target>
 	
 	<target name="screening-api" depends="screening-api-doc, screening-api-libs" />
