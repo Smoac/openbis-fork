@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 /**
- * Description of one image dataset.
+ * Contains data which uniquely define an image dataset.
  * 
  * @author Tomasz Pylak
  */
-public class ImageDatasetReference extends DatasetReference implements IImageDatasetIdentifier
+public interface IImageDatasetIdentifier extends IDatasetIdentifier
 {
-    private static final long serialVersionUID = 1L;
-
-    public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
-            PlateIdentifier plate)
-    {
-        super(datasetCode, datastoreServerUrl, plate);
-    }
 }

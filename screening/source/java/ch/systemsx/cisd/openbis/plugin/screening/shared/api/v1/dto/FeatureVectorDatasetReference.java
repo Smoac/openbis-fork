@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 /**
- * Contains data which uniquely define an image dataset.
+ * Description of one feature vector dataset.
  * 
  * @author Tomasz Pylak
  */
-public interface IImageDatasetIdentifier extends IDatasetIdentifier
+public class FeatureVectorDatasetReference extends DatasetReference implements
+        IFeatureVectorDatasetIdentifier
 {
+    private static final long serialVersionUID = 1L;
+
+    public FeatureVectorDatasetReference(String datasetCode, String datastoreServerUrl,
+            PlateIdentifier plate)
+    {
+        super(datasetCode, datastoreServerUrl, plate);
+    }
 }

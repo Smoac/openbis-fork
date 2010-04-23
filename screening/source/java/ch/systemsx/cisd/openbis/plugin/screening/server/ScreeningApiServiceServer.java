@@ -23,7 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 
 /**
  * Exposes the screening openBIS API through HTTP

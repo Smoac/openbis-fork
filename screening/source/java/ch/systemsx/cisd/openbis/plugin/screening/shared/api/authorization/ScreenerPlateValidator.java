@@ -6,7 +6,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.AbstractV
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Plate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 
 /**
  * Filters only samples from the spaces to which the user has rights. This code works only in the

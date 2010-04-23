@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.IDssServiceRpcScreening;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.IScreeningApiServer;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.FeatureVectorDataset;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.FeatureVectorDatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IFeatureVectorDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IImageDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.ImageDatasetMetadata;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.ImageDatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Plate;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateSingleImage;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateSingleImage;
 
 /**
  * A client side facade of openBIS and Datastore Server API.

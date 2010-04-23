@@ -28,10 +28,10 @@ import java.util.List;
 import org.apache.log4j.lf5.util.StreamUtils;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateSingleImage;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.WellPosition;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateSingleImage;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
  * @author Tomasz Pylak

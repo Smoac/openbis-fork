@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 /**
  * Contains data which uniquely define a feature vector dataset.

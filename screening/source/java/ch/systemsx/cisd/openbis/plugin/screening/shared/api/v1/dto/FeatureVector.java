@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 

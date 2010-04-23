@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.screening.shared.api;
+package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
 
 import java.io.InputStream;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.FeatureVectorDataset;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IFeatureVectorDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IImageDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.ImageDatasetMetadata;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 
 /**
  * Public DSS API for screening. Non-compatible changes without consultation are forbidden.

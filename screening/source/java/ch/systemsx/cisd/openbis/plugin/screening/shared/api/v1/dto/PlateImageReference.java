@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
@@ -17,6 +17,11 @@ public class PlateImageReference extends DatasetIdentifier implements Serializab
 
     private final int channel;
 
+    /**
+     * @param dataset if image dataset is specified, image will be fetched from it. If a feature
+     *            vector dataset is specified, a connected image dataset will be found and image
+     *            will be fetched from it.
+     */
     public PlateImageReference(int wellRow, int wellColumn, int tile, int channel,
             IDatasetIdentifier dataset)
     {

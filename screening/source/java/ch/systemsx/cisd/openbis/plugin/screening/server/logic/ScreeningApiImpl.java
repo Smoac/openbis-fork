@@ -43,12 +43,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.DatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.FeatureVectorDatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.IDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.PlateIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.ImageDatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto.Plate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**

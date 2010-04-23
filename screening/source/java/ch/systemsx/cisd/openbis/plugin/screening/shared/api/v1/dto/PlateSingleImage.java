@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -49,4 +49,11 @@ public class PlateSingleImage implements Serializable
     {
         return image;
     }
+
+    /** The dataset which has been specified to fetched the image. */
+    public IDatasetIdentifier getDataset()
+    {
+        return imageReference;
+    }
+
 }
