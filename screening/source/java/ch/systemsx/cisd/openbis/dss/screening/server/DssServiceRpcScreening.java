@@ -103,8 +103,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             return result;
         } catch (IOException ex)
         {
-            // FIXME handle exceptions
-            ex.printStackTrace();
+            wrapIOException(ex);
         }
         return null;
     }
@@ -145,8 +144,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             return result;
         } catch (IOException ex)
         {
-            // FIXME handle exceptions
-            ex.printStackTrace();
+            wrapIOException(ex);
         }
         return null;
     }
@@ -193,6 +191,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         {
             imageAccessor.close();
         }
+    }
+
+    private static IllegalArgumentException wrapIOException(IOException exception)
+    {
+        return new IllegalArgumentException(exception.getMessage());
     }
 
     private static IllegalArgumentException createNoImageException(PlateImageReference imageRef)
@@ -309,6 +312,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
         FeatureVectorDatasetBuilder builder =
                 new FeatureVectorDatasetBuilder(dataset, existingFeatureNames);
+        int lineNumber = 1;
         for (String[] dataLine : fileLines.getDataLines())
         {
             FeatureVector vector =
@@ -318,8 +322,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 builder.addFeatureVector(vector);
             } else
             {
-                operationLog.warn("wrong format or well not found");
+                operationLog.warn(String.format(
+                        "wrong data format or well not found for data set %s (file: %s, line: %s)",
+                        dataset.getDatasetCode(), datasetFile, lineNumber));
             }
+            lineNumber++;
         }
         return builder.create();
     }
