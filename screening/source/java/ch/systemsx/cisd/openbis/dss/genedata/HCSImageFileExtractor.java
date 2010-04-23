@@ -29,11 +29,10 @@ import ch.systemsx.cisd.etlserver.plugins.AbstractHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor implements IHCSImageFileExtractor
+public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor implements
+        IHCSImageFileExtractor
 {
     public HCSImageFileExtractor(final Properties properties)
     {
@@ -46,12 +45,12 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
         super(wellGeometry);
     }
 
-
     public HCSImageFileExtractionResult process(IDirectory incomingDataSetDirectory,
             DataSetInformation dataSetInformation, IHCSImageFileAccepter accepter)
     {
         assert incomingDataSetDirectory != null;
-        return process(incomingDataSetDirectory.listFiles(null, false), dataSetInformation, accepter);
+        return process(incomingDataSetDirectory.listFiles(null, false), dataSetInformation,
+                accepter);
     }
 
     @Override
@@ -73,7 +72,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
         tokens[2] = wellAndTileCoordinates.substring(6);
         return tokens;
     }
-    
+
     @Override
     protected int getChannelWavelength(String channel)
     {
@@ -99,7 +98,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
         {
             int row = Integer.parseInt(plateLocation.substring(0, 3));
             int column = Integer.parseInt(plateLocation.substring(3));
-            return new Location(row, column);
+            return new Location(column, row);
         } catch (NumberFormatException ex)
         {
             return null;
