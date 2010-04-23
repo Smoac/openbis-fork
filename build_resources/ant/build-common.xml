@@ -53,6 +53,10 @@
     </target>
 
     <target name="check-dependencies" depends="compile">
+      <antcall target="check-dependencies-no-compile" />
+    </target>
+  
+    <target name="check-dependencies-no-compile" >
         <dependency-checker definitionFile="resource/dependency-structure.ddf"
                             failOnUnwantedDependencies="true"
                             mergeInnerClasses="true">
