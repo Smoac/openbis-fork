@@ -85,11 +85,13 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     @Override
     protected void unarchive(DatasetDescription dataset) throws UserFailureException
     {
+        ML2DatabaseUploader databaseUploader = null;
         try
         {
             Sample sample = null;
             if (dataset.getSampleCode() != null)
             {
+                // NOTE: we assume that it is not a shared sample
                 SampleIdentifier sampleIdentifier =
                         new SampleIdentifier(new SpaceIdentifier(dataset.getDatabaseInstanceCode(),
                                 dataset.getGroupCode()), dataset.getSampleCode());
@@ -102,12 +104,16 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
                             .getGroupCode(), dataset.getProjectCode(), dataset.getExperimentCode());
             Experiment experiment =
                     ServiceProvider.getOpenBISService().tryToGetExperiment(experimentIdentifier);
-            ML2DatabaseUploader databaseUploader = new ML2DatabaseUploader(properties);
+            databaseUploader = new ML2DatabaseUploader(properties);
             databaseUploader.upload(getDataFile(dataset), sample, experiment, dataset
                     .getDatasetCode());
             databaseUploader.commit();
         } catch (Exception ex)
         {
+            if (databaseUploader != null)
+            {
+                databaseUploader.rollback();
+            }
             throw new UserFailureException(ex.getMessage());
         }
     }
