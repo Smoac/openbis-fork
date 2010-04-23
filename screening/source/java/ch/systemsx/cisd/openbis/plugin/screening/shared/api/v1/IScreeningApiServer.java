@@ -46,7 +46,8 @@ public interface IScreeningApiServer
      * 
      *@return sessionToken if authentication suceeded, null otherwise
      */
-    @Transactional(readOnly = true)
+    @Transactional
+    // this is not a readOnly transaction - it can create new users
     String tryLoginScreening(String userId, String userPassword) throws IllegalArgumentException;
 
     /**

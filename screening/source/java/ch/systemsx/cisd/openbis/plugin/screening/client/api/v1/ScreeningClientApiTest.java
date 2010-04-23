@@ -27,8 +27,10 @@ import java.util.List;
 
 import org.apache.log4j.lf5.util.StreamUtils;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
@@ -68,11 +70,20 @@ public class ScreeningClientApiTest
         System.out.println("Feature vector datasets: " + featureVectorDatasets);
 
         // test for feature vector dataset
-        // String datasetCode = "20091214153212961-474922"; // feature vector
-        String datasetCode = "20091216162628729-475111"; // image
-        IDatasetIdentifier datasetIdentifier = getDatasetIdentifier(facade, datasetCode);
+        // String featureVectorDatasetCode = "20100423170945059-29"; // feature vector
+        String imageDatasetCode = "20100423163638457-16"; // image
+        IDatasetIdentifier datasetIdentifier = getDatasetIdentifier(facade, imageDatasetCode);
         loadImages(facade, datasetIdentifier);
 
+        List<String> featureNames = facade.listAvailableFeatureNames(featureVectorDatasets);
+        System.out.println("Feature names: " + featureNames);
+        List<FeatureVectorDataset> features =
+                facade.loadFeatures(featureVectorDatasets, featureNames);
+        System.out.println("Features: " + features);
+
+        List<ImageDatasetMetadata> imageMetadata = facade.listImageMetadata(imageDatasets);
+        System.out.println("Image metadata: " + imageMetadata);
+        
         facade.logout();
     }
 
@@ -87,17 +98,20 @@ public class ScreeningClientApiTest
     private static void loadImages(ScreeningOpenbisServiceFacade facade,
             IDatasetIdentifier datasetIdentifier) throws FileNotFoundException, IOException
     {
-        for (int channel = 1; channel <= 2; channel++)
+        for (int well = 1; well <= 5; well++)
         {
-            for (int tile = 4; tile <= 6; tile++)
+            for (int channel = 1; channel <= 2; channel++)
             {
-                List<PlateImageReference> imageRefs = new ArrayList<PlateImageReference>();
-                imageRefs.add(new PlateImageReference(1, 3, tile, channel, datasetIdentifier));
-                List<PlateSingleImage> images = facade.loadImages(imageRefs);
-                saveImages(images);
+                for (int tile = 1; tile <= 1; tile++)
+                {
+                    List<PlateImageReference> imageRefs = new ArrayList<PlateImageReference>();
+                    imageRefs.add(new PlateImageReference(well, well, tile, channel,
+                            datasetIdentifier));
+                    List<PlateSingleImage> images = facade.loadImages(imageRefs);
+                    saveImages(images);
+                }
             }
         }
-
     }
 
     private static void saveImages(List<PlateSingleImage> images) throws FileNotFoundException,
@@ -116,7 +130,7 @@ public class ScreeningClientApiTest
     private static String createImageFileName(PlateSingleImage image)
     {
         WellPosition well = image.getWellPosition();
-        return "img_r" + well.getWellRow() + "_c" + well.getWellColumn() + "_ch"
-                + image.getChannel() + "_t" + image.getTile() + ".png";
+        return "img_row" + well.getWellRow() + "_col" + well.getWellColumn() + "_channel"
+                + image.getChannel() + "_tile" + image.getTile() + ".png";
     }
 }

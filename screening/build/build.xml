@@ -8,12 +8,13 @@
   <property name="variant" value="-screening" />
 
   <property name="dist.screening-api" value="${dist}/screening_api" />
-  <property name="dist.screening-api.lib" value="${dist.screening-api}/lib" />
+  <property name="dist.screening-api.lib" value="${dist.screening-api}" />
   <property name="dist.screening-api.jar" value="${dist.screening-api.lib}/openbis_screening_api.jar" />
 	<property name="dist.screening-api.javadoc" value="${dist.screening-api}/doc" />
 
 	<property name="classes.screening" value="../screening/targets/www/WEB-INF/classes" />
 	<property name="classes.common-server" value="../server-common/targets/ant/classes" />
+  <property name="classes.common" value="../common/targets/ant/classes" />
 		
   <target name="compile" depends="build-common.compile, clean" />
 
@@ -122,6 +123,7 @@
       </fileset>
     	<manifest>
       	<attribute name="Main-Class" value="ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningClientApiTest" />
+        <attribute name="Class-Path" value="spring-ext.jar" />
         <attribute name="Version" value="${version.number}" />
         <attribute name="Build-Number"
                    value="${version.number} (r${revision.number},${clean.flag})" />
@@ -129,15 +131,20 @@
     </recursive-jar>
   	<jar update="true" destfile="${dist.screening-api.jar}">
   		<fileset dir="${classes.common-server}">
-  		     	<include name="ch/systemsx/cisd/common/spring/*.class" />
+  		     	<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
   		</fileset> 
+      <fileset dir="${classes.common}">
+            <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
+      </fileset> 
+    </jar>
+    <recursive-jar destfile="${dist.screening-api.lib}/spring-ext.jar">
       <zipfileset src="${lib}/spring/spring.jar" />
       <zipfileset src="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" />
       <zipfileset src="${lib}/commons-logging/commons-logging.jar" />
       <zipfileset src="${lib}/commons-httpclient/commons-httpclient.jar" />
       <zipfileset src="${lib}/commons-codec/commons-codec.jar" />
       <zipfileset src="${lib}/log4j/log4j.jar" />     
-  	</jar>
+  	</recursive-jar>
   </target>
 	
 	<target name="screening-api" depends="screening-api-doc, screening-api-libs" />

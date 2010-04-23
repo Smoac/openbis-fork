@@ -190,83 +190,40 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
-        try
-        {
-            return createScreeningApiImpl(sessionToken).listFeatureVectorDatasets(plates);
-        } catch (UserFailureException e)
-        {
-            throw translateException(e);
-        }
+        return createScreeningApiImpl(sessionToken).listFeatureVectorDatasets(plates);
     }
 
     public List<ImageDatasetReference> listImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
-        try
-        {
-            return createScreeningApiImpl(sessionToken).listImageDatasets(plates);
-        } catch (UserFailureException e)
-        {
-            throw translateException(e);
-        }
+        return createScreeningApiImpl(sessionToken).listImageDatasets(plates);
     }
 
     public List<Plate> listPlates(String sessionToken)
     {
-        try
-        {
-            return createScreeningApiImpl(sessionToken).listPlates();
-        } catch (UserFailureException e)
-        {
-            throw translateException(e);
-        }
+        return createScreeningApiImpl(sessionToken).listPlates();
     }
 
     public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
             List<String> datasetCodes)
     {
-        try
-        {
-            return createScreeningApiImpl(sessionToken).getDatasetIdentifiers(datasetCodes);
-        } catch (UserFailureException e)
-        {
-            throw translateException(e);
-        }
+        return createScreeningApiImpl(sessionToken).getDatasetIdentifiers(datasetCodes);
     }
 
     private ScreeningApiImpl createScreeningApiImpl(String sessionToken)
     {
-        try
-        {
-            final Session session = getSession(sessionToken);
-            return new ScreeningApiImpl(session, businessObjectFactory, getDAOFactory());
-        } catch (UserFailureException e)
-        {
-            throw translateException(e);
-        }
+        final Session session = getSession(sessionToken);
+        return new ScreeningApiImpl(session, businessObjectFactory, getDAOFactory());
     }
 
     public void logoutScreening(String sessionToken)
     {
-        try
-        {
-            logout(sessionToken);
-        } catch (UserFailureException e)
-        {
-            throw translateException(e);
-        }
+        logout(sessionToken);
     }
 
     public String tryLoginScreening(String userId, String userPassword)
     {
-        SessionContextDTO sessionContext;
-        try
-        {
-            sessionContext = tryToAuthenticate(userId, userPassword);
-        } catch (UserFailureException e)
-        {
-            throw translateException(e);
-        }
+        SessionContextDTO sessionContext = tryToAuthenticate(userId, userPassword);
         if (sessionContext != null)
         {
             return sessionContext.getSessionToken();
@@ -275,10 +232,4 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             return null;
         }
     }
-
-    private static RuntimeException translateException(UserFailureException e)
-    {
-        return new IllegalArgumentException(e.getMessage());
-    }
-
 }
