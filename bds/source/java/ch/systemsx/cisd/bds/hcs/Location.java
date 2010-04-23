@@ -20,7 +20,7 @@ import ch.systemsx.cisd.common.geometry.ConversionUtils;
 import ch.systemsx.cisd.common.geometry.Point;
 
 /**
- * A location in (x, y) coordinate space, specified in integer precision.
+ * A location in (x, y) coordinate space, specified in integer precision. X and Y start from 1. *
  * 
  * @author Christian Ribeaud
  */
