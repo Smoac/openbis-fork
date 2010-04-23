@@ -3,8 +3,9 @@
 {root} = ch.systemsx.cisd.openbis
 {screening} = ${root}.plugin.screening
 
+# -------- check that screening openbis is indendent of the DSS code
+
 [screening_openbis] = ${screening}.*
-[private_openbis] = ${root}.* excluding ${root}.dss.generic.shared.* ${root}.generic.shared.*
 [dss] = ${root}.dss.* ch.systemsx.cisd.etlserver.* excluding ${root}.dss.screening.shared.api.*
 check sets [screening_openbis] [dss]
 
@@ -36,4 +37,21 @@ layer s_web = [screening_web_server] [screening_web_client]
 check layeringOf s_web_shared s_web
 check [screening_web_client] independentOf [screening_server]
 
+# -------- check screening public API dependencies
 
+[openbis_authorization] = ${screening}.shared.api.authorization.* ${root}.generic.shared.authorization.** ${root}.generic.shared.dto.**
+[api_openbis] = ${screening}.shared.api.** 
+[api_dss] = ${root}.dss.screening.shared.api.v1.**
+[api_client_facade] =	${screening}.client.api.v1.**
+[api] = [api_dss] [api_openbis] [api_client_facade] [openbis_authorization]
+[openbis_rest] = ${root}.** excluding [api]
+check sets [api_dss] [api_openbis] [api_client_facade] [api] [openbis_rest] [openbis_authorization]
+
+# TODO: how to check that the api does not depend on external libraries?
+check [api] independentOf [openbis_rest]
+check [api_client_facade] directlyIndependentOf [openbis_authorization]
+
+layer s_api_openbis = [api_openbis]
+layer s_api_dss_and_utils = [api_dss]
+layer s_api_client = [api_client_facade]
+check layeringOf s_api_openbis s_api_dss_and_utils s_api_client
