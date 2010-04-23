@@ -43,4 +43,22 @@ public class FeatureVectorDataset implements Serializable
     {
         return featureVectors;
     }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("datasetCode: " + dataset.getDatasetCode());
+        sb.append(", storeUrl: " + dataset.getDatastoreServerUrl());
+        sb.append("\n\tfeatures: ");
+        for (int i = 0; i < featureNames.size(); i++)
+        {
+            sb.append(featureNames.get(i) + ", ");
+        }
+        for (int i = 0; i < featureVectors.size(); i++)
+        {
+            sb.append("\n\t" + featureVectors.get(i));
+        }
+        return sb.toString();
+    }
 }

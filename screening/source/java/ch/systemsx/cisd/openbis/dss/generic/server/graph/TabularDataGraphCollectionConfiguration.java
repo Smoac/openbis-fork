@@ -32,11 +32,12 @@ import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfigu
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class TabularDataGraphCollectionConfiguration
+public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderConfiguration
 {
     private static final String SEPARATOR_PROPERTY_KEY = "separator";
 
@@ -252,9 +253,6 @@ public class TabularDataGraphCollectionConfiguration
         return columnDelimiter;
     }
 
-    /**
-     * Should comments be ignored?
-     */
     public boolean isIgnoreComments()
     {
         return ignoreComments;
@@ -263,6 +261,11 @@ public class TabularDataGraphCollectionConfiguration
     public char getCommentDelimiter()
     {
         return comment;
+    }
+
+    public boolean isSkipEmptyRecords()
+    {
+        return true;
     }
 
     public int getImageWidth()
@@ -289,4 +292,5 @@ public class TabularDataGraphCollectionConfiguration
     {
         return graphNames;
     }
+
 }

@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Feature vector for one well.
@@ -31,5 +32,11 @@ public class FeatureVector implements Serializable
     public double[] getValues()
     {
         return values;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "wellPosition: " + wellPosition + ", values: " + Arrays.toString(values);
     }
 }

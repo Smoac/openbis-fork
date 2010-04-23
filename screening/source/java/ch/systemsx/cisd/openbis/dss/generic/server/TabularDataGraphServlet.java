@@ -17,12 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -30,12 +26,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.csvreader.CsvReader;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.ITabularDataGraph;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphCollectionConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.utils.CsvFileReaderHelper;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -185,34 +180,6 @@ public class TabularDataGraphServlet extends AbstractDatasetDownloadServlet
      */
     private DatasetFileLines getDatasetFileLines(String path) throws IOException
     {
-        File file = new File(path);
-        CsvReader reader = getCsvReader(file);
-        List<String[]> lines = new ArrayList<String[]>();
-        while (reader.readRecord())
-        {
-            lines.add(reader.getValues());
-        }
-
-        return new DatasetFileLines(file, path, lines);
-    }
-
-    /**
-     * Get a CsvReader for parsing a tabular data file.
-     */
-    private CsvReader getCsvReader(File file) throws IOException
-    {
-        if (file.isFile() == false)
-        {
-            throw new UserFailureException(file + " does not exist or is not a file.");
-        }
-        FileInputStream fileInputStream = new FileInputStream(file);
-
-        CsvReader csvReader = new CsvReader(fileInputStream, Charset.defaultCharset());
-        csvReader.setDelimiter(configuration.getColumnDelimiter());
-        csvReader.setSkipEmptyRecords(true);
-        csvReader.setUseComments(configuration.isIgnoreComments());
-        csvReader.setComment(configuration.getCommentDelimiter());
-
-        return csvReader;
+        return CsvFileReaderHelper.getDatasetFileLines(new File(path), configuration);
     }
 }
