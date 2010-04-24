@@ -11,6 +11,7 @@
   <property name="dist.screening-api.lib" value="${dist.screening-api}" />
   <property name="dist.screening-api.jar" value="${dist.screening-api.lib}/openbis_screening_api.jar" />
 	<property name="dist.screening-api.javadoc" value="${dist.screening-api}/doc" />
+  <property name="dist.screening-api.javadoc.zip" value="${dist}/openbis-screening-api-javadoc.zip" />
 
 	<property name="classes.screening" value="../screening/targets/ant/classes" />
 	<property name="classes.common-server" value="../server-common/targets/ant/classes" />
@@ -100,6 +101,10 @@
         <include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/*" />
       </fileset>
     </javadoc>
+    <zip destfile="${dist.screening-api.javadoc.zip}">
+      <zipfileset dir="${dist.screening-api}" includes="**" />
+    </zip>
+    <delete dir="${dist.screening-api}" />
   </target>
 
   <!-- 
