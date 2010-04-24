@@ -12,7 +12,7 @@
   <property name="dist.screening-api.jar" value="${dist.screening-api.lib}/openbis_screening_api.jar" />
 	<property name="dist.screening-api.javadoc" value="${dist.screening-api}/doc" />
 
-	<property name="classes.screening" value="../screening/targets/www/WEB-INF/classes" />
+	<property name="classes.screening" value="../screening/targets/ant/classes" />
 	<property name="classes.common-server" value="../server-common/targets/ant/classes" />
   <property name="classes.common" value="../common/targets/ant/classes" />
 		
@@ -22,11 +22,7 @@
         // Task for creating distributions
         -->
 	
-  <target name="dist-dss" >
-    <antcall target="datastore_server.make-dist" />
-  </target>
-        
-  <target name="dist" depends="openbis.make-dist, dist-dss" />
+  <target name="dist" depends="openbis.make-dist, datastore_server.make-dist" />
 
   <!--
         // Task for continuous integration server.
