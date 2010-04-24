@@ -22,7 +22,7 @@
         // Task for creating distributions
         -->
 	
-  <target name="dist" depends="openbis.make-dist, datastore_server.make-dist" />
+  <target name="dist" depends="openbis.make-dist, datastore_server.make-dist, screening-api" />
 
   <!--
         // Task for continuous integration server.
