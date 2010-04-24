@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -287,6 +288,10 @@ public class ScreeningApiImpl
     {
         externalDataBO.loadByCode(datasetCode);
         ExternalDataPE externalData = externalDataBO.getExternalData();
+        if (externalData == null)
+        {
+            throw UserFailureException.fromTemplate("Dataset %s does not exist", datasetCode);
+        }
         return new DatasetIdentifier(datasetCode, externalData.getDataStore().getDownloadUrl());
     }
 }
