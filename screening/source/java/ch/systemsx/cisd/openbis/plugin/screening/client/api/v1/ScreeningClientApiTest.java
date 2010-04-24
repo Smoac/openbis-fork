@@ -70,12 +70,13 @@ public class ScreeningClientApiTest
         System.out.println("Feature vector datasets: " + featureVectorDatasets);
 
         // test for feature vector dataset
-        String featureVectorDatasetCode = "20100424125121572-43"; // feature vector
+        String featureVectorDatasetCode = featureVectorDatasets.get(0).getDatasetCode(); // feature
+                                                                                         // vector
         IDatasetIdentifier datasetIdentifier =
                 getDatasetIdentifier(facade, featureVectorDatasetCode);
         loadImages(facade, datasetIdentifier);
 
-        String imageDatasetCode = "DEMO-PLATE002"; // image
+        String imageDatasetCode = imageDatasets.get(0).getDatasetCode(); // image
         datasetIdentifier = getDatasetIdentifier(facade, imageDatasetCode);
         loadImages(facade, datasetIdentifier);
 
