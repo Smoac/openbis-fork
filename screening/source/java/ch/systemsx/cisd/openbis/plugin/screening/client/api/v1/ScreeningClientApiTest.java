@@ -61,6 +61,11 @@ public class ScreeningClientApiTest
                 userId));
         ScreeningOpenbisServiceFacade facade =
                 ScreeningOpenbisServiceFacade.tryCreate(userId, userPassword, serverUrl);
+        if (facade == null)
+        {
+            System.err.println("Cannot connect with the server, is it running?");
+            return;
+        }
         List<Plate> plates = facade.listPlates();
         System.out.println("Plates: " + plates);
         List<ImageDatasetReference> imageDatasets = facade.listImageDatasets(plates);
@@ -71,7 +76,7 @@ public class ScreeningClientApiTest
 
         // test for feature vector dataset
         String featureVectorDatasetCode = featureVectorDatasets.get(0).getDatasetCode(); // feature
-                                                                                         // vector
+        // vector
         IDatasetIdentifier datasetIdentifier =
                 getDatasetIdentifier(facade, featureVectorDatasetCode);
         loadImages(facade, datasetIdentifier);
