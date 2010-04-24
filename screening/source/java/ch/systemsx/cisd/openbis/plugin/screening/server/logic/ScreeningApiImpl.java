@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -31,7 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -75,9 +79,62 @@ public class ScreeningApiImpl
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates)
     {
-        List<ExternalDataPE> datasets =
-                loadDatasets(plates, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
-        return asFeatureVectorDatasets(datasets);
+        List<FeatureVectorDatasetReference> result = new ArrayList<FeatureVectorDatasetReference>();
+        List<ImageDatasetReference> imageDatasets = listImageDatasets(plates);
+        ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        for (PlateIdentifier plate : plates)
+        {
+            ExperimentPE experiment = tryGetExperiment(sampleBO, plate);
+            if (experiment != null)
+            {
+                List<ExternalDataPE> datasets =
+                        daoFactory.getExternalDataDAO().listExternalData(experiment);
+                List<ExternalDataPE> childrenDatasets = filterChildren(imageDatasets, datasets);
+                List<ExternalDataPE> featureVectorDatasets =
+                        ScreeningUtils.filterDatasetsByType(childrenDatasets,
+                                ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+                result.addAll(asFeatureVectorDatasets(featureVectorDatasets));
+            }
+        }
+        return result;
+    }
+
+    // return those datasets which have exactly one parent, which is contained in the parent set
+    private static List<ExternalDataPE> filterChildren(
+            List<? extends IDatasetIdentifier> parentDatasets, List<ExternalDataPE> datasets)
+    {
+        Set<String> parentDatasetCodes = createDatasetCodesSet(parentDatasets);
+        List<ExternalDataPE> children = new ArrayList<ExternalDataPE>();
+        for (ExternalDataPE dataset : datasets)
+        {
+            Set<DataPE> parents = dataset.getParents();
+            if (parents.size() == 1)
+            {
+                DataPE parent = parents.iterator().next();
+                if (parentDatasetCodes.contains(parent.getCode()))
+                {
+                    children.add(dataset);
+                }
+            }
+        }
+        return children;
+    }
+
+    private static Set<String> createDatasetCodesSet(List<? extends IDatasetIdentifier> datasets)
+    {
+        Set<String> result = new HashSet<String>();
+        for (IDatasetIdentifier dataset : datasets)
+        {
+            result.add(dataset.getDatasetCode());
+        }
+        return result;
+    }
+
+    private ExperimentPE tryGetExperiment(ISampleBO sampleBO, PlateIdentifier plate)
+    {
+        sampleBO.loadBySampleIdentifier(createSampleIdentifier(plate));
+        SamplePE sample = sampleBO.getSample();
+        return sample.getExperiment();
     }
 
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
@@ -124,8 +181,10 @@ public class ScreeningApiImpl
     private static FeatureVectorDatasetReference asFeatureVectorDataset(ExternalDataPE externalData)
     {
         DataStorePE dataStore = externalData.getDataStore();
+        DataPE parentDataset = externalData.getParents().iterator().next();
         return new FeatureVectorDatasetReference(externalData.getCode(),
-                dataStore.getDownloadUrl(), createPlateIdentifier(externalData));
+                dataStore.getDownloadUrl(), createPlateIdentifier(parentDataset),
+                asImageDataset(parentDataset));
     }
 
     private static List<ImageDatasetReference> asImageDatasets(List<ExternalDataPE> datasets)
@@ -138,17 +197,17 @@ public class ScreeningApiImpl
         return result;
     }
 
-    private static ImageDatasetReference asImageDataset(ExternalDataPE externalData)
+    private static ImageDatasetReference asImageDataset(DataPE parentDataset)
     {
-        DataStorePE dataStore = externalData.getDataStore();
-        return new ImageDatasetReference(externalData.getCode(), dataStore.getDownloadUrl(),
-                createPlateIdentifier(externalData));
+        DataStorePE dataStore = parentDataset.getDataStore();
+        return new ImageDatasetReference(parentDataset.getCode(), dataStore.getDownloadUrl(),
+                createPlateIdentifier(parentDataset));
     }
 
-    private static PlateIdentifier createPlateIdentifier(ExternalDataPE externalData)
+    private static PlateIdentifier createPlateIdentifier(DataPE parentDataset)
     {
-        SamplePE sample = externalData.tryGetSample();
-        assert sample != null : "dataset not connected to a sample: " + externalData;
+        SamplePE sample = parentDataset.tryGetSample();
+        assert sample != null : "dataset not connected to a sample: " + parentDataset;
         final String plateCode = sample.getCode();
         GroupPE group = sample.getGroup();
         final String spaceCodeOrNull = (group != null) ? group.getCode() : null;

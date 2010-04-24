@@ -233,7 +233,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
     private InputStream getImageStream(ExternalData imageDataset, PlateImageReference imageRef)
     {
-        HCSDatasetLoader imageAccessor = createImageLoader(imageRef.getDatasetCode());
+        HCSDatasetLoader imageAccessor = createImageLoader(imageDataset.getCode());
         Location wellLocation = asLocation(imageRef.getWellPosition());
         Location tileLocation =
                 getTileLocation(imageRef.getTile(), imageAccessor.getWellGeometry());

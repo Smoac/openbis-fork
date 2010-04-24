@@ -70,9 +70,13 @@ public class ScreeningClientApiTest
         System.out.println("Feature vector datasets: " + featureVectorDatasets);
 
         // test for feature vector dataset
-        // String featureVectorDatasetCode = "20100423170945059-29"; // feature vector
-        String imageDatasetCode = "20100423163638457-16"; // image
-        IDatasetIdentifier datasetIdentifier = getDatasetIdentifier(facade, imageDatasetCode);
+        String featureVectorDatasetCode = "20100424125121572-43"; // feature vector
+        IDatasetIdentifier datasetIdentifier =
+                getDatasetIdentifier(facade, featureVectorDatasetCode);
+        loadImages(facade, datasetIdentifier);
+
+        String imageDatasetCode = "DEMO-PLATE002"; // image
+        datasetIdentifier = getDatasetIdentifier(facade, imageDatasetCode);
         loadImages(facade, datasetIdentifier);
 
         List<String> featureNames = facade.listAvailableFeatureNames(featureVectorDatasets);
@@ -83,7 +87,7 @@ public class ScreeningClientApiTest
 
         List<ImageDatasetMetadata> imageMetadata = facade.listImageMetadata(imageDatasets);
         System.out.println("Image metadata: " + imageMetadata);
-        
+
         facade.logout();
     }
 
@@ -108,18 +112,20 @@ public class ScreeningClientApiTest
                     imageRefs.add(new PlateImageReference(well, well, tile, channel,
                             datasetIdentifier));
                     List<PlateSingleImage> images = facade.loadImages(imageRefs);
-                    saveImages(images);
+                    saveImages(images, datasetIdentifier.getDatasetCode());
                 }
             }
         }
     }
 
-    private static void saveImages(List<PlateSingleImage> images) throws FileNotFoundException,
-            IOException
+    private static void saveImages(List<PlateSingleImage> images, String dirName)
+            throws FileNotFoundException, IOException
     {
+        File dir = new File(dirName);
+        dir.mkdir();
         for (PlateSingleImage image : images)
         {
-            FileOutputStream out = new FileOutputStream(new File(createImageFileName(image)));
+            FileOutputStream out = new FileOutputStream(new File(dir, createImageFileName(image)));
             InputStream in = image.getImage();
             StreamUtils.copyThenClose(in, out);
             out.close();

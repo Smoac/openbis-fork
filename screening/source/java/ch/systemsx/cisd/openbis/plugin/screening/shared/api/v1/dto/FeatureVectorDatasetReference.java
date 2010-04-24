@@ -26,9 +26,24 @@ public class FeatureVectorDatasetReference extends DatasetReference implements
 {
     private static final long serialVersionUID = 1L;
 
+    private final IImageDatasetIdentifier imageDatasetIdentifier;
+
     public FeatureVectorDatasetReference(String datasetCode, String datastoreServerUrl,
-            PlateIdentifier plate)
+            PlateIdentifier plate, IImageDatasetIdentifier imageDatasetIdentifier)
     {
         super(datasetCode, datastoreServerUrl, plate);
+        this.imageDatasetIdentifier = imageDatasetIdentifier;
+    }
+
+    /** parent image dataset which has been analyzed to obtain the feature vectors */
+    public IImageDatasetIdentifier getParentImageDataset()
+    {
+        return imageDatasetIdentifier;
+    }
+
+    @Override
+    public String toString()
+    {
+        return super.toString() + " from image dataset " + imageDatasetIdentifier.getDatasetCode();
     }
 }
