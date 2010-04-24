@@ -50,7 +50,7 @@ public class ScreeningClientApiTest
         {
             System.err.println("Usage: <user> <password> <openbis-server-url>");
             System.err
-                    .println("Example parameters: test-user my-password http://localhost:8888/openbis");
+                    .println("Example parameters: test-user my-password http://localhost:8888/openbis/openbis");
             return;
         }
         String userId = args[0];
