@@ -83,10 +83,11 @@ public class ScreeningApiImpl
         List<FeatureVectorDatasetReference> result = new ArrayList<FeatureVectorDatasetReference>();
         List<ImageDatasetReference> imageDatasets = listImageDatasets(plates);
         ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        Set<ExperimentPE> visitedExperiments = new HashSet<ExperimentPE>();
         for (PlateIdentifier plate : plates)
         {
             ExperimentPE experiment = tryGetExperiment(sampleBO, plate);
-            if (experiment != null)
+            if (experiment != null && visitedExperiments.contains(experiment) == false)
             {
                 List<ExternalDataPE> datasets =
                         daoFactory.getExternalDataDAO().listExternalData(experiment);
@@ -95,6 +96,7 @@ public class ScreeningApiImpl
                         ScreeningUtils.filterDatasetsByType(childrenDatasets,
                                 ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
                 result.addAll(asFeatureVectorDatasets(featureVectorDatasets));
+                visitedExperiments.add(experiment);
             }
         }
         return result;
