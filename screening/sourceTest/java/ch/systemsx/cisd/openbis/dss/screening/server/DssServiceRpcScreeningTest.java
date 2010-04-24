@@ -51,7 +51,7 @@ public class DssServiceRpcScreeningTest extends AbstractFileSystemTestCase
         try
         {
             String[] names = DssServiceRpcScreening.extractFeatureNames(datasetFile);
-            assertEquals("[wellName, f0, f1, f2]", Arrays.toString(names));
+            assertEquals("[f0, f1, f2]", Arrays.toString(names));
         } catch (IOException ex)
         {
             ex.printStackTrace();
@@ -76,25 +76,25 @@ public class DssServiceRpcScreeningTest extends AbstractFileSystemTestCase
                 FeatureVectorDataset result =
                         DssServiceRpcScreening.createFeatureVectorDataset(datasetFile, dataset,
                                 Arrays.asList(new String[]
-                                    { "f0", "f2", "f3" }));
+                                    { "f2", "f0", "f3" }));
 
                 assertEquals(dataset, result.getDataset());
-                assertEquals("[f0, f2]", result.getFeatureNames().toString());
+                assertEquals("[f2, f0]", result.getFeatureNames().toString());
                 assertEquals(3, result.getFeatureVectors().size());
 
                 assertEquals("[1, 1]", result.getFeatureVectors().get(0).getWellPosition()
                         .toString());
-                assertEquals("[1.0, 1.2]", Arrays.toString(result.getFeatureVectors().get(0)
+                assertEquals("[1.2, 1.0]", Arrays.toString(result.getFeatureVectors().get(0)
                         .getValues()));
 
                 assertEquals("[3, 7]", result.getFeatureVectors().get(1).getWellPosition()
                         .toString());
-                assertEquals("[2.0, 2.2]", Arrays.toString(result.getFeatureVectors().get(1)
+                assertEquals("[2.2, 2.0]", Arrays.toString(result.getFeatureVectors().get(1)
                         .getValues()));
 
                 assertEquals("[4, 7]", result.getFeatureVectors().get(2).getWellPosition()
                         .toString());
-                assertEquals("[3.0, 3.2]", Arrays.toString(result.getFeatureVectors().get(2)
+                assertEquals("[3.2, 3.0]", Arrays.toString(result.getFeatureVectors().get(2)
                         .getValues()));
             }
 
