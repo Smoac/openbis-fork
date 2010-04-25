@@ -21,6 +21,17 @@ extern "C" {
 #include "jni.h"
 
 /*
+ *   public static native boolean isLittleEndian();
+ */
+JNIEXPORT jboolean JNICALL Java_ch_systemsx_cisd_base_convert_NativeData_isLittleEndian
+(JNIEnv *env,
+  jclass clss
+  )  
+{
+    return MACHINE_BYTE_ORDER == 1;
+}
+
+/*
  *  A fatal error in a JNI call
  *  Create and throw an 'InternalError'
  *

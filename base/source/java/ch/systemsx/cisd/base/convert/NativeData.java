@@ -67,6 +67,12 @@ public class NativeData
     }
 
     /**
+     * Returns <code>true</code> if this platform is a little-endian platform and <code>false</code>
+     * , if it is a big-endian platform.
+     */
+    static native boolean isLittleEndian();
+
+    /**
      * Copies a range from an array of <code>int</code> into an array of <code>byte</code>.
      * 
      * @param inData The input array of <code>int</code> values.
@@ -233,6 +239,14 @@ public class NativeData
     /** Call to ensure that the native library is loaded. */
     public static void ensureNativeLibIsLoaded()
     {
+    }
+    
+    /**
+     * Returns the native byte order of the host running this JRE.
+     */
+    public static ByteOrder getNativeByteOrder()
+    {
+        return isLittleEndian() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
     }
 
     /**
