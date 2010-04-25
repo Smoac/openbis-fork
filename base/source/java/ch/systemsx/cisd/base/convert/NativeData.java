@@ -70,7 +70,7 @@ public class NativeData
      * Returns <code>true</code> if this platform is a little-endian platform and <code>false</code>
      * , if it is a big-endian platform.
      */
-    static native boolean isLittleEndian();
+    private static native boolean isLittleEndian();
 
     /**
      * Copies a range from an array of <code>int</code> into an array of <code>byte</code>.
@@ -85,7 +85,7 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    static native void copyIntToByte(int[] inData, int inStart, byte[] outData, int outStart,
+    private static native void copyIntToByte(int[] inData, int inStart, byte[] outData, int outStart,
             int len, int byteOrder);
 
     /**
@@ -101,7 +101,7 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    static native void copyByteToInt(byte[] inData, int inStart, int[] outData, int outStart,
+    private static native void copyByteToInt(byte[] inData, int inStart, int[] outData, int outStart,
             int len, int byteOrder);
 
     /**
@@ -117,7 +117,7 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    static native void copyLongToByte(long[] inData, int inStart, byte[] outData, int outStart,
+    private static native void copyLongToByte(long[] inData, int inStart, byte[] outData, int outStart,
             int len, int byteOrder);
 
     /**
@@ -133,7 +133,7 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    static native void copyByteToLong(byte[] inData, int inStart, long[] outData, int outStart,
+    private static native void copyByteToLong(byte[] inData, int inStart, long[] outData, int outStart,
             int len, int byteOrder);
 
     /**
@@ -149,7 +149,7 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    static native void copyShortToByte(short[] inData, int inStart, byte[] outData, int outStart,
+    private static native void copyShortToByte(short[] inData, int inStart, byte[] outData, int outStart,
             int len, int byteOrder);
 
     /**
@@ -165,7 +165,7 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    static native void copyByteToShort(byte[] inData, int inStart, short[] outData, int outStart,
+    private static native void copyByteToShort(byte[] inData, int inStart, short[] outData, int outStart,
             int len, int byteOrder);
 
     /**
@@ -181,7 +181,7 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    static native void copyFloatToByte(float[] inData, int inStart, byte[] outData, int outStart,
+    private static native void copyFloatToByte(float[] inData, int inStart, byte[] outData, int outStart,
             int len, int byteOrder);
 
     /**
@@ -197,7 +197,7 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    static native void copyByteToFloat(byte[] inData, int inStart, float[] outData, int outStart,
+    private static native void copyByteToFloat(byte[] inData, int inStart, float[] outData, int outStart,
             int len, int byteOrder);
 
     /**
@@ -213,7 +213,7 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    static native void copyDoubleToByte(double[] inData, int inStart, byte[] outData, int outStart,
+    private static native void copyDoubleToByte(double[] inData, int inStart, byte[] outData, int outStart,
             int len, int byteOrder);
 
     /**
@@ -229,7 +229,7 @@ public class NativeData
      * @param byteOrder The ordinal of {@link ByteOrder}, encoding what byte order the
      *            <var>outData</var> should be in.
      */
-    static native void copyByteToDouble(byte[] inData, int inStart, double[] outData, int outStart,
+    private static native void copyByteToDouble(byte[] inData, int inStart, double[] outData, int outStart,
             int len, int byteOrder);
 
     //
@@ -240,13 +240,203 @@ public class NativeData
     public static void ensureNativeLibIsLoaded()
     {
     }
-    
+
     /**
      * Returns the native byte order of the host running this JRE.
      */
     public static ByteOrder getNativeByteOrder()
     {
         return isLittleEndian() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+    }
+
+    /**
+     * Copies a range from an array of <code>int</code> into an array of <code>byte</code>.
+     * 
+     * @param inData The input array of <code>int</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>int</code> to
+     *            start
+     * @param outData The output array of <code>byte</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>byte</code> to
+     *            start
+     * @param len The number of <code>int</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyIntToByte(int[] inData, int inStart, byte[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        copyIntToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+    }
+
+    /**
+     * Copies a range from an array of <code>byte</code> into an array of <code>int</code>.
+     * 
+     * @param inData The input array of <code>byte</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>byte</code> to
+     *            start
+     * @param outData The output array of <code>int</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>int</code> to
+     *            start
+     * @param len The number of <code>int</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyByteToInt(byte[] inData, int inStart, int[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        copyByteToInt(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+    }
+
+    /**
+     * Copies a range from an array of <code>long</code> into an array of <code>byte</code>.
+     * 
+     * @param inData The input array of <code>long</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>long</code> to
+     *            start
+     * @param outData The output array of <code>byte</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>byte</code> to
+     *            start
+     * @param len The number of <code>long</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyLongToByte(long[] inData, int inStart, byte[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        copyLongToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+    }
+
+    /**
+     * Copies a range from an array of <code>byte</code> into an array of <code>long</code>.
+     * 
+     * @param inData The input array of <code>byte</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>byte</code> to
+     *            start
+     * @param outData The output array of <code>long</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>long</code> to
+     *            start
+     * @param len The number of <code>long</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyByteToLong(byte[] inData, int inStart, long[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        copyByteToLong(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+    }
+
+    /**
+     * Copies a range from an array of <code>short</code> into an array of <code>byte</code>.
+     * 
+     * @param inData The input array of <code>short</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>short</code> to
+     *            start
+     * @param outData The output array of <code>byte</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>byte</code> to
+     *            start
+     * @param len The number of <code>short</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyShortToByte(short[] inData, int inStart, byte[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        copyShortToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+    }
+
+    /**
+     * Copies a range from an array of <code>byte</code> into an array of <code>short</code>.
+     * 
+     * @param inData The input array of <code>byte</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>byte</code> to
+     *            start
+     * @param outData The output array of <code>short</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>short</code> to
+     *            start
+     * @param len The number of <code>short</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyByteToShort(byte[] inData, int inStart, short[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        copyByteToShort(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+    }
+
+    /**
+     * Copies a range from an array of <code>float</code> into an array of <code>byte</code>.
+     * 
+     * @param inData The input array of <code>float</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>float</code> to
+     *            start
+     * @param outData The output array of <code>byte</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>byte</code> to
+     *            start
+     * @param len The number of <code>float</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyFloatToByte(float[] inData, int inStart, byte[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        copyFloatToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+    }
+
+    /**
+     * Copies a range from an array of <code>byte</code> into an array of <code>float</code>.
+     * 
+     * @param inData The input array of <code>byte</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>byte</code> to
+     *            start
+     * @param outData The output array of <code>float</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>float</code> to
+     *            start
+     * @param len The number of <code>float</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyByteToFloat(byte[] inData, int inStart, float[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        copyByteToFloat(inData, inStart, outData, outStart, len, byteOrder.ordinal());
+    }
+
+    /**
+     * Copies a range from an array of <code>double</code> into an array of <code>byte</code>.
+     * 
+     * @param inData The input array of <code>double</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>double</code> to
+     *            start
+     * @param outData The output array of <code>byte</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>byte</code> to
+     *            start
+     * @param len The number of <code>double</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyDoubleToByte(double[] inData, int inStart, byte[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+       copyDoubleToByte(inData, inStart, outData, outStart, len, byteOrder.ordinal()); 
+    }
+
+    /**
+     * Copies a range from an array of <code>byte</code> into an array of <code>double</code>.
+     * 
+     * @param inData The input array of <code>byte</code> values.
+     * @param inStart The position in the input array <code>inData</code> of <code>byte</code> to
+     *            start
+     * @param outData The output array of <code>double</code> values.
+     * @param outStart The start in the output array <code>byteData</code> of <code>double</code> to
+     *            start
+     * @param len The number of <code>double</code> to copy
+     * @param byteOrder The {@link ByteOrder}, encoding what byte order the <var>outData</var>
+     *            should be in.
+     */
+    public static void copyByteToDouble(byte[] inData, int inStart, double[] outData, int outStart,
+            int len, ByteOrder byteOrder)
+    {
+        copyByteToDouble(inData, inStart, outData, outStart, len, byteOrder.ordinal());
     }
 
     /**

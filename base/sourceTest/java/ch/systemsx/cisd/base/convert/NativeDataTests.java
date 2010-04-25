@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.base.convert;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -71,10 +72,10 @@ public class NativeDataTests
         System.arraycopy(orignalArr, 0, iarr, sourceOfs, orignalArr.length);
         final byte[] barr = new byte[iarr.length * sizeOfTarget + targetOfs];
         NativeData.copyIntToByte(iarr, sourceOfs, barr, targetOfs, orignalArr.length,
-                NativeData.ByteOrder.NATIVE.ordinal());
+                NativeData.ByteOrder.NATIVE);
         final int[] iarr2 = new int[(barr.length - targetOfs) / sizeOfTarget];
         NativeData.copyByteToInt(barr, targetOfs, iarr2, sourceOfs, orignalArr.length,
-                NativeData.ByteOrder.NATIVE.ordinal());
+                NativeData.ByteOrder.NATIVE);
         assertTrue(Arrays.equals(iarr, iarr2));
     }
 
@@ -88,10 +89,10 @@ public class NativeDataTests
         System.arraycopy(orignalArr, 0, iarr, sourceOfs, orignalArr.length);
         final byte[] barr = new byte[iarr.length * sizeOfTarget + targetOfs];
         NativeData.copyLongToByte(iarr, sourceOfs, barr, targetOfs, orignalArr.length,
-                NativeData.ByteOrder.NATIVE.ordinal());
+                NativeData.ByteOrder.NATIVE);
         final long[] iarr2 = new long[(barr.length - targetOfs) / sizeOfTarget];
         NativeData.copyByteToLong(barr, targetOfs, iarr2, sourceOfs, orignalArr.length,
-                NativeData.ByteOrder.NATIVE.ordinal());
+                NativeData.ByteOrder.NATIVE);
         assertTrue(Arrays.equals(iarr, iarr2));
     }
 
@@ -105,10 +106,10 @@ public class NativeDataTests
         System.arraycopy(orignalArr, 0, iarr, sourceOfs, orignalArr.length);
         final byte[] barr = new byte[iarr.length * sizeOfTarget + targetOfs];
         NativeData.copyShortToByte(iarr, sourceOfs, barr, targetOfs, orignalArr.length,
-                NativeData.ByteOrder.NATIVE.ordinal());
+                NativeData.ByteOrder.NATIVE);
         final short[] iarr2 = new short[(barr.length - targetOfs) / sizeOfTarget];
         NativeData.copyByteToShort(barr, targetOfs, iarr2, sourceOfs, orignalArr.length,
-                NativeData.ByteOrder.NATIVE.ordinal());
+                NativeData.ByteOrder.NATIVE);
         assertTrue(Arrays.equals(iarr, iarr2));
     }
 
@@ -122,10 +123,10 @@ public class NativeDataTests
         System.arraycopy(orignalArr, 0, iarr, sourceOfs, orignalArr.length);
         final byte[] barr = new byte[iarr.length * sizeOfTarget + targetOfs];
         NativeData.copyFloatToByte(iarr, sourceOfs, barr, targetOfs, orignalArr.length,
-                NativeData.ByteOrder.NATIVE.ordinal());
+                NativeData.ByteOrder.NATIVE);
         final float[] iarr2 = new float[(barr.length - targetOfs) / sizeOfTarget];
         NativeData.copyByteToFloat(barr, targetOfs, iarr2, sourceOfs, orignalArr.length,
-                NativeData.ByteOrder.NATIVE.ordinal());
+                NativeData.ByteOrder.NATIVE);
         assertTrue(Arrays.equals(iarr, iarr2));
     }
 
@@ -139,10 +140,10 @@ public class NativeDataTests
         System.arraycopy(orignalArr, 0, iarr, sourceOfs, orignalArr.length);
         final byte[] barr = new byte[iarr.length * sizeOfTarget + targetOfs];
         NativeData.copyDoubleToByte(iarr, sourceOfs, barr, targetOfs, orignalArr.length,
-                NativeData.ByteOrder.NATIVE.ordinal());
+                NativeData.ByteOrder.NATIVE);
         final double[] iarr2 = new double[(barr.length - targetOfs) / sizeOfTarget];
         NativeData.copyByteToDouble(barr, targetOfs, iarr2, sourceOfs, orignalArr.length,
-                NativeData.ByteOrder.NATIVE.ordinal());
+                NativeData.ByteOrder.NATIVE);
         assertTrue(Arrays.equals(iarr, iarr2));
     }
 
@@ -239,13 +240,13 @@ public class NativeDataTests
     @Test(expectedExceptions = NullPointerException.class)
     public void testNPE()
     {
-        NativeData.copyByteToLong(null, 0, null, 0, 0, 0);
+        NativeData.copyByteToLong(null, 0, null, 0, 0, ByteOrder.NATIVE);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testIAE()
     {
-        NativeData.copyByteToLong(new byte[] {}, -1, new long[] {}, 0, 0, 0);
+        NativeData.copyByteToLong(new byte[] {}, -1, new long[] {}, 0, 0, ByteOrder.NATIVE);
     }
 
     @Test
@@ -261,12 +262,12 @@ public class NativeDataTests
                         ByteOrder.NATIVE);
         if (Arrays.equals(values, valuesLE))
         {
-            System.out.println("Platform is little endian.");
+            assertEquals(NativeData.ByteOrder.LITTLE_ENDIAN, NativeData.getNativeByteOrder());
             assertFalse(Arrays.equals(values, valuesBE));
         }
         if (Arrays.equals(values, valuesBE))
         {
-            System.out.println("Platform is big endian.");
+            assertEquals(NativeData.ByteOrder.BIG_ENDIAN, NativeData.getNativeByteOrder());
             assertFalse(Arrays.equals(values, valuesLE));
         }
     }
