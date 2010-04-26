@@ -135,7 +135,7 @@
 			<zipfileset src="${lib}/commons-lang/commons-lang.jar" />
 			<zipfileset src="${lib}/commons-io/commons-io.jar" />
 			<manifest>
-				<attribute name="Main-Class" value="ch.systemsx.cisd.base.unix.UnixTests" />
+				<attribute name="Main-Class" value="ch.systemsx.cisd.base.AllTests" />
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />
