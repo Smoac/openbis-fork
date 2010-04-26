@@ -66,10 +66,10 @@ public class DataSetInfoExtractorForSearchExperiment extends AbstractDataSetInfo
     {
         String name = incomingDataSetPath.getName();
         String[] items = StringUtils.splitByWholeSeparator(name, separator);
-        if (items.length != 2)
+        if (items.length < 2)
         {
             throw new UserFailureException(
-                    "The name of the data set Should have two parts separated by '" + separator
+                    "The name of the data set should have at least two parts separated by '" + separator
                             + "': " + name);
         }
         ProjectIdentifier projectIdentifier = new ProjectIdentifier(items[0], items[1]);
