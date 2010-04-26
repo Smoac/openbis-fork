@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -99,7 +100,7 @@ public class NativeDataTests
     @Test(dataProvider = "getOfs")
     public void testShortToByteToShort(int sourceOfs, int targetOfs)
     {
-        final int sizeOfTarget = 8;
+        final int sizeOfTarget = 2;
         final short[] orignalArr = new short[]
             { -1, 17, 20000, (short) -50000 };
         final short[] iarr = new short[sourceOfs + orignalArr.length];
@@ -116,7 +117,7 @@ public class NativeDataTests
     @Test(dataProvider = "getOfs")
     public void testFloatToByteToFloat(int sourceOfs, int targetOfs)
     {
-        final int sizeOfTarget = 8;
+        final int sizeOfTarget = 4;
         final float[] orignalArr = new float[]
             { -1, 17, 3.14159f, -1e6f };
         final float[] iarr = new float[sourceOfs + orignalArr.length];
@@ -270,6 +271,34 @@ public class NativeDataTests
             assertEquals(NativeData.ByteOrder.BIG_ENDIAN, NativeData.getNativeByteOrder());
             assertFalse(Arrays.equals(values, valuesLE));
         }
+    }
+
+    @Test
+    public void testFloatToByteNonNativeByteOrderPartialOutputArray()
+    {
+        final int sizeOfTarget = 4;
+        final ByteOrder nonNativeByteOrder =
+                (NativeData.getNativeByteOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN
+                        : ByteOrder.LITTLE_ENDIAN;
+        final float[] iarr = new float[]
+            { -1, 17, 3.14159f, -1e6f };
+        final byte[] headerArray = new byte[]
+            { 1, 2, 3, 4 };
+        final byte[] trailerArray = new byte[]
+            { 5, 6, 7, 8 };
+        final byte[] barr =
+            new byte[iarr.length * sizeOfTarget + headerArray.length + trailerArray.length];
+        System.arraycopy(headerArray, 0, barr, 0, headerArray.length);
+        System.arraycopy(trailerArray, 0, barr, headerArray.length + iarr.length * sizeOfTarget,
+                trailerArray.length);
+        NativeData.copyFloatToByte(iarr, 0, barr, headerArray.length, iarr.length,
+                nonNativeByteOrder);
+        final byte[] headerArray2 = ArrayUtils.subarray(barr, 0, headerArray.length);
+        final byte[] trailerArray2 =
+                ArrayUtils.subarray(barr, headerArray.length + iarr.length * sizeOfTarget,
+                        barr.length);
+        assertTrue(Arrays.equals(headerArray, headerArray2));
+        assertTrue(Arrays.equals(trailerArray, trailerArray2));
     }
 
     private void afterClass()

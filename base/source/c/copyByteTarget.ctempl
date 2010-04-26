@@ -129,9 +129,9 @@ JNIEXPORT void JNICALL FUNCTIONNAMETB
 
     if (byteOrder > 0 && byteOrder != MACHINE_BYTE_ORDER)
     {
-        jbyte *buf = outArray;
+        jbyte *buf = outArray + outStart;
         int nelmts;
-        for(nelmts=len; nelmts >= 0; --nelmts)
+        for(nelmts = 0; nelmts < len; ++nelmts)
         {
             CHANGE_BYTE_ORDER(buf);
             buf += sizeof(TARGET);
@@ -217,9 +217,9 @@ JNIEXPORT void JNICALL FUNCTIONNAMEBT
 
     if (byteOrder > 0 && byteOrder != MACHINE_BYTE_ORDER)
     {
-        jbyte *buf = (jbyte*) outArray;
+        jbyte *buf = (jbyte*) outArray + outStart;
         int nelmts;
-        for(nelmts=len; nelmts >= 0; --nelmts)
+        for(nelmts = 0; nelmts < len; ++nelmts)
         {
             CHANGE_BYTE_ORDER(buf);
             buf += sizeof(TARGET);
