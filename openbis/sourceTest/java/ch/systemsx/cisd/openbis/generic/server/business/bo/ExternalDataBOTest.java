@@ -294,17 +294,14 @@ public class ExternalDataBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).clearSession();
-                    one(externalDataDAO).tryToFindFullDataSetByCode(dataSet.getCode(), false, true);
-                    will(returnValue(dataSet));
-                    one(externalDataDAO).validateAndSaveUpdatedEntity(dataSet);
+                    one(externalDataDAO).updateDataSetStatus(dataSet.getCode(),
+                            DataSetArchivingStatus.ARCHIVED);
                 }
             });
 
         IExternalDataBO dataBO = createExternalDataBO();
         dataBO.updateStatus(dataSet.getCode(), DataSetArchivingStatus.ARCHIVED);
-        assertEquals(DataSetArchivingStatus.ARCHIVED, dataSet.getStatus());
-
+        // TODO DAO test
         context.assertIsSatisfied();
     }
 
