@@ -25,7 +25,9 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
+import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
@@ -37,12 +39,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -216,12 +220,62 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         }
         final List<ExternalDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final ExternalDataPE entity = tryFindEntity(list, "data set");
+
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("External data '%s' found for data set code '%s'.",
                     entity, dataSetCode));
         }
         return entity;
+    }
+
+    public void updateDataSetStatus(String dataSetCode, final DataSetArchivingStatus status)
+    {
+        assert dataSetCode != null : "Unspecified data set code";
+        assert status != null : "Unspecified code";
+
+        final String mangledCode = CodeConverter.tryToDatabase(dataSetCode);
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        // NOTE: 'VERSIONED' makes modification time modified too
+        final int updatedRows =
+                hibernateTemplate.bulkUpdate("UPDATE VERSIONED " + TABLE_NAME
+                        + " SET status = ? WHERE code = ? ", toArray(status, mangledCode));
+        hibernateTemplate.flush();
+
+        if (updatedRows == 0)
+        {
+            throw UserFailureException.fromTemplate("Update of dataset's %s status to %s failed.",
+                    dataSetCode, status);
+        } else if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("UPDATE: external data '%s' status %s.", dataSetCode,
+                    status));
+        }
+    }
+
+    public int bulkUpdate(final String queryString, final Object[] values)
+            throws DataAccessException
+    {
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+
+        Integer updateCount =
+                (Integer) hibernateTemplate.executeWithNativeSession(new HibernateCallback()
+                    {
+                        public Object doInHibernate(Session session) throws HibernateException
+                        {
+                            Query queryObject = session.createQuery(queryString);
+                            if (values != null)
+                            {
+                                for (int i = 0; i < values.length; i++)
+                                {
+                                    queryObject.setParameter(i, values[i]);
+                                }
+                            }
+                            return new Integer(queryObject.executeUpdate());
+                        }
+                    });
+        return updateCount.intValue();
     }
 
     public void createDataSet(DataPE dataset)

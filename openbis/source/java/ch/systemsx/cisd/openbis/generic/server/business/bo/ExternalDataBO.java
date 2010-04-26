@@ -664,11 +664,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     public void updateStatus(String dataSetCode, DataSetArchivingStatus newStatus)
     {
-        // WORKAROUND: clearing session solved StaleObjectStateException problem
-        getExternalDataDAO().clearSession();
-        loadByCode(dataSetCode, false, true);
-        externalData.setStatus(newStatus);
-        validateAndSave();
+        getExternalDataDAO().updateDataSetStatus(dataSetCode, newStatus);
     }
 
 }

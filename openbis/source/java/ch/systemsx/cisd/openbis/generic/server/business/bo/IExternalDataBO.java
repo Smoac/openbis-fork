@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -68,8 +69,11 @@ public interface IExternalDataBO extends IEntityBusinessObject
 
     /**
      * Updates status of given data set.
+     * 
+     * @throws UserFailureException if data set does not exist or status couldn't be set.
      */
-    public void updateStatus(String dataSetCode, DataSetArchivingStatus newStatus);
+    public void updateStatus(String dataSetCode, DataSetArchivingStatus newStatus)
+            throws UserFailureException;
 
     /**
      * Adds chosen properties to given data set. If given property has been already defined, the

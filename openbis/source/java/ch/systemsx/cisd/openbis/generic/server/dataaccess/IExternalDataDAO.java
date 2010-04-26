@@ -24,6 +24,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -78,6 +79,12 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
      */
     public ExternalDataPE tryToFindFullDataSetByCode(String dataSetCode, boolean withPropertyTypes,
             boolean lockForUpdate);
+
+
+    /**
+     * Sets status of dataset with given code.
+     */
+    public void updateDataSetStatus(String dataSetCodes, DataSetArchivingStatus status);
 
     /**
      * Persists the specified data set.
