@@ -61,7 +61,7 @@ public class CacheFilter implements Filter
     private boolean isPictureOrCache(String requestURI)
     {
         return requestURI.contains(".cache.") || requestURI.endsWith(".gif")
-                || requestURI.endsWith(".png");
+                || requestURI.endsWith(".png") || requestURI.endsWith(".ico");
     }
 
     public void destroy()
