@@ -17,7 +17,7 @@
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
 	<classpathentry kind="lib" path="/libraries/unix"/>
-	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/fast-md5/fast-md5.jar" sourcepath="/libraries/fast-md5/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/src.zip"/>
