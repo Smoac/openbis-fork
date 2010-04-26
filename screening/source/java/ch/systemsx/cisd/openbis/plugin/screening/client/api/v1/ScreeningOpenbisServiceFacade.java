@@ -57,7 +57,7 @@ public class ScreeningOpenbisServiceFacade
     private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
     {
         return HttpInvokerUtils.createServiceStub(IScreeningApiServer.class, serverUrl
-                + "/rmi-screening-api", SERVER_TIMEOUT_MIN);
+                + "/rmi-screening-api-v1", SERVER_TIMEOUT_MIN);
     }
 
     private static IDssServiceRpcScreening createScreeningDssServer(String serverUrl)
