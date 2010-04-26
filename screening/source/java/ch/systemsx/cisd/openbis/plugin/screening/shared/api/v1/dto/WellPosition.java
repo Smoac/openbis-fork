@@ -36,4 +36,30 @@ public class WellPosition implements Serializable
     {
         return "[" + wellRow + ", " + wellColumn + "]";
     }
+
+    @Override
+    public int hashCode()
+    {
+        int result = 313 + wellColumn;
+        result = 313 * result + wellRow;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        WellPosition other = (WellPosition) obj;
+        if (wellColumn != other.wellColumn)
+            return false;
+        if (wellRow != other.wellRow)
+            return false;
+        return true;
+    }
+
 }

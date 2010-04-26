@@ -38,6 +38,14 @@ public class PlateIdentifier implements Serializable
     }
 
     @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = prime + plateCode.hashCode();
+        return prime * result + ((spaceCodeOrNull == null) ? 0 : spaceCodeOrNull.hashCode());
+    }
+
+    @Override
     public boolean equals(Object obj)
     {
         if (obj == null || obj instanceof Plate == false)
@@ -49,4 +57,5 @@ public class PlateIdentifier implements Serializable
                 && ((spaceCodeOrNull != null && spaceCodeOrNull.equals(that.tryGetSpaceCode())) || (spaceCodeOrNull == null && that
                         .tryGetSpaceCode() == null));
     }
+
 }

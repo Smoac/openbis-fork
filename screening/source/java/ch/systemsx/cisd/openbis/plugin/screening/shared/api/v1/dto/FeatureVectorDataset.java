@@ -57,4 +57,21 @@ public class FeatureVectorDataset implements Serializable
         }
         return sb.toString();
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null || obj instanceof FeatureVectorDataset == false)
+        {
+            return false;
+        }
+        FeatureVectorDataset that = (FeatureVectorDataset) obj;
+        return dataset.getDatasetCode().equals(that.getDataset().getDatasetCode());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return dataset.getDatasetCode().hashCode();
+    }
 }
