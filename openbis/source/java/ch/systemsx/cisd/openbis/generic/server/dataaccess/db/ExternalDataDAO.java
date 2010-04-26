@@ -25,9 +25,7 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
-import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
@@ -252,30 +250,6 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
             operationLog.info(String.format("UPDATE: external data '%s' status %s.", dataSetCode,
                     status));
         }
-    }
-
-    public int bulkUpdate(final String queryString, final Object[] values)
-            throws DataAccessException
-    {
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-
-        Integer updateCount =
-                (Integer) hibernateTemplate.executeWithNativeSession(new HibernateCallback()
-                    {
-                        public Object doInHibernate(Session session) throws HibernateException
-                        {
-                            Query queryObject = session.createQuery(queryString);
-                            if (values != null)
-                            {
-                                for (int i = 0; i < values.length; i++)
-                                {
-                                    queryObject.setParameter(i, values[i]);
-                                }
-                            }
-                            return new Integer(queryObject.executeUpdate());
-                        }
-                    });
-        return updateCount.intValue();
     }
 
     public void createDataSet(DataPE dataset)
