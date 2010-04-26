@@ -563,6 +563,8 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                 {
                     try
                     {
+                        one(connection).isClosed();
+                        will(returnValue(false));
                         one(connection).rollback();
                         one(connection).close();
                     } catch (SQLException ex)
