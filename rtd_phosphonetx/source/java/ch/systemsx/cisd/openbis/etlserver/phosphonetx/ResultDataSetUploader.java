@@ -117,8 +117,11 @@ class ResultDataSetUploader extends AbstractHandler
     {
         try
         {
-            connection.rollback();
-            connection.close();
+            if (connection.isClosed() == false)
+            {
+                connection.rollback();
+                connection.close();
+            }
         } catch (SQLException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

@@ -113,14 +113,24 @@ public class ProtXMLUploader implements IDataSetUploader
 
     public void commit()
     {
-        currentResultDataSetUploader.commit();
-        currentResultDataSetUploader = null;
+        try
+        {
+            currentResultDataSetUploader.commit();
+        } finally
+        {
+            currentResultDataSetUploader = null;
+        }
     }
 
     public void rollback()
     {
-        currentResultDataSetUploader.rollback();
-        currentResultDataSetUploader = null;
+        try
+        {
+            currentResultDataSetUploader.rollback();
+        } finally
+        {
+            currentResultDataSetUploader = null;
+        }
     }
 
     protected ResultDataSetUploader createUploader()
