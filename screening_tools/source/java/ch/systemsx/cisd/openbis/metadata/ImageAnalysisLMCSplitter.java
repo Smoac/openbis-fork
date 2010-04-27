@@ -54,6 +54,7 @@ public class ImageAnalysisLMCSplitter
     {
         String prevPlateCode = "";
         OutputStream out = null;
+        File parentDir = createPlatesParentDir();
         while (reader.readRecord())
         {
             String[] row = reader.getValues();
@@ -65,12 +66,19 @@ public class ImageAnalysisLMCSplitter
                     out.close();
                 }
                 System.out.println("Generating " + plateCode);
-                out = new FileOutputStream(new File(plateCode + ".csv"));
+                out = new FileOutputStream(new File(parentDir, plateCode + ".csv"));
                 writeLine(header, out);
                 prevPlateCode = plateCode;
             }
             writeLine(row, out);
         }
+    }
+
+    private static File createPlatesParentDir()
+    {
+        File dir = new File("plates");
+        dir.mkdirs();
+        return dir;
     }
 
     private static void writeLine(String[] header, OutputStream out) throws IOException
