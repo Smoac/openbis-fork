@@ -57,7 +57,8 @@
                 	          servlet-api-2.5.jar log4j.jar activation.jar mail.jar spring.jar fast-md5.jar
                                   commons-codec.jar commons-lang.jar commons-io.jar commons-logging.jar 
                 	          commons-httpclient.jar commons-pool.jar commons-dbcp.jar eodsql.jar postgresql.jar
-					               		ij.jar jaxb-api.jar jaxb-impl.jar jsr173_1-0_api.jar csv.jar" />
+					               		ij.jar jaxb-api.jar jaxb-impl.jar jsr173_1-0_api.jar csv.jar
+					               		jcommon-1.0.16.jar jfreechart-1.0.13.jar" />
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />
@@ -115,6 +116,9 @@
 		<copy file="${lib}/spring/spring.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/csv/csv.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jfreechart/jcommon-1.0.16.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jfreechart/jfreechart-1.0.13.jar" todir="${dist.datastore_server.lib}" />
+
 		<property name="dist.file"
 		          value="${dist.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
 		<zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar">
