@@ -63,7 +63,7 @@ public class ScreeningClientApiTest
                 ScreeningOpenbisServiceFacade.tryCreate(userId, userPassword, serverUrl);
         if (facade == null)
         {
-            System.err.println("Cannot connect with the server, is it running?");
+            System.err.println("Authentication failed: check the user name and password.");
             return;
         }
         List<Plate> plates = facade.listPlates();
