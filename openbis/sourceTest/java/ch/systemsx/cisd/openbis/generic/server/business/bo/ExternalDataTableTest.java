@@ -206,8 +206,10 @@ public final class ExternalDataTableTest extends AbstractBOTest
     {
         final ExternalDataPE d1 = createDataSet("d1", dss1);
         final ExternalDataPE d2 = createDataSet("d2", dss2);
-        prepareFindFullDataset(d1, true);
-        prepareFindFullDataset(d2, false);
+
+        prepareFindFullDatasets(new ExternalDataPE[]
+            { d1, d2 }, new ExternalDataPE[]
+            { d1 }, false, false);
 
         ExternalDataTable externalDataTable = createExternalDataTable();
         externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false,
@@ -219,20 +221,23 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    private void prepareFindFullDataset(final ExternalDataPE result, final boolean found)
+    private void prepareFindFullDatasets(final ExternalDataPE[] search,
+            final boolean withProperties, final boolean lockForUpdate)
     {
-        prepareFindFullDataset(result, found, false);
+        prepareFindFullDatasets(search, search, withProperties, lockForUpdate);
     }
 
-    private void prepareFindFullDataset(final ExternalDataPE result, final boolean found,
+    private void prepareFindFullDatasets(final ExternalDataPE[] searched,
+            final ExternalDataPE[] results, final boolean withProperties,
             final boolean lockForUpdate)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryToFindFullDataSetByCode(result.getCode(), false,
+                    one(externalDataDAO).tryToFindFullDataSetByCodes(
+                            Code.extractCodes(Arrays.asList(searched)), withProperties,
                             lockForUpdate);
-                    will(returnValue(found ? result : null));
+                    will(returnValue(Arrays.asList(results)));
                 }
             });
     }
@@ -245,8 +250,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    prepareFindFullDataset(d1, true);
-                    prepareFindFullDataset(d2, true);
+                    prepareFindFullDatasets(new ExternalDataPE[]
+                        { d1, d2 }, false, false);
 
                     one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(),
                             Arrays.asList(d2.getLocation()));
@@ -285,10 +290,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    for (ExternalDataPE dataset : allDataSets)
-                    {
-                        prepareFindFullDataset(dataset, true);
-                    }
+                    prepareFindFullDatasets(allDataSets, false, false);
                 }
             });
 
@@ -319,8 +321,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    prepareFindFullDataset(d1, true);
-                    prepareFindFullDataset(d2, true);
+                    prepareFindFullDatasets(new ExternalDataPE[]
+                        { d1, d2 }, false, false);
 
                     List<String> d2Locations = Arrays.asList(d2.getLocation());
                     one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(), d2Locations);
@@ -364,8 +366,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    prepareFindFullDataset(d1PE, true);
-                    prepareFindFullDataset(d2PE, true);
+                    prepareFindFullDatasets(new ExternalDataPE[]
+                        { d1PE, d2PE }, true, false);
 
                     List<String> d2Locations = Arrays.asList(d2PE.getLocation());
                     one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(), d2Locations);
@@ -425,10 +427,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    for (ExternalDataPE dataset : allDataSets)
-                    {
-                        prepareFindFullDataset(dataset, true);
-                    }
+                    prepareFindFullDatasets(allDataSets, true, false);
                 }
             });
 
@@ -561,10 +560,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    for (ExternalDataPE dataSet : allDataSets)
-                    {
-                        prepareFindFullDataset(dataSet, true, true);
-                    }
+                    prepareFindFullDatasets(allDataSets, false, true);
 
                     prepareUpdateDatasetStatus(d2Available1, ARCHIVE_PENDING);
                     prepareUpdateDatasetStatus(d2Available2, ARCHIVE_PENDING);
@@ -603,10 +599,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    for (ExternalDataPE dataSet : allDataSets)
-                    {
-                        prepareFindFullDataset(dataSet, true, true);
-                    }
+                    prepareFindFullDatasets(allDataSets, false, true);
 
                     prepareUpdateDatasetStatus(d2Archived1, UNARCHIVE_PENDING);
                     prepareUpdateDatasetStatus(d2Archived2, UNARCHIVE_PENDING);
