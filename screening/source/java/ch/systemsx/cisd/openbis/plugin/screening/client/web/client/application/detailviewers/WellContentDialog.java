@@ -76,7 +76,7 @@ public class WellContentDialog extends Dialog
                     createImageViewer(images, channelState, viewContext, imgW, imgH);
             container.add(imageViewer);
 
-            dialogWidth = imgW * images.getTileColsNum();
+            dialogWidth = imgW * Math.max(2, images.getTileColsNum());
             dialogHeight = imgH * images.getTileRowsNum() + 200;
         } else
         {
