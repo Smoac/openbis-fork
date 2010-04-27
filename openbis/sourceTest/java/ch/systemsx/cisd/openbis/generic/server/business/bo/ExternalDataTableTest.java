@@ -210,7 +210,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         prepareFindFullDataset(d2, false);
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false);
+        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false,
+                false);
 
         assertEquals(1, externalDataTable.getExternalData().size());
         assertSame(d1, externalDataTable.getExternalData().get(0));
@@ -229,7 +230,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryToFindFullDataSetByCode(result.getCode(), true,
+                    one(externalDataDAO).tryToFindFullDataSetByCode(result.getCode(), false,
                             lockForUpdate);
                     will(returnValue(found ? result : null));
                 }
@@ -254,7 +255,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false);
+        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false,
+                false);
         try
         {
             externalDataTable.deleteLoadedDataSets("");
@@ -291,7 +293,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false);
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
+                false);
         try
         {
             externalDataTable.deleteLoadedDataSets("");
@@ -334,7 +337,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false);
+        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false,
+                false);
         externalDataTable.deleteLoadedDataSets(reason);
 
         context.assertIsSatisfied();
@@ -391,7 +395,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1PE.getCode(), d2PE.getCode()), false);
+        externalDataTable.loadByDataSetCodes(Arrays.asList(d1PE.getCode(), d2PE.getCode()), true,
+                false);
         String message = externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
 
         assertEquals(
@@ -428,7 +433,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false);
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), true,
+                false);
         try
         {
             externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
@@ -564,13 +570,17 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     prepareUpdateDatasetStatus(d2Available2, ARCHIVE_PENDING);
                     prepareUpdateDatasetStatus(d3Available, ARCHIVE_PENDING);
 
+                    prepareFlush();
+
                     prepareArchiving(dataStoreService2, dss2, d2Available1, d2Available2);
                     prepareArchiving(dataStoreService3, dss3, d3Available);
                 }
+
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), true);
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
+                true);
         int archived = externalDataTable.archiveDatasets();
         assertEquals(3, archived);
 
@@ -602,13 +612,16 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     prepareUpdateDatasetStatus(d2Archived2, UNARCHIVE_PENDING);
                     prepareUpdateDatasetStatus(d3Archived, UNARCHIVE_PENDING);
 
+                    prepareFlush();
+
                     prepareUnarchiving(dataStoreService2, dss2, d2Archived1, d2Archived2);
                     prepareUnarchiving(dataStoreService3, dss3, d3Archived);
                 }
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), true);
+        externalDataTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false,
+                true);
         int unarchived = externalDataTable.unarchiveDatasets();
         assertEquals(3, unarchived);
 
@@ -622,30 +635,40 @@ public final class ExternalDataTableTest extends AbstractBOTest
             {
                 {
 
-                    one(externalDataDAO).validateAndSaveUpdatedEntity(
-                            with(new BaseMatcher<ExternalDataPE>()
+                    one(externalDataDAO).validate(with(new BaseMatcher<ExternalDataPE>()
+                        {
+
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof ExternalDataPE)
                                 {
+                                    ExternalDataPE actualDataSet = (ExternalDataPE) item;
+                                    return dataSet.equals(actualDataSet)
+                                            && newStatus == actualDataSet.getStatus();
+                                }
+                                return false;
+                            }
 
-                                    public boolean matches(Object item)
-                                    {
-                                        if (item instanceof ExternalDataPE)
-                                        {
-                                            ExternalDataPE actualDataSet = (ExternalDataPE) item;
-                                            return dataSet.equals(actualDataSet)
-                                                    && newStatus == actualDataSet.getStatus();
-                                        }
-                                        return false;
-                                    }
+                            public void describeTo(Description description)
+                            {
+                                description.appendValue("Dataset " + dataSet.getCode()
+                                        + " with status " + newStatus);
+                            }
 
-                                    public void describeTo(Description description)
-                                    {
-                                        description.appendValue("Dataset " + dataSet.getCode()
-                                                + " with status " + newStatus);
-                                    }
-
-                                }));
+                        }));
                 }
             });
+    }
+
+    private void prepareFlush()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(externalDataDAO).flush();
+                }
+            });
+
     }
 
     @SuppressWarnings("unchecked")

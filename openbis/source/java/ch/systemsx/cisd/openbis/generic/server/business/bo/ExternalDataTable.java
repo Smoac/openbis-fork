@@ -157,19 +157,14 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         this.externalData = externalData;
     }
 
-    public void loadByDataSetCodes(List<String> dataSetCodes, boolean lockForUpdate)
+    public void loadByDataSetCodes(List<String> dataSetCodes, boolean withProperties,
+            boolean lockForUpdate)
     {
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
+
         externalData = new ArrayList<ExternalDataPE>();
-        for (String dataSetCode : dataSetCodes)
-        {
-            ExternalDataPE dataSet =
-                    externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, true, lockForUpdate);
-            if (dataSet != null)
-            {
-                externalData.add(dataSet);
-            }
-        }
+        externalData.addAll(externalDataDAO.tryToFindFullDataSetByCodes(dataSetCodes,
+                withProperties, lockForUpdate));
     }
 
     public final void loadBySampleTechId(final TechId sampleId)
@@ -566,11 +561,12 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 } else
                 {
                     dataSet.setStatus(newStatus);
-                    externalDataDAO.validateAndSaveUpdatedEntity(dataSet);
+                    externalDataDAO.validate(dataSet);
                     counter++;
                 }
             }
         }
+        externalDataDAO.flush();
         return counter;
     }
 

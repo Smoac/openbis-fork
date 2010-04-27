@@ -1303,7 +1303,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
 
-                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, false);
+                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, false, false);
                     one(externalDataTable).getExternalData();
                     ExternalDataPE ds1 = createDataSet("ds1", "type1");
                     ExternalDataPE ds2 = createDataSet("ds2", "type1");
@@ -1345,7 +1345,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
 
-                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, false);
+                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, true, false);
                     one(externalDataTable).uploadLoadedDataSetsToCIFEX(uploadContext);
                 }
             });
@@ -1366,7 +1366,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
 
-                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, true);
+                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, false, true);
                     one(externalDataTable).archiveDatasets();
                 }
             });
@@ -1387,7 +1387,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
 
-                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, true);
+                    one(externalDataTable).loadByDataSetCodes(dataSetCodes, false, true);
                     one(externalDataTable).unarchiveDatasets();
                 }
             });

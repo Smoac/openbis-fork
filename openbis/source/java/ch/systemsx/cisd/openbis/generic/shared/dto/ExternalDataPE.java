@@ -77,7 +77,7 @@ public final class ExternalDataPE extends DataPE
      * Returns the id of the locator type of the location of this external data, or
      * <code>null</code> if not yet set.
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.LOCATOR_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.LOCATOR_TYPE_COLUMN, updatable = false)
     public final LocatorTypePE getLocatorType()
@@ -106,7 +106,7 @@ public final class ExternalDataPE extends DataPE
         this.location = location;
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.STORAGE_FORMAT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.STORAGE_FORMAT_COLUMN, updatable = false)
     public VocabularyTermPE getStorageFormatVocabularyTerm()
@@ -129,7 +129,7 @@ public final class ExternalDataPE extends DataPE
     }
 
     /** Returns <code>fileFormatType</code>. */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.FILE_FORMAT_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.FILE_FORMAT_TYPE, updatable = true)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE)

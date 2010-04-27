@@ -101,7 +101,7 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByDataSetCodes(datasetCodes, true);
+        externalDataTable.loadByDataSetCodes(datasetCodes, false, true);
         return externalDataTable.archiveDatasets();
     }
 
@@ -110,7 +110,7 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByDataSetCodes(datasetCodes, true);
+        externalDataTable.loadByDataSetCodes(datasetCodes, false, true);
         return externalDataTable.unarchiveDatasets();
     }
 

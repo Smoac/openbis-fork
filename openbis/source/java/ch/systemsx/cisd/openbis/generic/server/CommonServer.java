@@ -972,7 +972,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         {
             IExternalDataTable externalDataTable =
                     businessObjectFactory.createExternalDataTable(session);
-            externalDataTable.loadByDataSetCodes(dataSetCodes, false);
+            externalDataTable.loadByDataSetCodes(dataSetCodes, false, false);
             List<ExternalDataPE> dataSets = externalDataTable.getExternalData();
             Map<DataSetTypePE, List<ExternalDataPE>> groupedDataSets =
                     new LinkedHashMap<DataSetTypePE, List<ExternalDataPE>>();
@@ -1223,7 +1223,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         {
             IExternalDataTable externalDataTable =
                     businessObjectFactory.createExternalDataTable(session);
-            externalDataTable.loadByDataSetCodes(dataSetCodes, false);
+            externalDataTable.loadByDataSetCodes(dataSetCodes, true, false);
             return externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
         } catch (final DataAccessException ex)
         {
@@ -1852,7 +1852,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByDataSetCodes(datasetCodes, true);
+        externalDataTable.loadByDataSetCodes(datasetCodes, false, true);
         return externalDataTable.lockDatasets();
     }
 
@@ -1861,7 +1861,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByDataSetCodes(datasetCodes, true);
+        externalDataTable.loadByDataSetCodes(datasetCodes, false, true);
         return externalDataTable.unlockDatasets();
     }
 

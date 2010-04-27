@@ -184,17 +184,56 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
     {
         assert dataSetCode != null : "Unspecified data set code.";
 
-        String name = ENTITY_SUPER_CLASS.getSimpleName();
-        String hql = String.format("select e from %s e where e.code = ?", name);
-        String normalizedCode = CodeConverter.tryToDatabase(dataSetCode);
-        final List<DataPE> list = cast(getHibernateTemplate().find(hql, toArray(normalizedCode)));
+        final String mangledCode = CodeConverter.tryToDatabase(dataSetCode);
+        final Criterion codeEq = Restrictions.eq("code", mangledCode);
+
+        final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_SUPER_CLASS);
+        criteria.add(codeEq);
+        criteria.setFetchMode("dataSetType", FetchMode.JOIN);
+        criteria.setFetchMode("dataStore", FetchMode.JOIN);
+        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        final List<DataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final DataPE entity = tryFindEntity(list, "data set");
+
         if (operationLog.isDebugEnabled())
         {
             String methodName = MethodUtils.getCurrentMethod().getName();
             operationLog.debug(String.format("%s(%s): '%s'.", methodName, dataSetCode, entity));
         }
         return entity;
+    }
+
+    public List<ExternalDataPE> tryToFindFullDataSetByCodes(Collection<String> dataSetCodes,
+            boolean withPropertyTypes, boolean lockForUpdate)
+    {
+        assert dataSetCodes != null : "Unspecified collection";
+
+        final Criterion codeIn = Restrictions.in("code", dataSetCodes);
+
+        final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
+        criteria.add(codeIn);
+        criteria.setFetchMode("dataSetType", FetchMode.SELECT);
+        criteria.setFetchMode("dataStore", FetchMode.SELECT);
+        criteria.setFetchMode("experimentInternal", FetchMode.SELECT);
+        criteria.setFetchMode("sampleInternal", FetchMode.SELECT);
+        criteria.setFetchMode("fileFormat", FetchMode.SELECT);
+        if (withPropertyTypes)
+        {
+            criteria.setFetchMode("dataSetType.dataSetTypePropertyTypesInternal", FetchMode.JOIN);
+        }
+        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        if (lockForUpdate)
+        {
+            criteria.setLockMode(LockMode.UPGRADE);
+        }
+        final List<ExternalDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("Found '%s' data sets for codes '%s'.", list.size(),
+                    dataSetCodes));
+        }
+        return list;
     }
 
     public ExternalDataPE tryToFindFullDataSetByCode(String dataSetCode, boolean withPropertyTypes,
@@ -207,6 +246,11 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
         criteria.add(codeEq);
+        criteria.setFetchMode("dataSetType", FetchMode.SELECT);
+        criteria.setFetchMode("dataStore", FetchMode.SELECT);
+        criteria.setFetchMode("experimentInternal", FetchMode.SELECT);
+        criteria.setFetchMode("sampleInternal", FetchMode.SELECT);
+        criteria.setFetchMode("fileFormat", FetchMode.SELECT);
         if (withPropertyTypes)
         {
             criteria.setFetchMode("dataSetType.dataSetTypePropertyTypesInternal", FetchMode.JOIN);

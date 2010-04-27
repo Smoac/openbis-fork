@@ -63,6 +63,16 @@ public interface IGenericDAO<T extends IIdHolder>
      */
     public void validateAndSaveUpdatedEntity(T entity);
 
+    // Hibernate specific
+
+    public void validate(T entity);
+
+    public void flush();
+
+    public void clearSession();
+
+    //
+
     /**
      * Persists given entity.
      * 
@@ -83,7 +93,5 @@ public interface IGenericDAO<T extends IIdHolder>
      * Returns all entities.
      */
     public List<T> listAllEntities() throws DataAccessException;
-
-    public void clearSession();
 
 }

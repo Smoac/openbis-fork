@@ -113,7 +113,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
 
     private DataStorePE dataStore;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.DATA_STORE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATA_STORE_COLUMN, updatable = false)
     public DataStorePE getDataStore()
@@ -138,7 +138,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         this.registrationDate = registrationDate;
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_ENTITY_TYPE)
@@ -229,7 +229,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         return getSampleInternal();
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
     private SamplePE getSampleInternal()
     {

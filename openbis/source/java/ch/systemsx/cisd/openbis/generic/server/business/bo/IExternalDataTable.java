@@ -33,11 +33,12 @@ public interface IExternalDataTable
 {
     /**
      * Loads data sets specified by their codes. Data set codes will be ignored if no
-     * {@link ExternalDataPE} could be found. Optionally if <var>lockForUpdate</var> is
-     * <var>true</var> a all updates to loaded data sets from other transactions will be blocked for
-     * until current transaction is finished.
+     * {@link ExternalDataPE} could be found. Properties will be loaded too depending on
+     * <var>withProperties</var> value. Optionally if <var>lockForUpdate</var> is <var>true</var>
+     * all updates to loaded data sets from other transactions will be blocked until current
+     * transaction is finished.
      */
-    void loadByDataSetCodes(List<String> dataSetCodes, boolean lockForUpdate);
+    void loadByDataSetCodes(List<String> dataSetCodes, boolean withProperties, boolean lockForUpdate);
 
     /**
      * Loads data sets which are linked to the sample with given <var>sampleId</var>.

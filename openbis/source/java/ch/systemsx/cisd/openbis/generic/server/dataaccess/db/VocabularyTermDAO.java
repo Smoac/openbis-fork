@@ -51,12 +51,6 @@ final class VocabularyTermDAO extends AbstractGenericEntityDAO<VocabularyTermPE>
         super(sessionFactory, databaseInstance, VocabularyTermPE.class);
     }
 
-    public void validate(VocabularyTermPE pe)
-    {
-        assert pe != null : "pe is null";
-        validatePE(pe);
-    }
-
     public void increaseVocabularyTermOrdinals(VocabularyPE vocabulary, Long fromOrdinal,
             int increment)
     {

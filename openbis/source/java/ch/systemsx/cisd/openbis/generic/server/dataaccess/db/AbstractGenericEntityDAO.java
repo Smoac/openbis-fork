@@ -125,6 +125,29 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         getHibernateTemplate().flush();
     }
 
+    public final void validate(T entity)
+    {
+        assert entity != null : "entity is null";
+
+        // as long as CODE cannot be edited we don't have to translate it with a converter here
+        // because the code set in updated entity should be the one already translated during save
+        // but if we allow it this will have to be changed for entities with codes e.g.
+        // like for experiment:
+        // experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
+
+        validatePE(entity);
+    }
+
+    public void clearSession()
+    {
+        getHibernateTemplate().clear();
+    }
+
+    public final void flush()
+    {
+        getHibernateTemplate().flush();
+    }
+
     public void persist(T entity)
     {
         assert entity != null : "entity unspecified";
@@ -160,11 +183,6 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
     public List<T> listAllEntities() throws DataAccessException
     {
         return cast(getHibernateTemplate().loadAll(getEntityClass()));
-    }
-
-    public void clearSession()
-    {
-        getHibernateTemplate().clear();
     }
 
 }
