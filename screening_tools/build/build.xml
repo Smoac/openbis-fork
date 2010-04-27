@@ -1,12 +1,14 @@
 <project name="screening_tools" basedir="..">
-
-	<property name="hcdc-dist" value="targets/hcdc" />
+  <import file="../../build_resources/ant/build-common.xml" />
+	
+  <property name="hcdc-dist" value="targets/hcdc" />
 	<property name="hcdc-lib" value="${hcdc-dist}/lib" />
 	<property name="hcdc-jar.file" value="${hcdc-lib}/openbis4hcdc.jar" />
 
 	<property name="metadata-dist" value="targets/metadata" />
 	<property name="metadata-lib" value="${metadata-dist}/lib" />
 	<property name="metadata-jar.file" value="${metadata-lib}/openbis-metadata-transformer.jar" />
+  <property name="metadata-analysis-splitter-jar.file" value="${metadata-lib}/openbis-analysis-data-splitter.jar" />
 
 	<target name="clean">
 		<delete dir="${dist}" />
@@ -37,6 +39,16 @@
 		<copy file="dist/metadata-importer.bat" todir="${metadata-dist}" />
     <copy file="dist/metadata-importer.sh"  todir="${metadata-dist}" />
     <copy file="dist/readme.txt" todir="${metadata-dist}" />
+    
+    <recursive-jar destfile="${metadata-analysis-splitter-jar.file}">
+      <manifest>
+        <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.metadata.ImageAnalysisLMCSplitter" />
+      </manifest>
+      <zipfileset src="lib/csv.jar" />
+      <zipfileset src="lib/commons-io.jar" />
+      <zipfileset src="lib/commons-lang.jar" />
+      <zipfileset src="${metadata-jar.file}" />
+    </recursive-jar>
 	</target>
 
 </project>
