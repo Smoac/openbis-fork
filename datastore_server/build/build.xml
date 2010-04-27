@@ -169,7 +169,7 @@
 	
 	<target name="dist-client">
 		<antcall target="make-dist-client">
-			<param name="variant" value="" />
+			<param name="variant" value="${variant}" />
 		</antcall>
 	</target>
   
