@@ -153,6 +153,7 @@
       <zipfileset prefix="${admin.console}" file="${lib}/jline/jline.jar"/>
       <zipfileset prefix="${admin.console}" file="${lib}/log4j/log4j.jar"/>
       <zipfileset prefix="${admin.console}" file="${lib}/spring/spring.jar"/>
+      <zipfileset prefix="${admin.console}" file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"/>
     </zip>
   </target>
 
@@ -437,7 +438,7 @@
         <attribute name="Class-Path"
                    value="${admin.console}.jar cisd-base.jar commons-codec.jar 
                           commons-httpclient.jar commons-io.jar commons-logging.jar 
-        	                log4j.jar jline.jar spring.jar"/>
+        	                log4j.jar jline.jar spring.jar stream-supporting-httpinvoker.jar"/>
       </manifest>
   	</jar>
   </target>
