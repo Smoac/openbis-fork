@@ -18,7 +18,7 @@
   <!-- Specify the app entry point class.                         -->
   <entry-point class='ch.systemsx.cisd.cifex.client.application.CIFEXEntryPoint' />
   
-  <!-- Only compile for Firefox -->
+  <!-- Only compile for Safari -->
   <set-property name="user.agent" value="safari" />
     
   <!-- Do not define servlets here, use web.xml -->
