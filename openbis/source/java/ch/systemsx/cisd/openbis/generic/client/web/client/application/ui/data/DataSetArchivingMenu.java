@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.SelectedOrAllDataSetsRadioProvider.ISelectedDataSetsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -219,17 +220,26 @@ public class DataSetArchivingMenu extends MenuItem
 
         private final boolean computeOnSelected;
 
+        private final Dialog progressBar;
+
         private ArchivingDisplayCallback(IViewContext<?> viewContext, String actionName,
                 boolean computeOnSelected)
         {
             super(viewContext);
             this.actionName = actionName;
             this.computeOnSelected = computeOnSelected;
+            this.progressBar = createAndShowProgressBar();
+        }
+
+        private Dialog createAndShowProgressBar()
+        {
+            return GWTUtils.createAndShowProgressBar("Scheduling " + actionName + "...");
         }
 
         @Override
         public final void process(final ArchivingResult result)
         {
+            progressBar.hide();
             final String source = computeOnSelected ? "selected" : "provided";
             if (result.getScheduled() == 0)
             {
@@ -242,6 +252,13 @@ public class DataSetArchivingMenu extends MenuItem
                         + (subset ? "a subset of " : "all ") + source + " data set(s).", null);
                 postArchivingAction.execute();
             }
+        }
+
+        @Override
+        public void finishOnFailure(Throwable caught)
+        {
+            progressBar.hide();
+            super.finishOnFailure(caught);
         }
     }
 

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report
 
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.ProgressBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -58,6 +57,11 @@ public class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelRef
         this.progressBar = createAndShowProgressBar();
     }
 
+    private Dialog createAndShowProgressBar()
+    {
+        return GWTUtils.createAndShowProgressBar("Generating the report...");
+    }
+
     @Override
     protected void process(final TableModelReference tableModelReference)
     {
@@ -78,22 +82,4 @@ public class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelRef
         super.finishOnFailure(caught);
     }
 
-    private static Dialog createAndShowProgressBar()
-    {
-        ProgressBar progressBar = new ProgressBar();
-        progressBar.auto();
-
-        Dialog dialog = new Dialog();
-        String title = "Generating the report...";
-        GWTUtils.setToolTip(dialog, title);
-
-        dialog.add(progressBar);
-        dialog.setButtons("");
-        dialog.setAutoHeight(true);
-        dialog.setClosable(false);
-        dialog.addText(title);
-        dialog.setResizable(false);
-        dialog.show();
-        return dialog;
-    }
 }
