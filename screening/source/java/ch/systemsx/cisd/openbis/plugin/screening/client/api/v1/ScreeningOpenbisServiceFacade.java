@@ -28,6 +28,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateSingleIm
  */
 public class ScreeningOpenbisServiceFacade
 {
+    // TODO 2010-04-27, Tomasz Pylak: change to "/rmi-datastore-server-screening-api-v1"
+    private static final String DSS_SCREENING_API = "/rmi-datastore-server-screening-api/";
+
+    // TODO 2010-04-27, Tomasz Pylak: change to "/rmi-openbis-screening-api-v1"
+    private static final String OPENBIS_SCREENING_API = "/rmi-screening-api";
+
     private static final int SERVER_TIMEOUT_MIN = 5;
 
     private final IScreeningApiServer openbisScreeningServer;
@@ -57,13 +63,13 @@ public class ScreeningOpenbisServiceFacade
     private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
     {
         return HttpInvokerUtils.createServiceStub(IScreeningApiServer.class, serverUrl
-                + "/rmi-screening-api-v1", SERVER_TIMEOUT_MIN);
+                + OPENBIS_SCREENING_API, SERVER_TIMEOUT_MIN);
     }
 
     private static IDssServiceRpcScreening createScreeningDssServer(String serverUrl)
     {
         return HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcScreening.class,
-                serverUrl + "/rmi-datastore-server-screening-api", SERVER_TIMEOUT_MIN);
+                serverUrl + DSS_SCREENING_API, SERVER_TIMEOUT_MIN);
     }
 
     private ScreeningOpenbisServiceFacade(IScreeningApiServer screeningServer, String sessionToken)
