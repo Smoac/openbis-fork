@@ -28,11 +28,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateSingleIm
  */
 public class ScreeningOpenbisServiceFacade
 {
-    // TODO 2010-04-27, Tomasz Pylak: change to "/rmi-datastore-server-screening-api-v1"
-    private static final String DSS_SCREENING_API = "/rmi-datastore-server-screening-api/";
+    private static final String DSS_SCREENING_API = "/rmi-datastore-server-screening-api-v1/";
 
-    // TODO 2010-04-27, Tomasz Pylak: change to "/rmi-openbis-screening-api-v1"
-    private static final String OPENBIS_SCREENING_API = "/rmi-screening-api";
+    private static final String OPENBIS_SCREENING_API = "/rmi-screening-api-v1";
 
     private static final int SERVER_TIMEOUT_MIN = 5;
 

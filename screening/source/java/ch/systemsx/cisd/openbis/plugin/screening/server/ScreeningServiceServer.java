@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
  */
 @Controller
 @RequestMapping(
-    { "/rmi-screening", "/openbis/rmi-screening" })
+    { "/rmi-screening-v1", "/openbis/rmi-screening-v1" })
 public class ScreeningServiceServer extends HttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVER)
