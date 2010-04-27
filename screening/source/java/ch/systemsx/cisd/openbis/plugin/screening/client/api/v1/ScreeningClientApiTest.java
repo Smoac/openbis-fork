@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.lf5.util.StreamUtils;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -53,6 +55,8 @@ public class ScreeningClientApiTest
                     .println("Example parameters: test-user my-password http://localhost:8888/openbis/openbis");
             return;
         }
+        configureLogging();
+
         String userId = args[0];
         String userPassword = args[1];
         String serverUrl = args[2];
@@ -144,5 +148,15 @@ public class ScreeningClientApiTest
         WellPosition well = image.getWellPosition();
         return "img_row" + well.getWellRow() + "_col" + well.getWellColumn() + "_channel"
                 + image.getChannel() + "_tile" + image.getTile() + ".png";
+    }
+
+    private static void configureLogging()
+    {
+        Properties props = new Properties();
+        props.put("log4j.appender.STDOUT", "org.apache.log4j.ConsoleAppender");
+        props.put("log4j.appender.STDOUT.layout", "org.apache.log4j.PatternLayout");
+        props.put("log4j.appender.STDOUT.layout.ConversionPattern", "%d %-5p [%t] %c - %m%n");
+        props.put("log4j.rootLogger", "INFO, STDOUT");
+        PropertyConfigurator.configure(props);
     }
 }
