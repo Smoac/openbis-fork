@@ -93,7 +93,7 @@ public final class PersonDAOTest extends AbstractDAOTest
         }
         personDAO.createPerson(testPerson);
         final List<PersonPE> persons = personDAO.listPersons();
-        assertEquals(4, persons.size());
+        assertEquals(5, persons.size());
         final PersonPE testPersonFromDB = personDAO.getPerson(testPerson.getId());
         assertEquals(testPerson, testPersonFromDB);
     }
