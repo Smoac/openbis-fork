@@ -66,6 +66,15 @@ public interface IEncapsulatedOpenBISService
             throws UserFailureException;
 
     /**
+     * Check which of the list of of data sets the current user can access.
+     * 
+     * @param sessionToken The user's session token.
+     * @param dataSetCodes The data set codes the user wants to access.
+     */
+    public void checkDataSetCollectionAccess(String sessionToken, List<String> dataSetCodes)
+            throws UserFailureException;
+
+    /**
      * Tries to get the experiment of specified identifier or <code>null</code> if not found.
      */
     public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
