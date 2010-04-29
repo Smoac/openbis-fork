@@ -143,6 +143,8 @@
   
   <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxx ECLIPSE TEST MODE xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
 
+  <!-- This is a copy of the openBIS version, the only difference is the value of ecp.gwt variable  -->
+  
   <!--
     // // Compile Java to javscript, assuming that prepare-gwt has already been run // // Must pass in module-test.path
     and module-test.module as arguments // e.g., // <{property,param} name="module-test.path" value="openbis-test" /> //
