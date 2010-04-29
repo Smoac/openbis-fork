@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -120,7 +121,7 @@ public class PlateContentLoader
             throw UserFailureException.fromTemplate("Dataset '%s' has no sample connected.",
                     externalData.getCode());
         }
-        List<WellMetadata> wells = loadWells(new TechId(plate.getId()));
+        List<WellMetadata> wells = loadWells(new TechId(HibernateUtils.getId(plate)));
         DatasetImagesReference datasetImagesReference =
                 loadImages(createExternalDataTable(), externalData);
         return new PlateImages(translate(plate), wells, datasetImagesReference);
@@ -155,7 +156,8 @@ public class PlateContentLoader
                 ScreeningUtils.filterImageAnalysisDatasets(datasets);
         List<String> datasetCodes = extractCodes(analysisDatasets);
         String dataStoreCode = extractDataStoreCode(analysisDatasets);
-        return DatasetReportsLoader.loadAnalysisResults(datasetCodes, dataStoreCode, externalDataTable);
+        return DatasetReportsLoader.loadAnalysisResults(datasetCodes, dataStoreCode,
+                externalDataTable);
     }
 
     private List<PlateSingleImageReference> loadAllImages(TechId plateId)
@@ -170,7 +172,8 @@ public class PlateContentLoader
             // NOTE: we assume that all datasets for one plate come from the same datastore
             String dataStoreCode = extractDataStoreCode(imageDatasets);
             imagePaths =
-                    DatasetReportsLoader.loadPlateImages(datasetCodes, dataStoreCode, externalDataTable);
+                    DatasetReportsLoader.loadPlateImages(datasetCodes, dataStoreCode,
+                            externalDataTable);
         }
         return imagePaths;
     }
