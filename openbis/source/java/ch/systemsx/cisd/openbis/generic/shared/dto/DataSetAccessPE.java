@@ -43,7 +43,7 @@ import javax.persistence.SqlResultSetMapping;
         + " g, "
         + TableNames.DATABASE_INSTANCES_TABLE
         + " dbi "
-        + "where ds.code=? and e.id = ds.expe_id and p.id = e.proj_id and g.id = p.grou_id and dbi.id = g.dbin_id", resultSetMapping = "implicit")
+        + "where ds.code in (:codes) and e.id = ds.expe_id and p.id = e.proj_id and g.id = p.grou_id and dbi.id = g.dbin_id", resultSetMapping = "implicit")
 public class DataSetAccessPE
 {
     private String dataSetId;
@@ -57,6 +57,8 @@ public class DataSetAccessPE
     private String databaseInstanceCode;
 
     public final static String DATASET_ACCESS_QUERY_NAME = "dataset_access";
+
+    public final static String DATA_SET_CODES_PARAMETER_NAME = "codes";
 
     /**
      * A factory method that should only be used for testing.

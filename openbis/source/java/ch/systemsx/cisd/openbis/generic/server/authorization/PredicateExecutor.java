@@ -252,10 +252,26 @@ public final class PredicateExecutor
             Session sess = daoFactory.getSessionFactory().getCurrentSession();
             Query query = sess.getNamedQuery(DataSetAccessPE.DATASET_ACCESS_QUERY_NAME);
             query = query.setReadOnly(true);
-            List<DataSetAccessPE> results = query.setString(0, dataSetCode).list();
+            String[] codes =
+                { dataSetCode };
+            List<DataSetAccessPE> results =
+                    query.setParameterList(DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME, codes)
+                            .list();
             if (results.size() < 1)
                 return null;
             return results.get(0);
+        }
+
+        @SuppressWarnings("unchecked")
+        public List<DataSetAccessPE> tryGetDatasetCollectionAccessData(List<String> dataSetCodes)
+        {
+            Session sess = daoFactory.getSessionFactory().getCurrentSession();
+            Query query = sess.getNamedQuery(DataSetAccessPE.DATASET_ACCESS_QUERY_NAME);
+            query = query.setReadOnly(true);
+            List<DataSetAccessPE> results =
+                    query.setParameterList(DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME,
+                            dataSetCodes).list();
+            return results;
         }
 
         public GroupPE tryToGetGroup(SpaceOwnerKind kind, TechId techId)

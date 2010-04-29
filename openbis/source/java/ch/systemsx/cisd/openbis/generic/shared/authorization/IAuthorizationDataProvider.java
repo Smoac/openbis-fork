@@ -48,9 +48,14 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public ProjectPE tryToGetProject(String dataSetCode);
 
     /**
-     * Returns the information necessary to determine if a user is allowed to access this dataset.
+     * Returns the information necessary to determine if a user is allowed to access this data set.
      */
     public DataSetAccessPE tryGetDatasetAccessData(String dataSetCode);
+
+    /**
+     * Returns the information necessary to determine if a user is allowed to access the data sets.
+     */
+    public List<DataSetAccessPE> tryGetDatasetCollectionAccessData(List<String> dataSetCodes);
 
     /**
      * Returns the group of an entity with given <var>entityKind</var> and <var>techId</var>
