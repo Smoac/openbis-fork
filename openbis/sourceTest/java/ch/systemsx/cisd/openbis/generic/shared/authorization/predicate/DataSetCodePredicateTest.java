@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * @author Franz-Josef Elmer
@@ -32,8 +31,6 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
     @Test
     public void testSuccessfulEvaluation()
     {
-        final ProjectPE project = new ProjectPE();
-        project.setGroup(createGroup());
         final DataSetAccessPE accessData =
                 DataSetAccessPE.createDataSetAccessPEForTest("1", "d1", SPACE_CODE, "global_"
                         + INSTANCE_CODE, INSTANCE_CODE);
@@ -58,13 +55,14 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
     @Test
     public void testWithOneInvalidGroup()
     {
-        final ProjectPE project = new ProjectPE();
-        project.setGroup(createAnotherGroup());
+        final DataSetAccessPE accessData =
+                DataSetAccessPE.createDataSetAccessPEForTest("1", "d1", ANOTHER_GROUP_CODE,
+                        "global_" + ANOTHER_INSTANCE_CODE, ANOTHER_INSTANCE_CODE);
         context.checking(new Expectations()
             {
                 {
-                    one(provider).tryToGetProject("d1");
-                    will(returnValue(project));
+                    one(provider).tryGetDatasetAccessData("d1");
+                    will(returnValue(accessData));
                 }
             });
         DataSetCodePredicate predicate = new DataSetCodePredicate();
