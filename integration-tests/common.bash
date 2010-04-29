@@ -278,6 +278,7 @@ function build_components {
 
     if [ $build_dss == "true" ]; then
 	rm -f $INSTALL/datastore_server*.zip
+	rm -f $INSTALL/dss_client*.zip
         $build_cmd datastore_server
         $build_cmd rtd_yeastx
     fi
