@@ -163,7 +163,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
 
         externalData = new ArrayList<ExternalDataPE>();
-        externalData.addAll(externalDataDAO.tryToFindFullDataSetByCodes(dataSetCodes,
+        externalData.addAll(externalDataDAO.tryToFindFullDataSetsByCodes(dataSetCodes,
                 withProperties, lockForUpdate));
     }
 
@@ -434,24 +434,21 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return service.createReportFromDatasets(sessionToken, datastoreServiceKey, locations);
     }
 
-    private List<DatasetDescription> loadAvailableDatasetDescriptions(List<String> datasetCodes)
+    private List<DatasetDescription> loadAvailableDatasetDescriptions(List<String> dataSetCodes)
     {
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
         List<DatasetDescription> result = new ArrayList<DatasetDescription>();
         List<String> notAvailableDatasets = new ArrayList<String>();
-        for (String datasetCode : datasetCodes)
+        List<ExternalDataPE> dataSets =
+                externalDataDAO.tryToFindFullDataSetsByCodes(dataSetCodes, false, false);
+        for (ExternalDataPE dataSet : dataSets)
         {
-            ExternalDataPE dataSet =
-                    externalDataDAO.tryToFindFullDataSetByCode(datasetCode, false, false);
-            if (dataSet != null)
+            if (dataSet.getStatus().isAvailable())
             {
-                if (dataSet.getStatus().isAvailable())
-                {
-                    result.add(createDatasetDescription(dataSet));
-                } else
-                {
-                    notAvailableDatasets.add(datasetCode);
-                }
+                result.add(createDatasetDescription(dataSet));
+            } else
+            {
+                notAvailableDatasets.add(dataSet.getCode());
             }
         }
         throwUnavailableOperationExceptionIfNecessary(notAvailableDatasets);
@@ -547,7 +544,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     private int filterByStatusAndUpdate(Map<DataStorePE, List<ExternalDataPE>> datasetsByStore,
             DataSetArchivingStatus oldStatus, DataSetArchivingStatus newStatus)
     {
-        int counter = 0;
+        List<String> codesToUpdate = new ArrayList<String>();
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
         for (List<ExternalDataPE> dataSets : datasetsByStore.values())
         {
@@ -560,14 +557,17 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                     iterator.remove();
                 } else
                 {
-                    dataSet.setStatus(newStatus);
-                    externalDataDAO.validate(dataSet);
-                    counter++;
+                    codesToUpdate.add(dataSet.getCode());
                 }
             }
         }
-        externalDataDAO.flush();
-        return counter;
+        // WORKAROUND In order not to load data set properties at the end of transaction
+        // for Hibernate Search indexing, we don't make change to PE's loaded by Hibernate,
+        // but perform a 'bulk update' operation. Such an operation is quicker and Hibernate
+        // Search doesn't spot the change. The drawback is that the loaded objects are
+        // not updated with a new status.
+        externalDataDAO.updateDataSetStatuses(codesToUpdate, newStatus);
+        return codesToUpdate.size();
     }
 
     private interface IArchivingAction

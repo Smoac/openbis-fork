@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ProcessDatasetsCommand;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodeWithStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -66,8 +67,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     public ProcessingStatus archive(List<DatasetDescription> datasets)
     {
-        operationLog
-                .info("Archiving of the following datasets has been requested: " + datasets);
+        operationLog.info("Archiving of the following datasets has been requested: " + datasets);
         return handleDatasets(datasets, DataSetArchivingStatus.ARCHIVED,
                 DataSetArchivingStatus.AVAILABLE, new IDatasetDescriptionHandler()
                     {
@@ -97,8 +97,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     public ProcessingStatus unarchive(List<DatasetDescription> datasets)
     {
-        operationLog.info("Unarchiving of the following datasets has been requested: "
-                + datasets);
+        operationLog.info("Unarchiving of the following datasets has been requested: " + datasets);
         return handleDatasets(datasets, DataSetArchivingStatus.AVAILABLE,
                 DataSetArchivingStatus.ARCHIVED, new IDatasetDescriptionHandler()
                     {
@@ -131,15 +130,25 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             IDatasetDescriptionHandler handler)
     {
         final ProcessingStatus result = new ProcessingStatus();
+        List<String> successful = new ArrayList<String>();
+        List<String> failed = new ArrayList<String>();
         for (DatasetDescription dataset : datasets)
         {
             Status status = handler.handle(dataset);
-            DataSetArchivingStatus newStatus = status.isError() ? failure : success;
-            QueueingDataSetStatusUpdaterService.update(new DataSetCodeWithStatus(dataset
-                    .getDatasetCode(), newStatus));
+            List<String> codes = status.isError() ? failed : successful;
+            codes.add(dataset.getDatasetCode());
             result.addDatasetStatus(dataset, status);
         }
+        asyncUpdateStatuses(successful, success);
+        asyncUpdateStatuses(failed, failure);
         return result;
+    }
+
+    private static void asyncUpdateStatuses(List<String> dataSetCodes,
+            DataSetArchivingStatus newStatus)
+    {
+        QueueingDataSetStatusUpdaterService.update(new DataSetCodesWithStatus(dataSetCodes,
+                newStatus));
     }
 
     private interface IDatasetDescriptionHandler

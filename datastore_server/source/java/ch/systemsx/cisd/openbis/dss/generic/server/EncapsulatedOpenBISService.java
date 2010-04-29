@@ -308,7 +308,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    synchronized public ExperimentType getExperimentType(String experimentTypeCode) throws UserFailureException
+    synchronized public ExperimentType getExperimentType(String experimentTypeCode)
+            throws UserFailureException
     {
         checkSessionToken();
         try
@@ -408,7 +409,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    synchronized public void updateSample(SampleUpdatesDTO sampleUpdate) throws UserFailureException
+    synchronized public void updateSample(SampleUpdatesDTO sampleUpdate)
+            throws UserFailureException
     {
         assert sampleUpdate != null : "Unspecified sample.";
 
@@ -474,31 +476,31 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         service.addPropertiesToDataSet(sessionToken, properties, code, space);
     }
 
-    synchronized public final void updateDataSetStatus(String code, DataSetArchivingStatus newStatus)
-            throws UserFailureException
+    synchronized public final void updateDataSetStatuses(List<String> codes,
+            DataSetArchivingStatus newStatus) throws UserFailureException
 
     {
-        assert code != null : "missing data set code";
+        assert codes != null : "missing data set codes";
         assert newStatus != null : "missing status";
 
         checkSessionToken();
         try
         {
-            primUpdateDataSetStatus(code, newStatus);
+            primUpdateDataSetStatuses(codes, newStatus);
         } catch (final InvalidSessionException ex)
         {
             authenticate();
-            primUpdateDataSetStatus(code, newStatus);
+            primUpdateDataSetStatuses(codes, newStatus);
         }
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Updated in openBIS: data set " + code + ", status=" + newStatus);
+            operationLog.info("Updated in openBIS: data sets " + codes + ", status=" + newStatus);
         }
     }
 
-    private void primUpdateDataSetStatus(String code, DataSetArchivingStatus newStatus)
+    private void primUpdateDataSetStatuses(List<String> codes, DataSetArchivingStatus newStatus)
     {
-        service.updateDataSetStatus(sessionToken, code, newStatus);
+        service.updateDataSetStatuses(sessionToken, codes, newStatus);
     }
 
     synchronized public final IEntityProperty[] getPropertiesOfTopSampleRegisteredFor(

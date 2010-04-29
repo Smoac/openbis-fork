@@ -33,12 +33,12 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.ICloseable;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodeWithStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 
 /**
  * A service for updating data set status in openBIS. It provides a method
- * {@link #update(DataSetCodeWithStatus)} that queues updates using a separate thread to actually
+ * {@link #update(DataSetCodesWithStatus)} that queues updates using a separate thread to actually
  * perform update.
  * <p>
  * Note that the service needs to be started via {@link #start(File, TimingParameters)}.
@@ -62,7 +62,7 @@ public class QueueingDataSetStatusUpdaterService
     @Private
     final static String UPDATER_PREFIX = ".UPDATER_";
 
-    private static IExtendedBlockingQueue<DataSetCodeWithStatus> queue = null;
+    private static IExtendedBlockingQueue<DataSetCodesWithStatus> queue = null;
 
     private static ICloseable queueCloseableOrNull = null;
 
@@ -91,7 +91,7 @@ public class QueueingDataSetStatusUpdaterService
      */
     public static synchronized final void start(final File queueFile, TimingParameters parameters)
     {
-        final PersistentExtendedBlockingQueueDecorator<DataSetCodeWithStatus> persistentQueue =
+        final PersistentExtendedBlockingQueueDecorator<DataSetCodesWithStatus> persistentQueue =
                 ExtendedBlockingQueueFactory.createPersistRecordBased(queueFile,
                         INITIAL_RECORD_SIZE);
         queue = persistentQueue;
@@ -105,10 +105,10 @@ public class QueueingDataSetStatusUpdaterService
                     {
                         while (true)
                         {
-                            final DataSetCodeWithStatus dataSet = queue.peekWait();
+                            final DataSetCodesWithStatus dataSets = queue.peekWait();
                             try
                             {
-                                updater.updateDataSetStatus(dataSet.getDataSetCode(), dataSet
+                                updater.updateDataSetStatuses(dataSets.getDataSetCodes(), dataSets
                                         .getStatus());
                                 // Note: this is the only consumer of this queue.
                                 queue.take();
@@ -121,16 +121,16 @@ public class QueueingDataSetStatusUpdaterService
                                 // If connection with openBIS fails it is not possible
                                 // the same problem will occur for other updates in the queue,
                                 // so we just retry after increasing time.
-                                notifyUpdateFailure(dataSet, ex);
+                                notifyUpdateFailure(dataSets, ex);
                                 Sleeper.sleepAndIncreaseSleepTime();
                             } catch (UserFailureException ex)
                             {
                                 // OpenBIS failure occurred - the problem may be connected with
                                 // certain data set so move this item to the end of the queue and
                                 // try to update other data sets before retrying.
-                                notifyUpdateFailure(dataSet, ex);
+                                notifyUpdateFailure(dataSets, ex);
                                 Sleeper.sleepAndIncreaseSleepTime();
-                                queue.add(dataSet);
+                                queue.add(dataSets);
                                 queue.remove();
                             }
                         }
@@ -143,10 +143,10 @@ public class QueueingDataSetStatusUpdaterService
                     }
                 }
 
-                private void notifyUpdateFailure(final DataSetCodeWithStatus dataSet, Exception ex)
+                private void notifyUpdateFailure(final DataSetCodesWithStatus dataSets, Exception ex)
                 {
-                    notificationLog.error("Update of data set " + dataSet.getDataSetCode()
-                            + " status to '" + dataSet.getStatus()
+                    notificationLog.error("Update of data sets " + dataSets.getDataSetCodes()
+                            + " status to '" + dataSets.getStatus()
                             + "' has failed.\nRetry will occur not sooner than "
                             + Sleeper.getCurrentSleepTime() + ".", ex);
                 }
@@ -159,23 +159,27 @@ public class QueueingDataSetStatusUpdaterService
     {
         return new IDataSetStatusUpdater()
             {
-                public void updateDataSetStatus(String dataSetCode,
+                public void updateDataSetStatuses(List<String> dataSetCodes,
                         DataSetArchivingStatus newStatus)
                 {
-                    ServiceProvider.getOpenBISService().updateDataSetStatus(dataSetCode, newStatus);
-                    operationLog
-                            .info("Data Set " + dataSetCode + " changed status to " + newStatus);
+                    ServiceProvider.getOpenBISService().updateDataSetStatuses(dataSetCodes,
+                            newStatus);
+                    operationLog.info("Data Sets " + dataSetCodes + " changed status to "
+                            + newStatus);
                 }
 
             };
     }
 
     /**
-     * Schedules update of given data set. If operation fails the updating thread will exit.
+     * Schedules update of given data sets.
      */
-    public static void update(DataSetCodeWithStatus dataSet)
+    public static void update(DataSetCodesWithStatus dataSets)
     {
-        queue.add(dataSet);
+        if (dataSets.getDataSetCodes().isEmpty() == false)
+        {
+            queue.add(dataSets);
+        }
     }
 
     private static final void close()
@@ -242,9 +246,9 @@ public class QueueingDataSetStatusUpdaterService
     /**
      * Returns the list of currently queued up items.
      */
-    public static final List<DataSetCodeWithStatus> listItems(File queueFile)
+    public static final List<DataSetCodesWithStatus> listItems(File queueFile)
     {
-        return RecordBasedQueuePersister.list(DataSetCodeWithStatus.class, queueFile);
+        return RecordBasedQueuePersister.list(DataSetCodesWithStatus.class, queueFile);
     }
 
     private QueueingDataSetStatusUpdaterService()
@@ -304,12 +308,13 @@ public class QueueingDataSetStatusUpdaterService
     public interface IDataSetStatusUpdater
     {
         /**
-         * Updates status of data set with given code.
+         * Updates status of data sets with given codes.
          * 
-         * @param dataSetCode code of data set to be updated
+         * @param dataSetCodes codes of data sets to be updated
          * @param newStatus status to be set
          */
-        public void updateDataSetStatus(String dataSetCode, DataSetArchivingStatus newStatus);
+        public void updateDataSetStatuses(List<String> dataSetCodes,
+                DataSetArchivingStatus newStatus);
     }
 
 }

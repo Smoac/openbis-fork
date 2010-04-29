@@ -68,11 +68,11 @@ public interface IExternalDataBO extends IEntityBusinessObject
     public void update(DataSetUpdatesDTO updates);
 
     /**
-     * Updates status of given data set.
+     * Updates status of given data sets.
      * 
-     * @throws UserFailureException if data set does not exist or status couldn't be set.
+     * @throws UserFailureException if a data set does not exist or status couldn't be set.
      */
-    public void updateStatus(String dataSetCode, DataSetArchivingStatus newStatus)
+    public void updateStatuses(List<String> dataSetCodes, DataSetArchivingStatus newStatus)
             throws UserFailureException;
 
     /**

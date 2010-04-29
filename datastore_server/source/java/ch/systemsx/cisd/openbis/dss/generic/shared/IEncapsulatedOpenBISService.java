@@ -89,7 +89,7 @@ public interface IEncapsulatedOpenBISService
      * Gets the experiment type with assigned property types for the specified experiment type code.
      */
     public ExperimentType getExperimentType(String experimentTypeCode) throws UserFailureException;
-    
+
     /**
      * Gets the sample type with assigned property types for the specified sample type code.
      */
@@ -208,7 +208,7 @@ public interface IEncapsulatedOpenBISService
     /** See {@link IETLLIMSService#unarchiveDatasets(String, List)} */
     public void unarchiveDataSets(List<String> dataSetCodes) throws UserFailureException;
 
-    /** See {@link IETLLIMSService#updateDataSetStatus(String, String, DataSetArchivingStatus)} */
-    public void updateDataSetStatus(String code, DataSetArchivingStatus newStatus)
+    /** See {@link IETLLIMSService#updateDataSetStatuses(String, List, DataSetArchivingStatus)} */
+    public void updateDataSetStatuses(List<String> codes, DataSetArchivingStatus newStatus)
             throws UserFailureException;
 }

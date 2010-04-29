@@ -16,15 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
+import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -49,6 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescriptionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -203,10 +209,85 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         return entity;
     }
 
-    public List<ExternalDataPE> tryToFindFullDataSetByCodes(Collection<String> dataSetCodes,
+    public List<DatasetDescription> tryToFindDatasetDescriptionsByCodes(List<String> dataSetCodes)
+    {
+        assert dataSetCodes != null : "Unspecified data set code";
+
+        // final Criterion codeEq = Restrictions.eq("code", mangledCode);
+
+        // TODO
+        // Hibernate bug (HHH-2676) - can't take a lock in this kind of query.
+        String queryString =
+                "select new ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription(d.code, d.location, d.sampleInternal.code, "
+                        + "d.experimentInternal.projectInternal.group.code, "
+                        + "d.experimentInternal.projectInternal.code, "
+                        + "d.experimentInternal.code, "
+                        + "d.dataSetType.mainDataSetPath, d.dataSetType.mainDataSetPattern, "
+                        + "d.experimentInternal.projectInternal.group.databaseInstance.code) "
+                        + "from " + TABLE_NAME + " d where d.code IN (:codes)";
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        final List<DatasetDescription> list =
+                cast(session.createQuery(queryString).setParameterList("codes", dataSetCodes)
+                        .list());
+ 
+        System.err.println(list.size());
+        for (DatasetDescription desc : list)
+        {
+            System.err.println(ReflectionToStringBuilder.toString(desc));
+        }
+        // if (operationLog.isDebugEnabled())
+        // {
+        // operationLog.debug(String.format("External data '%s' found for data set code '%s'.",
+        // entity, dataSetCode));
+        // }
+        return list;
+    }
+
+    public List<DatasetDescriptionPE> tryToFindDatasetDescriptionsByCodes(List<String> dataSetCodes)
+    {
+        assert dataSetCodes != null : "Unspecified data set code";
+
+        // final Criterion codeEq = Restrictions.eq("code", mangledCode);
+
+        // TODO
+        // Hibernate bug (HHH-2676) - can't take a lock in this kind of query.
+        String queryString =
+                "select new DatasetDescriptionPE(d.code, d.location, d.sampleInternal.code, "
+                        + "d.experimentInternal.projectInternal.group.code, "
+                        + "d.experimentInternal.projectInternal.code, "
+                        + "d.experimentInternal.code, "
+                        + "d.dataSetType.mainDataSetPath, d.dataSetType.mainDataSetPattern, "
+                        + "d.experimentInternal.projectInternal.group.databaseInstance.code) "
+                        + "from " + TABLE_NAME + " d where d.code IN (:codes)";
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        final List<DatasetDescriptionPE> list =
+                cast(session.createQuery(queryString).setParameterList("codes", dataSetCodes)
+                        .list());
+
+        System.err.println(list.size());
+        for (DatasetDescriptionPE desc : list)
+        {
+            System.err.println(ReflectionToStringBuilder.toString(desc));
+        }
+        // if (operationLog.isDebugEnabled())
+        // {
+        // operationLog.debug(String.format("External data '%s' found for data set code '%s'.",
+        // entity, dataSetCode));
+        // }
+        return list;
+    }
+
+    public List<ExternalDataPE> tryToFindFullDataSetsByCodes(Collection<String> dataSetCodes,
             boolean withPropertyTypes, boolean lockForUpdate)
     {
         assert dataSetCodes != null : "Unspecified collection";
+
+        if (dataSetCodes.size() == 0)
+        {
+            return Collections.emptyList();
+        }
 
         final Criterion codeIn = Restrictions.in("code", dataSetCodes);
 
@@ -271,28 +352,45 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         return entity;
     }
 
-    public void updateDataSetStatus(String dataSetCode, final DataSetArchivingStatus status)
+    public void updateDataSetStatuses(final List<String> dataSetCodes,
+            final DataSetArchivingStatus status)
     {
-        assert dataSetCode != null : "Unspecified data set code";
+        assert dataSetCodes != null : "Unspecified data set codes";
         assert status != null : "Unspecified code";
 
-        final String mangledCode = CodeConverter.tryToDatabase(dataSetCode);
+        if (dataSetCodes.size() == 0)
+        {
+            return;
+        }
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        // NOTE: 'VERSIONED' makes modification time modified too
-        final int updatedRows =
-                hibernateTemplate.bulkUpdate("UPDATE VERSIONED " + TABLE_NAME
-                        + " SET status = ? WHERE code = ? ", toArray(status, mangledCode));
-        hibernateTemplate.flush();
+        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+            {
 
-        if (updatedRows == 0)
+                //
+                // HibernateCallback
+                //
+
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    // NOTE: 'VERSIONED' makes modification time modified too
+                    return session.createQuery(
+                            "UPDATE VERSIONED " + TABLE_NAME
+                                    + " SET status = :status WHERE code IN (:codes) ")
+                            .setParameter("status", status).setParameterList("codes", dataSetCodes)
+                            .executeUpdate();
+                }
+            });
+        hibernateTemplate.flush();
+        if (updatedRows != dataSetCodes.size())
         {
-            throw UserFailureException.fromTemplate("Update of dataset's %s status to %s failed.",
-                    dataSetCode, status);
+            throw UserFailureException.fromTemplate("Update of %s data set statuses to %s failed.",
+                    dataSetCodes.size(), status);
         } else if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("UPDATE: external data '%s' status %s.", dataSetCode,
-                    status));
+            operationLog.info(String.format("UPDATED: %s data set statuses to '%s'.", dataSetCodes
+                    .size(), status));
         }
     }
 

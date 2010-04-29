@@ -21,7 +21,6 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.HighWaterMarkChecker;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -33,8 +32,9 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
 
     public DemoArchiver(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot, new HighWaterMarkChecker(storeRoot), new HighWaterMarkChecker(
-                storeRoot));
+        super(properties, storeRoot, null, null);
+        // NOTE using HighWaterMarkChecker before archiving every dataset degrades performance
+        // super(properties, storeRoot, new HighWaterMarkChecker(storeRoot), new HighWaterMarkChecker(storeRoot);
     }
 
     @Override

@@ -234,7 +234,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryToFindFullDataSetByCodes(
+                    one(externalDataDAO).tryToFindFullDataSetsByCodes(
                             Code.extractCodes(Arrays.asList(searched)), withProperties,
                             lockForUpdate);
                     will(returnValue(Arrays.asList(results)));

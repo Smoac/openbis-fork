@@ -102,7 +102,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         loadByCode(dataSetCode, true, false);
     }
 
-    public void loadByCode(String dataSetCode, boolean withPropertyTypes, boolean lockForUpdate)
+    private void loadByCode(String dataSetCode, boolean withPropertyTypes, boolean lockForUpdate)
     {
         externalData =
                 getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode, withPropertyTypes,
@@ -662,9 +662,9 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         return result;
     }
 
-    public void updateStatus(String dataSetCode, DataSetArchivingStatus newStatus)
+    public void updateStatuses(List<String> dataSetCodes, DataSetArchivingStatus newStatus)
     {
-        getExternalDataDAO().updateDataSetStatus(dataSetCode, newStatus);
+        getExternalDataDAO().updateDataSetStatuses(dataSetCodes, newStatus);
     }
 
 }

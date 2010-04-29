@@ -64,7 +64,7 @@ import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodeWithStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -122,7 +122,7 @@ public final class ETLDaemon
 
     public static void listUpdaterQueue()
     {
-        final List<DataSetCodeWithStatus> items =
+        final List<DataSetCodesWithStatus> items =
                 QueueingDataSetStatusUpdaterService.listItems(updaterQueueFile);
         if (items.isEmpty())
         {
@@ -130,7 +130,7 @@ public final class ETLDaemon
         } else
         {
             System.out.println("Found " + items.size() + " items in updater:");
-            for (final DataSetCodeWithStatus item : items)
+            for (final DataSetCodesWithStatus item : items)
             {
                 System.out.println(item);
             }

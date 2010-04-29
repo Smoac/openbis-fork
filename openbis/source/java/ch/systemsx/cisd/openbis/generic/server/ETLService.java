@@ -438,7 +438,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             throws UserFailureException
     {
         final Session session = getSession(sessionToken);
-        
+
         IExternalDataTable dataSetTable = businessObjectFactory.createExternalDataTable(session);
         dataSetTable.loadByExperimentTechId(experimentID);
         return ExternalDataTranslator.translate(dataSetTable.getExternalData(), "", "");
@@ -589,13 +589,13 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         externalDataBO.addPropertiesToDataSet(dataSetCode, properties);
     }
 
-    public void updateDataSetStatus(String sessionToken, String dataSetCode,
+    public void updateDataSetStatuses(String sessionToken, List<String> dataSetCodes,
             DataSetArchivingStatus newStatus) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
         final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
-        externalDataBO.updateStatus(dataSetCode, newStatus);
+        externalDataBO.updateStatuses(dataSetCodes, newStatus);
     }
 
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)

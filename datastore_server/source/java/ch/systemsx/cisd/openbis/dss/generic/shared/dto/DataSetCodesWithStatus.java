@@ -17,29 +17,30 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 
 /**
  * @author Piotr Buczek
  */
-public class DataSetCodeWithStatus implements Serializable
+public class DataSetCodesWithStatus implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private String dataSetCode;
+    private List<String> dataSetCodes;
 
     private DataSetArchivingStatus status;
 
-    public DataSetCodeWithStatus(String dataSetCode, DataSetArchivingStatus status)
+    public DataSetCodesWithStatus(List<String> dataSetCodes, DataSetArchivingStatus status)
     {
-        this.dataSetCode = dataSetCode;
+        this.dataSetCodes = dataSetCodes;
         this.status = status;
     }
 
-    public String getDataSetCode()
+    public List<String> getDataSetCodes()
     {
-        return dataSetCode;
+        return dataSetCodes;
     }
 
     public DataSetArchivingStatus getStatus()
@@ -50,7 +51,7 @@ public class DataSetCodeWithStatus implements Serializable
     @Override
     public String toString()
     {
-        return dataSetCode + " - " + getStatus();
+        return dataSetCodes + " - " + getStatus();
     }
 
 }

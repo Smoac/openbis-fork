@@ -19,9 +19,11 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -286,21 +288,20 @@ public class ExternalDataBOTest extends AbstractBOTest
     }
 
     @Test
-    public void testUpdateStatus()
+    public void testUpdateStatuses()
     {
-        final SamplePE sample = new SamplePE();
-        sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
-        final ExternalDataPE dataSet = createDataSet(sample, null);
+        final List<String> codes = Arrays.asList(new String[]
+            { "CODE-1", "CODE-2" });
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).updateDataSetStatus(dataSet.getCode(),
+                    one(externalDataDAO).updateDataSetStatuses(codes,
                             DataSetArchivingStatus.ARCHIVED);
                 }
             });
 
         IExternalDataBO dataBO = createExternalDataBO();
-        dataBO.updateStatus(dataSet.getCode(), DataSetArchivingStatus.ARCHIVED);
+        dataBO.updateStatuses(codes, DataSetArchivingStatus.ARCHIVED);
         // TODO DAO test
         context.assertIsSatisfied();
     }

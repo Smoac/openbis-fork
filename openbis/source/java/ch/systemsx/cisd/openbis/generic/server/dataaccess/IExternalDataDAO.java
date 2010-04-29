@@ -81,15 +81,15 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
             boolean lockForUpdate);
 
     /**
-     * Tries to get the full data set for the specified code with optional locking.
+     * Tries to get the full data sets for the specified codes with optional locking.
      */
-    public List<ExternalDataPE> tryToFindFullDataSetByCodes(Collection<String> dataSetCodes,
+    public List<ExternalDataPE> tryToFindFullDataSetsByCodes(Collection<String> dataSetCodes,
             boolean withPropertyTypes, boolean lockForUpdate);
 
     /**
-     * Sets status of dataset with given code.
+     * Sets status of datasets with given codes.
      */
-    public void updateDataSetStatus(String dataSetCodes, DataSetArchivingStatus status);
+    public void updateDataSetStatuses(List<String> dataSetCodes, DataSetArchivingStatus status);
 
     /**
      * Persists the specified data set.
