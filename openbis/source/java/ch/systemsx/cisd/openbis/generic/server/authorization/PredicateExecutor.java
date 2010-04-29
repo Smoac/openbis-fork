@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFacto
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ArrayPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.CollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
@@ -132,17 +133,23 @@ public final class PredicateExecutor
         final Class<? extends IPredicate<?>> predicateClass =
                 argument.getPredicateCandidate().guardClass();
         final Class<T> argumentType = argument.getType();
-        return evaluate(person, allowedRoles, argumentValue, predicateClass, argumentType);
+        ShouldFlattenCollections flattenAnnotation =
+                predicateClass.getAnnotation(ShouldFlattenCollections.class);
+        boolean shouldFlattenCollections =
+                (null == flattenAnnotation) ? true : flattenAnnotation.value();
+        return evaluate(person, allowedRoles, argumentValue, predicateClass, argumentType,
+                shouldFlattenCollections);
     }
 
     @Private
     final static <T> Status evaluate(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final T argumentValue,
-            final Class<? extends IPredicate<?>> predicateClass, final Class<T> argumentType)
+            final Class<? extends IPredicate<?>> predicateClass, final Class<T> argumentType,
+            final boolean shouldFlattenCollections)
     {
         assert authorizationDataProvider != null : "Authorization data provider not set";
         final IPredicate<T> predicate = createPredicate(predicateClass);
-        if (List.class.isAssignableFrom(argumentType))
+        if (List.class.isAssignableFrom(argumentType) && shouldFlattenCollections)
         {
             final CollectionPredicate<T> collectionPredicate =
                     new CollectionPredicate<T>(predicate);
@@ -158,7 +165,7 @@ public final class PredicateExecutor
                         .get(0).getClass().getName()));
             }
         }
-        if (argumentType.isArray())
+        if (argumentType.isArray() && shouldFlattenCollections)
         {
             final ArrayPredicate<T> arrayPredicate = new ArrayPredicate<T>(predicate);
             arrayPredicate.init(authorizationDataProvider);

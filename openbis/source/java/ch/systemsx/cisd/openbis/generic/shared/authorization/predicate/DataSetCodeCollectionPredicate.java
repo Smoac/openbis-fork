@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Franz-Josef Elmer
  */
+@ShouldFlattenCollections(value = false)
 public class DataSetCodeCollectionPredicate extends AbstractGroupPredicate<List<String>>
 {
     @Override

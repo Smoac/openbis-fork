@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSamplesByPropertyPredicate;
@@ -270,6 +271,18 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
+     * Check which of the list of of data sets the current user can access.
+     * 
+     * @param sessionToken The user's session token.
+     * @param dataSetCodes The data set codes the user wants to access.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public void checkDataSetCollectionAccess(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes);
+
+    /**
      * Tries to return the data set specified by its code.
      */
     @Transactional(readOnly = true)
@@ -347,8 +360,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void updateDataSetStatuses(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
+    public void updateDataSetStatuses(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes,
             final DataSetArchivingStatus newStatus) throws UserFailureException;
 
     /**
@@ -359,8 +373,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public int archiveDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+    public int archiveDatasets(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
      * Schedules unarchiving of specified data sets.
@@ -370,7 +385,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public int unarchiveDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
-
+    public int unarchiveDatasets(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 }

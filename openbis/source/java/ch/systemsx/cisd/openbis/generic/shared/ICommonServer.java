@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
@@ -889,15 +890,17 @@ public interface ICommonServer extends IServer
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public TableModel createReportFromDatasets(String sessionToken,
+    public TableModel createReportFromDatasets(
+            String sessionToken,
             DatastoreServiceDescription serviceDescription,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.USER)
-    public void processDatasets(String sessionToken,
+    public void processDatasets(
+            String sessionToken,
             DatastoreServiceDescription serviceDescription,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
      * Schedules archiving of specified data sets.
@@ -907,8 +910,9 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.SPACE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public int archiveDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+    public int archiveDatasets(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
      * Schedules unarchiving of specified data sets.
@@ -918,8 +922,9 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.USER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public int unarchiveDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+    public int unarchiveDatasets(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
      * Locks data sets.
@@ -929,8 +934,9 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.SPACE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public int lockDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+    public int lockDatasets(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
      * Unlocks data sets.
@@ -940,8 +946,9 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.SPACE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public int unlockDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> datasetCodes);
+    public int unlockDatasets(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
      * Returns all authorization groups.

@@ -49,6 +49,8 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
 
     private IPredicate<String> stringPredicate;
 
+    private IPredicate<List<String>> stringCollectionPredicate;
+
     private IPredicateFactory predicateFactory;
 
     private IAuthorizationDAOFactory daoFactory;
@@ -66,12 +68,10 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     @BeforeMethod
     public void setUp()
     {
         super.setUp();
-        stringPredicate = context.mock(IPredicate.class);
         predicateFactory = context.mock(IPredicateFactory.class);
         daoFactory = context.mock(IAuthorizationDAOFactory.class);
         dbInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
@@ -92,6 +92,24 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         PredicateExecutor.setDAOFactory(daoFactory);
     }
 
+    /**
+     * Called by tests that use the string predicate
+     */
+    @SuppressWarnings("unchecked")
+    public void setUpStringPredicate()
+    {
+        stringPredicate = context.mock(IPredicate.class);
+    }
+
+    /**
+     * Called by tests that use the string predicate
+     */
+    @SuppressWarnings("unchecked")
+    public void setUpStringCollectionPredicate()
+    {
+        stringCollectionPredicate = context.mock(IPredicate.class);
+    }
+
     @Override
     @AfterMethod
     public void tearDown()
@@ -107,12 +125,19 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         return (Class<? extends IPredicate<String>>) stringPredicate.getClass();
     }
 
+    @SuppressWarnings("unchecked")
+    private final Class<? extends IPredicate<List<String>>> castToStringCollectionPredicateClass()
+    {
+        return (Class<? extends IPredicate<List<String>>>) stringCollectionPredicate.getClass();
+    }
+
     @Test
     public final void testEvaluateWithSimpleObject()
     {
         final PersonPE person = createPerson();
         final List<RoleWithIdentifier> allowedRoles = createAllowedRoles();
         final String value = StringUtilities.getString();
+        setUpStringPredicate();
         context.checking(new Expectations()
             {
                 {
@@ -126,7 +151,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
                 }
             });
         assertEquals(Status.OK, PredicateExecutor.evaluate(person, allowedRoles, value,
-                castToStringPredicateClass(), String.class));
+                castToStringPredicateClass(), String.class, true));
         context.assertIsSatisfied();
     }
 
@@ -136,6 +161,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         final PersonPE person = createPerson();
         final List<RoleWithIdentifier> allowedRoles = createAllowedRoles();
         final String[] array = StringUtilities.getStrings(2);
+        setUpStringPredicate();
         context.checking(new Expectations()
             {
                 {
@@ -152,7 +178,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
                 }
             });
         assertEquals(Status.OK, PredicateExecutor.evaluate(person, allowedRoles, array,
-                castToStringPredicateClass(), String[].class));
+                castToStringPredicateClass(), String[].class, true));
         context.assertIsSatisfied();
     }
 
@@ -162,6 +188,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         final PersonPE person = createPerson();
         final List<RoleWithIdentifier> allowedRoles = createAllowedRoles();
         final List<String> list = Arrays.asList(StringUtilities.getStrings(2));
+        setUpStringPredicate();
         context.checking(new Expectations()
             {
                 {
@@ -178,8 +205,33 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
                 }
             });
         assertEquals(Status.OK, PredicateExecutor.evaluate(person, allowedRoles, list,
-                castToStringPredicateClass(), List.class));
+                castToStringPredicateClass(), List.class, true));
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testEvaluateWithCollectionNonFlattened()
+    {
+        final PersonPE person = createPerson();
+        final List<RoleWithIdentifier> allowedRoles = createAllowedRoles();
+        final List<String> list = Arrays.asList(StringUtilities.getStrings(2));
+        setUpStringCollectionPredicate();
+        context.checking(new Expectations()
+            {
+                {
+                    one(predicateFactory).createPredicateForClass(
+                            castToStringCollectionPredicateClass());
+                    will(returnValue(stringCollectionPredicate));
+
+                    one(stringCollectionPredicate)
+                            .init(with(any(IAuthorizationDataProvider.class)));
+
+                    one(stringCollectionPredicate).evaluate(person, allowedRoles, list);
+                    will(returnValue(Status.OK));
+                }
+            });
+        assertEquals(Status.OK, PredicateExecutor.evaluate(person, allowedRoles, list,
+                castToStringCollectionPredicateClass(), List.class, false));
+        context.assertIsSatisfied();
+    }
 }

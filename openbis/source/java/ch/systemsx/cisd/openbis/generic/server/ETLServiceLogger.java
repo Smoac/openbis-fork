@@ -198,6 +198,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         logAccess(sessionToken, "checkDataSetAccess", "DATA_SET(%s)", dataSetCode);
     }
 
+    public void checkDataSetCollectionAccess(String sessionToken, List<String> dataSetCodes)
+    {
+        logTracking(sessionToken, "checkDataSetCollectionAccess", "DATA_SET_CODES(%s)",
+                dataSetCodes);
+    }
+
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
@@ -258,5 +264,4 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         logTracking(sessionToken, "updateDataSetStatus", "DATA_SET_CODES(%s) STATUS(%s)",
                 dataSetCodes, newStatus);
     }
-
 }

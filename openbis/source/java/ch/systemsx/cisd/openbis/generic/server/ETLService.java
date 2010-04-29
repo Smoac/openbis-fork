@@ -623,6 +623,12 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         // do nothing, the access rights specified in method annotations are checked by a proxy
     }
 
+    public void checkDataSetCollectionAccess(String sessionToken, List<String> dataSetCodes)
+    {
+        checkSession(sessionToken);
+        // do nothing, the access rights specified in method annotations are checked by a proxy
+    }
+
     public List<Sample> listSamplesByCriteria(String sessionToken,
             ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
