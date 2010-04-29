@@ -114,20 +114,21 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Returns the ExperimentType together with assigned property types for specified experiment type code.
+     * Returns the ExperimentType together with assigned property types for specified experiment
+     * type code.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
     public ExperimentType getExperimentType(String sessionToken, String experimentTypeCode)
             throws UserFailureException;
-    
+
     /**
      * Returns the SampleType together with assigned property types for specified sample type code.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
     public SampleType getSampleType(String sessionToken, String sampleTypeCode)
-    throws UserFailureException;
+            throws UserFailureException;
 
     /**
      * Returns the data set type together with assigned property types for specified data set type
@@ -149,7 +150,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) final TechId experimentID)
             throws UserFailureException;
-    
+
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
      * 
@@ -219,7 +220,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void updateSample(String sessionToken,
             @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates);
-    
+
     /**
      * Registers the specified data connected to a sample.
      * 
@@ -341,13 +342,13 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Updates status of given data set.
+     * Updates status of given data sets.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void updateDataSetStatus(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode,
+    public void updateDataSetStatuses(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
             final DataSetArchivingStatus newStatus) throws UserFailureException;
 
     /**
