@@ -22,10 +22,12 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 
 /**
+ * This class exposes the {@link IScreeningApiServer} interface through HTTP invoker.
+ * 
  * @author Tomasz Pylak
  */
 @Controller
@@ -34,12 +36,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 public class ScreeningServiceServer extends HttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVER)
-    private IScreeningServer server;
+    private IScreeningApiServer server;
 
     @Override
     public void afterPropertiesSet()
     {
-        setServiceInterface(IScreeningServer.class);
+        setServiceInterface(IScreeningApiServer.class);
         setService(server);
         super.afterPropertiesSet();
     }
