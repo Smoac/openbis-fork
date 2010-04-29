@@ -562,11 +562,10 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 {
                     prepareFindFullDatasets(allDataSets, false, true);
 
-                    prepareUpdateDatasetStatus(d2Available1, ARCHIVE_PENDING);
-                    prepareUpdateDatasetStatus(d2Available2, ARCHIVE_PENDING);
-                    prepareUpdateDatasetStatus(d3Available, ARCHIVE_PENDING);
+                    prepareUpdateDatasetStatuses(new ExternalDataPE[]
+                        { d2Available1, d2Available2, d3Available }, ARCHIVE_PENDING);
 
-                    prepareFlush();
+                    // prepareFlush();
 
                     prepareArchiving(dataStoreService2, dss2, d2Available1, d2Available2);
                     prepareArchiving(dataStoreService3, dss3, d3Available);
@@ -601,11 +600,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 {
                     prepareFindFullDatasets(allDataSets, false, true);
 
-                    prepareUpdateDatasetStatus(d2Archived1, UNARCHIVE_PENDING);
-                    prepareUpdateDatasetStatus(d2Archived2, UNARCHIVE_PENDING);
-                    prepareUpdateDatasetStatus(d3Archived, UNARCHIVE_PENDING);
-
-                    prepareFlush();
+                    prepareUpdateDatasetStatuses(new ExternalDataPE[]
+                        { d2Archived1, d2Archived2, d3Archived }, UNARCHIVE_PENDING);
 
                     prepareUnarchiving(dataStoreService2, dss2, d2Archived1, d2Archived2);
                     prepareUnarchiving(dataStoreService3, dss3, d3Archived);
@@ -621,34 +617,14 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    private void prepareUpdateDatasetStatus(final ExternalDataPE dataSet,
+    private void prepareUpdateDatasetStatuses(final ExternalDataPE[] dataSets,
             final DataSetArchivingStatus newStatus)
     {
         context.checking(new Expectations()
             {
                 {
-
-                    one(externalDataDAO).validate(with(new BaseMatcher<ExternalDataPE>()
-                        {
-
-                            public boolean matches(Object item)
-                            {
-                                if (item instanceof ExternalDataPE)
-                                {
-                                    ExternalDataPE actualDataSet = (ExternalDataPE) item;
-                                    return dataSet.equals(actualDataSet)
-                                            && newStatus == actualDataSet.getStatus();
-                                }
-                                return false;
-                            }
-
-                            public void describeTo(Description description)
-                            {
-                                description.appendValue("Dataset " + dataSet.getCode()
-                                        + " with status " + newStatus);
-                            }
-
-                        }));
+                    one(externalDataDAO).updateDataSetStatuses(
+                            Code.extractCodes(Arrays.asList(dataSets)), newStatus);
                 }
             });
     }
