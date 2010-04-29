@@ -2,7 +2,8 @@
   <import file="../../openbis/build/build.xml" />
   <import file="../../datastore_server/build/build.xml" />
   <project-classpath name="ecp" classes="${classes}" />
-	
+	<project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
+  
   <property name="original.dist" value="dist" />
   <property name="mainfolder" value="screening" />
   <property name="variant" value="-screening" />
@@ -10,8 +11,9 @@
   <property name="dist.screening-api" value="${dist}/screening_api" />
   <property name="dist.screening-api.lib" value="${dist.screening-api}" />
   <property name="dist.screening-api.jar" value="${dist.screening-api.lib}/openbis_screening_api.jar" />
+  <property name="dist.screening-api.src" value="${dist.screening-api}/openbis_screening_api_source.zip" />
 	<property name="dist.screening-api.javadoc" value="${dist.screening-api}/doc" />
-  <property name="dist.screening-api.javadoc.zip" value="${dist.screening-api}/openbis-screening-api-javadoc.zip" />
+  <property name="dist.screening-api.javadoc.zip" value="${dist.screening-api}/openbis_screening_api_javadoc.zip" />
 
 	<property name="classes.screening" value="../screening/targets/ant/classes" />
 	<property name="classes.common-server" value="../server-common/targets/ant/classes" />
@@ -63,25 +65,6 @@
     </war>
   </target>
 
-  <target name="prepare-compile-and-run-screening-test" depends="prepare-gwt, compile-and-run-screening-test"
-    description="Prepare, compile, and run the module test mode">
-  </target>
-
-  <target name="compile-and-run-screening-test" description="Compile and run the screening openbis from Eclipse">
-    <antcall target="compile-module-test">
-      <param name="module-test.path" value="openbis-test-screening" />
-      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
-    </antcall>
-    <antcall target="run-screening-test" />
-  </target>
-
-  <target name="run-screening-test" description="run the screening openbis from Eclipse">
-    <antcall target="run-module-test">
-      <param name="module-test.path" value="openbis-test-screening" />
-      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
-    </antcall>
-  </target>
-
   <target name="check-dictionary-syntax" description="Parse *-dictionary.js and check that the syntax is correct.">
     <antcall target="check-javascript-syntax">
       <param name="javascript-file"
@@ -89,6 +72,8 @@
     </antcall>
   </target>
   
+  <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxx API xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+    
   <target name="screening-api-doc">
     <javadoc 
       destdir="${dist.screening-api.javadoc}" 
@@ -105,6 +90,10 @@
       <zipfileset dir="${dist.screening-api.javadoc}" includes="**" />
     </zip>
     <delete dir="${dist.screening-api.javadoc}" />
+    <zip destfile="${dist.screening-api.src}">
+      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/**" />
+      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/*Facade.java" />
+    </zip>
   </target>
 
   <!-- 
@@ -149,4 +138,85 @@
   </target>
 	
 	<target name="screening-api" depends="screening-api-doc, screening-api-libs" />
+  
+  <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxx END API xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+  
+  <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxx ECLIPSE TEST MODE xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+
+  <!--
+    // // Compile Java to javscript, assuming that prepare-gwt has already been run // // Must pass in module-test.path
+    and module-test.module as arguments // e.g., // <{property,param} name="module-test.path" value="openbis-test" /> //
+    <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" /> //
+  -->
+  <target name="screening-compile-module-test" description="Compile the module test mode">
+    <delete dir="${targets.www}/${module-test.path}" />
+    <java classpath="${ecp}:${ecp.gwt}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
+      classname="com.google.gwt.dev.Compiler" fork="true">
+      <jvmarg value="-Xmx512M" />
+      <arg value="-war" />
+      <arg value="${targets.www}" />
+      <arg value="${module-test.module}Firefox" />
+      <arg value="-draftCompile" />
+      <arg value="-style" />
+      <arg value="PRETTY" />
+    </java>
+    <move todir="${targets.www}/${module-test.path}">
+      <fileset dir="${targets.www}/${module-test.module}" />
+    </move>
+  </target>
+
+  <!--
+    // // Run the production mode, assuming compile-module-test has already been run // // Must pass in
+    module-test.path, module-test.module, and module-test.db-kind as arguments // e.g., // <{property,param}
+    name="module-test.path" value="openbis-test" /> // <{property,param} name="module-test.module"
+    value="ch.systemsx.cisd.openbis.OpenBIS" /> //
+  -->
+  <target name="screening-run-module-test" description="Run the module test mode">
+    <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
+      <classpath>
+        <pathelement location="${sources}" />
+        <pathelement location="../openbis/${sources}" />
+        <pathelement path="${ecp}" />
+        <pathelement path="${ecp.gwt}" />
+        <pathelement location="${gwt.lib}/gwt-dev.jar" />
+        <pathelement location="${gwt.lib}/gwt-user.jar" />
+      </classpath>
+      <jvmarg value="-Xmx512M" />
+      <jvmarg value="-ea" />
+      <sysproperty key="log4j.configuration" file="etc/log.xml" />
+      <sysproperty key="javax.net.ssl.trustStore" file="dist/server/openBIS.keystore" />
+
+      <!-- Arguments to com.google.gwt.dev.DevMode -->
+      <!-- Provide two startup urls : one for the compiled version, one for the normal dev version -->
+      <arg value="-startupUrl" />
+      <arg value="${module-test.path}/index.html" />
+      <arg value="-startupUrl" />
+      <arg value="${module-test.module}/index.html" />
+
+      <arg value="${module-test.module}" />
+      <arg value="-war" />
+      <arg value="targets/www" />
+      <arg value="-logLevel" />
+      <arg value="WARN" />
+    </java>
+  </target>
+
+  <target name="screening-test-compile-and-run" description="Compile and run the screening openbis from Eclipse">
+    <antcall target="screening-compile-module-test">
+      <param name="module-test.path" value="openbis-test-screening" />
+      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+    </antcall>
+    <antcall target="screening-test-run" />
+  </target>
+
+  <target name="screening-test-run" description="run the screening openbis from Eclipse">
+    <antcall target="screening-run-module-test">
+      <param name="module-test.path" value="openbis-test-screening" />
+      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+    </antcall>
+  </target>
+  
+  <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxx END ECLIPSE TEST MODE xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+  
+  
 </project>
