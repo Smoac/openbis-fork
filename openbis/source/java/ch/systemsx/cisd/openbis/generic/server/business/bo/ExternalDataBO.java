@@ -109,12 +109,14 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                         lockForUpdate);
     }
 
+    static final String DATA_SET_TYPE = "dataSetType";
+
     static final String PROPERTY_TYPES = "dataSetType.dataSetTypePropertyTypesInternal";
 
     public void loadDataByTechId(TechId datasetId)
     {
         String[] connections =
-            { PROPERTY_TYPES };
+            { PROPERTY_TYPES, DATA_SET_TYPE };
         externalData = getExternalDataDAO().tryGetByTechId(datasetId, connections);
         if (externalData == null)
         {
