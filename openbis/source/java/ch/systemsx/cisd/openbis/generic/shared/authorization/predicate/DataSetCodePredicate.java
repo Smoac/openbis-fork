@@ -20,15 +20,13 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * A {@link IPredicate} based on a list of data set codes.
- *
- * @author     Franz-Josef Elmer
+ * 
+ * @author Franz-Josef Elmer
  */
 public class DataSetCodePredicate extends AbstractGroupPredicate<String>
 {
@@ -37,23 +35,23 @@ public class DataSetCodePredicate extends AbstractGroupPredicate<String>
     {
         return "data set code";
     }
-    
 
     @Override
     Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, String dataSetCode)
     {
         assert initialized : "Predicate has not been initialized";
-        
-        ProjectPE project = authorizationDataProvider.tryToGetProject(dataSetCode);
-        if (project != null)
+
+        DataSetAccessPE accessData = authorizationDataProvider.tryGetDatasetAccessData(dataSetCode);
+
+        if (accessData != null)
         {
-            GroupPE group = project.getGroup();
-            DatabaseInstancePE databaseInstance = group.getDatabaseInstance();
-            String code = group.getCode();
-            return evaluate(person, allowedRoles, databaseInstance, code);
+            String dbInstanceUUID = accessData.getDatabaseInstanceUuid();
+            String dbInstanceCode = accessData.getDatabaseInstanceCode();
+            String groupCode = accessData.getGroupCode();
+            Status result =
+                    evaluate(person, allowedRoles, dbInstanceUUID, dbInstanceCode, groupCode);
+            return result;
         }
         return Status.OK;
     }
-
-
 }

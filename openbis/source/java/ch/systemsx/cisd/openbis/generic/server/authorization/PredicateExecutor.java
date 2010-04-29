@@ -20,17 +20,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ArrayPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.CollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -240,6 +244,18 @@ public final class PredicateExecutor
             {
                 return null;
             }
+        }
+
+        @SuppressWarnings("unchecked")
+        public DataSetAccessPE tryGetDatasetAccessData(String dataSetCode)
+        {
+            Session sess = daoFactory.getSessionFactory().getCurrentSession();
+            Query query = sess.getNamedQuery(DataSetAccessPE.DATASET_ACCESS_QUERY_NAME);
+            query = query.setReadOnly(true);
+            List<DataSetAccessPE> results = query.setString(0, dataSetCode).list();
+            if (results.size() < 1)
+                return null;
+            return results.get(0);
         }
 
         public GroupPE tryToGetGroup(SpaceOwnerKind kind, TechId techId)

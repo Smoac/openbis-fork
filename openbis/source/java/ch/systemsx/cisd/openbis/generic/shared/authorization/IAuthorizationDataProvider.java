@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -47,6 +48,11 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public ProjectPE tryToGetProject(String dataSetCode);
 
     /**
+     * Returns the information necessary to determine if a user is allowed to access this dataset.
+     */
+    public DataSetAccessPE tryGetDatasetAccessData(String dataSetCode);
+
+    /**
      * Returns the group of an entity with given <var>entityKind</var> and <var>techId</var>
      * 
      * @return <code>null</code> if entity has no group set.
@@ -67,7 +73,7 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * Returns the grid custom column with given <var>techId</var>
      */
     public GridCustomColumnPE getGridCustomColumn(TechId techId);
-    
+
     /**
      * Returns the query with specified ID.
      */

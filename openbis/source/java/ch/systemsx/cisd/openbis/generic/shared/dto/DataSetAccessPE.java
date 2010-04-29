@@ -23,6 +23,9 @@ import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
 
 /**
+ * A PE for retrieving only the information necessary to determine if a user/person can access a
+ * data set.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 @Entity
@@ -54,6 +57,22 @@ public class DataSetAccessPE
     private String databaseInstanceCode;
 
     public final static String DATASET_ACCESS_QUERY_NAME = "dataset_access";
+
+    /**
+     * A factory method that should only be used for testing.
+     */
+    public static DataSetAccessPE createDataSetAccessPEForTest(String dataSetId,
+            String dataSetCode, String groupCode, String databaseInstanceUuid,
+            String databaseInstanceCode)
+    {
+        DataSetAccessPE newMe = new DataSetAccessPE();
+        newMe.setDataSetId(dataSetId);
+        newMe.setDataSetCode(dataSetCode);
+        newMe.setGroupCode(groupCode);
+        newMe.setDatabaseInstanceUuid(databaseInstanceUuid);
+        newMe.setDatabaseInstanceCode(databaseInstanceCode);
+        return newMe;
+    }
 
     void setDataSetId(String dataSetId)
     {

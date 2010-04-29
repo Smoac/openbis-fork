@@ -49,8 +49,16 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
             final DatabaseInstancePE databaseInstance, final String groupCodeOrNull)
     {
         final String databaseInstanceUUID = databaseInstance.getUuid();
+        return evaluate(person, allowedRoles, databaseInstanceUUID, databaseInstance.getCode(),
+                groupCodeOrNull);
+    }
+
+    protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+            final String databaseInstanceUUID, final String databaseInstanceCode,
+            final String groupCodeOrNull)
+    {
         final GroupIdentifier fullGroupIdentifier =
-                new GroupIdentifier(databaseInstance.getCode(), groupCodeOrNull);
+                new GroupIdentifier(databaseInstanceCode, groupCodeOrNull);
         ensureGroupExists(fullGroupIdentifier, databaseInstanceUUID, groupCodeOrNull);
         final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, groupCodeOrNull);
         if (matching)
@@ -59,7 +67,7 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
         }
         return Status.createError(String.format(
                 "User '%s' does not have enough privileges to access data in the space '%s'.",
-                person.getUserId(), new GroupIdentifier(databaseInstance.getCode(), groupCodeOrNull)));
+                person.getUserId(), new GroupIdentifier(databaseInstanceCode, groupCodeOrNull)));
     }
 
     private void ensureGroupExists(final GroupIdentifier groupIdentifier,
@@ -91,7 +99,8 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
         {
             final RoleLevel roleGroup = role.getRoleLevel();
             if (roleGroup.equals(RoleLevel.SPACE)
-                    && equalIdentifier(role.getAssignedGroup(), databaseInstanceUUID, groupCodeOrNull))
+                    && equalIdentifier(role.getAssignedGroup(), databaseInstanceUUID,
+                            groupCodeOrNull))
             {
                 return true;
             } else if (roleGroup.equals(RoleLevel.INSTANCE)
