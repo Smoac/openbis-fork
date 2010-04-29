@@ -25,9 +25,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
@@ -36,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.SelectedOrAllDataSetsRadioProvider.ISelectedDataSetsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -188,30 +189,37 @@ public class DataSetArchivingMenu extends MenuItem
                         case ARCHIVE:
                             viewContext.getService().archiveDatasets(
                                     criteria,
-                                    new ArchivingDisplayCallback(viewContext, taskKind
-                                            .getDescription(), computeOnSelected));
+                                    createArchivingDisplayCallback(taskKind.getDescription(),
+                                            computeOnSelected));
                             break;
                         case UNARCHIVE:
                             viewContext.getService().unarchiveDatasets(
                                     criteria,
-                                    new ArchivingDisplayCallback(viewContext, taskKind
-                                            .getDescription(), computeOnSelected));
+                                    createArchivingDisplayCallback(taskKind.getDescription(),
+                                            computeOnSelected));
                             break;
                         case LOCK:
                             viewContext.getService().lockDatasets(
                                     criteria,
-                                    new ArchivingDisplayCallback(viewContext, taskKind
-                                            .getDescription(), computeOnSelected));
+                                    createArchivingDisplayCallback(taskKind.getDescription(),
+                                            computeOnSelected));
                             break;
                         case UNLOCK:
                             viewContext.getService().unlockDatasets(
                                     criteria,
-                                    new ArchivingDisplayCallback(viewContext, taskKind
-                                            .getDescription(), computeOnSelected));
+                                    createArchivingDisplayCallback(taskKind.getDescription(),
+                                            computeOnSelected));
                             break;
                     }
                 }
             };
+    }
+
+    private AsyncCallback<ArchivingResult> createArchivingDisplayCallback(String actionName,
+            boolean computeOnSelected)
+    {
+        return AsyncCallbackWithProgressBar.decorate(new ArchivingDisplayCallback(viewContext,
+                actionName, computeOnSelected), "Schedulling " + actionName + "...");
     }
 
     private final class ArchivingDisplayCallback extends AbstractAsyncCallback<ArchivingResult>
@@ -220,26 +228,17 @@ public class DataSetArchivingMenu extends MenuItem
 
         private final boolean computeOnSelected;
 
-        private final Dialog progressBar;
-
         private ArchivingDisplayCallback(IViewContext<?> viewContext, String actionName,
                 boolean computeOnSelected)
         {
             super(viewContext);
             this.actionName = actionName;
             this.computeOnSelected = computeOnSelected;
-            this.progressBar = createAndShowProgressBar();
-        }
-
-        private Dialog createAndShowProgressBar()
-        {
-            return GWTUtils.createAndShowProgressBar("Scheduling " + actionName + "...");
         }
 
         @Override
         public final void process(final ArchivingResult result)
         {
-            progressBar.hide();
             final String source = computeOnSelected ? "selected" : "provided";
             if (result.getScheduled() == 0)
             {
@@ -254,12 +253,6 @@ public class DataSetArchivingMenu extends MenuItem
             }
         }
 
-        @Override
-        public void finishOnFailure(Throwable caught)
-        {
-            progressBar.hide();
-            super.finishOnFailure(caught);
-        }
     }
 
     private static class PerformArchivingDialog extends

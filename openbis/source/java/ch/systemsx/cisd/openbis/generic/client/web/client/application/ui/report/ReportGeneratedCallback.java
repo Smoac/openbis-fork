@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report;
 
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
@@ -40,13 +40,20 @@ public class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelRef
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final Dialog progressBar;
-
     private final IOnReportComponentGeneratedAction action;
 
     private final IReportInformationProvider reportInformationProvider;
 
-    public ReportGeneratedCallback(IViewContext<ICommonClientServiceAsync> viewContext,
+    public static AsyncCallback<TableModelReference> create(
+            IViewContext<ICommonClientServiceAsync> viewContext,
+            IReportInformationProvider reportInformationProvider,
+            IOnReportComponentGeneratedAction action)
+    {
+        return AsyncCallbackWithProgressBar.decorate(new ReportGeneratedCallback(viewContext,
+                reportInformationProvider, action), "Generating the report...");
+    }
+
+    private ReportGeneratedCallback(IViewContext<ICommonClientServiceAsync> viewContext,
             IReportInformationProvider reportInformationProvider,
             IOnReportComponentGeneratedAction action)
     {
@@ -54,18 +61,11 @@ public class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelRef
         this.viewContext = viewContext;
         this.reportInformationProvider = reportInformationProvider;
         this.action = action;
-        this.progressBar = createAndShowProgressBar();
-    }
-
-    private Dialog createAndShowProgressBar()
-    {
-        return GWTUtils.createAndShowProgressBar("Generating the report...");
     }
 
     @Override
     protected void process(final TableModelReference tableModelReference)
     {
-        progressBar.hide();
         final IDisposableComponent reportComponent =
                 ReportGrid.create(viewContext, tableModelReference, reportInformationProvider);
         action.execute(reportComponent);
@@ -73,13 +73,6 @@ public class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelRef
         {
             MessageBox.info(null, tableModelReference.tryGetMessage(), null);
         }
-    }
-
-    @Override
-    public void finishOnFailure(Throwable caught)
-    {
-        progressBar.hide();
-        super.finishOnFailure(caught);
     }
 
 }

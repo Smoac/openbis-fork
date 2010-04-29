@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -30,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**
@@ -57,8 +60,8 @@ public class DataSetReportGenerator
             DatastoreServiceDescription service, DisplayedOrSelectedDatasetCriteria criteria,
             IOnReportComponentGeneratedAction action)
     {
-        ReportGeneratedCallback callback =
-                new ReportGeneratedCallback(viewContext, service, action);
+        AsyncCallback<TableModelReference> callback =
+                ReportGeneratedCallback.create(viewContext, service, action);
         viewContext.getService().createReportFromDatasets(service, criteria, callback);
     }
 

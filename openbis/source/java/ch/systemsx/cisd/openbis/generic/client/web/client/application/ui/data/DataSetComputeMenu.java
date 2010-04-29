@@ -36,6 +36,7 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
@@ -167,16 +168,22 @@ public class DataSetComputeMenu extends TextToolItem
                             DataSetReportGenerator.generate(viewContext, service, criteria);
                             break;
                         case PROCESSING:
-                            viewContext.getService().processDatasets(service, criteria,
-                                    new ProcessingDisplayCallback(viewContext));
+                            viewContext.getService().processDatasets(
+                                    service,
+                                    criteria,
+                                    AsyncCallbackWithProgressBar.decorate(
+                                            new ProcessingDisplayCallback(viewContext),
+                                            "Scheduling processing..."));
                             break;
                     }
                 }
+
             };
     }
 
     private final class ProcessingDisplayCallback extends AbstractAsyncCallback<Void>
     {
+
         private ProcessingDisplayCallback(IViewContext<?> viewContext)
         {
             super(viewContext);
@@ -186,6 +193,12 @@ public class DataSetComputeMenu extends TextToolItem
         public final void process(final Void result)
         {
             MessageBox.info("Processing", "Processing has been scheduled successfully.", null);
+        }
+
+        @Override
+        public void finishOnFailure(Throwable caught)
+        {
+            super.finishOnFailure(caught);
         }
     }
 

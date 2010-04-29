@@ -22,8 +22,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.ProgressBar;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
@@ -268,24 +266,6 @@ public final class GWTUtils
     {
         return original.toLowerCase().replace(".", "-DOT-").replace("_", "-UNDERSCORE-").replace(
                 "$", "-DOLLAR-");
-    }
-
-    public final static Dialog createAndShowProgressBar(final String title)
-    {
-        ProgressBar progressBar = new ProgressBar();
-        progressBar.auto();
-
-        Dialog dialog = new Dialog();
-        GWTUtils.setToolTip(dialog, title);
-
-        dialog.add(progressBar);
-        dialog.setButtons("");
-        dialog.setAutoHeight(true);
-        dialog.setClosable(false);
-        dialog.addText(title);
-        dialog.setResizable(false);
-        dialog.show();
-        return dialog;
     }
 
     //

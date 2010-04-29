@@ -309,7 +309,7 @@ public class QueryEditor extends Dialog
             viewContext.getService().createQueryResultsReport(
                     sqlStatement,
                     parameterBindings,
-                    new ReportGeneratedCallback(viewContext.getCommonViewContext(),
+                    ReportGeneratedCallback.create(viewContext.getCommonViewContext(),
                             createReportInformationProvider(sqlStatement),
                             createDisplayQueryResultsAction()));
         }
