@@ -229,7 +229,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         return getSampleInternal();
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
     private SamplePE getSampleInternal()
     {
