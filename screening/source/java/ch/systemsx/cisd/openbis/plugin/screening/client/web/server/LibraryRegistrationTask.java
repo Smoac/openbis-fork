@@ -66,7 +66,7 @@ class LibraryRegistrationTask implements Runnable
             }
         } catch (Exception ex)
         {
-            message.append("GENES: ERROR (NOT REGISTERED)\n");
+            message.append("ERROR: Genes could not be registered!\n");
             message.append(ex.getMessage());
             sendErrorEmail(message.toString(), email);
             return;
@@ -81,7 +81,7 @@ class LibraryRegistrationTask implements Runnable
             }
         } catch (Exception ex)
         {
-            message.append("\nOLIGOS: ERROR (NOT REGISTERED)\n");
+            message.append("ERROR: Oligos could not be registered!\n");
             message.append(ex.getMessage());
             sendErrorEmail(message.toString(), email);
             return;
@@ -89,7 +89,6 @@ class LibraryRegistrationTask implements Runnable
         try
         {
             genericServer.registerSamples(sessionToken, newSamplesWithType);
-            message.append("PLATES: OK\n");
             for (NewSamplesWithTypes s : newSamplesWithType)
             {
                 message.append("Successfuly registered " + s.getNewSamples().size()
@@ -97,7 +96,7 @@ class LibraryRegistrationTask implements Runnable
             }
         } catch (Exception ex)
         {
-            message.append("PLATES: ERROR (NOT REGISTERED)\n");
+            message.append("ERROR: Plates and wells could not be registered!\n");
             message.append(ex.getMessage());
             sendErrorEmail(message.toString(), email);
             return;
