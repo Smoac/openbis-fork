@@ -1219,7 +1219,8 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(entityTypePropertyTypeBO).countAssignmentValues(propertyTypeCode,
                             entityTypeCode);
-                    will(returnValue(1)); // TODO BO test
+                    will(returnValue(1));
+                    // TODO 2009-09-10, Piotr Buczek: write BO and DAO tests
                 }
             });
 

@@ -68,7 +68,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
  * @author Franz-Josef Elmer
  */
 // TODO 2009-09-10, Piotr Buczek: write tests with many parents and cycle check
-@Test(groups="broken")
 public class ExternalDataBOTest extends AbstractBOTest
 {
     private static final TechId TECH_ID = new TechId(42l);
@@ -405,7 +404,8 @@ public class ExternalDataBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryGetByTechId(TECH_ID, ExternalDataBO.PROPERTY_TYPES);
+                    one(externalDataDAO).tryGetByTechId(TECH_ID, ExternalDataBO.PROPERTY_TYPES,
+                            ExternalDataBO.DATA_SET_TYPE);
                     will(returnValue(dataSet));
 
                     one(propertiesConverter).updateProperties(
@@ -434,7 +434,8 @@ public class ExternalDataBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(externalDataDAO).tryGetByTechId(TECH_ID, ExternalDataBO.PROPERTY_TYPES);
+                    one(externalDataDAO).tryGetByTechId(TECH_ID, ExternalDataBO.PROPERTY_TYPES,
+                            ExternalDataBO.DATA_SET_TYPE);
                     will(returnValue(dataSet));
 
                     ExperimentIdentifier identifier = EXPERIMENT_IDENTIFIER;
