@@ -51,6 +51,8 @@ public interface IEntityPropertyTypeDAO
     public EntityTypePropertyTypePE tryFindAssignment(EntityTypePE entityType,
             PropertyTypePE propertyType);
 
+    public int countAssignmentValues(String entityTypeCode, String propertyTypeCode);
+
     /**
      * Creates a new {@link EntityTypePropertyTypePE} assignment.
      */

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.StopWatch;
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
@@ -84,10 +85,18 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     public void loadAssignment(String propertyTypeCode, String entityTypeCode)
     {
+        StopWatch watch = new StopWatch();
+        watch.start();
         EntityTypePE entityType = findEntityType(entityTypeCode);
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
         IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
         assignment = entityPropertyTypeDAO.tryFindAssignment(entityType, propertyType);
+    }
+
+    public int countAssignmentValues(String propertyTypeCode, String entityTypeCode)
+    {
+        IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
+        return entityPropertyTypeDAO.countAssignmentValues(entityTypeCode, propertyTypeCode);
     }
 
     public void createAssignment(String propertyTypeCode, String entityTypeCode,
@@ -101,11 +110,11 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         // fill default property values
         if (isMandatory)
         {
-            List<IEntityPropertiesHolder> entities = getAllEntities(entityType);
             String errorMsgTemplate =
                     "Cannot create mandatory assignment. "
                             + "Please specify 'Initial Value', which will be used for %s %s%s "
                             + "of type '%s' already existing in the database.";
+            List<IEntityPropertiesHolder> entities = getAllEntities(entityType);
             addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities,
                     errorMsgTemplate);
         } else if (StringUtils.isEmpty(defaultValue) == false)
@@ -132,7 +141,6 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                         .getLabel(), createPlural(size), entityType.getCode()));
             }
         }
-        // TODO 2009-06-01, Piotr Buczek: no validation of default value
         for (IEntityPropertiesHolder entity : entities)
         {
             final EntityPropertyPE property =

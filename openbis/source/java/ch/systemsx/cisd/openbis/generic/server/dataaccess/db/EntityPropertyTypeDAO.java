@@ -110,6 +110,21 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return etpt;
     }
 
+    public int countAssignmentValues(String entityTypeCode, String propertyTypeCode)
+    {
+        assert entityTypeCode != null : "Unspecified entity type.";
+        assert propertyTypeCode != null : "Unspecified property type.";
+
+        String query =
+                String.format("select count(pv) from %s pa join pa.propertyValues pv "
+                        + "where pa.propertyTypeInternal.simpleCode = ? "
+                        + "and pa.entityTypeInternal.code = ?", entityKind
+                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName(), entityKind
+                        .getEntityPropertyClass().getSimpleName());
+        return ((Long) (getHibernateTemplate().find(query,
+                toArray(propertyTypeCode, entityTypeCode)).get(0))).intValue();
+    }
+
     public final void createEntityPropertyTypeAssignment(
             final EntityTypePropertyTypePE entityPropertyTypeAssignement)
             throws DataAccessException
@@ -307,7 +322,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     {
         for (EntityPropertyPE propertyValue : propertyValues)
         {
-            propertyValue.getEntity().removeProperty(propertyValue);
+            propertyValue.getEntity().removeProperty(propertyValue); // FIXME loads entities?
         }
     }
 

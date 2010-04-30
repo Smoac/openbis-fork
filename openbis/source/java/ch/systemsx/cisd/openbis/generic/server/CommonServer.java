@@ -641,8 +641,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         IEntityTypePropertyTypeBO etptBO =
                 businessObjectFactory.createEntityTypePropertyTypeBO(session, DtoConverters
                         .convertEntityKind(entityKind));
-        etptBO.loadAssignment(propertyTypeCode, entityTypeCode);
-        return etptBO.getLoadedAssignment().getPropertyValues().size();
+        return etptBO.countAssignmentValues(propertyTypeCode, entityTypeCode);
     }
 
     public final void registerPropertyType(final String sessionToken,
