@@ -90,7 +90,7 @@ public abstract class HibernateAbstractRegistrationHolder implements Serializabl
         this.registrationDate = registrationDate;
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
     public PersonPE getRegistrator()
     {
