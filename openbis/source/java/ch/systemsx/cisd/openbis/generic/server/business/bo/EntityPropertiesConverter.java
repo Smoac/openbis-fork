@@ -313,8 +313,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
     }
 
-    public final <T extends EntityPropertyPE> T createProperty(PropertyTypePE propertyType,
-            EntityTypePropertyTypePE entityTypPropertyType, final PersonPE registrator, String value)
+    public final String tryCreateValidatedPropertyValue(PropertyTypePE propertyType,
+            EntityTypePropertyTypePE entityTypPropertyType, String value)
     {
         if (entityTypPropertyType.isMandatory() && value == null)
         {
@@ -325,9 +325,18 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         {
             final String validated =
                     propertyValueValidator.validatePropertyValue(propertyType, value);
-            return createEntityProperty(registrator, propertyType, entityTypPropertyType, validated);
+            return validated;
         }
         return null;
+    }
+
+    public final <T extends EntityPropertyPE> T createValidatedProperty(PropertyTypePE propertyType,
+            EntityTypePropertyTypePE entityTypPropertyType, final PersonPE registrator,
+            String validatedValue)
+    {
+        assert validatedValue != null;
+        return createEntityProperty(registrator, propertyType, entityTypPropertyType,
+                validatedValue);
     }
 
     public <T extends EntityPropertyPE, P extends IEntityProperty> Set<T> updateProperties(

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -141,11 +142,15 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                         .getLabel(), createPlural(size), entityType.getCode()));
             }
         }
+        PersonPE registrator = findRegistrator();
+        String validatedValue =
+                propertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
+                        defaultValue);
         for (IEntityPropertiesHolder entity : entities)
         {
             final EntityPropertyPE property =
-                    propertiesConverter.createProperty(propertyType, assignment, findRegistrator(),
-                            defaultValue);
+                    propertiesConverter.createValidatedProperty(propertyType, assignment,
+                            registrator, validatedValue);
             if (property != null)
             {
                 entity.addProperty(property);

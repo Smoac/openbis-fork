@@ -104,7 +104,8 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
 
         final EntityKind entityKind = EntityKind.EXPERIMENT;
         boolean mandatory = true;
-        final String defaultValue = "50";
+        final String defaultValue = "50.00";
+        final String validatedValue = "50.0";
         final String section = "section 1";
 
         final ExperimentPE experiment = new ExperimentPE();
@@ -132,9 +133,12 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                     experimets.add(experiment);
                     will(returnValue(experimets));
 
-                    one(propertiesConverter).createProperty(with(propertyType),
+                    one(propertiesConverter).tryCreateValidatedPropertyValue(with(propertyType),
+                            with(any(ExperimentTypePropertyTypePE.class)), with(defaultValue));
+                    will(returnValue(validatedValue));
+                    one(propertiesConverter).createValidatedProperty(with(propertyType),
                             with(any(ExperimentTypePropertyTypePE.class)),
-                            with(any(PersonPE.class)), with(defaultValue));
+                            with(any(PersonPE.class)), with(validatedValue));
                     will(returnValue(property));
                 }
             });

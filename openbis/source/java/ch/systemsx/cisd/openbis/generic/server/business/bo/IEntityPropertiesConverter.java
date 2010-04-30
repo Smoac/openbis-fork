@@ -47,11 +47,18 @@ public interface IEntityPropertiesConverter
             final PersonPE registrator);
 
     /**
+     * Returns given value validated and converted for given property type and entity type.
+     * Result may be null if given value is null.
+     */
+    public String tryCreateValidatedPropertyValue(PropertyTypePE propertyType,
+            EntityTypePropertyTypePE entityTypPropertyType, String value);
+
+    /**
      * Creates {@link EntityPropertyPE}.
      */
-    public <T extends EntityPropertyPE> T createProperty(PropertyTypePE propertyType,
+    public <T extends EntityPropertyPE> T createValidatedProperty(PropertyTypePE propertyType,
             EntityTypePropertyTypePE entityTypePropertyType, final PersonPE registrator,
-            String value);
+            String validatedValue);
 
     /** Updates Set<T> of properties. */
     public <T extends EntityPropertyPE, P extends IEntityProperty> Set<T> updateProperties(

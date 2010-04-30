@@ -246,13 +246,15 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     one(propertyValueValidator).validatePropertyValue(propertyType, defaultValue);
                 }
             });
-        assertEquals(registrator, entityPropertiesConverter.createProperty(propertyType,
+        entityPropertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
+                defaultValue);
+        assertEquals(registrator, entityPropertiesConverter.createValidatedProperty(propertyType,
                 assignment, registrator, defaultValue).getRegistrator());
         context.assertIsSatisfied();
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void testCreatePropertyMandatoryWithNullGlobal() throws Exception
+    public void testCreateValidatedPropertyValueMandatoryWithNullGlobal() throws Exception
     {
         final IEntityPropertiesConverter entityPropertiesConverter =
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
@@ -261,15 +263,15 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         EntityTypePropertyTypePE assignment =
                 EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
         assignment.setMandatory(true);
-        PersonPE registrator = new PersonPE();
         final String defaultValue = null;
-        entityPropertiesConverter.createProperty(propertyType, assignment, registrator,
+
+        entityPropertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
                 defaultValue);
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testCreatePropertyNotMandatoryWithNullGlobal() throws Exception
+    public void testCreateValidatedPropertyValueNotMandatoryWithNullGlobal() throws Exception
     {
         final IEntityPropertiesConverter entityPropertiesConverter =
                 createEntityPropertiesConverter(EntityKind.EXPERIMENT);
@@ -278,10 +280,9 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         EntityTypePropertyTypePE assignment =
                 EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
         assignment.setMandatory(false);
-        PersonPE registrator = new PersonPE();
         final String defaultValue = null;
-        assertNull(entityPropertiesConverter.createProperty(propertyType, assignment, registrator,
-                defaultValue));
+        assertNull(entityPropertiesConverter.tryCreateValidatedPropertyValue(propertyType,
+                assignment, defaultValue));
         context.assertIsSatisfied();
     }
 }

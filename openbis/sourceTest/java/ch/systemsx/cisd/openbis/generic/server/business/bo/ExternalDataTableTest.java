@@ -629,17 +629,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
             });
     }
 
-    private void prepareFlush()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(externalDataDAO).flush();
-                }
-            });
-
-    }
-
     @SuppressWarnings("unchecked")
     private void prepareArchiving(final IDataStoreService service, final DataStorePE store,
             final ExternalDataPE... dataSets)
