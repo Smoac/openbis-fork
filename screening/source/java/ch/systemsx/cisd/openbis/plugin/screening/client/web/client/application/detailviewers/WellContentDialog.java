@@ -80,7 +80,7 @@ public class WellContentDialog extends Dialog
             dialogHeight = imgH * images.getTileRowsNum() + 200;
         } else
         {
-            dialogWidth = 250;
+            dialogWidth = 300;
             dialogHeight = 160;
         }
         String title = "Well Content: " + wellData.getWellContentDescription();
