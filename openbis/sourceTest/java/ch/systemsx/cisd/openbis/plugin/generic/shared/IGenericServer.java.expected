@@ -165,7 +165,7 @@ public interface IGenericServer extends IServer
     public void registerExperiment(
             String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class) final NewExperiment experiment,
-            final Collection<NewAttachment> attachments);
+            final Collection<NewAttachment> attachments) throws UserFailureException;
 
     /**
      * Registers materials in batch.
@@ -174,7 +174,17 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void registerMaterials(String sessionToken, String materialTypeCode,
-            List<NewMaterial> newMaterials);
+            List<NewMaterial> newMaterials) throws UserFailureException;
+
+    /**
+     * Registers new materials or if they exist updates in batch their properties (properties which
+     * are not mentioned stay unchanged).
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
+    public void registerOrUpdateMaterials(String sessionToken, String materialTypeCode,
+            List<NewMaterial> newMaterials) throws UserFailureException;
 
     /**
      * Returns attachment described by given sample identifier, filename and version.

@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -38,9 +39,17 @@ public interface IMaterialBO extends IEntityBusinessObject
     public void enrichWithProperties();
 
     /**
+     * Changes given materials. Currently allowed changes: properties.
+     * 
+     * @param deleteUntouchedProperties if true all old properties which have not been mentioned in
+     *            the update list will be deleted.
+     */
+    public void update(List<MaterialUpdateDTO> materialsUpdate, boolean deleteUntouchedProperties);
+
+    /**
      * Changes given material. Currently allowed changes: properties.
      */
-    public void update(TechId techId, List<IEntityProperty> properties, Date version);
+    public void update(MaterialUpdateDTO materialUpdate);
 
     /**
      * Deletes material for specified reason.
@@ -49,5 +58,37 @@ public interface IMaterialBO extends IEntityBusinessObject
      * @throws UserFailureException if material with given technical identifier is not found.
      */
     void deleteByTechId(TechId materialId, String reason);
+
+    /** Describes the material update operation, currently only properties can be changed. */
+    public static class MaterialUpdateDTO extends AbstractHashable
+    {
+        private final TechId materialId;
+
+        private final List<IEntityProperty> properties;
+
+        private final Date version;
+
+        public MaterialUpdateDTO(TechId materialId, List<IEntityProperty> properties, Date version)
+        {
+            this.materialId = materialId;
+            this.properties = properties;
+            this.version = version;
+        }
+
+        public TechId getMaterialId()
+        {
+            return materialId;
+        }
+
+        public List<IEntityProperty> getProperties()
+        {
+            return properties;
+        }
+
+        public Date getVersion()
+        {
+            return version;
+        }
+    }
 
 }

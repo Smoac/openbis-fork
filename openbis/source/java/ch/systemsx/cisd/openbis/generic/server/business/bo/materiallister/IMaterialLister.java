@@ -33,6 +33,8 @@ public interface IMaterialLister
 
     /**
      * Returns a sorted list of {@link Material}s of given {@link MaterialType}.
+     * 
+     * @param withProperties if true material properties will be fetched as well.
      */
-    public List<Material> list(MaterialType materialType);
+    public List<Material> list(MaterialType materialType, boolean withProperties);
 }

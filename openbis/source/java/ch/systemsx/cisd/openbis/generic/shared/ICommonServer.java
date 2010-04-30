@@ -552,7 +552,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<Material> listMaterials(String sessionToken, MaterialType materialType);
+    public List<Material> listMaterials(String sessionToken, MaterialType materialType,
+            boolean withProperties);
 
     /**
      * Creates a new material type.

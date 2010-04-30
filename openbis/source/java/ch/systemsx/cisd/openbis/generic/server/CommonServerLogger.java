@@ -434,9 +434,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<Material> listMaterials(String sessionToken, MaterialType materialType)
+    public List<Material> listMaterials(String sessionToken, MaterialType materialType,
+            boolean withProperties)
     {
-        logAccess(sessionToken, "list_materials", "TYPE(%s)", materialType);
+        logAccess(sessionToken, "list_materials", "TYPE(%s) withProperties(%s)", materialType,
+                withProperties);
         return null;
     }
 

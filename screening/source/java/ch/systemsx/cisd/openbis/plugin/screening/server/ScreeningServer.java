@@ -179,7 +179,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException
     {
-        getSession(sessionToken);
+        checkSession(sessionToken);
         IVocabularyDAO vocabularyDAO = getDAOFactory().getVocabularyDAO();
         VocabularyPE vocabulary = vocabularyDAO.tryFindVocabularyByCode(code);
         return VocabularyTranslator.translate(vocabulary);

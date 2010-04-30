@@ -181,8 +181,9 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public Date updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_sample",
-                "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)", updates.getSampleIdOrNull(),
-                updates.getExperimentIdentifierOrNull(), updates.getAttachments().size());
+                "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)",
+                updates.getSampleIdOrNull(), updates.getExperimentIdentifierOrNull(), updates
+                        .getAttachments().size());
         return null;
     }
 
@@ -223,6 +224,13 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             sb.append(s.getSampleType().getCode() + ":" + s.getNewSamples().size());
         }
         logTracking(sessionToken, "update_samples", sb.toString());
+    }
+
+    public void registerOrUpdateMaterials(String sessionToken, String materialTypeCode,
+            List<NewMaterial> materials)
+    {
+        logTracking(sessionToken, "registerOrUpdateMaterials", "type(%s) numberOfMaterials(%s)",
+                materialTypeCode, materials.size());
     }
 
 }

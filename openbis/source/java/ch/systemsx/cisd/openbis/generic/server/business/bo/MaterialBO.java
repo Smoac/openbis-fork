@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -118,24 +118,67 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
                 .getMaterialType());
     }
 
-    public void update(TechId materialId, List<IEntityProperty> properties, Date version)
+    public void update(MaterialUpdateDTO materialUpdate)
     {
-        loadDataByTechId(materialId);
-        if (version.equals(material.getModificationDate()) == false)
-        {
-            throwModifiedEntityException("Material");
-        }
-        updateProperties(properties);
+        update(materialUpdate, true);
         dataChanged = true;
     }
 
-    private void updateProperties(List<IEntityProperty> properties)
+    public void update(List<MaterialUpdateDTO> materialsUpdate, boolean deleteUntouchedProperties)
+    {
+        setBatchUpdateMode(true);
+        for (MaterialUpdateDTO materialUpdate : materialsUpdate)
+        {
+            update(materialUpdate, deleteUntouchedProperties);
+        }
+        setBatchUpdateMode(false);
+        dataChanged = true;
+    }
+
+    private void update(MaterialUpdateDTO materialUpdate, boolean deleteUntouchedProperties)
+    {
+        loadDataByTechId(materialUpdate.getMaterialId());
+        if (materialUpdate.getVersion().equals(material.getModificationDate()) == false)
+        {
+            throwModifiedEntityException("Material");
+        }
+        updateProperties(materialUpdate.getProperties(), deleteUntouchedProperties);
+    }
+
+    private void updateProperties(List<IEntityProperty> properties,
+            boolean deleteUntouchedProperties)
+    {
+        Set<MaterialPropertyPE> newProperties =
+                calculateNewProperties(properties, deleteUntouchedProperties);
+        material.setProperties(newProperties);
+    }
+
+    private Set<MaterialPropertyPE> calculateNewProperties(
+            List<IEntityProperty> propertiesToUpdate, boolean deleteUntouchedProperties)
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();
         final EntityTypePE type = material.getMaterialType();
         final PersonPE registrator = findRegistrator();
-        material.setProperties(propertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator));
+        if (deleteUntouchedProperties)
+        {
+            return propertiesConverter.updateProperties(existingProperties, type,
+                    propertiesToUpdate, registrator);
+        } else
+        {
+            Set<String> propertiesToUpdateNames = extractCodes(propertiesToUpdate);
+            return propertiesConverter.updateProperties(existingProperties, type,
+                    propertiesToUpdate, registrator, propertiesToUpdateNames);
+        }
+    }
+
+    private static Set<String> extractCodes(List<IEntityProperty> propertiesToUpdate)
+    {
+        Set<String> names = new HashSet<String>();
+        for (IEntityProperty p : propertiesToUpdate)
+        {
+            names.add(p.getPropertyType().getCode());
+        }
+        return names;
     }
 
     public MaterialPE getMaterial()

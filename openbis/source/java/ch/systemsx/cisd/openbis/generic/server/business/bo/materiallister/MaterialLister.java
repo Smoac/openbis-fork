@@ -23,6 +23,8 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.lemnik.eodsql.DataIterator;
+
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
@@ -108,23 +110,28 @@ public class MaterialLister implements IMaterialLister
     // Listing
     //
 
-    public List<Material> list(MaterialType materialType)
+    public List<Material> list(MaterialType materialType, boolean withProperties)
     {
-        return enrichMaterials(query.getMaterialsForMaterialType(databaseInstanceId, materialType
-                .getId()), materialType);
+        DataIterator<MaterialRecord> materials =
+                query.getMaterialsForMaterialType(databaseInstanceId, materialType.getId());
+        final Long2ObjectMap<Material> materialMap = asMaterials(materials, materialType);
+        if (withProperties)
+        {
+            enrichWithProperties(materialMap);
+        }
+        return asList(materialMap);
     }
 
     //
     // Enriching
     //
 
-    private List<Material> enrichMaterials(Iterable<MaterialRecord> materials,
+    private Long2ObjectMap<Material> asMaterials(Iterable<MaterialRecord> materials,
             MaterialType materialType)
     {
         List<MaterialRecord> materialRecords = asList(materials);
         final Long2ObjectMap<Material> materialMap = createMaterials(materialRecords, materialType);
-        enrichWithProperties(materialMap);
-        return asList(materialMap);
+        return materialMap;
     }
 
     private Long2ObjectMap<Material> createMaterials(Iterable<MaterialRecord> records,
@@ -151,6 +158,8 @@ public class MaterialLister implements IMaterialLister
 
         material.setRegistrator(getOrCreateRegistrator(record));
         material.setRegistrationDate(record.registration_timestamp);
+        material.setModificationDate(record.modification_timestamp);
+        
         material.setProperties(new ArrayList<IEntityProperty>());
 
         return material;

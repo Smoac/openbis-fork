@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -412,7 +413,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(genericBusinessObjectFactory).createMaterialBO(SESSION);
                     will(returnValue(materialBO));
 
-                    one(materialBO).update(materialId, properties, version);
+                    one(materialBO).update(new MaterialUpdateDTO(materialId, properties, version));
                     one(materialBO).save();
                     one(materialBO).getMaterial();
                     will(returnValue(material));

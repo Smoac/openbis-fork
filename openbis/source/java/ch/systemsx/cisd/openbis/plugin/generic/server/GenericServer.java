@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -42,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -54,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -63,8 +67,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetail
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -85,6 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
@@ -441,7 +448,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             {
                 doRegisterMaterials(materialTypePE, session, batch);
                 counter += batch.size();
-                operationLog.info("Material registration progress: " + counter + "/" + newMaterials.size());
+                operationLog.info("Material registration progress: " + counter + "/"
+                        + newMaterials.size());
                 batch.clear();
             }
         }
@@ -550,7 +558,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     {
         final Session session = getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-        materialBO.update(materialId, properties, version);
+        materialBO.update(new MaterialUpdateDTO(materialId, properties, version));
         materialBO.save();
         return materialBO.getMaterial().getModificationDate();
     }
@@ -594,6 +602,70 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             i++;
         }
         return codes;
+    }
+
+    public void registerOrUpdateMaterials(String sessionToken, String materialTypeCode,
+            List<NewMaterial> materials)
+    {
+        Map<String/* code */, Material> existingMaterials =
+                listMaterials(sessionToken, materialTypeCode);
+        List<NewMaterial> materialsToRegister = new ArrayList<NewMaterial>();
+        List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
+        for (NewMaterial material : materials)
+        {
+            Material existingMaterial =
+                    existingMaterials.get(CodeConverter.tryToDatabase(material.getCode()));
+            if (existingMaterial != null)
+            {
+                materialUpdates.add(createMaterialUpdate(existingMaterial, material));
+            } else
+            {
+                materialsToRegister.add(material);
+            }
+        }
+        registerMaterials(sessionToken, materialTypeCode, materialsToRegister);
+        updateMaterials(sessionToken, materialUpdates);
+        operationLog.info(String.format("Number of newly registered materials: %d, "
+                + "number of existing materials which have been updated: %d", materialsToRegister
+                .size(), materialUpdates.size()));
+
+    }
+
+    private static MaterialUpdateDTO createMaterialUpdate(Material existingMaterial,
+            NewMaterial material)
+    {
+        return new MaterialUpdateDTO(new TechId(existingMaterial.getId()), Arrays.asList(material
+                .getProperties()), existingMaterial.getModificationDate());
+    }
+
+    private void updateMaterials(String sessionToken, List<MaterialUpdateDTO> updates)
+    {
+        final Session session = getSession(sessionToken);
+        final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
+        materialBO.update(updates, false);
+        materialBO.save();
+    }
+
+    private Map<String/* code */, Material> listMaterials(String sessionToken,
+            String materialTypeCode)
+    {
+        checkSession(sessionToken);
+        EntityTypePE entityTypePE =
+                getDAOFactory().getEntityTypeDAO(EntityKind.MATERIAL).tryToFindEntityTypeByCode(
+                        materialTypeCode);
+        MaterialType materialType = MaterialTypeTranslator.translateSimple(entityTypePE);
+        List<Material> materials = commonServer.listMaterials(sessionToken, materialType, false);
+        return asCodeToMaterialMap(materials);
+    }
+
+    private static Map<String, Material> asCodeToMaterialMap(List<Material> materials)
+    {
+        Map<String, Material> map = new HashMap<String, Material>();
+        for (Material material : materials)
+        {
+            map.put(material.getCode(), material);
+        }
+        return map;
     }
 
 }

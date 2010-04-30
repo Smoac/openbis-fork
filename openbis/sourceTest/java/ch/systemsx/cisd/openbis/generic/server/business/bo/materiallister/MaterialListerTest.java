@@ -64,7 +64,7 @@ public class MaterialListerTest extends AbstractDAOTest
     public void testListByMaterialTypeId()
     {
         MaterialType materialType = createMaterialType();
-        List<Material> materials = lister.list(materialType);
+        List<Material> materials = lister.list(materialType, true);
         assertEqualsOrGreater(4, materials.size());
         for (Material material : materials)
         {
@@ -72,6 +72,7 @@ public class MaterialListerTest extends AbstractDAOTest
             assertNotNull(material.getCode());
             assertNotNull(material.getRegistrator());
             assertNotNull(material.getRegistrationDate());
+            assertNotNull(material.getModificationDate());
             assertEquals(databaseInstance, material.getDatabaseInstance());
             assertEquals(materialType, material.getMaterialType());
             assertFalse(material.getProperties().isEmpty());

@@ -65,10 +65,13 @@ public class LibraryEntityRegistrator
     public void register(QiagenScreeningLibraryColumnExtractor extractor, String[] row)
             throws IOException
     {
-        String geneId = geneRegistrator.register(extractor, row);
-        String oligoId = oligoRegistrator.register(extractor, row, geneId);
-        String plateId = plateRegistrator.registerPlate(extractor, row);
-        plateRegistrator.registerWell(extractor, row, plateId, oligoId);
+        String geneId = geneRegistrator.tryRegister(extractor, row);
+        if (geneId != null)
+        {
+            String oligoId = oligoRegistrator.register(extractor, row, geneId);
+            String plateId = plateRegistrator.registerPlate(extractor, row);
+            plateRegistrator.registerWell(extractor, row, plateId, oligoId);
+        }
     }
 
     /** smust be called at the end of registration of all rows */
@@ -205,11 +208,15 @@ public class LibraryEntityRegistrator
             writeLine(HEADER);
         }
 
-        // / returns gene id
-        public String register(QiagenScreeningLibraryColumnExtractor extractor, String[] row)
+        // returns gene id or null if gene symbol is not specified
+        public String tryRegister(QiagenScreeningLibraryColumnExtractor extractor, String[] row)
                 throws IOException
         {
             String geneSymbol = extractor.getGeneCode(row);
+            if (StringUtils.isBlank(geneSymbol))
+            {
+                return null;
+            }
             if (registeredGenes.contains(geneSymbol) == false)
             {
                 String desc = extractor.getGeneDescription(row);

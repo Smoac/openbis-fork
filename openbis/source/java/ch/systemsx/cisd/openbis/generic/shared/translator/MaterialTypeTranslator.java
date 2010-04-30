@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -56,12 +57,7 @@ public class MaterialTypeTranslator
         {
             return null;
         }
-        final MaterialType result = new MaterialType();
-        result.setId(HibernateUtils.getId(entityTypeOrNull));
-        result.setCode(StringEscapeUtils.escapeHtml(entityTypeOrNull.getCode()));
-        result.setDescription(StringEscapeUtils.escapeHtml(entityTypeOrNull.getDescription()));
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
-                .getDatabaseInstance()));
+        final MaterialType result = translateSimple(entityTypeOrNull);
         if (withProperties == false)
         {
             unsetMaterialTypes(entityTypeOrNull.getMaterialTypePropertyTypes());
@@ -69,6 +65,18 @@ public class MaterialTypeTranslator
         result.setMaterialTypePropertyTypes(EntityType
                 .sortedInternally(MaterialTypePropertyTypeTranslator.translate(entityTypeOrNull
                         .getMaterialTypePropertyTypes(), result, cacheOrNull)));
+        return result;
+    }
+
+    /** translates basic information, without properties */
+    public static MaterialType translateSimple(EntityTypePE entityTypeOrNull)
+    {
+        final MaterialType result = new MaterialType();
+        result.setId(HibernateUtils.getId(entityTypeOrNull));
+        result.setCode(StringEscapeUtils.escapeHtml(entityTypeOrNull.getCode()));
+        result.setDescription(StringEscapeUtils.escapeHtml(entityTypeOrNull.getDescription()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
+                .getDatabaseInstance()));
         return result;
     }
 

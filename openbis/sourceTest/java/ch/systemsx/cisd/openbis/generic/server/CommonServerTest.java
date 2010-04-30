@@ -1260,11 +1260,11 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createMaterialLister(SESSION);
                     will(returnValue(materialLister));
 
-                    one(materialLister).list(materialType);
+                    one(materialLister).list(materialType, true);
                     will(returnValue(new ArrayList<MaterialTypePE>()));
                 }
             });
-        createServer().listMaterials(SESSION_TOKEN, materialType);
+        createServer().listMaterials(SESSION_TOKEN, materialType, true);
         context.assertIsSatisfied();
     }
 

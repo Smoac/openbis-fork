@@ -826,11 +826,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         }
     }
 
-    public List<Material> listMaterials(String sessionToken, MaterialType materialType)
+    public List<Material> listMaterials(String sessionToken, MaterialType materialType,
+            boolean withProperties)
     {
         final Session session = getSession(sessionToken);
         final IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
-        return materialLister.list(materialType);
+        return materialLister.list(materialType, withProperties);
     }
 
     public void registerSampleType(String sessionToken, SampleType entityType)

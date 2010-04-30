@@ -35,7 +35,7 @@ public interface IMaterialDAO extends IGenericDAO<MaterialPE>
      * Lists materials of given type. Fetches also properties.
      * 
      * @deprecated Because of performance issues use this method only in tests, otherwise use
-     *             {@link IMaterialLister#list(ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType)}
+     *             {@link IMaterialLister#list}
      */
     @Deprecated
     public List<MaterialPE> listMaterialsWithProperties(MaterialTypePE type);

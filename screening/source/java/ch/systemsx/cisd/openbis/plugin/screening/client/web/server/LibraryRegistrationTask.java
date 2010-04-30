@@ -6,7 +6,6 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -19,7 +18,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 class LibraryRegistrationTask implements Runnable
 {
 
-    private static final String LIBRARY_REGISTARION_STATUS = "Library registration status";
+    private static final String SUCCESSFUL_LIBRARY_REGISTARION_STATUS =
+            "Library successfuly registered";
+
+    private static final String UNSUCCESSFUL_LIBRARY_REGISTARION_STATUS =
+            "Library registration failed";
 
     private final MailClientParameters mailClientParameters;
 
@@ -33,7 +36,7 @@ class LibraryRegistrationTask implements Runnable
 
     private final List<NewSamplesWithTypes> newSamplesWithType;
 
-    private final IGenericServer server;
+    private final IGenericServer genericServer;
 
     public LibraryRegistrationTask(final String sessionToken, final String email,
             final List<NewMaterial> newGenesOrNull, final List<NewMaterial> newOligosOrNull,
@@ -45,7 +48,7 @@ class LibraryRegistrationTask implements Runnable
         this.newGenesOrNull = newGenesOrNull;
         this.newOligosOrNull = newOligosOrNull;
         this.newSamplesWithType = newSamplesWithType;
-        this.server = server;
+        this.genericServer = server;
         this.mailClientParameters = mailClientParameters;
     }
 
@@ -56,61 +59,61 @@ class LibraryRegistrationTask implements Runnable
         {
             if (newGenesOrNull != null)
             {
-                server.registerMaterials(sessionToken, ScreeningConstants.GENE_PLUGIN_TYPE_CODE,
-                        newGenesOrNull);
-                message.append("GENES: OK\n");
-                for (NewMaterial m : newGenesOrNull)
-                {
-                    message.append("\t" + m.getCode() + "\n");
-                }
+                genericServer.registerOrUpdateMaterials(sessionToken,
+                        ScreeningConstants.GENE_PLUGIN_TYPE_CODE, newGenesOrNull);
+                message.append("Successfuly registered or updated properties of "
+                        + newGenesOrNull.size() + " genes.\n");
             }
         } catch (Exception ex)
         {
             message.append("GENES: ERROR (NOT REGISTERED)\n");
             message.append(ex.getMessage());
-            sendEmail(LIBRARY_REGISTARION_STATUS, message.toString(), email);
+            sendErrorEmail(message.toString(), email);
             return;
         }
         try
         {
             if (newOligosOrNull != null)
             {
-                server.registerMaterials(sessionToken, ScreeningConstants.OLIGO_PLUGIN_TYPE_NAME,
-                        newOligosOrNull);
-                message.append("OLIGOS: OK\n");
-                for (NewMaterial m : newOligosOrNull)
-                {
-                    message.append("\t" + m.getCode() + "\n");
-                }
+                genericServer.registerOrUpdateMaterials(sessionToken,
+                        ScreeningConstants.OLIGO_PLUGIN_TYPE_NAME, newOligosOrNull);
+                message.append("Successfuly registered " + newOligosOrNull.size() + " oligos.\n");
             }
         } catch (Exception ex)
         {
-            message.append("OLIGOS: ERROR (NOT REGISTERED)\n");
+            message.append("\nOLIGOS: ERROR (NOT REGISTERED)\n");
             message.append(ex.getMessage());
-            sendEmail(LIBRARY_REGISTARION_STATUS, message.toString(), email);
+            sendErrorEmail(message.toString(), email);
             return;
         }
         try
         {
-            server.registerSamples(sessionToken, newSamplesWithType);
+            genericServer.registerSamples(sessionToken, newSamplesWithType);
             message.append("PLATES: OK\n");
             for (NewSamplesWithTypes s : newSamplesWithType)
             {
-                message.append("\t" + s.getSampleType() + "\n");
-                for (NewSample ns : s.getNewSamples())
-                {
-                    message.append("\t\t" + ns.getIdentifier() + "\n");
-                }
+                message.append("Successfuly registered " + s.getNewSamples().size()
+                        + " samples of type " + s.getSampleType() + ".\n");
             }
         } catch (Exception ex)
         {
             message.append("PLATES: ERROR (NOT REGISTERED)\n");
             message.append(ex.getMessage());
-            sendEmail(LIBRARY_REGISTARION_STATUS, message.toString(), email);
+            sendErrorEmail(message.toString(), email);
             return;
         }
-        sendEmail(LIBRARY_REGISTARION_STATUS, message.toString(), email);
+        sendSuccessEmail(message.toString(), email);
 
+    }
+
+    private void sendErrorEmail(String content, String recipient)
+    {
+        sendEmail(UNSUCCESSFUL_LIBRARY_REGISTARION_STATUS, content, recipient);
+    }
+
+    private void sendSuccessEmail(String content, String recipient)
+    {
+        sendEmail(SUCCESSFUL_LIBRARY_REGISTARION_STATUS, content, recipient);
     }
 
     private void sendEmail(String subject, String content, String recipient)
