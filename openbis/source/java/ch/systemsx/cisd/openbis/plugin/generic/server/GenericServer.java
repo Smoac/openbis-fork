@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -640,10 +640,14 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     private void updateMaterials(String sessionToken, List<MaterialUpdateDTO> updates)
     {
+        if (updates.size() == 0)
+        {
+            return;
+        }
         final Session session = getSession(sessionToken);
-        final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-        materialBO.update(updates, false);
-        materialBO.save();
+        IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
+        materialTable.update(updates, false);
+        materialTable.save();
     }
 
     private Map<String/* code */, Material> listMaterials(String sessionToken,

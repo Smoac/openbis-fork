@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
@@ -32,35 +34,32 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * The only productive implementation of {@link IMaterialTable}.
  * 
  * @author Izabela Adamczyk
  */
-public final class MaterialTable extends AbstractBusinessObject implements IMaterialTable
+public final class MaterialTable extends AbstractMaterialBusinessObject implements IMaterialTable
 {
     private List<MaterialPE> materials;
 
     private boolean dataChanged;
 
-    private final IEntityPropertiesConverter entityPropertiesConverter;
-
     public MaterialTable(final IDAOFactory daoFactory, final Session session)
     {
-        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.MATERIAL, daoFactory),
-                null, false);
+        super(daoFactory, session);
     }
 
     @Private
+    // for tests only
     MaterialTable(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter, List<MaterialPE> materials,
             boolean dataChanged)
     {
-        super(daoFactory, session);
-        this.entityPropertiesConverter = entityPropertiesConverter;
+        super(daoFactory, session, entityPropertiesConverter);
         this.materials = materials;
         this.dataChanged = dataChanged;
     }
@@ -139,5 +138,66 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
         {
             material.addProperty(materialProperty);
         }
+    }
+
+    // -----------------
+
+    public void update(List<MaterialUpdateDTO> materialsUpdate, boolean deleteUntouchedProperties)
+    {
+        if (materials == null)
+        {
+            materials = new ArrayList<MaterialPE>();
+        }
+        setBatchUpdateMode(true);
+        for (MaterialUpdateDTO materialUpdate : materialsUpdate)
+        {
+            MaterialPE materialPE = update(materialUpdate, deleteUntouchedProperties);
+            materials.add(materialPE);
+        }
+        setBatchUpdateMode(false);
+
+        dataChanged = true;
+    }
+
+    private MaterialPE update(MaterialUpdateDTO materialUpdate, boolean deleteUntouchedProperties)
+    {
+        MaterialPE material = getMaterialById(materialUpdate.getMaterialId());
+        if (materialUpdate.getVersion().equals(material.getModificationDate()) == false)
+        {
+            throwModifiedEntityException("Material");
+        }
+        Set<MaterialPropertyPE> newProperties =
+                calculateNewProperties(material, materialUpdate.getProperties(),
+                        deleteUntouchedProperties);
+        material.setProperties(newProperties);
+        return material;
+    }
+
+    private Set<MaterialPropertyPE> calculateNewProperties(MaterialPE material,
+            List<IEntityProperty> propertiesToUpdate, boolean deleteUntouchedProperties)
+    {
+        final Set<MaterialPropertyPE> existingProperties = material.getProperties();
+        final EntityTypePE type = material.getMaterialType();
+        final PersonPE registrator = findRegistrator();
+        if (deleteUntouchedProperties)
+        {
+            return entityPropertiesConverter.updateProperties(existingProperties, type,
+                    propertiesToUpdate, registrator);
+        } else
+        {
+            Set<String> propertiesToUpdateNames = extractCodes(propertiesToUpdate);
+            return entityPropertiesConverter.updateProperties(existingProperties, type,
+                    propertiesToUpdate, registrator, propertiesToUpdateNames);
+        }
+    }
+
+    private static Set<String> extractCodes(List<IEntityProperty> propertiesToUpdate)
+    {
+        Set<String> names = new HashSet<String>();
+        for (IEntityProperty p : propertiesToUpdate)
+        {
+            names.add(p.getPropertyType().getCode());
+        }
+        return names;
     }
 }

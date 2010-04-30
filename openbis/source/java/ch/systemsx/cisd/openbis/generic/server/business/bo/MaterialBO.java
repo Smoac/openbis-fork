@@ -17,13 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -44,48 +42,21 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Izabela Adamczyk
  */
-public final class MaterialBO extends AbstractBusinessObject implements IMaterialBO
+public final class MaterialBO extends AbstractMaterialBusinessObject implements IMaterialBO
 {
-
-    private final IEntityPropertiesConverter propertiesConverter;
-
     private MaterialPE material;
 
     private boolean dataChanged;
 
     public MaterialBO(final IDAOFactory daoFactory, final Session session)
     {
-        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.MATERIAL, daoFactory));
-    }
-
-    @Private
-    MaterialBO(final IDAOFactory daoFactory, final Session session,
-            final IEntityPropertiesConverter entityPropertiesConverter)
-    {
         super(daoFactory, session);
-        propertiesConverter = entityPropertiesConverter;
     }
 
     public void loadDataByTechId(TechId materialId)
     {
         material = getMaterialById(materialId);
         dataChanged = false;
-    }
-
-    private static final String PROPERTY_TYPES = "materialType.materialTypePropertyTypesInternal";
-
-    private MaterialPE getMaterialById(final TechId materialId)
-    {
-        assert materialId != null : "Material technical id unspecified.";
-        String[] connections =
-            { PROPERTY_TYPES };
-        final MaterialPE result = getMaterialDAO().tryGetByTechId(materialId, connections);
-        if (result == null)
-        {
-            throw new UserFailureException(String.format("Material with ID '%s' does not exist.",
-                    materialId));
-        }
-        return result;
     }
 
     public final void enrichWithProperties()
@@ -114,71 +85,28 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
 
     private void checkBusinessRules()
     {
-        propertiesConverter.checkMandatoryProperties(material.getProperties(), material
+        entityPropertiesConverter.checkMandatoryProperties(material.getProperties(), material
                 .getMaterialType());
     }
 
     public void update(MaterialUpdateDTO materialUpdate)
-    {
-        update(materialUpdate, true);
-        dataChanged = true;
-    }
-
-    public void update(List<MaterialUpdateDTO> materialsUpdate, boolean deleteUntouchedProperties)
-    {
-        setBatchUpdateMode(true);
-        for (MaterialUpdateDTO materialUpdate : materialsUpdate)
-        {
-            update(materialUpdate, deleteUntouchedProperties);
-        }
-        setBatchUpdateMode(false);
-        dataChanged = true;
-    }
-
-    private void update(MaterialUpdateDTO materialUpdate, boolean deleteUntouchedProperties)
     {
         loadDataByTechId(materialUpdate.getMaterialId());
         if (materialUpdate.getVersion().equals(material.getModificationDate()) == false)
         {
             throwModifiedEntityException("Material");
         }
-        updateProperties(materialUpdate.getProperties(), deleteUntouchedProperties);
+        updateProperties(materialUpdate.getProperties());
+        dataChanged = true;
     }
 
-    private void updateProperties(List<IEntityProperty> properties,
-            boolean deleteUntouchedProperties)
-    {
-        Set<MaterialPropertyPE> newProperties =
-                calculateNewProperties(properties, deleteUntouchedProperties);
-        material.setProperties(newProperties);
-    }
-
-    private Set<MaterialPropertyPE> calculateNewProperties(
-            List<IEntityProperty> propertiesToUpdate, boolean deleteUntouchedProperties)
+    private void updateProperties(List<IEntityProperty> properties)
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();
         final EntityTypePE type = material.getMaterialType();
         final PersonPE registrator = findRegistrator();
-        if (deleteUntouchedProperties)
-        {
-            return propertiesConverter.updateProperties(existingProperties, type,
-                    propertiesToUpdate, registrator);
-        } else
-        {
-            Set<String> propertiesToUpdateNames = extractCodes(propertiesToUpdate);
-            return propertiesConverter.updateProperties(existingProperties, type,
-                    propertiesToUpdate, registrator, propertiesToUpdateNames);
-        }
-    }
-
-    private static Set<String> extractCodes(List<IEntityProperty> propertiesToUpdate)
-    {
-        Set<String> names = new HashSet<String>();
-        for (IEntityProperty p : propertiesToUpdate)
-        {
-            names.add(p.getPropertyType().getCode());
-        }
-        return names;
+        material.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
+                properties, registrator));
     }
 
     public MaterialPE getMaterial()
