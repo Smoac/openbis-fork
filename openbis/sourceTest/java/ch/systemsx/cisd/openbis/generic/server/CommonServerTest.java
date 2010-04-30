@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -66,12 +65,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -105,17 +101,6 @@ public final class CommonServerTest extends AbstractServerTestCase
     private final static String DATA_STORE_BASE_URL = "dataStoreBaseURL";
 
     private final static String BASE_INDEX_URL = "baseIndexURL";
-
-    private static final class MockExperimentTypePropertyType extends ExperimentTypePropertyTypePE
-    {
-        private static final long serialVersionUID = 1L;
-
-        MockExperimentTypePropertyType()
-        {
-            propertyValues = new LinkedHashSet<EntityPropertyPE>();
-            propertyValues.add(new ExperimentPropertyPE());
-        }
-    }
 
     private ICommonBusinessObjectFactory commonBusinessObjectFactory;
 
@@ -1232,11 +1217,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                             DtoConverters.convertEntityKind(entityKind));
                     will(returnValue(entityTypePropertyTypeBO));
 
-                    one(entityTypePropertyTypeBO).loadAssignment(propertyTypeCode, entityTypeCode);
-                    one(entityTypePropertyTypeBO).getLoadedAssignment();
-                    ExperimentTypePropertyTypePE experimentTypePropertyTypePE =
-                            new MockExperimentTypePropertyType();
-                    will(returnValue(experimentTypePropertyTypePE));
+                    one(entityTypePropertyTypeBO).countAssignmentValues(propertyTypeCode,
+                            entityTypeCode);
+                    will(returnValue(1)); // TODO BO test
                 }
             });
 
