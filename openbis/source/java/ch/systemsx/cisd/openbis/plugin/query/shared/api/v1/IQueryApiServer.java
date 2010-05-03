@@ -55,6 +55,6 @@ public interface IQueryApiServer
      * Executes specified query using specified parameter bindings.
      */
     @Transactional(readOnly = true)
-    public QueryTableModel executeQuery(long queryID, Map<String, String> parameterBindings);
+    public QueryTableModel executeQuery(String sessionToken, long queryID, Map<String, String> parameterBindings);
 
 }

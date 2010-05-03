@@ -22,6 +22,7 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
@@ -42,6 +43,7 @@ public class QueryServiceServer extends HttpInvokerServiceExporter
     {
         setServiceInterface(IQueryApiServer.class);
         setService(server);
+        setInterceptors(new Object[] {new ServiceExceptionTranslator()});
         super.afterPropertiesSet();
     }
 }

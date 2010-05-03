@@ -17,14 +17,62 @@
 package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 
+ * Model of query data.
  *
  * @author Franz-Josef Elmer
  */
 public class QueryTableModel implements Serializable
 {
     private static final long serialVersionUID = 1L;
+    private final List<QueryTableColumn> columns;
+    private final List<Serializable[]> rows;
+    
+    /**
+     * Creates an instance for the specified columns.
+     */
+    public QueryTableModel(List<QueryTableColumn> columns)
+    {
+        this.columns = columns;
+        rows = new ArrayList<Serializable[]>();
+    }
 
+    /**
+     * Returns columns as specified in the constructor.
+     */
+    public List<QueryTableColumn> getColumns()
+    {
+        return columns;
+    }
+
+    /**
+     * Adds a row of values.
+     * 
+     * @throws IllegalArgumentException if the number of values is not the same as the number of
+     *             columns.
+     */
+    public void addRow(Serializable[] values)
+    {
+        if (values == null)
+        {
+            throw new IllegalArgumentException("Unspecified row.");
+        }
+        if (values.length != columns.size())
+        {
+            throw new IllegalArgumentException("Row has " + values.length + " instead of " + columns.size() + ".");
+        }
+        rows.add(values);
+    }
+
+    /**
+     * Gets all rows.
+     */
+    public List<Serializable[]> getRows()
+    {
+        return rows;
+    }
+    
 }

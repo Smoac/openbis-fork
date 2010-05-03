@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.server.api.v1;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
@@ -26,12 +28,23 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
  * 
@@ -71,10 +84,48 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         return result;
     }
 
-    public QueryTableModel executeQuery(long queryID, Map<String, String> parameterBindings)
+    public QueryTableModel executeQuery(String sessionToken, long queryID,
+            Map<String, String> parameterBindings)
     {
-        // TODO Auto-generated method stub
-        return null;
+        QueryParameterBindings bindings = new QueryParameterBindings();
+        for (Entry<String, String> entry : parameterBindings.entrySet())
+        {
+            bindings.addBinding(entry.getKey(), entry.getValue());
+        }
+        TableModel result = queryServer.queryDatabase(sessionToken, new TechId(queryID), bindings);
+        List<TableModelColumnHeader> headers = result.getHeader();
+        ArrayList<QueryTableColumn> translatedHeaders = new ArrayList<QueryTableColumn>();
+        for (TableModelColumnHeader header : headers)
+        {
+            String title = header.getTitle();
+            QueryTableColumnDataType dataType = Util.translate(header.getDataType());
+            translatedHeaders.add(new QueryTableColumn(title, dataType));
+        }
+        QueryTableModel tableModel = new QueryTableModel(translatedHeaders);
+        List<TableModelRow> rows = result.getRows();
+        for (TableModelRow row : rows)
+        {
+            List<ISerializableComparable> values = row.getValues();
+            Serializable[] translatedValues = new Serializable[values.size()];
+            for (int i = 0, n = values.size(); i < n; i++)
+            {
+                ISerializableComparable value = values.get(i);
+                Serializable translatedValue = null;
+                if (value instanceof IntegerTableCell)
+                {
+                    translatedValue = ((IntegerTableCell) value).getNumber();
+                } else if (value instanceof DoubleTableCell)
+                {
+                    translatedValue = ((DoubleTableCell) value).getNumber();
+                } else if (value instanceof StringTableCell)
+                {
+                    translatedValue = ((StringTableCell) value).toString();
+                }
+                translatedValues[i] = translatedValue;
+            }
+            tableModel.addRow(translatedValues);
+        }
+        return tableModel;
     }
     
 }

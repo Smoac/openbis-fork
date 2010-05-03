@@ -40,20 +40,23 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
         super(sessionManager, context);
     }
 
-    public QueryTableModel executeQuery(long queryID, Map<String, String> parameterBindings)
+    public String tryToAuthenticateAtQueryServer(String userID, String userPassword)
     {
         return null;
     }
-
+    
     public List<QueryDescription> listQueries(String sessionToken)
     {
         logAccess(sessionToken, "list_queries");
         return null;
     }
 
-    public String tryToAuthenticateAtQueryServer(String userID, String userPassword)
+    public QueryTableModel executeQuery(String sessionToken, long queryID,
+            Map<String, String> parameterBindings)
     {
+        logAccess(sessionToken, "execute_query", "QUERY(%s) PARAMETERS(%s)", queryID,
+                parameterBindings.size());
         return null;
     }
-
+    
 }

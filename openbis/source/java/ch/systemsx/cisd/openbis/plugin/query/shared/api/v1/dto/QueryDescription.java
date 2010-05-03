@@ -90,4 +90,41 @@ public class QueryDescription implements Serializable
     {
         this.parameters = parameters;
     }
+
+    /**
+     * Returns <code>true</code> if and only if the specified object is of type
+     * {@link QueryDescription} and has the same ID as this.
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj instanceof QueryDescription == false)
+        {
+            return false;
+        }
+        QueryDescription queryDescription = (QueryDescription) obj;
+        return queryDescription.id == id;
+    }
+
+    /**
+     * Returns the ID.
+     */
+    @Override
+    public int hashCode()
+    {
+        return (int) id;
+    }
+
+    /**
+     * Returns the name.
+     */
+    @Override
+    public String toString()
+    {
+        return name;
+    }
 }

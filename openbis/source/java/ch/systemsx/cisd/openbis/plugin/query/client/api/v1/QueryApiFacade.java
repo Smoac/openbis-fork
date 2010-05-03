@@ -16,33 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 
+import java.util.HashMap;
 import java.util.List;
 
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.openbis.plugin.query.server.api.v1.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class QueryApiFacade
+class QueryApiFacade implements IQueryApiFacade
 {
-    private static final int SERVER_TIMEOUT_MIN = 5;
-    
-    public static QueryApiFacade create(String serverURL, String userID, String password)
-    {
-        IQueryApiServer service = HttpInvokerUtils.createServiceStub(IQueryApiServer.class, serverURL + ResourceNames.QUERY_PLUGIN_SERVER_URL, SERVER_TIMEOUT_MIN);
-        String sessionToken = service.tryToAuthenticateAtQueryServer(userID, password);
-        if (sessionToken == null)
-        {
-            throw new IllegalArgumentException("User " + userID + "couldn't be authenticated");
-        }
-        return new QueryApiFacade(service, sessionToken);
-    }
-    
     private final IQueryApiServer service;
     private final String sessionToken;
     
@@ -60,5 +47,17 @@ public class QueryApiFacade
     public List<QueryDescription> listQueries()
     {
         return service.listQueries(sessionToken);
+    }
+    
+    public QueryTableModel executeQuery(QueryDescription queryDescription, List<String> parameterValues)
+    {
+        long id = queryDescription.getId();
+        HashMap<String, String> parameterBindings = new HashMap<String, String>();
+        List<String> parameters = queryDescription.getParameters();
+        for (int i = 0, n = parameters.size(); i < n; i++)
+        {
+            parameterBindings.put(parameters.get(i), parameterValues.get(i));
+        }
+        return service.executeQuery(sessionToken, id, parameterBindings);
     }
 }

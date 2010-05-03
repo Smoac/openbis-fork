@@ -19,33 +19,29 @@ package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
- * 
+ * Facade for openBIS query service.
  *
  * @author Franz-Josef Elmer
  */
-public class QueryApiTest
+public interface IQueryApiFacade
 {
-    public static void main(String[] args)
-    {
-        if (args.length != 3)
-        {
-            System.err.println("Usage: <openbis-server-url> <user> <password>");
-            return;
-        }
+    /**
+     * Lists all queries the user has access rights.
+     */
+    public List<QueryDescription> listQueries();
 
-        String serverURL = args[0];
-        String userID = args[1];
-        String password = args[2];
-        
-        IQueryApiFacade facade = FacadeFactory.create(serverURL, userID, password);
-        
-        List<QueryDescription> queries = facade.listQueries();
-        for (QueryDescription queryDescription : queries)
-        {
-            System.out.println(queryDescription.getName()+": "+queryDescription.getParameters());
-        }
+    /**
+     * Executes specified query by using specified parameter values.
+     */
+    public QueryTableModel executeQuery(QueryDescription queryDescription,
+            List<String> parameterValues);
 
-    }
+    /**
+     * Logs current user out.
+     */
+    public void logout();
+    
 }
