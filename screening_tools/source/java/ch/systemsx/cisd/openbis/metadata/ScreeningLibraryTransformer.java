@@ -34,46 +34,6 @@ public class ScreeningLibraryTransformer
 {
     private final static char SEPARATOR = ',';
 
-    public static void main(String[] args) throws FileNotFoundException, IOException
-    {
-        if (args.length != 4)
-        {
-            error("Invalid parameters. Expected: "
-                    + "<library-file-path> <experiment-identifier> <plate-geometry> <space>");
-        }
-        CsvReader csvReader = readFile(args[0]);
-        String experimentIdentifier = args[1];
-        String plateGeometry = args[2];
-        String groupCode = args[3];
-        readLibrary(csvReader, experimentIdentifier, plateGeometry, groupCode);
-        csvReader.close();
-    }
-
-    private static void readLibrary(CsvReader csvReader, String experimentIdentifier,
-            String plateGeometry, String groupCode) throws IOException
-    {
-        System.out.println("Processing...");
-        boolean headerPresent = csvReader.readRecord();
-        if (headerPresent == false)
-        {
-            error("header not found");
-            return;
-        }
-        String[] headers = csvReader.getValues();
-        QiagenScreeningLibraryColumnExtractor extractor =
-                new QiagenScreeningLibraryColumnExtractor(headers);
-        LibraryEntityRegistrator registrator =
-                new LibraryEntityRegistrator(extractor, experimentIdentifier, plateGeometry,
-                        groupCode);
-        while (csvReader.readRecord())
-        {
-            String[] row = csvReader.getValues();
-            registrator.register(extractor, row);
-        }
-        registrator.saveResults();
-        System.out.println("Done, look for results in " + new File(".").getAbsolutePath());
-    }
-
     static CsvReader readFile(String path) throws FileNotFoundException, IOException
     {
         File file = new File(path);
