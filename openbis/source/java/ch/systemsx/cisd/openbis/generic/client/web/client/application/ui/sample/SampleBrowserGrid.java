@@ -305,16 +305,19 @@ public class SampleBrowserGrid extends
         super(viewContext, gridId, refreshAutomatically, displayTypeIDGenerator);
         this.propertyTypesAndCriteriaProvider = criteriaProvider;
         this.previousPropertyTypes = null;
-      
-              registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT.id(),
-                new OpenEntityDetailsTabCellClickListener()
-                    {
-                        @Override
-                        protected IEntityInformationHolder getEntity(Sample rowItem)
-                        {
-                            return rowItem.getExperiment();
-                        }
-                    });
+
+        ICellListener<Sample> experimentClickListener = new OpenEntityDetailsTabCellClickListener()
+            {
+                @Override
+                protected IEntityInformationHolder getEntity(Sample rowItem)
+                {
+                    return rowItem.getExperiment();
+                }
+            };
+        registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT.id(),
+                experimentClickListener);
+        registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER.id(),
+                experimentClickListener);
         registerLinkClickListenerFor(CommonSampleColDefKind.PROJECT.id(),
                 new ICellListener<Sample>()
                     {
@@ -326,7 +329,7 @@ public class SampleBrowserGrid extends
                     });
         setId(browserId);
     }
-    
+
     private abstract class OpenEntityDetailsTabCellClickListener implements ICellListener<Sample>
     {
         protected abstract IEntityInformationHolder getEntity(Sample rowItem);
@@ -339,7 +342,7 @@ public class SampleBrowserGrid extends
             new OpenEntityDetailsTabAction(entity, viewContext, keyPressed).execute();
         }
     }
-    
+
     @Override
     protected ICriteriaProvider<ListSampleDisplayCriteria> getCriteriaProvider()
     {
@@ -507,12 +510,14 @@ public class SampleBrowserGrid extends
 
         GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();
         schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT.id(), linkCellRenderer);
+        schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER.id(),
+                linkCellRenderer);
         schema.setGridCellRendererFor(CommonSampleColDefKind.PROJECT.id(), linkCellRenderer);
         // setup link renderers and listeners on parent columns
         for (final AbstractParentSampleColDef parentColDef : parentColumnsSchema)
         {
             schema.setGridCellRendererFor(parentColDef.getIdentifier(), linkCellRenderer);
-             registerLinkClickListenerFor(parentColDef.getIdentifier(),
+            registerLinkClickListenerFor(parentColDef.getIdentifier(),
                     new OpenEntityDetailsTabCellClickListener()
                         {
                             @Override
