@@ -25,6 +25,8 @@ import java.util.Arrays;
  */
 public final class MDByteArray extends MDAbstractArray<Byte>
 {
+    private static final long serialVersionUID = 1L;
+    
     private final byte[] flattenedArray;
 
     /**
@@ -160,6 +162,7 @@ public final class MDByteArray extends MDAbstractArray<Byte>
      * Returns the array in flattened form. Changes to the returned object will change the
      * multi-dimensional array directly.
      */
+    @Override
     public byte[] getAsFlatArray()
     {
         return flattenedArray;

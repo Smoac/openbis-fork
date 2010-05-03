@@ -25,6 +25,8 @@ import java.util.Arrays;
  */
 public final class MDShortArray extends MDAbstractArray<Short>
 {
+    private static final long serialVersionUID = 1L;
+    
     private final short[] flattenedArray;
 
     /**
@@ -159,6 +161,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
      * Returns the array in flattened form. Changes to the returned object will change the
      * multi-dimensional array directly.
      */
+    @Override
     public short[] getAsFlatArray()
     {
         return flattenedArray;

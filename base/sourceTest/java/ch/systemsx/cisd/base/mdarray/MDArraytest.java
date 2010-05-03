@@ -35,6 +35,8 @@ public class MDArraytest
 
     static class TestMDArray extends MDAbstractArray<Void>
     {
+        private static final long serialVersionUID = 1L;
+
         protected TestMDArray(int[] shape)
         {
             super(shape);
@@ -55,6 +57,12 @@ public class MDArraytest
         public int size()
         {
             return 0;
+        }
+
+        @Override
+        public Object getAsFlatArray()
+        {
+            return null;
         }
     }
 

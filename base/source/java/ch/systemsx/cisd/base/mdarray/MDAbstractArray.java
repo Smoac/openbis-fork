@@ -16,15 +16,22 @@
 
 package ch.systemsx.cisd.base.mdarray;
 
+import java.io.Serializable;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.ClassUtils;
+
 /**
  * Base class of a multi-dimensional array. The <var>dimensions</var> of an array are provided
  * separately from the data as a <code>int[]</code>.
  * 
  * @author Bernd Rinn
  */
-public abstract class MDAbstractArray<T>
+public abstract class MDAbstractArray<T> implements Serializable
 {
 
+    private static final long serialVersionUID = 1L;
+    
     protected final int[] dimensions;
 
     protected MDAbstractArray(int[] dimensions)
@@ -89,6 +96,12 @@ public abstract class MDAbstractArray<T>
      * <var>value</var>.
      */
     public abstract void setToObject(T value, int... indices);
+
+    /**
+     * Returns the array in flattened form. Changes to the returned object will change the
+     * multi-dimensional array directly.
+     */
+    public abstract Object getAsFlatArray();
 
     /**
      * Computes the linear index for the multi-dimensional <var>indices</var> provided.
@@ -214,6 +227,27 @@ public abstract class MDAbstractArray<T>
             throw new IllegalArgumentException("Length is too large (" + length + ")");
         }
         return intLength;
+    }
+
+    //
+    // Object
+    //
+    
+    @Override
+    public String toString()
+    {
+        final int length = getLength(dimensions);
+        final StringBuilder b = new StringBuilder();
+        b.append(ClassUtils.getShortCanonicalName(this.getClass()));
+        b.append('(');
+        b.append(ArrayUtils.toString(dimensions));
+        b.append(')');
+        if (length <= 100)
+        {
+            b.append(": ");
+            b.append(ArrayUtils.toString(getAsFlatArray()));
+        }
+        return b.toString();
     }
 
 }

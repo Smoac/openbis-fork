@@ -26,6 +26,8 @@ import java.util.Arrays;
 public class MDArray<T> extends MDAbstractArray<T>
 {
 
+    private static final long serialVersionUID = 1L;
+
     private final T[] flattenedArray;
 
     /**
@@ -50,7 +52,7 @@ public class MDArray<T> extends MDAbstractArray<T>
 
     /**
      * Creates a {@link MDArray} from the given <var>flattenedArray</var> and <var>dimensions</var>.
-     * If <var>checkDimensions/var>} is {@code true}, it is checked that the arguments are
+     * If <var>checkDimensions</var> is {@code true}, it is checked that the arguments are
      * compatible. Convenience method if <var>dimensions</var> are available as {@code long[]}.
      */
     public MDArray(T[] flattenedArray, long[] dimensions, boolean checkdimensions)
@@ -78,7 +80,7 @@ public class MDArray<T> extends MDAbstractArray<T>
 
     /**
      * Creates a {@link MDArray} from the given <var>flattenedArray</var> and <var>dimensions</var>.
-     * If <var>checkDimensions/var>} is {@code true}, it is checked that the arguments are
+     * If <var>checkDimensions</var> is {@code true}, it is checked that the arguments are
      * compatible.
      */
     public MDArray(T[] flattenedArray, int[] dimensions, boolean checkdimensions)
@@ -127,6 +129,7 @@ public class MDArray<T> extends MDAbstractArray<T>
      * Returns the array in flattened form. Changes to the returned object will change the
      * multi-dimensional array directly.
      */
+    @Override
     public T[] getAsFlatArray()
     {
         return flattenedArray;

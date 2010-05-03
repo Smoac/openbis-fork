@@ -25,6 +25,8 @@ import java.util.Arrays;
  */
 public final class MDDoubleArray extends MDAbstractArray<Double>
 {
+    private static final long serialVersionUID = 1L;
+    
     private final double[] flattenedArray;
 
     /**
@@ -48,7 +50,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
 
     /**
      * Creates a {@link MDDoubleArray} from the given <var>flattenedArray</var> and
-     * <var>dimensions</var>. If <var>checkDimensions/var>} is {@code true}, it is checked that the
+     * <var>dimensions</var>. If <var>checkDimensions</var> is {@code true}, it is checked that the
      * arguments are compatible. Convenience method if <var>dimensions</var> are available as
      * {@code long[]}.
      */
@@ -76,7 +78,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
 
     /**
      * Creates a {@link MDDoubleArray} from the given <var>flattenedArray</var> and
-     * <var>dimensions</var>. If <var>checkDimensions/var>} is {@code true}, it is checked that the
+     * <var>dimensions</var>. If <var>checkDimensions</var> is {@code true}, it is checked that the
      * arguments are compatible.
      */
     public MDDoubleArray(double[] flattenedArray, int[] dimensions, boolean checkdimensions)
@@ -160,6 +162,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
      * Returns the array in flattened form. Changes to the returned object will change the
      * multi-dimensional array directly.
      */
+    @Override
     public double[] getAsFlatArray()
     {
         return flattenedArray;
