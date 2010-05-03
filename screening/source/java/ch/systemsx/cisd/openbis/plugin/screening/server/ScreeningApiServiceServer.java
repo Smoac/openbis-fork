@@ -22,6 +22,7 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 
@@ -43,6 +44,7 @@ public class ScreeningApiServiceServer extends HttpInvokerServiceExporter
     {
         setServiceInterface(IScreeningApiServer.class);
         setService(server);
+        setInterceptors(new Object[] {new ServiceExceptionTranslator()});
         super.afterPropertiesSet();
     }
 
