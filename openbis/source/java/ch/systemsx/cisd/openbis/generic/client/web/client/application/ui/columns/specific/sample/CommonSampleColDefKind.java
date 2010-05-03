@@ -165,6 +165,13 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
                 final Experiment exp = entity.getExperiment();
                 return exp == null ? null : exp.getProject().getCode();
             }
+
+            @Override
+            public String tryGetLink(Sample entity)
+            {
+                final Experiment exp = entity.getExperiment();
+                return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
+            }
         }),
 
     REGISTRATOR(new AbstractColumnDefinitionKind<Sample>(Dict.REGISTRATOR)

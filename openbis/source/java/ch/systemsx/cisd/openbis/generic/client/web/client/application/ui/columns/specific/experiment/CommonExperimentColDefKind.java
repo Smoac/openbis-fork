@@ -94,6 +94,12 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
             {
                 return entity.getProject().getCode();
             }
+
+            @Override
+            public String tryGetLink(Experiment entity)
+            {
+                return LinkExtractor.tryExtract(entity.getProject());
+            }
         }),
 
     REGISTRATOR(new AbstractColumnDefinitionKind<Experiment>(Dict.REGISTRATOR)

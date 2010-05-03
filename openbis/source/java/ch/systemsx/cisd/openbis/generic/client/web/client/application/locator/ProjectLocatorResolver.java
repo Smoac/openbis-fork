@@ -18,11 +18,11 @@ public class ProjectLocatorResolver extends AbstractViewLocatorResolver
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final static String PROJECT = "PROJECT";
+    public final static String PROJECT = "PROJECT";
 
-    private final static String CODE_PARAMETER_KEY = "code";
+    public final static String CODE_PARAMETER_KEY = "code";
 
-    private final static String SPACE_PARAMETER_KEY = "space";
+    public final static String SPACE_PARAMETER_KEY = "space";
 
     public ProjectLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -81,7 +81,7 @@ public class ProjectLocatorResolver extends AbstractViewLocatorResolver
         @Override
         protected final void process(final Project result)
         {
-            // FIXME don't load data twice
+            // TODO 2010-05-03, Piotr Buczek: Project data are loaded twice
             OpenEntityDetailsTabHelper.open(viewContext, result, false);
         }
     }
