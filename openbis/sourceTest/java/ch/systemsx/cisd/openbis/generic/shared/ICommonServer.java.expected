@@ -767,8 +767,9 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public Project getProjectInfo(String sessionToken, ProjectIdentifier projectIdentifier);
-    // TODO authorization
+    public Project getProjectInfo(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
 
     /**
      * Returns unique code.
