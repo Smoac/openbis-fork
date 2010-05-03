@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.metadata;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,7 +36,7 @@ import com.csvreader.CsvReader;
  */
 public class ImageAnalysisLMCSplitter
 {
-    private static final String SEPARATOR = ",";
+    private static final char SEPARATOR = ',';
 
     public static void main(String[] args) throws FileNotFoundException, IOException
     {
@@ -44,11 +46,32 @@ public class ImageAnalysisLMCSplitter
                     .println("There should be exactly one parameter: <image-analysis-results-file-path>");
             return;
         }
-        CsvReader reader = ScreeningLibraryTransformer.readFile(args[0]);
+        CsvReader reader = readFile(args[0]);
         boolean ok = reader.readRecord();
         assert ok;
         String[] header = reader.getValues();
         splitPlates(reader, header);
+    }
+
+    private static CsvReader readFile(String path) throws FileNotFoundException, IOException
+    {
+        File file = new File(path);
+        if (file.isFile() == false)
+        {
+            error(file + " does not exist or is not a file.");
+        }
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        CsvReader csvReader = new CsvReader(fileInputStream, Charset.defaultCharset());
+        csvReader.setDelimiter(SEPARATOR);
+        csvReader.setSafetySwitch(false);
+        return csvReader;
+    }
+
+    private static void error(String msg)
+    {
+        System.err.println(msg);
+        System.exit(1);
     }
 
     private static void splitPlates(CsvReader reader, String[] header) throws IOException,
