@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -100,6 +101,8 @@ public class ExperimentPropertiesPanel extends ContentPanel
                 .createExperimentTypePropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(messageProvider));
+        propertyGrid.registerPropertyValueRenderer(Project.class, PropertyValueRenderers
+                .createProjectPropertyValueRenderer(viewContext));
         final IPropertyValueRenderer<IEntityProperty> renderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, renderer);
@@ -128,6 +131,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
         {
             properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
         }
+        properties.put(messageProvider.getMessage(Dict.PROJECT), experiment.getProject());
         final List<IEntityProperty> experimentProperties = experiment.getProperties();
         Collections.sort(experimentProperties);
         List<PropertyType> types = EntityPropertyUtils.extractTypes(experimentProperties);

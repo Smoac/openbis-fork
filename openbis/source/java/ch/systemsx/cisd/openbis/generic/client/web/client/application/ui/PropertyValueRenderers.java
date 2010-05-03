@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
@@ -29,12 +30,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractSimplePropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
@@ -50,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -66,6 +70,15 @@ public final class PropertyValueRenderers
     private PropertyValueRenderers()
     {
         // Can not be instantiated
+    }
+
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link Project}.
+     */
+    public final static IPropertyValueRenderer<Project> createProjectPropertyValueRenderer(
+            final IViewContext<?> viewContext)
+    {
+        return new ProjectPropertyValueRenderer(viewContext);
     }
 
     /**
@@ -437,6 +450,46 @@ public final class PropertyValueRenderers
             {
                 return false;
             }
+        }
+
+    }
+
+    /**
+     * Renderer for {@link Project}.
+     * 
+     * @author Piotr Buczek
+     */
+    public static class ProjectPropertyValueRenderer extends AbstractPropertyValueRenderer<Project>
+    {
+
+        private final IViewContext<?> viewContext;
+
+        public ProjectPropertyValueRenderer(final IViewContext<?> viewContext)
+        {
+            super(viewContext);
+            this.viewContext = viewContext;
+        }
+
+        //
+        // AbstractPropertyValueRenderer
+        //
+        public Widget getAsWidget(final Project project)
+        {
+            final String displayText = project.getIdentifier();
+            final ClickHandler listener = new ClickHandler()
+                {
+                    public void onClick(ClickEvent event)
+                    {
+                        OpenEntityDetailsTabHelper.open(viewContext, project, WidgetUtils
+                                .ifSpecialKeyPressed(event.getNativeEvent()));
+                    }
+                };
+            String href = LinkExtractor.tryExtract(project);
+            final Widget link =
+                    LinkRenderer.getLinkWidget(displayText, listener, false, href != null ? "#"
+                            + href : null);
+
+            return link;
         }
 
     }

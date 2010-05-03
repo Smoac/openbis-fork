@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -256,6 +257,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         Experiment experiment = sample.getExperiment();
         if (experiment != null)
         {
+            properties.put(messageProvider.getMessage(Dict.PROJECT), experiment.getProject());
             properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment);
         }
 
@@ -316,6 +318,8 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
                 .createSamplePropertyValueRenderer(viewContext, true));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Project.class, PropertyValueRenderers
+                .createProjectPropertyValueRenderer(viewContext));
         final IPropertyValueRenderer<IEntityProperty> propertyValueRenderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyValueRenderer);

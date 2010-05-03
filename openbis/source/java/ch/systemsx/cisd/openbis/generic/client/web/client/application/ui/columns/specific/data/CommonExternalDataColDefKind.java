@@ -94,10 +94,6 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             public String tryGetValue(ExternalData entity)
             {
                 final Experiment exp = entity.getExperiment();
-                if (exp == null)
-                {
-                    return null;
-                }
                 return exp.getCode();
             }
 
@@ -115,10 +111,6 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             public String tryGetValue(ExternalData entity)
             {
                 final Experiment exp = entity.getExperiment();
-                if (exp == null)
-                {
-                    return null;
-                }
                 return exp.getIdentifier();
             }
 
@@ -140,6 +132,23 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
                     return null;
                 }
                 return experimentOrNull.getExperimentType().getCode();
+            }
+        }),
+
+    PROJECT(new AbstractColumnDefinitionKind<ExternalData>(Dict.PROJECT)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                final Experiment exp = entity.getExperiment();
+                return exp.getProject().getCode();
+            }
+
+            @Override
+            public String tryGetLink(ExternalData entity)
+            {
+                final Experiment exp = entity.getExperiment();
+                return LinkExtractor.tryExtract(exp.getProject());
             }
         }),
 

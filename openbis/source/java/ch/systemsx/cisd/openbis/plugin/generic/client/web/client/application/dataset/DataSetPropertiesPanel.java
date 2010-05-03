@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
@@ -81,6 +82,8 @@ public class DataSetPropertiesPanel extends ContentPanel
                 .createDataSetTypePropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Project.class, PropertyValueRenderers
+                .createProjectPropertyValueRenderer(viewContext));
         final IPropertyValueRenderer<IEntityProperty> propertyRenderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyRenderer);
@@ -132,6 +135,8 @@ public class DataSetPropertiesPanel extends ContentPanel
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), dataset.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), dataset
                 .getRegistrationDate());
+        properties.put(messageProvider.getMessage(Dict.PROJECT), dataset.getExperiment()
+                .getProject());
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT), dataset.getExperiment());
         if (sample != null)
         {
