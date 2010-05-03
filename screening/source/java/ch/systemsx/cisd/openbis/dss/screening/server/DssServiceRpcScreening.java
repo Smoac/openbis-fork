@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.csvreader.CsvReader;
 
@@ -138,25 +139,23 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
-        try
+        ArrayList<String> datasetCodes = new ArrayList<String>();
+        for (IImageDatasetIdentifier dataset : imageDatasets)
         {
-            List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
-            for (IImageDatasetIdentifier dataset : imageDatasets)
-            {
-                result.add(extractImageMetadata(sessionToken, dataset));
-            }
-            return result;
-        } catch (IOException ex)
-        {
-            throw wrapIOException(ex);
+            datasetCodes.add(dataset.getDatasetCode());
         }
-    }
-
-    private ImageDatasetMetadata extractImageMetadata(String sessionToken,
-            IImageDatasetIdentifier dataset) throws IOException
-    {
-        File datasetRoot = checkAccessAndGetRootDirectory(sessionToken, dataset.getDatasetCode());
-        return extractImageMetadata(dataset, datasetRoot);
+        Map<String, File> datasetRoots =
+                checkAccessAndGetRootDirectories(sessionToken, datasetCodes);
+        List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
+        for (IImageDatasetIdentifier dataset : imageDatasets)
+        {
+            File rootDirectoryOrNull = datasetRoots.get(dataset.getDatasetCode());
+            if (rootDirectoryOrNull != null)
+            {
+                result.add(extractImageMetadata(dataset, rootDirectoryOrNull));
+            }
+        }
+        return result;
     }
 
     private static ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,
