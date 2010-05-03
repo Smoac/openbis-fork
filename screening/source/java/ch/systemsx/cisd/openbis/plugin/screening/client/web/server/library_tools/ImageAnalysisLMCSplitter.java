@@ -35,6 +35,8 @@ import com.csvreader.CsvReader;
  */
 public class ImageAnalysisLMCSplitter
 {
+    private static final String SEPARATOR = ",";
+
     public static void main(String[] args) throws FileNotFoundException, IOException
     {
         if (args.length != 1)
@@ -91,6 +93,6 @@ public class ImageAnalysisLMCSplitter
         {
             tokens[i] = tokens[i].replace(';', ',');
         }
-        return StringUtils.join(tokens, ";");
+        return StringUtils.join(tokens, SEPARATOR);
     }
 }
