@@ -24,6 +24,11 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
+import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
+import ch.systemsx.cisd.base.mdarray.MDFloatArray;
+import ch.systemsx.cisd.base.mdarray.MDIntArray;
+import ch.systemsx.cisd.base.mdarray.MDLongArray;
+import ch.systemsx.cisd.base.mdarray.MDShortArray;
 
 import static org.testng.AssertJUnit.*;
 
@@ -65,11 +70,48 @@ public class NativeTaggedArrayTests
         final float[] convertedFloatArr = NativeTaggedArray.tryToFloatArray1D(taggedArr);
         final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
         assertNotNull(encoding);
-        assertEquals(ByteOrder.BIG_ENDIAN, encoding.getByteOrder());
+        assertEquals(nonNativeByteOrder, encoding.getByteOrder());
         assertEquals(4, encoding.getSizeInBytes());
         assertTrue(encoding.isFloatingPoint());
         assertFalse(encoding.isInteger());
         assertTrue(Arrays.equals(floatArr, convertedFloatArr));
+    }
+
+    @Test
+    public static void testFloat2DArrayNativeByteOrder()
+    {
+        final MDFloatArray floatArr = new MDFloatArray(new float[]
+            { 1, 2, 3, 4 }, new int[] { 2, 2 });
+        final byte[] taggedArr = NativeTaggedArray.toByteArray(floatArr);
+        assertEquals(4 * 4 + 2 * 4 + 4, taggedArr.length);
+        final MDFloatArray convertedFloatArr = NativeTaggedArray.tryToFloatArray(taggedArr);
+        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        assertNotNull(encoding);
+        assertEquals(NativeData.getNativeByteOrder(), encoding.getByteOrder());
+        assertEquals(4, encoding.getSizeInBytes());
+        assertTrue(encoding.isFloatingPoint());
+        assertFalse(encoding.isInteger());
+        assertTrue(floatArr.equals(convertedFloatArr));
+    }
+
+    @Test
+    public static void testFloat2DArrayNonNativeByteOrder()
+    {
+        final MDFloatArray floatArr = new MDFloatArray(new float[]
+            { 1, 2, 3, 4 }, new int[] { 2, 2 });
+        final ByteOrder nonNativeByteOrder =
+            (NativeData.getNativeByteOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN
+                    : ByteOrder.LITTLE_ENDIAN;
+        final byte[] taggedArr = NativeTaggedArray.toByteArray(floatArr, nonNativeByteOrder);
+        assertEquals(4 * 4 + 2 * 4 + 4, taggedArr.length);
+        final MDFloatArray convertedFloatArr = NativeTaggedArray.tryToFloatArray(taggedArr);
+        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        assertNotNull(encoding);
+        assertEquals(nonNativeByteOrder, encoding.getByteOrder());
+        assertEquals(4, encoding.getSizeInBytes());
+        assertTrue(encoding.isFloatingPoint());
+        assertFalse(encoding.isInteger());
+        assertTrue(floatArr.equals(convertedFloatArr));
     }
 
     @Test
@@ -102,11 +144,48 @@ public class NativeTaggedArrayTests
         final double[] convertedDoubleArr = NativeTaggedArray.tryToDoubleArray1D(taggedArr);
         final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
         assertNotNull(encoding);
-        assertEquals(ByteOrder.BIG_ENDIAN, encoding.getByteOrder());
+        assertEquals(nonNativeByteOrder, encoding.getByteOrder());
         assertEquals(8, encoding.getSizeInBytes());
         assertTrue(encoding.isFloatingPoint());
         assertFalse(encoding.isInteger());
         assertTrue(Arrays.equals(doubleArr, convertedDoubleArr));
+    }
+
+    @Test
+    public static void testDouble2DArrayNativeByteOrder()
+    {
+        final MDDoubleArray doubleArr = new MDDoubleArray(new double[]
+            { 1, 2, 3, 4 }, new int[] { 2, 2 });
+        final byte[] taggedArr = NativeTaggedArray.toByteArray(doubleArr);
+        assertEquals(4 * 8 + 2 * 4 + 4, taggedArr.length);
+        final MDDoubleArray convertedDoubleArr = NativeTaggedArray.tryToDoubleArray(taggedArr);
+        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        assertNotNull(encoding);
+        assertEquals(NativeData.getNativeByteOrder(), encoding.getByteOrder());
+        assertEquals(8, encoding.getSizeInBytes());
+        assertTrue(encoding.isFloatingPoint());
+        assertFalse(encoding.isInteger());
+        assertTrue(doubleArr.equals(convertedDoubleArr));
+    }
+
+    @Test
+    public static void testDouble2DArrayNonNativeByteOrder()
+    {
+        final MDDoubleArray doubleArr = new MDDoubleArray(new double[]
+            { 1, 2, 3, 4 }, new int[] { 2, 2 });
+        final ByteOrder nonNativeByteOrder =
+            (NativeData.getNativeByteOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN
+                    : ByteOrder.LITTLE_ENDIAN;
+        final byte[] taggedArr = NativeTaggedArray.toByteArray(doubleArr, nonNativeByteOrder);
+        assertEquals(4 * 8 + 2 * 4 + 4, taggedArr.length);
+        final MDDoubleArray convertedDoubleArr = NativeTaggedArray.tryToDoubleArray(taggedArr);
+        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        assertNotNull(encoding);
+        assertEquals(nonNativeByteOrder, encoding.getByteOrder());
+        assertEquals(8, encoding.getSizeInBytes());
+        assertTrue(encoding.isFloatingPoint());
+        assertFalse(encoding.isInteger());
+        assertTrue(doubleArr.equals(convertedDoubleArr));
     }
 
     @Test
@@ -139,11 +218,48 @@ public class NativeTaggedArrayTests
         final short[] convertedShortArr = NativeTaggedArray.tryToShortArray1D(taggedArr);
         final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
         assertNotNull(encoding);
-        assertEquals(ByteOrder.BIG_ENDIAN, encoding.getByteOrder());
+        assertEquals(nonNativeByteOrder, encoding.getByteOrder());
         assertEquals(2, encoding.getSizeInBytes());
         assertFalse(encoding.isFloatingPoint());
         assertTrue(encoding.isInteger());
         assertTrue(Arrays.equals(shortArr, convertedShortArr));
+    }
+
+    @Test
+    public static void testShort2DArrayNativeByteOrder()
+    {
+        final MDShortArray shortArr = new MDShortArray(new short[]
+            { 1, 2, 3, 4 }, new int[] { 2, 2 });
+        final byte[] taggedArr = NativeTaggedArray.toByteArray(shortArr);
+        assertEquals(4 * 2 + 2 * 4 + 4, taggedArr.length);
+        final MDShortArray convertedShortArr = NativeTaggedArray.tryToShortArray(taggedArr);
+        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        assertNotNull(encoding);
+        assertEquals(NativeData.getNativeByteOrder(), encoding.getByteOrder());
+        assertEquals(2, encoding.getSizeInBytes());
+        assertFalse(encoding.isFloatingPoint());
+        assertTrue(encoding.isInteger());
+        assertTrue(shortArr.equals(convertedShortArr));
+    }
+
+    @Test
+    public static void testShort2DArrayNonNativeByteOrder()
+    {
+        final MDShortArray shortArr = new MDShortArray(new short[]
+            { 1, 2, 3, 4 }, new int[] { 2, 2 });
+        final ByteOrder nonNativeByteOrder =
+            (NativeData.getNativeByteOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN
+                    : ByteOrder.LITTLE_ENDIAN;
+        final byte[] taggedArr = NativeTaggedArray.toByteArray(shortArr, nonNativeByteOrder);
+        assertEquals(4 * 2 + 2 * 4 + 4, taggedArr.length);
+        final MDShortArray convertedShortArr = NativeTaggedArray.tryToShortArray(taggedArr);
+        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        assertNotNull(encoding);
+        assertEquals(nonNativeByteOrder, encoding.getByteOrder());
+        assertEquals(2, encoding.getSizeInBytes());
+        assertFalse(encoding.isFloatingPoint());
+        assertTrue(encoding.isInteger());
+        assertTrue(shortArr.equals(convertedShortArr));
     }
 
     @Test
@@ -176,11 +292,48 @@ public class NativeTaggedArrayTests
         final int[] convertedIntArr = NativeTaggedArray.tryToIntArray1D(taggedArr);
         final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
         assertNotNull(encoding);
-        assertEquals(ByteOrder.BIG_ENDIAN, encoding.getByteOrder());
+        assertEquals(nonNativeByteOrder, encoding.getByteOrder());
         assertEquals(4, encoding.getSizeInBytes());
         assertFalse(encoding.isFloatingPoint());
         assertTrue(encoding.isInteger());
         assertTrue(Arrays.equals(intArr, convertedIntArr));
+    }
+
+    @Test
+    public static void testInt2DArrayNativeByteOrder()
+    {
+        final MDIntArray intArr = new MDIntArray(new int[]
+            { 1, 2, 3, 4 }, new int[] { 2, 2 });
+        final byte[] taggedArr = NativeTaggedArray.toByteArray(intArr);
+        assertEquals(4 * 4 + 2 * 4 + 4, taggedArr.length);
+        final MDIntArray convertedIntArr = NativeTaggedArray.tryToIntArray(taggedArr);
+        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        assertNotNull(encoding);
+        assertEquals(NativeData.getNativeByteOrder(), encoding.getByteOrder());
+        assertEquals(4, encoding.getSizeInBytes());
+        assertFalse(encoding.isFloatingPoint());
+        assertTrue(encoding.isInteger());
+        assertTrue(intArr.equals(convertedIntArr));
+    }
+
+    @Test
+    public static void testInt2DArrayNonNativeByteOrder()
+    {
+        final MDIntArray intArr = new MDIntArray(new int[]
+            { 1, 2, 3, 4 }, new int[] { 2, 2 });
+        final ByteOrder nonNativeByteOrder =
+            (NativeData.getNativeByteOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN
+                    : ByteOrder.LITTLE_ENDIAN;
+        final byte[] taggedArr = NativeTaggedArray.toByteArray(intArr, nonNativeByteOrder);
+        assertEquals(4 * 4 + 2 * 4 + 4, taggedArr.length);
+        final MDIntArray convertedIntArr = NativeTaggedArray.tryToIntArray(taggedArr);
+        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        assertNotNull(encoding);
+        assertEquals(nonNativeByteOrder, encoding.getByteOrder());
+        assertEquals(4, encoding.getSizeInBytes());
+        assertFalse(encoding.isFloatingPoint());
+        assertTrue(encoding.isInteger());
+        assertTrue(intArr.equals(convertedIntArr));
     }
 
     @Test
@@ -213,11 +366,48 @@ public class NativeTaggedArrayTests
         final long[] convertedLongArr = NativeTaggedArray.tryToLongArray1D(taggedArr);
         final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
         assertNotNull(encoding);
-        assertEquals(ByteOrder.BIG_ENDIAN, encoding.getByteOrder());
+        assertEquals(nonNativeByteOrder, encoding.getByteOrder());
         assertEquals(8, encoding.getSizeInBytes());
         assertFalse(encoding.isFloatingPoint());
         assertTrue(encoding.isInteger());
         assertTrue(Arrays.equals(longArr, convertedLongArr));
+    }
+
+    @Test
+    public static void testLong2DArrayNativeByteOrder()
+    {
+        final MDLongArray longArr = new MDLongArray(new long[]
+            { 1, 2, 3, 4 }, new int[] { 2, 2 });
+        final byte[] taggedArr = NativeTaggedArray.toByteArray(longArr);
+        assertEquals(4 * 8 + 2 * 4 + 4, taggedArr.length);
+        final MDLongArray convertedLongArr = NativeTaggedArray.tryToLongArray(taggedArr);
+        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        assertNotNull(encoding);
+        assertEquals(NativeData.getNativeByteOrder(), encoding.getByteOrder());
+        assertEquals(8, encoding.getSizeInBytes());
+        assertFalse(encoding.isFloatingPoint());
+        assertTrue(encoding.isInteger());
+        assertTrue(longArr.equals(convertedLongArr));
+    }
+
+    @Test
+    public static void testLong2DArrayNonNativeByteOrder()
+    {
+        final MDLongArray longArr = new MDLongArray(new long[]
+            { 1, 2, 3, 4 }, new int[] { 2, 2 });
+        final ByteOrder nonNativeByteOrder =
+            (NativeData.getNativeByteOrder() == ByteOrder.LITTLE_ENDIAN) ? ByteOrder.BIG_ENDIAN
+                    : ByteOrder.LITTLE_ENDIAN;
+        final byte[] taggedArr = NativeTaggedArray.toByteArray(longArr, nonNativeByteOrder);
+        assertEquals(4 * 8 + 2 * 4 + 4, taggedArr.length);
+        final MDLongArray convertedLongArr = NativeTaggedArray.tryToLongArray(taggedArr);
+        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        assertNotNull(encoding);
+        assertEquals(nonNativeByteOrder, encoding.getByteOrder());
+        assertEquals(8, encoding.getSizeInBytes());
+        assertFalse(encoding.isFloatingPoint());
+        assertTrue(encoding.isInteger());
+        assertTrue(longArr.equals(convertedLongArr));
     }
 
     private void afterClass()
