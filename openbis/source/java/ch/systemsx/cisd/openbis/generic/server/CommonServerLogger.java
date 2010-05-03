@@ -602,6 +602,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public Project getProjectInfo(String sessionToken, ProjectIdentifier projectIdentifier)
+    {
+        logAccess(sessionToken, "get_project_info", "IDENTIFIER(%s)", projectIdentifier);
+        return null;
+    }
+
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, String permId)
     {

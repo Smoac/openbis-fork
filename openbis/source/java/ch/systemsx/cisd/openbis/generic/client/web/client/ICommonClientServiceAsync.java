@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -544,6 +545,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#getProjectInfo(TechId)
      */
     public void getProjectInfo(TechId projectId, AsyncCallback<Project> projectInfoCallback);
+
+    /**
+     * @see ICommonClientService#getProjectInfo(BasicProjectIdentifier)
+     */
+    public void getProjectInfo(BasicProjectIdentifier projectIdentifier,
+            AsyncCallback<Project> projectInfoCallback);
 
     /**
      * @see ICommonClientService#generateCode(String)

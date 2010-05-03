@@ -21,6 +21,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 
 /**
  * Identifies a project.
@@ -48,6 +49,11 @@ public class ProjectIdentifier extends SpaceIdentifier
     public ProjectIdentifier(SpaceIdentifier spaceIdentifier, String projectCode)
     {
         this(spaceIdentifier.getDatabaseInstanceCode(), spaceIdentifier.getSpaceCode(), projectCode);
+    }
+
+    public ProjectIdentifier(BasicProjectIdentifier identifier)
+    {
+        this(identifier.getInstanceCode(), identifier.getSpaceCode(), identifier.getProjectCode());
     }
 
     public String getProjectCode()

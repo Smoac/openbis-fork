@@ -125,16 +125,7 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
         @Override
         protected final void process(final Project result)
         {
-            viewer.updateOriginalProject(result);
-            viewer.removeAll();
-            // Top panel
-            final Component topPanel = viewer.createTopPanel(result);
-            viewer.add(topPanel, BorderLayoutDataFactory.create(LayoutRegion.NORTH, 150));
-            // Central panel
-            final Component centerPanel = viewer.createCenterPanel(result);
-            viewer.add(centerPanel, BorderLayoutDataFactory.create(LayoutRegion.CENTER));
-
-            viewer.layout();
+            viewer.recreateView(result);
         }
 
         @Override
@@ -142,6 +133,20 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
         {
             viewer.setupRemovedEntityView();
         }
+    }
+
+    private void recreateView(final Project project)
+    {
+        updateOriginalProject(project);
+        removeAll();
+        // Top panel
+        final Component topPanel = createTopPanel(project);
+        add(topPanel, BorderLayoutDataFactory.create(LayoutRegion.NORTH, 150));
+        // Central panel
+        final Component centerPanel = createCenterPanel(project);
+        add(centerPanel, BorderLayoutDataFactory.create(LayoutRegion.CENTER));
+
+        layout();
     }
 
     private void updateOriginalProject(Project result)

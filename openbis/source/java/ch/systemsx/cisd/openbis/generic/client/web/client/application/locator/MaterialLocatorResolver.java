@@ -50,9 +50,9 @@ public class MaterialLocatorResolver extends AbstractViewLocatorResolver
     {
         String codeValueOrNull = locator.getParameters().get(CODE_PARAMETER_KEY);
         String materialTypeValueOrNull = locator.getParameters().get(TYPE_PARAMETER_KEY);
-        checkRequiredParameter(codeValueOrNull, codeValueOrNull);
+        checkRequiredParameter(codeValueOrNull, CODE_PARAMETER_KEY);
         checkRequiredParameter(materialTypeValueOrNull, TYPE_PARAMETER_KEY);
-        
+
         return new MaterialIdentifier(codeValueOrNull, materialTypeValueOrNull);
     }
 

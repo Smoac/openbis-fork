@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -639,6 +640,12 @@ public interface ICommonClientService extends IClientService
      * For given {@link TechId} returns corresponding {@link Project}.
      */
     public Project getProjectInfo(final TechId projectId) throws UserFailureException;
+
+    /**
+     * For given {@link BasicProjectIdentifier} returns corresponding {@link Project}.
+     */
+    public Project getProjectInfo(final BasicProjectIdentifier projectIdentifier)
+            throws UserFailureException;
 
     /**
      * Generates unique code.

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Br
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
@@ -300,6 +301,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         // It is important that MaterialLocatorResolver is registered before PermlinkLocatorResolver
         // as it handles the same action in a more specific way.
         handlerRegistry.registerHandler(new MaterialLocatorResolver(context));
+        handlerRegistry.registerHandler(new ProjectLocatorResolver(context));
         handlerRegistry.registerHandler(new PermlinkLocatorResolver(context));
 
         handlerRegistry.registerHandler(new SearchLocatorResolver(context));

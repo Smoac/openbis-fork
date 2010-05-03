@@ -762,6 +762,15 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId);
 
     /**
+     * For given {@link ProjectIdentifier} returns the corresponding {@link Project} (without
+     * attachments).
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public Project getProjectInfo(String sessionToken, ProjectIdentifier projectIdentifier);
+    // TODO authorization
+
+    /**
      * Returns unique code.
      */
     @Transactional(readOnly = true)

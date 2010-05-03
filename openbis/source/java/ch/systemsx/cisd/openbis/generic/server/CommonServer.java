@@ -1271,6 +1271,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         return ProjectTranslator.translate(project);
     }
 
+    public Project getProjectInfo(String sessionToken, ProjectIdentifier projectIdentifier)
+    {
+        final Session session = getSession(sessionToken);
+        final IProjectBO bo = businessObjectFactory.createProjectBO(session);
+        bo.loadByProjectIdentifier(projectIdentifier);
+        final ProjectPE project = bo.getProject();
+        return ProjectTranslator.translate(project);
+    }
+
     public IEntityInformationHolder getMaterialInformationHolder(String sessionToken,
             final MaterialIdentifier identifier)
     {

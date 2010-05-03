@@ -82,6 +82,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
@@ -1768,11 +1769,26 @@ public final class CommonClientService extends AbstractClientService implements
     public Project getProjectInfo(TechId projectId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-
         try
         {
             final String sessionToken = getSessionToken();
             final Project project = commonServer.getProjectInfo(sessionToken, projectId);
+            return project;
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public Project getProjectInfo(BasicProjectIdentifier projectIdentifier)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final Project project =
+                    commonServer.getProjectInfo(sessionToken, new ProjectIdentifier(
+                            projectIdentifier));
             return project;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
