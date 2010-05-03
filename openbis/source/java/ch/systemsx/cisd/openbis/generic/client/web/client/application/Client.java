@@ -59,9 +59,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public class Client implements EntryPoint, ValueChangeHandler<String>
 {
-    private static final String SIMPLE = "simple";
+    public static final String SIMPLE = "simple";
 
-    private static final String VIEW_MODE_KEY = "viewMode";
+    public static final String VIEW_MODE_KEY = "viewMode";
 
     /** name of the URL parameter which decides if looging is switched on or off */
     private static final String LOGGING_PARAM = "log";

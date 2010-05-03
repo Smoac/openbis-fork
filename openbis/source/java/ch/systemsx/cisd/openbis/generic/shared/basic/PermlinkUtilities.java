@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -36,6 +37,7 @@ public class PermlinkUtilities
             final EntityKind entityKind, final String permId)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
+        ulrWithParameters.addParameter(Client.VIEW_MODE_KEY, Client.SIMPLE);
         ulrWithParameters.startHistoryToken();
         ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
         ulrWithParameters.addParameter(PERM_ID_PARAMETER_KEY, permId);
