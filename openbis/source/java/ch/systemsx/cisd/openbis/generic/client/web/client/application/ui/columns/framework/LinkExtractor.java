@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
@@ -64,7 +63,6 @@ public class LinkExtractor
             return null;
         }
         URLMethodWithParameters url = new URLMethodWithParameters("");
-        url.addParameter(ViewLocator.ACTION_PARAMETER, ViewLocator.PERMLINK_ACTION);
         url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY,
                 ProjectLocatorResolver.PROJECT);
         url.addParameter(ProjectLocatorResolver.CODE_PARAMETER_KEY, p.getCode());
@@ -79,7 +77,6 @@ public class LinkExtractor
             return null;
         }
         URLMethodWithParameters url = new URLMethodWithParameters("");
-        url.addParameter(ViewLocator.ACTION_PARAMETER, ViewLocator.PERMLINK_ACTION);
         url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, m.getEntityKind().name());
         url.addParameter("code", m.getCode());
         url.addParameter("type", m.getMaterialType().getCode());// FIXME: move to common
