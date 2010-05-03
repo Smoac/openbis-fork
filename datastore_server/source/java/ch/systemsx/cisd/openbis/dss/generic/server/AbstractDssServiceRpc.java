@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -118,6 +121,35 @@ public abstract class AbstractDssServiceRpc
     }
 
     /**
+     * Check with openBIS and return a collection of the data sets the user with the given
+     * sessionToken is allowed to access.
+     * 
+     * @param sessionToken The session token for the user.
+     * @param dataSetCodes The data set codes we want to check access for.
+     * @return True if all the data sets are accessible, false if one or more are not accessible.
+     */
+    protected boolean areDatasetsAccessible(String sessionToken, List<String> dataSetCodes)
+    {
+        boolean access;
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format(
+                    "Check access to the data sets '%s' on openBIS server.", dataSetCodes));
+        }
+
+        try
+        {
+            openBISService.checkDataSetCollectionAccess(sessionToken, dataSetCodes);
+            access = true;
+        } catch (UserFailureException ex)
+        {
+            access = false;
+        }
+
+        return access;
+    }
+
+    /**
      * Get the top level of the folder for the data set.
      */
     protected File getRootDirectoryForDataSet(String code)
@@ -136,6 +168,25 @@ public abstract class AbstractDssServiceRpc
             throw new IllegalArgumentException("Path does not exist.");
         }
         return getRootDirectory(dataSetCode);
+    }
+
+    /**
+     * Return a map keyed by data set code with value root directory for that data set.
+     */
+    protected Map<String, File> checkAccessAndGetRootDirectories(String sessionToken,
+            List<String> dataSetCodes) throws IllegalArgumentException
+    {
+        if (areDatasetsAccessible(sessionToken, dataSetCodes) == false)
+        {
+            throw new IllegalArgumentException("Path does not exist.");
+        }
+
+        HashMap<String, File> rootDirectories = new HashMap<String, File>();
+        for (String datasetCode : dataSetCodes)
+        {
+            rootDirectories.put(datasetCode, getRootDirectory(datasetCode));
+        }
+        return rootDirectories;
     }
 
     private File getRootDirectory(String dataSetCode)
