@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -54,6 +55,7 @@ class LibraryRegistrationTask implements Runnable
 
     public void run()
     {
+        Date startDate = new Date();
         StringBuilder message = new StringBuilder();
         try
         {
@@ -68,7 +70,7 @@ class LibraryRegistrationTask implements Runnable
         {
             message.append("ERROR: Genes could not be registered!\n");
             message.append(ex.getMessage());
-            sendErrorEmail(message.toString(), email);
+            sendErrorEmail(message, startDate, email);
             return;
         }
         try
@@ -83,7 +85,7 @@ class LibraryRegistrationTask implements Runnable
         {
             message.append("ERROR: Oligos could not be registered!\n");
             message.append(ex.getMessage());
-            sendErrorEmail(message.toString(), email);
+            sendErrorEmail(message, startDate, email);
             return;
         }
         try
@@ -98,21 +100,28 @@ class LibraryRegistrationTask implements Runnable
         {
             message.append("ERROR: Plates and wells could not be registered!\n");
             message.append(ex.getMessage());
-            sendErrorEmail(message.toString(), email);
+            sendErrorEmail(message, startDate, email);
             return;
         }
-        sendSuccessEmail(message.toString(), email);
+        sendSuccessEmail(message, startDate, email);
 
     }
 
-    private void sendErrorEmail(String content, String recipient)
+    private void sendErrorEmail(StringBuilder content, Date startDate, String recipient)
     {
-        sendEmail(UNSUCCESSFUL_LIBRARY_REGISTARION_STATUS, content, recipient);
+        String subject = addDate(UNSUCCESSFUL_LIBRARY_REGISTARION_STATUS, startDate);
+        sendEmail(subject, content.toString(), recipient);
     }
 
-    private void sendSuccessEmail(String content, String recipient)
+    private void sendSuccessEmail(StringBuilder content, Date startDate, String recipient)
     {
-        sendEmail(SUCCESSFUL_LIBRARY_REGISTARION_STATUS, content, recipient);
+        String subject = addDate(SUCCESSFUL_LIBRARY_REGISTARION_STATUS, startDate);
+        sendEmail(subject, content.toString(), recipient);
+    }
+
+    private static String addDate(String subject, Date startDate)
+    {
+        return subject + " (initiated at " + startDate + ")";
     }
 
     private void sendEmail(String subject, String content, String recipient)
