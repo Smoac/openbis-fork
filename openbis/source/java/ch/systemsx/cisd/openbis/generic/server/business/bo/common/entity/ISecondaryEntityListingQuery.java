@@ -24,8 +24,8 @@ import net.lemnik.eodsql.TransactionQuery;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * Interfaces to query basic information about samples and experiments referenced from other
@@ -49,7 +49,7 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      * 
      * @param experimentId The id of the experiment to get the code for.
      */
-    @Select("select e.code as e_code, et.code as et_code, p.code as p_code, p.id as p_id, g.code as g_code, g.dbin_id as dbin_id from experiments e "
+    @Select("select e.code as e_code, e.perm_id as e_permid, et.code as et_code, p.code as p_code, p.id as p_id, g.code as g_code, g.dbin_id as dbin_id from experiments e "
             + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
             + "join groups g on p.grou_id=g.id where e.id=?{1}")
     public ExperimentProjectGroupCodeRecord getExperimentAndProjectAndGroupCodeForId(

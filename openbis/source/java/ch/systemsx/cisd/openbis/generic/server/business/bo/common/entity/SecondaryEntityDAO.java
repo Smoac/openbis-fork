@@ -36,12 +36,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -111,6 +111,7 @@ public class SecondaryEntityDAO
         final Experiment experiment = new Experiment();
         experiment.setId(experimentId);
         experiment.setCode(escapeHtml(record.e_code));
+        experiment.setPermId(escapeHtml(record.e_permid));
         experiment.setIdentifier(new ExperimentIdentifier(null, space.getCode(), record.p_code,
                 record.e_code).toString());
         final Project project = new Project();

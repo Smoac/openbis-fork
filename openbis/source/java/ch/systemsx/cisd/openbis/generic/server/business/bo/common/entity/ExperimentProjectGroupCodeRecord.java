@@ -11,6 +11,8 @@ public class ExperimentProjectGroupCodeRecord
 {
     public String e_code;
 
+    public String e_permid;
+
     public String et_code;
 
     public String p_code;
