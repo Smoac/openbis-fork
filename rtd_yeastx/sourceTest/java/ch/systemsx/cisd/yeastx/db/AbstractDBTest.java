@@ -35,7 +35,7 @@ public abstract class AbstractDBTest
     static
     {
         LogInitializer.init();
-        DBUtils.init(getDatabaseContext());
+        DBUtilsForTests.init(getDatabaseContext());
     }
 
     protected DataSource datasource;

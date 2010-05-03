@@ -23,12 +23,11 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPrecursorDTO;
@@ -48,7 +47,7 @@ public class MzXml2Database extends AbstractDatasetLoader
 
     public MzXml2Database(DataSource datasource)
     {
-        this(QueryTool.getQuery(datasource, IMzXmlDAO.class));
+        this(DBUtils.getQuery(datasource, IMzXmlDAO.class));
     }
 
     @Private

@@ -19,13 +19,12 @@ package ch.systemsx.cisd.yeastx.quant;
 import java.io.File;
 import java.sql.SQLException;
 
-import net.lemnik.eodsql.QueryTool;
-
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.yeastx.db.AbstractDBTest;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 
 /**
@@ -38,7 +37,7 @@ public class QuantMSDAOTest extends AbstractDBTest
     @BeforeMethod(alwaysRun = true)
     public void setDAO() throws SQLException
     {
-        dao = QueryTool.getQuery(datasource, IQuantMSDAO.class);
+        dao = DBUtils.getQuery(datasource, IQuantMSDAO.class);
     }
 
     @AfterMethod(alwaysRun = true)

@@ -26,13 +26,12 @@ import javax.sql.DataSource;
 import org.apache.commons.io.FilenameUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.etlserver.IDataSetUploader;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.db.IDatasetLoader;
 import ch.systemsx.cisd.yeastx.eicml.EICML2Database;
@@ -68,8 +67,7 @@ public class ML2DatabaseUploader implements IDataSetUploader
 
     public ML2DatabaseUploader(Properties properties)
     {
-        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(properties);
-        DataSource dataSource = dbContext.getDataSource();
+        DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         this.eicML2Database = new EICML2Database(dataSource);
         this.fiaML2Database = new FIAML2Database(dataSource);
         this.quantML2Database = new QuantML2Database(dataSource);

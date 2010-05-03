@@ -22,9 +22,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
-
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IChromatogramObserver;
@@ -54,7 +53,7 @@ public class EICML2Database extends AbstractDatasetLoader
 
     public EICML2Database(DataSource datasource)
     {
-        this.dao = QueryTool.getQuery(datasource, IEICMSRunDAO.class);
+        this.dao = DBUtils.getQuery(datasource, IEICMSRunDAO.class);
     }
 
     /**

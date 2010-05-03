@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.yeastx.server;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,11 +26,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
-
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSourceManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.eicml.ChromatogramDTO;
 import ch.systemsx.cisd.yeastx.eicml.EICMLChromatogramImageGenerator;
@@ -167,29 +166,18 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
         // Only initialize the dataSource once
         if (dataSource != null)
             return;
-
-        Properties dbProperties = new Properties();
-        String name;
-        while (parameterNames.hasMoreElements())
+        String dataSourceName = servletConfig.getInitParameter(DataSourceManager.DATA_SOURCE_KEY);
+        if (dataSourceName == null)
         {
-            name = parameterNames.nextElement();
-            dbProperties.setProperty(name, servletConfig.getInitParameter(name));
+            throw new ConfigurationFailureException("Data source not defined.");
         }
-
-        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(dbProperties);
-        this.dataSource = dbContext.getDataSource();
-
+        this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(dataSourceName);
     }
 
     // remember to close the query after using it!
     private IEICMSRunDAO createQuery()
     {
-        return createQuery(dataSource);
-    }
-
-    private static IEICMSRunDAO createQuery(DataSource dataSource)
-    {
-        return QueryTool.getQuery(dataSource, IEICMSRunDAO.class);
+        return DBUtils.getQuery(dataSource, IEICMSRunDAO.class);
     }
 
     @Override

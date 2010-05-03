@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 
 import net.lemnik.eodsql.DataIterator;
-import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.AssertJUnit;
@@ -32,6 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.yeastx.db.AbstractDBTest;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 
 /**
@@ -49,7 +49,7 @@ public class EICMLTest extends AbstractDBTest
     @BeforeMethod(alwaysRun = true)
     public void setDAO() throws SQLException
     {
-        eicmlDAO = QueryTool.getQuery(datasource, IEICMSRunDAO.class);
+        eicmlDAO = DBUtils.getQuery(datasource, IEICMSRunDAO.class);
     }
 
     @Test

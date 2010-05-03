@@ -22,9 +22,8 @@ import java.util.Iterator;
 
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
-
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.fiaml.FIAMLParser.IMSRunObserver;
@@ -78,7 +77,7 @@ public class FIAML2Database extends AbstractDatasetLoader
 
     public FIAML2Database(DataSource datasource)
     {
-        this.dao = QueryTool.getQuery(datasource, IFIAMSRunDAO.class);
+        this.dao = DBUtils.getQuery(datasource, IFIAMSRunDAO.class);
     }
 
     /**

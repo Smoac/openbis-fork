@@ -22,11 +22,10 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
-
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSourceManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
@@ -44,23 +43,19 @@ abstract public class AbstractEICMLDatastoreReportingPlugin extends AbstractData
     /** creates a report for specified datasets using a given DAO. */
     abstract protected TableModel createReport(List<DatasetDescription> datasets, IEICMSRunDAO query);
 
-    private final DataSource dataSource;
+    private final String dataSourceName;
 
     public AbstractEICMLDatastoreReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(properties);
-        this.dataSource = dbContext.getDataSource();
-    }
-
-    private IEICMSRunDAO createQuery()
-    {
-        return QueryTool.getQuery(dataSource, IEICMSRunDAO.class);
+        dataSourceName = DataSourceManager.extractDataSourceName(properties);
     }
 
     public TableModel createReport(List<DatasetDescription> datasets)
     {
-        IEICMSRunDAO query = createQuery();
+        DataSource dataSource =
+                ServiceProvider.getDataSourceProvider().getDataSource(dataSourceName);
+        IEICMSRunDAO query = DBUtils.getQuery(dataSource, IEICMSRunDAO.class);
         try
         {
             return createReport(datasets, query);

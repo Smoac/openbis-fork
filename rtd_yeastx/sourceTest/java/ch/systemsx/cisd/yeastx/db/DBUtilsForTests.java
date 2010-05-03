@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.yeastx.etl;
 
-import ch.systemsx.cisd.etlserver.plugins.DataSetDeletionMaintenanceTask;
+package ch.systemsx.cisd.yeastx.db;
+
+import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
- * Maintenance task deleting from metabol database data sets which have been deleted from openbis.
+ * Utilities for dealing with databases in tests.
  * 
  * @author Izabela Adamczyk
  */
-public class MetabolDatabaseUpdater extends DataSetDeletionMaintenanceTask
+@Friend(toClasses = MetabolDatabaseVersionHolder.class)
+public class DBUtilsForTests
 {
+
+    public static void init(DatabaseConfigurationContext context)
+    {
+        DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
+                MetabolDatabaseVersionHolder.DATABASE_VERSION);
+    }
 }

@@ -23,7 +23,6 @@ import java.io.File;
 import java.sql.SQLException;
 
 import net.lemnik.eodsql.DataIterator;
-import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.AfterMethod;
@@ -46,7 +45,7 @@ public class FIAMLTest extends AbstractDBTest
     @BeforeMethod(alwaysRun = true)
     public void setDAO() throws SQLException
     {
-        fiamsDAO = QueryTool.getQuery(datasource, IFIAMSRunDAO.class);
+        fiamsDAO = DBUtils.getQuery(datasource, IFIAMSRunDAO.class);
     }
 
     @AfterMethod(alwaysRun = true)

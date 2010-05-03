@@ -21,10 +21,8 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSourceManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -46,9 +44,14 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
 
     private static final long serialVersionUID = 1L;
 
+    private final String dataSourceName;
+
     public MLArchiverTask(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, null, null);
+        dataSourceName = DataSourceManager.extractDataSourceName(properties);
+        // Check if given data source exists
+        getDataSource(dataSourceName);
     }
 
     /**
@@ -57,7 +60,9 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     @Override
     protected void archive(DatasetDescription dataset) throws UserFailureException
     {
-        final IGenericDAO dao = createQuery(properties);
+
+        DataSource dataSource = getDataSource(dataSourceName);
+        final IGenericDAO dao = DBUtils.getQuery(dataSource, IGenericDAO.class);
         try
         {
             dao.deleteDataSet(dataset.getDatasetCode());
@@ -72,11 +77,9 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
         }
     }
 
-    private static IGenericDAO createQuery(Properties properties)
+    private static DataSource getDataSource(String dataSourceName)
     {
-        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(properties);
-        DataSource dataSource = dbContext.getDataSource();
-        return QueryTool.getQuery(dataSource, IGenericDAO.class);
+        return ServiceProvider.getDataSourceProvider().getDataSource(dataSourceName);
     }
 
     /**

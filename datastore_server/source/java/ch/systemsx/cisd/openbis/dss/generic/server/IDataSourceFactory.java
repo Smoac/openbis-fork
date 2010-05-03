@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.yeastx.etl;
+package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import ch.systemsx.cisd.etlserver.plugins.DataSetDeletionMaintenanceTask;
+import java.util.Properties;
 
-/**
- * Maintenance task deleting from metabol database data sets which have been deleted from openbis.
- * 
- * @author Izabela Adamczyk
- */
-public class MetabolDatabaseUpdater extends DataSetDeletionMaintenanceTask
+import javax.sql.DataSource;
+
+interface IDataSourceFactory
 {
+    DataSource create(Properties dbProps);
 }

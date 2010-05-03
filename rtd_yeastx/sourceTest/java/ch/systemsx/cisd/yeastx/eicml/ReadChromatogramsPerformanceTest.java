@@ -18,16 +18,16 @@ package ch.systemsx.cisd.yeastx.eicml;
 
 import java.sql.SQLException;
 
-import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.TransactionQuery;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.yeastx.db.AbstractDBTest;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
+import ch.systemsx.cisd.yeastx.db.DBUtilsForTests;
 
 /**
  * A performance test of reading all chromatograms from the database.
- *
+ * 
  * @author Bernd Rinn
  */
 public class ReadChromatogramsPerformanceTest
@@ -35,13 +35,14 @@ public class ReadChromatogramsPerformanceTest
 
     public static void main(String[] args) throws SQLException
     {
-        final DatabaseConfigurationContext context =  AbstractDBTest.createDefaultDBContext();
-        DBUtils.init(context);
+        final DatabaseConfigurationContext context = AbstractDBTest.createDefaultDBContext();
+        DBUtilsForTests.init(context);
         TransactionQuery transaction = null;
         long start = System.currentTimeMillis();
         try
         {
-            final IEICMSRunDAO dao = QueryTool.getQuery(context.getDataSource(), IEICMSRunDAO.class);
+            final IEICMSRunDAO dao =
+                    DBUtils.getQuery(context.getDataSource(), IEICMSRunDAO.class);
             for (EICMSRunDTO run : dao.getMsRuns())
             {
                 // We need to iterate over the chromatograms to make sure they are really read.

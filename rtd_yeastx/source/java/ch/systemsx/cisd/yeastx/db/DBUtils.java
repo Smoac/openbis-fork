@@ -16,66 +16,25 @@
 
 package ch.systemsx.cisd.yeastx.db;
 
-import java.util.Properties;
+import javax.sql.DataSource;
 
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.InvalidDataTypeException;
+import net.lemnik.eodsql.InvalidQueryException;
 import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.TransactionQuery;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-
 /**
- * Database utilities. Call {@link #init(DatabaseConfigurationContext)} before working with the
- * database.
+ * Database utilities.
  * 
  * @author Bernd Rinn
  */
 public class DBUtils
 {
-    /** Current version of the database. */
-    public static final String DATABASE_VERSION = "004";
-
-    private static final String DATABASE_PROPERTIES_PREFIX = "database.";
 
     static
     {
         QueryTool.getTypeMap().put(float[].class, new FloatArrayMapper());
-    }
-
-    public static DatabaseConfigurationContext createAndInitDBContext(Properties properties)
-    {
-        final Properties dbProps =
-                ExtendedProperties.getSubset(properties, DATABASE_PROPERTIES_PREFIX, true);
-        final DatabaseConfigurationContext dbContext = DBUtils.createDBContext(dbProps);
-        DBUtils.init(dbContext);
-        return dbContext;
-    }
-
-    public static DatabaseConfigurationContext createDBContext(Properties dbProps)
-    {
-        DatabaseConfigurationContext context =
-                BeanUtils.createBean(DatabaseConfigurationContext.class, dbProps);
-        if (context.getBasicDatabaseName() == null)
-        {
-            throw new EnvironmentFailureException("db basic name not specified in " + dbProps);
-        }
-        if (context.getDatabaseEngineCode() == null)
-        {
-            throw new EnvironmentFailureException("db engine code not specified in " + dbProps);
-        }
-        return context;
-    }
-
-    /**
-     * Checks the database specified by <var>context</var> and migrates it to the current version if
-     * necessary.
-     */
-    public static void init(DatabaseConfigurationContext context)
-    {
-        DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
     }
 
     /**
@@ -177,5 +136,15 @@ public class DBUtils
         long experimentId = dao.addExperiment(experiment);
         experiment.setId(experimentId);
         return experiment;
+    }
+
+    /**
+     * Use this method instead of {@link QueryTool#getQuery(DataSource, Class)} to initialize the
+     * {@link QueryTool#getTypeMap()}.
+     */
+    public static <T extends BaseQuery> T getQuery(final DataSource dataSource, final Class<T> query)
+            throws InvalidDataTypeException, InvalidQueryException
+    {
+        return QueryTool.getQuery(dataSource, query);
     }
 }

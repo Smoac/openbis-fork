@@ -22,9 +22,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
-
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.quant.dto.ConcentrationCompounds;
@@ -44,7 +43,7 @@ public class QuantML2Database extends AbstractDatasetLoader
 
     public QuantML2Database(DataSource datasource)
     {
-        this.dao = QueryTool.getQuery(datasource, IQuantMSDAO.class);
+        this.dao = DBUtils.getQuery(datasource, IQuantMSDAO.class);
     }
 
     /**

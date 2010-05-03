@@ -31,8 +31,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.etlserver.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -46,20 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
  */
 public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
 {
-
-    private static final String DATABASE_READ_WRITE_GROUP = "database.read-write-group";
-
-    private static final String DATABASE_READ_ONLY_GROUP = "database.read-only-group";
-
-    private static final String DATABASE_SCRIPT_FOLDER_KEY = "database.script-folder";
-
-    private static final String DATABASE_KIND = "database.kind";
-
-    private static final String BASIC_DATABASE_NAME_KEY = "database.basic-database-name";
-
-    private static final String DATABASE_ENGINE_KEY = "database.engine";
-
-    private static final String DEFAULT_DATABASE_ENGINE = "postgresql";
 
     private static final String DEFAULT_DATA_SET_PERM_ID = "PERM_ID";
 
@@ -107,50 +91,9 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
         dataSetTableName =
                 properties.getProperty(DATA_SET_TABLE_NAME_KEY, DEFAULT_DATA_SET_TABLE_NAME);
         permIDColumn = properties.getProperty(DATA_SET_PERM_ID_KEY, DEFAULT_DATA_SET_PERM_ID);
-        DatabaseConfigurationContext context = createDatabaseConfigurationContext(properties);
-        init(context);
-        this.dataSource = context.getDataSource();
+        this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         checkDatabseConnection();
         operationLog.info("Plugin initialized: " + pluginName);
-    }
-
-    /**
-     * Creates a database configuration context from the specified properties.
-     */
-    protected DatabaseConfigurationContext createDatabaseConfigurationContext(Properties properties)
-    {
-        DatabaseConfigurationContext configurationContext = new DatabaseConfigurationContext();
-        configurationContext.setDatabaseEngineCode(properties.getProperty(DATABASE_ENGINE_KEY,
-                DEFAULT_DATABASE_ENGINE));
-        configurationContext.setBasicDatabaseName(PropertyUtils.getMandatoryProperty(properties,
-                BASIC_DATABASE_NAME_KEY));
-        configurationContext.setDatabaseKind(PropertyUtils.getMandatoryProperty(properties,
-                DATABASE_KIND));
-        String scriptFolder = properties.getProperty(DATABASE_SCRIPT_FOLDER_KEY);
-        if (scriptFolder != null)
-        {
-            configurationContext.setScriptFolder(scriptFolder + "/sql");
-        }
-        String readOnlyGroup = properties.getProperty(DATABASE_READ_ONLY_GROUP);
-        if (readOnlyGroup != null)
-        {
-            configurationContext.setReadOnlyGroup(readOnlyGroup);
-        }
-        String readWriteGroup = properties.getProperty(DATABASE_READ_WRITE_GROUP);
-        if (readWriteGroup != null)
-        {
-            configurationContext.setReadWriteGroup(readWriteGroup);
-        }
-        return configurationContext;
-    }
-
-    /**
-     * Initializes the data base if necessary. This method should be overridden if needed because
-     * this implementation does nothing.
-     */
-    protected void init(DatabaseConfigurationContext databaseConfigurationContext)
-    {
-
     }
 
     private void checkDatabseConnection()

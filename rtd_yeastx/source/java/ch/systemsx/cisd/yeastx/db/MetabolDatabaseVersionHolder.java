@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.yeastx.etl;
 
-import ch.systemsx.cisd.etlserver.plugins.DataSetDeletionMaintenanceTask;
+package ch.systemsx.cisd.yeastx.db;
+
+import ch.systemsx.cisd.openbis.dss.generic.server.IDatabaseVersionHolder;
 
 /**
- * Maintenance task deleting from metabol database data sets which have been deleted from openbis.
+ * Stores current version of metabol database.
  * 
  * @author Izabela Adamczyk
  */
-public class MetabolDatabaseUpdater extends DataSetDeletionMaintenanceTask
+public class MetabolDatabaseVersionHolder implements IDatabaseVersionHolder
 {
+    /** Current version of the database. */
+    static final String DATABASE_VERSION = "004";
+
+    public String getDatabaseVersion()
+    {
+        return DATABASE_VERSION;
+    }
+
 }
