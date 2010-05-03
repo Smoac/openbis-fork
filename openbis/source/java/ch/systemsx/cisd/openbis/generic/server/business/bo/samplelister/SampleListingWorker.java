@@ -494,6 +494,7 @@ final class SampleListingWorker
     {
         final Sample sample = new Sample();
         sample.setId(row.id);
+        sample.setPermId(StringEscapeUtils.escapeHtml(row.perm_id));
         sample.setCode(IdentifierHelper.convertCode(row.code, null));
         sample.setSubCode(IdentifierHelper.convertSubCode(row.code));
         sample.setSampleType(sampleTypes.get(row.saty_id));
@@ -526,7 +527,6 @@ final class SampleListingWorker
         {
             // initializing property collection - without this enricher will not work properly
             sample.setProperties(new ArrayList<IEntityProperty>());
-            sample.setPermId(StringEscapeUtils.escapeHtml(row.perm_id));
             sample.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.SAMPLE,
                     row.perm_id));
             sample.setSearchlink(SearchlinkUtilities.createSearchlinkURL(baseIndexURL,
