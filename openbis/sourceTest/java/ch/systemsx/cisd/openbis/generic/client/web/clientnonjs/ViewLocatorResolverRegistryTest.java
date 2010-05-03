@@ -27,15 +27,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.IViewLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 
@@ -243,6 +244,34 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
 
     @SuppressWarnings("unchecked")
     @Test
+    public void testResolveProjectLocator()
+    {
+        initializeLocatorHandlerRegistry(registry);
+        final BasicProjectIdentifier identifier =
+                new BasicProjectIdentifier("SPACE_CODE", "PROJECT_CODE");
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(viewContext).getService();
+                    will(returnValue(commonService));
+
+                    one(commonService).getProjectInfo(with(identifier),
+                            with(Expectations.any(AbstractAsyncCallback.class)));
+                }
+
+            });
+
+        ViewLocator locator =
+                new ViewLocator("entity=PROJECT&space=" + identifier.getSpaceCode() + "&code="
+                        + identifier.getProjectCode());
+        OpenViewAction action = new OpenViewAction(registry, locator);
+        action.execute();
+
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
     public void testResolveSearchLocator()
     {
         initializeLocatorHandlerRegistry(registry);
@@ -318,14 +347,9 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
     // Helper method modeled after the implementation in Client
     protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry)
     {
-        IViewLocatorResolver handler;
-        handler = new MaterialLocatorResolver(viewContext);
-        handlerRegistry.registerHandler(handler);
-
-        handler = new PermlinkLocatorResolver(viewContext);
-        handlerRegistry.registerHandler(handler);
-
-        handler = new SearchLocatorResolver(viewContext);
-        handlerRegistry.registerHandler(handler);
+        handlerRegistry.registerHandler(new MaterialLocatorResolver(viewContext));
+        handlerRegistry.registerHandler(new ProjectLocatorResolver(viewContext));
+        handlerRegistry.registerHandler(new PermlinkLocatorResolver(viewContext));
+        handlerRegistry.registerHandler(new SearchLocatorResolver(viewContext));
     }
 }
