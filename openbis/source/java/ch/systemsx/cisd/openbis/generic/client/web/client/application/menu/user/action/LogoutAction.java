@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action;
 
+import com.google.gwt.user.client.History;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -37,6 +39,7 @@ public class LogoutAction implements IDelegatedAction
 
     public void execute()
     {
+        History.newItem(""); // clears history token in URL
         DisplaySettings displaySettings =
                 viewContext.getModel().getSessionContext().getDisplaySettings();
         viewContext.getService().logout(displaySettings, new LogoutCallback(viewContext));
