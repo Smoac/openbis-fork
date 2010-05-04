@@ -261,7 +261,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public void updateDataSetStatuses(String sessionToken, List<String> dataSetCodes,
             DataSetArchivingStatus newStatus) throws UserFailureException
     {
-        logTracking(sessionToken, "updateDataSetStatus", "DATA_SET_CODES(%s) STATUS(%s)",
-                dataSetCodes, newStatus);
+        logTracking(sessionToken, "updateDataSetStatus", "NO_OF_DATASETS(%s) STATUS(%s)",
+                dataSetCodes.size(), newStatus);
     }
 }
