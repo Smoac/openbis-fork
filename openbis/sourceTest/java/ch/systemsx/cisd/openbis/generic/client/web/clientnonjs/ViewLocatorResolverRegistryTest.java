@@ -224,7 +224,7 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    allowing(viewContext).getService();
+                    allowing(viewContext).getCommonService();
                     will(returnValue(commonService));
 
                     one(commonService).getMaterialInformationHolder(with(identifier),
