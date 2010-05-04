@@ -78,7 +78,7 @@
     
     <bean id="session-token-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager"/>
     
-    <bean id="data-source-provider" class="ch.systemsx.cisd.openbis.dss.generic.server.DataSourceProvider" />
+    <bean id="data-source-provider" class="ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider" />
     
     <!-- 
         // This discovers on-the-fly all <code>org.springframework.aop.Advisor</code> implementations.

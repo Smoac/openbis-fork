@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.openbis.dss.generic.server;
+package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.Properties;
 

@@ -22,8 +22,8 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataSourceManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -49,7 +49,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     public MLArchiverTask(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, null, null);
-        dataSourceName = DataSourceManager.extractDataSourceName(properties);
+        dataSourceName = DataSourceProvider.extractDataSourceName(properties);
         // Check if given data source exists
         getDataSource(dataSourceName);
     }

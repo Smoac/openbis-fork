@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server;
+package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,20 +65,20 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.
  * 
  * @author Izabela Adamczyk
  */
-public class DataSourceManager
+public class DataSourceProvider
 {
     static final String DATA_SOURCES_KEY = "data-sources";
 
     private static final String DATA_SOURCE_FACTORY_CLASS_KEY = "factory-class";
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DataSourceManager.class);
+            LogFactory.getLogger(LogCategory.OPERATION, DataSourceProvider.class);
 
     private final Map<String, DataSource> dataSources;
 
     public static final String DATA_SOURCE_KEY = "data-source";
 
-    private DataSourceManager()
+    private DataSourceProvider()
     {
         Properties properties = PropertyParametersUtil.loadServiceProperties();
         dataSources = new HashMap<String, DataSource>();

@@ -29,7 +29,7 @@ import javax.sql.DataSource;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataSourceManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.eicml.ChromatogramDTO;
@@ -166,7 +166,7 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
         // Only initialize the dataSource once
         if (dataSource != null)
             return;
-        String dataSourceName = servletConfig.getInitParameter(DataSourceManager.DATA_SOURCE_KEY);
+        String dataSourceName = servletConfig.getInitParameter(DataSourceProvider.DATA_SOURCE_KEY);
         if (dataSourceName == null)
         {
             throw new ConfigurationFailureException("Data source not defined.");

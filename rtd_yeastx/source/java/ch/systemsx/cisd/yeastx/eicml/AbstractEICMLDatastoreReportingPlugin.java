@@ -22,9 +22,9 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.DataSourceManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -48,7 +48,7 @@ abstract public class AbstractEICMLDatastoreReportingPlugin extends AbstractData
     public AbstractEICMLDatastoreReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        dataSourceName = DataSourceManager.extractDataSourceName(properties);
+        dataSourceName = DataSourceProvider.extractDataSourceName(properties);
     }
 
     public TableModel createReport(List<DatasetDescription> datasets)

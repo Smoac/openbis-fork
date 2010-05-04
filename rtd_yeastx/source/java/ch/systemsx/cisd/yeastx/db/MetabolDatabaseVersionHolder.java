@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.yeastx.db;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.IDatabaseVersionHolder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
 
 /**
  * Stores current version of metabol database.

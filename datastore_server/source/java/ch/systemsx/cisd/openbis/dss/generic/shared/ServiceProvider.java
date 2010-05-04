@@ -22,7 +22,6 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.DataSourceManager;
 
 /**
  * Provider of remote service onto openBIS.
@@ -60,9 +59,9 @@ public class ServiceProvider
                 .getBean("data-store-rpc-service-generic"));
     }
 
-    public static DataSourceManager getDataSourceProvider()
+    public static DataSourceProvider getDataSourceProvider()
     {
-        return ((DataSourceManager) APPLICATION_CONTEXT.getBean("data-source-provider"));
+        return ((DataSourceProvider) APPLICATION_CONTEXT.getBean("data-source-provider"));
     }
 
     private ServiceProvider()
