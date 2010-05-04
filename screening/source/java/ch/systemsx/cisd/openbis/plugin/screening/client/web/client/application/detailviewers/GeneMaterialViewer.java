@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.applic
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -221,7 +222,7 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
         Widget plateLink = createEntityLink(wellContent.getPlate());
         container.add(withLabel(plateLink, "Plate: ", margin));
 
-        Widget wellLink = createEntityLink(wellContent.getWell());
+        Widget wellLink = createLabel(wellContent.getWell());
         container.add(withLabel(wellLink, "Well: ", margin));
 
         Widget contentLink = createEntityLink(wellContent.getMaterialContent());
@@ -230,7 +231,7 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
         DatasetImagesReference images = wellContent.tryGetImages();
         if (images != null)
         {
-            Widget datasetLink = createEntityLink(images.getDatasetReference(), "browse");
+            Widget datasetLink = createEntityLink(images.getDatasetReference(), "show all images");
             container.add(withLabel(datasetLink, "Dataset: ", margin));
 
             container.add(createImageViewer(images, wellContent.tryGetLocation(), channel));
@@ -238,7 +239,8 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
         return container;
     }
 
-    private Widget createImageViewer(DatasetImagesReference images, WellLocation locationOrNull, int channel)
+    private Widget createImageViewer(DatasetImagesReference images, WellLocation locationOrNull,
+            int channel)
     {
         if (locationOrNull == null)
         {
@@ -251,6 +253,11 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
         WellImages wellImages = new WellImages(images, locationOrNull);
         return WellContentDialog.createTilesGrid(wellImages, channel, viewContext, IMAGE_WIDTH_PX,
                 IMAGE_HEIGHT_PX);
+    }
+
+    private Widget createLabel(IEntityInformationHolder entityInformationHolder)
+    {
+        return new Label(entityInformationHolder.getCode());
     }
 
     private Widget createEntityLink(IEntityInformationHolder entityInformationHolder)
