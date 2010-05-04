@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
@@ -34,10 +35,9 @@ public interface IQueryApiFacade
     public List<QueryDescription> listQueries();
 
     /**
-     * Executes specified query by using specified parameter values.
+     * Executes specified query by using specified parameter bindings.
      */
-    public QueryTableModel executeQuery(QueryDescription queryDescription,
-            List<String> parameterValues);
+    public QueryTableModel executeQuery(long queryID, Map<String, String> parameterBindings);
 
     /**
      * Logs current user out.

@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
@@ -49,15 +49,8 @@ class QueryApiFacade implements IQueryApiFacade
         return service.listQueries(sessionToken);
     }
     
-    public QueryTableModel executeQuery(QueryDescription queryDescription, List<String> parameterValues)
+    public QueryTableModel executeQuery(long queryID, Map<String, String> parameterBindings)
     {
-        long id = queryDescription.getId();
-        HashMap<String, String> parameterBindings = new HashMap<String, String>();
-        List<String> parameters = queryDescription.getParameters();
-        for (int i = 0, n = parameters.size(); i < n; i++)
-        {
-            parameterBindings.put(parameters.get(i), parameterValues.get(i));
-        }
-        return service.executeQuery(sessionToken, id, parameterBindings);
+        return service.executeQuery(sessionToken, queryID, parameterBindings);
     }
 }
