@@ -155,7 +155,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         try
         {
-            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -177,7 +177,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         try
         {
-            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -195,7 +195,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         try
         {
-            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -226,7 +226,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         try
         {
-            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
             fail("EnvironmentFailureException expected");
         } catch (EnvironmentFailureException ex)
         {
@@ -258,7 +258,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         
         try
         {
-            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -289,7 +289,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1, fl2));
         prepareGetProperties(Arrays.asList(fl1, fl2));
 
-        flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+        flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
 
         checkFlowLaneDataSet(originalFlowLane1, "1");
         checkFlowLaneDataSet(originalFlowLane2, "2");
@@ -328,7 +328,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1, fl2));
         prepareGetProperties(Arrays.asList(fl1, fl2));
 
-        flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+        flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
 
         checkFlowLaneDataSet(originalFlowLane1, "1");
         checkFlowLaneDataSet(originalFlowLane2, "2");
@@ -367,7 +367,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         try
         {
-            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {

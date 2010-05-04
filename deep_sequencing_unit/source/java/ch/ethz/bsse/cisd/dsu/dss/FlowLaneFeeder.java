@@ -145,7 +145,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         }
     }
 
-    public Status handle(File originalData, DataSetInformation dataSetInformation)
+    public Status handle(File originalData, DataSetInformation dataSetInformation, Map<String, String> parameterBindings)
     {
         Map<String, Sample> flowLaneSampleMap = createFlowLaneSampleMap(dataSetInformation);
         String flowcellID = originalData.getName();
