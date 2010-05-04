@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
@@ -207,20 +208,19 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 {
                     final Project project = (Project) model.get(ModelDataPropertyNames.OBJECT);
 
+                    final ClickHandler listener = new ClickHandler()
+                        {
+                            public void onClick(ClickEvent event)
+                            {
+                                OpenEntityDetailsTabHelper.open(viewContext, project, WidgetUtils
+                                        .ifSpecialKeyPressed(event.getNativeEvent()));
+                            }
+                        };
+                    String href = LinkExtractor.tryExtract(project);
                     final Widget detailsLink =
                             LinkRenderer.getLinkWidget(viewContext
                                     .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_LABEL),
-                                    new ClickHandler()
-                                        {
-
-                                            public void onClick(ClickEvent event)
-                                            {
-                                                showProjectDetailsView(project,
-                                                        WidgetUtils.ifSpecialKeyPressed(event
-                                                                .getNativeEvent()));
-                                            }
-
-                                        });
+                                    listener, false, href != null ? "#" + href : null);
                     detailsLink.setTitle(viewContext
                             .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP));
                     projectLinks.put(project, detailsLink);
@@ -302,11 +302,6 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         columnConfig.setMenuDisabled(true);
         columnConfig.setSortable(true);
         return columnConfig;
-    }
-
-    private void showProjectDetailsView(final Project project, boolean keyPressed)
-    {
-        OpenEntityDetailsTabHelper.open(viewContext, project, keyPressed);
     }
 
     /**
