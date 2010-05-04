@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -79,14 +80,15 @@ public interface IDataStoreService
             List<DatasetDescription> datasets);
 
     /**
-     * Schedules the processing task with the specified id for provided datasets.
+     * Schedules the processing task with the specified id for provided datasets and specified
+     * parameter bindings.
      * 
      * @param userEmailOrNull Email of user who initiated processing and will get a message after
      *            the processing is finished. It may be null if the user doesn't have email and no
      *            message will be send in such case.
      */
     public void processDatasets(String sessionToken, String serviceKey,
-            List<DatasetDescription> datasets, String userEmailOrNull);
+            List<DatasetDescription> datasets, Map<String, String> parameterBindings, String userEmailOrNull);
 
     /**
      * Schedules archiving of provided datasets.

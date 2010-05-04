@@ -128,6 +128,7 @@ public class AdminConsole
     private static Map<String, ICommand> createCommands()
     {
         HashMap<String, ICommand> map = new HashMap<String, ICommand>();
+        map.put("register-property-type", new RegisterPropertyType());
         map.put("register-type", new RegisterType());
         map.put("assign-to", new Assignment());
         map.put("set", new Set());

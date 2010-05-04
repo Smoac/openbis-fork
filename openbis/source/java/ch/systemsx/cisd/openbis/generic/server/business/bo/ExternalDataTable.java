@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -394,7 +395,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     }
 
     public void processDatasets(String datastoreServiceKey, String datastoreCode,
-            List<String> datasetCodes)
+            List<String> datasetCodes, Map<String, String> parameterBindings)
     {
         DataStorePE dataStore = findDataStore(datastoreCode);
         IDataStoreService service = tryGetDataStoreService(dataStore);
@@ -404,7 +405,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
         List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
-        service.processDatasets(sessionToken, datastoreServiceKey, locations,
+        parameterBindings.put(Constants.USER_PARAMETER, session.tryGetPerson().getUserId());
+        service.processDatasets(sessionToken, datastoreServiceKey, locations, parameterBindings, 
                 tryGetLoggedUserEmail());
     }
 

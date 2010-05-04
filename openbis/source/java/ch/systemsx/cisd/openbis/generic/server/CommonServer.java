@@ -1627,8 +1627,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
+        Map<String, String> parameterBindings = new HashMap<String, String>();
         externalDataTable.processDatasets(serviceDescription.getKey(), serviceDescription
-                .getDatastoreCode(), datasetCodes);
+                .getDatastoreCode(), datasetCodes, parameterBindings);
     }
 
     public void registerAuthorizationGroup(String sessionToken,

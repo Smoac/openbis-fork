@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -105,8 +106,12 @@ public interface IExternalDataTable
     TableModel createReportFromDatasets(String datastoreServiceKey, String datastoreCode,
             List<String> datasetCodes);
 
-    /** Schedules processing of specified datasets using the specified datastore service. */
-    void processDatasets(String datastoreServiceKey, String datastoreCode, List<String> datasetCodes);
+    /**
+     * Schedules processing of specified datasets with specified parameter bindings using the
+     * specified datastore service.
+     */
+    void processDatasets(String datastoreServiceKey, String datastoreCode,
+            List<String> datasetCodes, Map<String, String> parameterBindings);
 
     /**
      * Loads data sets that belong to chosen data store.
