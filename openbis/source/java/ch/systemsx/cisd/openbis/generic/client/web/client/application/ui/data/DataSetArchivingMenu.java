@@ -219,7 +219,7 @@ public class DataSetArchivingMenu extends MenuItem
             boolean computeOnSelected)
     {
         return AsyncCallbackWithProgressBar.decorate(new ArchivingDisplayCallback(viewContext,
-                actionName, computeOnSelected), "Schedulling " + actionName + "...");
+                actionName, computeOnSelected), "Scheduling " + actionName + "...");
     }
 
     private final class ArchivingDisplayCallback extends AbstractAsyncCallback<ArchivingResult>
