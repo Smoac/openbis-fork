@@ -18,6 +18,7 @@ package eu.basysbio.cisd.dss;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -46,9 +47,9 @@ public class TimeSeriesPropertiesUpdateProcessingPlugin extends AbstractDatastor
 
     private static final long serialVersionUID = 1L;
 
-    public ProcessingStatus process(List<DatasetDescription> datasets)
+    public ProcessingStatus process(List<DatasetDescription> datasets,
+            Map<String, String> parameterBindings)
     {
-
         final ProcessingStatus result = new ProcessingStatus();
         for (DatasetDescription dataset : datasets)
         {

@@ -250,7 +250,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
 
         try
         {
-            handler.handle(file, dataSetInformation);
+            handler.handle(file, dataSetInformation, null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -282,7 +282,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
 
         try
         {
-            handler.handle(file, createDataSetInformation(DataSetHandler.TIME_SERIES));
+            handler.handle(file, createDataSetInformation(DataSetHandler.TIME_SERIES), null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -315,7 +315,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
 
         try
         {
-            handler.handle(file, dataSetInformation);
+            handler.handle(file, dataSetInformation, null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -369,7 +369,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 "GM_BR_B1"));
         try
         {
-            handler.handle(file, dataSetInformation);
+            handler.handle(file, dataSetInformation, null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -476,7 +476,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 createDataSetInformation(DataSetHandler.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
                 "GM_BR_B1"));
-        handler.handle(file, dataSetInformation);
+        handler.handle(file, dataSetInformation, null);
 
         File dataSet = new File(dropBox, DATA_SET_EX_200);
         assertEquals(true, dataSet.isDirectory());

@@ -17,6 +17,7 @@
 package eu.basysbio.cisd.dss;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -107,10 +108,10 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     public void upload(File dataSet, DataSetInformation dataSetInformation)
             throws EnvironmentFailureException
     {
-        handle(dataSet, dataSetInformation);
+        handle(dataSet, dataSetInformation, null);
     }
 
-    public Status handle(File originalData, DataSetInformation dataSetInformation)
+    public Status handle(File originalData, DataSetInformation dataSetInformation, Map<String, String> parameterBindings)
     {
         uploader = createUploader(dataSetInformation);
         uploader.upload(originalData, dataSetInformation, dropBoxFeeder);
