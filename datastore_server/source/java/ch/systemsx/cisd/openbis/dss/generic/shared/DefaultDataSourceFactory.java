@@ -28,7 +28,8 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
  * Creates a {@link DataSource} using {@link DatabaseConfigurationContext} and given properties. The
- * database is migrated to the version specified by {@link #VERSION_HOLDER_CLASS_KEY} property.
+ * database is migrated to the version specified by {@link #VERSION_HOLDER_CLASS_KEY} property
+ * if specified.
  * 
  * @author Izabela Adamczyk
  */
@@ -50,15 +51,13 @@ public class DefaultDataSourceFactory implements IDataSourceFactory
             throw new ConfigurationFailureException("db engine code not specified in " + dbProps);
         }
         String versionClass = dbProps.getProperty(VERSION_HOLDER_CLASS_KEY);
-        if (versionClass == null)
+        if (versionClass != null)
         {
-            throw new ConfigurationFailureException("version holder class not specified in "
-                    + dbProps);
-        }
-        IDatabaseVersionHolder versionHolder =
+            IDatabaseVersionHolder versionHolder =
                 ClassUtils.create(IDatabaseVersionHolder.class, versionClass);
-        String version = versionHolder.getDatabaseVersion();
-        DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, version);
+            String version = versionHolder.getDatabaseVersion();
+            DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, version);
+        }
         return context.getDataSource();
     }
 }
