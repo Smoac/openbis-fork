@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,13 +273,37 @@ public final class PredicateExecutor
         @SuppressWarnings("unchecked")
         public List<DataSetAccessPE> tryGetDatasetCollectionAccessData(List<String> dataSetCodes)
         {
+
             Session sess = daoFactory.getSessionFactory().getCurrentSession();
             Query query = sess.getNamedQuery(DataSetAccessPE.DATASET_ACCESS_QUERY_NAME);
             query = query.setReadOnly(true);
-            List<DataSetAccessPE> results =
-                    query.setParameterList(DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME,
-                            dataSetCodes).list();
-            return results;
+
+            // WORKAROUND Problem in Hibernate when the number of data set codes > 1000
+            // Though this query runs quickly within the pgadmin tool, even for large numbers of
+            // data set codes, Hibernate becomes *very* slow when the size of the data set codes
+            // exceeds 1000. For that reason, break down the query into smaller sections and
+            // reassemble the results.
+            ArrayList<DataSetAccessPE> fullResults = new ArrayList<DataSetAccessPE>();
+
+            int size = dataSetCodes.size();
+            // blockSize is a magic number -- I don't know what the optimal value is, but execution
+            // speed slows down if the blockSize > 1999
+            int blockSize = 999;
+            int start, end;
+
+            // Loop over the codes, one block at a time
+            for (start = 0, end = Math.min(start + blockSize, size); start < size; start = end, end =
+                    Math.min(start + blockSize, size))
+            {
+                List<String> sublist = dataSetCodes.subList(start, end);
+                query =
+                        query.setParameterList(DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME,
+                                sublist);
+                List<DataSetAccessPE> results = query.list();
+                fullResults.addAll(results);
+            }
+
+            return fullResults;
         }
 
         public GroupPE tryToGetGroup(SpaceOwnerKind kind, TechId techId)

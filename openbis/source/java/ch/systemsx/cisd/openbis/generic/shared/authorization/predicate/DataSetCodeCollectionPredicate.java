@@ -52,11 +52,6 @@ public class DataSetCodeCollectionPredicate extends AbstractGroupPredicate<List<
             return Status.OK;
         }
 
-        if (accessData.size() < dataSetCodes.size())
-        {
-            return Status.createError("Could not get access data for all datasets");
-        }
-
         for (DataSetAccessPE accessDatum : accessData)
         {
             String dbInstanceUUID = accessDatum.getDatabaseInstanceUuid();

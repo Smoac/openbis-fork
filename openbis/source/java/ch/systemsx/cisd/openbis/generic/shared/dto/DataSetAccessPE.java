@@ -31,25 +31,15 @@ import javax.persistence.SqlResultSetMapping;
 @Entity
 @SqlResultSetMapping(name = "implicit", entities = @EntityResult(entityClass = DataSetAccessPE.class))
 @NamedNativeQuery(name = "dataset_access", query = "select "
-        + "ds.id as dataSetId, ds.code as dataSetCode, g.code as groupCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
-        + "from "
-        + TableNames.DATA_TABLE
-        + " ds, "
-        + TableNames.EXPERIMENTS_TABLE
-        + " e, "
-        + TableNames.PROJECTS_TABLE
-        + " p, "
-        + TableNames.GROUPS_TABLE
-        + " g, "
-        + TableNames.DATABASE_INSTANCES_TABLE
-        + " dbi "
-        + "where ds.code in (:codes) and e.id = ds.expe_id and p.id = e.proj_id and g.id = p.grou_id and dbi.id = g.dbin_id", resultSetMapping = "implicit")
+        + "g.code as groupCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
+        + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.GROUPS_TABLE + " g, "
+        + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
+        + "(select e.proj_id from " + TableNames.DATA_TABLE + " ds, "
+        + TableNames.EXPERIMENTS_TABLE + " e "
+        + "where ds.code in (:codes) and ds.expe_id = e.id group by e.proj_id) "
+        + "and p.grou_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "implicit")
 public class DataSetAccessPE
 {
-    private String dataSetId;
-
-    private String dataSetCode;
-
     private String groupCode;
 
     private String databaseInstanceUuid;
@@ -68,22 +58,10 @@ public class DataSetAccessPE
             String databaseInstanceCode)
     {
         DataSetAccessPE newMe = new DataSetAccessPE();
-        newMe.setDataSetId(dataSetId);
-        newMe.setDataSetCode(dataSetCode);
         newMe.setGroupCode(groupCode);
         newMe.setDatabaseInstanceUuid(databaseInstanceUuid);
         newMe.setDatabaseInstanceCode(databaseInstanceCode);
         return newMe;
-    }
-
-    void setDataSetId(String dataSetId)
-    {
-        this.dataSetId = dataSetId;
-    }
-
-    void setDataSetCode(String dataSetCode)
-    {
-        this.dataSetCode = dataSetCode;
     }
 
     void setGroupCode(String groupCode)
@@ -102,16 +80,6 @@ public class DataSetAccessPE
     }
 
     @Id
-    public String getDataSetId()
-    {
-        return dataSetId;
-    }
-
-    public String getDataSetCode()
-    {
-        return dataSetCode;
-    }
-
     public String getGroupCode()
     {
         return groupCode;
