@@ -352,6 +352,10 @@ public class SampleBrowserGrid extends
     // adds show, show-details and invalidate buttons
     protected void extendBottomToolbar()
     {
+        if (viewContext.isSimpleMode())
+        {
+            return;
+        }
         addEntityOperationsLabel();
         addEntityOperationButtons();
         addEntityOperationsSeparator();

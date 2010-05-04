@@ -65,8 +65,6 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     private final IViewContext<?> viewContext;
 
-    protected Button editButton;
-
     private LabelToolItem titleLabel;
 
     private D originalData;
@@ -89,8 +87,10 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             titleLabel = new LabelToolItem(title);
             toolBar.add(titleLabel);
             toolBar.add(new FillToolItem());
-            editButton = createEditButton();
-            addToolBarButton(editButton);
+            if (viewContext.isSimpleMode() == false)
+            {
+                addToolBarButton(createEditButton());
+            }
         }
     }
 

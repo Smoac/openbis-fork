@@ -78,6 +78,10 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
 
     private void extendToolBar()
     {
+        if (viewContext.isSimpleMode())
+        {
+            return;
+        }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
                 public void execute()

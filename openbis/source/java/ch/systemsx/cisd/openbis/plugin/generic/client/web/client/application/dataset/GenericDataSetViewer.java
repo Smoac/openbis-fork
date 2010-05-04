@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -45,8 +43,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActi
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
@@ -72,8 +68,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     public static final String VIEW_BUTTON_ID_SUFFIX = "_view-button";
-
-    private final BrowseButtonHolder browseButtonHolder;
 
     private final ProcessButtonHolder processButtonHolder;
 
@@ -105,7 +99,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         setLayout(new BorderLayout());
         this.viewContext = viewContext;
         this.datasetId = TechId.create(identifiable);
-        this.browseButtonHolder = new BrowseButtonHolder();
         this.processButtonHolder = new ProcessButtonHolder();
         extendToolBar();
     }
@@ -124,8 +117,10 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
 
     private void extendToolBar()
     {
-        addToolBarButton(browseButtonHolder.getButton());
-
+        if (viewContext.isSimpleMode())
+        {
+            return;
+        }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
                 public void execute()
@@ -147,11 +142,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     public static final String createId(final TechId datasetId)
     {
         return ID_PREFIX + datasetId;
-    }
-
-    private final String createChildId(String childIdSuffix)
-    {
-        return getId() + childIdSuffix;
     }
 
     /**
@@ -274,7 +264,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     protected void updateOriginalData(final ExternalData result)
     {
         super.updateOriginalData(result);
-        browseButtonHolder.setupData(result);
         processButtonHolder.setupData(result);
     }
 
@@ -292,47 +281,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         reloadAllData(); // reloads everything
-    }
-
-    /**
-     * Holder of a {@link Button} that goes to external data browsing on selection. The button is
-     * disabled until data is successfully loaded by the viewer.
-     */
-    private class BrowseButtonHolder
-    {
-        private final Button button;
-
-        public BrowseButtonHolder()
-        {
-            this.button = createBrowseButton();
-        }
-
-        private Button createBrowseButton()
-        {
-            Button result = new Button(viewContext.getMessage(Dict.BUTTON_VIEW));
-            GWTUtils.setToolTip(result, viewContext.getMessage(Dict.TOOLTIP_VIEW_DATASET));
-            result.setId(createChildId(VIEW_BUTTON_ID_SUFFIX));
-            result.disable();
-            return result;
-        }
-
-        public Button getButton()
-        {
-            return this.button;
-        }
-
-        /** @param data external data that will be browsed after selection */
-        public void setupData(final ExternalData data)
-        {
-            button.addSelectionListener(new SelectionListener<ButtonEvent>()
-                {
-                    @Override
-                    public void componentSelected(ButtonEvent ce)
-                    {
-                        DataSetUtils.showDataSet(data, viewContext.getModel());
-                    }
-                });
-        }
     }
 
     /**

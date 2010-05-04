@@ -146,6 +146,10 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
 
     private void extendToolBar()
     {
+        if (viewContext.isSimpleMode())
+        {
+            return;
+        }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
                 public void execute()

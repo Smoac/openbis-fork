@@ -182,30 +182,34 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 createSelectedItemButton(showAllVersionsTitle, asShowEntityInvoker(false));
         addButton(showAllVersionsButton);
 
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                new ISelectedEntityInvoker<BaseEntityModel<AttachmentVersions>>()
-                    {
-
-                        public void invoke(BaseEntityModel<AttachmentVersions> selectedItem,
-                                boolean keyPressed)
+        if (viewContext.isSimpleMode() == false)
+        {
+            addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                    new ISelectedEntityInvoker<BaseEntityModel<AttachmentVersions>>()
                         {
-                            AttachmentVersions versions = selectedItem.getBaseObject();
-                            createEditAttachmentDialog(versions).show();
 
-                        }
-                    }));
-        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
-                new AbstractCreateDialogListener()
-                    {
-                        @Override
-                        protected Dialog createDialog(List<AttachmentVersions> attachmentVersions,
-                                IBrowserGridActionInvoker invoker)
+                            public void invoke(BaseEntityModel<AttachmentVersions> selectedItem,
+                                    boolean keyPressed)
+                            {
+                                AttachmentVersions versions = selectedItem.getBaseObject();
+                                createEditAttachmentDialog(versions).show();
+
+                            }
+                        }));
+            addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                    new AbstractCreateDialogListener()
                         {
-                            return new AttachmentListDeletionConfirmationDialog(viewContext,
-                                    attachmentVersions, createDeletionCallback(invoker),
-                                    attachmentHolder);
-                        }
-                    }));
+                            @Override
+                            protected Dialog createDialog(
+                                    List<AttachmentVersions> attachmentVersions,
+                                    IBrowserGridActionInvoker invoker)
+                            {
+                                return new AttachmentListDeletionConfirmationDialog(viewContext,
+                                        attachmentVersions, createDeletionCallback(invoker),
+                                        attachmentHolder);
+                            }
+                        }));
+        }
         allowMultipleSelection(); // we allow deletion of multiple attachments
 
         addEntityOperationsSeparator();

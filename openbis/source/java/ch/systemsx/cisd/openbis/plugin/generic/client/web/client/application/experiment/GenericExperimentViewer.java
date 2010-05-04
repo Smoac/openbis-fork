@@ -103,6 +103,10 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
     private void extendToolBar()
     {
+        if (viewContext.isSimpleMode())
+        {
+            return;
+        }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
                 public void execute()

@@ -160,6 +160,11 @@ public class ExperimentBrowserGrid extends
 
     private void extendBottomToolbar()
     {
+        if (viewContext.isSimpleMode())
+        {
+            return;
+        }
+
         addEntityOperationsLabel();
 
         final Button addButton =

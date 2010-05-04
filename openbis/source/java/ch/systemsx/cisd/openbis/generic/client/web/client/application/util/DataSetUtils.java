@@ -35,12 +35,6 @@ public class DataSetUtils
 
     private static final String MODE = "mode";
 
-    public static void showDataSet(ExternalData dataSet, GenericViewModel model)
-    {
-        String url = createDataViewUrl(dataSet, model, null, false);
-        WindowUtils.openWindow(url);
-    }
-
     public static String createDataViewUrl(ExternalData dataSet, GenericViewModel model,
             String modeOrNull, boolean autoResolve)
     {
