@@ -123,8 +123,9 @@ public class LinkRenderer
 
     /**
      * @return {@link Anchor} GWT widget that is displayed as a link with given <var>text</var> and
-     *         a <var>listener</var> registered on the click event. The link display style is
-     *         default (not invalidated).
+     *         a <var>listener</var> registered on the click event.
+     *         <p>
+     *         The link display style is default (not invalidated).
      */
     public static Widget getLinkWidget(final String text, final ClickHandler listener)
     {
@@ -132,9 +133,12 @@ public class LinkRenderer
     }
 
     /**
-     * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>
-     *         and if simple mode is not active a <var>listener</var> registered on the click event.
-     *         If <var>historyHref</var> is not null it will be attached to the link after '#'.
+     * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>.
+     *         If <var>historyHref</var> is not null and simple view mode is active
+     *         <var>historyHref</var> will be appended to the link after '#'. Otherwise if
+     *         <var>listener</var> is not null it will be registered on the click event.
+     *         <p>
+     *         The link display style is default (not invalidated).
      */
     public static Widget getLinkWidget(final String text, final ClickHandler listener,
             final String historyHref)
@@ -143,8 +147,11 @@ public class LinkRenderer
     }
 
     /**
-     * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>
-     *         and if simple mode is not active a <var>listener</var> registered on the click event.
+     * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>.
+     *         If <var>historyHref</var> is not null and simple view mode is active
+     *         <var>historyHref</var> will be appended to the link after '#'. Otherwise if
+     *         <var>listener</var> is not null it will be registered on the click event.
+     *         <p>
      *         The link display style is based on <var>invalidate</var> (default style is for
      *         false).
      */
