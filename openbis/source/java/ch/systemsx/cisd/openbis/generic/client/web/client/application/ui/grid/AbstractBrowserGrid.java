@@ -104,7 +104,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
@@ -315,7 +315,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         entityType);
-        final IClientPlugin<BasicEntityType, IIdentifiable> createClientPlugin =
+        final IClientPlugin<BasicEntityType, IIdAndCodeHolder> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         if (editMode)
         {

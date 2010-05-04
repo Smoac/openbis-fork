@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -89,14 +89,14 @@ public final class GenericDataSetEditForm extends
     private ExternalData originalDataSet;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdAndCodeHolder identifiable)
     {
         GenericDataSetEditForm form = new GenericDataSetEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericDataSetEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifiable identifiable)
+            IIdAndCodeHolder identifiable)
     {
         super(viewContext, identifiable, EntityKind.DATA_SET);
         simpleId = createSimpleId(identifiable, EntityKind.DATA_SET);

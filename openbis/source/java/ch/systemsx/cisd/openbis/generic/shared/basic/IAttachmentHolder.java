@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 /**
  * @author Izabela Adamczyk
  */
-public interface IAttachmentHolder extends IIdentifiable
+public interface IAttachmentHolder extends IIdAndCodeHolder
 {
     public AttachmentHolderKind getAttachmentHolderKind();
 }

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * 
  * @author Piotr Buczek
  */
-public interface ISpaceUpdates extends IIdHolder, ICodeProvider
+public interface ISpaceUpdates extends IIdHolder, ICodeHolder
 {
     String getDescription();
 }

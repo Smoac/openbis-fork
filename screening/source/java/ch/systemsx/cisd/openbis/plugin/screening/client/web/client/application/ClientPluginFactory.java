@@ -36,8 +36,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -100,7 +100,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends BasicEntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
+    public <T extends BasicEntityType, I extends IIdAndCodeHolder> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind)
     {
         ScreeningViewContext viewContext = getViewContext();
@@ -133,14 +133,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
 
         @Override
         public final AbstractTabItemFactory createEntityViewer(final BasicEntityType materialType,
-                final IIdentifiable materialId)
+                final IIdAndCodeHolder materialId)
         {
             return createGeneMaterialViewerTabFactory(materialId, null, getViewContext());
         }
     }
 
     /** opens gene viewer with a selected experiment */
-    public static final void openGeneMaterialViewer(final IIdentifiable materialId,
+    public static final void openGeneMaterialViewer(final IIdAndCodeHolder materialId,
             final ExperimentIdentifier experimentIdentifier,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
@@ -151,7 +151,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     private static final AbstractTabItemFactory createGeneMaterialViewerTabFactory(
-            final IIdentifiable materialId, final ExperimentIdentifier experimentIdentifierOrNull,
+            final IIdAndCodeHolder materialId, final ExperimentIdentifier experimentIdentifierOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         return new AbstractTabItemFactory()
@@ -179,7 +179,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             };
     }
 
-    private static ITabItem createMaterialViewerTab(final IIdentifiable materialId,
+    private static ITabItem createMaterialViewerTab(final IIdAndCodeHolder materialId,
             final DatabaseModificationAwareComponent viewer, IViewContext<?> viewContext)
     {
         return createViewerTab(viewer, materialId, Dict.MATERIAL, viewContext);
@@ -197,7 +197,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
 
         @Override
         public final AbstractTabItemFactory createEntityViewer(final BasicEntityType dataSetType,
-                final IIdentifiable identifiable)
+                final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {
@@ -238,7 +238,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
 
         @Override
         public final AbstractTabItemFactory createEntityViewer(final BasicEntityType sampleType,
-                final IIdentifiable identifiable)
+                final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {
@@ -280,13 +280,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     private static ITabItem createViewerTab(DatabaseModificationAwareComponent viewer,
-            ICodeProvider codeProvider, String dictTitleKey, IViewContext<?> viewContext)
+            ICodeHolder codeProvider, String dictTitleKey, IViewContext<?> viewContext)
     {
         String title = getViewerTitle(dictTitleKey, codeProvider, viewContext);
         return DefaultTabItem.create(title, viewer, viewContext, false);
     }
 
-    private static String getViewerTitle(String dictTitleKey, ICodeProvider codeProvider,
+    private static String getViewerTitle(String dictTitleKey, ICodeHolder codeProvider,
             IMessageProvider messageProvider)
     {
         return AbstractViewer.getTitle(messageProvider, dictTitleKey, codeProvider);
@@ -297,9 +297,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
      * functionality can override the default behaviour
      */
     private static class DelegatedClientPlugin<T extends BasicEntityType> implements
-            IClientPlugin<T, IIdentifiable>
+            IClientPlugin<T, IIdAndCodeHolder>
     {
-        private final IClientPlugin<T, IIdentifiable> delegator;
+        private final IClientPlugin<T, IIdAndCodeHolder> delegator;
 
         private DelegatedClientPlugin(IViewContext<?> viewContext, EntityKind entityKind)
         {
@@ -316,7 +316,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         public AbstractTabItemFactory createEntityViewer(final BasicEntityType entityType,
-                final IIdentifiable identifiable)
+                final IIdAndCodeHolder identifiable)
         {
             return delegator.createEntityViewer(entityType, identifiable);
         }
@@ -332,7 +332,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         public AbstractTabItemFactory createEntityEditor(final T entityType,
-                final IIdentifiable identifiable)
+                final IIdAndCodeHolder identifiable)
         {
             return delegator.createEntityEditor(entityType, identifiable);
         }

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Izabela Adamczyk
  */
-public interface IEntityInformationHolderDTO extends IIdentifiable
+public interface IEntityInformationHolderDTO extends IIdAndCodeHolder
 {
     /**
      * Returns the entity type of this matching entity.

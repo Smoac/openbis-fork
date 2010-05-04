@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import junit.framework.Assert;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -102,14 +102,14 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     }
 
     /**
-     * Sets assertion that the property value is of type {@link ICodeProvider} with a code equals
+     * Sets assertion that the property value is of type {@link ICodeHolder} with a code equals
      * the specified code.
      */
     public C asCode(final String expectedCode)
     {
-        return by(new IValueAssertion<ICodeProvider>()
+        return by(new IValueAssertion<ICodeHolder>()
             {
-                public void assertValue(final ICodeProvider code)
+                public void assertValue(final ICodeHolder code)
                 {
                     Assert.assertEquals(message, expectedCode, code.getCode());
                 }

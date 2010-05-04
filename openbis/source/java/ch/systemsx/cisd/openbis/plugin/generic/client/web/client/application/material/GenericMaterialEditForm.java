@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -46,7 +46,7 @@ public final class GenericMaterialEditForm extends
     private Material originalMaterial;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable,
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdAndCodeHolder identifiable,
             boolean editMode)
     {
         GenericMaterialEditForm form =
@@ -55,7 +55,7 @@ public final class GenericMaterialEditForm extends
     }
 
     private GenericMaterialEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifiable identifiable, boolean editMode)
+            IIdAndCodeHolder identifiable, boolean editMode)
     {
         super(viewContext, identifiable, EntityKind.MATERIAL);
     }

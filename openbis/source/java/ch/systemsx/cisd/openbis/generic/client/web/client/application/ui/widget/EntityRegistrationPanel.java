@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -136,7 +136,7 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
     private void showRegistrationForm(final EntityType entityType)
     {
         removeAll();
-        final IClientPlugin<EntityType, IIdentifiable> clientPlugin =
+        final IClientPlugin<EntityType, IIdAndCodeHolder> clientPlugin =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         entityType).createClientPlugin(entityKind);
         registrationWidget = clientPlugin.createRegistrationForEntityType(entityType);

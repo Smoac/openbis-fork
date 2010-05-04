@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 /**
  * Read-only interface for beans witch provide a code and a unique technical ID.
  * 
- * @see ICodeProvider
+ * @see ICodeHolder
  * @see IIdHolder
  * @author Piotr Buczek
  */
-public interface IIdentifiable extends IIdHolder, ICodeProvider
+public interface IIdAndCodeHolder extends IIdHolder, ICodeHolder
 {
 }

@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.Ba
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -100,7 +100,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
     }
 
     protected AbstractGenericExperimentRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdAndCodeHolder identifiable)
     {
         super(viewContext, identifiable, EntityKind.EXPERIMENT);
 

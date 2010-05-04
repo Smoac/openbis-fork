@@ -23,6 +23,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
  * @author Izabela Adamczyk
  */
 public interface IEntityInformationHolderWithIdentifier extends IIdentifierHolder,
-        IEntityInformationHolder
+        IEntityInformationHolder, IPermIdHolder
 {
 }

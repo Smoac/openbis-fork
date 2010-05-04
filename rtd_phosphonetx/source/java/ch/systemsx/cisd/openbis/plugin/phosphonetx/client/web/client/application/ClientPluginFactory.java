@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -80,7 +80,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends BasicEntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
+    public <T extends BasicEntityType, I extends IIdAndCodeHolder> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
@@ -96,7 +96,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
     //
 
     private final class ExperimentClientPlugin extends
-            ClientPluginAdapter<ExperimentType, IIdentifiable>
+            ClientPluginAdapter<ExperimentType, IIdAndCodeHolder>
     {
         //
         // IViewClientPlugin
@@ -104,7 +104,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
 
         @Override
         public final AbstractTabItemFactory createEntityViewer(
-                final BasicEntityType experimentType, final IIdentifiable identifiable)
+                final BasicEntityType experimentType, final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {
@@ -144,7 +144,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
 
         @Override
         public AbstractTabItemFactory createEntityEditor(final ExperimentType experimentType,
-                final IIdentifiable identifiable)
+                final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {
@@ -175,13 +175,13 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
         }
 
         private String getViewerTitle(final String entityKindDictKey,
-                final IIdentifiable identifiable)
+                final IIdAndCodeHolder identifiable)
         {
             return AbstractViewer.getTitle(getViewContext(), entityKindDictKey, identifiable);
         }
 
         private String getEditorTitle(final String entityKindDictKey,
-                final IIdentifiable identifiable)
+                final IIdAndCodeHolder identifiable)
         {
             return AbstractRegistrationForm.getEditTitle(getViewContext(), entityKindDictKey,
                     identifiable);

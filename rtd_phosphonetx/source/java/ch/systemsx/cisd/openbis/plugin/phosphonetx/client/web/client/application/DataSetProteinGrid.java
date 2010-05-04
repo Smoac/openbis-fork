@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
@@ -48,13 +48,13 @@ class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
     public static final String GRID_ID = PREFIX + "_grid";
 
     static IDisposableComponent create(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            IIdentifiable experimentIdOrNull, TechId proteinReferenceID)
+            IIdAndCodeHolder experimentIdOrNull, TechId proteinReferenceID)
     {
         return new DataSetProteinGrid(viewContext, experimentIdOrNull, proteinReferenceID)
                 .asDisposableWithoutToolbar();
     }
 
-    private static String createWidgetID(IIdentifiable experimentIdOrNull, TechId proteinReferenceID)
+    private static String createWidgetID(IIdAndCodeHolder experimentIdOrNull, TechId proteinReferenceID)
     {
         return "-" + (experimentIdOrNull == null ? "" : experimentIdOrNull.getId() + "-")
                 + proteinReferenceID;
@@ -65,7 +65,7 @@ class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
     private ListProteinByExperimentAndReferenceCriteria criteria;
 
     private DataSetProteinGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            IIdentifiable experimentIdOrNull, TechId proteinReferenceID)
+            IIdAndCodeHolder experimentIdOrNull, TechId proteinReferenceID)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID
                 + createWidgetID(experimentIdOrNull, proteinReferenceID), GRID_ID

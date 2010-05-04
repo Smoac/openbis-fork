@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Widge
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -443,7 +443,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     {
         private static final long serialVersionUID = 1L;
 
-        public BaseModelDataWithCode(ICodeProvider codeProvider)
+        public BaseModelDataWithCode(ICodeHolder codeProvider)
         {
             set(ModelDataPropertyNames.CODE, codeProvider.getCode());
             set(ModelDataPropertyNames.OBJECT, codeProvider);

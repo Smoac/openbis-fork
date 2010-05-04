@@ -43,9 +43,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -159,14 +159,14 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     }
 
     private final void showEntityEditor(EntityKind entityKind, BasicEntityType type,
-            IIdentifiable identifiable, boolean inBackground)
+            IIdAndCodeHolder identifiable, boolean inBackground)
     {
         assert type != null : "entity type is not provided";
         final AbstractTabItemFactory tabView;
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         type);
-        final IClientPlugin<BasicEntityType, IIdentifiable> createClientPlugin =
+        final IClientPlugin<BasicEntityType, IIdAndCodeHolder> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         tabView = createClientPlugin.createEntityEditor(type, identifiable);
         tabView.setInBackground(inBackground);
@@ -174,7 +174,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     }
 
     public static String getTitle(final IMessageProvider messageProvider,
-            final String entityKindDictKey, final ICodeProvider codeProvider)
+            final String entityKindDictKey, final ICodeHolder codeProvider)
     {
         return messageProvider.getMessage(Dict.DETAILS_TITLE, messageProvider
                 .getMessage(entityKindDictKey), codeProvider.getCode());

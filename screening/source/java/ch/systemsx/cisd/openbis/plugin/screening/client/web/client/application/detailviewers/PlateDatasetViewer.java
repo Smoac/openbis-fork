@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.S
 public final class PlateDatasetViewer extends GenericDataSetViewer
 {
     public static DatabaseModificationAwareComponent create(final ScreeningViewContext viewContext,
-            final IIdentifiable identifiable)
+            final IIdAndCodeHolder identifiable)
     {
         PlateDatasetViewer viewer = new PlateDatasetViewer(viewContext, identifiable);
         viewer.reloadAllData();
@@ -47,7 +47,7 @@ public final class PlateDatasetViewer extends GenericDataSetViewer
     private final ScreeningViewContext screeningViewContext;
 
     public PlateDatasetViewer(final ScreeningViewContext viewContext,
-            final IIdentifiable identifiable)
+            final IIdAndCodeHolder identifiable)
     {
         super(viewContext, identifiable);
         this.screeningViewContext = viewContext;

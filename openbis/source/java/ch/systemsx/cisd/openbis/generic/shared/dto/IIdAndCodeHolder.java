@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IIdAndCodeHolder extends IIdHolder, ICodeProvider
+public interface IIdAndCodeHolder extends IIdHolder, ICodeHolder
 {
 
 }

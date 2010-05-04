@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 
 /**
@@ -35,14 +35,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
  * 
  * @author Christian Ribeaud
  */
-public interface IClientPlugin<T extends BasicEntityType, I extends IIdentifiable>
+public interface IClientPlugin<T extends BasicEntityType, I extends IIdAndCodeHolder>
 {
     /**
      * Shows a detailed view of the entity specified by its <var>identifier</var>.
      */
     // NOTE: BasicEntityType is used here to allow viewing entities from MatchingEntitiesPanel
     public AbstractTabItemFactory createEntityViewer(final BasicEntityType entityType,
-            final IIdentifiable identifiable);
+            final IIdAndCodeHolder identifiable);
             
     /**
      * Shows a registration form for entities of given <var>entityType</var>.

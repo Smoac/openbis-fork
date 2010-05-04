@@ -17,15 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * Defines the ways links are created for objects of selected types.
@@ -34,27 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class LinkExtractor
 {
-
-    public static final String tryExtract(IEntityInformationHolder o)
-    {
-        if (o == null)
-        {
-            return null;
-        }
-        switch (o.getEntityKind())
-        {
-            case EXPERIMENT:
-                return tryExtract((Experiment) o);
-            case SAMPLE:
-                return tryExtract((Sample) o);
-            case DATA_SET:
-                return tryExtract((ExternalData) o);
-            case MATERIAL:
-                return tryExtract((Material) o);
-            default:
-                return null;
-        }
-    }
 
     public static final String tryExtract(Project p)
     {
@@ -79,54 +54,24 @@ public class LinkExtractor
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, m.getEntityKind().name());
         url.addParameter("code", m.getCode());
-        url.addParameter("type", m.getMaterialType().getCode());// FIXME: move to common
+        url.addParameter("type", m.getMaterialType().getCode());
         return print(url);
     }
 
-    // TODO 2010-04-21, IA: To be removed after there are click handler->href conversion is
-    // finnished
-    private static String print(URLMethodWithParameters url)
-    {
-        return url.toString().substring(1);
-    }
-
-    public static final String tryExtract(Sample s)
-    {
-        if (s == null)
-        {
-            return null;
-        }
-        return createPermLink(s.getEntityKind(), s.getPermId());
-    }
-
-    public static final String tryExtract(Experiment e)
+    public static String tryExtract(IEntityInformationHolderWithIdentifier e)
     {
         if (e == null)
-        {
-            return null;
-        }
-        return createPermLink(e.getEntityKind(), e.getPermId());
-    }
-
-    public static String tryExtract(ExternalData e)
-    {
-        if (e == null)
-        {
-            return null;
-        }
-        return createPermLink(e.getEntityKind(), e.getPermId());
-    }
-
-    private static String createPermLink(EntityKind kind, String permId)
-    {
-        if (permId == null)
         {
             return null;
         }
         URLMethodWithParameters url = new URLMethodWithParameters("");
-        url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, kind.name());
-        url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, permId);
+        url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, e.getEntityKind().name());
+        url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, e.getPermId());
         return print(url);
     }
 
+    private static String print(URLMethodWithParameters url)
+    {
+        return url.toString().substring(1);
+    }
 }

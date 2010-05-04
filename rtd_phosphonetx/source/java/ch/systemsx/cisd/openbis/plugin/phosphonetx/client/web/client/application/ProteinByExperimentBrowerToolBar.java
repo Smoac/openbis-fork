@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonH
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -160,12 +160,12 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     private ProteinByExperimentBrowserGrid browserGrid;
 
-    private IIdentifiable experimentId;
+    private IIdAndCodeHolder experimentId;
 
     private ProteinSummaryGrid summaryGrid;
 
     ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            IIdentifiable experimentId)
+            IIdAndCodeHolder experimentId)
     {
         this.viewContext = viewContext;
         this.experimentId = experimentId;
@@ -275,7 +275,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         return comboBox;
     }
 
-    IIdentifiable getExperimentOrNull()
+    IIdAndCodeHolder getExperimentOrNull()
     {
         return experimentId;
     }

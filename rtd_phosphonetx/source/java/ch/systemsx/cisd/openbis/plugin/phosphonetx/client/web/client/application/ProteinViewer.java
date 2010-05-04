@@ -32,12 +32,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -74,7 +74,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
 
     static AbstractTabItemFactory createTabItemFactory(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            final IIdentifiable experimentId, final ProteinInfo proteinInfo)
+            final IIdAndCodeHolder experimentId, final ProteinInfo proteinInfo)
     {
         return new AbstractTabItemFactory()
             {
@@ -116,7 +116,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         return StringUtils.abbreviate(info, 30);
     }
 
-    static String createWidgetID(IIdentifiable experimentIdOrNull, TechId proteinReferenceID)
+    static String createWidgetID(IIdAndCodeHolder experimentIdOrNull, TechId proteinReferenceID)
     {
         Long experimentID = experimentIdOrNull == null ? null : experimentIdOrNull.getId();
         return ID_PREFIX + experimentID + "_" + proteinReferenceID.getId();
@@ -124,14 +124,14 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
 
-    private final IIdentifiable experimentIdOrNull;
+    private final IIdAndCodeHolder experimentIdOrNull;
 
     private final TechId proteinReferenceID;
 
     private ProteinSamplesSection proteinSamplesSection;
 
     private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            IIdentifiable experimentId, TechId proteinReferenceID)
+            IIdAndCodeHolder experimentId, TechId proteinReferenceID)
     {
         super(viewContext, "", createWidgetID(experimentId, proteinReferenceID), false);
         this.viewContext = viewContext;
@@ -316,6 +316,11 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         public String getCode()
         {
             return proteinDetails.getDataSetPermID();
+        }
+
+        public String getPermId()
+        {
+            return getIdentifier();
         }
     }
 

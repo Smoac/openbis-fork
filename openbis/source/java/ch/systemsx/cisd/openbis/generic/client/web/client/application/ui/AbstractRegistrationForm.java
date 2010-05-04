@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCal
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 
 /**
  * An <i>abstract</i> registration form.
@@ -324,7 +324,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     }
 
     public static String getEditTitle(final IMessageProvider messageProvider,
-            final String entityKindDictKey, final IIdentifiable identifiable)
+            final String entityKindDictKey, final IIdAndCodeHolder identifiable)
     {
         return messageProvider.getMessage(Dict.EDIT_TITLE, messageProvider
                 .getMessage(entityKindDictKey), identifiable.getCode());

@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 
 /**
  * The <i>GWT</i> equivalent to ProjectPE.
@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
  * @author Tomasz Pylak
  */
 public class Project extends CodeWithRegistration<Project> implements IAttachmentHolder,
-        IIdentifiable
+        IIdAndCodeHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

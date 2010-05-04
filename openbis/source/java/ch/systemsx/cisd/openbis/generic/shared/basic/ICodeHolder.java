@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 /**
- * A code provider.
+ * A code holder.
  * 
  * @author     Franz-Josef Elmer
  */
-public interface ICodeProvider
+public interface ICodeHolder
 {
 
     /** Returns the code. */

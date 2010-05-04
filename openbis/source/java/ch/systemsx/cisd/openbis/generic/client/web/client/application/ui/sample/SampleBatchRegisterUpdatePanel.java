@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -94,7 +94,7 @@ public final class SampleBatchRegisterUpdatePanel extends LayoutContainer
                                 removeAll();
                                 final EntityKind entityKind = EntityKind.SAMPLE;
                                 add(toolBar);
-                                final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
+                                final IClientPlugin<EntityType, IIdAndCodeHolder> createClientPlugin =
                                         viewContext.getClientPluginFactoryProvider()
                                                 .getClientPluginFactory(entityKind, sampleType)
                                                 .createClientPlugin(entityKind);

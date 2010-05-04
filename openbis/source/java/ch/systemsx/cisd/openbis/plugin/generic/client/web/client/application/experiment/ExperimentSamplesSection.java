@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 
@@ -42,7 +42,7 @@ public class ExperimentSamplesSection extends DisposableSectionPanel
     private final TechId experimentId;
 
     public ExperimentSamplesSection(IViewContext<?> viewContext, BasicEntityType experimentType,
-            IIdentifiable experimentId)
+            IIdAndCodeHolder experimentId)
     {
         super("Samples", viewContext);
         this.experimentType = experimentType;

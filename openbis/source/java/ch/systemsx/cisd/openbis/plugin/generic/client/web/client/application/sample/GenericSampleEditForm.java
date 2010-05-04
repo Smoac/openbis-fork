@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -46,14 +46,14 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
     private Sample originalSample;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, IIdentifiable identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext, IIdAndCodeHolder identifiable)
     {
         GenericSampleEditForm form = new GenericSampleEditForm(viewContext, identifiable);
         return new DatabaseModificationAwareComponent(form, form);
     }
 
     private GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifiable identifiable)
+            IIdAndCodeHolder identifiable)
     {
         super(viewContext, identifiable);
     }

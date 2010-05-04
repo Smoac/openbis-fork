@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -61,7 +61,7 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         entityType);
-        final IClientPlugin<BasicEntityType, IIdentifiable> createClientPlugin =
+        final IClientPlugin<BasicEntityType, IIdAndCodeHolder> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         final AbstractTabItemFactory tabView =
                 createClientPlugin.createEntityViewer(entityType, entity);

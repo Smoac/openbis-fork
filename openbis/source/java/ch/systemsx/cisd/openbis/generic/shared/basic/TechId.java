@@ -52,7 +52,7 @@ public class TechId implements IIdHolder, IsSerializable, Serializable
         this.id = id.longValue();
     }
 
-    public TechId(IIdentifiable identifiable)
+    public TechId(IIdAndCodeHolder identifiable)
     {
         this(identifiable.getId());
     }

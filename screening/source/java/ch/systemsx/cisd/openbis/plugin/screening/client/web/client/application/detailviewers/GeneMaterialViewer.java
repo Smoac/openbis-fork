@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.E
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -74,7 +74,7 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
      *            automatically when the window opens.
      */
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IScreeningClientServiceAsync> viewContext, IIdentifiable materialId,
+            IViewContext<IScreeningClientServiceAsync> viewContext, IIdAndCodeHolder materialId,
             ExperimentIdentifier experimentIdentifierOrNull)
     {
         GeneMaterialViewer viewer =
@@ -90,7 +90,7 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
     private final DefaultChannelState channelState;
 
     private GeneMaterialViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final IIdentifiable materialId, ExperimentIdentifier experimentIdentifierOrNull)
+            final IIdAndCodeHolder materialId, ExperimentIdentifier experimentIdentifierOrNull)
     {
         super(viewContext, createId(materialId));
         TechId materialTechId = TechId.create(materialId);
@@ -265,7 +265,7 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
         return LinkRenderer.getLinkWidget(label, listener);
     }
 
-    public static final String createId(final IIdentifiable materialId)
+    public static final String createId(final IIdAndCodeHolder materialId)
     {
         return PREFIX + materialId.getId();
     }

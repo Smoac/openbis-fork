@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeFieldWithGenerator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -76,7 +76,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      */
     protected AbstractGenericEntityRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
-            IIdentifiable identifiableOrNull, EntityKind entityKind)
+            IIdAndCodeHolder identifiableOrNull, EntityKind entityKind)
     {
         super(viewContext, createId(identifiableOrNull, entityKind), DEFAULT_LABEL_WIDTH + 20,
                 DEFAULT_FIELD_WIDTH);
@@ -109,10 +109,10 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     // ID generation
     // ---------------------------------------------------------------------------------------------
     /**
-     * Creates unique id based on {@link #createSimpleId(IIdentifiable, EntityKind)} and application
+     * Creates unique id based on {@link #createSimpleId(IIdAndCodeHolder, EntityKind)} and application
      * specific ID prefix.
      */
-    public static final String createId(IIdentifiable identifiable, EntityKind entityKind)
+    public static final String createId(IIdAndCodeHolder identifiable, EntityKind entityKind)
     {
         return ID_PREFIX + createSimpleId(identifiable, entityKind);
     }
@@ -129,7 +129,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     /**
      * Creates unique form id for given entity.
      */
-    protected static final String createSimpleId(IIdentifiable identifiable, EntityKind entityKind)
+    protected static final String createSimpleId(IIdAndCodeHolder identifiable, EntityKind entityKind)
     {
         return createSimpleId(TechId.create(identifiable), entityKind);
     }

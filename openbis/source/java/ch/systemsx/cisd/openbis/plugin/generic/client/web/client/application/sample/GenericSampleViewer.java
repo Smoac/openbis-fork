@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -114,7 +114,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
-            final IIdentifiable identifiable)
+            final IIdAndCodeHolder identifiable)
     {
         GenericSampleViewer viewer = new GenericSampleViewer(viewContext, identifiable)
             {
@@ -135,7 +135,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
             AsyncCallback<SampleParentWithDerived> asyncCallback);
 
     protected GenericSampleViewer(final IViewContext<?> viewContext,
-            final IIdentifiable identifiable)
+            final IIdAndCodeHolder identifiable)
     {
         super(viewContext, createId(identifiable));
         setLayout(new BorderLayout());
@@ -166,7 +166,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         reloadSampleGenerationData(new SampleGenerationInfoCallback(viewContext, this));
     }
 
-    public static final String createId(final IIdentifiable identifiable)
+    public static final String createId(final IIdAndCodeHolder identifiable)
     {
         return createId(TechId.create(identifiable));
     }

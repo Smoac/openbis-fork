@@ -23,7 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  */
 public final class Sample extends CodeWithRegistration<Sample> implements IInvalidationProvider,
         Comparable<Sample>, IEntityInformationHolderWithIdentifier, IAttachmentHolder,
-        IEntityPropertiesHolder, IIdentifiable, IPermIdHolder
+        IEntityPropertiesHolder, IIdAndCodeHolder, IPermIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

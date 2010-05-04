@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Disposable
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
@@ -37,7 +37,7 @@ public class ExperimentViewer extends GenericExperimentViewer
 {
     public static DatabaseModificationAwareComponent create(
             IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            BasicEntityType experimentType, IIdentifiable experimentId)
+            BasicEntityType experimentType, IIdAndCodeHolder experimentId)
     {
         ExperimentViewer viewer =
                 new ExperimentViewer(new GenericViewContext(viewContext.getCommonViewContext()),
@@ -49,7 +49,7 @@ public class ExperimentViewer extends GenericExperimentViewer
 
     protected ExperimentViewer(IViewContext<IGenericClientServiceAsync> viewContext,
             IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext,
-            BasicEntityType experimentType, IIdentifiable experimentId)
+            BasicEntityType experimentType, IIdAndCodeHolder experimentId)
     {
         super(viewContext, experimentType, experimentId);
         this.specificViewContext = specificViewContext;

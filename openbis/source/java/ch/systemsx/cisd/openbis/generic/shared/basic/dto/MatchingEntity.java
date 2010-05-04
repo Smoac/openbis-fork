@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 
 /**
  * An entity that matches the <i>Hibernate Search</i> query and which has been returned by the
@@ -137,10 +137,10 @@ public final class MatchingEntity implements IsSerializable, IEntityInformationH
         this.code = code;
     }
 
-    public IIdentifiable asIdentifiable()
+    public IIdAndCodeHolder asIdentifiable()
     {
         final MatchingEntity entity = this;
-        return new IIdentifiable()
+        return new IIdAndCodeHolder()
             {
                 public Long getId()
                 {

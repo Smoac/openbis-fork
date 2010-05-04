@@ -24,21 +24,21 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 
 /**
  * A code.
  * 
  * @author Christian Ribeaud
  */
-public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, Comparable<T>,
+public class Code<T extends Code<T>> implements IsSerializable, ICodeHolder, Comparable<T>,
         Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     public static final String CODE = "code";
 
-    public final static Comparator<ICodeProvider> CODE_PROVIDER_COMPARATOR =
+    public final static Comparator<ICodeHolder> CODE_PROVIDER_COMPARATOR =
             new CodeProviderComparator();
 
     private String code;
@@ -102,17 +102,17 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
     // Helper classes
     //
 
-    public final static List<String> extractCodes(List<? extends ICodeProvider> codeProviders)
+    public final static List<String> extractCodes(List<? extends ICodeHolder> codeProviders)
     {
         List<String> codes = new ArrayList<String>();
-        for (ICodeProvider codeProvider : codeProviders)
+        for (ICodeHolder codeProvider : codeProviders)
         {
             codes.add(codeProvider.getCode());
         }
         return codes;
     }
 
-    public final static class CodeProviderComparator implements Comparator<ICodeProvider>,
+    public final static class CodeProviderComparator implements Comparator<ICodeHolder>,
             Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -121,7 +121,7 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
         // Comparable
         //
 
-        public int compare(final ICodeProvider o1, final ICodeProvider o2)
+        public int compare(final ICodeHolder o1, final ICodeHolder o2)
         {
             assert o1 != null : "Unspecified code provider.";
             assert o2 != null : "Unspecified code provider.";

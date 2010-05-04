@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 
 /**
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
  * 
  * @author Christian Ribeaud
  */
-public class ClientPluginAdapter<E extends BasicEntityType, I extends IIdentifiable> implements
+public class ClientPluginAdapter<E extends BasicEntityType, I extends IIdAndCodeHolder> implements
         IClientPlugin<E, I>
 {
 
@@ -48,7 +48,7 @@ public class ClientPluginAdapter<E extends BasicEntityType, I extends IIdentifia
     }
 
     public AbstractTabItemFactory createEntityViewer(final BasicEntityType entityType,
-            final IIdentifiable identifiable)
+            final IIdAndCodeHolder identifiable)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }

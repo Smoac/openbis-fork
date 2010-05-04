@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -234,10 +234,10 @@ public class TrackingBO
             }
         }
 
-        private static long calcMaxId(List<? extends IIdentifiable> entities, long initialValue)
+        private static long calcMaxId(List<? extends IIdAndCodeHolder> entities, long initialValue)
         {
             long max = initialValue;
-            for (IIdentifiable entity : entities)
+            for (IIdAndCodeHolder entity : entities)
             {
                 max = Math.max(max, entity.getId());
             }

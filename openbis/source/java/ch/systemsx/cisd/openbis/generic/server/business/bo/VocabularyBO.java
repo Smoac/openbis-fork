@@ -38,7 +38,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -452,10 +452,10 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
     }
 
-    private <T extends ICodeProvider> Collection<String> convert(Collection<T> terms)
+    private <T extends ICodeHolder> Collection<String> convert(Collection<T> terms)
     {
         ArrayList<String> list = new ArrayList<String>();
-        for (ICodeProvider t : terms)
+        for (ICodeHolder t : terms)
         {
             list.add(t.getCode());
         }

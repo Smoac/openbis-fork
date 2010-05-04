@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 
 /**
  * An {@link AbstractRegistrationHolder} extension which holds a code.
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
  * @author Christian Ribeaud
  */
 public class CodeWithRegistration<T extends CodeWithRegistration<T>> extends
-        AbstractRegistrationHolder implements ICodeProvider, Comparable<T>
+        AbstractRegistrationHolder implements ICodeHolder, Comparable<T>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

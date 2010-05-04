@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Cli
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -87,7 +87,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends BasicEntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
+    public <T extends BasicEntityType, I extends IIdAndCodeHolder> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
@@ -106,14 +106,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
     // Helper classes
     //
 
-    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifiable>
+    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdAndCodeHolder>
     {
         //
         // IViewClientPlugin
         //
 
         public final AbstractTabItemFactory createEntityViewer(final BasicEntityType sampleType,
-                final IIdentifiable identifiable)
+                final IIdAndCodeHolder identifiable)
         {
             final TechId sampleId = TechId.create(identifiable);
             return new AbstractTabItemFactory()
@@ -161,7 +161,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         }
 
         public AbstractTabItemFactory createEntityEditor(final SampleType sampleType,
-                final IIdentifiable identifiable)
+                final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {
@@ -188,7 +188,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
     }
 
     private final static class ExperimentClientPlugin extends
-            ClientPluginAdapter<ExperimentType, IIdentifiable>
+            ClientPluginAdapter<ExperimentType, IIdAndCodeHolder>
     {
 
         //
@@ -197,7 +197,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
 
         @Override
         public final AbstractTabItemFactory createEntityViewer(
-                final BasicEntityType experimentType, final IIdentifiable identifiable)
+                final BasicEntityType experimentType, final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {

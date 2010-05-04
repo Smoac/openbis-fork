@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -97,7 +97,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
 
     static IDisposableComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            BasicEntityType experimentType, IIdentifiable experimentId)
+            BasicEntityType experimentType, IIdAndCodeHolder experimentId)
     {
         final IDisposableComponent summaryGrid = ProteinSummaryGrid.create(viewContext);
         ProteinByExperimentBrowserGrid browserGrid =
@@ -152,7 +152,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
 
     private ProteinByExperimentBrowserGrid(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            IIdentifiable experimentId)
+            IIdAndCodeHolder experimentId)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false,
                 PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
