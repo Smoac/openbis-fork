@@ -25,6 +25,7 @@ import org.springframework.remoting.RemoteAccessException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.TimingParameters;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
@@ -145,7 +146,8 @@ public class QueueingDataSetStatusUpdaterService
 
                 private void notifyUpdateFailure(final DataSetCodesWithStatus dataSets, Exception ex)
                 {
-                    notificationLog.error("Update of data sets " + dataSets.getDataSetCodes()
+                    notificationLog.error("Update of data sets "
+                            + CollectionUtils.abbreviate(dataSets.getDataSetCodes(), 10)
                             + " status to '" + dataSets.getStatus()
                             + "' has failed.\nRetry will occur not sooner than "
                             + Sleeper.getCurrentSleepTime() + ".", ex);
@@ -164,8 +166,8 @@ public class QueueingDataSetStatusUpdaterService
                 {
                     ServiceProvider.getOpenBISService().updateDataSetStatuses(dataSetCodes,
                             newStatus);
-                    operationLog.info("Data Sets " + dataSetCodes + " changed status to "
-                            + newStatus);
+                    operationLog.info("Data Sets " + CollectionUtils.abbreviate(dataSetCodes, 10)
+                            + " changed status to " + newStatus);
                 }
 
             };

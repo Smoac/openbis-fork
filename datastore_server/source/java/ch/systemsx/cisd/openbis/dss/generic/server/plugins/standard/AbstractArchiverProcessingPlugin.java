@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -67,7 +68,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     public ProcessingStatus archive(List<DatasetDescription> datasets)
     {
-        operationLog.info("Archiving of the following datasets has been requested: " + datasets);
+        operationLog.info("Archiving of the following datasets has been requested: "
+                + CollectionUtils.abbreviate(datasets, 10));
         return handleDatasets(datasets, DataSetArchivingStatus.ARCHIVED,
                 DataSetArchivingStatus.AVAILABLE, new IDatasetDescriptionHandler()
                     {
@@ -97,7 +99,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     public ProcessingStatus unarchive(List<DatasetDescription> datasets)
     {
-        operationLog.info("Unarchiving of the following datasets has been requested: " + datasets);
+        operationLog.info("Unarchiving of the following datasets has been requested: "
+                + CollectionUtils.abbreviate(datasets, 10));
         return handleDatasets(datasets, DataSetArchivingStatus.AVAILABLE,
                 DataSetArchivingStatus.ARCHIVED, new IDatasetDescriptionHandler()
                     {
