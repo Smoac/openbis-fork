@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.knime;
+package ch.systemsx.cisd.openbis.knime.query;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
@@ -25,23 +25,23 @@ import org.knime.core.node.NodeView;
  *
  * @author Franz-Josef Elmer
  */
-public class TestNodeFactory extends NodeFactory<TestNodeModel>
+public class QueryNodeFactory extends NodeFactory<QueryNodeModel>
 {
 
     @Override
     protected NodeDialogPane createNodeDialogPane()
     {
-        return new TestNodeDialog();
+        return new QueryNodeDialog();
     }
 
     @Override
-    public TestNodeModel createNodeModel()
+    public QueryNodeModel createNodeModel()
     {
-        return new TestNodeModel();
+        return new QueryNodeModel();
     }
 
     @Override
-    public NodeView<TestNodeModel> createNodeView(int arg0, TestNodeModel arg1)
+    public NodeView<QueryNodeModel> createNodeView(int viewIndex, QueryNodeModel model)
     {
         return null;
     }

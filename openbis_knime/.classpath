@@ -2,9 +2,17 @@
 <classpath>
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
-	<classpathentry kind="lib" path="/libraries/knime/knime-base.jar"/>
-	<classpathentry kind="lib" path="/libraries/knime/knime-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/knime/knime-base.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/knime/knime_2.1.2_API.zip!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/libraries/knime/knime-core.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/knime/knime_2.1.2_API.zip!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="/libraries/openbis-apis/query/openbis-query-api.jar"/>
-	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

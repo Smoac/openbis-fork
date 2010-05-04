@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./openbis.png" type="Source">
+    <name>openBIS Query Reader</name>
+    
+    <shortDescription>openBIS query node</shortDescription>
+    
+    <fullDescription>
+        <intro>Data source node to run a parameterized SQL query on openBIS Application Server  
+        </intro>
+    </fullDescription>
+    
+    <ports>
+        <outPort index="0" name="Result Set">Table with result set</outPort>
+    </ports>    
+</knimeNode>

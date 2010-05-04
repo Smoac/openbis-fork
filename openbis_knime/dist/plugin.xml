@@ -3,12 +3,13 @@
 
 <plugin>
    <extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/openbis" factory-class="ch.systemsx.cisd.openbis.knime.TestNodeFactory" 
-            id="ch.systemsx.cisd.openbis.knime.node"/>
+      <node category-path="/openbis/query" factory-class="ch.systemsx.cisd.openbis.knime.query.QueryNodeFactory" 
+            id="ch.systemsx.cisd.openbis.knime.query.QueryNodeFactory"/>
    </extension>
    
    <extension point="org.knime.workbench.repository.categories">
       <category icon="icons/openbis.png" level-id="openbis" name="openBIS" path="/"/>
+      <category icon="icons/openbis.png" level-id="query" name="Query" path="/openbis"/>
    </extension>
    
 </plugin>
