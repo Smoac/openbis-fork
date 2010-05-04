@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -231,7 +233,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     public void processDatasets(String sessionToken, String serviceKey,
-            List<DatasetDescription> datasets, String userEmailOrNull)
+            List<DatasetDescription> datasets, Map<String, String> parameterBindings,
+            String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
@@ -240,7 +243,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         IProcessingPluginTask task = plugins.getPluginInstance(serviceKey);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
-        commandExecutor.scheduleProcessDatasets(task, datasets, userEmailOrNull, pluginDescription,
+        commandExecutor.scheduleProcessDatasets(task, datasets, parameterBindings, userEmailOrNull, pluginDescription,
                 mailClientParameters);
     }
 
@@ -267,8 +270,9 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IProcessingPluginTask processingTask = new ArchiverProcessingTask(archiverTask, archive);
         DatastoreServiceDescription pluginDescription =
                 new DatastoreServiceDescription(description, description, null, null);
-        commandExecutor.scheduleProcessDatasets(processingTask, datasets, userEmailOrNull,
-                pluginDescription, mailClientParameters);
+        Map<String, String> parameterBindings = Collections.<String, String> emptyMap();
+        commandExecutor.scheduleProcessDatasets(processingTask, datasets, parameterBindings,
+                userEmailOrNull, pluginDescription, mailClientParameters);
     }
 
     private static class ArchiverProcessingTask implements IProcessingPluginTask
@@ -286,7 +290,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             this.archive = archive;
         }
 
-        public ProcessingStatus process(List<DatasetDescription> datasets)
+        public ProcessingStatus process(List<DatasetDescription> datasets,
+                Map<String, String> parameterBindings)
         {
             if (archive)
             {
@@ -296,27 +301,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 return archiverTask.unarchive(datasets);
             }
         }
-
-        public boolean isArchive()
-        {
-            return archive;
-        }
-
-        public void setArchive(boolean archive)
-        {
-            this.archive = archive;
-        }
-
-        public IArchiverTask getArchiverTask()
-        {
-            return archiverTask;
-        }
-
-        public void setArchiverTask(IArchiverTask archiverTask)
-        {
-            this.archiverTask = archiverTask;
-        }
-
     }
 
 }

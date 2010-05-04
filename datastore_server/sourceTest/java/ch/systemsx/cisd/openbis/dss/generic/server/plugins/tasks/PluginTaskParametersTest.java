@@ -135,7 +135,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         factories.check(true);
         factories.logConfigurations();
         IProcessingPluginTask pluginInstance1 = factories.getPluginInstance(plugin1);
-        pluginInstance1.process(createDatasetDescriptions());
+        pluginInstance1.process(createDatasetDescriptions(), null);
     }
 
     private static List<DatasetDescription> createDatasetDescriptions()

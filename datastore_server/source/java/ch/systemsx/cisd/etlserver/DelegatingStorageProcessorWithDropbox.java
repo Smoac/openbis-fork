@@ -74,7 +74,7 @@ public class DelegatingStorageProcessorWithDropbox extends
                 super.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory,
                         rootDir);
         File originalData = super.tryGetProprietaryData(storeData);
-        dropboxHandler.handle(originalData, dataSetInformation);
+        dropboxHandler.handle(originalData, dataSetInformation, null);
         return storeData;
     }
 

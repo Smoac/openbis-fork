@@ -18,24 +18,25 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Interface of the processing plugin task. Implementations will be singletons serving all the
- * requests.
+ * Interface of parameterized processing plugin task. Implementations will be singletons serving all
+ * the requests.
  * 
  * @author Tomasz Pylak
  */
 public interface IProcessingPluginTask extends Serializable
 {
     /**
-     * Processes asynchronously the specified datasets.
+     * Processes asynchronously the specified datasets with specified parameter bindings.
      * 
      * @returns {@link ProcessingStatus} of the finished processing with statuses of processing for
      *          all scheduled data sets or null if processing succeeded for all datasets and no
      *          additional information is provided.
      */
-    ProcessingStatus process(List<DatasetDescription> datasets);
+    ProcessingStatus process(List<DatasetDescription> datasets, Map<String, String> parameterBindings);
 
 }

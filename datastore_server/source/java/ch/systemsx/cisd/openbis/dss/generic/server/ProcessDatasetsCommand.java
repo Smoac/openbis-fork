@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -49,6 +50,8 @@ public class ProcessDatasetsCommand implements IDataSetCommand
 
     private final List<DatasetDescription> datasets;
 
+    private final Map<String, String> parameterBindings;
+    
     private final String userEmailOrNull;
 
     private final DatastoreServiceDescription serviceDescription;
@@ -56,11 +59,13 @@ public class ProcessDatasetsCommand implements IDataSetCommand
     private final MailClientParameters mailClientParameters;
 
     public ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
-            String userEmailOrNull, DatastoreServiceDescription serviceDescription,
+            Map<String, String> parameterBindings, String userEmailOrNull,
+            DatastoreServiceDescription serviceDescription,
             MailClientParameters mailClientParameters)
     {
         this.task = task;
         this.datasets = datasets;
+        this.parameterBindings = parameterBindings;
         this.userEmailOrNull = userEmailOrNull;
         this.serviceDescription = serviceDescription;
         this.mailClientParameters = mailClientParameters;
@@ -72,7 +77,7 @@ public class ProcessDatasetsCommand implements IDataSetCommand
         ProcessingStatus processingStatusOrNull = null;
         try
         {
-            processingStatusOrNull = task.process(datasets);
+            processingStatusOrNull = task.process(datasets, parameterBindings);
         } catch (RuntimeException e)
         {
             // exception message should be readable for users

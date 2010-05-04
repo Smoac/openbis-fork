@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -65,18 +66,19 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         this.dropboxHandler = dropboxHandler;
     }
 
-    public ProcessingStatus process(List<DatasetDescription> datasets)
+    public ProcessingStatus process(List<DatasetDescription> datasets,
+            Map<String, String> parameterBindings)
     {
         final ProcessingStatus result = new ProcessingStatus();
         for (DatasetDescription dataset : datasets)
         {
-            Status status = processDataset(dataset);
+            Status status = processDataset(dataset, parameterBindings);
             result.addDatasetStatus(dataset, status);
         }
         return result;
     }
 
-    private Status processDataset(DatasetDescription dataset)
+    private Status processDataset(DatasetDescription dataset, Map<String, String> parameterBindings)
     {
         File originalDir = getDataSubDir(dataset);
         if (originalDir.isDirectory() == false)
@@ -90,7 +92,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         if (datasetFiles.length == 1)
         {
             DataSetInformation datasetInfo = createDatasetInfo(dataset);
-            return dropboxHandler.handle(datasetFiles[0], datasetInfo);
+            return dropboxHandler.handle(datasetFiles[0], datasetInfo, parameterBindings);
         } else
         {
             operationLog.error(String.format("Exactly one item was expected in the '%s' directory,"

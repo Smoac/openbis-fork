@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
@@ -60,13 +61,14 @@ interface IDataSetCommandExecutor
             String cifexAdminPasswordOrNull);
 
     /**
-     * Schedules the specified processing task for provided datasets.
+     * Schedules the specified processing task with specified parameter bindings for provided datasets
      * 
      * @param userEmailOrNull Email of user who initiated processing and will get a message after
      *            the processing is finished. It may be null if the user doesn't have email and no
      *            message will be send in such case.
      */
     void scheduleProcessDatasets(IProcessingPluginTask task, List<DatasetDescription> datasets,
-            String userEmailOrNull, DatastoreServiceDescription serviceDescription,
+            Map<String, String> parameterBindings, String userEmailOrNull,
+            DatastoreServiceDescription serviceDescription,
             MailClientParameters mailClientParameters);
 }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -110,10 +111,11 @@ class DataStoreServiceLogger implements IDataStoreService
     }
 
     public void processDatasets(String sessionToken, String serviceKey,
-            List<DatasetDescription> datasets, String userEmailOrNull)
+            List<DatasetDescription> datasets, Map<String, String> parameterBindings,
+            String userEmailOrNull)
     {
-        log("processDatasets", "TASK_ID(%s) NO_OF_DATASETS(%s) USER_EMAIL(%s)", serviceKey,
-                datasets.size(), userEmailOrNull);
+        log("processDatasets", "TASK_ID(%s) NO_OF_DATASETS(%s) PARAMETERS(%s) USER_EMAIL(%s)",
+                serviceKey, datasets.size(), parameterBindings, userEmailOrNull);
     }
 
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,

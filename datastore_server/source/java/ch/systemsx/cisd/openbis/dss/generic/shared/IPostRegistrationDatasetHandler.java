@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -29,15 +30,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public interface IPostRegistrationDatasetHandler
 {
     /**
-     * Handles specified original data file by using specified data set information. Note, that
-     * <code>originalData</code> is already the path inside the data store.
+     * Handles specified original data file by using specified data set information and parameter
+     * bindings. Note, that <code>originalData</code> is already the path inside the data store.
      * 
      * @return {@link Status} of the operation.
      */
-    public Status handle(File originalData, final DataSetInformation dataSetInformation);
+    public Status handle(File originalData, final DataSetInformation dataSetInformation,
+            Map<String, String> parameterBindings);
 
     /**
-     * Reverts the previous invocation of {@link #handle(File, DataSetInformation)}.
+     * Reverts the previous invocation of {@link #handle(File, DataSetInformation, Map)}.
      */
     public void undoLastOperation();
 

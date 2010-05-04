@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
@@ -125,7 +126,7 @@ abstract public class AbstractDatasetDropboxHandler implements Serializable,
         return file;
     }
 
-    public final Status handle(File originalData, final DataSetInformation dataSetInformation)
+    public final Status handle(File originalData, final DataSetInformation dataSetInformation, Map<String, String> parameterBindings)
     {
         File dropboxDir = tryGetDropboxDir(originalData, dataSetInformation);
         if (dropboxDir != null)

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -123,11 +124,11 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     }
 
     public void scheduleProcessDatasets(IProcessingPluginTask task,
-            List<DatasetDescription> datasets, String userEmailOrNull,
-            DatastoreServiceDescription serviceDescription,
+            List<DatasetDescription> datasets, Map<String, String> parameterBindings,
+            String userEmailOrNull, DatastoreServiceDescription serviceDescription,
             MailClientParameters mailClientParameters)
     {
-        scheduleCommand(new ProcessDatasetsCommand(task, datasets, userEmailOrNull,
+        scheduleCommand(new ProcessDatasetsCommand(task, datasets, parameterBindings, userEmailOrNull,
                 serviceDescription, mailClientParameters));
     }
 
