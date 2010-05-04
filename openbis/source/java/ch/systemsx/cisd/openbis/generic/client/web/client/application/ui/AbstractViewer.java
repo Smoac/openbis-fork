@@ -212,7 +212,9 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     protected final static BorderLayoutData createLeftBorderLayoutData()
     {
-        return BorderLayoutDataFactory.create(LayoutRegion.WEST, 300);
+        BorderLayoutData layoutData = BorderLayoutDataFactory.create(LayoutRegion.WEST, 300);
+        layoutData.setCollapsible(true);
+        return layoutData;
     }
 
     protected final static BorderLayoutData createRightBorderLayoutData()
