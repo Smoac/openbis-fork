@@ -92,9 +92,46 @@ public abstract class AbstractExternalDataGrid
         setId(browserId);
         updateCriteriaProviderAndRefresh();
 
+        extendBottomToolbar();
+
+        ICellListener<ExternalData> experimentClickListener =
+                new OpenEntityDetailsTabCellClickListener()
+                    {
+                        @Override
+                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
+                        {
+                            return rowItem.getExperiment();
+                        }
+                    };
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT.id(),
+                experimentClickListener);
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT_IDENTIFIER.id(),
+                experimentClickListener);
+        ICellListener<ExternalData> sampleClickListener =
+                new OpenEntityDetailsTabCellClickListener()
+                    {
+                        @Override
+                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
+                        {
+                            return rowItem.getSample();
+                        }
+                    };
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE.id(), sampleClickListener);
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
+                sampleClickListener);
+    }
+
+    // adds show, show-details and invalidate buttons
+    protected void extendBottomToolbar()
+    {
+        if (viewContext.isSimpleMode())
+        {
+            return;
+        }
         addEntityOperationsLabel();
+
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
-                browserId + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
+                getId() + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                 asShowEntityInvoker(true)));
 
@@ -134,33 +171,8 @@ public abstract class AbstractExternalDataGrid
         addButton(uploadButton);
         addButton(createComputeMenu());
         addEntityOperationsSeparator();
-        allowMultipleSelection();
-        ICellListener<ExternalData> experimentClickListener =
-                new OpenEntityDetailsTabCellClickListener()
-                    {
-                        @Override
-                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
-                        {
-                            return rowItem.getExperiment();
-                        }
-                    };
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT.id(),
-                experimentClickListener);
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT_IDENTIFIER.id(),
-                experimentClickListener);
-        ICellListener<ExternalData> sampleClickListener =
-                new OpenEntityDetailsTabCellClickListener()
-                    {
-                        @Override
-                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
-                        {
-                            return rowItem.getSample();
-                        }
-                    };
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE.id(), sampleClickListener);
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
-                sampleClickListener);
 
+        allowMultipleSelection();
     }
 
     @Override
@@ -315,6 +327,7 @@ public abstract class AbstractExternalDataGrid
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.EXPERIMENT.id(), linkRenderer);
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.EXPERIMENT_IDENTIFIER.id(),
                 linkRenderer);
+        schema.setGridCellRendererFor(CommonExternalDataColDefKind.PROJECT.id(), linkRenderer);
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.SHOW_DETAILS_LINK.id(),
                 createShowDetailsLinkCellRenderer());
         return schema;
