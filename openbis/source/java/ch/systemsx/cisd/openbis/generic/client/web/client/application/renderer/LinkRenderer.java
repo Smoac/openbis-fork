@@ -154,13 +154,12 @@ public class LinkRenderer
         Anchor link = new Anchor();
         link.setText(text);
         link.setStyleName(LINK_STYLE);
-        if (listener != null && ClientStaticState.isSimpleMode() == false)
-        {
-            link.addClickHandler(listener);
-        }
-        if (historyHref != null)
+        if (historyHref != null && ClientStaticState.isSimpleMode())
         {
             link.setHref("#" + historyHref);
+        } else if (listener != null)
+        {
+            link.addClickHandler(listener);
         }
         if (invalidate)
         {

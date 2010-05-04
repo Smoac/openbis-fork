@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.column.GridCustomColumnGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.GridCustomFilterGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * {@link Dialog} displaying {@link ColumnSettingsChooser}.
@@ -79,17 +80,45 @@ public class ColumnSettingsDialog extends Dialog
             });
         panel.add(columnsTab);
 
-        final IDisposableComponent filters =
-                GridCustomFilterGrid.create(viewContext, gridDisplayId, columnDataModelProvider);
-        TabItem customFiltersTab =
-                createTabItem(filters.getComponent(), Dict.GRID_CUSTOM_FILTERS, FILTERS_TAB);
-        panel.add(customFiltersTab);
+        final IDelegatedAction onCloseAction;
 
-        final IDisposableComponent columns =
-                GridCustomColumnGrid.create(viewContext, gridDisplayId, columnDataModelProvider);
-        TabItem customColumnsTab =
-                createTabItem(columns.getComponent(), Dict.GRID_CUSTOM_COLUMNS, COLUMNS_TAB);
-        panel.add(customColumnsTab);
+        if (viewContext.isSimpleMode() == false)
+        {
+            final IDisposableComponent columns =
+                    GridCustomColumnGrid
+                            .create(viewContext, gridDisplayId, columnDataModelProvider);
+            TabItem customColumnsTab =
+                    createTabItem(columns.getComponent(), Dict.GRID_CUSTOM_COLUMNS, COLUMNS_TAB);
+            panel.add(customColumnsTab);
+
+            final IDisposableComponent filters =
+                    GridCustomFilterGrid
+                            .create(viewContext, gridDisplayId, columnDataModelProvider);
+            TabItem customFiltersTab =
+                    createTabItem(filters.getComponent(), Dict.GRID_CUSTOM_FILTERS, FILTERS_TAB);
+            panel.add(customFiltersTab);
+
+            onCloseAction = new IDelegatedAction()
+                {
+                    public void execute()
+                    {
+                        columnDataModelProvider.onClose(columnChooser.getModels());
+                        hide();
+                        filters.dispose();
+                        columns.dispose();
+                    }
+                };
+        } else
+        {
+            onCloseAction = new IDelegatedAction()
+                {
+                    public void execute()
+                    {
+                        columnDataModelProvider.onClose(columnChooser.getModels());
+                        hide();
+                    }
+                };
+        }
 
         add(panel);
         super.show();
@@ -100,10 +129,7 @@ public class ColumnSettingsDialog extends Dialog
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    columnDataModelProvider.onClose(columnChooser.getModels());
-                    filters.dispose();
-                    columns.dispose();
-                    hide();
+                    onCloseAction.execute();
                 }
             });
     }
