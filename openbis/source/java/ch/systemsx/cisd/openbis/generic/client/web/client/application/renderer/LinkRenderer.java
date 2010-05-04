@@ -128,7 +128,18 @@ public class LinkRenderer
      */
     public static Widget getLinkWidget(final String text, final ClickHandler listener)
     {
-        return getLinkWidget(text, listener, false, null);
+        return getLinkWidget(text, listener, null);
+    }
+
+    /**
+     * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>
+     *         and if simple mode is not active a <var>listener</var> registered on the click event.
+     *         If <var>historyHref</var> is not null it will be attached to the link after '#'.
+     */
+    public static Widget getLinkWidget(final String text, final ClickHandler listener,
+            final String historyHref)
+    {
+        return getLinkWidget(text, listener, historyHref, false);
     }
 
     /**
@@ -138,7 +149,7 @@ public class LinkRenderer
      *         false).
      */
     public static Widget getLinkWidget(final String text, final ClickHandler listener,
-            boolean invalidate, String href)
+            final String historyHref, final boolean invalidate)
     {
         Anchor link = new Anchor();
         link.setText(text);
@@ -147,9 +158,9 @@ public class LinkRenderer
         {
             link.addClickHandler(listener);
         }
-        if (href != null)
+        if (historyHref != null)
         {
-            link.setHref(href);
+            link.setHref("#" + historyHref);
         }
         if (invalidate)
         {

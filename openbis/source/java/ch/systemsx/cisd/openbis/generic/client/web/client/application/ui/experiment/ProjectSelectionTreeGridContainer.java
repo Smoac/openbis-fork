@@ -220,7 +220,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                     final Widget detailsLink =
                             LinkRenderer.getLinkWidget(viewContext
                                     .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_LABEL),
-                                    listener, false, href != null ? "#" + href : null);
+                                    listener, href);
                     detailsLink.setTitle(viewContext
                             .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP));
                     projectLinks.put(project, detailsLink);

@@ -59,9 +59,7 @@ class MaterialPropertyColRenderer<T extends IEntityPropertiesHolder> extends
             // }
             // }
             String href = LinkExtractor.tryExtract(identifier);
-            final Widget link =
-                    LinkRenderer.getLinkWidget(identifier.getCode(), null, false,
-                            href != null ? ("#" + href) : null);
+            final Widget link = LinkRenderer.getLinkWidget(identifier.getCode(), null, href);
 
             FlowPanel panel = new FlowPanel();
             panel.add(link);

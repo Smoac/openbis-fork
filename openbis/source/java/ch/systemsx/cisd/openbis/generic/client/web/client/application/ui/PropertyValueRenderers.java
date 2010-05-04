@@ -296,9 +296,7 @@ public final class PropertyValueRenderers
                         new OpenEntityDetailsTabClickListener(material, viewContext);
 
                 String href = LinkExtractor.tryExtract(material);
-                final Widget link =
-                        LinkRenderer.getLinkWidget(material.getCode(), listener, false,
-                                href != null ? ("#" + href) : null);
+                final Widget link = LinkRenderer.getLinkWidget(material.getCode(), listener, href);
 
                 FlowPanel panel = new FlowPanel();
                 panel.add(link);
@@ -425,9 +423,7 @@ public final class PropertyValueRenderers
             final ClickHandler listener =
                     new OpenEntityDetailsTabClickListener(entity, viewContext);
             String href = LinkExtractor.tryExtract(entity);
-            final Widget link =
-                    LinkRenderer.getLinkWidget(displayText, listener, invalidate,
-                            href != null ? "#" + href : null);
+            final Widget link = LinkRenderer.getLinkWidget(displayText, listener, href, invalidate);
 
             // putting link into a panel makes it a block/row
             // which is important if they are rendered as an array
@@ -485,9 +481,7 @@ public final class PropertyValueRenderers
                     }
                 };
             String href = LinkExtractor.tryExtract(project);
-            final Widget link =
-                    LinkRenderer.getLinkWidget(displayText, listener, false, href != null ? "#"
-                            + href : null);
+            final Widget link = LinkRenderer.getLinkWidget(displayText, listener, href, false);
 
             return link;
         }
