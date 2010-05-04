@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 
 /**
@@ -132,8 +133,9 @@ public class LinkRenderer
 
     /**
      * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>
-     *         and a <var>listener</var> registered on the click event. The link display style is
-     *         based on <var>invalidate</var> (default style is for false).
+     *         and if simple mode is not active a <var>listener</var> registered on the click event.
+     *         The link display style is based on <var>invalidate</var> (default style is for
+     *         false).
      */
     public static Widget getLinkWidget(final String text, final ClickHandler listener,
             boolean invalidate, String href)
@@ -141,7 +143,7 @@ public class LinkRenderer
         Anchor link = new Anchor();
         link.setText(text);
         link.setStyleName(LINK_STYLE);
-        if (listener != null)
+        if (listener != null && ClientStaticState.isSimpleMode() == false)
         {
             link.addClickHandler(listener);
         }
@@ -155,5 +157,4 @@ public class LinkRenderer
         }
         return link;
     }
-
 }

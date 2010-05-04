@@ -423,8 +423,7 @@ public final class PropertyValueRenderers
             final String displayText = getDisplayText(entity);
             final boolean invalidate = getInvalidate(entity);
             final ClickHandler listener =
-                    viewContext.isSimpleMode() ? null : new OpenEntityDetailsTabClickListener(
-                            entity, viewContext);
+                    new OpenEntityDetailsTabClickListener(entity, viewContext);
             String href = LinkExtractor.tryExtract(entity);
             final Widget link =
                     LinkRenderer.getLinkWidget(displayText, listener, invalidate,

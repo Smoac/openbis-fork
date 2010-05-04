@@ -37,6 +37,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
  */
 public final class CommonViewContext implements IViewContext<ICommonClientServiceAsync>
 {
+
+    /**
+     * Holds static state of client that should be accessible from everywhere on the client.
+     * 
+     * @author Piotr Buczek
+     */
+    public final static class ClientStaticState
+    {
+        private static boolean simpleMode;
+
+        public static void init(final boolean isSimpleMode)
+        {
+            simpleMode = isSimpleMode;
+        }
+
+        public static boolean isSimpleMode()
+        {
+            return simpleMode;
+        }
+    }
+
     private static final String TECHNOLOGY_NAME = "common";
 
     private final ICommonClientServiceAsync service;
@@ -57,8 +78,6 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     private final IProfilingTable profilingTable;
 
-    private final boolean simpleMode;
-
     CommonViewContext(final ICommonClientServiceAsync service,
             final IGenericImageBundle imageBundle, final IPageController pageController,
             boolean isLoggingEnabled, boolean isSimpleMode)
@@ -66,12 +85,12 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         this.service = service;
         this.imageBundle = imageBundle;
         this.pageController = pageController;
-        this.simpleMode = isSimpleMode;
         this.profilingTable = ProfilingTable.create(isLoggingEnabled);
         messageProvider = new CompositeMessageProvider();
         messageProvider.add(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME));
         viewModel = new GenericViewModel();
         locatorHandlerRegistry = new ViewLocatorResolverRegistry();
+        ClientStaticState.init(isSimpleMode);
     }
 
     final void setClientPluginFactoryProvider(
@@ -215,7 +234,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     public boolean isSimpleMode()
     {
-        return simpleMode;
+        return ClientStaticState.isSimpleMode();
     }
 
 }

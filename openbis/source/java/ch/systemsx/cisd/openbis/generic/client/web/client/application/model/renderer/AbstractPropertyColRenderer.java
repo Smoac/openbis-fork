@@ -55,6 +55,8 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
                 return new VocabularyPropertyColRenderer<S>(colDef);
             case TIMESTAMP:
                 return new TimestampPropertyColRenderer<S>(colDef);
+            case MATERIAL:
+                return new MaterialPropertyColRenderer<S>(colDef);
             default:
                 return new DefaultPropertyColRenderer<S>(colDef);
         }

@@ -29,9 +29,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
@@ -46,6 +48,13 @@ public class OpenEntityDetailsTabHelper
         viewContext.getCommonService().getEntityInformationHolder(entityKind, permId,
                 new OpenEntityDetailsTabCallback(viewContext));
 
+    }
+
+    public static void open(IViewContext<?> viewContext, MaterialIdentifier identifier)
+            throws UserFailureException
+    {
+        viewContext.getCommonService().getMaterialInformationHolder(identifier,
+                new OpenEntityDetailsTabCallback(viewContext));
     }
 
     private static class OpenEntityDetailsTabCallback extends

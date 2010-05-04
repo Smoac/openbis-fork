@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
@@ -30,6 +33,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
  */
 public class LinkExtractor
 {
+
+    public static String tryExtract(IEntityInformationHolderWithIdentifier e)
+    {
+        if (e == null)
+        {
+            return null;
+        }
+        URLMethodWithParameters url = new URLMethodWithParameters("");
+        url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, e.getEntityKind().name());
+        url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, e.getPermId());
+        return print(url);
+    }
 
     public static final String tryExtract(Project p)
     {
@@ -45,28 +60,34 @@ public class LinkExtractor
         return print(url);
     }
 
-    public static final String tryExtract(Material m)
+    public static final String tryExtract(Material material)
     {
-        if (m == null)
+        if (material == null)
         {
             return null;
         }
-        URLMethodWithParameters url = new URLMethodWithParameters("");
-        url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, m.getEntityKind().name());
-        url.addParameter("code", m.getCode());
-        url.addParameter("type", m.getMaterialType().getCode());
-        return print(url);
+        return tryCreateMaterialLink(material.getCode(), material.getMaterialType().getCode());
     }
 
-    public static String tryExtract(IEntityInformationHolderWithIdentifier e)
+    public static final String tryExtract(MaterialIdentifier identifier)
     {
-        if (e == null)
+        if (identifier == null)
+        {
+            return null;
+        }
+        return tryCreateMaterialLink(identifier.getCode(), identifier.getTypeCode());
+    }
+
+    private static final String tryCreateMaterialLink(String materialCode, String materialTypeCode)
+    {
+        if (materialCode == null || materialTypeCode == null)
         {
             return null;
         }
         URLMethodWithParameters url = new URLMethodWithParameters("");
-        url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, e.getEntityKind().name());
-        url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, e.getPermId());
+        url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, EntityKind.MATERIAL.name());
+        url.addParameter(MaterialLocatorResolver.CODE_PARAMETER_KEY, materialCode);
+        url.addParameter(MaterialLocatorResolver.TYPE_PARAMETER_KEY, materialTypeCode);
         return print(url);
     }
 

@@ -1,11 +1,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 
@@ -19,9 +17,9 @@ public class MaterialLocatorResolver extends AbstractViewLocatorResolver
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final static String CODE_PARAMETER_KEY = "code";
+    public final static String CODE_PARAMETER_KEY = "code";
 
-    protected final static String TYPE_PARAMETER_KEY = "type";
+    public final static String TYPE_PARAMETER_KEY = "type";
 
     public MaterialLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -62,31 +60,7 @@ public class MaterialLocatorResolver extends AbstractViewLocatorResolver
     protected void openInitialMaterialViewer(MaterialIdentifier identifier)
             throws UserFailureException
     {
-        viewContext.getService().getMaterialInformationHolder(identifier,
-                new OpenEntityDetailsTabCallback(viewContext));
-    }
-
-    private static class OpenEntityDetailsTabCallback extends
-            AbstractAsyncCallback<IEntityInformationHolder>
-    {
-
-        private OpenEntityDetailsTabCallback(final IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        /**
-         * Opens the tab with <var>result</var> entity details.
-         */
-        @Override
-        protected final void process(final IEntityInformationHolder result)
-        {
-            new OpenEntityDetailsTabAction(result, viewContext).execute();
-        }
+        OpenEntityDetailsTabHelper.open(viewContext, identifier);
     }
 
 }
