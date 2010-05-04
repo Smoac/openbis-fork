@@ -114,6 +114,22 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
         assert properties != null : "Unspecified properties";
         assert StringUtils.isNotBlank(hostFilePropertyKey) : "Host-file property key is blank";
         final String hostFile = PropertyUtils.getMandatoryProperty(properties, hostFilePropertyKey);
+        final long highwaterMarkInKb =
+            PropertyUtils.getLong(properties, hostFilePropertyKey.concat(SEP).concat(
+                    HIGHWATER_MARK_PROPERTY_KEY), -1L);
+        return create(hostFile, highwaterMarkInKb);
+    }
+
+    /**
+     * Instantiates a new <code>FileWithHighwaterMark</code> from specified host file and
+     * high-water mark.
+     * 
+     * @param hostFile Either a local file or remote file in SSH notation (i.e. <host>:<path>).
+     * @param highwaterMarkInKb -1 means no checking for high water.
+     */
+    public static HostAwareFileWithHighwaterMark create(final String hostFile,
+            final long highwaterMarkInKb)
+    {
         File file;
         String hostNameOrNull = null;
         final int index = hostFile.indexOf(HOST_FILE_SEP);
@@ -136,9 +152,6 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
             rsyncModuleOrNull = null;
             file = getCanonicalFile(hostFile);
         }
-        final long highwaterMarkInKb =
-                PropertyUtils.getLong(properties, hostFilePropertyKey.concat(SEP).concat(
-                        HIGHWATER_MARK_PROPERTY_KEY), -1L);
         return new HostAwareFileWithHighwaterMark(hostNameOrNull, file, rsyncModuleOrNull,
                 highwaterMarkInKb);
     }
