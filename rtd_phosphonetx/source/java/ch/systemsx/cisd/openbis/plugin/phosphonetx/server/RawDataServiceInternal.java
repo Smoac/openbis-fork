@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.rinn.restrictions.Private;
@@ -130,7 +132,9 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         String dataStoreServerCode = findDataStoreServer(dataSetProcessingKey);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.processDatasets(dataSetProcessingKey, dataStoreServerCode, dataSetCodes);
+        Map<String, String> parameterBindings = new HashMap<String, String>();
+        externalDataTable.processDatasets(dataSetProcessingKey, dataStoreServerCode, dataSetCodes,
+                parameterBindings);
     }
 
     private List<Sample> loadAllRawDataSamples(Session session)

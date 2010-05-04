@@ -121,7 +121,7 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
                     will(returnValue(externalDataTable));
                     
                     List<String> dataSetCodes = Arrays.asList("ds2.0", "ds2.1");
-                    one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2", dataSetCodes);
+                    one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2", dataSetCodes, null);
                 }
                 
             });
