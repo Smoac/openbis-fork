@@ -227,17 +227,21 @@
     <delete dir="${webapp.dist}" />
     <java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}" classname="com.google.gwt.dev.Compiler"
       fork="true">
-      <jvmarg value="-Xmx512M" />
+      <jvmarg value="-Xmx1024M" />
       <arg value="-war" />
       <arg value="${webapp.dist}" />
       <arg value="${gwt.module.name}" />
+      <arg value="-localWorkers" />
+      <arg value="4" />
+      <arg value="-XdisableCastChecking" />
+      <arg value="-XdisableClassMetadata" />
     </java>
     <move todir="${webapp.dist}">
       <fileset dir="${webapp.dist}/${gwt.module.name}" />
     </move>
   </target>
-
-  <!--
+	
+ <!--
       // Creates build information.
       -->
   <target name="build-info" description="Creates build information.">
@@ -689,15 +693,16 @@
       <arg value="-war" />
       <arg value="${targets.www}" />
       <arg value="${module-test.module}Safari" />
-      <arg value="-draftCompile" />
-      <arg value="-style" />
+    	<arg value="-draftCompile" />
+			<arg value="-style" />
       <arg value="PRETTY" />
+      <!-- <arg value="-compileReport" /> --> 
     </java>
     <move todir="${targets.www}/${module-test.path}">
       <fileset dir="${targets.www}/${module-test.module}" />
     </move>
   </target>
-
+	
   <!--
       Run the production mode, assuming compile-module-test has already been run 
       Must pass in module-test.path, module-test.module, and module-test.db-kind as arguments 
@@ -738,6 +743,13 @@
   <target name="prepare-and-run-module-test" depends="prepare-gwt, module-test" description="Prepare, compile, and run the module test mode">
   </target>
 
+  <target name="module-test-no-run" description="Compile module test mode" depends="check-dictionary-syntax">
+    <antcall target="compile-module-test">
+      <param name="module-test.path" value="openbis-test" />
+      <param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
+    </antcall>
+  </target>
+	
   <target name="module-test" description="Compile and run the module test mode" depends="check-dictionary-syntax">
     <antcall target="compile-module-test">
       <param name="module-test.path" value="openbis-test" />
