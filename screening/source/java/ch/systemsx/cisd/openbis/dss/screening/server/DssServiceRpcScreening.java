@@ -35,7 +35,7 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.io.ConcatFileInputStream;
+import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
@@ -237,7 +237,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         {
             closeDatasetLoaders(imageLoadersMap.values());
         }
-        return new ConcatFileInputStream(imageFiles);
+        return new ConcatenatedFileInputStream(imageFiles);
     }
 
     private static void closeDatasetLoaders(Collection<HCSDatasetLoader> loaders)

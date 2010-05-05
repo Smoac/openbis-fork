@@ -31,7 +31,7 @@ import java.io.OutputStream;
  */
 // NOTE: This class is used in some APIs and should not depend on classes other than those in java.*
 // package
-public class ConcatFileOutputStreamWriter
+public class ConcatenatedFileOutputStreamWriter
 {
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 8;
 
@@ -49,7 +49,7 @@ public class ConcatFileOutputStreamWriter
     // block is reached.
     private long bytesToReadFromCurrent;
 
-    public ConcatFileOutputStreamWriter(InputStream inputStream)
+    public ConcatenatedFileOutputStreamWriter(InputStream inputStream)
     {
         this.inputStream = inputStream;
         this.bytesToReadFromCurrent = 0;
@@ -83,7 +83,7 @@ public class ConcatFileOutputStreamWriter
     }
 
     /**
-     * block size if there is a next block in the stream and it is non-empty. Returns 0 if the block
+     * block size if there is a next block in the stream and it is non-empty. Returns 0 if the blockminor: remove trash
      * is empty, -1 if there are no more blocks to read.<br>
      * Can be called only at the beginning or if the end of the previous block has been reached.
      * 

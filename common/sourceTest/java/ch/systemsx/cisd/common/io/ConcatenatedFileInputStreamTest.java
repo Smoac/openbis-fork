@@ -32,16 +32,16 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 
 /**
- * Tests for {@link ConcatFileInputStream}
+ * Tests for {@link ConcatenatedFileInputStream}
  * 
  * @author Tomasz Pylak
  */
-public class ConcatFileInputStreamTest extends AbstractFileSystemTestCase
+public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
 {
     @Test
     public void testNoFiles() throws IOException
     {
-        ConcatFileInputStream stream = new ConcatFileInputStream(new File[0]);
+        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(new File[0]);
         AssertJUnit.assertEquals(-1, stream.read());
     }
 
@@ -50,7 +50,7 @@ public class ConcatFileInputStreamTest extends AbstractFileSystemTestCase
     {
         String content = createLongString("1");
         File file = createFile(content, "f1.txt");
-        ConcatFileInputStream stream = new ConcatFileInputStream(file);
+        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(file);
         List<String> streamContent = readStrings(stream);
         assertEquals(1, streamContent.size());
         assertEquals(content, streamContent.get(0));
@@ -68,7 +68,7 @@ public class ConcatFileInputStreamTest extends AbstractFileSystemTestCase
         String content3 = createLongString("3");
         File file3 = createFile(content3, "f3.txt");
 
-        ConcatFileInputStream stream = new ConcatFileInputStream(file1, file2, file3);
+        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(file1, file2, file3);
         List<String> streamContent = readStrings(stream);
         assertEquals(3, streamContent.size());
         assertEquals(content1, streamContent.get(0));
@@ -78,9 +78,9 @@ public class ConcatFileInputStreamTest extends AbstractFileSystemTestCase
 
     // --------- helpers
 
-    private static List<String> readStrings(ConcatFileInputStream stream) throws IOException
+    private static List<String> readStrings(ConcatenatedFileInputStream stream) throws IOException
     {
-        ConcatFileOutputStreamWriter reader = new ConcatFileOutputStreamWriter(stream);
+        ConcatenatedFileOutputStreamWriter reader = new ConcatenatedFileOutputStreamWriter(stream);
         List<String> result = new ArrayList<String>();
         while (true)
         {

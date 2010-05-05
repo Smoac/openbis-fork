@@ -34,7 +34,7 @@ import java.util.List;
  * 
  * @author Tomasz Pylak
  */
-public class ConcatFileInputStream extends InputStream
+public class ConcatenatedFileInputStream extends InputStream
 {
     private static final int EOF = -1;
 
@@ -54,7 +54,7 @@ public class ConcatFileInputStream extends InputStream
     /**
      * @files content of these files will be concatenated into one stream.
      */
-    public ConcatFileInputStream(File... files)
+    public ConcatenatedFileInputStream(File... files)
     {
         this.files = files;
         this.readingFileSize = false;
@@ -63,7 +63,7 @@ public class ConcatFileInputStream extends InputStream
     /**
      * @files content of these files will be concatenated into one stream.
      */
-    public ConcatFileInputStream(List<File> files)
+    public ConcatenatedFileInputStream(List<File> files)
     {
         this(files.toArray(new File[files.size()]));
     }

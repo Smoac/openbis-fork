@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.io.ConcatFileOutputStreamWriter;
+import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
@@ -244,7 +244,7 @@ public class ScreeningOpenbisServiceFacade
         InputStream stream = dssServer.loadImages(sessionToken, imageReferences);
         try
         {
-            ConcatFileOutputStreamWriter imagesWriter = new ConcatFileOutputStreamWriter(stream);
+            ConcatenatedFileOutputStreamWriter imagesWriter = new ConcatenatedFileOutputStreamWriter(stream);
             for (PlateImageReference imageRef : imageReferences)
             {
                 OutputStream output = outputStreamProvider.getOutputStream(imageRef);
