@@ -39,7 +39,7 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     private static final long serialVersionUID = 1L;
 
     @Private
-    static final String DESTINATION_KEY = "destination";
+    public static final String DESTINATION_KEY = "destination";
 
     @Private
     static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
