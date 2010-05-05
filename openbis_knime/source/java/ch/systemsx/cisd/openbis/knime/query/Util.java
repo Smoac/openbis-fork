@@ -22,11 +22,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.knime.core.data.DataType;
-import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.LongCell;
-import org.knime.core.data.def.StringCell;
-
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
 
@@ -70,13 +65,13 @@ class Util
         }
     }
     
-    static DataType translateDataType(QueryTableColumnDataType dataType)
+    static ColumnType getColumnType(QueryTableColumnDataType dataType)
     {
         switch (dataType)
         {
-            case DOUBLE: return DoubleCell.TYPE;
-            case LONG: return LongCell.TYPE;
-            default: return StringCell.TYPE;
+            case DOUBLE: return ColumnType.DOUBLE;
+            case LONG: return ColumnType.LONG;
+            default: return ColumnType.STRING;
         }
     }
 }

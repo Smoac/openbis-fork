@@ -25,9 +25,6 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.LongCell;
-import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -125,14 +122,16 @@ public class QueryNodeModel extends NodeModel
         QueryTableModel result = facade.executeQuery(queryDescription.getId(), parameterBindings.getBindings());
         List<QueryTableColumn> columns = result.getColumns();
         String[] columnTitles = new String[columns.size()];
-        DataType[] columnTypes = new DataType[columns.size()];
+        DataType[] dataTypes = new DataType[columns.size()];
+        ColumnType[] columnTypes = new ColumnType[columns.size()];
         for (int i = 0, n = columns.size(); i < n; i++)
         {
             QueryTableColumn column = columns.get(i);
             columnTitles[i] = column.getTitle();
-            columnTypes[i] = Util.translateDataType(column.getDataType());
+            columnTypes[i] = Util.getColumnType(column.getDataType());
+            dataTypes[i] = columnTypes[i].getDataType();
         }
-        DataTableSpec dataTableSpec = new DataTableSpec(columnTitles, columnTypes);
+        DataTableSpec dataTableSpec = new DataTableSpec(columnTitles, dataTypes);
         BufferedDataContainer container = exec.createDataContainer(dataTableSpec);
         List<Serializable[]> rows = result.getRows();
         for (int i = 0, n = rows.size(); i < n; i++)
@@ -141,19 +140,7 @@ public class QueryNodeModel extends NodeModel
             DataCell[] cells = new DataCell[row.length];
             for (int c = 0; c < row.length; c++)
             {
-                Serializable value = row[c];
-                DataCell cell = null;
-                if (value instanceof Double)
-                {
-                    cell = new DoubleCell((Double) value);
-                } else if (value instanceof Long)
-                {
-                    cell = new LongCell((Long) value);
-                } else
-                {
-                    cell = new StringCell(value.toString());
-                }
-                cells[c] = cell;
+                cells[c] = columnTypes[c].createCell(row[c]);
             }
             container.addRowToTable(new DefaultRow(Integer.toString(i), cells));
         }
