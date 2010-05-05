@@ -99,6 +99,7 @@ public final class WebClientFilesUpdater
         this.workingDirectory = getWorkingDirectory(workingDirectory);
         this.allTechnologies = scanAllTechnologies(this.workingDirectory);
         this.technologies = getTechnologies(allTechnologies, technologies);
+        Arrays.sort(this.technologies);
     }
 
     private final static void checkTechnologies(final String[] allTechnologies,
