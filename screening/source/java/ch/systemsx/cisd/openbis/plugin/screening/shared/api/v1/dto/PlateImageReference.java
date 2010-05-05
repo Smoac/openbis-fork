@@ -37,13 +37,13 @@ public class PlateImageReference extends DatasetIdentifier implements Serializab
         return wellPosition;
     }
 
-    /** a sequential number of an image tile, starts from 1 */
+    /** a sequential number of an image tile, starts from 0 */
     public int getTile()
     {
         return tile;
     }
 
-    /** index of a channel in which an image has been taken, starts from 1 */
+    /** index of a channel in which an image has been taken, starts from 0 */
     public int getChannel()
     {
         return channel;

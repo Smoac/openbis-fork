@@ -282,7 +282,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         try
         {
             return ImageChannelsUtils.getImagePath(imageAccessor, wellLocation, tileLocation,
-                    imageRef.getChannel());
+                    imageRef.getChannel() + 1);
         } catch (EnvironmentFailureException e)
         {
             throw createNoImageException(imageRef);
@@ -299,10 +299,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return new IllegalStateException("No image found: " + imageRef);
     }
 
+    // tile - start from 0
     private static Location getTileLocation(int tile, Geometry wellGeometry)
     {
-        int row = ((tile - 1) / wellGeometry.getColumns()) + 1;
-        int col = ((tile - 1) % wellGeometry.getColumns()) + 1;
+        int row = (tile / wellGeometry.getColumns()) + 1;
+        int col = (tile % wellGeometry.getColumns()) + 1;
         return new Location(row, col);
     }
 

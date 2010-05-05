@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServle
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
- * Utility classes to create an image of a specified size containing one channel or a subset of
- * all channels.
+ * Utility classes to create an image of a specified size containing one channel or a subset of all
+ * channels.
  * 
  * @author Tomasz Pylak
  */
@@ -149,7 +149,10 @@ public class ImageChannelsUtils
 
     // --------- common
 
-    /** throws {@link EnvironmentFailureException} when image does not exist */
+    /**
+     * @param chosenChannel starts from 1
+     * @throw {@link EnvironmentFailureException} when image does not exist
+     */
     public static File getImagePath(HCSDatasetLoader imageAccessor, Location wellLocation,
             Location tileLocation, int chosenChannel)
     {

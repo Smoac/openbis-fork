@@ -43,7 +43,7 @@ public class HCSDatasetLoader
 
     }
 
-	/** has to be called at the end */
+    /** has to be called at the end */
     public void close()
     {
         dataStructure.close();
@@ -64,6 +64,7 @@ public class HCSDatasetLoader
         return imageAccessor.getChannelCount();
     }
 
+    /** @param chosenChannel start from 1 */
     public INode tryGetStandardNodeAt(int chosenChannel, Location wellLocation,
             Location tileLocation)
     {

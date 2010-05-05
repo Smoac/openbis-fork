@@ -117,9 +117,9 @@ public class ScreeningClientApiTest
         {
             for (int wellCol = 1; wellCol <= 5; wellCol++)
             {
-                for (int channel = 1; channel <= 2; channel++)
+                for (int channel = 0; channel < 2; channel++)
                 {
-                    for (int tile = 1; tile <= 1; tile++)
+                    for (int tile = 0; tile < 1; tile++)
                     {
 
                         PlateImageReference imageRef =
