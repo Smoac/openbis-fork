@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import ch.systemsx.cisd.common.geometry.Point;
-
 /**
  * A helper class which allows to separate multiple blocks written to one stream in a format:
  * (<block-size><block-of-bytes>)* where block-size is the long number. Useful to parse the content
@@ -63,8 +61,6 @@ public class ConcatFileOutputStreamWriter
      */
     public long writeNextBlock(OutputStream output) throws IOException
     {
-        Point p = new Point(1, 1);
-        System.out.println(p);
         long blockSize = gotoNextBlock();
         if (blockSize == -1)
         {
