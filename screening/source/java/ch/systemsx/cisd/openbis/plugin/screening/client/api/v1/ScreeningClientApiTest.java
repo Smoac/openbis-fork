@@ -16,16 +16,23 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
@@ -131,7 +138,55 @@ public class ScreeningClientApiTest
                 }
             }
         }
-        facade.loadImages(imageRefs, imageFiles);
+        loadImages(facade, imageRefs, imageFiles);
+    }
+
+    /**
+     * Saves images for a given list of image references (given by data set code, well position,
+     * channel and tile) in the specified files.<br>
+     * The number of image references has to be the same as the number of files.
+     * 
+     * @throws IOException when reading images from the server or writing them to the files fails
+     */
+    private static void loadImages(ScreeningOpenbisServiceFacade facade,
+            List<PlateImageReference> imageReferences, List<File> imageOutputFiles)
+            throws IOException
+    {
+        final Map<PlateImageReference, OutputStream> imageRefToFileMap =
+                createImageToFileMap(imageReferences, imageOutputFiles);
+        facade.loadImages(imageReferences, new IImageOutputStreamProvider()
+            {
+                public OutputStream getOutputStream(PlateImageReference imageReference)
+                        throws IOException
+                {
+                    return imageRefToFileMap.get(imageReference);
+                }
+            });
+        closeOutputStreams(imageRefToFileMap.values());
+    }
+
+    private static void closeOutputStreams(Collection<OutputStream> streams) throws IOException
+    {
+        for (OutputStream stream : streams)
+        {
+            stream.close();
+        }
+    }
+
+    private static Map<PlateImageReference, OutputStream> createImageToFileMap(
+            List<PlateImageReference> imageReferences, List<File> imageOutputFiles)
+            throws FileNotFoundException
+    {
+        assert imageReferences.size() == imageOutputFiles.size() : "there should be one file specified for each image reference";
+        Map<PlateImageReference, OutputStream> map =
+                new HashMap<PlateImageReference, OutputStream>();
+        for (int i = 0; i < imageReferences.size(); i++)
+        {
+            OutputStream out =
+                    new BufferedOutputStream(new FileOutputStream(imageOutputFiles.get(i)));
+            map.put(imageReferences.get(i), out);
+        }
+        return map;
     }
 
     private static String createImageFileName(PlateImageReference image)
