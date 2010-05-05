@@ -81,11 +81,14 @@ public class DataSetComputeMenu extends TextToolItem
 
         Menu submenu = new Menu();
         addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_QUERIES);
-        addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_PROCESSING);
-        if (viewContext.getModel().getApplicationInfo().isArchivingConfigured())
+        if (viewContext.isSimpleMode() == false)
         {
-            submenu.add(new DataSetArchivingMenu(viewContext, selectedDataSetsGetter,
-                    postArchivingAction));
+            addMenuItem(submenu, DssTaskActionMenuKind.COMPUTE_MENU_PROCESSING);
+            if (viewContext.getModel().getApplicationInfo().isArchivingConfigured())
+            {
+                submenu.add(new DataSetArchivingMenu(viewContext, selectedDataSetsGetter,
+                        postArchivingAction));
+            }
         }
         setMenu(submenu);
     }

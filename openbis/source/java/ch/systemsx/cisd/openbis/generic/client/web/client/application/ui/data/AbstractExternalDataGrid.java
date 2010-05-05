@@ -124,33 +124,34 @@ public abstract class AbstractExternalDataGrid
     // adds show, show-details and invalidate buttons
     protected void extendBottomToolbar()
     {
-        if (viewContext.isSimpleMode())
-        {
-            return;
-        }
         addEntityOperationsLabel();
 
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
-                getId() + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                asShowEntityInvoker(true)));
+        if (viewContext.isSimpleMode() == false)
+        {
+            addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
+                    getId() + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
+            addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                    asShowEntityInvoker(true)));
 
-        final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);
-        final String deleteAllTitle = deleteTitle + " All";
-        final Button deleteButton = new Button(deleteAllTitle, new AbstractCreateDialogListener()
-            {
+            final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);
+            final String deleteAllTitle = deleteTitle + " All";
+            final Button deleteButton =
+                    new Button(deleteAllTitle, new AbstractCreateDialogListener()
+                        {
 
-                @Override
-                protected Dialog createDialog(List<ExternalData> dataSets,
-                        IBrowserGridActionInvoker invoker)
-                {
-                    return new DataSetListDeletionConfirmationDialog(viewContext,
-                            createDeletionCallback(invoker), getSelectedAndDisplayedItemsAction()
-                                    .execute());
-                }
-            });
-        changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
-        addButton(deleteButton);
+                            @Override
+                            protected Dialog createDialog(List<ExternalData> dataSets,
+                                    IBrowserGridActionInvoker invoker)
+                            {
+                                return new DataSetListDeletionConfirmationDialog(viewContext,
+                                        createDeletionCallback(invoker),
+                                        getSelectedAndDisplayedItemsAction().execute());
+                            }
+                        });
+            changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
+            addButton(deleteButton);
+        }
+
         Button uploadButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS),
                         new AbstractCreateDialogListener()
