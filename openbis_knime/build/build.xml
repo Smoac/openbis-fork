@@ -1,4 +1,4 @@
-<project name="openbis_knime" basedir="..">
+<project name="openbis_knime" default="ci" basedir="..">
   <import file="../../build_resources/ant/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
   <property name="mainfolder" value="openbis_knime"/>
