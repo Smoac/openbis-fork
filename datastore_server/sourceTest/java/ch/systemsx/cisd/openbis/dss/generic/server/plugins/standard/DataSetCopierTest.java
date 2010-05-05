@@ -191,10 +191,12 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     public void testFailingSshConnection()
     {
         properties.setProperty(DESTINATION_KEY, "host:tmp/test");
-        prepareCreateAndCheckCopier("host", null, false);
+        prepareCreateAndCheckCopier("host", null, 1, false);
+        DataSetCopier dataSetCopier = new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+        
         try
         {
-            new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+            dataSetCopier.process(Arrays.asList(ds1), null);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -209,10 +211,12 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     {
         properties.setProperty(DESTINATION_KEY, "host:abc:tmp/test");
         properties.setProperty(RSYNC_PASSWORD_FILE_KEY, "abc-password");
-        prepareCreateAndCheckCopier("host", "abc", false);
+        prepareCreateAndCheckCopier("host", "abc", 1, false);
+        DataSetCopier dataSetCopier = new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+        
         try
         {
-            new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+            dataSetCopier.process(Arrays.asList(ds1), null);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -226,7 +230,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     public void testCopyTwoDataSetsLocally()
     {
         properties.setProperty(DESTINATION_KEY, "tmp/test");
-        prepareCreateAndCheckCopier(null, null, true);
+        prepareCreateAndCheckCopier(null, null, 2, true);
         context.checking(new Expectations()
             {
                 {
@@ -256,7 +260,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         File existingDestinationDir = new File("tmp/test/existing");
         existingDestinationDir.mkdirs();
 
-        prepareCreateAndCheckCopier(null, null, true);
+        prepareCreateAndCheckCopier(null, null, 4, true);
         context.checking(new Expectations()
             {
                 {
@@ -292,7 +296,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     public void testCopyRemotelyViaSsh()
     {
         properties.setProperty(DESTINATION_KEY, "host:tmp/test");
-        prepareCreateAndCheckCopier("host", null, true);
+        prepareCreateAndCheckCopier("host", null, 1, true);
         context.checking(new Expectations()
             {
                 {
@@ -317,7 +321,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     public void testCopyRemotelyViaSshWithErrors()
     {
         properties.setProperty(DESTINATION_KEY, "host:tmp/test");
-        prepareCreateAndCheckCopier("host", null, true);
+        prepareCreateAndCheckCopier("host", null, 4, true);
         context.checking(new Expectations()
             {
                 {
@@ -364,7 +368,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     {
         properties.setProperty(DESTINATION_KEY, "host:abc:tmp/test");
         properties.setProperty(RSYNC_PASSWORD_FILE_KEY, "abc-password");
-        prepareCreateAndCheckCopier("host", "abc", true);
+        prepareCreateAndCheckCopier("host", "abc", 1, true);
         context.checking(new Expectations()
             {
                 {
@@ -391,7 +395,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     {
         properties.setProperty(DESTINATION_KEY, "host:abc:tmp/test");
         properties.setProperty(RSYNC_PASSWORD_FILE_KEY, "abc-password");
-        prepareCreateAndCheckCopier("host", "abc", true);
+        prepareCreateAndCheckCopier("host", "abc", 2, true);
         context.checking(new Expectations()
             {
                 {
@@ -424,27 +428,27 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     }
 
     private void prepareCreateAndCheckCopier(final String hostOrNull,
-            final String rsyncModuleOrNull, final boolean checkingResult)
+            final String rsyncModuleOrNull, final int numberOfExpectedCreations, final boolean checkingResult)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(pathFactory).create(rsyncExecutableDummy, sshExecutableDummy);
+                    exactly(numberOfExpectedCreations).of(pathFactory).create(rsyncExecutableDummy, sshExecutableDummy);
                     will(returnValue(copier));
 
-                    one(sshFactory).create(sshExecutableDummy, hostOrNull);
+                    exactly(numberOfExpectedCreations).of(sshFactory).create(sshExecutableDummy, hostOrNull);
                     will(returnValue(sshCommandExecutor));
 
-                    one(copier).check();
+                    exactly(numberOfExpectedCreations).of(copier).check();
                     if (hostOrNull != null)
                     {
                         if (rsyncModuleOrNull != null)
                         {
-                            one(copier).checkRsyncConnectionViaRsyncServer(hostOrNull,
+                            exactly(numberOfExpectedCreations).of(copier).checkRsyncConnectionViaRsyncServer(hostOrNull,
                                     rsyncModuleOrNull, rsyncModuleOrNull + "-password");
                         } else
                         {
-                            one(copier).checkRsyncConnectionViaSsh(hostOrNull, null);
+                            exactly(numberOfExpectedCreations).of(copier).checkRsyncConnectionViaSsh(hostOrNull, null);
                         }
                         will(returnValue(checkingResult));
                     }

@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -30,6 +32,8 @@ import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFile;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -37,6 +41,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class Copier implements Serializable, IPostRegistrationDatasetHandler
 {
     private static final long serialVersionUID = 1L;
+
+    private final static Logger operationLog =
+        LogFactory.getLogger(LogCategory.OPERATION, AbstractDropboxProcessingPlugin.class);
 
     private final File rsyncExecutable;
 
@@ -77,23 +84,6 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         String host = hostAwareFile.tryGetHost();
         ISshCommandExecutor sshCommandExecutor = sshCommandExecutorFactory.create(sshExecutable, host);
         String rsyncModule = hostAwareFile.tryGetRsyncModule();
-        File destination = hostAwareFile.getFile();
-        File destinationFile = new File(destination, originalData.getName());
-        BooleanStatus destinationExists =
-                checkDestinationFileExistence(destinationFile, host, sshCommandExecutor);
-
-        if (destinationExists.isSuccess())
-        {
-            DataSetCopier.operationLog.error("Destination file/directory '" + destinationFile.getPath()
-                    + "' already exists - dataset files will not be copied.");
-            return Status.createError(DataSetCopier.ALREADY_EXIST_MSG);
-        } else if (destinationExists.isError())
-        {
-            DataSetCopier.operationLog.error("Could not test destination file/directory '" + destinationFile
-                    + "' existance" + (host != null ? " on host '" + host + "'" : "") + ": "
-                    + destinationExists.tryGetMessage());
-            return Status.createError(DataSetCopier.COPYING_FAILED_MSG);
-        }
         IPathCopier copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
         copier.check();
         if (host != null)
@@ -101,12 +91,29 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
             FileUtilities.checkPathCopier(copier, host, null, rsyncModule,
                     rsyncPasswordFile);
         }
+        File destination = hostAwareFile.getFile();
+        File destinationFile = new File(destination, originalData.getName());
+        BooleanStatus destinationExists =
+                checkDestinationFileExistence(destinationFile, host, sshCommandExecutor);
+
+        if (destinationExists.isSuccess())
+        {
+            operationLog.error("Destination file/directory '" + destinationFile.getPath()
+                    + "' already exists - dataset files will not be copied.");
+            return Status.createError(DataSetCopier.ALREADY_EXIST_MSG);
+        } else if (destinationExists.isError())
+        {
+            operationLog.error("Could not test destination file/directory '" + destinationFile
+                    + "' existance" + (host != null ? " on host '" + host + "'" : "") + ": "
+                    + destinationExists.tryGetMessage());
+            return Status.createError(DataSetCopier.COPYING_FAILED_MSG);
+        }
         Status status =
                 copier.copyToRemote(originalData, destination, host, rsyncModule,
                         rsyncPasswordFile);
         if (status.isError())
         {
-            DataSetCopier.operationLog.error("Could not copy data set " + dataSetInformation.getDataSetCode()
+            operationLog.error("Could not copy data set " + dataSetInformation.getDataSetCode()
                     + " to destination folder '" + destination + "'"
                     + (host != null ? " on host '" + host + "'" : "")
                     + (rsyncModule != null ? " for rsync module '" + rsyncModule + "'" : "")
