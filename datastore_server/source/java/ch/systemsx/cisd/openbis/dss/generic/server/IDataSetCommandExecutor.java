@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -61,8 +62,10 @@ interface IDataSetCommandExecutor
             String cifexAdminPasswordOrNull);
 
     /**
-     * Schedules the specified processing task with specified parameter bindings for provided datasets
+     * Schedules the specified processing task with specified parameter bindings for provided datasets.
      * 
+     * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER} with
+     *            the ID of the user who initiated processing.
      * @param userEmailOrNull Email of user who initiated processing and will get a message after
      *            the processing is finished. It may be null if the user doesn't have email and no
      *            message will be send in such case.

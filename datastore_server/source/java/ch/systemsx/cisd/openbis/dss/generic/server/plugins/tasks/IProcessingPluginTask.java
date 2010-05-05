@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -33,6 +34,8 @@ public interface IProcessingPluginTask extends Serializable
     /**
      * Processes asynchronously the specified datasets with specified parameter bindings.
      * 
+     * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER} with
+     *            the ID of the user who initiated processing.
      * @returns {@link ProcessingStatus} of the finished processing with statuses of processing for
      *          all scheduled data sets or null if processing succeeded for all datasets and no
      *          additional information is provided.
