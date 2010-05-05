@@ -56,12 +56,12 @@ public class ConcatenatedFileOutputStreamWriter
     }
 
     /**
-     * Copies the next block into the specified output stream. Returns the number of bytes copied or
-     * -1 if there are no more blocks to read.
+     * Copies the next block into the specified output stream. Returns the number of bytes written
+     * or -1 if there are no more blocks to read.
      */
     public long writeNextBlock(OutputStream output) throws IOException
     {
-        long blockSize = gotoNextBlock();
+        long blockSize = beginReadingNextBlock();
         if (blockSize == -1)
         {
             return -1; // no more blocks
@@ -83,13 +83,13 @@ public class ConcatenatedFileOutputStreamWriter
     }
 
     /**
-     * block size if there is a next block in the stream and it is non-empty. Returns 0 if the blockminor: remove trash
-     * is empty, -1 if there are no more blocks to read.<br>
+     * block size if there is a next block in the stream and it is non-empty. Returns 0 if the
+     * blockminor: remove trash is empty, -1 if there are no more blocks to read.<br>
      * Can be called only at the beginning or if the end of the previous block has been reached.
      * 
      * @throws IOException when the stream is corrupted and the size of the block cannot be read
      */
-    private long gotoNextBlock() throws IOException
+    private long beginReadingNextBlock() throws IOException
     {
         if (bytesToReadFromCurrent > 0)
         {
@@ -122,7 +122,7 @@ public class ConcatenatedFileOutputStreamWriter
     /**
      * Reads the bytes from the current block. If len is 0 returns 0, otherwise if the end of one
      * block has been reached returns -1. It does not mean that the end of the whole stream has been
-     * reached, the stream may contain other blocks. The method {@link #gotoNextBlock()} should be
+     * reached, the stream may contain other blocks. The method {@link #beginReadingNextBlock()} should be
      * called to start reading the next block.<br>
      * See {@link InputStream#read(byte[], int, int)} for parameters details.
      */
