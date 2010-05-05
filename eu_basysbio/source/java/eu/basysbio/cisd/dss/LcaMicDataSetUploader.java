@@ -129,7 +129,7 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
                 builder.append("comment=null,");
                 builder.append(dataSetInformation.getExperimentIdentifier()).append(",");
                 builder.append(dataSetInformation.getDataSetCode()).append(",");
-                builder.append(DataSetHandler.LCA_MIC_TIME_SERIES).append(",PROPRIETARY\n");
+                builder.append(DataSetHandler.LCA_MIC_TIME_SERIES).append(",TSV\n");
                 builder.append("user-email=").append(dataSetInformation.tryGetUploadingUserEmail());
                 FileUtilities.writeToFile(new File(dataSet, CifexExtractorHelper.REQUEST_PROPERTIES_FILE), builder.toString());
             }
