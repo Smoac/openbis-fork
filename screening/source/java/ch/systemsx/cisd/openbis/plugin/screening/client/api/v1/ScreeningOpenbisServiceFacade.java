@@ -1,11 +1,19 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.io.ConcatFileOutputStreamWriter;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
@@ -19,7 +27,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateSingleImage;
 
 /**
  * A client side facade of openBIS and Datastore Server API.
@@ -156,25 +163,97 @@ public class ScreeningOpenbisServiceFacade
     }
 
     /**
-     * Provide images for a given set of image references (given by data set code, well position,
-     * channel and tile).
+     * Saves images for a given list of image references (given by data set code, well position,
+     * channel and tile) in the specified files.<br>
+     * The number of image references has to be the same as the number of files.
+     * 
+     * @throws IOException when reading images from the server or writing them to the files fails
      */
-    public List<PlateSingleImage> loadImages(List<PlateImageReference> imageReferences)
+    public void loadImages(List<PlateImageReference> imageReferences, List<File> imageOutputFiles)
+            throws IOException
+    {
+        final Map<PlateImageReference, OutputStream> imageRefToFileMap =
+                createImageToFileMap(imageReferences, imageOutputFiles);
+        loadImages(imageReferences, new IImageOutputStreamProvider()
+            {
+                public OutputStream getOutputStream(PlateImageReference imageReference)
+                        throws IOException
+                {
+                    return imageRefToFileMap.get(imageReference);
+                }
+            });
+        closeOutputStreams(imageRefToFileMap.values());
+    }
+
+    private static void closeOutputStreams(Collection<OutputStream> streams) throws IOException
+    {
+        for (OutputStream stream : streams)
+        {
+            stream.close();
+        }
+    }
+
+    private static Map<PlateImageReference, OutputStream> createImageToFileMap(
+            List<PlateImageReference> imageReferences, List<File> imageOutputFiles)
+            throws FileNotFoundException
+    {
+        assert imageReferences.size() == imageOutputFiles.size() : "there should be one file specified for each image reference";
+        Map<PlateImageReference, OutputStream> map =
+                new HashMap<PlateImageReference, OutputStream>();
+        for (int i = 0; i < imageReferences.size(); i++)
+        {
+            OutputStream out =
+                    new BufferedOutputStream(new FileOutputStream(imageOutputFiles.get(i)));
+            map.put(imageReferences.get(i), out);
+        }
+        return map;
+    }
+
+    /**
+     * An interface to provide mapping between image references and output streams where the images
+     * should be saved.
+     */
+    public static interface IImageOutputStreamProvider
+    {
+        /**
+         * @return output stream where the image for the specified reference should be saved.
+         * @throws IOException when creating the output stream fails
+         */
+        OutputStream getOutputStream(PlateImageReference imageReference) throws IOException;
+    }
+
+    /**
+     * Saves images for a given list of image references (given by data set code, well position,
+     * channel and tile) in the provided output streams. Output streams will not be closed
+     * automatically.<br>
+     * The number of image references has to be the same as the number of files.
+     * 
+     * @throws IOException when reading images from the server or writing them to the output streams
+     *             fails
+     */
+    public void loadImages(List<PlateImageReference> imageReferences,
+            IImageOutputStreamProvider outputStreamProvider) throws IOException
     {
         if (imageReferences.size() == 0)
         {
-            return new ArrayList<PlateSingleImage>();
+            return;
         }
         String datastoreServerUrl = extractDatastoreServerUrl(imageReferences);
         IDssServiceRpcScreening dssServer = getScreeningDssServer(datastoreServerUrl);
 
-        List<PlateSingleImage> images = new ArrayList<PlateSingleImage>();
-        for (PlateImageReference imageRef : imageReferences)
+        InputStream stream = dssServer.loadImages(sessionToken, imageReferences);
+        try
         {
-            InputStream stream = dssServer.loadImage(sessionToken, imageRef);
-            images.add(new PlateSingleImage(imageRef, stream));
+            ConcatFileOutputStreamWriter imagesWriter = new ConcatFileOutputStreamWriter(stream);
+            for (PlateImageReference imageRef : imageReferences)
+            {
+                OutputStream output = outputStreamProvider.getOutputStream(imageRef);
+                imagesWriter.writeNextBlock(output);
+            }
+        } finally
+        {
+            stream.close();
         }
-        return images;
     }
 
     /**

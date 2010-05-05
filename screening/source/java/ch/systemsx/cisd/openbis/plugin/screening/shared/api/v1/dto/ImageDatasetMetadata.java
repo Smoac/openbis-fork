@@ -40,7 +40,7 @@ public class ImageDatasetMetadata implements Serializable
     /**
      * number of channels in which images have been acquired for the described dataset
      */
-    public int getChannelsNumber()
+    public int getNumberOfChannels()
     {
         return channelsNumber;
     }
@@ -48,7 +48,7 @@ public class ImageDatasetMetadata implements Serializable
     /**
      * number of image tiles (aka fields) into which each well is splited
      */
-    public int getTilesNumber()
+    public int getNumberOfTiles()
     {
         return tilesNumber;
     }

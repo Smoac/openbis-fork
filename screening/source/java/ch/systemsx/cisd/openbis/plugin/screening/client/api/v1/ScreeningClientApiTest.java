@@ -18,16 +18,13 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.lf5.util.StreamUtils;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -36,7 +33,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetM
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateSingleImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
@@ -112,38 +108,33 @@ public class ScreeningClientApiTest
     private static void loadImages(ScreeningOpenbisServiceFacade facade,
             IDatasetIdentifier datasetIdentifier) throws FileNotFoundException, IOException
     {
-        for (int well = 1; well <= 5; well++)
+        File dir = new File(datasetIdentifier.getDatasetCode());
+        dir.mkdir();
+
+        List<PlateImageReference> imageRefs = new ArrayList<PlateImageReference>();
+        List<File> imageFiles = new ArrayList<File>();
+        for (int wellRow = 1; wellRow <= 5; wellRow++)
         {
-            for (int channel = 1; channel <= 2; channel++)
+            for (int wellCol = 1; wellCol <= 5; wellCol++)
             {
-                for (int tile = 1; tile <= 1; tile++)
+                for (int channel = 1; channel <= 2; channel++)
                 {
-                    List<PlateImageReference> imageRefs = new ArrayList<PlateImageReference>();
-                    imageRefs.add(new PlateImageReference(well, well, tile, channel,
-                            datasetIdentifier));
-                    List<PlateSingleImage> images = facade.loadImages(imageRefs);
-                    saveImages(images, datasetIdentifier.getDatasetCode());
+                    for (int tile = 1; tile <= 1; tile++)
+                    {
+
+                        PlateImageReference imageRef =
+                                new PlateImageReference(wellRow, wellCol, tile, channel,
+                                        datasetIdentifier);
+                        imageRefs.add(imageRef);
+                        imageFiles.add(new File(dir, createImageFileName(imageRef)));
+                    }
                 }
             }
         }
+        facade.loadImages(imageRefs, imageFiles);
     }
 
-    private static void saveImages(List<PlateSingleImage> images, String dirName)
-            throws FileNotFoundException, IOException
-    {
-        File dir = new File(dirName);
-        dir.mkdir();
-        for (PlateSingleImage image : images)
-        {
-            FileOutputStream out = new FileOutputStream(new File(dir, createImageFileName(image)));
-            InputStream in = image.getImage();
-            StreamUtils.copyThenClose(in, out);
-            out.close();
-            in.close();
-        }
-    }
-
-    private static String createImageFileName(PlateSingleImage image)
+    private static String createImageFileName(PlateImageReference image)
     {
         WellPosition well = image.getWellPosition();
         return "img_row" + well.getWellRow() + "_col" + well.getWellColumn() + "_channel"

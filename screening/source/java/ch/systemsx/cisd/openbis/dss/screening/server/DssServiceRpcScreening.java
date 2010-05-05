@@ -18,13 +18,12 @@ package ch.systemsx.cisd.openbis.dss.screening.server;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +34,8 @@ import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.io.ConcatFileInputStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
@@ -217,40 +218,74 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 featureNames);
     }
 
-    public InputStream loadImage(String sessionToken, PlateImageReference imageReference)
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
-        ExternalData imageDataset =
-                tryFindImageDataset(sessionToken, imageReference.getDatasetCode());
-        if (imageDataset != null)
+        Map<String, HCSDatasetLoader> imageLoadersMap =
+                getImageDatasetsMap(sessionToken, imageReferences);
+        List<File> imageFiles = new ArrayList<File>();
+        try
         {
-            return getImageStream(imageDataset, imageReference);
-        } else
+            for (PlateImageReference imageReference : imageReferences)
+            {
+                HCSDatasetLoader imageAccessor =
+                        imageLoadersMap.get(imageReference.getDatasetCode());
+                assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
+                File imageFile = getImageFile(imageAccessor, imageReference);
+                imageFiles.add(imageFile);
+            }
+        } finally
         {
-            return null;
+            closeDatasetLoaders(imageLoadersMap.values());
+        }
+        return new ConcatFileInputStream(imageFiles);
+    }
+
+    private static void closeDatasetLoaders(Collection<HCSDatasetLoader> loaders)
+    {
+        for (HCSDatasetLoader loader : loaders)
+        {
+            loader.close();
         }
     }
 
-    private InputStream getImageStream(ExternalData imageDataset, PlateImageReference imageRef)
+    // throws exception if some datasets cannot be found
+    private Map<String/* image or feature vector dataset code */, HCSDatasetLoader> getImageDatasetsMap(
+            String sessionToken, List<PlateImageReference> imageReferences)
     {
-        HCSDatasetLoader imageAccessor = createImageLoader(imageDataset.getCode());
+        Map<String/* dataset code */, HCSDatasetLoader> imageDatasetsMap =
+                new HashMap<String, HCSDatasetLoader>();
+        for (PlateImageReference imageReference : imageReferences)
+        {
+            if (imageDatasetsMap.containsKey(imageReference.getDatasetCode()) == false)
+            {
+                ExternalData imageDataset =
+                        tryFindImageDataset(sessionToken, imageReference.getDatasetCode());
+                if (imageDataset != null)
+                {
+                    HCSDatasetLoader imageAccessor = createImageLoader(imageDataset.getCode());
+                    imageDatasetsMap.put(imageReference.getDatasetCode(), imageAccessor);
+                } else
+                {
+                    throw UserFailureException.fromTemplate(
+                            "Cannot find an image dataset for the reference: %s", imageReference);
+                }
+            }
+        }
+        return imageDatasetsMap;
+    }
+
+    private File getImageFile(HCSDatasetLoader imageAccessor, PlateImageReference imageRef)
+    {
         Location wellLocation = asLocation(imageRef.getWellPosition());
         Location tileLocation =
                 getTileLocation(imageRef.getTile(), imageAccessor.getWellGeometry());
         try
         {
-            File path =
-                    ImageChannelsUtils.getImagePath(imageAccessor, wellLocation, tileLocation,
-                            imageRef.getChannel());
-            return new FileInputStream(path);
+            return ImageChannelsUtils.getImagePath(imageAccessor, wellLocation, tileLocation,
+                    imageRef.getChannel());
         } catch (EnvironmentFailureException e)
         {
             throw createNoImageException(imageRef);
-        } catch (FileNotFoundException ex)
-        {
-            throw createNoImageException(imageRef);
-        } finally
-        {
-            imageAccessor.close();
         }
     }
 

@@ -55,4 +55,39 @@ public class PlateImageReference extends DatasetIdentifier implements Serializab
         return "Image for [dataset " + getDatasetCode() + ", well " + wellPosition + ", channel "
                 + channel + ", tile " + tile + "]";
     }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + super.hashCode();
+        result = prime * result + channel;
+        result = prime * result + tile;
+        result = prime * result + wellPosition.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        if (super.equals(obj) == false)
+            return false;
+
+        PlateImageReference other = (PlateImageReference) obj;
+        if (channel != other.channel)
+            return false;
+        if (tile != other.tile)
+            return false;
+        if (!wellPosition.equals(other.wellPosition))
+            return false;
+        return true;
+    }
+
 }

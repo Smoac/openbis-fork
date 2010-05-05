@@ -49,10 +49,13 @@ public interface IDssServiceRpcScreening
             List<String> featureNames);
 
     /**
-     * Provide image for a given image reference (given by data set code, well position, channel and
-     * tile).
+     * Provide images for a given list of image references (given by data set code, well position,
+     * channel and tile). The result is encoded into one stream, which consist of multiple blocks in
+     * a format: (<block-size><block-of-bytes>)*, where block-size is the block size in bytes
+     * encoded as one long number. The number of blocks is equal to the number of specified
+     * references and the order of blocks corresponds to the order of image references.
      */
-    InputStream loadImage(String sessionToken, PlateImageReference imageReferences);
+    InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences);
 
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and
