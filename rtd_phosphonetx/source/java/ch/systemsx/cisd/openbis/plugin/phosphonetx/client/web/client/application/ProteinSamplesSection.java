@@ -49,6 +49,7 @@ public class ProteinSamplesSection extends DisposableSectionPanel
         this.viewContext = viewContext;
         this.experimentOrNull = experimentOrNull;
         this.proteinReferenceID = proteinReferenceID;
+        setContentVisible(true);
     }
 
     // @Private
