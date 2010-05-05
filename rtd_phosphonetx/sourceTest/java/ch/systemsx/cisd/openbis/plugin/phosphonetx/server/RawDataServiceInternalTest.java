@@ -18,11 +18,12 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.PROCESSING;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.QUERIES;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.SPACE_CODE;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.RAW_DATA_SAMPLE_TYPE;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.SPACE_CODE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -121,7 +122,8 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
                     will(returnValue(externalDataTable));
                     
                     List<String> dataSetCodes = Arrays.asList("ds2.0", "ds2.1");
-                    one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2", dataSetCodes, null);
+                    HashMap<String, String> parameterBindings = new HashMap<String, String>();
+                    one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2", dataSetCodes, parameterBindings);
                 }
                 
             });
