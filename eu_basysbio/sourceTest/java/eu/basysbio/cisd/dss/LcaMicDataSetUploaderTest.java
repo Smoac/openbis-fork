@@ -136,7 +136,7 @@ public class LcaMicDataSetUploaderTest extends AbstractFileSystemTestCase
         File ds = new File(dropBox, DataSetHandler.LCA_MIC_TIME_SERIES + number);
         List<String> data = FileUtilities.loadToStringList(ds.listFiles(PROPERTIES_FILTER)[0]);
         assertEquals(2, data.size());
-        assertEquals("comment=null,p1/e1,abc-1,LCA_MIC_TIME_SERIES,PROPRIETARY", data.get(0));
+        assertEquals("comment=null,p1/e1,abc-1,LCA_MIC_TIME_SERIES,TSV", data.get(0));
         assertEquals("user-email=ab@c.de", data.get(1));
     }
     
