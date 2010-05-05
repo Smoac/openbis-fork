@@ -91,7 +91,7 @@ At the moment openBIS requires images analysis results for each plate to be in a
 If you have them in one file you can transform it to many files in 4 simple steps:
 1. ensure that the first 3 columns in the CSV file are:
 	barcode, row, col
-2. copy a program to split the image analysis results to you local folder (see configuration below).
+2. copy the splitter program to split the image analysis results to you local folder (see configuration below).
 3. run the splitting script:
 	 java -jar openbis-analysis-data-splitter.jar <image-analysis-file-name>
   It creates a directory 'plates'. You will find one CSV file for each plate inside.
