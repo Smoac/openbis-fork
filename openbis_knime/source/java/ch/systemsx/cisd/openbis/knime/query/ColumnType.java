@@ -35,7 +35,7 @@ enum ColumnType
             {
                 return new DoubleCell((Double) valueOrNull);
             }
-            return null;
+            return DataType.getMissingCell();
         }
     },
     LONG(LongCell.TYPE)
@@ -47,7 +47,7 @@ enum ColumnType
             {
                 return new LongCell((Long) valueOrNull);
             }
-            return null;
+            return DataType.getMissingCell();
         }
     },
     STRING(StringCell.TYPE)

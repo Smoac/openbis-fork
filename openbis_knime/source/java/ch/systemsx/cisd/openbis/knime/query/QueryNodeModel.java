@@ -19,7 +19,10 @@ package ch.systemsx.cisd.openbis.knime.query;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataTableSpec;
@@ -124,10 +127,19 @@ public class QueryNodeModel extends NodeModel
         String[] columnTitles = new String[columns.size()];
         DataType[] dataTypes = new DataType[columns.size()];
         ColumnType[] columnTypes = new ColumnType[columns.size()];
+        Map<String, Integer> columnNames = new HashMap<String, Integer>();
         for (int i = 0, n = columns.size(); i < n; i++)
         {
             QueryTableColumn column = columns.get(i);
-            columnTitles[i] = column.getTitle();
+            String title = column.getTitle();
+            Integer count = columnNames.get(title);
+            if (count == null)
+            {
+                count = 0;
+            }
+            count++;
+            columnNames.put(title, count);
+            columnTitles[i] = count == 1 ? title : title + "[" + count + "]";
             columnTypes[i] = Util.getColumnType(column.getDataType());
             dataTypes[i] = columnTypes[i].getDataType();
         }
