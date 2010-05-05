@@ -83,6 +83,8 @@ public interface IDataStoreService
      * Schedules the processing task with the specified id for provided datasets and specified
      * parameter bindings.
      * 
+     * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER} with
+     *            the ID of the user who initiated processing.
      * @param userEmailOrNull Email of user who initiated processing and will get a message after
      *            the processing is finished. It may be null if the user doesn't have email and no
      *            message will be send in such case.

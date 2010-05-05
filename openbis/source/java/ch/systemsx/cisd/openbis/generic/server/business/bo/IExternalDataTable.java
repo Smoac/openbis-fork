@@ -109,6 +109,8 @@ public interface IExternalDataTable
     /**
      * Schedules processing of specified datasets with specified parameter bindings using the
      * specified datastore service.
+     * 
+     * @param parameterBindings Should be a map where additional entries can be added.
      */
     void processDatasets(String datastoreServiceKey, String datastoreCode,
             List<String> datasetCodes, Map<String, String> parameterBindings);
