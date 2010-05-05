@@ -27,8 +27,6 @@ public class ProjectUpdates extends AbstractProjectUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String projectIdentifier;
-
     // ----- the data which should be changed:
 
     // the key in the session at which points to the new attachments which will be added to the old
@@ -45,16 +43,6 @@ public class ProjectUpdates extends AbstractProjectUpdates
     public void setAttachmentSessionKey(String attachmentSessionKey)
     {
         this.attachmentSessionKey = attachmentSessionKey;
-    }
-
-    public String getIdentifier()
-    {
-        return projectIdentifier;
-    }
-
-    public void setProjectIdentifier(String newProjectIdentifier)
-    {
-        this.projectIdentifier = newProjectIdentifier;
     }
 
     public List<NewAttachment> getAttachments()

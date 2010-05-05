@@ -21,7 +21,6 @@ import java.util.Collection;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * Server side description of the updates which should be performed on the project.
@@ -32,22 +31,10 @@ public class ProjectUpdatesDTO extends AbstractProjectUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private ProjectIdentifier identifier;
-
     // ----- the data which should be changed:
 
     // new attachments which will be added to the old ones
     private Collection<NewAttachment> attachments;
-
-    public ProjectIdentifier getIdentifier()
-    {
-        return identifier;
-    }
-
-    public void setIdentifier(ProjectIdentifier identifier)
-    {
-        this.identifier = identifier;
-    }
 
     public Collection<NewAttachment> getAttachments()
     {
@@ -58,5 +45,4 @@ public class ProjectUpdatesDTO extends AbstractProjectUpdates
     {
         this.attachments = attachments;
     }
-
 }

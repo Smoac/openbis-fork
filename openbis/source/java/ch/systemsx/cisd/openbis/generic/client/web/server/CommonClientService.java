@@ -1835,9 +1835,7 @@ public final class CommonClientService extends AbstractClientService implements
         ProjectUpdatesDTO updatesDTO = new ProjectUpdatesDTO();
         updatesDTO.setDescription(updates.getDescription());
         updatesDTO.setVersion(updates.getVersion());
-        final ProjectIdentifier projectIdentifier =
-                new ProjectIdentifierFactory(updates.getIdentifier()).createIdentifier();
-        updatesDTO.setIdentifier(projectIdentifier);
+        updatesDTO.setTechId(updates.getTechId());
         updatesDTO.setGroupCode(updates.getGroupCode());
         return updatesDTO;
     }

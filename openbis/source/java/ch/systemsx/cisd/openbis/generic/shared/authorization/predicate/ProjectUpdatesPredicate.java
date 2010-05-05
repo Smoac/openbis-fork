@@ -21,8 +21,10 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
@@ -36,14 +38,18 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
 {
     private final SpaceIdentifierPredicate spacePredicate;
 
+    private final ProjectTechIdPredicate projectTechIdPredicate;
+
     public ProjectUpdatesPredicate()
     {
         this.spacePredicate = new SpaceIdentifierPredicate();
+        this.projectTechIdPredicate = new ProjectTechIdPredicate();
     }
 
     public final void init(IAuthorizationDataProvider provider)
     {
         spacePredicate.init(provider);
+        projectTechIdPredicate.init(provider);
     }
 
     @Override
@@ -57,8 +63,9 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
             final ProjectUpdatesDTO updates)
     {
         assert spacePredicate.initialized : "Predicate has not been initialized";
+        assert projectTechIdPredicate.initialized : "Predicate has not been initialized";
         Status status;
-        status = spacePredicate.doEvaluation(person, allowedRoles, updates.getIdentifier());
+        status = projectTechIdPredicate.doEvaluation(person, allowedRoles, updates.getTechId());
         if (status.equals(Status.OK) == false)
         {
             return status;
@@ -67,8 +74,7 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
         if (newGroupCode != null)
         {
             GroupIdentifier newGroupIdentifier =
-                    new GroupIdentifier(updates.getIdentifier().getDatabaseInstanceCode(),
-                            newGroupCode);
+                    new GroupIdentifier(DatabaseInstanceIdentifier.HOME, newGroupCode);
             status = spacePredicate.doEvaluation(person, allowedRoles, newGroupIdentifier);
         }
         return status;

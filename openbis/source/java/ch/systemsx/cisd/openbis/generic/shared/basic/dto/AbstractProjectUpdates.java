@@ -21,6 +21,8 @@ import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+
 /**
  * Description of the updates which should be performed on the project.
  * 
@@ -32,6 +34,8 @@ public class AbstractProjectUpdates implements IsSerializable, Serializable
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private Date version;
+
+    private TechId id;
 
     // ----- the data which should be changed:
 
@@ -68,5 +72,15 @@ public class AbstractProjectUpdates implements IsSerializable, Serializable
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public TechId getTechId()
+    {
+        return id;
+    }
+
+    public void setTechId(TechId id)
+    {
+        this.id = id;
     }
 }

@@ -25,9 +25,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * {@link AbstractProjectEditRegisterForm} extension for editing projects.
@@ -61,10 +61,11 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         updates.setAttachments(extractAttachments());
         updates.setAttachmentSessionKey(sessionKey);
         updates.setDescription(projectDescriptionField.getValue());
-        updates.setProjectIdentifier(originalProject.getIdentifier());
+        updates.setTechId(projectId);
         updates.setVersion(originalProject.getModificationDate());
         Space space = spaceField.tryGetSelected();
         updates.setGroupCode(space == null ? null : space.getCode());
+
         viewContext.getCommonService().updateProject(updates, new ProjectEditCallback(viewContext));
     }
 
@@ -88,8 +89,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         @Override
         protected String createSuccessfullRegistrationInfo(Date result)
         {
-            return "Project <b>" + originalProject.getIdentifier().toUpperCase()
-                    + "</b> successfully updated.";
+            return "Project successfully updated.";
         }
     }
 
