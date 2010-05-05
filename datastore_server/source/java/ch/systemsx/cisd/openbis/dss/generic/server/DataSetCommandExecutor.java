@@ -81,6 +81,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                                 operationLog.info("Executing " + description);
                             }
                             final StopWatch stopWatch = new StopWatch();
+                            stopWatch.start();
                             try
                             {
                                 command.execute(store);
@@ -128,8 +129,8 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
             String userEmailOrNull, DatastoreServiceDescription serviceDescription,
             MailClientParameters mailClientParameters)
     {
-        scheduleCommand(new ProcessDatasetsCommand(task, datasets, parameterBindings, userEmailOrNull,
-                serviceDescription, mailClientParameters));
+        scheduleCommand(new ProcessDatasetsCommand(task, datasets, parameterBindings,
+                userEmailOrNull, serviceDescription, mailClientParameters));
     }
 
     private void scheduleCommand(IDataSetCommand command)
