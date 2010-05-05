@@ -158,6 +158,7 @@
       <zipfileset prefix="${admin.console}" file="${lib}/spring/spring.jar"/>
       <zipfileset prefix="${admin.console}" file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"/>
     </zip>
+  	<delete file="${admin.jar.file}"/>
   </target>
 
   <target name="query-api-dist" depends="jar" 
@@ -172,6 +173,7 @@
       <zipfileset prefix="${query.api}" file="${lib}/spring/spring.jar"/>
       <zipfileset prefix="${query.api}" file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"/>
     </zip>
+  	<delete file="${query.api.jar.file}"/>
   </target>
 
   <target name="make-dist" description="Makes a distribution file." 
