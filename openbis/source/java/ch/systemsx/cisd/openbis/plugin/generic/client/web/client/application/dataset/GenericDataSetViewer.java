@@ -75,6 +75,9 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
 
     private final IViewContext<?> viewContext;
 
+    // A suffix used to designate widgets owned by this panel
+    private String displayIdSuffix;
+
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final IIdAndCodeHolder identifiable)
@@ -156,6 +159,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     {
         final ContentPanel panel = createDataSetPropertiesPanel(dataset);
         panel.setScrollMode(Scroll.AUTOY);
+
         return panel;
     }
 
@@ -167,7 +171,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     private final Component createRightPanel(final ExternalData dataset)
     {
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
-        final String displayIdSuffix = getDisplayIdSuffix(dataset.getDataSetType().getCode());
+        displayIdSuffix = getDisplayIdSuffix(dataset.getDataSetType().getCode());
 
         List<SingleSectionPanel> additionalPanels = createAdditionalSectionPanels();
         for (SingleSectionPanel panel : additionalPanels)
@@ -199,6 +203,25 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     private static final String getDisplayIdSuffix(String suffix)
     {
         return PREFIX + suffix;
+    }
+
+    /**
+     * Adds listeners and sets up the initial left panel state.
+     * <p>
+     * The method {@link createRightPanel} must be called before this because it initializes state
+     * used in this method.
+     */
+    private void configureLeftPanel()
+    {
+        // displayIdSuffix must be initialized first -- this happens in createRightPanel, so that
+        // method must be called before this
+        if (isLeftPanelInitiallyCollapsed(displayIdSuffix))
+        {
+            ((BorderLayout) getLayout()).collapse(com.extjs.gxt.ui.client.Style.LayoutRegion.WEST);
+        }
+
+        // Add the listeners after configuring the panel, so as not to cause confusion
+        addLeftPanelCollapseExpandListeners(displayIdSuffix);
     }
 
     private static final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
@@ -237,6 +260,8 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
             // Right panel
             final Component rightPanel = genericDataSetViewer.createRightPanel(result);
             genericDataSetViewer.add(rightPanel, createRightBorderLayoutData());
+
+            genericDataSetViewer.configureLeftPanel();
 
             genericDataSetViewer.layout();
 

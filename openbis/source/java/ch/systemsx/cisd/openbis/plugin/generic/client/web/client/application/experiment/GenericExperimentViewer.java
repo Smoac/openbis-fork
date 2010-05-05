@@ -143,6 +143,9 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
         this.propertiesPanelOrNull = new ExperimentPropertiesPanel(experiment, viewContext, this);
         add(propertiesPanelOrNull, createLeftBorderLayoutData());
+        String displayIdSuffix = getDisplayIdSuffix(this.experimentType.getCode());
+
+        configureLeftPanel(displayIdSuffix);
 
         final Html loadingLabel = new Html(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         add(loadingLabel, createRightBorderLayoutData());
@@ -160,6 +163,20 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
                     layout();
                 }
             });
+    }
+
+    /**
+     * Adds listeners and sets up the initial left panel state.
+     */
+    private void configureLeftPanel(String displayIdSuffix)
+    {
+        if (isLeftPanelInitiallyCollapsed(displayIdSuffix))
+        {
+            ((BorderLayout) getLayout()).collapse(com.extjs.gxt.ui.client.Style.LayoutRegion.WEST);
+        }
+        
+        // Add the listeners after configuring the panel, so as not to cause confusion
+        addLeftPanelCollapseExpandListeners(displayIdSuffix);
     }
 
     public static final String createId(final IIdAndCodeHolder identifiable)
@@ -184,7 +201,8 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return new AttachmentVersionsSection(viewContext.getCommonViewContext(), newExperiment);
     }
 
-    private static IAttachmentHolder asExperimentAttachmentHolder(final IIdAndCodeHolder identifiable)
+    private static IAttachmentHolder asExperimentAttachmentHolder(
+            final IIdAndCodeHolder identifiable)
     {
         return new IAttachmentHolder()
             {

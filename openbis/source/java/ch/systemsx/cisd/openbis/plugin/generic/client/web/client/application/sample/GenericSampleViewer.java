@@ -112,6 +112,8 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
 
     private PropertyGrid propertyGrid;
 
+    private String displayIdSuffix;
+
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final IIdAndCodeHolder identifiable)
@@ -184,7 +186,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
     private final Component createRightPanel(SampleParentWithDerived sampleGeneration)
     {
         final Sample generator = sampleGeneration.getParent();
-        String displayIdSuffix = getDisplayIdSuffix(generator.getSampleType().getCode());
+        displayIdSuffix = getDisplayIdSuffix(generator.getSampleType().getCode());
 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
         List<SingleSectionPanel> additionalPanels = createAdditionalSectionPanels();
@@ -306,6 +308,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         panel.setHeading(viewContext.getMessage(Dict.SAMPLE_PROPERTIES_HEADING));
         propertyGrid = createPropertyGrid(sampleId, sampleGeneration, viewContext);
         panel.add(propertyGrid);
+
         return panel;
     }
 
@@ -355,6 +358,26 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
             AbstractAsyncCallback<SampleParentWithDerived> callback)
     {
         loadSampleGenerationInfo(sampleId, callback);
+    }
+
+    /**
+     * Adds listeners and sets up the initial left panel state.
+     * <p>
+     * The method {@link createRightPanel} must be called before this because it initializes state
+     * used in this method.
+     */
+    private void configureLeftPanel()
+    {
+        // displayIdSuffix must be initialized first -- this happens in createRightPanel, so that
+        // method must be called before this
+        if (isLeftPanelInitiallyCollapsed(displayIdSuffix))
+        {
+            viewContext.log(displayIdSuffix + " Initially Collapsed");
+            ((BorderLayout) getLayout()).collapse(com.extjs.gxt.ui.client.Style.LayoutRegion.WEST);
+        }
+        
+        // Add the listeners after configuring the panel, so as not to cause confusion
+        addLeftPanelCollapseExpandListeners(displayIdSuffix);
     }
 
     //
@@ -432,6 +455,9 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
             // Right panel
             final Component rightPanel = genericSampleViewer.createRightPanel(result);
             genericSampleViewer.add(rightPanel, createRightBorderLayoutData());
+
+            genericSampleViewer.configureLeftPanel();
+
             genericSampleViewer.layout();
         }
 

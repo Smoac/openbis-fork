@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.BorderLayoutEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -244,6 +245,39 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         {
             fireEvent(AppEvents.CloseViewer);
         }
+    }
+
+    protected final static String LEFT_PANEL_PREFIX = "left_panel_";
+
+    protected void addLeftPanelCollapseExpandListeners(final String displayIdSuffix)
+    {
+        final String panelId = LEFT_PANEL_PREFIX + displayIdSuffix;
+        getLayout().addListener(Events.Collapse, new Listener<BorderLayoutEvent>()
+            {
+                public void handleEvent(BorderLayoutEvent be)
+                {
+                    viewContext.log(panelId + " Collapsed");
+                    viewContext.getDisplaySettingsManager().updatePanelCollapsedSetting(panelId,
+                            Boolean.TRUE);
+                }
+
+            });
+        getLayout().addListener(Events.Expand, new Listener<BorderLayoutEvent>()
+            {
+                public void handleEvent(BorderLayoutEvent be)
+                {
+                    viewContext.log(panelId + " Expand");
+                    viewContext.getDisplaySettingsManager().updatePanelCollapsedSetting(panelId,
+                            Boolean.FALSE);
+                }
+
+            });
+    }
+
+    protected boolean isLeftPanelInitiallyCollapsed(final String displayIdSuffix)
+    {
+        final String panelId = LEFT_PANEL_PREFIX + displayIdSuffix;
+        return viewContext.getDisplaySettingsManager().getPanelCollapsedSetting(panelId);
     }
 
 }
