@@ -29,9 +29,9 @@ import java.io.OutputStream;
  * 
  * @author Tomasz Pylak
  */
-class ConcatFileOutputStreamWriter
+public class ConcatFileOutputStreamWriter
 {
-    private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+    private static final int DEFAULT_BUFFER_SIZE = 1024 * 8;
 
     private static final int BYTES_PER_LONG = 8;
 
@@ -39,6 +39,9 @@ class ConcatFileOutputStreamWriter
 
     // buffer to read the file size
     private final byte[] blockSizeBuffer = new byte[BYTES_PER_LONG];
+
+    // buffer to read the chunk of the file
+    private final byte[] fileChunkBuffer = new byte[DEFAULT_BUFFER_SIZE];
 
     // Number of bytes which left to be read from the currently read block, 0 if end of the current
     // block is reached.
@@ -66,12 +69,12 @@ class ConcatFileOutputStreamWriter
 
     private long copyCurrentBlock(OutputStream output) throws IOException
     {
-        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         long count = 0;
         int n = 0;
-        while (-1 != (n = readCurrent(buffer, 0, buffer.length)))
+
+        while (-1 != (n = readCurrent(fileChunkBuffer, 0, fileChunkBuffer.length)))
         {
-            output.write(buffer, 0, n);
+            output.write(fileChunkBuffer, 0, n);
             count += n;
         }
         return count;
@@ -134,11 +137,10 @@ class ConcatFileOutputStreamWriter
 
         int wantedBytes = (int) Math.min(len, bytesToReadFromCurrent);
         int bytesRead = inputStream.read(b, off, wantedBytes);
-
-        if (bytesRead != wantedBytes)
+        if (bytesRead == -1)
         {
             throw new IOException("Corrupted stream, there should be at least " + wantedBytes
-                    + " bytes in the block, but only " + bytesRead + " were available.");
+                    + " bytes in the block, but the end of the stream has been reached.");
         } else
         {
             bytesToReadFromCurrent -= bytesRead;

@@ -107,7 +107,7 @@ public class ConcatFileInputStreamTest extends AbstractFileSystemTestCase
     private static String createLongString(String text)
     {
         StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < 9000; i++)
         {
             sb.append(text);
         }
