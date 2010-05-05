@@ -40,7 +40,7 @@ public class FacadeFactory
         String sessionToken = service.tryToAuthenticateAtQueryServer(userID, password);
         if (sessionToken == null)
         {
-            throw new IllegalArgumentException("User " + userID + "couldn't be authenticated");
+            throw new IllegalArgumentException("User " + userID + " couldn't be authenticated");
         }
         return new QueryApiFacade(service, sessionToken);
     }
