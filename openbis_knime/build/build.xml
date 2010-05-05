@@ -29,9 +29,8 @@
   // Creates build information.
   -->
  <target name="build-info" description="Creates build information.">
-    <!--build-info revision="revision.number" version="version.number" clean="clean.flag" />
-    <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo-->
-    <echo file="${build.info.file}">abc:123:d</echo>
+    <build-info revision="revision.number" version="version.number" clean="clean.flag" />
+    <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
  </target>
 
  <!--
@@ -56,7 +55,6 @@
     -->
     <target name="dist" description="Makes a distribution file." depends="clean, jar">
 
-      <!--property name="dist.file.name" value="ch.systemsx.cisd.openbis.knime-${version}.v${version.number}-r${revision.number}.zip" /-->
       <property name="dist.file.name" value="${dist}/ch.systemsx.cisd.openbis.knime-${version}.jar" />
 
     	<jar destfile="${dist.file.name}" manifest="${original.dist}/META-INF/MANIFEST.MF">
@@ -84,25 +82,4 @@
    <target name="ci" depends="build-common.ci, check-dependencies, dist"
            description="Task for continuous integration server." />
 	        
-   <!--
-   // Compiles the javascript using GWT compiler.
-   -->
-   <target name="compile-javascript" description="Compiles the javascript using GWT compiler.">
-      <property name="application.gwt.path" value="ch.systemsx.cisd.datamover.console.DatamoverConsole" />
-      <echo></echo>
-      <delete dir="${webapp.dist}" />
-      <java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${sources}"
-            classname="com.google.gwt.dev.GWTCompiler"
-            fork="true">
-        <jvmarg value="-Xmx512M" />
-        <arg value="-out" />
-        <arg value="${webapp.dist}" />
-        <arg value="${application.gwt.path}" />
-      </java>
-      <move todir="${webapp.dist}">
-         <fileset dir="${webapp.dist}/${application.gwt.path}" />
-      </move>
-   </target>
-
-
 </project>
