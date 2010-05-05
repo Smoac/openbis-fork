@@ -89,7 +89,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         @Override
         protected String createSuccessfullRegistrationInfo(Date result)
         {
-            return "Project successfully updated.";
+            return "Project <b>" + originalProject.getCode() + "</b> successfully updated.";
         }
     }
 
