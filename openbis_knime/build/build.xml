@@ -2,7 +2,7 @@
   <import file="../../build_resources/ant/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
   <property name="mainfolder" value="openbis_knime"/>
-	<property name="version" value="0.1.0"/>
+	<property name="version" value="10.05.0"/>
   <property name="jar.file.name" value="openbis-knime.jar"/>
   <property name="jar.file" value="${dist}/${jar.file.name}"/>
   <property name="original.dist" value="../${ant.project.name}/dist" />

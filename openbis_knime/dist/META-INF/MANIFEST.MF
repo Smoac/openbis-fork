@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: openBIS nodes
 Bundle-SymbolicName: ch.systemsx.cisd.openbis.knime; singleton:=true
-Bundle-Version: 0.1.0
+Bundle-Version: 10.05.0
 Bundle-ClassPath: openbis-knime.jar,lib/cisd-base.jar,lib/commons-codec.jar,
  lib/commons-httpclient.jar,lib/commons-logging.jar,lib/log4j.jar,lib/openbis-query-api.jar,
  lib/spring.jar,lib/stream-supporting-httpinvoker.jar
