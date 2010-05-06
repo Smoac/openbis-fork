@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.phosphonetx.server.plugins;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import static ch.systemsx.cisd.openbis.generic.shared.Constants.USER_PARAMETER;
 import java.io.File;
@@ -23,12 +23,6 @@ import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.Copier;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncCopierFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
 
 /**
  * 
