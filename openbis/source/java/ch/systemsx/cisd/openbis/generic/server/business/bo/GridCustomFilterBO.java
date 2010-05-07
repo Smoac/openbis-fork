@@ -103,7 +103,14 @@ public class GridCustomFilterBO extends AbstractBusinessObject implements
 
     private void validateAndSave()
     {
-        getGridCustomFilterDAO().validateAndSaveUpdatedEntity(filter);
+        assert filter != null : "Filter not defined";
+        try
+        {
+            getGridCustomFilterDAO().validateAndSaveUpdatedEntity(filter);
+        } catch (final DataAccessException e)
+        {
+            throwException(e, "Filter '" + filter + "'");
+        }
     }
 
 }
