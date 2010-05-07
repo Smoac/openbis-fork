@@ -236,6 +236,10 @@
 			<param name="dir" value="${lib}/commons-logging" />
 			<param name="jar" value="commons-logging.jar" />
 		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/spring/third-party" />
+			<param name="jar" value="stream-supporting-httpinvoker.jar" />
+		</antcall>
 	  <copy todir="${dist}/cifex">
 	    <fileset dir="${original.dist.client}"/>
 	  </copy>
