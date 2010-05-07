@@ -426,8 +426,9 @@
 			<arg value="-war" />
 			<arg value="${targets}/www" />
 			<arg value="${module-test.module}Safari" />
+    	<arg value="-draftCompile" />
 			<arg value="-style" />
-			<arg value="PRETTY" />
+      <arg value="PRETTY" />
 		</java>
 		<move todir="${targets}/www/${module-test.path}">
 			<fileset dir="${targets}/www/${module-test.module}" />
