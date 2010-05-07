@@ -29,6 +29,9 @@ import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.ClosingEvent;
+import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -268,6 +271,32 @@ public final class GWTUtils
                 "$", "-DOLLAR-");
     }
 
+    // confirm on exit message
+
+    private final static String CONFIRM_EXIT_MSG =
+            "WARNING: By doing this you will in fact leave openBIS!";
+
+    public final static void setConfirmExitMessage()
+    {
+        setConfirmExitMessage(CONFIRM_EXIT_MSG);
+    }
+
+    public final static void removeConfirmExitMessage()
+    {
+        setConfirmExitMessage(null);
+    }
+
+    private final static void setConfirmExitMessage(final String msgOrNull)
+    {
+        Window.addWindowClosingHandler(new ClosingHandler()
+            {
+                public void onWindowClosing(ClosingEvent event)
+                {
+                    event.setMessage(msgOrNull);
+                }
+            });
+    }
+
     //
     // native JavaScript
     //
@@ -282,15 +311,6 @@ public final class GWTUtils
     /*-{
         var search = $wnd.location.search;
         return search.indexOf("?") == 0 ? search.substring(1) : search;
-    }-*/;
-
-    /**
-     * Depending on specified <var>allowConfirmOnExit</var> when user tries to exit application
-     * confirmation dialog will or will not appear.
-     */
-    public final static native void setAllowConfirmOnExit(boolean allowConfirmOnExit)
-    /*-{
-        $wnd.allowConfirmOnExit = allowConfirmOnExit;
     }-*/;
 
     /**

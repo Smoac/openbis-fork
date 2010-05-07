@@ -26,19 +26,19 @@ final class LogoutCallback extends AbstractAsyncCallback<Void>
     LogoutCallback(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext);
-        System.out.println("CREATE "+this);
+        System.out.println("CREATE " + this);
     }
 
     @Override
     protected void finalize() throws Throwable
     {
-        System.out.println("FINALIZE "+this);
+        System.out.println("FINALIZE " + this);
     }
 
     @Override
     public final void process(final Void result)
     {
         viewContext.getPageController().reload(true);
-        GWTUtils.setAllowConfirmOnExit(false);
+        GWTUtils.removeConfirmExitMessage();
     }
 }
