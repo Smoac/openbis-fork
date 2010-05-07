@@ -52,6 +52,10 @@ public final class DBMigrationEngine
         final ch.systemsx.cisd.dbmigration.IDAOFactory migrationDAOFactory =
                 context.createDAOFactory();
         final String scriptFolder = context.getScriptFolder();
+        if (scriptFolder == null)
+        {
+            operationLog.warn("Script folder is null");
+        }
         final String databaseEngineCode = context.getDatabaseEngineCode();
         final ISqlScriptProvider sqlScriptProvider =
                 new SqlScriptProvider(scriptFolder, databaseEngineCode);
