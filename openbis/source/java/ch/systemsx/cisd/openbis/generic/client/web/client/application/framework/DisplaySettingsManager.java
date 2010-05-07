@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -118,20 +119,32 @@ public class DisplaySettingsManager
 
     private static IDelayedUpdater createDelayedUpdater(final IDelegatedAction settingsUpdater)
     {
-        final DelayedTask delayedTask = new DelayedTask(new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent event)
+        if (ClientStaticState.isSimpleMode())
+        {
+            return new IDelayedUpdater()
                 {
-                    settingsUpdater.execute();
-                }
-            });
-        return new IDelayedUpdater()
-            {
-                public void executeDelayed(int delayMs)
+                    public void executeDelayed(int delayMs)
+                    {
+                        // in simple view mode settings are temporary - don't save them at all
+                    }
+                };
+        } else
+        {
+            final DelayedTask delayedTask = new DelayedTask(new Listener<BaseEvent>()
                 {
-                    delayedTask.delay(delayMs);
-                }
-            };
+                    public void handleEvent(BaseEvent event)
+                    {
+                        settingsUpdater.execute();
+                    }
+                });
+            return new IDelayedUpdater()
+                {
+                    public void executeDelayed(int delayMs)
+                    {
+                        delayedTask.delay(delayMs);
+                    }
+                };
+        }
     }
 
     /** Private, for tests only */
