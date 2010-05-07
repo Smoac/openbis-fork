@@ -111,7 +111,7 @@ public abstract class AbstractPluginTaskFactory<T>
             return ClassUtils.create(clazz, className, instanceParameters, storeRoot);
         } catch (Exception ex)
         {
-            throw new ConfigurationFailureException("Cannot find the plugin class '" + className
+            throw new ConfigurationFailureException("Cannot create the plugin class '" + className
                     + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
         }
     }
