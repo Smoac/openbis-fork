@@ -66,17 +66,18 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private static final long serialVersionUID = 1L;
 
     /** how many values can one column have to consider it reasonably distinct */
-    @Private static final int MAX_DISTINCT_COLUMN_VALUES_SIZE = 50;
+    @Private
+    static final int MAX_DISTINCT_COLUMN_VALUES_SIZE = 50;
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CachedResultSetManager.class);
-    
+
     private static final GridCustomColumnInfo translate(GridCustomColumn columnDefinition)
     {
         return new GridCustomColumnInfo(columnDefinition.getCode(), columnDefinition.getName(),
                 columnDefinition.getDescription(), columnDefinition.getDataType());
     }
-    
+
     private static final class Column
     {
         private final GridCustomColumn columnDefinition;
@@ -92,7 +93,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             return translate(columnDefinition);
         }
-        
+
         boolean hasSameExpression(GridCustomColumn column)
         {
             return columnDefinition.getExpression().equals(column.getExpression());
@@ -108,22 +109,25 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             return values;
         }
     }
-    
+
     private static class TableData<T>
     {
         private final List<T> originalData;
+
         private final ICustomColumnsProvider customColumnsProvider;
+
         private final IColumnCalculator columnCalculator;
-        
+
         private Map<String, Column> calculatedColumns = new HashMap<String, Column>();
-        
-        TableData(List<T> originalData, ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator)
+
+        TableData(List<T> originalData, ICustomColumnsProvider customColumnsProvider,
+                IColumnCalculator columnCalculator)
         {
             this.originalData = originalData;
             this.customColumnsProvider = customColumnsProvider;
             this.columnCalculator = columnCalculator;
         }
-        
+
         GridRowModels<T> getRows(String sessionToken, IResultSetConfig<?, T> config)
         {
             Set<Entry<String, Column>> cachedColumns = calculatedColumns.entrySet();
@@ -132,7 +136,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             List<GridCustomColumn> neededCustomColumns =
                     filterNeededCustomColumnDefinitions(allCustomColumnDefinitions, config);
             removedColumnsNoLongerNeeded(cachedColumns, neededCustomColumns);
-            
+
             for (GridCustomColumn customColumn : neededCustomColumns)
             {
                 String code = customColumn.getCode();
@@ -153,7 +157,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                     calculatedColumns.put(code, column);
                 }
             }
-            
+
             List<GridRowModel<T>> rows = new ArrayList<GridRowModel<T>>();
             for (int i = 0; i < originalData.size(); i++)
             {
@@ -170,11 +174,12 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
             List<ColumnDistinctValues> columnDistinctValues =
                     calculateColumnDistinctValues(rows, config.getFilters());
-            List<GridCustomColumnInfo> customColumnInfos = extractColumnInfos(allCustomColumnDefinitions);
+            List<GridCustomColumnInfo> customColumnInfos =
+                    extractColumnInfos(allCustomColumnDefinitions);
 
             return new GridRowModels<T>(rows, customColumnInfos, columnDistinctValues);
         }
-        
+
         private List<GridCustomColumn> loadAllCustomColumnDefinitions(String sessionToken,
                 IResultSetConfig<?, T> resultConfig)
         {
@@ -192,8 +197,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             return result;
         }
 
-        private List<GridCustomColumn> filterNeededCustomColumnDefinitions(List<GridCustomColumn> allDefinitions,
-                IResultSetConfig<?, T> resultConfig)
+        private List<GridCustomColumn> filterNeededCustomColumnDefinitions(
+                List<GridCustomColumn> allDefinitions, IResultSetConfig<?, T> resultConfig)
         {
             Set<String> ids = gatherAllColumnIDs(resultConfig);
             ArrayList<GridCustomColumn> result = new ArrayList<GridCustomColumn>();
@@ -245,7 +250,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             }
             return ids;
         }
-        
+
         private void removedColumnsNoLongerNeeded(Set<Entry<String, Column>> cachedColumns,
                 List<GridCustomColumn> neededCustomColumns)
         {
@@ -254,7 +259,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             {
                 map.put(customColumn.getCode(), customColumn);
             }
-            
+
             for (Iterator<Entry<String, Column>> iterator = cachedColumns.iterator(); iterator
                     .hasNext();)
             {
@@ -270,7 +275,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 }
             }
         }
-        
+
         private List<ColumnDistinctValues> calculateColumnDistinctValues(
                 List<GridRowModel<T>> rowModels, GridFilters<T> gridFilters)
         {
@@ -291,7 +296,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             }
             return result;
         }
-        
+
         /** @return null if values are not from a small set */
         private ColumnDistinctValues tryCalculateColumnDistinctValues(
                 List<GridRowModel<T>> rowModels, IColumnDefinition<T> column)
@@ -310,7 +315,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             return new ColumnDistinctValues(column.getIdentifier(), distinctValuesList);
         }
 
-        private List<GridCustomColumnInfo> extractColumnInfos(List<GridCustomColumn> allCustomColumnDefinitions)
+        private List<GridCustomColumnInfo> extractColumnInfos(
+                List<GridCustomColumn> allCustomColumnDefinitions)
         {
             List<GridCustomColumnInfo> result = new ArrayList<GridCustomColumnInfo>();
             for (GridCustomColumn definition : allCustomColumnDefinitions)
@@ -358,7 +364,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         this.customColumnsProvider = customColumnsProvider;
         this.columnCalculator = columnCalculator;
     }
-    
+
     @SuppressWarnings("unchecked")
     private final <T> T cast(final Object object)
     {
@@ -634,8 +640,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private <T> IResultSet<K, T> calculateSortAndFilterResult(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, K dataKey)
     {
-        GridRowModels<T> data =
-                calculateRowModels(sessionToken, resultConfig, dataKey);
+        GridRowModels<T> data = calculateRowModels(sessionToken, resultConfig, dataKey);
         return filterLimitAndSort(resultConfig, data, dataKey);
     }
 
