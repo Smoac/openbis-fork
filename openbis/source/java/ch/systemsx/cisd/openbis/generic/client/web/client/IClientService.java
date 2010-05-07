@@ -76,7 +76,7 @@ public interface IClientService extends RemoteService
     public void changeUserHomeGroup(TechId groupIdOrNull);
 
     /**
-     * Logs out.
+     * Saves display settings and loggs out.
      */
     public void logout(DisplaySettings displaySettings);
 
