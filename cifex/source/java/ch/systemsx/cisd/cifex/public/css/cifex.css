@@ -46,4 +46,12 @@ body, div, td, table td, select {
     color: red;
 }
 
+.cifex-login-header {
+  position: absolute;
+  width: 100%;
+  top: 10;
+  left: 10;
+  right: 10;
+}
+
 /** Overwrite gxt styles */

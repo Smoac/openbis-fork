@@ -78,6 +78,7 @@ final class LoginPage extends VerticalPanel
         final CellPanel northPanel = createNorthPanel();
         northPanel.add(logo);
         northPanel.add(welcomePanel);
+        add(getBannersPage());
         add(northPanel);
         add(loginPanel);
         add(footerPanel);
@@ -127,6 +128,13 @@ final class LoginPage extends VerticalPanel
     {
         final HTML html = new HTML(viewContext.getMessageResources().getLoginWelcomeText());
         html.setStyleName("cifex-font-huge");
+        return html;
+    }
+
+    private HTML getBannersPage()
+    {
+        HTML html = new HtmlPage("loginHeader");
+        html.setStyleName("cifex-login-header");
         return html;
     }
 
