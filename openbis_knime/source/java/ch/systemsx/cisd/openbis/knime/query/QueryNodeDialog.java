@@ -137,7 +137,7 @@ public class QueryNodeDialog extends NodeDialogPane
     {
         urlField.setText(settings.getString(URL_KEY, ""));
         userField.setText(settings.getString(USER_KEY, ""));
-        passwordField.setText(settings.getString(PASSWORD_KEY, ""));
+        passwordField.setText(Util.getDecryptedPassword(settings));
         byte[] bytes = settings.getByteArray(QUERY_DESCRIPTION_KEY, null);
         QueryDescription queryDescriptionOrNull = Util.deserializeQueryDescription(bytes);
         parameterBindings.loadValidatedSettingsFrom(settings);
@@ -153,7 +153,7 @@ public class QueryNodeDialog extends NodeDialogPane
     {
         settings.addString(URL_KEY, urlField.getText().trim());
         settings.addString(USER_KEY, userField.getText().trim());
-        settings.addString(PASSWORD_KEY, passwordField.getText().trim());
+        settings.addString(PASSWORD_KEY, Util.getEncryptedPassword(passwordField.getPassword()));
         byte[] bytes = Util.serializeQueryDescription(getSelectedQueryDescriptionOrNull());
         settings.addByteArray(QUERY_DESCRIPTION_KEY, bytes);
         parameterBindings.removeAllBindings();

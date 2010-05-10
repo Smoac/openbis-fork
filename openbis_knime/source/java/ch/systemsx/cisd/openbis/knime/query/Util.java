@@ -16,12 +16,18 @@
 
 package ch.systemsx.cisd.openbis.knime.query;
 
+import static ch.systemsx.cisd.openbis.knime.query.QueryNodeModel.PASSWORD_KEY;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.util.KnimeEncryption;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
 
@@ -72,6 +78,28 @@ class Util
             case DOUBLE: return ColumnType.DOUBLE;
             case LONG: return ColumnType.LONG;
             default: return ColumnType.STRING;
+        }
+    }
+
+    static String getDecryptedPassword(NodeSettingsRO settings)
+    {
+        try
+        {
+            return KnimeEncryption.decrypt(settings.getString(PASSWORD_KEY, ""));
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    static String getEncryptedPassword(char[] bytes)
+    {
+        try
+        {
+            return KnimeEncryption.encrypt(bytes);
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 }

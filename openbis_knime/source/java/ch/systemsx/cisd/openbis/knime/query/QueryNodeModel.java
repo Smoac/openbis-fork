@@ -83,7 +83,7 @@ public class QueryNodeModel extends NodeModel
     {
         url = settings.getString(URL_KEY);
         userID = settings.getString(USER_KEY);
-        password = settings.getString(PASSWORD_KEY);
+        password = Util.getDecryptedPassword(settings);
         queryDescription = Util.deserializeQueryDescription(settings.getByteArray(QUERY_DESCRIPTION_KEY));
         parameterBindings.loadValidatedSettingsFrom(settings);
     }
@@ -93,7 +93,7 @@ public class QueryNodeModel extends NodeModel
     {
         settings.addString(URL_KEY, url);
         settings.addString(USER_KEY, userID);
-        settings.addString(PASSWORD_KEY, password);
+        settings.addString(PASSWORD_KEY, Util.getEncryptedPassword(password.toCharArray()));
         settings.addByteArray(QUERY_DESCRIPTION_KEY, Util
                 .serializeQueryDescription(queryDescription));
         parameterBindings.saveSettingsTo(settings);
