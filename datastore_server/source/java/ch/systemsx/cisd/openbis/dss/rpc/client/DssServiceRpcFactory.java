@@ -21,19 +21,13 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.InetSocketAddress;
 import java.util.List;
-
-import org.apache.commons.lang.time.DateUtils;
-import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
-
-import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcService;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcServiceNameServer;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
 
 /**
  * Client-side factory for DssServiceRpc objects.
@@ -65,8 +59,8 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
         return nameServer.getSupportedInterfaces();
     }
 
-    public <T extends IRpcService> T getService(RpcServiceInterfaceDTO iface,
-            Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
+    public <T extends IRpcService> T getService(RpcServiceInterfaceDTO iface, Class<T> ifaceClazz,
+            String serverURL, boolean getServerCertificateFromServer)
             throws IncompatibleAPIVersionsException
     {
         String serviceURL = serverURL + iface.getInterfaceUrlSuffix();
@@ -136,25 +130,10 @@ class ServiceProxyBuilder<T extends IRpcService>
         return service;
     }
 
-    // TODO 2010-04-21, Tomasz Pylak: refactor to use
-    // HttpInvokerUtils.createStreamSupportingServiceStub()
     private T getRawServiceProxy()
     {
-        final StreamSupportingHttpInvokerProxyFactoryBean httpInvokerProxy =
-                new StreamSupportingHttpInvokerProxyFactoryBean();
-        httpInvokerProxy.setServiceUrl(serviceURL);
-        httpInvokerProxy.setServiceInterface(clazz);
-        ((CommonsHttpInvokerRequestExecutor) httpInvokerProxy.getHttpInvokerRequestExecutor())
-                .setReadTimeout((int) DateUtils.MILLIS_PER_MINUTE * serverTimeoutMin);
-        final InetSocketAddress proxyAddressOrNull = HttpInvokerUtils.tryFindProxy(serviceURL);
-        if (proxyAddressOrNull != null)
-        {
-            ((CommonsHttpInvokerRequestExecutor) httpInvokerProxy.getHttpInvokerRequestExecutor())
-                    .getHttpClient().getHostConfiguration().setProxy(
-                            proxyAddressOrNull.getHostName(), proxyAddressOrNull.getPort());
-        }
-        httpInvokerProxy.afterPropertiesSet();
-        return (T) httpInvokerProxy.getObject();
+        return (T) HttpInvokerUtils.createStreamSupportingServiceStub(clazz, serviceURL,
+                serverTimeoutMin);
     }
 
     private T wrapProxyInServiceInvocationHandler(T service)
