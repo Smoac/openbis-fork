@@ -26,9 +26,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
+
+import net.lemnik.eodsql.DataIterator;
 
 import org.apache.commons.lang.time.DateUtils;
 
@@ -162,9 +167,36 @@ public class DatasetLister implements IDatasetLister
         }
     }
 
-    public List<ExternalData> listByExperimentTechId(TechId experimentId)
+    public List<ExternalData> listByExperimentTechIds(Collection<TechId> experimentIds)
     {
-        return enrichDatasets(query.getDatasetsForExperiment(experimentId.getId()));
+        LongSet ids = new LongOpenHashSet();
+        for (TechId techId : experimentIds)
+        {
+            ids.add(techId.getId());
+        }
+        return enrichDatasets(query.getDatasetsForExperiment(ids));
+    }
+
+    public Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs)
+    {
+        LongOpenHashSet ids = new LongOpenHashSet();
+        for (Long id : dataSetIDs)
+        {
+            ids.add(id);
+        }
+        DataIterator<DatasetRelationRecord> relationships = query.listParentDataSetIds(ids);
+        Map<Long, Set<Long>> map = new LinkedHashMap<Long, Set<Long>>();
+        for (DatasetRelationRecord relationship : relationships)
+        {
+            Set<Long> parents = map.get(relationship.data_id_child);
+            if (parents == null)
+            {
+                parents = new LinkedHashSet<Long>();
+                map.put(relationship.data_id_child, parents);
+            }
+            parents.add(relationship.data_id_parent);
+        }
+        return map;
     }
 
     public List<ExternalData> listByChildTechId(TechId childDatasetId)

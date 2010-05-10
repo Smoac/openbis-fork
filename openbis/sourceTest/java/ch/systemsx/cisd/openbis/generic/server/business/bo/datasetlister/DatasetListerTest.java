@@ -20,7 +20,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
@@ -70,6 +75,19 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals(sampleId, externalData.getSample().getId().longValue());
         assertFalse(externalData.getProperties().isEmpty());
         AssertJUnit.assertNotNull(externalData.getExperiment());
+    }
+    
+    @Test
+    public void testListParents()
+    {
+        Map<Long, Set<Long>> map = lister.listParentIds(Arrays.<Long>asList(2L, 4L, 9L));
+        System.out.println(map);
+        
+        assertEquals(null, map.get(2L));
+        assertEquals("[2]", map.get(4L).toString());
+        List<Long> list = new ArrayList<Long>(map.get(9L));
+        Collections.sort(list);
+        assertEquals("[2, 5, 6, 7]", list.toString());
     }
 
 }

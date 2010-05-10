@@ -425,7 +425,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
-        final List<ExternalData> datasets = datasetLister.listByExperimentTechId(experimentId);
+        final List<ExternalData> datasets =
+                datasetLister.listByExperimentTechIds(Collections.singleton(experimentId));
         Collections.sort(datasets);
         return datasets;
     }

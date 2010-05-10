@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -31,8 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
  */
 public interface IDatasetLister
 {
-    /** @return datasets connected to the experiment with the specified id */
-    List<ExternalData> listByExperimentTechId(TechId experimentId);
+    /** @return datasets connected to experiments with the specified ids */
+    List<ExternalData> listByExperimentTechIds(Collection<TechId> experimentIds);
 
     /**
      * @return datasets connected to the sample with the specified id
@@ -46,6 +48,12 @@ public interface IDatasetLister
 
     /** @return datasets that are parents of a dataset with the specified id */
     List<ExternalData> listByParentTechId(TechId parentDatasetId);
+    
+    /**
+     * Returns a map with all parent data set IDs of specified data set IDs. The keys of the map
+     * are IDs from the argument. A value of the map contains at least one alement. 
+     */
+    Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs);
 
     //
 

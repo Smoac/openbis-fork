@@ -52,8 +52,10 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     /**
      * Returns the datasets for the given experiment id.
      */
-    @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.expe_id=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getDatasetsForExperiment(long experimentId);
+    @Select(sql = "select * from data join external_data on data.id = external_data.data_id"
+            + " where data.expe_id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getDatasetsForExperiment(LongSet experimentIds);
 
     /**
      * Returns the directly connected datasets for the given sample id.
@@ -95,7 +97,11 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      */
     @Select(sql = "select id from data where data.samp_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<Long> getDatasetIdsForSample(long sampleId);
-
+    
+    @Select(sql = "select * from data_set_relationships where data_id_child = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRelationRecord> listParentDataSetIds(LongSet ids);
+    
     /**
      * Returns the datasets that are children of a dataset with given id.
      */

@@ -568,8 +568,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createDatasetLister(SESSION,
                             DATA_STORE_BASE_URL);
                     will(returnValue(datasetLister));
-
-                    one(datasetLister).listByExperimentTechId(experimentId);
+                    one(datasetLister).listByExperimentTechIds(Collections.singleton(experimentId));
                     will(returnValue(Arrays.asList(externalData)));
                 }
             });

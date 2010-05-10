@@ -22,9 +22,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import it.unimi.dsi.fastutil.longs.LongArraySet;
+
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -124,19 +128,34 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     }
 
     @Test
-    public void testDatasetsForExperiment()
+    public void testDatasetsForExperiments()
     {
-        ExperimentPE experiment =
+        LongArraySet experimentIds = new LongArraySet();
+        ExperimentPE experiment1 =
                 getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-1", daoFactory);
-        long expId = experiment.getId();
-        List<DatasetRecord> datasets = asList(query.getDatasetsForExperiment(expId));
+        ExperimentPE experiment2 =
+            getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-2", daoFactory);
+        experimentIds.add((long) experiment1.getId());
+        experimentIds.add((long) experiment2.getId());
+        List<DatasetRecord> datasets = asList(query.getDatasetsForExperiment(experimentIds));
         assertTrue(datasets.size() > 0);
+        Map<Long, Integer> dataSetCounters = new HashMap<Long, Integer>();
         for (DatasetRecord record : datasets)
         {
             assertDatasetCorrect(record);
             assertEqualWithFetchedById(record);
-            assertEquals(expId, record.expe_id);
+            Integer counter = dataSetCounters.get(record.expe_id);
+            if (counter == null)
+            {
+                counter = 0;
+            }
+            counter++;
+            dataSetCounters.put(record.expe_id, counter);
         }
+        
+        assertEquals(1, dataSetCounters.get(experiment1.getId()).intValue());
+        assertEquals(1, dataSetCounters.get(experiment2.getId()).intValue());
+        assertEquals(2, dataSetCounters.size());
     }
 
     @Test
