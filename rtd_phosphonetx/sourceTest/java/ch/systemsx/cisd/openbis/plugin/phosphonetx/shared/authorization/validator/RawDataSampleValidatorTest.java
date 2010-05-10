@@ -33,23 +33,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class RawDataSampleValidatorTest extends AssertJUnit
 {
-    private static final Sample NO_PARENT = create("no-parent", null);
+    private static final MsInjectionSample NO_PARENT = create("no-parent", null);
 
-    private static final Sample WITH_INSTANCE_PARENT = create("with-instance-parent", "t:/parent");
+    private static final MsInjectionSample WITH_INSTANCE_PARENT = create("with-instance-parent", "t:/parent");
 
-    private static final Sample WITH_PARENT_IN_G1 = create("with-parent-in-g1", "t:/g1/parent");
+    private static final MsInjectionSample WITH_PARENT_IN_G1 = create("with-parent-in-g1", "t:/g1/parent");
 
-    private static final Sample WITH_PARENT_IN_G2 = create("with-parent-in-g2", "t:/g2/parent");
+    private static final MsInjectionSample WITH_PARENT_IN_G2 = create("with-parent-in-g2", "t:/g2/parent");
 
     private RawDataSampleValidator validator = new RawDataSampleValidator();
 
-    private static Sample create(String sampleCode, String parentSampleIdentifierOrNull)
+    private static MsInjectionSample create(String sampleCode, String parentSampleIdentifierOrNull)
     {
         Sample sample = new Sample();
         sample.setCode(sampleCode);
@@ -78,7 +79,7 @@ public class RawDataSampleValidatorTest extends AssertJUnit
             }
             sample.setGeneratedFrom(parent);
         }
-        return sample;
+        return new MsInjectionSample(sample);
     }
 
     private static DatabaseInstance createDatabaseInstance(String code)

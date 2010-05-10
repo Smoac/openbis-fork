@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * Imlementation of {@link IRawDataService}.
@@ -67,7 +68,13 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         SessionContextDTO session = login(userID);
         try
         {
-            return service.listRawDataSamples(session.getSessionToken());
+            List<MsInjectionSample> list = service.listRawDataSamples(session.getSessionToken());
+            ArrayList<Sample> result = new ArrayList<Sample>();
+            for (MsInjectionSample sample : list)
+            {
+                result.add(sample.getSample());
+            }
+            return result;
             
         } finally
         {

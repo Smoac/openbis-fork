@@ -21,9 +21,9 @@ import java.util.List;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * 
@@ -39,7 +39,7 @@ class RawDataServiceInternalLogger extends AbstractServerLogger implements IRawD
         super(sessionManager, context);
     }
 
-    public List<Sample> listRawDataSamples(String sessionToken)
+    public List<MsInjectionSample> listRawDataSamples(String sessionToken)
     {
         logAccess(sessionToken, "list_raw_data_samples");
         return null;

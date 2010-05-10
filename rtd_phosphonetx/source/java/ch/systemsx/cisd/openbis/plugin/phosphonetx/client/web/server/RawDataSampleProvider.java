@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * @author Franz-Josef Elmer
@@ -90,7 +91,7 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
 
     private List<Column> getColumns()
     {
-        List<Sample> samples = service.listRawDataSamples(sessionToken);
+        List<MsInjectionSample> samples = service.listRawDataSamples(sessionToken);
         Column codeColumn =
                 new Column(GenericTableColumnHeader.untitledLinkableStringHeader(0, CODE));
         Column dateColumn =
@@ -105,7 +106,7 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
         PropertyColumns parentPropertyColumns = new PropertyColumns();
         for (int i = 0; i < samples.size(); i++)
         {
-            Sample sample = samples.get(i);
+            Sample sample = samples.get(i).getSample();
             codeColumn.addStringWithID(i, sample.getCode(), sample.getId());
             dateColumn.addDate(i, sample.getRegistrationDate());
             Sample parent = sample.getGeneratedFrom();

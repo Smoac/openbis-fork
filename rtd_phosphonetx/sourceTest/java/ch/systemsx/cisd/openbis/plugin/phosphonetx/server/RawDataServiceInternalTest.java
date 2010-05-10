@@ -23,9 +23,11 @@ import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceI
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -39,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -48,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * 
@@ -78,9 +82,9 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
         prepareGetSession();
         prepareListRawDataSamples(42L);
         
-        List<Sample> samples = service.listRawDataSamples(SESSION_TOKEN);
+        List<MsInjectionSample> samples = service.listRawDataSamples(SESSION_TOKEN);
 
-        assertEquals(42L, samples.get(0).getId().longValue());
+        assertEquals(42L, samples.get(0).getSample().getId().longValue());
         assertEquals(1, samples.size());
         context.assertIsSatisfied();
     }
@@ -179,11 +183,29 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
                     {
                         Sample sample = new Sample();
                         sample.setId(id);
+                        sample.setIdentifier("S" + id);
+                        Experiment experiment = new Experiment();
+                        experiment.setId(id * 10);
+                        sample.setExperiment(experiment);
                         Sample parent = new Sample();
+                        parent.setId(id * 100);
                         sample.setGeneratedFrom(parent);
                         samples.add(sample);
                     }
                     will(returnValue(samples));
+                    
+                    one(boFactory).createDatasetLister(SESSION, "");
+                    will(returnValue(datasetLister));
+                    
+                    LinkedHashSet<TechId> experimentIds = new LinkedHashSet<TechId>();
+                    for (Long id : sampleIDs)
+                    {
+                        experimentIds.add(new TechId(id * 10));
+                    }
+                    one(datasetLister).listByExperimentTechIds(experimentIds);
+                    
+                    one(datasetLister).listParentIds(Collections.<Long>emptySet());
+                    will(returnValue(Collections.<Long, Set<Long>>emptyMap()));
                 }
             });
     }

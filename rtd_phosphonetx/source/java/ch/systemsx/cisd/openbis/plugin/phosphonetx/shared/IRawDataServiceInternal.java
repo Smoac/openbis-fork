@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.RawDataSampleValidator;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * 
@@ -41,7 +41,7 @@ public interface IRawDataServiceInternal extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.USER)
     @ReturnValueFilter(validatorClass = RawDataSampleValidator.class)
-    public List<Sample> listRawDataSamples(String sessionToken);
+    public List<MsInjectionSample> listRawDataSamples(String sessionToken);
     
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.USER)

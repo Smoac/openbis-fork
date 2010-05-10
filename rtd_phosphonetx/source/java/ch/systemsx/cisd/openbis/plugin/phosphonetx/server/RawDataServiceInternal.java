@@ -49,8 +49,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.Manager;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.RawDataSampleValidator;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * 
@@ -63,7 +65,7 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
 
     @Private static final String RAW_DATA_SAMPLE_TYPE = "MS_INJECTION";
     
-    private static final IValidator<Sample> RAW_DATA_SAMPLE_VALIDATOR = new RawDataSampleValidator();
+    private static final IValidator<MsInjectionSample> RAW_DATA_SAMPLE_VALIDATOR = new RawDataSampleValidator();
 
     private ICommonBusinessObjectFactory businessObjectFactory;
 
@@ -91,7 +93,7 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         return new RawDataServiceInternalLogger(getSessionManager(), context);
     }
     
-    public List<Sample> listRawDataSamples(String sessionToken)
+    public List<MsInjectionSample> listRawDataSamples(String sessionToken)
     {
         return loadAllRawDataSamples(getSession(sessionToken));
     }
@@ -102,13 +104,13 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         Session session = getSession(sessionToken);
         PersonPE person = session.tryGetPerson();
 
-        List<Sample> samples = loadAllRawDataSamples(session);
+        List<MsInjectionSample> samples = loadAllRawDataSamples(session);
         Set<Long> sampleIDs = new HashSet<Long>();
-        for (Sample sample : samples)
+        for (MsInjectionSample sample : samples)
         {
             if (RAW_DATA_SAMPLE_VALIDATOR.isValid(person, sample))
             {
-                sampleIDs.add(sample.getId());
+                sampleIDs.add(sample.getSample().getId());
             }
         }
 
@@ -137,7 +139,7 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
                 parameterBindings);
     }
 
-    private List<Sample> loadAllRawDataSamples(Session session)
+    private List<MsInjectionSample> loadAllRawDataSamples(Session session)
     {
         ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
         ListSampleCriteria criteria = new ListSampleCriteria();
@@ -148,7 +150,14 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         criteria.setSpaceCode(SPACE_CODE);
         ListOrSearchSampleCriteria criteria2 = new ListOrSearchSampleCriteria(criteria);
         criteria2.setEnrichDependentSamplesWithProperties(true);
-        return sampleLister.list(criteria2);
+        List<Sample> samples = sampleLister.list(criteria2);
+        Manager manager = new Manager();
+        for (Sample sample : samples)
+        {
+            manager.addSample(sample);
+        }
+        manager.gatherDataSets(businessObjectFactory.createDatasetLister(session, ""));
+        return manager.getSamples();
     }
     
     private String findDataStoreServer(String dataSetProcessingKey)
