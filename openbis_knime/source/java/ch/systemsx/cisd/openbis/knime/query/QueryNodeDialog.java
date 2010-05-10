@@ -63,20 +63,24 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class QueryNodeDialog extends NodeDialogPane
 {
     private static final NodeLogger log = NodeLogger.getLogger(QueryNodeDialog.class);
-    
+
     private JTextField urlField;
+
     private JTextField userField;
+
     private JPasswordField passwordField;
+
     private JComboBox queryComboBox;
+
     private JPanel parametersPanel;
+
     private ParameterBindings parameterBindings = new ParameterBindings();
+
     private Map<String, JTextField> parameterFields = new HashMap<String, JTextField>();
 
     QueryNodeDialog()
@@ -84,7 +88,7 @@ public class QueryNodeDialog extends NodeDialogPane
         super();
         addTab("Query Settings", createGUI());
     }
-    
+
     private JComponent createGUI()
     {
         JPanel panel = new JPanel(new BorderLayout());
@@ -180,25 +184,25 @@ public class QueryNodeDialog extends NodeDialogPane
 
     private GridBagConstraints createLast()
     {
-        GridBagConstraints last = createFirst(); 
+        GridBagConstraints last = createFirst();
         last.gridwidth = GridBagConstraints.REMAINDER;
         return last;
     }
-    
+
     private GridBagConstraints createFirst()
     {
-        GridBagConstraints constraints = new GridBagConstraints(); 
-        constraints.anchor = GridBagConstraints.WEST; 
-        constraints.fill = GridBagConstraints.HORIZONTAL; 
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(2, 3, 2, 3);
         return constraints;
     }
-    
+
     private void connectToOpenBIS()
     {
         String url = urlField.getText();
         String userID = userField.getText();
-        String password = passwordField.getText();
+        String password = getPasswordText();
         IQueryApiFacade facade = FacadeFactory.create(url, userID, password);
         List<QueryDescription> queries = facade.listQueries();
         Collections.sort(queries, new Comparator<QueryDescription>()
@@ -218,6 +222,12 @@ public class QueryNodeDialog extends NodeDialogPane
                 queryComboBox.setSelectedItem(queryDescription);
             }
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    private String getPasswordText()
+    {
+        return passwordField.getText();
     }
 
     private void updateParametersPanel(QueryDescription queryDescription)
@@ -246,6 +256,5 @@ public class QueryNodeDialog extends NodeDialogPane
         parametersPanel.invalidate();
         parametersPanel.getParent().validate();
     }
-    
 
 }
