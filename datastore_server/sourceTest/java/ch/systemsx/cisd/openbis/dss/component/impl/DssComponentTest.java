@@ -158,11 +158,13 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         final FileInfoDssDTO[] fileInfos = new FileInfoDssDTO[list.size()];
         list.toArray(fileInfos);
 
-        final RpcServiceInterfaceDTO[] ifaces = new RpcServiceInterfaceDTO[1];
+        final ArrayList<RpcServiceInterfaceDTO> ifaces = new ArrayList<RpcServiceInterfaceDTO>(1);
         final RpcServiceInterfaceDTO iface = new RpcServiceInterfaceDTO();
         iface.setInterfaceName("V1");
         iface.setInterfaceUrlSuffix("/rpc/v1");
-        ifaces[0] = iface;
+        iface.setInterfaceMajorVersion(1);
+        iface.setInterfaceMinorVersion(0);
+        ifaces.add(iface);
 
         context.checking(new Expectations()
             {
