@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.rpc.client.DssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -301,9 +301,9 @@ class AuthenticatedState extends AbstractDssComponentState
     private IDssServiceRpcGeneric basicGetDssServiceForUrl(String serverURL)
     {
         IDssServiceRpcGeneric dssService = null;
-        DssServiceRpcInterface[] ifaces =
+        RpcServiceInterfaceDTO[] ifaces =
                 dssServiceFactory.getSupportedInterfaces(serverURL, false);
-        for (DssServiceRpcInterface iface : ifaces)
+        for (RpcServiceInterfaceDTO iface : ifaces)
         {
             if (V1_INTERFACE_NAME.equals(iface.getInterfaceName()))
             {

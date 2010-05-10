@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
@@ -158,8 +158,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         final FileInfoDssDTO[] fileInfos = new FileInfoDssDTO[list.size()];
         list.toArray(fileInfos);
 
-        final DssServiceRpcInterface[] ifaces = new DssServiceRpcInterface[1];
-        final DssServiceRpcInterface iface = new DssServiceRpcInterface();
+        final RpcServiceInterfaceDTO[] ifaces = new RpcServiceInterfaceDTO[1];
+        final RpcServiceInterfaceDTO iface = new RpcServiceInterfaceDTO();
         iface.setInterfaceName("V1");
         iface.setInterfaceUrlSuffix("/rpc/v1");
         ifaces[0] = iface;

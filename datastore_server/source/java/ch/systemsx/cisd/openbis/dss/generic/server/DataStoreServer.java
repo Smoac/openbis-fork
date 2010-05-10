@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters.PluginServle
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
@@ -222,13 +222,13 @@ public class DataStoreServer
                 ServiceProvider.getDssServiceRpcNameServer();
         DssServiceRpcNameServer rpcNameServer =
                 (DssServiceRpcNameServer) nameServiceExporter.getService();
-        DssServiceRpcInterface v1Interface = new DssServiceRpcInterface();
+        RpcServiceInterfaceDTO v1Interface = new RpcServiceInterfaceDTO();
         v1Interface.setInterfaceName("V1");
         v1Interface.setInterfaceUrlSuffix("/rpc/v1");
         rpcNameServer.addSupportedInterface(v1Interface);
 
         String nameServerPath = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME;
-        DssServiceRpcInterface nameServerInterface = new DssServiceRpcInterface();
+        RpcServiceInterfaceDTO nameServerInterface = new RpcServiceInterfaceDTO();
         nameServerInterface.setInterfaceName("NameServer");
         nameServerInterface.setInterfaceUrlSuffix("/rpc");
         rpcNameServer.addSupportedInterface(nameServerInterface);

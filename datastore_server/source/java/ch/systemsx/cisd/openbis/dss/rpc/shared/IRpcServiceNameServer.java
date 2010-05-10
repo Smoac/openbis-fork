@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.dss.rpc.shared;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IDssServiceRpcNameServer extends IDssServiceRpc
+public interface IRpcServiceNameServer extends IDssServiceRpc
 {
-    DssServiceRpcInterface[] getSupportedInterfaces();
+    RpcServiceInterfaceDTO[] getSupportedInterfaces();
 }

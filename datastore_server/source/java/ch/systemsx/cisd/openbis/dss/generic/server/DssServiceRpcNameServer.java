@@ -22,8 +22,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcNameServer;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcServiceNameServer;
 
 /**
  * Implementation of the IDssServiceRpcNameServer interface which registry for accessing the RPC
@@ -31,21 +31,21 @@ import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcNameServer;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DssServiceRpcNameServer implements IDssServiceRpcNameServer
+public class DssServiceRpcNameServer implements IRpcServiceNameServer
 {
-    private final ArrayList<DssServiceRpcInterface> supportedInterfaces;
+    private final ArrayList<RpcServiceInterfaceDTO> supportedInterfaces;
 
     static private final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DssServiceRpcNameServer.class);
 
     DssServiceRpcNameServer()
     {
-        supportedInterfaces = new ArrayList<DssServiceRpcInterface>();
+        supportedInterfaces = new ArrayList<RpcServiceInterfaceDTO>();
     }
 
-    public DssServiceRpcInterface[] getSupportedInterfaces()
+    public RpcServiceInterfaceDTO[] getSupportedInterfaces()
     {
-        DssServiceRpcInterface[] ifaces = new DssServiceRpcInterface[supportedInterfaces.size()];
+        RpcServiceInterfaceDTO[] ifaces = new RpcServiceInterfaceDTO[supportedInterfaces.size()];
         return supportedInterfaces.toArray(ifaces);
     }
 
@@ -62,7 +62,7 @@ public class DssServiceRpcNameServer implements IDssServiceRpcNameServer
     /**
      * Package-visible method for configuring the registry
      */
-    void addSupportedInterface(DssServiceRpcInterface iface)
+    void addSupportedInterface(RpcServiceInterfaceDTO iface)
     {
         supportedInterfaces.add(iface);
         operationLog.info("Registered RPC Interface " + iface.toString());

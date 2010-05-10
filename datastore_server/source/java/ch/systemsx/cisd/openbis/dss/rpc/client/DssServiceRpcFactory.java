@@ -30,9 +30,9 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.DssServiceRpcInterface;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpc;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcNameServer;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcServiceNameServer;
 
 /**
  * Client-side factory for DssServiceRpc objects.
@@ -47,24 +47,24 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
 
     private static final String NAME_SERVER_SUFFIX = "/rpc";
 
-    public DssServiceRpcInterface[] getSupportedInterfaces(String serverURL,
+    public RpcServiceInterfaceDTO[] getSupportedInterfaces(String serverURL,
             boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException
     {
         // We assume the location of the name server follows the convention
         String nameServerURL = serverURL + NAME_SERVER_SUFFIX;
-        Class<IDssServiceRpcNameServer> clazz = IDssServiceRpcNameServer.class;
+        Class<IRpcServiceNameServer> clazz = IRpcServiceNameServer.class;
         if (getServerCertificateFromServer)
         {
             new SslCertificateHelper(nameServerURL, getConfigDirectory(), "dss").setUpKeyStore();
         }
 
-        IDssServiceRpcNameServer nameServer =
-                new ServiceProxyBuilder<IDssServiceRpcNameServer>(nameServerURL, clazz,
+        IRpcServiceNameServer nameServer =
+                new ServiceProxyBuilder<IRpcServiceNameServer>(nameServerURL, clazz,
                         SERVER_TIMEOUT_MIN, 1).getServiceInterface();
         return nameServer.getSupportedInterfaces();
     }
 
-    public <T extends IDssServiceRpc> T getService(DssServiceRpcInterface iface,
+    public <T extends IDssServiceRpc> T getService(RpcServiceInterfaceDTO iface,
             Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
             throws IncompatibleAPIVersionsException
     {
