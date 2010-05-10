@@ -38,6 +38,16 @@ public class DBUtils
     }
 
     /**
+     * Use this method instead of {@link QueryTool#getQuery(DataSource, Class)}. Only in this way
+     * you make sure that the rigth query mappers will be registered.
+     */
+    public static <T extends BaseQuery> T getQuery(final DataSource dataSource, final Class<T> query)
+            throws InvalidDataTypeException, InvalidQueryException
+    {
+        return QueryTool.getQuery(dataSource, query);
+    }
+
+    /**
      * Rolls backs and closes the given <var>transactionOrNull</var>, if it is not <code>null</code>
      * .
      */
@@ -138,13 +148,4 @@ public class DBUtils
         return experiment;
     }
 
-    /**
-     * Use this method instead of {@link QueryTool#getQuery(DataSource, Class)} to initialize the
-     * {@link QueryTool#getTypeMap()}.
-     */
-    public static <T extends BaseQuery> T getQuery(final DataSource dataSource, final Class<T> query)
-            throws InvalidDataTypeException, InvalidQueryException
-    {
-        return QueryTool.getQuery(dataSource, query);
-    }
 }
