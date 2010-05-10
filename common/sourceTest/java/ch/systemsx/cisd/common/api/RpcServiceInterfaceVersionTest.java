@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component.impl;
+package ch.systemsx.cisd.common.api;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class RpcServiceInterfaceTest extends AssertJUnit
+public class RpcServiceInterfaceVersionTest extends AssertJUnit
 {
     @Test
     public void testToString()
@@ -35,14 +34,8 @@ public class RpcServiceInterfaceTest extends AssertJUnit
         ifaceVersion.setInterfaceUrlSuffix("/rpc/dss-generic/v1");
         ifaceVersion.setInterfaceMajorVersion(1);
         ifaceVersion.setInterfaceMinorVersion(7);
-
-        final RpcServiceInterfaceDTO iface = new RpcServiceInterfaceDTO();
-
-        iface.setInterfaceName("DSS Generic");
-        iface.addVersion(ifaceVersion);
-        assertEquals(
-                "RpcServiceInterfaceDTO[DSS Generic [RpcServiceInterfaceVersionDTO[DSS Generic,/rpc/dss-generic/v1,v.1.7]]]",
-                iface.toString());
+        assertEquals("RpcServiceInterfaceVersionDTO[DSS Generic,/rpc/dss-generic/v1,v.1.7]",
+                ifaceVersion.toString());
     }
 
     @Test
@@ -62,16 +55,8 @@ public class RpcServiceInterfaceTest extends AssertJUnit
         ifaceVersion2.setInterfaceMajorVersion(majorVersion);
         ifaceVersion2.setInterfaceMinorVersion(minorVersion);
 
-        final RpcServiceInterfaceDTO iface1 = new RpcServiceInterfaceDTO();
-        iface1.setInterfaceName("DSS Generic");
-        iface1.addVersion(ifaceVersion1);
-
-        final RpcServiceInterfaceDTO iface2 = new RpcServiceInterfaceDTO();
-        iface2.setInterfaceName("DSS Generic");
-        iface2.addVersion(ifaceVersion2);
-
-        assertTrue(iface1 != iface2);
-        assertEquals(iface1, iface2);
-        assertEquals(iface1.hashCode(), iface2.hashCode());
+        assertTrue(ifaceVersion1 != ifaceVersion2);
+        assertEquals(ifaceVersion1, ifaceVersion2);
+        assertEquals(ifaceVersion1.hashCode(), ifaceVersion2.hashCode());
     }
 }
