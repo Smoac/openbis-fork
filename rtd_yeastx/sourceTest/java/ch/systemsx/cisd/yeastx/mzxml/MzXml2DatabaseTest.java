@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.convert.NativeData;
 import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
-import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzInstrumentDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPeaksDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPrecursorDTO;

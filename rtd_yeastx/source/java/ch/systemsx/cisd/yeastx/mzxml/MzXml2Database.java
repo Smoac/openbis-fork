@@ -27,7 +27,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
-import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPrecursorDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzRunDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzScanDTO;

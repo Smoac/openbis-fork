@@ -21,6 +21,9 @@ import javax.sql.DataSource;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.generic.GenericUtils;
+import ch.systemsx.cisd.yeastx.db.generic.IGenericDAO;
 
 /**
  * Abstract class for dataset loaders. Provides commit and rollback functionality and creation of
@@ -73,7 +76,7 @@ abstract public class AbstractDatasetLoader<T extends IGenericDAO> implements ID
             throw new IllegalStateException(
                     "The previous transaction of uploading a dataset has been neither commited nor rollbacked.");
         }
-        DBUtils.createDataSet(getDao(), dataSet);
+        GenericUtils.createDataSet(getDao(), dataSet);
         isTransactionCompleted = false;
     }
 

@@ -31,7 +31,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.yeastx.db.AbstractDBTest;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
-import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.generic.GenericUtils;
 
 /**
  * A test for the fiaML tables.
@@ -114,10 +115,10 @@ public class FIAMLTest extends AbstractDBTest
     {
         try
         {
-            DBUtils.createDataSet(fiamsDAO, new DMDataSetDTO("data set perm id 4",
+            GenericUtils.createDataSet(fiamsDAO, new DMDataSetDTO("data set perm id 4",
                     "sample perm id4", "sample name", "experiment perm id", "experiment name"));
             // This will fail with a DataIntegrityViolationException.
-            DBUtils.createDataSet(fiamsDAO, new DMDataSetDTO("data set perm id 4",
+            GenericUtils.createDataSet(fiamsDAO, new DMDataSetDTO("data set perm id 4",
                     "sample perm id4", "sample name", "experiment perm id", "experiment name"));
             // There is transaction commit inside createDataSet method before DS is added to DB.
             // DS created in first invocation will be be commited in second invocation.

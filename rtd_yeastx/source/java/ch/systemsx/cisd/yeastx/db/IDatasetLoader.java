@@ -19,6 +19,8 @@ package ch.systemsx.cisd.yeastx.db;
 import java.io.File;
 import java.sql.SQLException;
 
+import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
+
 /**
  * @author Tomasz Pylak
  */

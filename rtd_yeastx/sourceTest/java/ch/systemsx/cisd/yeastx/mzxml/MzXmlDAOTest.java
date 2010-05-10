@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.yeastx.db.AbstractDBTest;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
-import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
 
 /**
  * @author Tomasz Pylak

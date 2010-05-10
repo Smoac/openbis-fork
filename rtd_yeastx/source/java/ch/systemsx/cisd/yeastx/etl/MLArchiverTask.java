@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
-import ch.systemsx.cisd.yeastx.db.IGenericDAO;
+import ch.systemsx.cisd.yeastx.db.generic.IGenericDAO;
 
 /**
  * Archiver that removes/adds data related to given data set from/to metabol database.

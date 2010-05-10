@@ -20,7 +20,7 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
-import ch.systemsx.cisd.yeastx.db.IGenericDAO;
+import ch.systemsx.cisd.yeastx.db.generic.IGenericDAO;
 
 /**
  * Interface for querying / updating the metabol database.

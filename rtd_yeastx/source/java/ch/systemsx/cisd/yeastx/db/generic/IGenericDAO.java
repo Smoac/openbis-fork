@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.yeastx.db;
+package ch.systemsx.cisd.yeastx.db.generic;
 
 import java.util.List;
+
 
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.yeastx.quant;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
-import ch.systemsx.cisd.yeastx.db.IGenericDAO;
+import ch.systemsx.cisd.yeastx.db.generic.IGenericDAO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
 

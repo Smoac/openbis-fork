@@ -23,7 +23,7 @@ import java.util.Iterator;
 import javax.sql.DataSource;
 
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
-import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.fiaml.FIAMLParser.IMSRunObserver;
 
 /**

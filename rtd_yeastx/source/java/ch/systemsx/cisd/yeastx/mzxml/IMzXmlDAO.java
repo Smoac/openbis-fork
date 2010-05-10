@@ -19,8 +19,8 @@ package ch.systemsx.cisd.yeastx.mzxml;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
-import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
-import ch.systemsx.cisd.yeastx.db.IGenericDAO;
+import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.generic.IGenericDAO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzInstrumentDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPrecursorDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzScanDTO;
