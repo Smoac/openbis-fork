@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.rpc.shared;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.api.IRpcService;
 
 /**
  * Generic functionality for interacting with the DSS.
@@ -27,6 +28,8 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
  */
 public interface IDssServiceRpcGeneric extends IRpcService
 {
+    public String DSS_SERVICE_NAME = "DSS Service";
+
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
      * 

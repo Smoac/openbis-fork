@@ -31,9 +31,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
@@ -110,6 +111,24 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testUnsupportedInterface() throws IOException
+    {
+        setupExpectations("Some Server Interface");
+
+        dssComponent.login("foo", "bar");
+        try
+        {
+            dssComponent.getDataSet("DummyDataSetCode");
+            fail("Should have thrown an IllegalArgumentException");
+        } catch (IllegalArgumentException e)
+        {
+            // correct behavior
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testGetFileContents() throws IOException
     {
         setupExpectations();
@@ -144,6 +163,11 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
     private void setupExpectations() throws IOException
     {
+        setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME);
+    }
+
+    private void setupExpectations(String serviceName) throws IOException
+    {
         final SessionContextDTO session = getDummySession();
         final ExternalData dataSetExternalData = new ExternalData();
         DataStore dataStore = new DataStore();
@@ -160,10 +184,15 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         final ArrayList<RpcServiceInterfaceDTO> ifaces = new ArrayList<RpcServiceInterfaceDTO>(1);
         final RpcServiceInterfaceDTO iface = new RpcServiceInterfaceDTO();
-        iface.setInterfaceName("V1");
-        iface.setInterfaceUrlSuffix("/rpc/v1");
-        iface.setInterfaceMajorVersion(1);
-        iface.setInterfaceMinorVersion(0);
+        final RpcServiceInterfaceVersionDTO ifaceVersion = new RpcServiceInterfaceVersionDTO();
+        ifaceVersion.setInterfaceName(serviceName);
+        ifaceVersion.setInterfaceUrlSuffix("/rpc/v1");
+        ifaceVersion.setInterfaceMajorVersion(1);
+        ifaceVersion.setInterfaceMinorVersion(0);
+
+        iface.setInterfaceName(serviceName);
+        iface.addVersion(ifaceVersion);
+
         ifaces.add(iface);
 
         context.checking(new Expectations()
@@ -177,8 +206,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                     will(returnValue(dataSetExternalData));
                     allowing(dssServiceFactory).getSupportedInterfaces(DUMMY_DSS_URL, false);
                     will(returnValue(ifaces));
-                    allowing(dssServiceFactory).getService(iface, IDssServiceRpcGeneric.class,
-                            DUMMY_DSS_URL, false);
+                    allowing(dssServiceFactory).getService(ifaceVersion,
+                            IDssServiceRpcGeneric.class, DUMMY_DSS_URL, false);
                     will(returnValue(dssService));
                     allowing(dssService).listFilesForDataSet(DUMMY_SESSSION_TOKEN, dataSetCode,
                             "/", true);

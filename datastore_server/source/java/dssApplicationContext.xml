@@ -70,10 +70,10 @@
     <bean id="data-store-rpc-name-server"
         class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
         <property name="service">
-            <bean class="ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcNameServer">
+            <bean class="ch.systemsx.cisd.common.api.server.RpcServiceNameServer">
             </bean>
         </property>
-        <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcServiceNameServer" />
+        <property name="serviceInterface" value="ch.systemsx.cisd.common.api.IRpcServiceNameServer" />
     </bean>
     
     <bean id="session-token-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager"/>

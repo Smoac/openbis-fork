@@ -18,8 +18,9 @@ package ch.systemsx.cisd.openbis.dss.rpc.client;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcService;
+import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 
 /**
  * A factory for creating proxies to RPC services on a data store server.
@@ -45,7 +46,7 @@ public interface IDssServiceRpcFactory
     /**
      * Get get RPC service interface specified by <code>iface</code>.
      */
-    public abstract <T extends IRpcService> T getService(RpcServiceInterfaceDTO iface,
-            Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
-            throws IncompatibleAPIVersionsException;
+    public abstract <T extends IRpcService> T getService(
+            RpcServiceInterfaceVersionDTO ifaceVersion, Class<T> ifaceClazz, String serverURL,
+            boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException;
 }

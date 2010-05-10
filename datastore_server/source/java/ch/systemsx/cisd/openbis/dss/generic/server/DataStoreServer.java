@@ -43,6 +43,9 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
+import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -53,7 +56,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters.PluginServle
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
@@ -220,17 +223,31 @@ public class DataStoreServer
         // N.b. In the future, this could be done using spring instead of programmatically
         StreamSupportingHttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getDssServiceRpcNameServer();
-        DssServiceRpcNameServer rpcNameServer =
-                (DssServiceRpcNameServer) nameServiceExporter.getService();
-        RpcServiceInterfaceDTO v1Interface = new RpcServiceInterfaceDTO();
-        v1Interface.setInterfaceName("V1");
+        RpcServiceNameServer rpcNameServer =
+                (RpcServiceNameServer) nameServiceExporter.getService();
+
+        RpcServiceInterfaceDTO dssInterface = new RpcServiceInterfaceDTO();
+        dssInterface.setInterfaceName(IDssServiceRpcGeneric.DSS_SERVICE_NAME);
+
+        RpcServiceInterfaceVersionDTO v1Interface = new RpcServiceInterfaceVersionDTO();
+        v1Interface.setInterfaceName(DssServiceRpcGeneric.DSS_SERVICE_NAME);
         v1Interface.setInterfaceUrlSuffix("/rpc/v1");
-        rpcNameServer.addSupportedInterface(v1Interface);
+        v1Interface.setInterfaceMajorVersion(1);
+        v1Interface.setInterfaceMinorVersion(0);
+        dssInterface.addVersion(v1Interface);
+        rpcNameServer.addSupportedInterface(dssInterface);
 
         String nameServerPath = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME;
         RpcServiceInterfaceDTO nameServerInterface = new RpcServiceInterfaceDTO();
         nameServerInterface.setInterfaceName("NameServer");
-        nameServerInterface.setInterfaceUrlSuffix("/rpc");
+
+        RpcServiceInterfaceVersionDTO nameServerVersion = new RpcServiceInterfaceVersionDTO();
+        nameServerVersion.setInterfaceName("NameServer");
+        nameServerVersion.setInterfaceUrlSuffix("/rpc");
+        nameServerVersion.setInterfaceMajorVersion(1);
+        nameServerVersion.setInterfaceMinorVersion(0);
+        nameServerInterface.addVersion(nameServerVersion);
+
         rpcNameServer.addSupportedInterface(nameServerInterface);
 
         context.addServlet(new ServletHolder(new HttpInvokerServlet(nameServiceExporter,

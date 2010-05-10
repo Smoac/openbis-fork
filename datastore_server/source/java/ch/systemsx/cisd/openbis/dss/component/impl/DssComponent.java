@@ -22,6 +22,8 @@ import java.util.List;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -31,7 +33,6 @@ import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.rpc.client.DssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -195,8 +196,6 @@ class UnauthenticatedState extends AbstractDssComponentState
  */
 class AuthenticatedState extends AbstractDssComponentState
 {
-    private static final String V1_INTERFACE_NAME = "V1";
-
     private final SessionContextDTO session;
 
     private final IDssServiceRpcFactory dssServiceFactory;
@@ -304,17 +303,25 @@ class AuthenticatedState extends AbstractDssComponentState
         IDssServiceRpcGeneric dssService = null;
         List<RpcServiceInterfaceDTO> ifaces =
                 dssServiceFactory.getSupportedInterfaces(serverURL, false);
+
         for (RpcServiceInterfaceDTO iface : ifaces)
         {
-            if (V1_INTERFACE_NAME.equals(iface.getInterfaceName()))
+            if (IDssServiceRpcGeneric.DSS_SERVICE_NAME.equals(iface.getInterfaceName()))
             {
-                dssService =
-                        dssServiceFactory.getService(iface, IDssServiceRpcGeneric.class, serverURL,
-                                false);
-                break;
+                for (RpcServiceInterfaceVersionDTO ifaceVersion : iface.getVersions())
+                {
+                    if (1 == ifaceVersion.getInterfaceMajorVersion())
+                    {
+                        dssService =
+                                dssServiceFactory.getService(ifaceVersion,
+                                        IDssServiceRpcGeneric.class, serverURL, false);
+                        return dssService;
+                    }
+                }
             }
         }
-        return dssService;
+        throw new IllegalArgumentException("Server does not support the "
+                + IDssServiceRpcGeneric.DSS_SERVICE_NAME + " interface.");
     }
 
     private String getSessionToken()

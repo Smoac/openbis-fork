@@ -23,11 +23,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
 
+import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcService;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcServiceNameServer;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
 
 /**
  * Client-side factory for DssServiceRpc objects.
@@ -59,11 +60,11 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
         return nameServer.getSupportedInterfaces();
     }
 
-    public <T extends IRpcService> T getService(RpcServiceInterfaceDTO iface, Class<T> ifaceClazz,
-            String serverURL, boolean getServerCertificateFromServer)
+    public <T extends IRpcService> T getService(RpcServiceInterfaceVersionDTO ifaceVersion,
+            Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
             throws IncompatibleAPIVersionsException
     {
-        String serviceURL = serverURL + iface.getInterfaceUrlSuffix();
+        String serviceURL = serverURL + ifaceVersion.getInterfaceUrlSuffix();
         if (getServerCertificateFromServer)
         {
             new SslCertificateHelper(serviceURL, getConfigDirectory(), "dss").setUpKeyStore();
