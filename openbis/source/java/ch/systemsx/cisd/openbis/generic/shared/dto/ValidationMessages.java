@@ -74,6 +74,9 @@ public final class ValidationMessages
 
     public static final String NAME_NOT_NULL_MESSAGE = "Name" + CAN_NOT_BE_NULL;
 
+    public static final String QUERY_DATABASE_KEY_NOT_NULL_MESSAGE =
+            "Query Database Key" + CAN_NOT_BE_NULL;
+
     public static final String CODE_PATTERN_MESSAGE =
             "Given code '%s' contains illegal characters (allowed: A-Z, a-z, 0-9 and _, -, .)";
 

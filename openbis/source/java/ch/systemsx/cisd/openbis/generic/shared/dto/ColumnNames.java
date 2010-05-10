@@ -68,6 +68,8 @@ public final class ColumnNames
 
     public final static String DATABASE_INSTANCE_COLUMN = "dbin_id";
 
+    public static final String QUERY_DATABASE_KEY_COLUMN = "db_key";
+
     public static final String DESCRIPTION_COLUMN = "description";
 
     public static final String DOWNLOAD_URL_COLUMN = "download_url";

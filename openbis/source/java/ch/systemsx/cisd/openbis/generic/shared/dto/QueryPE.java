@@ -28,8 +28,8 @@ import org.hibernate.validator.NotNull;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Persistent entity of a SQL query for a custom database. 
- *
+ * Persistent entity of a SQL query for a custom database.
+ * 
  * @author Franz-Josef Elmer
  */
 @Entity
@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class QueryPE extends AbstractExpressionPE<QueryPE>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private String queryDatabaseKey;
 
     private String name;
 
@@ -51,6 +53,19 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    @Column(name = ColumnNames.QUERY_DATABASE_KEY_COLUMN)
+    @NotNull(message = ValidationMessages.QUERY_DATABASE_KEY_NOT_NULL_MESSAGE)
+    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    public String getQueryDatabaseKey()
+    {
+        return queryDatabaseKey;
+    }
+
+    public void setQueryDatabaseKey(String queryDatabaseKey)
+    {
+        this.queryDatabaseKey = queryDatabaseKey;
     }
 
     @Override
@@ -68,6 +83,7 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getName(), that.getName());
         builder.append(getDatabaseInstance(), that.getDatabaseInstance());
+        builder.append(getQueryDatabaseKey(), that.getQueryDatabaseKey());
         return builder.isEquals();
     }
 
