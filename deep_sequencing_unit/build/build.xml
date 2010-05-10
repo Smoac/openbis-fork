@@ -55,8 +55,8 @@
 		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.tracking.lib}" />
 		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.tracking.lib}" />
 		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.tracking.lib}" />
-		
 		<copy file="${lib}/spring/spring.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/spring/third-party" todir="${dist.tracking.lib}" />
 
 		<property name="tracking-dist.file" value="openbis-tracking-client-DSU-${version.number}-r${revision.number}.zip" />
 		<zip basedir="${dist.tracking}" destfile="${dist}/${tracking-dist.file}" excludes="*.zip *.jar">
