@@ -40,10 +40,14 @@ public class DatabaseConfigurationContext implements DisposableBean
     {
 
         /** @see GenericObjectPool#DEFAULT_MAX_ACTIVE */
-        private final int MAX_ACTIVE = 20;
+        private final int DEFAULT_MAX_ACTIVE = 20;
 
         /** @see GenericObjectPool#DEFAULT_MAX_IDLE */
-        private final int MAX_IDLE = MAX_ACTIVE;
+        private final int DEFAULT_MAX_IDLE = DEFAULT_MAX_ACTIVE;
+
+        private int maxIdle = DEFAULT_MAX_IDLE;
+
+        private int maxActive = DEFAULT_MAX_ACTIVE;
 
         //
         // IDataSourceFactory
@@ -57,9 +61,19 @@ public class DatabaseConfigurationContext implements DisposableBean
             dataSource.setUrl(url);
             dataSource.setUsername(owner);
             dataSource.setPassword(password);
-            dataSource.setMaxIdle(MAX_IDLE);
-            dataSource.setMaxActive(MAX_ACTIVE);
+            dataSource.setMaxIdle(maxIdle);
+            dataSource.setMaxActive(maxActive);
             return dataSource;
+        }
+
+        public void setMaxIdle(int maxIdle)
+        {
+            this.maxIdle = maxIdle;
+        }
+
+        public void setMaxActive(int maxActive)
+        {
+            this.maxActive = maxActive;
         }
     }
 
@@ -110,9 +124,9 @@ public class DatabaseConfigurationContext implements DisposableBean
         setSequenceUpdateNeeded(true);
     }
 
-    public final void setDataSourceFactory(final IDataSourceFactory dataSourceFactory)
+    public final void initDataSourceFactory(final IDataSourceFactory factory)
     {
-        this.dataSourceFactory = dataSourceFactory;
+        this.dataSourceFactory = factory;
     }
 
     private final static void closeConnection(final DataSource dataSource)
@@ -417,6 +431,23 @@ public class DatabaseConfigurationContext implements DisposableBean
         {
             this.urlHostPart = StringUtils.trim(urlHostPart);
         }
+    }
+
+    /**
+     * Sets the maximum number of idle connections in the pool (default is 20).
+     */
+    public void setMaxIdle(int maxIdle)
+    {
+        this.dataSourceFactory.setMaxIdle(maxIdle);
+    }
+
+    /**
+     * Sets the maximum number of active connections that can be allocated at the same time (default
+     * is 20).
+     */
+    public void setMaxActive(int maxActive)
+    {
+        this.dataSourceFactory.setMaxActive(maxActive);
     }
 
     /**

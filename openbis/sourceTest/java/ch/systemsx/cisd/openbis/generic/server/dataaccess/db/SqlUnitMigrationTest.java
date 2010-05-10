@@ -166,6 +166,14 @@ public final class SqlUnitMigrationTest
             {
                 return new MyDataSource(driver, url, owner, password);
             }
+
+            public void setMaxActive(int maxActive)
+            {
+            }
+
+            public void setMaxIdle(int maxIdle)
+            {
+            }
         };
 
     @BeforeClass(alwaysRun = true)
@@ -218,7 +226,7 @@ public final class SqlUnitMigrationTest
                 try
                 {
                     configurationContext.setCreateFromScratch(true);
-                    configurationContext.setDataSourceFactory(DATA_SOURCE_FACTORY);
+                    configurationContext.initDataSourceFactory(DATA_SOURCE_FACTORY);
                     configurationContext.setScriptFolder(getTestDataFolder(configurationContext));
                     DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(
                             configurationContext, databaseVersion);
@@ -316,7 +324,7 @@ public final class SqlUnitMigrationTest
         final DatabaseConfigurationContext configurationContext =
                 DatabaseCreationUtil.createDatabaseConfigurationContext(databaseKind);
         configurationContext.setCreateFromScratch(true);
-        configurationContext.setDataSourceFactory(DATA_SOURCE_FACTORY);
+        configurationContext.initDataSourceFactory(DATA_SOURCE_FACTORY);
         return configurationContext;
     }
 

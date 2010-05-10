@@ -47,6 +47,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.
  * my-data-source-1.basicDatabaseName = my-database-1
  * my-data-source-1.databaseKind = dev
  * my-data-source-1.scriptFolder = sql
+ * my-data-source-1.maxIdle = 50
+ * my-data-source-1.maxActive = 50
  * 
  * # Configure data source my-data-source-2
  * my-data-source-2.version-holder-class = ch.example.databases.MyDatabase2VersionHolder

@@ -18,6 +18,9 @@ package ch.systemsx.cisd.dbmigration;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.pool.impl.GenericObjectPool;
+
 /**
  * Factory for a {@link DataSource}.
  * 
@@ -29,4 +32,16 @@ public interface IDataSourceFactory
      * Creates a data source for the specified database credentials.
      */
     public DataSource createDataSource(String driver, String url, String owner, String password);
+
+    /**
+     * @see BasicDataSource#setMaxIdle(int)
+     * @see GenericObjectPool#DEFAULT_MAX_IDLE
+     */
+    public void setMaxIdle(int maxIdle);
+
+    /**
+     * @see BasicDataSource#setMaxActive(int)
+     * @see GenericObjectPool#DEFAULT_MAX_ACTIVE
+     */
+    public void setMaxActive(int maxActive);
 }
