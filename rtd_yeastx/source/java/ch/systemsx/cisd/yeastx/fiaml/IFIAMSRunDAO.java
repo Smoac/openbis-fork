@@ -20,14 +20,14 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
-import ch.systemsx.cisd.yeastx.db.generic.IGenericDAO;
+import ch.systemsx.cisd.yeastx.db.generic.IDMGenericDAO;
 
 /**
  * Interface for querying / updating the metabol database.
  * 
  * @author Bernd Rinn
  */
-public interface IFIAMSRunDAO extends IGenericDAO
+public interface IFIAMSRunDAO extends IDMGenericDAO
 {
     final String ALL_FIA_MSRUN_COLUMNS =
             "FIA_MS_RUNS.ID, FIA_MS_RUNS.EXPE_ID, "

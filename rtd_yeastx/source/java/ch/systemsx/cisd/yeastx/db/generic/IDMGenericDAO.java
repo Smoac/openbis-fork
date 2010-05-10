@@ -24,11 +24,11 @@ import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.Update;
 
 /**
- * Interface for the "generic" methods (i.e. experiment, sample and data set).
+ * Interface for the "generic" methods on the Data Mart (i.e. experiment, sample and data set).
  * 
  * @author Bernd Rinn
  */
-public interface IGenericDAO extends TransactionQuery
+public interface IDMGenericDAO extends TransactionQuery
 {
 
     @Select("select * from EXPERIMENTS where PERM_ID = ?{1}")

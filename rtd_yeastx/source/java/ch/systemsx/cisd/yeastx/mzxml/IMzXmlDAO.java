@@ -20,7 +20,7 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
 import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
-import ch.systemsx.cisd.yeastx.db.generic.IGenericDAO;
+import ch.systemsx.cisd.yeastx.db.generic.IDMGenericDAO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzInstrumentDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPrecursorDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzScanDTO;
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.yeastx.mzxml.dto.MzScanDTO;
  * 
  * @author Tomasz Pylak
  */
-public interface IMzXmlDAO extends IGenericDAO
+public interface IMzXmlDAO extends IDMGenericDAO
 {
     @Select(sql = "insert into MZ_MS_RUNS "
             + "           ( EXPE_ID, SAMP_ID, DS_ID, INSTRUMENT_TYPE, INSTRUMENT_MANUFACTURER, "

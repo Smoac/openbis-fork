@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
-import ch.systemsx.cisd.yeastx.db.generic.IGenericDAO;
+import ch.systemsx.cisd.yeastx.db.generic.IDMGenericDAO;
 
 /**
  * Archiver that removes/adds data related to given data set from/to metabol database.
@@ -62,7 +62,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     {
 
         DataSource dataSource = getDataSource(dataSourceName);
-        final IGenericDAO dao = DBUtils.getQuery(dataSource, IGenericDAO.class);
+        final IDMGenericDAO dao = DBUtils.getQuery(dataSource, IDMGenericDAO.class);
         try
         {
             dao.deleteDataSet(dataset.getDatasetCode());

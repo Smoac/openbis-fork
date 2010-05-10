@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.yeastx.db.generic;
 
 /**
+ * Utilities to perform operations on the Data Mart.
+ * 
  * @author Tomasz Pylak
  */
-public class GenericUtils
+public class DMGenericUtils
 {
     /**
      * Creates the data set based on the information given in <var>dataSet</var>. The sample and
@@ -33,9 +35,9 @@ public class GenericUtils
      * transaction will be rolled back sample and experiment created in first transaction will stay
      * in the DB.
      */
-    public static void createDataSet(IGenericDAO dao, DMDataSetDTO dataSet)
+    public static void createDataSet(IDMGenericDAO dao, DMDataSetDTO dataSet)
     {
-        synchronized (IGenericDAO.class)
+        synchronized (IDMGenericDAO.class)
         {
             DMExperimentDTO experiment = getOrCreateExperiment(dao, dataSet);
             dataSet.setExperimentId(experiment.getId()); // make sure all the ids are set correctly.
@@ -65,19 +67,19 @@ public class GenericUtils
         dataSet.setId(dataSetId);
     }
 
-    private static DMSampleDTO createSample(IGenericDAO dao, DMSampleDTO sample, String samplePermId)
+    private static DMSampleDTO createSample(IDMGenericDAO dao, DMSampleDTO sample, String samplePermId)
     {
         final long sampleId = dao.addSample(sample);
         sample.setId(sampleId);
         return sample;
     }
 
-    private static DMExperimentDTO getOrCreateExperiment(IGenericDAO dao, DMDataSetDTO dataSet)
+    private static DMExperimentDTO getOrCreateExperiment(IDMGenericDAO dao, DMDataSetDTO dataSet)
     {
         String permId = dataSet.getExperiment().getPermId();
         // it may have happened that the experiment has been created by another thread after
         // we checked that it does not exist
-        synchronized (IGenericDAO.class)
+        synchronized (IDMGenericDAO.class)
         {
             DMExperimentDTO experiment = dao.getExperimentByPermId(permId);
             if (experiment == null)
@@ -88,7 +90,7 @@ public class GenericUtils
         }
     }
 
-    private static DMExperimentDTO createExperiment(IGenericDAO dao, DMDataSetDTO dataSet,
+    private static DMExperimentDTO createExperiment(IDMGenericDAO dao, DMDataSetDTO dataSet,
             String permId)
     {
         DMExperimentDTO experiment;

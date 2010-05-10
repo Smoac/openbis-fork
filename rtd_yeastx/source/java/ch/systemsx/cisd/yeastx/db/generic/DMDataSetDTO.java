@@ -50,11 +50,11 @@ public class DMDataSetDTO
     }
 
     public DMDataSetDTO(String dsPermId, String sampPermIdOrNull, String sampNameOrNull,
-            String expePermId, String expeName)
+            String expePermId, String experimentName)
     {
         this.permId = dsPermId;
         final DMExperimentDTO experiment = new DMExperimentDTO(expePermId);
-        experiment.setName(expeName);
+        experiment.setName(experimentName);
         if (sampPermIdOrNull != null)
         {
             assert sampNameOrNull != null : "sample name must be given when sample permId is given";

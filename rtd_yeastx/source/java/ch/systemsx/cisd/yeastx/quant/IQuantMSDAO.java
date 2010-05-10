@@ -19,7 +19,7 @@ package ch.systemsx.cisd.yeastx.quant;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
-import ch.systemsx.cisd.yeastx.db.generic.IGenericDAO;
+import ch.systemsx.cisd.yeastx.db.generic.IDMGenericDAO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
 
@@ -28,7 +28,7 @@ import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
  * 
  * @author Tomasz Pylak
  */
-public interface IQuantMSDAO extends IGenericDAO
+public interface IQuantMSDAO extends IDMGenericDAO
 {
     @Select(sql = "insert into MS_QUANTIFICATIONS "
             + "(  EXPE_ID, DS_ID, SOURCE, VALID, COMMENT, REGISTRATOR, REGISTRATION_DATE ) "
