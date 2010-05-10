@@ -38,7 +38,7 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String queryDatabaseKey;
+    private String queryDatabaseKey = "1"; // FIXME
 
     private String name;
 
