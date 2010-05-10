@@ -261,6 +261,7 @@ public final class SqlUnitMigrationTest
         final DatabaseConfigurationContext configurationContext =
                 createDatabaseContext(databaseKind);
         AbstractApplicationContext applicationContext = null;
+        File migratedSchemaFile = null;
         try
         {
             final String initialVersion = "034";
@@ -271,17 +272,8 @@ public final class SqlUnitMigrationTest
                     (SessionFactory) applicationContext.getBean("hibernate-session-factory");
             assertNotNull(sessionFactory);
             // dump the migrated database schema to the file
-            final File migratedSchemaFile =
-                    new File(unitTestRootDirectory, "migratedDatabaseSchema.sql");
+            migratedSchemaFile = new File(unitTestRootDirectory, "migratedDatabaseSchema.sql");
             dumpSchema(configurationContext, migratedSchemaFile);
-
-            final File originalSchemaFile = dumpOriginalSchema();
-
-            final String schemasDelta = compareSchemas(migratedSchemaFile, originalSchemaFile);
-            final String errorMsg =
-                    "The migrated schema is not identical to the original one. "
-                            + "Consider attaching following script to the migration file.";
-            AssertJUnit.assertEquals(errorMsg, "", schemasDelta);
         } finally
         {
             configurationContext.closeConnections();
@@ -290,6 +282,14 @@ public final class SqlUnitMigrationTest
                 applicationContext.close();
             }
         }
+        // need to close connections before dumping schema
+        final File originalSchemaFile = dumpOriginalSchema();
+
+        final String schemasDelta = compareSchemas(migratedSchemaFile, originalSchemaFile);
+        final String errorMsg =
+                "The migrated schema is not identical to the original one. "
+                        + "Consider attaching following script to the migration file.";
+        AssertJUnit.assertEquals(errorMsg, "", schemasDelta);
     }
 
     // create an original database from scratch and dump its schema to the file
