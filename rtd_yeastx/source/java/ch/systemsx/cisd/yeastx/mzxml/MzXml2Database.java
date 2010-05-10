@@ -27,9 +27,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
-import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPrecursorDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzRunDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzScanDTO;
@@ -41,19 +39,18 @@ import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
  * 
  * @author Tomasz Pylak
  */
-public class MzXml2Database extends AbstractDatasetLoader
+public class MzXml2Database extends AbstractDatasetLoader<IMzXmlDAO>
 {
-    private final IMzXmlDAO dao;
-
     public MzXml2Database(DataSource datasource)
     {
-        this(DBUtils.getQuery(datasource, IMzXmlDAO.class));
+        super(datasource, IMzXmlDAO.class);
     }
 
     @Private
-    MzXml2Database(IMzXmlDAO dao)
+    // for tests only
+    MzXml2Database(DataSource dataSource, IMzXmlDAO dao)
     {
-        this.dao = dao;
+        super(dataSource, IMzXmlDAO.class, dao);
     }
 
     /**
@@ -80,7 +77,7 @@ public class MzXml2Database extends AbstractDatasetLoader
     @Private
     void uploadRun(MzRunDTO run, DMDataSetDTO dataSet)
     {
-        long runId = dao.addRun(dataSet, run.getInstrument());
+        long runId = getDao().addRun(dataSet, run.getInstrument());
         List<MzScanDTO> scans = run.getScans();
         for (MzScanDTO scan : scans)
         {
@@ -111,7 +108,7 @@ public class MzXml2Database extends AbstractDatasetLoader
                                 scan.getNumber(), precursors.size());
             }
         }
-        long scanId = dao.addScan(runId, scan, precursor1, precursor2);
+        long scanId = getDao().addScan(runId, scan, precursor1, precursor2);
         uploadPeaks(scanId, scan.getPeaks());
     }
 
@@ -119,7 +116,7 @@ public class MzXml2Database extends AbstractDatasetLoader
     {
         Iterable<Float> mzArray = createEverySecondIterator(peaks, 0);
         Iterable<Float> intensityArray = createEverySecondIterator(peaks, 1);
-        dao.addPeaks(scanId, mzArray, intensityArray);
+        getDao().addPeaks(scanId, mzArray, intensityArray);
     }
 
     // iterates on every second element of an array starting from the specified initial index
@@ -153,11 +150,5 @@ public class MzXml2Database extends AbstractDatasetLoader
                         };
                 }
             };
-    }
-
-    @Override
-    protected IGenericDAO getDao()
-    {
-        return dao;
     }
 }

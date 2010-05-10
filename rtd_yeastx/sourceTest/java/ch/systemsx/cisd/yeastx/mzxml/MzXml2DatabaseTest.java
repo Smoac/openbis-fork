@@ -110,7 +110,7 @@ public class MzXml2DatabaseTest
                 }
             });
 
-        new MzXml2Database(dao).uploadRun(run, dataSet);
+        new MzXml2Database(null, dao).uploadRun(run, dataSet);
         context.assertIsSatisfied();
     }
 }

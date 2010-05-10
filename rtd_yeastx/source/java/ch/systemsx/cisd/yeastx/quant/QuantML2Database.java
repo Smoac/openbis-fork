@@ -23,9 +23,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
-import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.quant.dto.ConcentrationCompounds;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
@@ -37,13 +35,11 @@ import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
  * 
  * @author Tomasz Pylak
  */
-public class QuantML2Database extends AbstractDatasetLoader
+public class QuantML2Database extends AbstractDatasetLoader<IQuantMSDAO>
 {
-    private final IQuantMSDAO dao;
-
     public QuantML2Database(DataSource datasource)
     {
-        this.dao = DBUtils.getQuery(datasource, IQuantMSDAO.class);
+        super(datasource, IQuantMSDAO.class);
     }
 
     /**
@@ -68,7 +64,7 @@ public class QuantML2Database extends AbstractDatasetLoader
         for (MSQuantificationDTO quantification : quantifications.getQuantifications())
         {
             long quantificationId =
-                    dao.addQuantification(dataSet.getExperimentId(), dataSet.getId(),
+                    getDao().addQuantification(dataSet.getExperimentId(), dataSet.getId(),
                             quantification);
             uploadConcentrations(quantificationId, quantification.getConcentrations());
         }
@@ -78,20 +74,13 @@ public class QuantML2Database extends AbstractDatasetLoader
     {
         for (MSConcentrationDTO concentration : concentrations)
         {
-            long concentrationId = dao.addConcentration(quantificationId, concentration);
+            long concentrationId = getDao().addConcentration(quantificationId, concentration);
             uploadCompoundIds(concentrationId, concentration.getCompounds());
         }
     }
 
     private void uploadCompoundIds(long concentrationId, ConcentrationCompounds compounds)
     {
-        dao.addCompoundIds(concentrationId, compounds.getCompoundIds());
+        getDao().addCompoundIds(concentrationId, compounds.getCompoundIds());
     }
-
-    @Override
-    protected IGenericDAO getDao()
-    {
-        return dao;
-    }
-
 }

@@ -23,9 +23,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
-import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IChromatogramObserver;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IMSRunObserver;
 
@@ -34,7 +32,7 @@ import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IMSRunObserver;
  * 
  * @author Bernd Rinn
  */
-public class EICML2Database extends AbstractDatasetLoader
+public class EICML2Database extends AbstractDatasetLoader<IEICMSRunDAO>
 {
 
     private final static int CHROMATOGRAM_BATCH_SIZE = 100;
@@ -49,11 +47,9 @@ public class EICML2Database extends AbstractDatasetLoader
         }
     }
 
-    private final IEICMSRunDAO dao;
-
-    public EICML2Database(DataSource datasource)
+    public EICML2Database(DataSource dataSource)
     {
-        this.dao = DBUtils.getQuery(datasource, IEICMSRunDAO.class);
+        super(dataSource, IEICMSRunDAO.class);
     }
 
     /**
@@ -73,30 +69,26 @@ public class EICML2Database extends AbstractDatasetLoader
                     {
                         // add chromatograms from the last run to the database before setting the
                         // new run id
-                        addChromatograms(dao, eicMLId[0], chromatograms, 1);
+                        addChromatograms(getDao(), eicMLId[0], chromatograms, 1);
                         run.setExperimentId(dataSet.getExperimentId());
                         run.setSampleId(dataSet.getSampleId());
                         run.setDataSetId(dataSet.getId());
-                        eicMLId[0] = dao.addMSRun(run);
+                        eicMLId[0] = getDao().addMSRun(run);
                     }
                 }, new IChromatogramObserver()
                 {
                     public void observe(ChromatogramDTO chromatogram)
                     {
                         chromatograms.add(chromatogram);
-                        addChromatograms(dao, eicMLId[0], chromatograms, CHROMATOGRAM_BATCH_SIZE);
+                        addChromatograms(getDao(), eicMLId[0], chromatograms,
+                                CHROMATOGRAM_BATCH_SIZE);
                     }
                 });
-            addChromatograms(dao, eicMLId[0], chromatograms, 1);
+            addChromatograms(getDao(), eicMLId[0], chromatograms, 1);
         } catch (Throwable th)
         {
             rollbackAndRethrow(th);
         }
     }
 
-    @Override
-    protected IGenericDAO getDao()
-    {
-        return dao;
-    }
 }

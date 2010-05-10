@@ -23,9 +23,7 @@ import java.util.Iterator;
 import javax.sql.DataSource;
 
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
-import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.fiaml.FIAMLParser.IMSRunObserver;
 
 /**
@@ -33,7 +31,7 @@ import ch.systemsx.cisd.yeastx.fiaml.FIAMLParser.IMSRunObserver;
  * 
  * @author Bernd Rinn
  */
-public class FIAML2Database extends AbstractDatasetLoader
+public class FIAML2Database extends AbstractDatasetLoader<IFIAMSRunDAO>
 {
 
     private final static int PROFILE_CHUNK_SIZE = 250;
@@ -73,11 +71,9 @@ public class FIAML2Database extends AbstractDatasetLoader
             };
     }
 
-    private final IFIAMSRunDAO dao;
-
-    public FIAML2Database(DataSource datasource)
+    public FIAML2Database(DataSource dataSource)
     {
-        this.dao = DBUtils.getQuery(datasource, IFIAMSRunDAO.class);
+        super(dataSource, IFIAMSRunDAO.class);
     }
 
     /**
@@ -95,21 +91,17 @@ public class FIAML2Database extends AbstractDatasetLoader
                         run.setExperimentId(dataSet.getExperimentId());
                         run.setSampleId(dataSet.getSampleId());
                         run.setDataSetId(dataSet.getId());
-                        final long fiaMsRunId = dao.addMSRun(run);
-                        dao.addProfiles(fiaMsRunId, profileChunk(runData));
-                        dao.addCentroids(fiaMsRunId, runData.getCentroidMz(), runData
-                                .getCentroidIntensities(), runData.getCentroidCorrelations());
+                        final long fiaMsRunId = getDao().addMSRun(run);
+                        getDao().addProfiles(fiaMsRunId, profileChunk(runData));
+                        getDao()
+                                .addCentroids(fiaMsRunId, runData.getCentroidMz(),
+                                        runData.getCentroidIntensities(),
+                                        runData.getCentroidCorrelations());
                     }
                 });
         } catch (Throwable th)
         {
             rollbackAndRethrow(th);
         }
-    }
-
-    @Override
-    protected IGenericDAO getDao()
-    {
-        return dao;
     }
 }

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.yeastx.db;
 
+import javax.sql.DataSource;
+
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -26,12 +28,39 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractDatasetLoader implements IDatasetLoader
+abstract public class AbstractDatasetLoader<T extends IGenericDAO> implements IDatasetLoader
 {
-    abstract protected IGenericDAO getDao();
-
     // if false transaction has to be commited or rollbacked before the next dataset will be created
     protected boolean isTransactionCompleted = true;
+
+    private final DataSource dataSource;
+
+    private final Class<T> queryClass;
+
+    private T daoOrNull; // created when used for the first time
+
+    protected AbstractDatasetLoader(DataSource dataSource, Class<T> queryClass)
+    {
+        this.dataSource = dataSource;
+        this.queryClass = queryClass;
+    }
+
+    // for tests only
+    protected AbstractDatasetLoader(DataSource dataSource, Class<T> queryClass, T dao)
+    {
+        this.dataSource = dataSource;
+        this.queryClass = queryClass;
+        this.daoOrNull = dao;
+    }
+
+    protected final T getDao()
+    {
+        if (daoOrNull == null)
+        {
+            this.daoOrNull = DBUtils.getQuery(dataSource, queryClass);
+        }
+        return daoOrNull;
+    }
 
     /**
      * Cannot be called twice in a row if {@link #commit()} or {@link #rollback()} has not been

@@ -94,19 +94,9 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
             Sample sample = null;
             if (dataset.getSampleCode() != null)
             {
-                // NOTE: we assume that it is not a shared sample
-                SampleIdentifier sampleIdentifier =
-                        new SampleIdentifier(new SpaceIdentifier(dataset.getDatabaseInstanceCode(),
-                                dataset.getGroupCode()), dataset.getSampleCode());
-                sample =
-                        ServiceProvider.getOpenBISService().tryGetSampleWithExperiment(
-                                sampleIdentifier);
+                sample = fetchSample(dataset);
             }
-            ExperimentIdentifier experimentIdentifier =
-                    new ExperimentIdentifier(dataset.getDatabaseInstanceCode(), dataset
-                            .getGroupCode(), dataset.getProjectCode(), dataset.getExperimentCode());
-            Experiment experiment =
-                    ServiceProvider.getOpenBISService().tryToGetExperiment(experimentIdentifier);
+            Experiment experiment = getOrFetchExperiment(dataset, sample);
             databaseUploader = new ML2DatabaseUploader(properties);
             databaseUploader.upload(getDataFile(dataset), sample, experiment, dataset
                     .getDatasetCode());
@@ -119,6 +109,31 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
             }
             throw new UserFailureException(ex.getMessage());
         }
+    }
+
+    private Sample fetchSample(DatasetDescription dataset)
+    {
+        Sample sample;
+        // NOTE: we assume that it is not a shared sample
+        SampleIdentifier sampleIdentifier =
+                new SampleIdentifier(new SpaceIdentifier(dataset.getDatabaseInstanceCode(), dataset
+                        .getGroupCode()), dataset.getSampleCode());
+        sample = ServiceProvider.getOpenBISService().tryGetSampleWithExperiment(sampleIdentifier);
+        return sample;
+    }
+
+    private Experiment getOrFetchExperiment(DatasetDescription dataset, Sample sample)
+    {
+        if (sample != null && sample.getExperiment() != null)
+        {
+            return sample.getExperiment();
+        }
+        ExperimentIdentifier experimentIdentifier =
+                new ExperimentIdentifier(dataset.getDatabaseInstanceCode(), dataset.getGroupCode(),
+                        dataset.getProjectCode(), dataset.getExperimentCode());
+        Experiment experiment =
+                ServiceProvider.getOpenBISService().tryToGetExperiment(experimentIdentifier);
+        return experiment;
     }
 
     private File getDataFile(DatasetDescription dataset)
