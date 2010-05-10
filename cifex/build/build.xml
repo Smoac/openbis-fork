@@ -346,6 +346,9 @@
 			<lib dir="${lib}/spring/webmvc">
 				<include name="spring-webmvc.jar" />
 			</lib>
+			<lib dir="${lib}/spring/third-party">
+				<include name="stream-supporting-httpinvoker.jar" />
+			</lib>
 			<lib dir="${gwt.lib}">
 				<include name="gwt-servlet.jar" />
 			</lib>
@@ -379,6 +382,7 @@
 		<copy file="${gwt.lib}/gwt-servlet.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${lib}/spring/webmvc/spring-webmvc.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${lib}/spring/spring.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${lib}/postgresql/postgresql.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${lib}/h2/h2.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${lib}/log4j/log4j.jar" todir="${gwt.war.web-inf.lib}"/>
