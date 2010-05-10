@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.remoting.RemoteAccessException;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -59,9 +58,6 @@ public class QueueingDataSetStatusUpdaterService
             LogFactory.getLogger(LogCategory.NOTIFY, QueueingDataSetStatusUpdaterService.class);
 
     private static final int INITIAL_RECORD_SIZE = 128;
-
-    @Private
-    final static String UPDATER_PREFIX = ".UPDATER_";
 
     private static IExtendedBlockingQueue<DataSetCodesWithStatus> queue = null;
 

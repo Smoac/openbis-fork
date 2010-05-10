@@ -120,7 +120,9 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                                 unarchive(dataset);
                             } catch (UserFailureException ex)
                             {
-                                return Status.createError(ex.getMessage());
+                                return Status
+                                        .createError(ex.getMessage() == null ? "unknown reason"
+                                                : ex.getMessage());
                             }
                             return Status.OK;
                         }
