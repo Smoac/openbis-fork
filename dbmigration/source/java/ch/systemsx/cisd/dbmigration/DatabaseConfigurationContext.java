@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jdbc.support.lob.LobHandler;
 
@@ -38,8 +39,12 @@ public class DatabaseConfigurationContext implements DisposableBean
     private static final class BasicDataSourceFactory implements IDataSourceFactory
     {
 
-        private final int MAX_ACTIVE_NO_LIMIT = -1;
-        
+        /** @see GenericObjectPool#DEFAULT_MAX_ACTIVE */
+        private final int MAX_ACTIVE = 20;
+
+        /** @see GenericObjectPool#DEFAULT_MAX_IDLE */
+        private final int MAX_IDLE = MAX_ACTIVE;
+
         //
         // IDataSourceFactory
         //
@@ -52,9 +57,8 @@ public class DatabaseConfigurationContext implements DisposableBean
             dataSource.setUrl(url);
             dataSource.setUsername(owner);
             dataSource.setPassword(password);
-            dataSource.setMinIdle(0);
-            dataSource.setMaxIdle(0);
-            dataSource.setMaxActive(MAX_ACTIVE_NO_LIMIT);
+            dataSource.setMaxIdle(MAX_IDLE);
+            dataSource.setMaxActive(MAX_ACTIVE);
             return dataSource;
         }
     }
@@ -98,7 +102,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     private String urlHostPart;
 
     private String databaseInstance;
-    
+
     public DatabaseConfigurationContext()
     {
         setOwner(null);
