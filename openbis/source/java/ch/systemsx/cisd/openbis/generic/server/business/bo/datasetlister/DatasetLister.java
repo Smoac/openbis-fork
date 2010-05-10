@@ -69,7 +69,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, DataStoreRecord.class, IDatasetListingQuery.class })
+    { DatasetRecord.class, DatasetRelationRecord.class, DataStoreRecord.class,
+            IDatasetListingQuery.class })
 public class DatasetLister implements IDatasetLister
 {
     //
