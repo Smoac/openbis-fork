@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IDssServiceRpcGeneric extends IDssServiceRpc
+public interface IDssServiceRpcGeneric extends IRpcService
 {
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -43,20 +44,19 @@ public class DssServiceRpcNameServer implements IRpcServiceNameServer
         supportedInterfaces = new ArrayList<RpcServiceInterfaceDTO>();
     }
 
-    public RpcServiceInterfaceDTO[] getSupportedInterfaces()
+    public List<RpcServiceInterfaceDTO> getSupportedInterfaces()
     {
-        RpcServiceInterfaceDTO[] ifaces = new RpcServiceInterfaceDTO[supportedInterfaces.size()];
-        return supportedInterfaces.toArray(ifaces);
+        return supportedInterfaces;
     }
 
-    public int getMinClientVersion()
+    public int getMajorVersion()
     {
         return 1;
     }
 
-    public int getVersion()
+    public int getMinorVersion()
     {
-        return 1;
+        return 0;
     }
 
     /**

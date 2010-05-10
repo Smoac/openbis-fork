@@ -84,14 +84,14 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
         }
     }
 
-    public int getMinClientVersion()
+    public int getMajorVersion()
     {
         return 1;
     }
 
-    public int getVersion()
+    public int getMinorVersion()
     {
-        return 1;
+        return 0;
     }
 
     /**

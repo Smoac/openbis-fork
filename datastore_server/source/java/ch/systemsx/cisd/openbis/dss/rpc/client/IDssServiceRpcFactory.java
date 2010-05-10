@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.client;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpc;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcService;
 
 /**
  * A factory for creating proxies to RPC services on a data store server.
@@ -37,13 +39,13 @@ public interface IDssServiceRpcFactory
      *            shouldGetServerCertificateFromServer is true, the factory will retrieve the SSL
      *            certificate from the server.
      */
-    public abstract RpcServiceInterfaceDTO[] getSupportedInterfaces(String serverURL,
+    public abstract List<RpcServiceInterfaceDTO> getSupportedInterfaces(String serverURL,
             boolean shouldGetServerCertificateFromServer) throws IncompatibleAPIVersionsException;
 
     /**
      * Get get RPC service interface specified by <code>iface</code>.
      */
-    public abstract <T extends IDssServiceRpc> T getService(RpcServiceInterfaceDTO iface,
+    public abstract <T extends IRpcService> T getService(RpcServiceInterfaceDTO iface,
             Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
             throws IncompatibleAPIVersionsException;
 }

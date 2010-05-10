@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.component.impl;
 
 import java.io.InputStream;
+import java.util.List;
 
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
@@ -301,7 +302,7 @@ class AuthenticatedState extends AbstractDssComponentState
     private IDssServiceRpcGeneric basicGetDssServiceForUrl(String serverURL)
     {
         IDssServiceRpcGeneric dssService = null;
-        RpcServiceInterfaceDTO[] ifaces =
+        List<RpcServiceInterfaceDTO> ifaces =
                 dssServiceFactory.getSupportedInterfaces(serverURL, false);
         for (RpcServiceInterfaceDTO iface : ifaces)
         {

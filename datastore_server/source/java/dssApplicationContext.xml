@@ -73,7 +73,7 @@
             <bean class="ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcNameServer">
             </bean>
         </property>
-        <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcNameServer" />
+        <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcServiceNameServer" />
     </bean>
     
     <bean id="session-token-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager"/>

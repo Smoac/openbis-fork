@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.rpc.shared;
 import java.io.Serializable;
 
 /**
- * Describes an RPC interface supported by the data store server.
+ * Describes an RPC interface supported by the server.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -57,7 +57,7 @@ public class RpcServiceInterfaceDTO implements Serializable
     }
 
     /**
-     * The suffix added to the DSS URL to produce the URL for this interface. Used by a service
+     * The suffix added to the server's URL to produce the URL for this interface. Used by a service
      * factory to create a proxy to the service.
      */
     public String getInterfaceUrlSuffix()

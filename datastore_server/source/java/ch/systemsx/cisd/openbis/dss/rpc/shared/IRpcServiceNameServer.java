@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.rpc.shared;
 
+import java.util.List;
+
 /**
- * An Interface for finding out about the DssServiceRpc interfaces supported by a server.
+ * An Interface for finding out about the IRpcService interfaces supported by a server.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IRpcServiceNameServer extends IDssServiceRpc
+public interface IRpcServiceNameServer extends IRpcService
 {
-    RpcServiceInterfaceDTO[] getSupportedInterfaces();
+    List<RpcServiceInterfaceDTO> getSupportedInterfaces();
 }

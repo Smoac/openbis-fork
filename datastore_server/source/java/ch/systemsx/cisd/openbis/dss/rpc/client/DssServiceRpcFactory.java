@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
@@ -31,7 +32,7 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.RpcServiceInterfaceDTO;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpc;
+import ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcService;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IRpcServiceNameServer;
 
 /**
@@ -47,7 +48,7 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
 
     private static final String NAME_SERVER_SUFFIX = "/rpc";
 
-    public RpcServiceInterfaceDTO[] getSupportedInterfaces(String serverURL,
+    public List<RpcServiceInterfaceDTO> getSupportedInterfaces(String serverURL,
             boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException
     {
         // We assume the location of the name server follows the convention
@@ -64,7 +65,7 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
         return nameServer.getSupportedInterfaces();
     }
 
-    public <T extends IDssServiceRpc> T getService(RpcServiceInterfaceDTO iface,
+    public <T extends IRpcService> T getService(RpcServiceInterfaceDTO iface,
             Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
             throws IncompatibleAPIVersionsException
     {
@@ -101,7 +102,7 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unchecked")
-class ServiceProxyBuilder<T extends IDssServiceRpc>
+class ServiceProxyBuilder<T extends IRpcService>
 {
     private final String serviceURL;
 
@@ -124,8 +125,8 @@ class ServiceProxyBuilder<T extends IDssServiceRpc>
     {
         T service = getRawServiceProxy();
         service = wrapProxyInServiceInvocationHandler(service);
-        final int apiServerVersion = service.getVersion();
-        final int apiMinClientVersion = service.getMinClientVersion();
+        final int apiServerVersion = service.getMajorVersion();
+        final int apiMinClientVersion = service.getMinorVersion();
         if (apiClientVersion < apiMinClientVersion || apiClientVersion > apiServerVersion)
         {
             throw new IncompatibleAPIVersionsException(apiClientVersion, apiServerVersion,
@@ -135,7 +136,8 @@ class ServiceProxyBuilder<T extends IDssServiceRpc>
         return service;
     }
 
-    // TODO 2010-04-21, Tomasz Pylak: refactor to use HttpInvokerUtils.createStreamSupportingServiceStub() 
+    // TODO 2010-04-21, Tomasz Pylak: refactor to use
+    // HttpInvokerUtils.createStreamSupportingServiceStub()
     private T getRawServiceProxy()
     {
         final StreamSupportingHttpInvokerProxyFactoryBean httpInvokerProxy =
@@ -171,9 +173,9 @@ class ServiceProxyBuilder<T extends IDssServiceRpc>
      */
     private static final class ServiceInvocationHandler implements InvocationHandler
     {
-        private final IDssServiceRpc service;
+        private final IRpcService service;
 
-        private ServiceInvocationHandler(IDssServiceRpc service)
+        private ServiceInvocationHandler(IRpcService service)
         {
             this.service = service;
         }
