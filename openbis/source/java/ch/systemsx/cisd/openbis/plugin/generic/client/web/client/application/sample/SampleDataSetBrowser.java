@@ -91,16 +91,12 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
         return ID_PREFIX + sampleId;
     }
 
-    private boolean getShowOnlyDirectlyConnected()
-    {
-        return connectionTypeProvider.getShowOnlyDirectlyConnected();
-    }
-
     @Override
     protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
     {
+        boolean onlyDirectlyConnected = connectionTypeProvider.getShowOnlyDirectlyConnected();
         viewContext.getService().listSampleDataSets(sampleId, resultSetConfig,
-                getShowOnlyDirectlyConnected(), callback);
+                onlyDirectlyConnected, callback);
     }
 }
