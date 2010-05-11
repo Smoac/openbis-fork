@@ -44,13 +44,13 @@ import ch.systemsx.cisd.dbmigration.IDataSourceFactory;
 public class SimpleDatabaseConfigurationContext implements DisposableBean
 {
 
-    private static final String DRIVER_KEY = "database-driver";
+    static final String DRIVER_KEY = "database-driver";
 
-    private static final String URL_KEY = "database-url";
+    static final String URL_KEY = "database-url";
 
-    private static final String USER_KEY = "database-username";
+    static final String USER_KEY = "database-username";
 
-    private static final String PASSWORD_KEY = "database-password";
+    static final String PASSWORD_KEY = "database-password";
 
     private IDataSourceFactory dataSourceFactory = new BasicDataSourceFactory();
 
@@ -66,12 +66,12 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
 
     public SimpleDatabaseConfigurationContext(Properties properties)
     {
-        driverClassName = PropertyUtils.getMandatoryProperty(properties, DRIVER_KEY);
-        url = PropertyUtils.getMandatoryProperty(properties, URL_KEY);
-        username =
+        this.driverClassName = PropertyUtils.getMandatoryProperty(properties, DRIVER_KEY);
+        this.url = PropertyUtils.getMandatoryProperty(properties, URL_KEY);
+        this.username =
                 PropertyUtils.getProperty(properties, USER_KEY, System.getProperty("user.name")
                         .toLowerCase());
-        password = PropertyUtils.getProperty(properties, PASSWORD_KEY);
+        this.password = PropertyUtils.getProperty(properties, PASSWORD_KEY);
     }
 
     /**

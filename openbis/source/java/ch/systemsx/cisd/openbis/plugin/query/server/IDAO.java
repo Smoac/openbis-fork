@@ -20,8 +20,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 interface IDAO

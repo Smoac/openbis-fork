@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.server;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -38,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
@@ -63,7 +66,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     private static final String CREATOR_MINIMAL_ROLE_KEY = "creator-minimal-role";
 
-    private static final String DEFAULT_CREATOR_MINIMAL_ROLE = "POWER_USER";
+    private static final String DEFAULT_CREATOR_MINIMAL_ROLE = RoleSet.POWER_USER.name();
 
     private static final String DATA_SPACE_KEY = "data-space";
 
@@ -72,9 +75,18 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     private DatabaseDefinition databaseDefinition;
 
-    /** @deprecated don't use it directly - use getter instead */
+    /**
+     * map from dbKey to IDAO
+     * 
+     * @deprecated don't use it directly - use getter instead
+     */
     @Deprecated
-    private IDAO dao;
+    private Map<String, IDAO> daos = new HashMap<String, IDAO>();
+
+    /**
+     * map from dbKey to DatabaseDefinition
+     */
+    private Map<String, DatabaseDefinition> definitions;
 
     public QueryServer()
     {
@@ -85,7 +97,6 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin, IDAO dao)
     {
         super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
-        this.dao = dao;
     }
 
     public IQueryServer createLogger(IInvocationLoggerContext context)
@@ -182,7 +193,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         checkSession(sessionToken);
         try
         {
-            return queryDatabase(sqlQuery, bindings);
+            return queryDatabaseWithKey("1", sqlQuery, bindings);
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
@@ -197,68 +208,90 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         {
             IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
             QueryPE query = queryDAO.getByTechId(queryId);
+            String dbKey = query.getQueryDatabaseKey();
             String expression = StringEscapeUtils.unescapeHtml(query.getExpression());
-            return queryDatabase(expression, bindings);
+            return queryDatabaseWithKey(dbKey, expression, bindings);
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
         }
     }
 
-    private TableModel queryDatabase(String sqlQuery, QueryParameterBindings bindings)
+    private TableModel queryDatabaseWithKey(String dbKey, String sqlQuery,
+            QueryParameterBindings bindings)
     {
-        return getDAO().query(sqlQuery, bindings);
+        return getDAO(dbKey).query(sqlQuery, bindings);
     }
 
-    private IDAO getDAO()
+    private IDAO getDAO(String dbKey)
     {
-        if (dao == null)
+        IDAO result = daos.get(dbKey);
+        if (result == null)
         {
-            DatabaseDefinition definition = tryToGetDatabaseDefinition();
+            definitions.get(dbKey);
+            DatabaseDefinition definition = definitions.get(dbKey);
             if (definition == null)
             {
-                throw new UnsupportedOperationException("Undefined query database");
+                throw new UnsupportedOperationException("Undefined query database '" + dbKey + "'");
             }
-            dao = new DAO(definition.getConfigurationContext().getDataSource());
+            result = new DAO(definition.getConfigurationContext().getDataSource());
         }
-        return dao;
+        return result;
     }
 
+    // FIXME add support for multiple DBs
     private DatabaseDefinition tryToGetDatabaseDefinition()
     {
         if (databaseDefinition == null)
         {
-            Properties resolvedProps = configurer.getResolvedProps();
-            SectionProperties[] sectionsProperties =
-                    PropertyParametersUtil.extractSectionProperties(resolvedProps, DATABASE_KEYS,
-                            true);
-            DatabaseDefinition[] definitions = new DatabaseDefinition[sectionsProperties.length];
-            for (int i = 0; i < definitions.length; i++)
+            if (definitions == null)
             {
-                final String databaseKey = sectionsProperties[i].getKey();
-                final Properties databaseProperties = sectionsProperties[i].getProperties();
-
-                final SimpleDatabaseConfigurationContext configurationContext =
-                        new SimpleDatabaseConfigurationContext(databaseProperties);
-                final String label =
-                        PropertyUtils.getMandatoryProperty(databaseProperties, LABEL_PROPERTY_KEY);
-                final String creatorMinimalRole =
-                        PropertyUtils.getProperty(databaseProperties, CREATOR_MINIMAL_ROLE_KEY,
-                                DEFAULT_CREATOR_MINIMAL_ROLE);
-                final String dataSpaceOrNull =
-                        PropertyUtils.getProperty(databaseProperties, DATA_SPACE_KEY);
-
-                definitions[i] =
-                        new DatabaseDefinition(configurationContext, databaseKey, label,
-                                creatorMinimalRole, dataSpaceOrNull);
+                initDatabaseDefinitions();
             }
-            if (definitions.length > 0)
+            if (definitions.size() > 0)
             {
-                databaseDefinition = definitions[0];
-                // FIXME add support for multiple DBs
+                databaseDefinition = definitions.values().iterator().next();
             }
         }
         return databaseDefinition;
     }
 
+    private void initDatabaseDefinitions()
+    {
+        assert definitions == null;
+
+        definitions = new HashMap<String, DatabaseDefinition>();
+        Properties resolvedProps = configurer.getResolvedProps();
+        SectionProperties[] sectionsProperties =
+                PropertyParametersUtil.extractSectionProperties(resolvedProps, DATABASE_KEYS, true);
+        for (int i = 0; i < sectionsProperties.length; i++)
+        {
+            final String databaseKey = sectionsProperties[i].getKey();
+            final Properties databaseProperties = sectionsProperties[i].getProperties();
+
+            final SimpleDatabaseConfigurationContext configurationContext =
+                    new SimpleDatabaseConfigurationContext(databaseProperties);
+            final String label =
+                    PropertyUtils.getMandatoryProperty(databaseProperties, LABEL_PROPERTY_KEY);
+            final String creatorMinimalRoleString =
+                    PropertyUtils.getProperty(databaseProperties, CREATOR_MINIMAL_ROLE_KEY,
+                            DEFAULT_CREATOR_MINIMAL_ROLE);
+            final String dataSpaceOrNull =
+                    PropertyUtils.getProperty(databaseProperties, DATA_SPACE_KEY);
+
+            try
+            {
+                final RoleSet creatorMinimalRole = RoleSet.valueOf(creatorMinimalRoleString);
+                // TODO validate space
+                definitions.put(databaseKey, new DatabaseDefinition(configurationContext,
+                        databaseKey, label, creatorMinimalRole, dataSpaceOrNull));
+            } catch (IllegalArgumentException ex)
+            {
+                throw new UnsupportedOperationException("Query database '" + databaseKey
+                        + "' is not defined properly. '" + creatorMinimalRoleString
+                        + "' is not a valid role.");
+            }
+
+        }
+    }
 }

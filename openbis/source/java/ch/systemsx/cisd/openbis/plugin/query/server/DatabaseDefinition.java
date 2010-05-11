@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.server;
 
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 
 /**
  * @author Franz-Josef Elmer
@@ -28,16 +29,12 @@ public class DatabaseDefinition
 
     private final String dataSpaceOrNull;
 
-    private final String creatorMinimalRole;
-
-    // private final DataSource dataSource;
+    private final RoleSet creatorMinimalRole;
 
     private final SimpleDatabaseConfigurationContext configurationContext;
 
-    // private final DatabaseConfigurationContext configurationContext;
-
     public DatabaseDefinition(SimpleDatabaseConfigurationContext configurationContext, String key,
-            String label, String creatorMinimalRole, String dataSpaceOrNull)
+            String label, RoleSet creatorMinimalRole, String dataSpaceOrNull)
     {
         assert key != null;
         assert label != null;
@@ -60,7 +57,7 @@ public class DatabaseDefinition
         return label;
     }
 
-    public String getCreatorMinimalRole()
+    public RoleSet getCreatorMinimalRole()
     {
         return creatorMinimalRole;
     }
