@@ -55,7 +55,7 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters.PluginServlet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -315,7 +315,7 @@ public class DataStoreServer
         Properties properties;
         try
         {
-            properties = PropertyParametersUtil.loadServiceProperties();
+            properties = DssPropertyParametersUtil.loadServiceProperties();
         } catch (ConfigurationFailureException ex)
         {
             properties = new Properties();

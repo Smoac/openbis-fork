@@ -25,13 +25,13 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvi
 /**
  * @author Tomasz Pylak
  */
-@Friend(toClasses = PropertyParametersUtil.class)
+@Friend(toClasses = DssPropertyParametersUtil.class)
 public class PluginUtilTest
 {
     public static PluginTaskProviders createPluginTaskProviders(File storeRoot)
     {
         Properties serviceProperties = new Properties();
-        serviceProperties.put(PropertyParametersUtil.DSS_CODE_KEY, "dss");
+        serviceProperties.put(DssPropertyParametersUtil.DSS_CODE_KEY, "dss");
         return new PluginTaskProviders(serviceProperties, storeRoot);
     }
 }

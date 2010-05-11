@@ -22,8 +22,8 @@ import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 
 /**
  * @author Franz-Josef Elmer

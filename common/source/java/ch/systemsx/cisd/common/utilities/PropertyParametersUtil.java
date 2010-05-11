@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
+package ch.systemsx.cisd.common.utilities;
 
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
  * Utility class to parse properties.
@@ -36,29 +33,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 public class PropertyParametersUtil
 {
-    @Private
-    static final String DSS_CODE_KEY = "data-store-server-code";
-
-    private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
-
     public static final String ITEMS_DELIMITER = ",";
-
-    /** loads server configuration */
-    public static ExtendedProperties loadServiceProperties()
-    {
-        return loadProperties(SERVICE_PROPERTIES_FILE);
-    }
-
-    public static ExtendedProperties loadProperties(String filePath)
-    {
-        Properties properties = PropertyUtils.loadProperties(filePath);
-        return ExtendedProperties.createWith(properties);
-    }
-
-    public static String getDataStoreCode(Properties serviceProperties)
-    {
-        return PropertyUtils.getMandatoryProperty(serviceProperties, DSS_CODE_KEY);
-    }
 
     // a section is a set of properties which start with the common prefix
     public static class SectionProperties

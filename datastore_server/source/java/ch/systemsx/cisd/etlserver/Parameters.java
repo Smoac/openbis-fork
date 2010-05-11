@@ -33,11 +33,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.JavaMailProperties;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
  * The class to process the command line parameters and service properties.
@@ -161,7 +162,7 @@ public class Parameters
     {
         try
         {
-            this.serviceProperties = PropertyParametersUtil.loadServiceProperties();
+            this.serviceProperties = DssPropertyParametersUtil.loadServiceProperties();
             PropertyUtils.trimProperties(serviceProperties);
             this.threads = createThreadParameters(serviceProperties);
             this.timingParameters = TimingParameters.create(serviceProperties);

@@ -35,11 +35,11 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.etlserver.utils.FileScanner;
 import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
@@ -56,14 +56,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 class DataSetValidatorForTSV implements IDataSetValidator
 {
     static final String PATH_PATTERNS_KEY = "path-patterns";
+
     static final String EXCLUDE_PATH_PATTERNS_KEY = "exclude-path-patterns";
+
     static final String IGNORE_EMPTY_LINES_KEY = "ignore-empty-lines";
+
     static final String COLUMNS_KEY = "columns";
-    
+
     private final List<FileScanner> fileScanners;
+
     private final List<FileScanner> excludeFileScanners;
+
     private final List<ColumnDefinition> unorderedDefinitions;
+
     private final Map<Integer, ColumnDefinition> orderedDefinitions;
+
     private final boolean ignoreEmptyLines;
 
     DataSetValidatorForTSV(Properties properties)
@@ -120,15 +127,15 @@ class DataSetValidatorForTSV implements IDataSetValidator
             }
         }
     }
-    
+
     public void assertValidDataSet(DataSetType dataSetType, File incomingDataSetFileOrFolder)
     {
-        Set<File> excludedFiles = new HashSet<File>(); 
+        Set<File> excludedFiles = new HashSet<File>();
         for (FileScanner fileScanner : excludeFileScanners)
         {
             excludedFiles.addAll(fileScanner.scan(incomingDataSetFileOrFolder));
         }
-        
+
         for (FileScanner fileScanner : fileScanners)
         {
             List<File> files = fileScanner.scan(incomingDataSetFileOrFolder);
@@ -141,7 +148,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
             }
         }
     }
-    
+
     private void assertValidFile(File file)
     {
         if (file.isFile() == false)
@@ -173,8 +180,9 @@ class DataSetValidatorForTSV implements IDataSetValidator
                     {
                         if (StringUtils.isNotBlank(row.get(i)))
                         {
-                            throw new UserFailureException("The row in line " + lineNumber + " has "
-                                    + row.size() + " cells instead of " + definitions.length);
+                            throw new UserFailureException("The row in line " + lineNumber
+                                    + " has " + row.size() + " cells instead of "
+                                    + definitions.length);
                         }
                     }
                 }
@@ -214,7 +222,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
             headerSet.add(header);
         }
     }
-    
+
     private ColumnDefinition[] findColumnDefinitions(List<String> columnHeaders)
     {
         ColumnDefinition[] definitions = findOrderedColumnDefinitions(columnHeaders);
@@ -225,7 +233,9 @@ class DataSetValidatorForTSV implements IDataSetValidator
             if (definitions[i] == null)
             {
                 ColumnDefinition orderedColumDefinitionOrNull = orderedDefinitions.get(i + 1);
-                definitions[i] = getDefinition(remainingDefinitions, orderedColumDefinitionOrNull, columnHeaders, i);
+                definitions[i] =
+                        getDefinition(remainingDefinitions, orderedColumDefinitionOrNull,
+                                columnHeaders, i);
             }
         }
         String list = createListOfMissingColumns(remainingDefinitions);
@@ -277,12 +287,12 @@ class DataSetValidatorForTSV implements IDataSetValidator
                 if (result.isValid())
                 {
                     definitions[orderIndex] = columnDefinition;
-                    
+
                 } else if (mandatory)
                 {
-                    throw new UserFailureException("According to column definition '" + columnDefinition.getName()
-                            + "' the header '" + header + "' is invalid because of the following reason: "
-                            + result);
+                    throw new UserFailureException("According to column definition '"
+                            + columnDefinition.getName() + "' the header '" + header
+                            + "' is invalid because of the following reason: " + result);
                 }
 
             }

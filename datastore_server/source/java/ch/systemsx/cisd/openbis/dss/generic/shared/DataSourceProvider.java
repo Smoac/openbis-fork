@@ -28,9 +28,10 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
  * Stores and provides access to data sources defined in properties file.
@@ -82,7 +83,7 @@ public class DataSourceProvider
 
     private DataSourceProvider()
     {
-        Properties properties = PropertyParametersUtil.loadServiceProperties();
+        Properties properties = DssPropertyParametersUtil.loadServiceProperties();
         dataSources = new HashMap<String, DataSource>();
         SectionProperties[] props =
                 PropertyParametersUtil

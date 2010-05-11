@@ -9,7 +9,7 @@ import ch.systemsx.cisd.common.highwatermark.HostAwareFile;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.HighwaterMarkState;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
  * Checks if the space available is larger than specified value.
@@ -30,7 +30,7 @@ public class HighWaterMarkChecker implements IStatusChecker, Serializable
      */
     public HighWaterMarkChecker(File path)
     {
-        this(PropertyUtils.getLong(PropertyParametersUtil.loadServiceProperties(),
+        this(PropertyUtils.getLong(DssPropertyParametersUtil.loadServiceProperties(),
                 HostAwareFileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, -1L), path);
     }
 

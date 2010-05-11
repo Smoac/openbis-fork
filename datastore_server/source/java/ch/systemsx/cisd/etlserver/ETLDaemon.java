@@ -65,7 +65,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
@@ -309,7 +309,7 @@ public final class ETLDaemon
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
         plugin.getStorageProcessor().setStoreRootDirectory(storeRootDir);
         final Properties mailProperties = Parameters.createMailProperties(properties);
-        String dssCode = PropertyParametersUtil.getDataStoreCode(properties);
+        String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
         boolean deleteUnidentified = threadParameters.deleteUnidentified();
         return new TransferredDataSetHandler(dssCode, plugin, openBISService, mailProperties,
                 dataSetValidator, notifySuccessfulRegistration, threadParameters

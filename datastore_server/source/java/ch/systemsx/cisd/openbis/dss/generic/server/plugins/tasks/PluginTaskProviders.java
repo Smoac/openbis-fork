@@ -20,8 +20,9 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 
 /**
@@ -50,7 +51,7 @@ public class PluginTaskProviders
     /** for external injections */
     public static PluginTaskProviders create(File storeRoot)
     {
-        Properties properties = PropertyParametersUtil.loadServiceProperties();
+        Properties properties = DssPropertyParametersUtil.loadServiceProperties();
         PluginTaskProviders providers = new PluginTaskProviders(properties, storeRoot);
         providers.check();
         providers.logConfigurations();
@@ -61,7 +62,7 @@ public class PluginTaskProviders
     // public only for tests
     public PluginTaskProviders(Properties serviceProperties, File storeRoot)
     {
-        String datastoreCode = PropertyParametersUtil.getDataStoreCode(serviceProperties);
+        String datastoreCode = DssPropertyParametersUtil.getDataStoreCode(serviceProperties);
         this.reportingPlugins =
                 createReportingPluginsFactories(serviceProperties, datastoreCode, storeRoot);
         this.processingPlugins =

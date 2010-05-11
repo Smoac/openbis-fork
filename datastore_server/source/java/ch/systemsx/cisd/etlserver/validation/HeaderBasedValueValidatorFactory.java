@@ -23,23 +23,24 @@ import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 
 /**
  * Collection of {@link IValidatorFactory} instances. Which one is used will be selected by a
  * regular expression the column header matches.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class HeaderBasedValueValidatorFactory implements IValidatorFactory
 {
-    private static final class HeaderPatternAndFactory 
+    private static final class HeaderPatternAndFactory
     {
         private final Pattern pattern;
+
         private final IValidatorFactory factory;
-        
+
         HeaderPatternAndFactory(Pattern pattern, IValidatorFactory factory)
         {
             super();
@@ -49,16 +50,19 @@ public class HeaderBasedValueValidatorFactory implements IValidatorFactory
     }
 
     static final String HEADER_PATTERN_KEY = "header-pattern";
-    
+
     static final String HEADER_TYPES_KEY = "header-types";
-    
-    private final List<HeaderPatternAndFactory> factories = new ArrayList<HeaderPatternAndFactory>();
+
+    private final List<HeaderPatternAndFactory> factories =
+            new ArrayList<HeaderPatternAndFactory>();
+
     private final String headerMessage;
 
     public HeaderBasedValueValidatorFactory(Properties properties)
     {
         SectionProperties[] columnsProperties =
-            PropertyParametersUtil.extractSectionProperties(properties, HEADER_TYPES_KEY, false);
+                PropertyParametersUtil
+                        .extractSectionProperties(properties, HEADER_TYPES_KEY, false);
         StringBuilder builder = new StringBuilder();
         for (SectionProperties sectionProperties : columnsProperties)
         {
@@ -79,7 +83,7 @@ public class HeaderBasedValueValidatorFactory implements IValidatorFactory
         }
         headerMessage = builder.toString();
     }
-    
+
     public IValidator createValidator(String columnHeader)
     {
         for (HeaderPatternAndFactory factory : factories)
@@ -92,6 +96,5 @@ public class HeaderBasedValueValidatorFactory implements IValidatorFactory
         throw new UserFailureException("No value validator found for header '" + columnHeader
                 + "': " + headerMessage);
     }
-
 
 }

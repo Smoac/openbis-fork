@@ -27,23 +27,25 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
  * Default implementation of a data set validator.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataSetValidator implements IDataSetValidator
 {
     static final String DATA_SET_VALIDATORS_KEY = "data-set-validators";
+
     static final String DATA_SET_TYPE_KEY = "data-set-type";
+
     static final String VALIDATOR_KEY = "validator";
-    
+
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, DataSetValidator.class);
+            LogFactory.getLogger(LogCategory.OPERATION, DataSetValidator.class);
 
     private final Map<String, IDataSetValidator> validators;
 
@@ -93,7 +95,7 @@ public class DataSetValidator implements IDataSetValidator
         }
         return ClassUtils.create(IDataSetValidator.class, validatorClass, validatorProperties);
     }
-    
+
     public void assertValidDataSet(DataSetType dataSetType, File incomingDataSetFileOrFolder)
     {
         IDataSetValidator validator = validators.get(dataSetType.getCode());

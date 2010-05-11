@@ -35,9 +35,10 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**
@@ -124,7 +125,7 @@ public abstract class AbstractPluginTaskFactory<T>
         if (StringUtils.isBlank(parametersFilePath) == false)
         {
             Properties propertiesFromFile =
-                    PropertyParametersUtil.loadProperties(parametersFilePath);
+                    DssPropertyParametersUtil.loadProperties(parametersFilePath);
             addAll(properties, propertiesFromFile);
         }
         return properties;
