@@ -26,6 +26,7 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -42,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
@@ -152,7 +152,7 @@ public class QueryEditor extends Dialog
 
     private final TextField<String> descriptionField;
 
-    private final MultilineVarcharField statementField;
+    private final SQLQueryField statementField;
 
     private final CheckBoxField isPublicField;
 
@@ -188,6 +188,7 @@ public class QueryEditor extends Dialog
         statementField = createStatementField();
         isPublicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false);
         queryTypeField = new QueryTypeComboBox(viewContext);
+        queryTypeField.addListener(Events.SelectionChange, statementField);
         if (queryOrNull != null)
         {
             nameField.setValue(queryOrNull.getName());
@@ -214,8 +215,10 @@ public class QueryEditor extends Dialog
 
     static class QueryTypeComboBox extends SimpleComboBox<QueryType>
     {
+
         public QueryTypeComboBox(IMessageProvider messages)
         {
+            setFireChangeEventOnSetValue(true);
             setAllowBlank(false);
             setEditable(false);
             setTriggerAction(TriggerAction.ALL);
@@ -228,9 +231,9 @@ public class QueryEditor extends Dialog
         }
     }
 
-    private MultilineVarcharField createStatementField()
+    private SQLQueryField createStatementField()
     {
-        MultilineVarcharField field = new SQLQueryField(viewContext, true, 10);
+        SQLQueryField field = new SQLQueryField(viewContext, true, 10);
         field.setMaxLength(2000);
         return field;
     }

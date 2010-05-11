@@ -16,11 +16,15 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 
 /**
@@ -28,15 +32,38 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
  * 
  * @author Piotr Buczek
  */
-public class SQLQueryField extends MultilineVarcharField
+public class SQLQueryField extends MultilineVarcharField implements
+        Listener<SelectionChangedEvent<SimpleComboValue<QueryType>>>
 {
 
     private final static String EMPTY_TEXT = "SELECT ... \nFROM ... \nWHERE ...";
 
+    private final static String EMPTY_TEXT_WITH_KEY = EMPTY_TEXT + " '${key}' ...";
+
+    private final static String EMPTY_TEXT_WITH_KEY_AND_TYPE =
+            EMPTY_TEXT_WITH_KEY + " ... '${type}'";
+
+    private static final String TYPE_REGEX = "'\\$\\{type\\}'";
+
+    private static final String KEY_REGEX = "'\\$\\{key\\}'";
+
+    private static final String ANY_REGEX = "(.|[\\n\\r])*";
+
     // SQL query needs to start with 'select' (ignore-case) and can contain newlines.
-    private final static String REGEX = "^(select|SELECT)(.|[\n\r])*";
+    private final static String SELECT_REGEX = "^(select|SELECT)" + ANY_REGEX;
+
+    private static final String SELECT_WITH_KEY_REGEX = SELECT_REGEX + KEY_REGEX + ANY_REGEX;
+
+    private static final String SELECT_WITH_KEY_AND_TYPE_REGEX =
+            SELECT_WITH_KEY_REGEX + TYPE_REGEX + ANY_REGEX;
 
     private final static String REGEX_TEXT_MSG = "SQL query should begin with a 'SELECT' keyword.";
+
+    private final static String REGEX_TEXT_WITH_KEY_MSG =
+            REGEX_TEXT_MSG + " Magic parameter '${key}' is required.";
+
+    private final static String REGEX_TEXT_WITH_KEY_AND_TYPE_MSG =
+            REGEX_TEXT_WITH_KEY_MSG + " Magic parameter '${type}' required.";
 
     private final static String SINGLE_QUERY_MSG =
             "SQL query should not contain ';' in the middle.";
@@ -46,11 +73,7 @@ public class SQLQueryField extends MultilineVarcharField
     public SQLQueryField(IMessageProvider messageProvider, boolean mandatory, int lines)
     {
         super(messageProvider.getMessage(Dict.SQL_QUERY), mandatory, lines);
-        setEmptyText(EMPTY_TEXT);
-        setRegex(REGEX);
-        setValidator(new SingleSQLQueryValidator());
-        getMessages().setRegexText(REGEX_TEXT_MSG);
-        getMessages().setBlankText(BLANK_TEXT_MSG);
+        updateValidation(QueryType.GENERIC);
     }
 
     public SQLQueryField(IMessageProvider messageProvider, boolean mandatory)
@@ -61,6 +84,7 @@ public class SQLQueryField extends MultilineVarcharField
     /** {@link Validator} for single SQL query. */
     protected class SingleSQLQueryValidator implements Validator
     {
+
         public String validate(Field<?> field, final String fieldValue)
         {
             int indexOfSemicolon = fieldValue.trim().indexOf(';');
@@ -71,6 +95,76 @@ public class SQLQueryField extends MultilineVarcharField
             // validated value is valid
             return null;
         }
+    }
+
+    public void handleEvent(SelectionChangedEvent<SimpleComboValue<QueryType>> be)
+    {
+        SimpleComboValue<QueryType> selectedItem = be.getSelectedItem();
+        QueryType type = selectedItem == null ? QueryType.GENERIC : selectedItem.getValue();
+        updateValidation(type);
+    }
+
+    private void updateValidation(QueryType type)
+    {
+        setEmptyText(createEmptyText(type));
+        setRegex(createRegex(type));
+        setValidator(new SingleSQLQueryValidator());
+        getMessages().setRegexText(createRegexText(type));
+        getMessages().setBlankText(createBlankText(type));
+        validate();
+    }
+
+    private String createBlankText(QueryType type)
+    {
+        return BLANK_TEXT_MSG;
+    }
+
+    private String createRegexText(QueryType type)
+    {
+        switch (type)
+        {
+            case GENERIC:
+                return REGEX_TEXT_MSG;
+            case DATA_SET:
+            case SAMPLE:
+            case EXPERIMENT:
+                return REGEX_TEXT_WITH_KEY_MSG;
+            case MATERIAL:
+                return REGEX_TEXT_WITH_KEY_AND_TYPE_MSG;
+        }
+        return null;
+    }
+
+    private String createRegex(QueryType type)
+    {
+        switch (type)
+        {
+            case GENERIC:
+                return SELECT_REGEX;
+            case DATA_SET:
+            case SAMPLE:
+            case EXPERIMENT:
+                return SELECT_WITH_KEY_REGEX;
+            case MATERIAL:
+                return SELECT_WITH_KEY_AND_TYPE_REGEX;
+        }
+        return null;
+    }
+
+    private String createEmptyText(QueryType type)
+    {
+        switch (type)
+        {
+            case GENERIC:
+                return EMPTY_TEXT;
+            case DATA_SET:
+            case SAMPLE:
+            case EXPERIMENT:
+                return EMPTY_TEXT_WITH_KEY;
+            case MATERIAL:
+                return EMPTY_TEXT_WITH_KEY_AND_TYPE;
+        }
+        return null;
     }
 
 }
