@@ -26,26 +26,21 @@ import java.util.Set;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
@@ -106,31 +101,21 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
 
         List<MsInjectionSample> samples = loadAllRawDataSamples(session);
         Set<Long> sampleIDs = new HashSet<Long>();
+        List<String> dataSetCodes = new ArrayList<String>();
         for (MsInjectionSample sample : samples)
         {
             if (RAW_DATA_SAMPLE_VALIDATOR.isValid(person, sample))
             {
                 sampleIDs.add(sample.getSample().getId());
+                Map<String, ExternalData> latestDataSets = sample.getLatestDataSets();
+                ExternalData latestDataSet = latestDataSets.get(dataSetType);
+                if (latestDataSet != null)
+                {
+                    dataSetCodes.add(latestDataSet.getCode());
+                }
             }
         }
 
-        ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
-        IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
-        List<String> dataSetCodes = new ArrayList<String>();
-        for (long id : rawDataSampleIDs)
-        {
-            if (sampleIDs.contains(id) == false)
-            {
-                throw new UserFailureException("Invalid or unauthorized access on sample with ID: "
-                        + id);
-            }
-            SamplePE sample = sampleDAO.getByTechId(new TechId(id));
-            List<ExternalDataPE> dataSets = externalDataDAO.listExternalData(sample);
-            for (ExternalDataPE dataSet : dataSets)
-            {
-                dataSetCodes.add(dataSet.getCode());
-            }
-        }
         String dataStoreServerCode = findDataStoreServer(dataSetProcessingKey);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);

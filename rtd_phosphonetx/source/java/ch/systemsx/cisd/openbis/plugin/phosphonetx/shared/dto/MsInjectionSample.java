@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 public class MsInjectionSample
 {
     private final Sample sample;
-    private final Map<String, Date> latestRegistrationDates = new LinkedHashMap<String, Date>();
+    private final Map<String, ExternalData> latestDataSets = new LinkedHashMap<String, ExternalData>();
 
     public MsInjectionSample(Sample sample)
     {
@@ -42,24 +43,27 @@ public class MsInjectionSample
         return sample;
     }
 
-    public Map<String, Date> getLatestRegistrationDates()
+    public Map<String, ExternalData> getLatestDataSets()
     {
-        return latestRegistrationDates;
+        return latestDataSets;
     }
 
-    public void addLatestDataSet(String dataSetTypeCode, Date registrationDate)
+    public void addLatestDataSet(ExternalData dataSet)
     {
-        Date date = latestRegistrationDates.get(dataSetTypeCode);
-        if (date == null || date.getTime() < registrationDate.getTime())
+        String dataSetTypeCode = dataSet.getDataSetType().getCode();
+        Date registrationDate = dataSet.getRegistrationDate();
+        ExternalData latestDataSet = latestDataSets.get(dataSetTypeCode);
+        if (latestDataSet == null
+                || latestDataSet.getRegistrationDate().getTime() < registrationDate.getTime())
         {
-            latestRegistrationDates.put(dataSetTypeCode, registrationDate);
+            latestDataSets.put(dataSetTypeCode, dataSet);
         }
     }
 
     @Override
     public String toString()
     {
-        return sample.getIdentifier()+":"+latestRegistrationDates;
+        return sample.getIdentifier()+":"+latestDataSets;
     }
     
     

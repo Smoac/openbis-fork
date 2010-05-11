@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -69,12 +68,10 @@ public class Manager
             Long sampleID = dataSetSampleMap.get(dataSet.getId());
             if (sampleID != null)
             {
-                String code = dataSet.getDataSetType().getCode();
-                Date registrationDate = dataSet.getRegistrationDate();
                 MsInjectionSample sample = samples.get(sampleID);
                 if (sample != null)
                 {
-                    sample.addLatestDataSet(code, registrationDate);
+                    sample.addLatestDataSet(dataSet);
                 }
             }
         }

@@ -40,15 +40,15 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
@@ -98,47 +98,54 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    for (long id : ids)
-                    {
-                        one(sampleDAO).getByTechId(new TechId(id));
-                        SamplePE sample = new SamplePE();
-                        sample.setId(id);
-                        sample.setCode("s" + id);
-                        will(returnValue(sample));
-                        
-                        one(externalDataDAO).listExternalData(sample);
-                        List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>();
-                        for (int i = 0; i < (int) (id % 3); i++)
-                        {
-                            ExternalDataPE dataSet = new ExternalDataPE();
-                            dataSet.setCode("ds" + id + "." + i);
-                            dataSets.add(dataSet);
-                        }
-                        will(returnValue(dataSets ));
-                    }
-                    
                     one(dataStoreDAO).listDataStores();
-                    DataStorePE s1 = store("s1", service("a", PROCESSING), service(COPY_PROCESSING_KEY, QUERIES));
+                    DataStorePE s1 =
+                            store("s1", service("a", PROCESSING), service(COPY_PROCESSING_KEY,
+                                    QUERIES));
                     DataStorePE s2 = store("s2", service(COPY_PROCESSING_KEY, PROCESSING));
                     will(returnValue(Arrays.asList(s1, s2)));
-                    
+
                     one(boFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
-                    
-                    List<String> dataSetCodes = Arrays.asList("ds2.0", "ds2.1");
+
+                    List<String> dataSetCodes = Arrays.asList("ds-2", "ds-42");
                     HashMap<String, String> parameterBindings = new HashMap<String, String>();
-                    one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2", dataSetCodes, parameterBindings);
+                    one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2", dataSetCodes,
+                            parameterBindings);
                 }
                 
             });
         
-        service.processRawData(SESSION_TOKEN, COPY_PROCESSING_KEY, ids, "");
+        service.processRawData(SESSION_TOKEN, COPY_PROCESSING_KEY, ids, "dt-0");
         
         context.assertIsSatisfied();
     }
 
     private void prepareListRawDataSamples(final Long... sampleIDs)
     {
+        final List<Sample> samples = new ArrayList<Sample>();
+        final List<ExternalData> dataSets = new ArrayList<ExternalData>();
+        final LinkedHashSet<TechId> experimentIds = new LinkedHashSet<TechId>();
+        for (Long id : sampleIDs)
+        {
+            Sample sample = new Sample();
+            sample.setId(id);
+            sample.setIdentifier("S" + id);
+            Experiment experiment = new Experiment();
+            experiment.setId(id * 10);
+            sample.setExperiment(experiment);
+            Sample parent = new Sample();
+            parent.setId(id * 100);
+            sample.setGeneratedFrom(parent);
+            samples.add(sample);
+            ExternalData dataSet = new ExternalData();
+            dataSet.setId(id * 1000);
+            dataSet.setCode("ds-" + id);
+            dataSet.setDataSetType(new DataSetType("dt-" + id % 2));
+            dataSet.setSample(sample);
+            dataSets.add(dataSet);
+            experimentIds.add(new TechId(id * 10));
+        }
         context.checking(new Expectations()
             {
                 {
@@ -178,31 +185,13 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
                                 description.appendValue(sampleType);
                             }
                         }));
-                    List<Sample> samples = new ArrayList<Sample>();
-                    for (Long id : sampleIDs)
-                    {
-                        Sample sample = new Sample();
-                        sample.setId(id);
-                        sample.setIdentifier("S" + id);
-                        Experiment experiment = new Experiment();
-                        experiment.setId(id * 10);
-                        sample.setExperiment(experiment);
-                        Sample parent = new Sample();
-                        parent.setId(id * 100);
-                        sample.setGeneratedFrom(parent);
-                        samples.add(sample);
-                    }
                     will(returnValue(samples));
                     
                     one(boFactory).createDatasetLister(SESSION, "");
                     will(returnValue(datasetLister));
                     
-                    LinkedHashSet<TechId> experimentIds = new LinkedHashSet<TechId>();
-                    for (Long id : sampleIDs)
-                    {
-                        experimentIds.add(new TechId(id * 10));
-                    }
                     one(datasetLister).listByExperimentTechIds(experimentIds);
+                    will(returnValue(dataSets));
                     
                     one(datasetLister).listParentIds(Collections.<Long>emptySet());
                     will(returnValue(Collections.<Long, Set<Long>>emptyMap()));
