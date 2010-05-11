@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * 
@@ -80,7 +81,7 @@ public class RawDataServiceTest extends AbstractServerTestCase
             {
                 {
                     one(internalService).listRawDataSamples(session2.getSessionToken());
-                    will(returnValue(Arrays.asList(sample)));
+                    will(returnValue(Arrays.asList(new MsInjectionSample(sample))));
                 }
             });
 
@@ -118,7 +119,7 @@ public class RawDataServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(internalService).processRawData(session2.getSessionToken(), null, ids);
+                    one(internalService).processRawData(session2.getSessionToken(), null, ids, "");
                 }
             });
 

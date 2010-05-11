@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.RawD
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.RawDataSampleProvider.REGISTRATION_DATE;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * 
@@ -214,7 +214,12 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
             {
                 {
                     one(service).listRawDataSamples(SESSION_TOKEN);
-                    will(returnValue(Arrays.asList(samples)));
+                    List<MsInjectionSample> list = new ArrayList<MsInjectionSample>();
+                    for (Sample sample : samples)
+                    {
+                        list.add(new MsInjectionSample(sample));
+                    }
+                    will(returnValue(list));
                 }
             });
     }

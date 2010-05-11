@@ -132,7 +132,7 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
                 
             });
         
-        service.processRawData(SESSION_TOKEN, COPY_PROCESSING_KEY, ids);
+        service.processRawData(SESSION_TOKEN, COPY_PROCESSING_KEY, ids, "");
         
         context.assertIsSatisfied();
     }

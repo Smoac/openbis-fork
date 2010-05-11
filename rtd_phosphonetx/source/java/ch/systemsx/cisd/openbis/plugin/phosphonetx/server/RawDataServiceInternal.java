@@ -99,7 +99,7 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
     }
     
     public void processRawData(String sessionToken, String dataSetProcessingKey,
-            long[] rawDataSampleIDs)
+            long[] rawDataSampleIDs, String dataSetType)
     {
         Session session = getSession(sessionToken);
         PersonPE person = session.tryGetPerson();

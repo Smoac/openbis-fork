@@ -110,7 +110,7 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         try
         {
             service.processRawData(session.getSessionToken(), dataSetProcessingKey,
-                    rawDataSampleIDs);
+                    rawDataSampleIDs, "");
         } finally
         {
             service.logout(session.getSessionToken());

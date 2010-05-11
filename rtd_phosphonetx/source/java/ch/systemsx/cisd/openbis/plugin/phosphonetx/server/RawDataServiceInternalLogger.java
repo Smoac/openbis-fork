@@ -45,10 +45,12 @@ class RawDataServiceInternalLogger extends AbstractServerLogger implements IRawD
         return null;
     }
     
-    public void processRawData(String sessionToken, String dataSetProcessingKey, long[] rawDataSampleIDs)
+    public void processRawData(String sessionToken, String dataSetProcessingKey,
+            long[] rawDataSampleIDs, String dataSetType)
     {
         int numberOfDataSets = rawDataSampleIDs == null ? 0 : rawDataSampleIDs.length;
-        logAccess(sessionToken, "copy_raw_data", "NUMBER_OF_DATA_SETS(%s)", numberOfDataSets);
+        logAccess(sessionToken, "copy_raw_data", "NUMBER_OF_DATA_SETS(%s), DATA_SET_TYPE(%s)",
+                numberOfDataSets, dataSetType);
     }
 
 }

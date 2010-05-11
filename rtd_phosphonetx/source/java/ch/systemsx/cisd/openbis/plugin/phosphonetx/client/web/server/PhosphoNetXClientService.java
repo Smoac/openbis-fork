@@ -238,7 +238,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        rawDataService.processRawData(getSessionToken(), dataSetProcessingKey, rawDataSampleIDs);
+        rawDataService.processRawData(getSessionToken(), dataSetProcessingKey, rawDataSampleIDs, "");
     }
     
 }

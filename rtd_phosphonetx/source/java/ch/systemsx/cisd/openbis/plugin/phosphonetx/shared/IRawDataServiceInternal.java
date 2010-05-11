@@ -45,5 +45,6 @@ public interface IRawDataServiceInternal extends IServer
     
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.USER)
-    public void processRawData(String sessionToken, String dataSetProcessingKey, long[] rawDataSampleIDs);
+    public void processRawData(String sessionToken, String dataSetProcessingKey,
+            long[] rawDataSampleIDs, String dataSetType);
 }
