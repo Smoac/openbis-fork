@@ -42,7 +42,7 @@ import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -77,7 +77,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
     {
         LogInitializer.init();
         service = ServiceProvider.getOpenBISService();
-        Properties properties = PropertyParametersUtil.loadServiceProperties();
+        Properties properties = DssPropertyParametersUtil.loadServiceProperties();
         storeRoot =
                 new File(PropertyUtils.getMandatoryProperty(properties,
                         HierarchicalStorageUpdater.STOREROOT_DIR_KEY));

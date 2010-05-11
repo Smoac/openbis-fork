@@ -26,20 +26,21 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 
 /**
- * Translator of data set types into openBIS conform upper-case data set types. 
- *
+ * Translator of data set types into openBIS conform upper-case data set types.
+ * 
  * @author Franz-Josef Elmer
  */
 class DataSetTypeTranslator
 {
     static final String DATA_SET_TYPES_KEY = "data-set-types";
+
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, DataSetTypeTranslator.class);
-    
+            LogFactory.getLogger(LogCategory.OPERATION, DataSetTypeTranslator.class);
+
     private final Map<String, String> map = new LinkedHashMap<String, String>();
 
     DataSetTypeTranslator(Properties properties)
@@ -58,7 +59,7 @@ class DataSetTypeTranslator
             map.put(type, translatedType);
         }
     }
-    
+
     String translate(String type)
     {
         String translatedType = map.get(type);
@@ -68,7 +69,7 @@ class DataSetTypeTranslator
         }
         return translatedType;
     }
-    
+
     Collection<String> getTranslatedDataSetTypes()
     {
         return map.values();

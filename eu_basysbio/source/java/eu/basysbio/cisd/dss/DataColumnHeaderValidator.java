@@ -27,48 +27,53 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.etlserver.validation.IColumnHeaderValidator;
 import ch.systemsx.cisd.etlserver.validation.Result;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
 
 /**
  * Special {@link IColumnHeaderValidator} for Data Columns in time series data sets.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataColumnHeaderValidator implements IColumnHeaderValidator
 {
     static final String ELEMENTS_KEY = "elements";
+
     static final String TYPE_KEY = "type";
+
     static final String TYPE_VOCABULARY = "vocabulary";
+
     static final String TERMS_KEY = "terms";
+
     static final String TYPE_INTEGER = "integer";
+
     static final String TYPE_STRING = "string";
+
     static final String PATTERN_KEY = "pattern";
-    
+
     private static interface IElementValidator
     {
         public String validate(String element);
     }
-    
+
     private static interface IElementValidatorFactory
     {
         public String getType();
-        
+
         public IElementValidator createValidator(Properties properties);
     }
-    
+
     private static final class VocabularyValidatorFactory implements IElementValidatorFactory
     {
-
 
         public String getType()
         {
             return TYPE_VOCABULARY;
         }
-        
+
         public IElementValidator createValidator(Properties properties)
         {
             String termsSequence = PropertyUtils.getMandatoryProperty(properties, TERMS_KEY);
@@ -88,7 +93,7 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
                 };
         }
     }
-    
+
     private static final class IntegerValidatorFactory implements IElementValidatorFactory
     {
 
@@ -96,7 +101,7 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
         {
             return TYPE_INTEGER;
         }
-        
+
         public IElementValidator createValidator(Properties properties)
         {
             return new IElementValidator()
@@ -115,10 +120,9 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
                 };
         }
     }
-    
+
     private static final class StringValidatorFactory implements IElementValidatorFactory
     {
-        
 
         public String getType()
         {
@@ -138,7 +142,7 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
             }
             return new IElementValidator()
                 {
-                
+
                     public String validate(String element)
                     {
                         if (pattern.matcher(element).matches())
@@ -149,15 +153,16 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
                     }
                 };
         }
-        
+
     }
-    
+
     private final List<IElementValidator> elementValidators;
 
     public DataColumnHeaderValidator(Properties properties)
     {
         Map<String, IElementValidatorFactory> factories = createValidatorFactories();
-        SectionProperties[] sections = PropertyParametersUtil.extractSectionProperties(properties, ELEMENTS_KEY, false);
+        SectionProperties[] sections =
+                PropertyParametersUtil.extractSectionProperties(properties, ELEMENTS_KEY, false);
         elementValidators = new ArrayList<IElementValidator>(sections.length);
         for (SectionProperties sectionProperties : sections)
         {
@@ -186,7 +191,7 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
             }
         }
     }
-    
+
     private Map<String, IElementValidatorFactory> createValidatorFactories()
     {
         Map<String, IElementValidatorFactory> map = new HashMap<String, IElementValidatorFactory>();
@@ -195,19 +200,21 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
         register(map, new StringValidatorFactory());
         return map;
     }
-    
-    private void register(Map<String, IElementValidatorFactory> map, IElementValidatorFactory factory)
+
+    private void register(Map<String, IElementValidatorFactory> map,
+            IElementValidatorFactory factory)
     {
         map.put(factory.getType(), factory);
     }
-    
+
     public Result validateHeader(String header)
     {
         String[] elements = header.split(DataColumnHeader.SEPARATOR);
         if (elements.length < elementValidators.size())
         {
-            return Result.failure(elementValidators.size() + " elements separated by '" + DataColumnHeader.SEPARATOR
-                    + "' expected instead of only " + elements.length + ".");
+            return Result.failure(elementValidators.size() + " elements separated by '"
+                    + DataColumnHeader.SEPARATOR + "' expected instead of only " + elements.length
+                    + ".");
         }
         for (int i = 0, n = Math.min(elements.length, elementValidators.size()); i < n; i++)
         {
