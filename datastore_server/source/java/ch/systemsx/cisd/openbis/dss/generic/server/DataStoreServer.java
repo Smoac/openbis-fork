@@ -204,7 +204,9 @@ public class DataStoreServer
     /**
      * Initialize RPC service interfaces
      */
-    // This could be changed to use the config parameters in the future.
+    // TODO: The registration process here needs to be made cleaner -- perhaps by using Spring and
+    // the dssApplicationContext.xml more effectively, or perhaps by using annotations and
+    // reflection.
     private static void initializeRpcServices(final Context context,
             final ApplicationContext applicationContext, final ConfigParameters configParameters)
     {
