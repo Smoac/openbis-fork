@@ -52,6 +52,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.openbis.dss.api.v1.server.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters.PluginServlet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;

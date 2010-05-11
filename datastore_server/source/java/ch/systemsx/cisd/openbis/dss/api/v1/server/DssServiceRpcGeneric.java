@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server;
+package ch.systemsx.cisd.openbis.dss.api.v1.server;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +26,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
@@ -38,7 +39,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService)
     {
         super(openBISService);
-        operationLog.info("Started RPC V1 service.");
+        operationLog.info("Started DSS API V1 service.");
     }
 
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,

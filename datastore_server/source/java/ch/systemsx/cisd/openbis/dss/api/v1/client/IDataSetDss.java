@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component.v1;
+package ch.systemsx.cisd.openbis.dss.api.v1.client;
 
 import java.io.InputStream;
 

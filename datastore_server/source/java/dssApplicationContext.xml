@@ -60,11 +60,11 @@
      <bean id="data-store-rpc-service-generic"
         class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
         <property name="service">
-            <bean class="ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcGeneric">
+            <bean class="ch.systemsx.cisd.openbis.dss.api.v1.server.DssServiceRpcGeneric">
                 <constructor-arg ref="openBIS-service" />
             </bean>
         </property>
-        <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric" />
+        <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric" />
     </bean>
     
     <bean id="data-store-rpc-name-server"

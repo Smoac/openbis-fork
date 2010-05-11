@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.api.v1.server.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;

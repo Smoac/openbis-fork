@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component.v1.impl;
+package ch.systemsx.cisd.openbis.dss.api.v1.client.impl;
 
 import java.io.InputStream;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.openbis.dss.api.v1.client.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.dss.component.v1.IDataSetDss;
 
 /**
  * @author Chandrasekhar Ramakrishnan

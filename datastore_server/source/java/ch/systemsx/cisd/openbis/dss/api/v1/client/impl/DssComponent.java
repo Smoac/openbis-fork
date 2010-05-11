@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component.v1.impl;
+package ch.systemsx.cisd.openbis.dss.api.v1.client.impl;
 
 import java.io.InputStream;
 import java.util.List;
@@ -29,10 +29,10 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.openbis.dss.api.v1.client.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.api.v1.client.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.dss.component.v1.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.component.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.rpc.client.DssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
