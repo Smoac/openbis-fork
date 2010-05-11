@@ -36,7 +36,7 @@ public class DssComponentTestClient
         configureLogging();
         System.out.println("Logging in");
         IDssComponent component =
-                DssComponentFactory.tryCreate("test", "foobar", "http://localhost:8888/openbis");
+                DssComponentFactory.tryCreate("test", "foobar", "http://localhost:8888");
         IDataSetDss dataSet = component.getDataSet("20100318094819344-4");
         FileInfoDssDTO fileInfos[] = dataSet.listFiles("/", true);
         for (FileInfoDssDTO fileInfo : fileInfos)

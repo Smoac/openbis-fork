@@ -28,10 +28,10 @@ import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.api.v1.client.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.api.v1.client.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.api.v1.client.impl.OpenBisServiceFactory.ILimsServiceStubFactory;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  */
 public class DssComponent implements IDssComponent
 {
-    private static final int SERVIER_TIMEOUT_MIN = 5;
+    private static final int SERVER_TIMEOUT_MIN = 5;
 
     private final IETLLIMSService openBisService;
 
@@ -89,7 +89,29 @@ public class DssComponent implements IDssComponent
     public static DssComponent tryCreate(String sessionToken, String openBISUrl)
     {
         DssComponent component = new DssComponent(openBISUrl, sessionToken);
+        try
+        {
+            component.checkSession();
+        } catch (InvalidSessionException e)
+        {
+            // Session has expired
+            return null;
+        }
         return component;
+    }
+
+    private static IETLLIMSService createOpenBisService(String openBISURL)
+    {
+        ILimsServiceStubFactory stubFactory = new ILimsServiceStubFactory()
+            {
+                public IETLLIMSService createServiceStub(String serverUrl)
+                {
+                    return HttpInvokerUtils.createServiceStub(IETLLIMSService.class, serverUrl,
+                            SERVER_TIMEOUT_MIN);
+                }
+
+            };
+        return new OpenBisServiceFactory(openBISURL, stubFactory).createService();
     }
 
     /**
@@ -104,8 +126,7 @@ public class DssComponent implements IDssComponent
      */
     private DssComponent(String openBISURL, String sessionTokenOrNull)
     {
-        this(HttpInvokerUtils.createServiceStub(IETLLIMSService.class, openBISURL + "/rmi-etl",
-                SERVIER_TIMEOUT_MIN), new DssServiceRpcFactory(), sessionTokenOrNull);
+        this(createOpenBisService(openBISURL), new DssServiceRpcFactory(), sessionTokenOrNull);
     }
 
     /**
@@ -282,7 +303,16 @@ class AuthenticatedState extends AbstractDssComponentState
     @Override
     void login(String user, String password) throws AuthorizationFailureException
     {
-        throw new UserFailureException("Already logged in.");
+        throw new IllegalStateException("Already logged in.");
+    }
+
+    @Override
+    public void checkSession()
+    {
+        if (null == service.tryGetSession(getSessionToken()))
+        {
+            throw new InvalidSessionException("Session has expired");
+        }
     }
 
     public void logout()
