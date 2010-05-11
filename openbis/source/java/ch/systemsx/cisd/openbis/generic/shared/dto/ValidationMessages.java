@@ -214,6 +214,8 @@ public final class ValidationMessages
 
     public static final String DATA_NOT_NULL_MESSAGE = "Data " + CAN_NOT_BE_NULL;
 
+    public static final String QUERY_TYPE_NOT_NULL_MESSAGE = "Query Type" + CAN_NOT_BE_NULL;
+
     private ValidationMessages()
     {
         // Can not be instantiated.

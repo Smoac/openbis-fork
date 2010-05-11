@@ -26,6 +26,8 @@ CREATE DOMAIN grid_id AS character varying(200);
 CREATE DOMAIN object_name AS character varying(50);
 CREATE DOMAIN ordinal_int AS bigint
 	CONSTRAINT ordinal_int_check CHECK ((VALUE > 0));
+CREATE DOMAIN query_type AS character varying(40)
+	CONSTRAINT query_type_check CHECK (((VALUE)::text = ANY ((ARRAY['GENERIC'::character varying, 'EXPERIMENT'::character varying, 'SAMPLE'::character varying, 'DATA_SET'::character varying, 'MATERIAL'::character varying])::text[])));
 CREATE DOMAIN real_value AS real;
 CREATE DOMAIN tech_id AS bigint;
 CREATE DOMAIN time_stamp AS timestamp with time zone;
@@ -849,6 +851,7 @@ CREATE TABLE queries (
     modification_timestamp time_stamp DEFAULT now(),
     expression character varying(2000) NOT NULL,
     is_public boolean NOT NULL,
+    query_type query_type NOT NULL,
     db_key code DEFAULT '1'::character varying NOT NULL
 );
 CREATE SEQUENCE query_id_seq

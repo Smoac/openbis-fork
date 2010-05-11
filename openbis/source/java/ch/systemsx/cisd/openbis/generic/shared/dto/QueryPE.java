@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -25,6 +27,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -37,10 +40,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class QueryPE extends AbstractExpressionPE<QueryPE>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
     private String queryDatabaseKey = "1"; // FIXME
 
     private String name;
+
+    private QueryType queryType;
 
     @Column(name = ColumnNames.NAME_COLUMN)
     @NotNull(message = ValidationMessages.NAME_NOT_NULL_MESSAGE)
@@ -68,6 +72,19 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
         this.queryDatabaseKey = queryDatabaseKey;
     }
 
+    @NotNull(message = ValidationMessages.QUERY_TYPE_NOT_NULL_MESSAGE)
+    @Column(name = ColumnNames.QUERY_TYPE)
+    @Enumerated(EnumType.STRING)
+    public QueryType getQueryType()
+    {
+        return queryType;
+    }
+
+    public void setQueryType(QueryType queryType)
+    {
+        this.queryType = queryType;
+    }
+
     @Override
     public final boolean equals(final Object obj)
     {
@@ -83,7 +100,7 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getName(), that.getName());
         builder.append(getDatabaseInstance(), that.getDatabaseInstance());
-        builder.append(getQueryDatabaseKey(), that.getQueryDatabaseKey());
+                builder.append(getQueryDatabaseKey(), that.getQueryDatabaseKey());
         return builder.isEquals();
     }
 

@@ -41,8 +41,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -117,7 +117,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
-    public void registerQuery(String sessionToken, NewExpression expression)
+    public void registerQuery(String sessionToken, NewQuery expression)
     {
         Session session = getSession(sessionToken);
 
@@ -127,6 +127,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         query.setExpression(expression.getExpression());
         query.setPublic(expression.isPublic());
         query.setRegistrator(session.tryGetPerson());
+        query.setQueryType(expression.getQueryType());
         try
         {
             getDAOFactory().getQueryDAO().createQuery(query);
@@ -155,7 +156,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
-    public void updateQuery(String sessionToken, IExpressionUpdates updates)
+    public void updateQuery(String sessionToken, IQueryUpdates updates)
     {
         checkSession(sessionToken);
 
@@ -168,6 +169,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             query.setDescription(updates.getDescription());
             query.setExpression(updates.getExpression());
             query.setPublic(updates.isPublic());
+            query.setQueryType(updates.getQueryType());
             queryDAO.validateAndSaveUpdatedEntity(query);
         } catch (DataAccessException ex)
         {

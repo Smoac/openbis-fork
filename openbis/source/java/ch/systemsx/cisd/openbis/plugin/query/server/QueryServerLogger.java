@@ -22,8 +22,8 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
@@ -53,7 +53,7 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
         return null;
     }
 
-    public void registerQuery(String sessionToken, NewExpression expression)
+    public void registerQuery(String sessionToken, NewQuery expression)
     {
         logTracking(sessionToken, "register_query", "EXPRESSION(%s)", expression.getName());
     }
@@ -63,7 +63,7 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
         logTracking(sessionToken, "delete_queries", "QUERIES(%s)", filterIds.size());
     }
 
-    public void updateQuery(String sessionToken, IExpressionUpdates updates)
+    public void updateQuery(String sessionToken, IQueryUpdates updates)
     {
         logTracking(sessionToken, "update_query", "ID(%s) QUERY_NAME(%s)", updates.getId(), updates
                 .getName());

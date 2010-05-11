@@ -234,6 +234,8 @@ public final class ColumnNames
 
     public static final String STATUS = "status";
 
+    public static final String QUERY_TYPE = "query_type";
+
     private ColumnNames()
     {
         // Can not be instantiated.

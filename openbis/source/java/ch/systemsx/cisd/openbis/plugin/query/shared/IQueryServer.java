@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.DeleteQueryPredicate;
@@ -66,7 +66,7 @@ public interface IQueryServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.QUERY)
-    public void registerQuery(String sessionToken, NewExpression expression);
+    public void registerQuery(String sessionToken, NewQuery expression);
 
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
@@ -78,5 +78,5 @@ public interface IQueryServer extends IServer
     @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.QUERY)
     public void updateQuery(String sessionToken,
-            @AuthorizationGuard(guardClass = UpdateQueryPredicate.class) IExpressionUpdates updates);
+            @AuthorizationGuard(guardClass = UpdateQueryPredicate.class) IQueryUpdates updates);
 }

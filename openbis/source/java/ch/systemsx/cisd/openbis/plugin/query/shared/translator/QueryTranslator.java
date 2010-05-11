@@ -57,6 +57,7 @@ public final class QueryTranslator
         }
         final QueryExpression result = new QueryExpression();
         result.setName(escapeHtml(original.getName()));
+        result.setQueryType(original.getQueryType());
         result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
 
         GridCustomExpressionTranslator.translateExpression(original, result);

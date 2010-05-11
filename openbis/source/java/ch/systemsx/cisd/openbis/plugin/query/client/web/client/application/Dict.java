@@ -48,6 +48,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
     public static final String QUERY_PARAMETERS_BINDINGS_DIALOG_TITLE =
             "query_parameters_binding_dialog_title";
 
+    public static final String QUERY_TYPE = "query_type";
+
     private Dict()
     {
         // Can not be instantiated.

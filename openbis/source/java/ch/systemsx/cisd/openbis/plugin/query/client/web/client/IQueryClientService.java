@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -65,7 +65,7 @@ public interface IQueryClientService extends IClientService
     /**
      * Registers specified new query.
      */
-    public void registerQuery(NewExpression query) throws UserFailureException;
+    public void registerQuery(NewQuery query) throws UserFailureException;
 
     /**
      * Deletes specified queries.
@@ -75,5 +75,5 @@ public interface IQueryClientService extends IClientService
     /**
      * Updates specified query.
      */
-    public void updateQuery(final IExpressionUpdates queryUpdate) throws UserFailureException;
+    public void updateQuery(final IQueryUpdates queryUpdate) throws UserFailureException;
 }

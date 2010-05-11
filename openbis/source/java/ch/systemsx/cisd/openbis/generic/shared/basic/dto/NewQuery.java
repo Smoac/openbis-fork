@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,41 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpressionWithParameters;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * Stores information describing a parameterized query.
- * 
- * @author Piotr Buczek
+ * @author Izabela Adamczyk
  */
-public class QueryExpression extends AbstractExpressionWithParameters implements IQueryUpdates
+public class NewQuery extends NewExpression
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private QueryType queryType;
 
-    public QueryExpression()
+    public QueryType getQueryType()
     {
-    }
-
-    public QueryExpression(String expression)
-    {
-        setExpression(expression);
+        return queryType;
     }
 
     public void setQueryType(QueryType queryType)
     {
         this.queryType = queryType;
-    }
-
-    public QueryType getQueryType()
-    {
-        return queryType;
     }
 
 }

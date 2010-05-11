@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -47,11 +48,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
@@ -157,6 +160,8 @@ public class QueryEditor extends Dialog
 
     private final int parentHeight;
 
+    private final SimpleComboBox<QueryType> queryTypeField;
+
     public QueryEditor(final IViewContext<IQueryClientServiceAsync> viewContext,
             QueryExpression queryOrNull, IDelegatedAction refreshAction, int parentWidth,
             int parentHeight)
@@ -182,14 +187,17 @@ public class QueryEditor extends Dialog
         descriptionField.setMaxLength(GenericConstants.DESCRIPTION_2000);
         statementField = createStatementField();
         isPublicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false);
+        queryTypeField = new QueryTypeComboBox(viewContext);
         if (queryOrNull != null)
         {
             nameField.setValue(queryOrNull.getName());
             descriptionField.setValue(StringEscapeUtils.unescapeHtml(queryOrNull.getDescription()));
             statementField.setValue(StringEscapeUtils.unescapeHtml(queryOrNull.getExpression()));
             isPublicField.setValue(queryOrNull.isPublic());
+            queryTypeField.setSimpleValue(queryOrNull.getQueryType());
         }
         form.add(nameField, FORM_DATA);
+        form.add(queryTypeField, FORM_DATA);
         form.add(descriptionField, FORM_DATA);
         form.add(statementField, FORM_DATA);
         form.add(isPublicField);
@@ -202,6 +210,22 @@ public class QueryEditor extends Dialog
 
         setPosition(5, 70);
         setWidth(parentWidth);
+    }
+
+    static class QueryTypeComboBox extends SimpleComboBox<QueryType>
+    {
+        public QueryTypeComboBox(IMessageProvider messages)
+        {
+            setAllowBlank(false);
+            setEditable(false);
+            setTriggerAction(TriggerAction.ALL);
+            setFieldLabel(messages.getMessage(Dict.QUERY_TYPE));
+            for (QueryType qt : QueryType.values())
+            {
+                add(qt);
+            }
+            setSimpleValue(QueryType.GENERIC);
+        }
     }
 
     private MultilineVarcharField createStatementField()
@@ -285,11 +309,12 @@ public class QueryEditor extends Dialog
     {
         if (queryOrNull == null)
         {
-            NewExpression query = new NewExpression();
+            NewQuery query = new NewQuery();
             query.setName(nameField.getValue());
             query.setDescription(descriptionField.getValue());
             query.setExpression(statementField.getValue());
             query.setPublic(isPublicField.getValue());
+            query.setQueryType(queryTypeField.getSimpleValue());
             viewContext.getService().registerQuery(query, registrationCallback);
         } else
         {
@@ -297,6 +322,7 @@ public class QueryEditor extends Dialog
             queryOrNull.setDescription(descriptionField.getValue());
             queryOrNull.setExpression(statementField.getValue());
             queryOrNull.setPublic(isPublicField.getValue());
+            queryOrNull.setQueryType(queryTypeField.getSimpleValue());
             viewContext.getService().updateQuery(queryOrNull, registrationCallback);
         }
     }

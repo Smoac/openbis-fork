@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -61,13 +61,13 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
     public void prepareExportQueries(TableExportCriteria<QueryExpression> criteria,
             AsyncCallback<String> callback);
 
-    /** @see IQueryClientService#registerQuery(NewExpression) */
-    public void registerQuery(NewExpression query, AsyncCallback<Void> callback);
+    /** @see IQueryClientService#registerQuery(NewQuery) */
+    public void registerQuery(NewQuery query, AsyncCallback<Void> callback);
 
     /** @see IQueryClientService#deleteQueries(List) */
     public void deleteQueries(List<TechId> filterIds, AsyncCallback<Void> callback);
 
-    /** @see IQueryClientService#updateQuery(IExpressionUpdates) */
-    public void updateQuery(final IExpressionUpdates queryUpdate, AsyncCallback<Void> callback);
+    /** @see IQueryClientService#updateQuery(IQueryUpdates) */
+    public void updateQuery(final IQueryUpdates queryUpdate, AsyncCallback<Void> callback);
 
 }

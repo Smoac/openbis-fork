@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
@@ -171,7 +171,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         return prepareExportEntities(criteria);
     }
 
-    public void registerQuery(NewExpression query)
+    public void registerQuery(NewQuery query)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -195,7 +195,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         }
     }
 
-    public void updateQuery(IExpressionUpdates queryUpdate)
+    public void updateQuery(IQueryUpdates queryUpdate)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

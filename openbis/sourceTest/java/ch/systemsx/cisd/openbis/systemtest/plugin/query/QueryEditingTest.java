@@ -37,14 +37,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "system test")
@@ -61,24 +61,25 @@ public class QueryEditingTest extends QuerySystemTestCase
         }
         queryClientService.deleteQueries(ids);
     }
-    
+
     @Test
     public void testGetQueryDatabaseLabel()
     {
         logIntoCommonClientService();
-        
+
         assertEquals("openBIS meta data", queryClientService.tryToGetQueryDatabaseLabel());
     }
-    
+
     @Test
     public void testRegisterEditAndDeleteQueryDefinition()
     {
         logIntoCommonClientService();
         assertEquals(0, queryClientService.listQueries().size());
-        
-        NewExpression query = createQuery("query1", "select * from sample_types", true);
+
+        NewQuery query =
+                createQuery("query1", "select * from sample_types", true, QueryType.GENERIC);
         queryClientService.registerQuery(query);
-        
+
         List<QueryExpression> queries = queryClientService.listQueries();
         assertEquals(1, queries.size());
         assertQuery(query, queries.get(0));
@@ -90,27 +91,28 @@ public class QueryEditingTest extends QuerySystemTestCase
         actualQuery.setExpression("select * from something");
         actualQuery.setPublic(false);
         queryClientService.updateQuery(actualQuery);
-        
+
         queries = queryClientService.listQueries();
         assertEquals(1, queries.size());
         assertEquals(actualQuery.getName(), queries.get(0).getName());
         assertEquals(actualQuery.getDescription(), queries.get(0).getDescription());
         assertEquals(actualQuery.getExpression(), queries.get(0).getExpression());
         assertEquals(actualQuery.isPublic(), queries.get(0).isPublic());
-        
+
         queryClientService.deleteQueries(Arrays.asList(new TechId(queries.get(0).getId())));
-        
+
         assertEquals(0, queryClientService.listQueries().size());
     }
-    
+
     @Test
     public void testRegisterQueryDefinitionsWithSameName()
     {
         logIntoCommonClientService();
-        
-        NewExpression query = createQuery("query", "select * from sample_types", true);
+
+        NewQuery query =
+                createQuery("query", "select * from sample_types", true, QueryType.GENERIC);
         queryClientService.registerQuery(query);
-        
+
         try
         {
             queryClientService.registerQuery(query);
@@ -121,17 +123,19 @@ public class QueryEditingTest extends QuerySystemTestCase
                     + "in the database and needs to be unique.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testChangeNameOfQueryDefinitionsToAnExistingOne()
     {
         logIntoCommonClientService();
-        
-        NewExpression query1 = createQuery("query1", "select * from sample_types", true);
-        NewExpression query2 = createQuery("query2", "select * from experiment_types", true);
+
+        NewQuery query1 =
+                createQuery("query1", "select * from sample_types", true, QueryType.GENERIC);
+        NewQuery query2 =
+                createQuery("query2", "select * from experiment_types", true, QueryType.GENERIC);
         queryClientService.registerQuery(query1);
         queryClientService.registerQuery(query2);
-        
+
         List<QueryExpression> queries = queryClientService.listQueries();
         assertEquals(2, queries.size());
         Collections.sort(queries, new Comparator<QueryExpression>()
@@ -144,7 +148,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         QueryExpression queryExpression = queries.get(0);
         assertEquals("query1", queryExpression.getName());
         queryExpression.setName("query2");
-        
+
         try
         {
             queryClientService.updateQuery(queryExpression);
@@ -155,7 +159,7 @@ public class QueryEditingTest extends QuerySystemTestCase
                     + "in the database and needs to be unique.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testCreateQueryResult()
     {
@@ -174,8 +178,9 @@ public class QueryEditingTest extends QuerySystemTestCase
     {
         logIntoCommonClientService();
 
-        NewExpression query =
-                createQuery("query", "select id, code from sample_types where id = ${id}", true);
+        NewQuery query =
+                createQuery("query", "select id, code from sample_types where id = ${id}", true,
+                        QueryType.GENERIC);
         queryClientService.registerQuery(query);
 
         List<QueryExpression> queries = queryClientService.listQueries();
@@ -201,25 +206,28 @@ public class QueryEditingTest extends QuerySystemTestCase
         assertEquals(DataTypeCode.VARCHAR, headers.get(1).getDataType());
         assertEquals(false, headers.get(1).isNumeric());
         assertEquals(2, headers.size());
-        
-        DefaultResultSetConfig<String, TableModelRow> config = new DefaultResultSetConfig<String, TableModelRow>();
+
+        DefaultResultSetConfig<String, TableModelRow> config =
+                new DefaultResultSetConfig<String, TableModelRow>();
         config.setCacheConfig(ResultSetFetchConfig.createFetchFromCache(table.getResultSetKey()));
         ResultSet<TableModelRow> rs = commonClientService.listReport(config);
         GridRowModels<TableModelRow> l = rs.getList();
         assertEquals("[1, MASTER_PLATE]", l.get(0).getOriginalObject().getValues().toString());
         assertEquals(1, rs.getTotalLength());
     }
-    
-    private NewExpression createQuery(String name, String expression, boolean isPublic)
+
+    private NewQuery createQuery(String name, String expression, boolean isPublic,
+            QueryType queryType)
     {
-        NewExpression query = new NewExpression();
+        NewQuery query = new NewQuery();
         query.setName(name);
         query.setDescription("A simple query named '" + name + "'.");
         query.setExpression(expression);
         query.setPublic(isPublic);
+        query.setQueryType(queryType);
         return query;
     }
-    
+
     private void assertQuery(NewExpression expectedQuery, QueryExpression actualQuery)
     {
         assertEquals(expectedQuery.getName(), actualQuery.getName());

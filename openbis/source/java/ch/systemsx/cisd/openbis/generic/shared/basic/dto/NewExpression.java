@@ -21,8 +21,6 @@ import java.io.Serializable;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class NewExpression implements IsSerializable, Serializable
@@ -82,6 +80,5 @@ public class NewExpression implements IsSerializable, Serializable
     {
         return "[" + getName() + "]";
     }
-
 
 }
