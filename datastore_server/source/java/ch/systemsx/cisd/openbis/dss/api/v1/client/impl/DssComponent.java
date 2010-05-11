@@ -374,7 +374,7 @@ class AuthenticatedState extends AbstractDssComponentState
             {
                 for (RpcServiceInterfaceVersionDTO ifaceVersion : iface.getVersions())
                 {
-                    if (1 == ifaceVersion.getInterfaceMajorVersion())
+                    if (1 == ifaceVersion.getMajorVersion())
                     {
                         dssService =
                                 dssServiceFactory.getService(ifaceVersion,

@@ -229,26 +229,20 @@ public class DataStoreServer
         RpcServiceNameServer rpcNameServer =
                 (RpcServiceNameServer) nameServiceExporter.getService();
 
-        RpcServiceInterfaceDTO dssInterface = new RpcServiceInterfaceDTO();
-        dssInterface.setInterfaceName(IDssServiceRpcGeneric.DSS_SERVICE_NAME);
+        RpcServiceInterfaceDTO dssInterface =
+                new RpcServiceInterfaceDTO(IDssServiceRpcGeneric.DSS_SERVICE_NAME);
 
-        RpcServiceInterfaceVersionDTO v1Interface = new RpcServiceInterfaceVersionDTO();
-        v1Interface.setInterfaceName(DssServiceRpcGeneric.DSS_SERVICE_NAME);
-        v1Interface.setInterfaceUrlSuffix("/rpc/v1");
-        v1Interface.setInterfaceMajorVersion(1);
-        v1Interface.setInterfaceMinorVersion(0);
+        RpcServiceInterfaceVersionDTO v1Interface =
+                new RpcServiceInterfaceVersionDTO(DssServiceRpcGeneric.DSS_SERVICE_NAME, "/rpc/v1",
+                        1, 0);
         dssInterface.addVersion(v1Interface);
         rpcNameServer.addSupportedInterface(dssInterface);
 
         String nameServerPath = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME;
-        RpcServiceInterfaceDTO nameServerInterface = new RpcServiceInterfaceDTO();
-        nameServerInterface.setInterfaceName("NameServer");
+        RpcServiceInterfaceDTO nameServerInterface = new RpcServiceInterfaceDTO("NameServer");
 
-        RpcServiceInterfaceVersionDTO nameServerVersion = new RpcServiceInterfaceVersionDTO();
-        nameServerVersion.setInterfaceName("NameServer");
-        nameServerVersion.setInterfaceUrlSuffix("/rpc");
-        nameServerVersion.setInterfaceMajorVersion(1);
-        nameServerVersion.setInterfaceMinorVersion(0);
+        RpcServiceInterfaceVersionDTO nameServerVersion =
+                new RpcServiceInterfaceVersionDTO("NameServer", "/rpc", 1, 0);
         nameServerInterface.addVersion(nameServerVersion);
 
         rpcNameServer.addSupportedInterface(nameServerInterface);

@@ -30,15 +30,11 @@ public class RpcServiceInterfaceTest extends AssertJUnit
     @Test
     public void testToString()
     {
-        final RpcServiceInterfaceVersionDTO ifaceVersion = new RpcServiceInterfaceVersionDTO();
-        ifaceVersion.setInterfaceName("DSS Generic");
-        ifaceVersion.setInterfaceUrlSuffix("/rpc/dss-generic/v1");
-        ifaceVersion.setInterfaceMajorVersion(1);
-        ifaceVersion.setInterfaceMinorVersion(7);
+        final RpcServiceInterfaceVersionDTO ifaceVersion =
+                new RpcServiceInterfaceVersionDTO("DSS Generic", "/rpc/dss-generic/v1", 1, 7);
 
-        final RpcServiceInterfaceDTO iface = new RpcServiceInterfaceDTO();
+        final RpcServiceInterfaceDTO iface = new RpcServiceInterfaceDTO("DSS Generic");
 
-        iface.setInterfaceName("DSS Generic");
         iface.addVersion(ifaceVersion);
         assertEquals(
                 "RpcServiceInterfaceDTO[DSS Generic [RpcServiceInterfaceVersionDTO[DSS Generic,/rpc/dss-generic/v1,v.1.7]]]",
@@ -50,24 +46,18 @@ public class RpcServiceInterfaceTest extends AssertJUnit
     {
         final int majorVersion = (int) (Math.random() * 10);
         final int minorVersion = (int) (Math.random() * 100);
-        final RpcServiceInterfaceVersionDTO ifaceVersion1 = new RpcServiceInterfaceVersionDTO();
-        ifaceVersion1.setInterfaceName("DSS Generic");
-        ifaceVersion1.setInterfaceUrlSuffix("/rpc/dss-generic/v1");
-        ifaceVersion1.setInterfaceMajorVersion(majorVersion);
-        ifaceVersion1.setInterfaceMinorVersion(minorVersion);
+        final RpcServiceInterfaceVersionDTO ifaceVersion1 =
+                new RpcServiceInterfaceVersionDTO("DSS Generic", "/rpc/dss-generic/v1",
+                        majorVersion, minorVersion);
 
-        final RpcServiceInterfaceVersionDTO ifaceVersion2 = new RpcServiceInterfaceVersionDTO();
-        ifaceVersion2.setInterfaceName("DSS Generic");
-        ifaceVersion2.setInterfaceUrlSuffix("/rpc/dss-generic/v1");
-        ifaceVersion2.setInterfaceMajorVersion(majorVersion);
-        ifaceVersion2.setInterfaceMinorVersion(minorVersion);
+        final RpcServiceInterfaceVersionDTO ifaceVersion2 =
+                new RpcServiceInterfaceVersionDTO("DSS Generic", "/rpc/dss-generic/v1",
+                        majorVersion, minorVersion);
 
-        final RpcServiceInterfaceDTO iface1 = new RpcServiceInterfaceDTO();
-        iface1.setInterfaceName("DSS Generic");
+        final RpcServiceInterfaceDTO iface1 = new RpcServiceInterfaceDTO("DSS Generic");
         iface1.addVersion(ifaceVersion1);
 
-        final RpcServiceInterfaceDTO iface2 = new RpcServiceInterfaceDTO();
-        iface2.setInterfaceName("DSS Generic");
+        final RpcServiceInterfaceDTO iface2 = new RpcServiceInterfaceDTO("DSS Generic");
         iface2.addVersion(ifaceVersion2);
 
         assertTrue(iface1 != iface2);

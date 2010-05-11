@@ -27,20 +27,21 @@ public class RpcServiceInterfaceVersionDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private String interfaceName;
+    private final String interfaceName;
 
-    private String interfaceUrlSuffix;
+    private final String urlSuffix;
 
-    private int interfaceMajorVersion;
+    private final int majorVersion;
 
-    private int interfaceMinorVersion;
+    private final int minorVersion;
 
-    public RpcServiceInterfaceVersionDTO()
+    public RpcServiceInterfaceVersionDTO(String name, String urlSuffix, int majorVersion,
+            int minorVersion)
     {
-        interfaceName = "Unknown";
-        interfaceUrlSuffix = "unknown";
-        interfaceMajorVersion = 0;
-        interfaceMinorVersion = 0;
+        this.interfaceName = name;
+        this.urlSuffix = urlSuffix;
+        this.majorVersion = majorVersion;
+        this.minorVersion = minorVersion;
     }
 
     /**
@@ -51,50 +52,30 @@ public class RpcServiceInterfaceVersionDTO implements Serializable
         return interfaceName;
     }
 
-    public void setInterfaceName(String interfaceName)
-    {
-        this.interfaceName = interfaceName;
-    }
-
     /**
      * The suffix added to the server's URL to produce the URL for this interface. Used by a service
      * factory to create a proxy to the service.
      */
-    public String getInterfaceUrlSuffix()
+    public String getUrlSuffix()
     {
-        return interfaceUrlSuffix;
-    }
-
-    public void setInterfaceUrlSuffix(String interfaceUrlSuffix)
-    {
-        this.interfaceUrlSuffix = interfaceUrlSuffix;
+        return urlSuffix;
     }
 
     /**
      * The major version of the interface. E.g., an interface with version 2.11 has major version 2.
      */
-    public int getInterfaceMajorVersion()
+    public int getMajorVersion()
     {
-        return interfaceMajorVersion;
-    }
-
-    public void setInterfaceMajorVersion(int interfaceMajorVersion)
-    {
-        this.interfaceMajorVersion = interfaceMajorVersion;
+        return majorVersion;
     }
 
     /**
      * The major version of the interface. E.g., an interface with version 2.11 has minor version
      * 11.
      */
-    public int getInterfaceMinorVersion()
+    public int getMinorVersion()
     {
-        return interfaceMinorVersion;
-    }
-
-    public void setInterfaceMinorVersion(int interfaceMinorVersion)
-    {
-        this.interfaceMinorVersion = interfaceMinorVersion;
+        return minorVersion;
     }
 
     @Override
@@ -105,18 +86,18 @@ public class RpcServiceInterfaceVersionDTO implements Serializable
 
         RpcServiceInterfaceVersionDTO other = (RpcServiceInterfaceVersionDTO) obj;
         return getInterfaceName().equals(other.getInterfaceName())
-                && getInterfaceUrlSuffix().equals(other.getInterfaceUrlSuffix())
-                && getInterfaceMajorVersion() == other.getInterfaceMajorVersion()
-                && getInterfaceMinorVersion() == other.getInterfaceMinorVersion();
+                && getUrlSuffix().equals(other.getUrlSuffix())
+                && getMajorVersion() == other.getMajorVersion()
+                && getMinorVersion() == other.getMinorVersion();
     }
 
     @Override
     public int hashCode()
     {
         int hash = getInterfaceName().hashCode();
-        hash = hash * 31 + getInterfaceUrlSuffix().hashCode();
-        hash = hash * 31 + getInterfaceMajorVersion();
-        hash = hash * 31 + getInterfaceMinorVersion();
+        hash = hash * 31 + getUrlSuffix().hashCode();
+        hash = hash * 31 + getMajorVersion();
+        hash = hash * 31 + getMinorVersion();
         return hash;
     }
 
@@ -127,11 +108,11 @@ public class RpcServiceInterfaceVersionDTO implements Serializable
         sb.append("RpcServiceInterfaceVersionDTO[");
         sb.append(getInterfaceName());
         sb.append(",");
-        sb.append(getInterfaceUrlSuffix());
+        sb.append(getUrlSuffix());
         sb.append(",v.");
-        sb.append(getInterfaceMajorVersion());
+        sb.append(getMajorVersion());
         sb.append(".");
-        sb.append(getInterfaceMinorVersion());
+        sb.append(getMinorVersion());
         sb.append("]");
         return sb.toString();
     }

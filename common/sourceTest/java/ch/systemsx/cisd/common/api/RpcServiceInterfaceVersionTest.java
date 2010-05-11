@@ -29,11 +29,8 @@ public class RpcServiceInterfaceVersionTest extends AssertJUnit
     @Test
     public void testToString()
     {
-        final RpcServiceInterfaceVersionDTO ifaceVersion = new RpcServiceInterfaceVersionDTO();
-        ifaceVersion.setInterfaceName("DSS Generic");
-        ifaceVersion.setInterfaceUrlSuffix("/rpc/dss-generic/v1");
-        ifaceVersion.setInterfaceMajorVersion(1);
-        ifaceVersion.setInterfaceMinorVersion(7);
+        final RpcServiceInterfaceVersionDTO ifaceVersion =
+                new RpcServiceInterfaceVersionDTO("DSS Generic", "/rpc/dss-generic/v1", 1, 7);
         assertEquals("RpcServiceInterfaceVersionDTO[DSS Generic,/rpc/dss-generic/v1,v.1.7]",
                 ifaceVersion.toString());
     }
@@ -43,17 +40,13 @@ public class RpcServiceInterfaceVersionTest extends AssertJUnit
     {
         final int majorVersion = (int) (Math.random() * 10);
         final int minorVersion = (int) (Math.random() * 100);
-        final RpcServiceInterfaceVersionDTO ifaceVersion1 = new RpcServiceInterfaceVersionDTO();
-        ifaceVersion1.setInterfaceName("DSS Generic");
-        ifaceVersion1.setInterfaceUrlSuffix("/rpc/dss-generic/v1");
-        ifaceVersion1.setInterfaceMajorVersion(majorVersion);
-        ifaceVersion1.setInterfaceMinorVersion(minorVersion);
+        final RpcServiceInterfaceVersionDTO ifaceVersion1 =
+                new RpcServiceInterfaceVersionDTO("DSS Generic", "/rpc/dss-generic/v1",
+                        majorVersion, minorVersion);
 
-        final RpcServiceInterfaceVersionDTO ifaceVersion2 = new RpcServiceInterfaceVersionDTO();
-        ifaceVersion2.setInterfaceName("DSS Generic");
-        ifaceVersion2.setInterfaceUrlSuffix("/rpc/dss-generic/v1");
-        ifaceVersion2.setInterfaceMajorVersion(majorVersion);
-        ifaceVersion2.setInterfaceMinorVersion(minorVersion);
+        final RpcServiceInterfaceVersionDTO ifaceVersion2 =
+                new RpcServiceInterfaceVersionDTO("DSS Generic", "/rpc/dss-generic/v1",
+                        majorVersion, minorVersion);
 
         assertTrue(ifaceVersion1 != ifaceVersion2);
         assertEquals(ifaceVersion1, ifaceVersion2);

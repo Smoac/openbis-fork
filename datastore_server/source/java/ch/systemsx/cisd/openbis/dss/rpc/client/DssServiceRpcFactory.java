@@ -64,7 +64,7 @@ public class DssServiceRpcFactory implements IDssServiceRpcFactory
             Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
             throws IncompatibleAPIVersionsException
     {
-        String serviceURL = serverURL + ifaceVersion.getInterfaceUrlSuffix();
+        String serviceURL = serverURL + ifaceVersion.getUrlSuffix();
         if (getServerCertificateFromServer)
         {
             new SslCertificateHelper(serviceURL, getConfigDirectory(), "dss").setUpKeyStore();

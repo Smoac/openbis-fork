@@ -20,7 +20,8 @@ import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 
-import ch.systemsx.cisd.openbis.dss.api.v1.client.impl.DssComponent;
+import ch.systemsx.cisd.openbis.dss.api.v1.client.DssComponentFactory;
+import ch.systemsx.cisd.openbis.dss.api.v1.client.IDssComponent;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -32,8 +33,8 @@ public class DssComponentTestClient
     {
         configureLogging();
         System.out.println("Logging in");
-        DssComponent component =
-                DssComponent.tryCreate("test", "foobar", "http://localhost:8888/openbis");
+        IDssComponent component =
+                DssComponentFactory.tryCreate("test", "foobar", "http://localhost:8888/openbis");
         component.getDataSet("20100318094819344-4");
         component.logout();
         System.out.println("Logging out");

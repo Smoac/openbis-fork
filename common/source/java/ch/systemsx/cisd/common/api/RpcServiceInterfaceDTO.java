@@ -28,14 +28,14 @@ public class RpcServiceInterfaceDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private String interfaceName;
+    private final String interfaceName;
 
     private final ArrayList<RpcServiceInterfaceVersionDTO> versions =
             new ArrayList<RpcServiceInterfaceVersionDTO>();
 
-    public RpcServiceInterfaceDTO()
+    public RpcServiceInterfaceDTO(String name)
     {
-        interfaceName = "Unknown";
+        interfaceName = name;
     }
 
     /**
@@ -44,11 +44,6 @@ public class RpcServiceInterfaceDTO implements Serializable
     public String getInterfaceName()
     {
         return interfaceName;
-    }
-
-    public void setInterfaceName(String interfaceName)
-    {
-        this.interfaceName = interfaceName;
     }
 
     public ArrayList<RpcServiceInterfaceVersionDTO> getVersions()

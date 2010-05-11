@@ -20,9 +20,9 @@ import java.io.PrintStream;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
+import ch.systemsx.cisd.openbis.dss.api.v1.client.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.api.v1.client.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.api.v1.client.IDssComponent;
-import ch.systemsx.cisd.openbis.dss.api.v1.client.impl.DssComponent;
 
 /**
  * Superclass for dss command-line client commands.
@@ -82,7 +82,7 @@ abstract class AbstractCommand implements ICommand
     protected IDssComponent login(GlobalArguments arguments)
     {
         IDssComponent component =
-                DssComponent.tryCreate(arguments.getUsername(), arguments.getPassword(), arguments
+                DssComponentFactory.tryCreate(arguments.getUsername(), arguments.getPassword(), arguments
                         .getServerBaseUrl());
         return component;
     }
