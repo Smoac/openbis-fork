@@ -19,19 +19,37 @@ package ch.systemsx.cisd.openbis.plugin.query.server;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DatabaseDefinition
 {
+    private final String key;
+
     private final String label;
+
+    private final String dataSpaceOrNull;
+
+    private final String creatorMinimalRole;
+
     private final DatabaseConfigurationContext configurationContext;
 
-    public DatabaseDefinition(String label, DatabaseConfigurationContext configurationContext)
+    public DatabaseDefinition(DatabaseConfigurationContext configurationContext, String key,
+            String label, String creatorMinimalRole, String dataSpaceOrNull)
     {
+        assert key != null;
+        assert label != null;
+        assert creatorMinimalRole != null;
+        assert configurationContext != null;
+        this.key = key;
         this.label = label;
+        this.dataSpaceOrNull = dataSpaceOrNull;
+        this.creatorMinimalRole = creatorMinimalRole;
         this.configurationContext = configurationContext;
+    }
+
+    public String getKey()
+    {
+        return key;
     }
 
     public String getLabel()
@@ -39,8 +57,19 @@ public class DatabaseDefinition
         return label;
     }
 
+    public String getCreatorMinimalRole()
+    {
+        return creatorMinimalRole;
+    }
+
+    public String tryGetDataSpace()
+    {
+        return dataSpaceOrNull;
+    }
+
     public DatabaseConfigurationContext getConfigurationContext()
     {
         return configurationContext;
     }
+
 }

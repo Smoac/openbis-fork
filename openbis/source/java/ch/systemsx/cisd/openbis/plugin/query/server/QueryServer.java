@@ -30,8 +30,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -57,9 +58,16 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.translator.QueryTranslator;
 @Component(ResourceNames.QUERY_PLUGIN_SERVER)
 public class QueryServer extends AbstractServer<IQueryServer> implements IQueryServer
 {
-    static final String DATABASE_PROPERTIES_PREFIX = "query-database.";
+    /** property with database keys/names separated by delimiter */
+    private static final String DATABASE_KEYS = "query-databases";
 
-    static final String LABEL_PROPERTY_KEY = "label";
+    private static final String LABEL_PROPERTY_KEY = "label";
+
+    private static final String CREATOR_MINIMAL_ROLE_KEY = "creator-minimal-role";
+
+    private static final String DEFAULT_CREATOR_MINIMAL_ROLE = "POWER_USER";
+
+    private static final String DATA_SPACE_KEY = "data-space";
 
     @Resource(name = "propertyConfigurer")
     private ExposablePropertyPaceholderConfigurer configurer;
@@ -221,17 +229,34 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         if (databaseDefinition == null)
         {
             Properties resolvedProps = configurer.getResolvedProps();
-            ExtendedProperties databaseProperties =
-                    ExtendedProperties.getSubset(resolvedProps,
-                            DATABASE_PROPERTIES_PREFIX, true);
-            if (databaseProperties.isEmpty() == false)
+            SectionProperties[] sectionsProperties =
+                    PropertyParametersUtil.extractSectionProperties(resolvedProps, DATABASE_KEYS,
+                            true);
+            DatabaseDefinition[] definitions = new DatabaseDefinition[sectionsProperties.length];
+            for (int i = 0; i < definitions.length; i++)
             {
-                DatabaseConfigurationContext configurationContext =
+                final String databaseKey = sectionsProperties[i].getKey();
+                final Properties databaseProperties = sectionsProperties[i].getProperties();
+
+                final DatabaseConfigurationContext configurationContext =
                         BeanUtils
                                 .createBean(DatabaseConfigurationContext.class, databaseProperties);
-                databaseDefinition =
-                        new DatabaseDefinition(PropertyUtils.getMandatoryProperty(
-                                databaseProperties, LABEL_PROPERTY_KEY), configurationContext);
+                final String label =
+                        PropertyUtils.getMandatoryProperty(databaseProperties, LABEL_PROPERTY_KEY);
+                final String creatorMinimalRole =
+                        PropertyUtils.getProperty(databaseProperties, CREATOR_MINIMAL_ROLE_KEY,
+                                DEFAULT_CREATOR_MINIMAL_ROLE);
+                final String dataSpaceOrNull =
+                        PropertyUtils.getProperty(databaseProperties, DATA_SPACE_KEY);
+
+                definitions[i] =
+                        new DatabaseDefinition(configurationContext, databaseKey, label,
+                                creatorMinimalRole, dataSpaceOrNull);
+            }
+            if (definitions.length > 0)
+            {
+                databaseDefinition = definitions[0];
+                // FIXME add support for multiple DBs
             }
         }
         return databaseDefinition;
