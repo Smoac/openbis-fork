@@ -102,6 +102,7 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         List<MsInjectionSample> samples = loadAllRawDataSamples(session);
         Set<Long> sampleIDs = new HashSet<Long>();
         List<String> dataSetCodes = new ArrayList<String>();
+        Map<String, String> parameterBindings = new HashMap<String, String>();
         for (MsInjectionSample sample : samples)
         {
             if (RAW_DATA_SAMPLE_VALIDATOR.isValid(person, sample))
@@ -111,7 +112,9 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
                 ExternalData latestDataSet = latestDataSets.get(dataSetType);
                 if (latestDataSet != null)
                 {
-                    dataSetCodes.add(latestDataSet.getCode());
+                    String code = latestDataSet.getCode();
+                    dataSetCodes.add(code);
+                    parameterBindings.put(code, sample.getSample().getCode());
                 }
             }
         }
@@ -119,7 +122,6 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         String dataStoreServerCode = findDataStoreServer(dataSetProcessingKey);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        Map<String, String> parameterBindings = new HashMap<String, String>();
         externalDataTable.processDatasets(dataSetProcessingKey, dataStoreServerCode, dataSetCodes,
                 parameterBindings);
     }
