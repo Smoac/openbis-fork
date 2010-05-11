@@ -110,6 +110,8 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
 
                     List<String> dataSetCodes = Arrays.asList("ds-2", "ds-42");
                     HashMap<String, String> parameterBindings = new HashMap<String, String>();
+                    parameterBindings.put("ds-2", "s-2");
+                    parameterBindings.put("ds-42", "s-42");
                     one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2", dataSetCodes,
                             parameterBindings);
                 }
@@ -130,6 +132,7 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
         {
             Sample sample = new Sample();
             sample.setId(id);
+            sample.setCode("s-" + id);
             sample.setIdentifier("S" + id);
             Experiment experiment = new Experiment();
             experiment.setId(id * 10);
