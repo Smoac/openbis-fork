@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.component;
 
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
@@ -40,21 +39,19 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 public interface IDssComponent
 {
     /**
-     * Authenticates the <code>user</code> with given <code>password</code>.
-     * 
-     * @throws AuthorizationFailureException Thrown if the username / password do not authenticate.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
-     */
-    public void login(final String user, final String password)
-            throws AuthorizationFailureException, EnvironmentFailureException;
-
-    /**
      * Checks whether the session is alive.
      * 
      * @throws InvalidSessionException If the session is not alive.
      */
     public void checkSession() throws InvalidSessionException;
+
+    /**
+     * Returns the session token.
+     * 
+     * @return The session token for an authenticated user.
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     */
+    public String getSessionToken() throws IllegalStateException;
 
     /**
      * Get a proxy to the data set designated by the given data set code.

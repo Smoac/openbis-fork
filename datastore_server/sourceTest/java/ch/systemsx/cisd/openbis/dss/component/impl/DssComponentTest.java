@@ -75,7 +75,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         context = new Mockery();
         openBisService = context.mock(IETLLIMSService.class);
         dssServiceFactory = context.mock(IDssServiceRpcFactory.class);
-        dssComponent = new DssComponent(openBisService, dssServiceFactory);
+        dssComponent = new DssComponent(openBisService, dssServiceFactory, null);
         randomDataFile = getFileWithRandomData(1);
     }
 
@@ -111,9 +111,21 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testListDataSetFilesNoLogin() throws IOException
+    {
+        dssComponent = new DssComponent(openBisService, dssServiceFactory, DUMMY_SESSSION_TOKEN);
+        setupExpectationsNoLogin();
+        IDataSetDss dataSetProxy = dssComponent.getDataSet("DummyDataSetCode");
+        FileInfoDssDTO[] fileInfos = dataSetProxy.listFiles("/", true);
+        assertEquals(1, fileInfos.length);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testUnsupportedInterface() throws IOException
     {
-        setupExpectations("Some Server Interface");
+        setupExpectations("Some Server Interface", true);
 
         dssComponent.login("foo", "bar");
         try
@@ -163,10 +175,15 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
     private void setupExpectations() throws IOException
     {
-        setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME);
+        setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, true);
     }
 
-    private void setupExpectations(String serviceName) throws IOException
+    private void setupExpectationsNoLogin() throws IOException
+    {
+        setupExpectations(IDssServiceRpcGeneric.DSS_SERVICE_NAME, false);
+    }
+
+    private void setupExpectations(String serviceName, final boolean needsLogin) throws IOException
     {
         final SessionContextDTO session = getDummySession();
         final ExternalData dataSetExternalData = new ExternalData();
@@ -200,8 +217,11 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 {
                     final String dataSetCode = "DummyDataSetCode";
 
-                    one(openBisService).tryToAuthenticate("foo", "bar");
-                    will(returnValue(session));
+                    if (needsLogin)
+                    {
+                        one(openBisService).tryToAuthenticate("foo", "bar");
+                        will(returnValue(session));
+                    }
                     allowing(openBisService).tryGetDataSet(DUMMY_SESSSION_TOKEN, dataSetCode);
                     will(returnValue(dataSetExternalData));
                     allowing(dssServiceFactory).getSupportedInterfaces(DUMMY_DSS_URL, false);

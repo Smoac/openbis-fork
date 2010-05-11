@@ -81,8 +81,9 @@ abstract class AbstractCommand implements ICommand
      */
     protected IDssComponent login(GlobalArguments arguments)
     {
-        IDssComponent component = new DssComponent(arguments.getServerBaseUrl());
-        component.login(arguments.getUsername(), arguments.getPassword());
+        IDssComponent component =
+                DssComponent.tryCreate(arguments.getUsername(), arguments.getPassword(), arguments
+                        .getServerBaseUrl());
         return component;
     }
 

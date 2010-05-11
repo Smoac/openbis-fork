@@ -60,37 +60,80 @@ public class DssComponent implements IDssComponent
     private AbstractDssComponentState state;
 
     /**
+     * Public factory method for creating a DssComponent with a username and password.
+     * 
+     * @param user The user name
+     * @param password The user's password
+     * @param openBISUrl The URL to openBIS
+     */
+    public static DssComponent tryCreate(String user, String password, String openBISUrl)
+    {
+        DssComponent component = new DssComponent(openBISUrl, null);
+        try
+        {
+            component.login(user, password);
+        } catch (AuthorizationFailureException e)
+        {
+            // User name / Password is incorrect.
+            return null;
+        }
+        return component;
+    }
+
+    /**
+     * Public factory method for creating a DssComponent for a user that has already been
+     * authenticated.
+     * 
+     * @param sessionToken The session token provided by authentication
+     * @param openBISUrl The URL to openBIS
+     */
+    public static DssComponent tryCreate(String sessionToken, String openBISUrl)
+    {
+        DssComponent component = new DssComponent(openBISUrl, sessionToken);
+        return component;
+    }
+
+    /**
      * Create a DSS component that connects to the openBIS instance specified by the URL.
      * <p>
      * The DSS component needs to connect to openBIS to find out which DSS manages a given data set.
      * Once it has a connection to openBIS, it can figure out how to connect to DSS servers itself.
      * 
      * @param openBISURL The url to connect to openBIS
+     * @param sessionTokenOrNull A session token; If null is passed in, then login needs to be
+     *            called.
      */
-    public DssComponent(String openBISURL)
+    private DssComponent(String openBISURL, String sessionTokenOrNull)
     {
         this(HttpInvokerUtils.createServiceStub(IETLLIMSService.class, openBISURL + "/rmi-etl",
-                SERVIER_TIMEOUT_MIN), new DssServiceRpcFactory());
+                SERVIER_TIMEOUT_MIN), new DssServiceRpcFactory(), sessionTokenOrNull);
     }
 
     /**
-     * Internal constructor used for testing.
+     * Internal constructor, also used for testing.
      * 
-     * @param service
+     * @param service A proxy to the openBIS application server.
+     * @param dssServiceFactory A proxy to the DSS server.
+     * @param sessionTokenOrNull A session token, if the user has already logged in, or null
+     *            otherwise.
      */
-    protected DssComponent(IETLLIMSService service, IDssServiceRpcFactory dssServiceFactory)
+    protected DssComponent(IETLLIMSService service, IDssServiceRpcFactory dssServiceFactory,
+            String sessionTokenOrNull)
     {
         this.openBisService = service;
         this.dssServiceFactory = dssServiceFactory;
-        this.state = new UnauthenticatedState(service);
+        if (sessionTokenOrNull == null)
+        {
+            this.state = new UnauthenticatedState(service);
+        } else
+        {
+            this.state = new AuthenticatedState(service, dssServiceFactory, sessionTokenOrNull);
+        }
     }
 
-    public void login(String user, String password) throws AuthorizationFailureException,
-            EnvironmentFailureException
+    public String getSessionToken()
     {
-        // login and transition to the authenticated state
-        state.login(user, password);
-        state = new AuthenticatedState(openBisService, dssServiceFactory, state.getSession());
+        return state.getSessionToken();
     }
 
     public void checkSession() throws InvalidSessionException
@@ -109,6 +152,21 @@ public class DssComponent implements IDssComponent
         // logout and transition to the unauthenticated state
         state.logout();
         state = new UnauthenticatedState(openBisService);
+    }
+
+    /**
+     * Authenticates the <code>user</code> with given <code>password</code>.
+     * 
+     * @throws AuthorizationFailureException Thrown if the username / password do not authenticate.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    void login(String user, String password) throws AuthorizationFailureException,
+            EnvironmentFailureException
+    {
+        // login and transition to the authenticated state
+        state.login(user, password);
+        state = new AuthenticatedState(openBisService, dssServiceFactory, state.getSessionToken());
     }
 }
 
@@ -140,9 +198,19 @@ abstract class AbstractDssComponentState implements IDssComponent
     }
 
     /**
+     * Authenticates the <code>user</code> with given <code>password</code>.
+     * 
+     * @throws AuthorizationFailureException Thrown if the username / password do not authenticate.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    abstract void login(final String user, final String password)
+            throws AuthorizationFailureException, EnvironmentFailureException;
+
+    /**
      * Package visible method used to transfer context information between states.
      */
-    abstract SessionContextDTO getSession();
+    public abstract String getSessionToken();
 }
 
 /**
@@ -161,14 +229,15 @@ class UnauthenticatedState extends AbstractDssComponentState
     }
 
     @Override
-    SessionContextDTO getSession()
+    public String getSessionToken()
     {
         if (sessionOrNull == null)
-            throw new UserFailureException("Please log in");
-        return sessionOrNull;
+            throw new IllegalStateException("Please log in");
+        return sessionOrNull.getSessionToken();
     }
 
-    public void login(String user, String password) throws AuthorizationFailureException,
+    @Override
+    void login(String user, String password) throws AuthorizationFailureException,
             EnvironmentFailureException
     {
         try
@@ -196,7 +265,7 @@ class UnauthenticatedState extends AbstractDssComponentState
  */
 class AuthenticatedState extends AbstractDssComponentState
 {
-    private final SessionContextDTO session;
+    private final String sessionToken;
 
     private final IDssServiceRpcFactory dssServiceFactory;
 
@@ -204,20 +273,15 @@ class AuthenticatedState extends AbstractDssComponentState
      * @param service
      */
     AuthenticatedState(IETLLIMSService service, IDssServiceRpcFactory dssServiceFactory,
-            SessionContextDTO session)
+            String sessionToken)
     {
         super(service);
         this.dssServiceFactory = dssServiceFactory;
-        this.session = session;
+        this.sessionToken = sessionToken;
     }
 
     @Override
-    SessionContextDTO getSession()
-    {
-        return session;
-    }
-
-    public void login(String user, String password) throws AuthorizationFailureException
+    void login(String user, String password) throws AuthorizationFailureException
     {
         throw new UserFailureException("Already logged in.");
     }
@@ -324,8 +388,9 @@ class AuthenticatedState extends AbstractDssComponentState
                 + IDssServiceRpcGeneric.DSS_SERVICE_NAME + " interface.");
     }
 
-    private String getSessionToken()
+    @Override
+    public String getSessionToken()
     {
-        return session.getSessionToken();
+        return sessionToken;
     }
 }
