@@ -98,6 +98,14 @@ public class AbstractFileTableReportingPluginTest extends AssertJUnit
 
     private DatasetDescription createDataSetDescription()
     {
-        return new DatasetDescription("Cod", "Loc", "Sam", "Spa", "Pro", "Exp", null, null, "Ins");
+        DatasetDescription description = new DatasetDescription();
+        description.setDatasetCode("Cod");
+        description.setDataSetLocation("Loc");
+        description.setSampleCode("Sam");
+        description.setGroupCode("Spa");
+        description.setProjectCode("Pro");
+        description.setExperimentCode("Exp");
+        description.setDatabaseInstanceCode("Ins");
+        return description;
     }
 }

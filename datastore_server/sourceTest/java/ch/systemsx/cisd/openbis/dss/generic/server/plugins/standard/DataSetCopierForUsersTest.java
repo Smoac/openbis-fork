@@ -98,7 +98,14 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         properties = new Properties();
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
-        ds = new DatasetDescription("ds1", DS_LOCATION, "s", "g", "p", "e", null, null, "i");
+        ds = new DatasetDescription();
+        ds.setDatasetCode("ds1");
+        ds.setDataSetLocation(DS_LOCATION);
+        ds.setSampleCode("s");
+        ds.setGroupCode("g");
+        ds.setProjectCode("p");
+        ds.setExperimentCode("e");
+        ds.setDatabaseInstanceCode("i");
         File ds1Folder = new File(storeRoot, DS_LOCATION + "/original");
         ds1Folder.mkdirs();
         dsData = new File(ds1Folder, "data.txt");

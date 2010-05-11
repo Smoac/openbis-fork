@@ -100,8 +100,15 @@ public class IterativeTableModelBuilderTest
 
     private DatasetDescription createDatasetDescription()
     {
-        return new DatasetDescription("code", "location", "sampleCode", "groupCode", "projCode",
-                "expCode", null, null, "instance");
+        DatasetDescription description = new DatasetDescription();
+        description.setDatasetCode("code");
+        description.setDataSetLocation("location");
+        description.setSampleCode("sampleCode");
+        description.setGroupCode("groupCode");
+        description.setProjectCode("projCode");
+        description.setExperimentCode("expCode");
+        description.setDatabaseInstanceCode("instance");
+        return description;
     }
 
     @Test

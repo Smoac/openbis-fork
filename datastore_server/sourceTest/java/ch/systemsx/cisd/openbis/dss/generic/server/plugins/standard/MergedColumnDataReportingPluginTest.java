@@ -95,7 +95,9 @@ public class MergedColumnDataReportingPluginTest extends AssertJUnit
 
     private DatasetDescription createDatasetDescription(String location)
     {
-        return new DatasetDescription("", location, "", "", "", "", null, null, "");
+        DatasetDescription description = new DatasetDescription();
+        description.setDataSetLocation(location);
+        return description;
     }
 
 }

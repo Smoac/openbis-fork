@@ -140,8 +140,15 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 
     private static List<DatasetDescription> createDatasetDescriptions()
     {
-        return Arrays.asList(new DatasetDescription(".", "3123123123-123", "sampleCode",
-                "groupCode", "projCode", "expCode", null, null, "instance"));
+        DatasetDescription description = new DatasetDescription();
+        description.setDatasetCode(".");
+        description.setDataSetLocation("3123123123-123");
+        description.setSampleCode("sampleCode");
+        description.setGroupCode("groupCode");
+        description.setProjectCode("projCode");
+        description.setExperimentCode("expCode");
+        description.setDatabaseInstanceCode("instance");
+        return Arrays.asList(description);
     }
 
     private void putPluginProperties(Properties props, String pluginId, String pluginLabel,

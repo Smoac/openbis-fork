@@ -107,26 +107,39 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         properties = new Properties();
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
-        ds1 = new DatasetDescription("ds1", DS1_LOCATION, "s", "g", "p", "e", null, null, "i");
+        ds1 = createDataSetDescription("ds1", DS1_LOCATION);
         File ds1Folder = new File(storeRoot, DS1_LOCATION + "/original");
         ds1Folder.mkdirs();
         ds1Data = new File(ds1Folder, "data.txt");
         ds1Data.createNewFile();
-        ds2 = new DatasetDescription("ds2", DS2_LOCATION, "s", "g", "p", "e", null, null, "i");
+        ds2 = createDataSetDescription("ds2", DS2_LOCATION);
         File ds2Folder = new File(storeRoot, DS2_LOCATION + "/original");
         ds2Folder.mkdirs();
         ds2Data = new File(ds2Folder, "images");
         ds2Data.mkdirs();
-        ds3 = new DatasetDescription("ds3", DS3_LOCATION, "s", "g", "p", "e", null, null, "i");
+        ds3 = createDataSetDescription("ds3", DS3_LOCATION);
         File ds3Folder = new File(storeRoot, DS3_LOCATION + "/original");
         ds3Folder.mkdirs();
         ds3Data = new File(ds3Folder, "existing");
         ds3Data.createNewFile();
-        ds4 = new DatasetDescription("ds4", DS4_LOCATION, "s", "g", "p", "e", null, null, "i");
+        ds4 = createDataSetDescription("ds4", DS4_LOCATION);
         File ds4Folder = new File(storeRoot, DS4_LOCATION + "/original");
         ds4Folder.mkdirs();
         ds4Data = new File(ds4Folder, "existing");
         ds4Data.mkdirs();
+    }
+    
+    private DatasetDescription createDataSetDescription(String dataSetCode, String location)
+    {
+        DatasetDescription description = new DatasetDescription();
+        description.setDatasetCode(dataSetCode);
+        description.setDataSetLocation(location);
+        description.setDatabaseInstanceCode("i");
+        description.setGroupCode("g");
+        description.setProjectCode("p");
+        description.setExperimentCode("e");
+        description.setSampleCode("s");
+        return description;
     }
 
     @AfterMethod
