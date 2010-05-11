@@ -24,7 +24,6 @@ import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
@@ -44,6 +43,21 @@ public class PreprocessingExecutor
 
     private final static Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, PreprocessingExecutor.class);
+    
+    private final static PreprocessingExecutor DUMMY = new PreprocessingExecutor(null, 0, 0L)
+    {
+        @Override
+        public boolean execute(String filePath)
+        {
+            return true;
+        }
+
+        @Override
+        public boolean executeOnce(String filePath)
+        {
+            return true;
+        }
+    };
 
     /**
      * A path to a script which should be called from command line for every dataset batch before it
@@ -69,8 +83,9 @@ public class PreprocessingExecutor
                     millisToSleepOnFailure);
         } else
         {
-            throw EnvironmentFailureException.fromTemplate("Property '%s' is not set!",
-                    PREPROCESSING_SCRIPT_PATH);
+            operationLog.info("No preprocessing script found, skipping preprocessing.");
+            // Return a dummy that always return true;
+            return DUMMY;
         }
     }
 
