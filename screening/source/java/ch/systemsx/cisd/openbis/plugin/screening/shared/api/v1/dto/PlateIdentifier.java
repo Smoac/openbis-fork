@@ -11,7 +11,7 @@ public class PlateIdentifier implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private String plateCode, spaceCodeOrNull;
+    private final String plateCode, spaceCodeOrNull;
 
     public PlateIdentifier(String plateCode, String spaceCodeOrNull)
     {
