@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.rpc.shared;
+package ch.systemsx.cisd.openbis.dss.api.v1.shared;
 
 import java.io.InputStream;
 

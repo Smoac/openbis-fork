@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component.impl;
+package ch.systemsx.cisd.openbis.dss.component.v1.impl;
 
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
+
+import ch.systemsx.cisd.openbis.dss.component.v1.impl.DssComponent;
 
 /**
  * @author Chandrasekhar Ramakrishnan

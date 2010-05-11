@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component;
+package ch.systemsx.cisd.openbis.dss.component.v1;
 
-import ch.systemsx.cisd.openbis.dss.component.impl.DssComponent;
+import ch.systemsx.cisd.openbis.dss.component.v1.impl.DssComponent;
 
 /**
  * A class that creates DssComponents.

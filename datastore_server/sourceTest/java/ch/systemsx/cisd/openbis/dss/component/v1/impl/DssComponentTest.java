@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component.impl;
+package ch.systemsx.cisd.openbis.dss.component.v1.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,11 +33,12 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
-import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssBuilder;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.dss.component.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.component.v1.impl.DssComponent;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssBuilder;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;

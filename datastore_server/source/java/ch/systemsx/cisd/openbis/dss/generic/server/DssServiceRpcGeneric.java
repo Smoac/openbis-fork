@@ -23,10 +23,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssBuilder;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssBuilder;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 
 /**
  * Implementation of the generic RPC interface.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component.impl;
+package ch.systemsx.cisd.openbis.dss.component.v1.impl;
 
 import java.io.InputStream;
 import java.util.List;
@@ -29,12 +29,12 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.dss.component.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.component.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.rpc.client.DssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;

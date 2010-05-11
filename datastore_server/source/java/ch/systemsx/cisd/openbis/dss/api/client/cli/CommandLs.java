@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
+package ch.systemsx.cisd.openbis.dss.api.client.cli;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.component.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.component.v1.IDssComponent;
 
 /**
  * Comand that lists files in the data set.

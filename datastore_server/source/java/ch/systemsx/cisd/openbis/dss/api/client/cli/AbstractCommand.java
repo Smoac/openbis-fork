@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
+package ch.systemsx.cisd.openbis.dss.api.client.cli;
 
 import java.io.PrintStream;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
-import ch.systemsx.cisd.openbis.dss.component.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.component.IDssComponent;
-import ch.systemsx.cisd.openbis.dss.component.impl.DssComponent;
+import ch.systemsx.cisd.openbis.dss.component.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.component.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.component.v1.impl.DssComponent;
 
 /**
  * Superclass for dss command-line client commands.

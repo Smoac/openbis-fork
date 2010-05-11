@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.component;
+package ch.systemsx.cisd.openbis.dss.component.v1;
 
 import java.io.InputStream;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.openbis.dss.rpc.shared.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
 
 /**
  * The representation of a Data Set managed by a DSS server. It is safe to use instances in multiple

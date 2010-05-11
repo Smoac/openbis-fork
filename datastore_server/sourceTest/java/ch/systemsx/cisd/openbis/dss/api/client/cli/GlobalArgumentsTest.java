@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
+package ch.systemsx.cisd.openbis.dss.api.client.cli;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
+import ch.systemsx.cisd.openbis.dss.api.client.cli.GlobalArguments;
 
 /**
  * @author Chandrasekhar Ramakrishnan

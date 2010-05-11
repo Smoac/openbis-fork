@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.rpc.client.cli;
+package ch.systemsx.cisd.openbis.dss.api.client.cli;
 
 import java.net.UnknownHostException;
 import java.util.Arrays;
