@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
  * 
  * @author Tomasz Pylak
  */
-public class ScreeningOpenbisServiceFacade
+public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFacade
 {
     private static final String DSS_SCREENING_API = "/rmi-datastore-server-screening-api-v1/";
 
@@ -48,7 +48,7 @@ public class ScreeningOpenbisServiceFacade
      * 
      * @return null if the user could not be authenticated.
      */
-    public static ScreeningOpenbisServiceFacade tryCreate(String userId, String userPassword,
+    public static IScreeningOpenbisServiceFacade tryCreate(String userId, String userPassword,
             String serverUrl)
     {
         IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
@@ -57,6 +57,19 @@ public class ScreeningOpenbisServiceFacade
         {
             return null;
         }
+        return new ScreeningOpenbisServiceFacade(openbisServer, sessionToken);
+    }
+
+    /**
+     * Creates a service facade which communicates with the openBIS server at the specified URL for
+     * an authenticated user.
+     * 
+     * @param sessionToken The session token for the authenticated user
+     * @param serverUrl The URL for the openBIS application server
+     */
+    public static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl)
+    {
+        IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
         return new ScreeningOpenbisServiceFacade(openbisServer, sessionToken);
     }
 
@@ -77,6 +90,14 @@ public class ScreeningOpenbisServiceFacade
         this.openbisScreeningServer = screeningServer;
         this.dssScreeningServerCache = new HashMap<String, IDssServiceRpcScreening>();
         this.sessionToken = sessionToken;
+    }
+
+    /**
+     * Return the session token for this authenticated user.
+     */
+    public String getSessionToken()
+    {
+        return sessionToken;
     }
 
     /** Closes connection with the server. After calling this method this facade cannot be used. */
@@ -192,7 +213,8 @@ public class ScreeningOpenbisServiceFacade
         InputStream stream = dssServer.loadImages(sessionToken, imageReferences);
         try
         {
-            ConcatenatedFileOutputStreamWriter imagesWriter = new ConcatenatedFileOutputStreamWriter(stream);
+            ConcatenatedFileOutputStreamWriter imagesWriter =
+                    new ConcatenatedFileOutputStreamWriter(stream);
             for (PlateImageReference imageRef : imageReferences)
             {
                 OutputStream output = outputStreamProvider.getOutputStream(imageRef);

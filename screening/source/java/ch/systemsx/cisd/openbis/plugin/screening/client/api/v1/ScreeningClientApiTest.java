@@ -66,7 +66,7 @@ public class ScreeningClientApiTest
 
         System.out.println(String.format("Connecting to the server '%s' as a user '%s.", serverUrl,
                 userId));
-        ScreeningOpenbisServiceFacade facade =
+        IScreeningOpenbisServiceFacade facade =
                 ScreeningOpenbisServiceFacade.tryCreate(userId, userPassword, serverUrl);
         if (facade == null)
         {
@@ -104,7 +104,7 @@ public class ScreeningClientApiTest
         facade.logout();
     }
 
-    private static IDatasetIdentifier getDatasetIdentifier(ScreeningOpenbisServiceFacade facade,
+    private static IDatasetIdentifier getDatasetIdentifier(IScreeningOpenbisServiceFacade facade,
             String datasetCode)
     {
         IDatasetIdentifier datasetIdentifier =
@@ -112,7 +112,7 @@ public class ScreeningClientApiTest
         return datasetIdentifier;
     }
 
-    private static void loadImages(ScreeningOpenbisServiceFacade facade,
+    private static void loadImages(IScreeningOpenbisServiceFacade facade,
             IDatasetIdentifier datasetIdentifier) throws FileNotFoundException, IOException
     {
         File dir = new File(datasetIdentifier.getDatasetCode());
@@ -148,7 +148,7 @@ public class ScreeningClientApiTest
      * 
      * @throws IOException when reading images from the server or writing them to the files fails
      */
-    private static void loadImages(ScreeningOpenbisServiceFacade facade,
+    private static void loadImages(IScreeningOpenbisServiceFacade facade,
             List<PlateImageReference> imageReferences, List<File> imageOutputFiles)
             throws IOException
     {
