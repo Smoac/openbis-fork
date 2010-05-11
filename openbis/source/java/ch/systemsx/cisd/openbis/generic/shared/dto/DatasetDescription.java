@@ -29,37 +29,34 @@ public class DatasetDescription implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private final String datasetCode;
+    private String datasetTypeCode;
+    
+    private String datasetCode;
 
-    private final String dataSetLocation;
+    private String dataSetLocation;
 
-    private final String sampleCode;
+    private String sampleCode;
 
-    private final String groupCode;
+    private String groupCode;
 
-    private final String projectCode;
+    private String projectCode;
 
-    private final String instanceCode;
+    private String instanceCode;
 
-    private final String experimentCode;
+    private String experimentCode;
 
-    private final String mainDataSetPattern;
+    private String mainDataSetPattern;
 
-    private final String mainDataSetPath;
+    private String mainDataSetPath;
 
-    public DatasetDescription(String datasetCode, String dataSetLocation, String sampleCode,
-            String groupCode, String projectCode, String experimentCode, String mainDataSetPattern,
-            String mainDataSetPath, String instanceCode)
+    public void setDatasetTypeCode(String datasetTypeCode)
     {
-        this.datasetCode = datasetCode;
-        this.dataSetLocation = dataSetLocation;
-        this.sampleCode = sampleCode;
-        this.groupCode = groupCode;
-        this.projectCode = projectCode;
-        this.experimentCode = experimentCode;
-        this.mainDataSetPattern = mainDataSetPattern;
-        this.mainDataSetPath = mainDataSetPath;
-        this.instanceCode = instanceCode;
+        this.datasetTypeCode = datasetTypeCode;
+    }
+
+    public String getDatasetTypeCode()
+    {
+        return datasetTypeCode;
     }
 
     public String getDataSetLocation()
@@ -67,11 +64,26 @@ public class DatasetDescription implements Serializable
         return dataSetLocation;
     }
 
+    public void setDataSetLocation(String dataSetLocation)
+    {
+        this.dataSetLocation = dataSetLocation;
+    }
+    
+    public String getInstanceCode()
+    {
+        return instanceCode;
+    }
+
     public String getDatasetCode()
     {
         return datasetCode;
     }
 
+    public void setDatasetCode(String datasetCode)
+    {
+        this.datasetCode = datasetCode;
+    }
+    
     /**
      * NOTE: may be NULL
      */
@@ -80,6 +92,11 @@ public class DatasetDescription implements Serializable
         return mainDataSetPattern;
     }
 
+    public void setMainDataSetPattern(String mainDataSetPattern)
+    {
+        this.mainDataSetPattern = mainDataSetPattern;
+    }
+    
     /**
      * NOTE: may be NULL
      */
@@ -88,6 +105,11 @@ public class DatasetDescription implements Serializable
         return mainDataSetPath;
     }
 
+    public void setMainDataSetPath(String mainDataSetPath)
+    {
+        this.mainDataSetPath = mainDataSetPath;
+    }
+    
     /**
      * NOTE: may be NULL
      */
@@ -96,26 +118,51 @@ public class DatasetDescription implements Serializable
         return sampleCode;
     }
 
+    public void setSampleCode(String sampleCode)
+    {
+        this.sampleCode = sampleCode;
+    }
+    
     public String getGroupCode()
     {
         return groupCode;
     }
 
+    public void setGroupCode(String groupCode)
+    {
+        this.groupCode = groupCode;
+    }
+    
     public String getProjectCode()
     {
         return projectCode;
     }
 
+    public void setProjectCode(String projectCode)
+    {
+        this.projectCode = projectCode;
+    }
+    
     public String getDatabaseInstanceCode()
     {
         return instanceCode;
     }
 
+    public void setDatabaseInstanceCode(String instanceCode)
+    {
+        this.instanceCode = instanceCode;
+    }
+    
     public String getExperimentCode()
     {
         return experimentCode;
     }
 
+    public void setExperimentCode(String experimentCode)
+    {
+        this.experimentCode = experimentCode;
+    }
+    
     @Override
     public String toString()
     {
@@ -123,3 +170,5 @@ public class DatasetDescription implements Serializable
     }
 
 }
+
+

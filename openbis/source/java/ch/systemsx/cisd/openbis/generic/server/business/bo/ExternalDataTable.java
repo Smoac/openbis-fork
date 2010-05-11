@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -471,20 +473,24 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     {
         assert dataSet != null;
 
-        String datasetCode = dataSet.getCode();
-        String location = dataSet.getLocation();
+        DatasetDescription description = new DatasetDescription();
+        description.setDatasetCode(dataSet.getCode());
+        description.setDataSetLocation(dataSet.getLocation());
         SamplePE sample = dataSet.tryGetSample();
-        String sampleCode = sample == null ? null : sample.getCode();
+        description.setSampleCode(sample == null ? null : sample.getCode());
         ExperimentPE experiment = dataSet.getExperiment();
+        description.setExperimentCode(experiment.getCode());
         ProjectPE project = experiment.getProject();
-        String groupCode = project.getGroup().getCode();
-        String projectCode = project.getCode();
-        String experimentCode = experiment.getCode();
-        String instanceCode = project.getGroup().getDatabaseInstance().getCode();
+        description.setProjectCode(project.getCode());
+        GroupPE group = project.getGroup();
+        description.setGroupCode(group.getCode());
+        description.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
+        DataSetTypePE dataSetType = dataSet.getDataSetType();
+        description.setMainDataSetPath(dataSetType.getMainDataSetPath());
+        description.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
+        description.setDatasetTypeCode(dataSetType.getCode());
 
-        return new DatasetDescription(datasetCode, location, sampleCode, groupCode, projectCode,
-                experimentCode, dataSet.getDataSetType().getMainDataSetPattern(), dataSet
-                        .getDataSetType().getMainDataSetPath(), instanceCode);
+        return description;
     }
 
     private DataStorePE findDataStore(String datastoreCode)
