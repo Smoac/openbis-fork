@@ -38,11 +38,9 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
 
-    @Private
     public static final String DESTINATION_KEY = "destination";
 
-    @Private
-    static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
+    public static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
 
     @Private
     static final String ALREADY_EXIST_MSG = "already exist";
@@ -50,12 +48,11 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     @Private
     static final String COPYING_FAILED_MSG = "copying failed";
 
-    static final String RSYNC_EXEC = "rsync";
+    public static final String RSYNC_EXEC = "rsync";
 
-    static final String SSH_EXEC = "ssh";
+    public static final String SSH_EXEC = "ssh";
 
-    @Private
-    static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
+    public static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
 
     public DataSetCopier(Properties properties, File storeRoot)
     {

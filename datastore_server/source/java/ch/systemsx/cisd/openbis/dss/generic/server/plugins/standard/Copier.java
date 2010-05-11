@@ -43,14 +43,12 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
     private static final long serialVersionUID = 1L;
 
     private final static Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, AbstractDropboxProcessingPlugin.class);
+            LogFactory.getLogger(LogCategory.OPERATION, Copier.class);
 
     private final File rsyncExecutable;
 
     private final File sshExecutable;
 
-    private final Properties properties;
-    
     private final String hostFile;
 
     private final String rsyncPasswordFile;
@@ -63,12 +61,11 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
     public Copier(Properties properties, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
-        this.properties = properties;
         this.pathCopierFactory = pathCopierFactory;
         this.sshCommandExecutorFactory = sshCommandExecutorFactory;
         rsyncPasswordFile = properties.getProperty(DataSetCopier.RSYNC_PASSWORD_FILE_KEY);
-        rsyncExecutable = getExecutable(DataSetCopier.RSYNC_EXEC);
-        sshExecutable = getExecutable(DataSetCopier.SSH_EXEC);
+        rsyncExecutable = getExecutable(properties, DataSetCopier.RSYNC_EXEC);
+        sshExecutable = getExecutable(properties, DataSetCopier.SSH_EXEC);
         hostFile = PropertyUtils.getMandatoryProperty(properties, DataSetCopier.DESTINATION_KEY);
     }
     
@@ -104,7 +101,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         } else if (destinationExists.isError())
         {
             operationLog.error("Could not test destination file/directory '" + destinationFile
-                    + "' existance" + (host != null ? " on host '" + host + "'" : "") + ": "
+                    + "' existence" + (host != null ? " on host '" + host + "'" : "") + ": "
                     + destinationExists.tryGetMessage());
             return Status.createError(DataSetCopier.COPYING_FAILED_MSG);
         }
@@ -141,7 +138,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
     {
     }
 
-    private File getExecutable(String executable)
+    public static File getExecutable(Properties properties, String executable)
     {
         String executableProperty = properties.getProperty(executable + "-executable");
         File executableFile;
