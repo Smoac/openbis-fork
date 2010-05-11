@@ -32,8 +32,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 
 /**
+ * A client side facade of openBIS and Datastore Server API.
  * 
- *
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IScreeningOpenbisServiceFacade
