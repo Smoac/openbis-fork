@@ -24,11 +24,16 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
  * Facade for openBIS query service.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IQueryApiFacade
 {
+    /**
+     * Return the session token for the logged-in user.
+     */
+    public String getSessionToken();
+
     /**
      * Lists all queries the user has access rights.
      */
@@ -43,5 +48,5 @@ public interface IQueryApiFacade
      * Logs current user out.
      */
     public void logout();
-    
+
 }

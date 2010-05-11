@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
  * Factory of {@link IQueryApiFacade}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class FacadeFactory
@@ -42,6 +42,17 @@ public class FacadeFactory
         {
             throw new IllegalArgumentException("User " + userID + " couldn't be authenticated");
         }
+        return new QueryApiFacade(service, sessionToken);
+    }
+
+    /**
+     * Creates a facade for specified url and sessionToken.
+     */
+    public static IQueryApiFacade create(String serverURL, String sessionToken)
+    {
+        IQueryApiServer service =
+                HttpInvokerUtils.createServiceStub(IQueryApiServer.class, serverURL
+                        + ResourceNames.QUERY_PLUGIN_SERVER_URL, SERVER_TIMEOUT_MIN);
         return new QueryApiFacade(service, sessionToken);
     }
 }

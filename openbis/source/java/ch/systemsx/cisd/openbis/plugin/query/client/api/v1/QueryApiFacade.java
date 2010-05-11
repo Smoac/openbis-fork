@@ -24,31 +24,35 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class QueryApiFacade implements IQueryApiFacade
 {
     private final IQueryApiServer service;
+
     private final String sessionToken;
-    
+
     QueryApiFacade(IQueryApiServer service, String sessionToken)
     {
         this.service = service;
         this.sessionToken = sessionToken;
     }
-    
+
+    public String getSessionToken()
+    {
+        return sessionToken;
+    }
+
     public void logout()
     {
         service.logout(sessionToken);
     }
-    
+
     public List<QueryDescription> listQueries()
     {
         return service.listQueries(sessionToken);
     }
-    
+
     public QueryTableModel executeQuery(long queryID, Map<String, String> parameterBindings)
     {
         return service.executeQuery(sessionToken, queryID, parameterBindings);
