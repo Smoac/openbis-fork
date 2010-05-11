@@ -33,6 +33,7 @@ var query = {
   query_edit_title: "Edit Query Definition",
   query_parameters_binding_dialog_title: "Enter Query Parameters",
   query_type: "Query Type",
+  query_database: "Database",
   
     	    	
   // LAST LINE: KEEP IT AT THE END

@@ -119,7 +119,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         try
         {
             List<QueryPE> queries = getDAOFactory().getQueryDAO().listQueries();
-            return QueryTranslator.translate(queries);
+            return QueryTranslator.translate(queries, getDatabaseDefinitions());
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
@@ -193,6 +193,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         checkSession(sessionToken);
         try
         {
+            // FIXME
             return queryDatabaseWithKey("1", sqlQuery, bindings);
         } catch (DataAccessException ex)
         {
@@ -228,8 +229,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         IDAO result = daos.get(dbKey);
         if (result == null)
         {
-            definitions.get(dbKey);
-            DatabaseDefinition definition = definitions.get(dbKey);
+            DatabaseDefinition definition = getDatabaseDefinitions().get(dbKey);
             if (definition == null)
             {
                 throw new UnsupportedOperationException("Undefined query database '" + dbKey + "'");
@@ -244,16 +244,21 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     {
         if (databaseDefinition == null)
         {
-            if (definitions == null)
+            if (getDatabaseDefinitions().size() > 0)
             {
-                initDatabaseDefinitions();
-            }
-            if (definitions.size() > 0)
-            {
-                databaseDefinition = definitions.values().iterator().next();
+                databaseDefinition = getDatabaseDefinitions().values().iterator().next();
             }
         }
         return databaseDefinition;
+    }
+
+    private Map<String, DatabaseDefinition> getDatabaseDefinitions()
+    {
+        if (definitions == null)
+        {
+            initDatabaseDefinitions();
+        }
+        return definitions;
     }
 
     private void initDatabaseDefinitions()

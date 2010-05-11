@@ -20,10 +20,12 @@ import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator;
+import ch.systemsx.cisd.openbis.plugin.query.server.DatabaseDefinition;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 
 /**
@@ -39,17 +41,19 @@ public final class QueryTranslator
         // Can not be instantiated.
     }
 
-    public final static List<QueryExpression> translate(final List<QueryPE> queries)
+    public final static List<QueryExpression> translate(final List<QueryPE> queries,
+            Map<String, DatabaseDefinition> definitions)
     {
         final List<QueryExpression> result = new ArrayList<QueryExpression>();
         for (final QueryPE query : queries)
         {
-            result.add(QueryTranslator.translate(query));
+            result.add(QueryTranslator.translate(query, definitions
+                    .get(query.getQueryDatabaseKey()).getLabel()));
         }
         return result;
     }
 
-    public final static QueryExpression translate(final QueryPE original)
+    public final static QueryExpression translate(final QueryPE original, final String databaseLabel)
     {
         if (original == null)
         {
@@ -57,11 +61,11 @@ public final class QueryTranslator
         }
         final QueryExpression result = new QueryExpression();
         result.setName(escapeHtml(original.getName()));
+        result.setQueryDatabaseLabel(databaseLabel);
         result.setQueryType(original.getQueryType());
         result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
 
         GridCustomExpressionTranslator.translateExpression(original, result);
         return result;
     }
-
 }

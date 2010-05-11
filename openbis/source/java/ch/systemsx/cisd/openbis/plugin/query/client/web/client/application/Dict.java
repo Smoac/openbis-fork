@@ -50,6 +50,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String QUERY_TYPE = "query_type";
 
+    public static final String QUERY_DATABASE = "query_database";
+
     private Dict()
     {
         // Can not be instantiated.

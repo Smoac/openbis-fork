@@ -32,6 +32,8 @@ public class QueryExpression extends AbstractExpressionWithParameters implements
 
     private QueryType queryType;
 
+    private String queryDatabaseLabel;
+
     public QueryExpression()
     {
     }
@@ -49,6 +51,16 @@ public class QueryExpression extends AbstractExpressionWithParameters implements
     public QueryType getQueryType()
     {
         return queryType;
+    }
+
+    public String getQueryDatabaseLabel()
+    {
+        return queryDatabaseLabel;
+    }
+
+    public void setQueryDatabaseLabel(String queryDatabaseLabel)
+    {
+        this.queryDatabaseLabel = queryDatabaseLabel;
     }
 
 }
