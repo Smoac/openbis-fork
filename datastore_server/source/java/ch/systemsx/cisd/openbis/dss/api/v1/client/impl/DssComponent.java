@@ -22,6 +22,7 @@ import java.util.List;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
+import ch.systemsx.cisd.common.api.IRpcServiceFactory;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
@@ -33,8 +34,6 @@ import ch.systemsx.cisd.openbis.dss.api.v1.client.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.api.v1.client.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.dss.rpc.client.DssServiceRpcFactory;
-import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -55,7 +54,7 @@ public class DssComponent implements IDssComponent
 
     private final IETLLIMSService openBisService;
 
-    private final IDssServiceRpcFactory dssServiceFactory;
+    private final IRpcServiceFactory dssServiceFactory;
 
     private AbstractDssComponentState state;
 
@@ -117,7 +116,7 @@ public class DssComponent implements IDssComponent
      * @param sessionTokenOrNull A session token, if the user has already logged in, or null
      *            otherwise.
      */
-    protected DssComponent(IETLLIMSService service, IDssServiceRpcFactory dssServiceFactory,
+    protected DssComponent(IETLLIMSService service, IRpcServiceFactory dssServiceFactory,
             String sessionTokenOrNull)
     {
         this.openBisService = service;
@@ -267,12 +266,12 @@ class AuthenticatedState extends AbstractDssComponentState
 {
     private final String sessionToken;
 
-    private final IDssServiceRpcFactory dssServiceFactory;
+    private final IRpcServiceFactory dssServiceFactory;
 
     /**
      * @param service
      */
-    AuthenticatedState(IETLLIMSService service, IDssServiceRpcFactory dssServiceFactory,
+    AuthenticatedState(IETLLIMSService service, IRpcServiceFactory dssServiceFactory,
             String sessionToken)
     {
         super(service);

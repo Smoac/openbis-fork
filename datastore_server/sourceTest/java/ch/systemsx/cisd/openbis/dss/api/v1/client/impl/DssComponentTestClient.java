@@ -21,7 +21,9 @@ import java.util.Properties;
 import org.apache.log4j.PropertyConfigurator;
 
 import ch.systemsx.cisd.openbis.dss.api.v1.client.DssComponentFactory;
+import ch.systemsx.cisd.openbis.dss.api.v1.client.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.api.v1.client.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -35,7 +37,12 @@ public class DssComponentTestClient
         System.out.println("Logging in");
         IDssComponent component =
                 DssComponentFactory.tryCreate("test", "foobar", "http://localhost:8888/openbis");
-        component.getDataSet("20100318094819344-4");
+        IDataSetDss dataSet = component.getDataSet("20100318094819344-4");
+        FileInfoDssDTO fileInfos[] = dataSet.listFiles("/", true);
+        for (FileInfoDssDTO fileInfo : fileInfos)
+        {
+            System.out.println(fileInfo);
+        }
         component.logout();
         System.out.println("Logging out");
     }

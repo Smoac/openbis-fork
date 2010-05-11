@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.api.IRpcServiceFactory;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.openbis.dss.api.v1.client.IDataSetDss;
@@ -38,7 +39,6 @@ import ch.systemsx.cisd.openbis.dss.api.v1.client.impl.DssComponent;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.dss.rpc.client.IDssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -53,7 +53,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
     private IETLLIMSService openBisService;
 
-    private IDssServiceRpcFactory dssServiceFactory;
+    private IRpcServiceFactory dssServiceFactory;
 
     private DssComponent dssComponent;
 
@@ -75,7 +75,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         super.setUp();
         context = new Mockery();
         openBisService = context.mock(IETLLIMSService.class);
-        dssServiceFactory = context.mock(IDssServiceRpcFactory.class);
+        dssServiceFactory = context.mock(IRpcServiceFactory.class);
         dssComponent = new DssComponent(openBisService, dssServiceFactory, null);
         randomDataFile = getFileWithRandomData(1);
     }
