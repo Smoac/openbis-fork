@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.server;
 
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
  * @author Franz-Josef Elmer
@@ -31,9 +30,13 @@ public class DatabaseDefinition
 
     private final String creatorMinimalRole;
 
-    private final DatabaseConfigurationContext configurationContext;
+    // private final DataSource dataSource;
 
-    public DatabaseDefinition(DatabaseConfigurationContext configurationContext, String key,
+    private final SimpleDatabaseConfigurationContext configurationContext;
+
+    // private final DatabaseConfigurationContext configurationContext;
+
+    public DatabaseDefinition(SimpleDatabaseConfigurationContext configurationContext, String key,
             String label, String creatorMinimalRole, String dataSpaceOrNull)
     {
         assert key != null;
@@ -67,7 +70,7 @@ public class DatabaseDefinition
         return dataSpaceOrNull;
     }
 
-    public DatabaseConfigurationContext getConfigurationContext()
+    public SimpleDatabaseConfigurationContext getConfigurationContext()
     {
         return configurationContext;
     }

@@ -20,7 +20,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.pool.impl.GenericObjectPool;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jdbc.support.lob.LobHandler;
 
@@ -36,47 +35,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  */
 public class DatabaseConfigurationContext implements DisposableBean
 {
-    private static final class BasicDataSourceFactory implements IDataSourceFactory
-    {
-
-        /** @see GenericObjectPool#DEFAULT_MAX_ACTIVE */
-        private final int DEFAULT_MAX_ACTIVE = 20;
-
-        /** @see GenericObjectPool#DEFAULT_MAX_IDLE */
-        private final int DEFAULT_MAX_IDLE = DEFAULT_MAX_ACTIVE;
-
-        private int maxIdle = DEFAULT_MAX_IDLE;
-
-        private int maxActive = DEFAULT_MAX_ACTIVE;
-
-        //
-        // IDataSourceFactory
-        //
-
-        public final DataSource createDataSource(final String driver, final String url,
-                final String owner, final String password)
-        {
-            final BasicDataSource dataSource = new BasicDataSource();
-            dataSource.setDriverClassName(driver);
-            dataSource.setUrl(url);
-            dataSource.setUsername(owner);
-            dataSource.setPassword(password);
-            dataSource.setMaxIdle(maxIdle);
-            dataSource.setMaxActive(maxActive);
-            return dataSource;
-        }
-
-        public void setMaxIdle(int maxIdle)
-        {
-            this.maxIdle = maxIdle;
-        }
-
-        public void setMaxActive(int maxActive)
-        {
-            this.maxActive = maxActive;
-        }
-    }
-
     private ISequenceNameMapper sequenceNameMapper;
 
     private boolean sequenceUpdateNeeded;

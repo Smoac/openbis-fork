@@ -29,11 +29,9 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -240,9 +238,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
                 final String databaseKey = sectionsProperties[i].getKey();
                 final Properties databaseProperties = sectionsProperties[i].getProperties();
 
-                final DatabaseConfigurationContext configurationContext =
-                        BeanUtils
-                                .createBean(DatabaseConfigurationContext.class, databaseProperties);
+                final SimpleDatabaseConfigurationContext configurationContext =
+                        new SimpleDatabaseConfigurationContext(databaseProperties);
                 final String label =
                         PropertyUtils.getMandatoryProperty(databaseProperties, LABEL_PROPERTY_KEY);
                 final String creatorMinimalRole =
