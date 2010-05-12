@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
 import java.io.InputStream;
 import java.util.List;
 
+import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
@@ -31,7 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
  * 
  * @author Tomasz Pylak
  */
-public interface IDssServiceRpcScreening
+public interface IDssServiceRpcScreening extends IRpcService
 {
     /**
      * For a given set of feature vector data sets provide the list of all available features. This

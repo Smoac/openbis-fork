@@ -169,4 +169,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         logAccess(sessionToken, "getDatasetIdentifiers", "datasets(%s)", datasetCodes);
         return null;
     }
+
+    public int getMajorVersion()
+    {
+        return 1;
+    }
+
+    public int getMinorVersion()
+    {
+        return 0;
+    }
 }

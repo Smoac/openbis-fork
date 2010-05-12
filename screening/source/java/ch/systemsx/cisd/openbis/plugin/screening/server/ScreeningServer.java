@@ -232,4 +232,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             return null;
         }
     }
+
+    public int getMajorVersion()
+    {
+        return 1;
+    }
+
+    public int getMinorVersion()
+    {
+        return 0;
+    }
 }

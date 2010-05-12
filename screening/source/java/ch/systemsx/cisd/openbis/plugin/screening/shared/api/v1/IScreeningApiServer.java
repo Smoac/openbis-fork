@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
@@ -39,7 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
  * 
  * @author Tomasz Pylak
  */
-public interface IScreeningApiServer
+public interface IScreeningApiServer extends IRpcService
 {
     /**
      * Authenticates the user with a given password.
