@@ -14,7 +14,7 @@ CREATE DOMAIN DESCRIPTION AS VARCHAR(200);
 CREATE DOMAIN FILE_PATH as VARCHAR(1000);
 
 // TODO
-CREATE DOMAIN COLOR_COMPONENT AS (RED, GREEN, BLUE);
+#CREATE DOMAIN COLOR_COMPONENT AS (RED, GREEN, BLUE);
 
 /* ---------------------------------------------------------------------- */
 /* Tables                                                                 */
@@ -109,7 +109,7 @@ CREATE TABLE IMAGES (
    
     PATH	FILE_PATH NOT NULL,
     PAGE	INTEGER,
-    COLOR	COLOR_COMPONENT,
+    #COLOR	COLOR_COMPONENT,
     
     CHANNEL_STACK_ID  TECH_ID NOT NULL,
     CHANNEL_ID  TECH_ID NOT NULL,
@@ -125,12 +125,12 @@ CREATE TABLE IMAGES (
 /* ---------------------------------------------------------------------- */ 
 
 CREATE TABLE FEATURE_DEFS (
-    ID BIGSERIAL  NOT NULL,
+    ID BIGSERIAL  NOT NULL
     // TODO
 );
 
 CREATE TABLE FEATURE_VALUES (
-    ID BIGSERIAL  NOT NULL,
+    ID BIGSERIAL  NOT NULL
 		// TODO
 );
 
