@@ -9,7 +9,7 @@ var query = {
 	query: "Query",
 	sql_query: "SQL Query",
 	
-	module_menu_title: "Queries",
+	query_module_menu_title: "Queries",
 	
 	query_database_menu_title: "Queries",
 	query_execute: "Execute",

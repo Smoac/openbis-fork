@@ -65,7 +65,7 @@ public class QueryModule implements IModule
     public String getName()
     {
         return viewContext
-                .getMessage(ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.MODULE_MENU_TITLE);
+                .getMessage(ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.QUERY_MODULE_MENU_TITLE);
     }
 
     public void initialize(AsyncCallback<Void> callback)
@@ -128,7 +128,7 @@ public class QueryModule implements IModule
         DisposableSectionPanel panel =
                 new DisposableSectionPanel(
                         viewContext
-                                .getMessage(ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.MODULE_MENU_TITLE),
+                                .getMessage(ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.QUERY_MODULE_MENU_TITLE),
                         queryModuleContext)
                     {
                         @Override

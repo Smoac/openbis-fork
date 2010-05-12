@@ -24,7 +24,7 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application;
  */
 public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict
 {
-    public static final String MODULE_MENU_TITLE = "module_menu_title";
+    public static final String QUERY_MODULE_MENU_TITLE = "query_module_menu_title";
 
     public static final String QUERY_DATABASE_MENU_TITLE = "query_database_menu_title";
 
