@@ -347,7 +347,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSetsByExperimentID(EXPERIMENT_ID);
+                    one(service).listDataSetsBySampleID(SAMPLE_ID, false);
                     ExternalData ds1 = createDataSet("RAW_DATA", "raw1", 11);
                     ExternalData ds2 = createDataSet("MZXML_DATA", "mzxml1", 13);
                     ExternalData ds3 = createDataSet("RAW_DATA", "raw2", 12);

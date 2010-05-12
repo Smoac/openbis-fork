@@ -93,9 +93,9 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         info.setSampleCode(PropertyUtils.getMandatoryProperty(sampleProperties, SAMPLE_CODE_KEY));
         SampleIdentifier sampleIdentifier = info.getSampleIdentifier();
         ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(sampleProperties);
-        long experimentID = getOrCreateExperiment(experimentIdentifier);
+        getOrCreateExperiment(experimentIdentifier);
         info.setExperimentIdentifier(experimentIdentifier);
-        registerOrUpdateSample(sampleIdentifier, experimentIdentifier, sampleProperties);
+        long sampleID = registerOrUpdateSample(sampleIdentifier, experimentIdentifier, sampleProperties);
         
         Properties dataSetProperties =
                 Util.loadPropertiesFile(incomingDataSetPath, DATA_SET_PROPERTIES_FILE);
@@ -107,7 +107,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         setDataSetPropertiesFor(info, dataSetProperties, dataSetTypeCode);
         if (parentTypeOrNull != null)
         {
-            List<ExternalData> dataSets = service.listDataSetsByExperimentID(experimentID);
+            List<ExternalData> dataSets = service.listDataSetsBySampleID(sampleID, false);
             ExternalData youngestDataSet = null;
             for (ExternalData dataSet : dataSets)
             {
@@ -128,7 +128,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         return info;
     }
 
-    private void registerOrUpdateSample(SampleIdentifier sampleIdentifier,
+    private long registerOrUpdateSample(SampleIdentifier sampleIdentifier,
             ExperimentIdentifier experimentIdentifier, Properties properties)
     {
         SampleType sampleType = service.getSampleType(SAMPLE_TYPE_CODE);
@@ -141,7 +141,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             newSample.setIdentifier(sampleIdentifier.toString());
             IEntityProperty[] sampleProperties = Util.getAndCheckProperties(properties, sampleType);
             newSample.setProperties(sampleProperties);
-            service.registerSample(newSample, properties.getProperty(USER_KEY));
+            return service.registerSample(newSample, properties.getProperty(USER_KEY));
         } else
         {
             TechId sampleID = new TechId(sample.getId());
@@ -151,6 +151,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             Date version = sample.getModificationDate();
             service.updateSample(new SampleUpdatesDTO(sampleID, propertiesList,
                     experimentIdentifier, emptySet, version, sampleIdentifier, null, null));
+            return sample.getId();
         }
     }
 
