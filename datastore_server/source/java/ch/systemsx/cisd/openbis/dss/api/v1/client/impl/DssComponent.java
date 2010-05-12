@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.api.v1.client.impl;
 
 import java.io.InputStream;
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
@@ -31,10 +31,11 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.api.v1.client.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.api.v1.client.IDssComponent;
-import ch.systemsx.cisd.openbis.dss.api.v1.client.impl.OpenBisServiceFactory.ILimsServiceStubFactory;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
+import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory.ILimsServiceStubFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -394,7 +395,7 @@ class AuthenticatedState extends AbstractDssComponentState
     private IDssServiceRpcGeneric basicGetDssServiceForUrl(String serverURL)
     {
         IDssServiceRpcGeneric dssService = null;
-        List<RpcServiceInterfaceDTO> ifaces =
+        Collection<RpcServiceInterfaceDTO> ifaces =
                 dssServiceFactory.getSupportedInterfaces(serverURL, false);
 
         for (RpcServiceInterfaceDTO iface : ifaces)

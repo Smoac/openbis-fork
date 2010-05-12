@@ -67,12 +67,11 @@
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric" />
     </bean>
     
+    <bean id="rpc-name-server" class="ch.systemsx.cisd.common.api.server.RpcServiceNameServer" />
+    
     <bean id="data-store-rpc-name-server"
-        class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
-        <property name="service">
-            <bean class="ch.systemsx.cisd.common.api.server.RpcServiceNameServer">
-            </bean>
-        </property>
+        class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+        <property name="service" ref="rpc-name-server" />
         <property name="serviceInterface" value="ch.systemsx.cisd.common.api.IRpcServiceNameServer" />
     </bean>
     

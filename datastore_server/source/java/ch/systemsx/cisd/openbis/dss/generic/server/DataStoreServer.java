@@ -36,6 +36,7 @@ import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -43,7 +44,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
-import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
+import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -53,7 +54,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.openbis.dss.api.v1.server.DssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters.PluginServlet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -67,11 +67,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 public class DataStoreServer
 {
-
-    /** Part of the URL of the DSS RPC service. */
-    public static final String DATA_STORE_SERVER_RPC_SERVICE_NAME =
-            DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/rpc";
-
     private static final class DataStoreServlet extends HttpServlet
     {
         private static final long serialVersionUID = 1L;
@@ -218,34 +213,31 @@ public class DataStoreServer
         service.setStoreDirectory(applicationContext.getConfigParameters().getStorePath());
 
         // Export the spring bean to the world by wrapping it in an HttpInvokerServlet
-        String rpcV1Path = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME + "/v1";
+        String rpcV1Suffix = "/rmi-dss-api-v1";
+        String rpcV1Path = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME + rpcV1Suffix;
         context.addServlet(new ServletHolder(new HttpInvokerServlet(v1ServiceExporter, rpcV1Path)),
                 rpcV1Path);
 
         // Inform the name server about the services I export
         // N.b. In the future, this could be done using spring instead of programmatically
-        StreamSupportingHttpInvokerServiceExporter nameServiceExporter =
-                ServiceProvider.getDssServiceRpcNameServer();
+        HttpInvokerServiceExporter nameServiceExporter =
+                ServiceProvider.getRpcNameServiceExporter();
         RpcServiceNameServer rpcNameServer =
                 (RpcServiceNameServer) nameServiceExporter.getService();
 
-        RpcServiceInterfaceDTO dssInterface =
-                new RpcServiceInterfaceDTO(IDssServiceRpcGeneric.DSS_SERVICE_NAME);
-
         RpcServiceInterfaceVersionDTO v1Interface =
-                new RpcServiceInterfaceVersionDTO(DssServiceRpcGeneric.DSS_SERVICE_NAME, "/rpc/v1",
-                        1, 0);
-        dssInterface.addVersion(v1Interface);
-        rpcNameServer.addSupportedInterface(dssInterface);
+                new RpcServiceInterfaceVersionDTO(DssServiceRpcGeneric.DSS_SERVICE_NAME,
+                        rpcV1Suffix, 1, 0);
+        rpcNameServer.addSupportedInterfaceVersion(v1Interface);
 
-        String nameServerPath = "/" + DATA_STORE_SERVER_RPC_SERVICE_NAME;
-        RpcServiceInterfaceDTO nameServerInterface = new RpcServiceInterfaceDTO("NameServer");
-
+        String nameServerPath =
+                "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME
+                        + IRpcServiceNameServer.PREFFERED_URL_SUFFIX;
         RpcServiceInterfaceVersionDTO nameServerVersion =
-                new RpcServiceInterfaceVersionDTO("NameServer", "/rpc", 1, 0);
-        nameServerInterface.addVersion(nameServerVersion);
+                new RpcServiceInterfaceVersionDTO(IRpcServiceNameServer.PREFFERED_SERVICE_NAME,
+                        IRpcServiceNameServer.PREFFERED_URL_SUFFIX, 1, 0);
 
-        rpcNameServer.addSupportedInterface(nameServerInterface);
+        rpcNameServer.addSupportedInterfaceVersion(nameServerVersion);
 
         context.addServlet(new ServletHolder(new HttpInvokerServlet(nameServiceExporter,
                 nameServerPath)), nameServerPath);

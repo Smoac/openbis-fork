@@ -22,7 +22,6 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
-
 /**
  * Provider of remote service onto openBIS.
  * 
@@ -47,9 +46,9 @@ public class ServiceProvider
         return ((HttpInvokerServiceExporter) APPLICATION_CONTEXT.getBean("data-store-server"));
     }
 
-    public static StreamSupportingHttpInvokerServiceExporter getDssServiceRpcNameServer()
+    public static HttpInvokerServiceExporter getRpcNameServiceExporter()
     {
-        return ((StreamSupportingHttpInvokerServiceExporter) APPLICATION_CONTEXT
+        return ((HttpInvokerServiceExporter) APPLICATION_CONTEXT
                 .getBean("data-store-rpc-name-server"));
     }
 
