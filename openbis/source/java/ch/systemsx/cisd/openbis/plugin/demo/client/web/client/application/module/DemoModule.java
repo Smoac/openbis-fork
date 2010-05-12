@@ -16,14 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.module;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.Dict;
 
@@ -62,5 +66,11 @@ public class DemoModule implements IModule
     public void initialize(AsyncCallback<Void> callback)
     {
         callback.onSuccess(null);
+    }
+
+    public Collection<? extends DisposableSectionPanel> getExperimentSections(
+            IEntityInformationHolderWithIdentifier entity)
+    {
+        return new ArrayList<DisposableSectionPanel>();
     }
 }

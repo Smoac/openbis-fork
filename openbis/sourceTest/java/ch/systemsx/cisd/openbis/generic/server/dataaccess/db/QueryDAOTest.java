@@ -47,7 +47,7 @@ public class QueryDAOTest extends AbstractDAOTest
 
         queryDAO.createQuery(query);
 
-        List<QueryPE> entities = queryDAO.listQueries();
+        List<QueryPE> entities = queryDAO.listQueries(QueryType.GENERIC);
         assertEquals(1, entities.size());
         assertEquals(query.getName(), entities.get(0).getName());
         assertEquals(query.getDescription(), entities.get(0).getDescription());

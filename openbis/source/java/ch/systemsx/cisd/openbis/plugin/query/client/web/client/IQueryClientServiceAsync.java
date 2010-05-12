@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -60,8 +61,8 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
     public void listQueries(IResultSetConfig<String, QueryExpression> resultSetConfig,
             AsyncCallback<ResultSet<QueryExpression>> callback);
 
-    /** @see IQueryClientService#listQueries() */
-    public void listQueries(AsyncCallback<List<QueryExpression>> callback)
+    /** @see IQueryClientService#listQueries(QueryType) */
+    public void listQueries(QueryType queryType, AsyncCallback<List<QueryExpression>> callback)
             throws UserFailureException;
 
     /** @see IQueryClientService#prepareExportQueries(TableExportCriteria) */

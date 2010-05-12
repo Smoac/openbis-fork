@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -86,7 +87,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
      * @deprecated don't use it directly - use getter instead
      */
     @Deprecated
-    private Map<String, IDAO> daos = new HashMap<String, IDAO>();
+    private final Map<String, IDAO> daos = new HashMap<String, IDAO>();
 
     /**
      * map from dbKey to DatabaseDefinition
@@ -129,13 +130,13 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         return results;
     }
 
-    public List<QueryExpression> listQueries(String sessionToken)
+    public List<QueryExpression> listQueries(String sessionToken, QueryType queryType)
     {
         checkSession(sessionToken);
 
         try
         {
-            List<QueryPE> queries = getDAOFactory().getQueryDAO().listQueries();
+            List<QueryPE> queries = getDAOFactory().getQueryDAO().listQueries(queryType);
             return QueryTranslator.translate(queries, getDatabaseDefinitions());
         } catch (DataAccessException ex)
         {

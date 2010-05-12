@@ -16,18 +16,22 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabActionMenuItemDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TabActionMenuItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
@@ -36,6 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNet
 public class PhosphoNetXModule implements IModule
 {
     public static final String ID = GenericConstants.ID_PREFIX + "-phosphonetx-";
+
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
 
     public PhosphoNetXModule(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
@@ -75,6 +80,12 @@ public class PhosphoNetXModule implements IModule
     public void initialize(AsyncCallback<Void> callback)
     {
         callback.onSuccess(null);
+    }
+
+    public Collection<? extends DisposableSectionPanel> getExperimentSections(
+            IEntityInformationHolderWithIdentifier entity)
+    {
+        return new ArrayList<DisposableSectionPanel>();
     }
 
 }

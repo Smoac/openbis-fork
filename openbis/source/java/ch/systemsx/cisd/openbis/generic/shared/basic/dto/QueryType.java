@@ -25,6 +25,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public enum QueryType implements IsSerializable
 {
+
     GENERIC,
 
     EXPERIMENT,
@@ -34,4 +35,7 @@ public enum QueryType implements IsSerializable
     DATA_SET,
 
     MATERIAL;
+
+    public static final QueryType UNSPECIFIED = null;
+
 }

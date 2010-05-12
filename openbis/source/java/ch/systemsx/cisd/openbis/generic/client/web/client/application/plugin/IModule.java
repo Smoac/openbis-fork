@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 
 /**
  * Plugin that does not depend on entity kind and type. All methods except
@@ -37,9 +41,9 @@ public interface IModule
      */
     void initialize(AsyncCallback<Void> callback);
 
-	/**
+    /**
      * Returns user friendly name of the module.
-	 */
+     */
     String getName();
 
     /**
@@ -47,4 +51,11 @@ public interface IModule
      * should be empty if this module isn't applicable.
      */
     List<? extends MenuItem> getMenuItems();
+
+    /**
+     * Returns a collection of {@link DisposableSectionPanel}s that will be added to experiment
+     * details view.
+     */
+    Collection<? extends DisposableSectionPanel> getExperimentSections(
+            IEntityInformationHolderWithIdentifier experiment);
 }

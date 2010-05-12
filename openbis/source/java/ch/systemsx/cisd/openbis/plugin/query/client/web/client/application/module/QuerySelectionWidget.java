@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
@@ -47,12 +48,15 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
 
     private final String initialQueryNameOrNull;
 
+    private final QueryType queryType;
+
     public QuerySelectionWidget(final IViewContext<IQueryClientServiceAsync> viewContext,
-            String initialQueryNameOrNull)
+            String initialQueryNameOrNull, QueryType queryType)
     {
         super(viewContext, SUFFIX, Dict.QUERY, ModelDataPropertyNames.NAME, Dict.QUERY, "queries");
         this.viewContext = viewContext;
         this.initialQueryNameOrNull = initialQueryNameOrNull;
+        this.queryType = queryType;
         setCallbackId(createCallbackId());
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.NAME,
                 ModelDataPropertyNames.TOOLTIP));
@@ -72,7 +76,7 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
     @Override
     protected void loadData(AbstractAsyncCallback<List<QueryExpression>> callback)
     {
-        viewContext.getService().listQueries(new ListQueriesCallback(viewContext));
+        viewContext.getService().listQueries(queryType, new ListQueriesCallback(viewContext));
         callback.ignore();
     }
 

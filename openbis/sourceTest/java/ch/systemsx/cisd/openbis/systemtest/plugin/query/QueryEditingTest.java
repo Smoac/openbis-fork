@@ -57,7 +57,7 @@ public class QueryEditingTest extends QuerySystemTestCase
     @AfterMethod
     public void tearDown()
     {
-        List<QueryExpression> queries = queryClientService.listQueries();
+        List<QueryExpression> queries = queryClientService.listQueries(QueryType.GENERIC);
         List<TechId> ids = new ArrayList<TechId>();
         for (QueryExpression queryExpression : queries)
         {
@@ -86,14 +86,14 @@ public class QueryEditingTest extends QuerySystemTestCase
     public void testRegisterEditAndDeleteQueryDefinition()
     {
         logIntoCommonClientService();
-        assertEquals(0, queryClientService.listQueries().size());
+        assertEquals(0, queryClientService.listQueries(QueryType.GENERIC).size());
 
         NewQuery query =
                 createQuery("query1", "select * from sample_types", true, QueryType.GENERIC,
                         DATABASE);
         queryClientService.registerQuery(query);
 
-        List<QueryExpression> queries = queryClientService.listQueries();
+        List<QueryExpression> queries = queryClientService.listQueries(QueryType.GENERIC);
         assertEquals(1, queries.size());
         assertQuery(query, queries.get(0));
         QueryExpression actualQuery = queries.get(0);
@@ -105,7 +105,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         actualQuery.setPublic(false);
         queryClientService.updateQuery(actualQuery);
 
-        queries = queryClientService.listQueries();
+        queries = queryClientService.listQueries(QueryType.GENERIC);
         assertEquals(1, queries.size());
         assertEquals(actualQuery.getName(), queries.get(0).getName());
         assertEquals(actualQuery.getDescription(), queries.get(0).getDescription());
@@ -114,7 +114,7 @@ public class QueryEditingTest extends QuerySystemTestCase
 
         queryClientService.deleteQueries(Arrays.asList(new TechId(queries.get(0).getId())));
 
-        assertEquals(0, queryClientService.listQueries().size());
+        assertEquals(0, queryClientService.listQueries(QueryType.GENERIC).size());
     }
 
     @Test
@@ -152,7 +152,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         queryClientService.registerQuery(query1);
         queryClientService.registerQuery(query2);
 
-        List<QueryExpression> queries = queryClientService.listQueries();
+        List<QueryExpression> queries = queryClientService.listQueries(QueryType.GENERIC);
         assertEquals(2, queries.size());
         Collections.sort(queries, new Comparator<QueryExpression>()
             {
@@ -200,7 +200,7 @@ public class QueryEditingTest extends QuerySystemTestCase
                         QueryType.GENERIC, DATABASE);
         queryClientService.registerQuery(query);
 
-        List<QueryExpression> queries = queryClientService.listQueries();
+        List<QueryExpression> queries = queryClientService.listQueries(QueryType.GENERIC);
         assertEquals(1, queries.size());
         QueryExpression actualQuery = queries.get(0);
         QueryParameterBindings bindings = new QueryParameterBindings();

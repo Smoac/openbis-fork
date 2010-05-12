@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
@@ -146,13 +147,13 @@ public class QueryClientService extends AbstractClientService implements IQueryC
                 .tryGetMessage());
     }
 
-    public List<QueryExpression> listQueries()
+    public List<QueryExpression> listQueries(QueryType queryType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            return queryServer.listQueries(sessionToken);
+            return queryServer.listQueries(sessionToken, queryType);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -169,7 +170,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
                 {
                     public List<QueryExpression> getOriginalData() throws UserFailureException
                     {
-                        return queryServer.listQueries(getSessionToken());
+                        return queryServer.listQueries(getSessionToken(), QueryType.UNSPECIFIED);
                     }
                 });
         } catch (final UserFailureException e)

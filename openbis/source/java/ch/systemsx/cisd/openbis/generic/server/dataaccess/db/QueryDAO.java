@@ -27,12 +27,11 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class QueryDAO extends AbstractGenericEntityDAO<QueryPE> implements IQueryDAO
@@ -40,16 +39,20 @@ public class QueryDAO extends AbstractGenericEntityDAO<QueryPE> implements IQuer
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, QueryDAO.class);
-    
+
     public QueryDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
     {
         super(sessionFactory, databaseInstance, QueryPE.class);
     }
-    
-    public List<QueryPE> listQueries()
+
+    public List<QueryPE> listQueries(QueryType queryType)
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
+        if (queryType != QueryType.UNSPECIFIED)
+        {
+            criteria.add(Restrictions.eq("queryType", queryType));
+        }
         final List<QueryPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
@@ -67,5 +70,5 @@ public class QueryDAO extends AbstractGenericEntityDAO<QueryPE> implements IQuer
 
         persist(query);
     }
- 
+
 }

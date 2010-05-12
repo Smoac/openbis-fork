@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -47,8 +48,6 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component(ResourceNames.QUERY_PLUGIN_SERVER)
@@ -56,7 +55,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
 {
     @Resource(name = ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames.QUERY_PLUGIN_SERVER)
     private IQueryServer queryServer;
-    
+
     public IQueryApiServer createLogger(IInvocationLoggerContext context)
     {
         return new QueryApiLogger(sessionManager, context);
@@ -67,11 +66,11 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         SessionContextDTO session = tryToAuthenticate(userID, userPassword);
         return session == null ? null : session.getSessionToken();
     }
-    
+
     public List<QueryDescription> listQueries(String sessionToken)
     {
         List<QueryDescription> result = new ArrayList<QueryDescription>();
-        List<QueryExpression> queries = queryServer.listQueries(sessionToken);
+        List<QueryExpression> queries = queryServer.listQueries(sessionToken, QueryType.GENERIC);
         for (QueryExpression queryExpression : queries)
         {
             QueryDescription queryDescription = new QueryDescription();
@@ -127,5 +126,5 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         }
         return tableModel;
     }
-    
+
 }

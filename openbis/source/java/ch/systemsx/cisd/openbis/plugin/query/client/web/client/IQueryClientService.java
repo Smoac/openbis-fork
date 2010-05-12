@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -52,7 +53,7 @@ public interface IQueryClientService extends IClientService
             String sqlQuery, QueryParameterBindings bindingsOrNull) throws UserFailureException;
 
     /** Returns a list of all the canned custom queries created so far. */
-    public List<QueryExpression> listQueries() throws UserFailureException;
+    public List<QueryExpression> listQueries(QueryType queryType) throws UserFailureException;
 
     /**
      * Returns all queries for the specified configuration.

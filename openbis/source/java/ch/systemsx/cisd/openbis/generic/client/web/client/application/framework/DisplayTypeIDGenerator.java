@@ -83,6 +83,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     DATA_SET_DATA_SECTION("data-set-data-section"),
 
+    MODULE_SECTION("module-section"),
+
     ;
 
     private final String genericNameOrPrefix;
@@ -101,4 +103,5 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
     {
         return genericNameOrPrefix + suffix;
     }
+
 }

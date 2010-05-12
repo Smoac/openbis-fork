@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
@@ -67,17 +68,20 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
     // <name, value> where name starts with additional INITIAL_PARAMETER_NAME_PREFIX
     private final Map<String, String> initialParameterValues;
 
-    public RunCannedQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
+    public RunCannedQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext,
+            QueryType queryType)
     {
-        this(viewContext, null, new HashMap<String, String>(0));
+        this(viewContext, null, new HashMap<String, String>(0), queryType);
     }
 
     public RunCannedQueryToolbar(IViewContext<IQueryClientServiceAsync> viewContext,
-            String initialQueryNameOrNull, Map<String, String> initialParameterValues)
+            String initialQueryNameOrNull, Map<String, String> initialParameterValues,
+            QueryType queryType)
     {
         super(viewContext);
         this.initialParameterValues = initialParameterValues;
-        querySelectionWidget = new QuerySelectionWidget(viewContext, initialQueryNameOrNull);
+        querySelectionWidget =
+                new QuerySelectionWidget(viewContext, initialQueryNameOrNull, queryType);
         parameterContainer = new ButtonGroup(MAX_PARAMETER_COLUMNS);
         parameterFields = new HashSet<ParameterField>();
         resetButton = new Button(viewContext.getMessage(Dict.BUTTON_RESET));

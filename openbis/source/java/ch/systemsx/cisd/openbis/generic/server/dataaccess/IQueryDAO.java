@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IQueryDAO extends IGenericDAO<QueryPE>
@@ -30,8 +29,10 @@ public interface IQueryDAO extends IGenericDAO<QueryPE>
 
     /**
      * Lists all queries defined in the home database instance.
+     * 
+     * @param queryType
      */
-    public List<QueryPE> listQueries();
+    public List<QueryPE> listQueries(QueryType queryType);
 
     /**
      * Creates a query in home database instance.

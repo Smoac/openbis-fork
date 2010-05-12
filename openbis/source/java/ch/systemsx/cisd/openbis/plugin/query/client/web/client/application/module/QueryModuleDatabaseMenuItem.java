@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabActionMenuItemDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TabActionMenuItemFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.QueryModule;
@@ -58,7 +59,8 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)
             {
-                return QueryViewer.create(viewContext, new RunCannedQueryToolbar(viewContext));
+                return QueryViewer.create(viewContext, new RunCannedQueryToolbar(viewContext,
+                        QueryType.GENERIC));
             }
         },
         RUN_CUSTOM_QUERY("Run Custom SQL Query")

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -42,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -135,7 +138,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         viewContext.getService().getExperimentInfo(new TechId(experimentId), callback);
     }
 
-    private void layoutExperimentDetailView(Experiment experiment)
+    private void layoutExperimentDetailView(final Experiment experiment)
     {
         int logId = viewContext.log("layoutExperimentDetailView");
         updateOriginalData(experiment);
@@ -157,7 +160,8 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
                 public void execute()
                 {
                     remove(loadingLabel);
-                    GenericExperimentViewer.this.rightPanelSectionsOrNull = createRightPanel();
+                    GenericExperimentViewer.this.rightPanelSectionsOrNull =
+                            createRightPanel(experiment);
                     SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
                     add(rightPanel, createRightBorderLayoutData());
                     layout();
@@ -174,7 +178,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         {
             ((BorderLayout) getLayout()).collapse(com.extjs.gxt.ui.client.Style.LayoutRegion.WEST);
         }
-        
+
         // Add the listeners after configuring the panel, so as not to cause confusion
         addLeftPanelCollapseExpandListeners(displayIdSuffix);
     }
@@ -228,12 +232,15 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return GENERIC_EXPERIMENT_VIEWER + "-" + suffix;
     }
 
-    private List<DisposableSectionPanel> createRightPanel()
+    private List<DisposableSectionPanel> createRightPanel(
+            IEntityInformationHolderWithIdentifier experiment)
     {
         final String displayIdSuffix = getDisplayIdSuffix(experimentType.getCode());
         List<DisposableSectionPanel> allPanels = new ArrayList<DisposableSectionPanel>();
 
         allPanels.addAll(createAdditionalBrowserSectionPanels(displayIdSuffix));
+
+        allPanels.addAll(createModuleSectionPanels(displayIdSuffix, experiment));
 
         final ExperimentSamplesSection sampleSection =
                 new ExperimentSamplesSection(viewContext, experimentType, experimentId);
@@ -249,6 +256,24 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         allPanels.add(attachmentsSection);
 
         return allPanels;
+    }
+
+    private Collection<? extends DisposableSectionPanel> createModuleSectionPanels(
+            String displayIdSuffix, IEntityInformationHolderWithIdentifier experiment)
+    {
+        ArrayList<DisposableSectionPanel> result = new ArrayList<DisposableSectionPanel>();
+        for (IModule module : viewContext.getClientPluginFactoryProvider().getModules())
+        {
+            Collection<? extends DisposableSectionPanel> sections =
+                    module.getExperimentSections(experiment);
+            for (DisposableSectionPanel panel : sections)
+            {
+                panel.setDisplayID(DisplayTypeIDGenerator.MODULE_SECTION, module.getName() + "-"
+                        + displayIdSuffix);
+            }
+            result.addAll(sections);
+        }
+        return result;
     }
 
     private DisposableSectionPanel createExperimentDataSetSection()

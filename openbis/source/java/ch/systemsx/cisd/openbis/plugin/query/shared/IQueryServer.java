@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.DeleteQueryPredicate;
@@ -66,7 +67,7 @@ public interface IQueryServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
-    public List<QueryExpression> listQueries(String sessionToken);
+    public List<QueryExpression> listQueries(String sessionToken, QueryType queryType);
 
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)

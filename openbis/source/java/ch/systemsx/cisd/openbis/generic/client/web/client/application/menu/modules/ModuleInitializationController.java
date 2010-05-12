@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IMo
  * @author Piotr Buczek
  */
 public class ModuleInitializationController
-{
+{// FIXME 2010-05-12, IA: handle initialization for detail viewers
     public static void initialize(List<IModule> modules, ModulesMenu modulesMenu)
     {
         ModuleInitializationController controller =

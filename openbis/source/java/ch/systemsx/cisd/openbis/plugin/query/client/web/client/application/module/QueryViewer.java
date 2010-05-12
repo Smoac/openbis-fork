@@ -59,9 +59,9 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
 
     private Component currentGridOrNull;
 
-    private IQueryProvider queryProvider;
+    private final IQueryProvider queryProvider;
 
-    private QueryViewer(IViewContext<IQueryClientServiceAsync> viewContext,
+    public QueryViewer(IViewContext<IQueryClientServiceAsync> viewContext,
             AbstractQueryProviderToolbar toolBar)
     {
         this.viewContext = viewContext;
