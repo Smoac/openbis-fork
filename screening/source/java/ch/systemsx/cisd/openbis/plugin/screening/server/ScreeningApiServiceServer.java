@@ -36,9 +36,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServ
  */
 @Controller
 @RequestMapping(
-    { "/rmi-screening-api-v1", "/openbis/rmi-screening-api-v1" })
+    { ScreeningApiServiceServer.SERVICE_URL, "/openbis" + ScreeningApiServiceServer.SERVICE_URL })
 public class ScreeningApiServiceServer extends HttpInvokerServiceExporter
 {
+    private static final String SERVICE_URL = "/rmi-screening-api-v1";
+
     @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVER)
     private IScreeningApiServer server;
 
@@ -53,7 +55,7 @@ public class ScreeningApiServiceServer extends HttpInvokerServiceExporter
         setInterceptors(new Object[]
             { new ServiceExceptionTranslator() });
         RpcServiceInterfaceVersionDTO ifaceVersion =
-                new RpcServiceInterfaceVersionDTO("screening", "/rmi-screening-api-v1", 1, 0);
+                new RpcServiceInterfaceVersionDTO("screening", SERVICE_URL, 1, 0);
         nameServer.addSupportedInterfaceVersion(ifaceVersion);
         super.afterPropertiesSet();
     }
