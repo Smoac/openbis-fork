@@ -27,12 +27,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
+
 import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
+import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
@@ -68,7 +72,17 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         super(ServiceProvider.getOpenBISService());
         setStoreDirectory(new File(storeRootDir));
-        operationLog.info("Started RPC V1 screening service.");
+
+        // Register the service with the name server
+        RpcServiceInterfaceVersionDTO ifaceVersion =
+                new RpcServiceInterfaceVersionDTO("screening-dss", "rmi-screening-dss-api-v1",
+                        getVersion(), getMinClientVersion());
+        HttpInvokerServiceExporter nameServiceExporter =
+                ServiceProvider.getRpcNameServiceExporter();
+        RpcServiceNameServer nameServer = (RpcServiceNameServer) nameServiceExporter.getService();
+        nameServer.addSupportedInterfaceVersion(ifaceVersion);
+
+        operationLog.info("Started DSS RPC screening service V1.");
     }
 
     public int getMinClientVersion()

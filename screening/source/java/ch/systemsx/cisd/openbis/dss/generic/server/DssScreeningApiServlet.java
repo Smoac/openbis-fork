@@ -23,6 +23,7 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
 /**
  * A servlet which exposes the spring bean with the HTTP Invoker
+ * 
  * @author Tomasz Pylak
  */
 public class DssScreeningApiServlet extends HttpInvokerServlet
