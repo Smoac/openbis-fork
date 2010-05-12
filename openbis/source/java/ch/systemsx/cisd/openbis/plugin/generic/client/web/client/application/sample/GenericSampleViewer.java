@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -194,7 +195,12 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         {
             container.addPanel(panel);
         }
-
+        Collection<? extends DisposableSectionPanel> moduleSections =
+                createModuleSectionPanels(displayIdSuffix, generator);
+        for (DisposableSectionPanel panel : moduleSections)
+        {
+            container.addPanel(panel);
+        }
         // 'Part of' samples
         containerSamplesSection = new ContainerSamplesSection(viewContext, generator);
         containerSamplesSection
@@ -375,7 +381,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
             viewContext.log(displayIdSuffix + " Initially Collapsed");
             ((BorderLayout) getLayout()).collapse(com.extjs.gxt.ui.client.Style.LayoutRegion.WEST);
         }
-        
+
         // Add the listeners after configuring the panel, so as not to cause confusion
         addLeftPanelCollapseExpandListeners(displayIdSuffix);
     }

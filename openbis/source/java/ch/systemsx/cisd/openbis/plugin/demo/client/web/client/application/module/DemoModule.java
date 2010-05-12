@@ -68,7 +68,7 @@ public class DemoModule implements IModule
         callback.onSuccess(null);
     }
 
-    public Collection<? extends DisposableSectionPanel> getExperimentSections(
+    public Collection<? extends DisposableSectionPanel> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {
         return new ArrayList<DisposableSectionPanel>();

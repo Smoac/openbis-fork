@@ -53,9 +53,9 @@ public interface IModule
     List<? extends MenuItem> getMenuItems();
 
     /**
-     * Returns a collection of {@link DisposableSectionPanel}s that will be added to experiment
-     * details view.
+     * Returns a collection of {@link DisposableSectionPanel}s that will be added to entity details
+     * view.
      */
-    Collection<? extends DisposableSectionPanel> getExperimentSections(
-            IEntityInformationHolderWithIdentifier experiment);
+    Collection<? extends DisposableSectionPanel> getSections(
+            IEntityInformationHolderWithIdentifier entity);
 }

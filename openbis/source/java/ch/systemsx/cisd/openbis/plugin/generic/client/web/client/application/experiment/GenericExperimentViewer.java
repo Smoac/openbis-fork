@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -256,24 +254,6 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         allPanels.add(attachmentsSection);
 
         return allPanels;
-    }
-
-    private Collection<? extends DisposableSectionPanel> createModuleSectionPanels(
-            String displayIdSuffix, IEntityInformationHolderWithIdentifier experiment)
-    {
-        ArrayList<DisposableSectionPanel> result = new ArrayList<DisposableSectionPanel>();
-        for (IModule module : viewContext.getClientPluginFactoryProvider().getModules())
-        {
-            Collection<? extends DisposableSectionPanel> sections =
-                    module.getExperimentSections(experiment);
-            for (DisposableSectionPanel panel : sections)
-            {
-                panel.setDisplayID(DisplayTypeIDGenerator.MODULE_SECTION, module.getName() + "-"
-                        + displayIdSuffix);
-            }
-            result.addAll(sections);
-        }
-        return result;
     }
 
     private DisposableSectionPanel createExperimentDataSetSection()

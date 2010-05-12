@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IMo
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.AbstractQueryProviderToolbar;
@@ -111,16 +112,16 @@ public class QueryModule implements IModule
 
     }
 
-    public Collection<? extends DisposableSectionPanel> getExperimentSections(
+    public Collection<? extends DisposableSectionPanel> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {
         ArrayList<DisposableSectionPanel> result = new ArrayList<DisposableSectionPanel>();
         final IViewContext<IQueryClientServiceAsync> queryModuleContext = viewContext;
-        result.add(createExperimentSectionPanel(queryModuleContext, entity));
+        result.add(createEntitySectionPanel(queryModuleContext, entity));
         return result;
     }
 
-    private DisposableSectionPanel createExperimentSectionPanel(
+    private DisposableSectionPanel createEntitySectionPanel(
             final IViewContext<IQueryClientServiceAsync> queryModuleContext,
             final IEntityInformationHolderWithIdentifier entity)
     {
@@ -134,10 +135,17 @@ public class QueryModule implements IModule
                         protected IDisposableComponent createDisposableContent()
                         {
                             HashMap<String, String> parameters = new HashMap<String, String>();
-                            parameters.put("_key", entity.getPermId());
+                            if (entity.getEntityKind().equals(EntityKind.MATERIAL))
+                            {
+                                parameters.put("_key", entity.getCode());
+                                parameters.put("_type", entity.getEntityType().getCode());
+                            } else
+                            {
+                                parameters.put("_key", entity.getPermId());
+                            }
                             AbstractQueryProviderToolbar toolbar =
                                     new RunCannedQueryToolbar(queryModuleContext, null, parameters,
-                                            QueryType.EXPERIMENT);
+                                            translate(entity.getEntityKind()));
                             final DatabaseModificationAwareComponent viewer =
                                     QueryViewer.create(queryModuleContext, toolbar);
                             return new IDisposableComponent()
@@ -165,5 +173,21 @@ public class QueryModule implements IModule
                         }
                     };
         return panel;
+    }
+
+    private static QueryType translate(EntityKind kind)
+    {
+        switch (kind)
+        {
+            case DATA_SET:
+                return QueryType.DATA_SET;
+            case EXPERIMENT:
+                return QueryType.EXPERIMENT;
+            case MATERIAL:
+                return QueryType.MATERIAL;
+            case SAMPLE:
+                return QueryType.SAMPLE;
+        }
+        return null;
     }
 }
