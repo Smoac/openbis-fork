@@ -76,7 +76,7 @@ public final class DefaultAccessController implements IAccessController
         PredicateExecutor.setDAOFactory(daoFactory);
     }
 
-    private final static List<RoleWithIdentifier> getUserRoles(final PersonPE person)
+    public final static List<RoleWithIdentifier> getUserRoles(final PersonPE person)
     {
         Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         return extractRolesWithIdentifiers(roleAssignments);

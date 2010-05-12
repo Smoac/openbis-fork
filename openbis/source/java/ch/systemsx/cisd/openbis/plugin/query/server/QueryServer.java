@@ -48,12 +48,14 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.query.shared.SimpleDatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.QueryAccessController;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
@@ -147,6 +149,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     public void registerQuery(String sessionToken, NewQuery expression)
     {
         Session session = getSession(sessionToken);
+        QueryAccessController.checkWriteAccess(session, expression.getQueryDatabase().getKey(),
+                "create");
 
         QueryPE query = new QueryPE();
         query.setName(expression.getName());
@@ -168,7 +172,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     public void deleteQueries(String sessionToken, List<TechId> filterIds)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
 
         IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
         try
@@ -176,6 +180,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             for (TechId techId : filterIds)
             {
                 QueryPE query = queryDAO.getByTechId(techId);
+                QueryAccessController.checkWriteAccess(session, query.getQueryDatabaseKey(),
+                        "delete");
                 queryDAO.delete(query);
             }
         } catch (DataAccessException ex)
@@ -186,7 +192,9 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     public void updateQuery(String sessionToken, IQueryUpdates updates)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
+        QueryAccessController.checkWriteAccess(session, updates.getQueryDatabase().getKey(),
+                "update");
 
         try
         {
@@ -211,9 +219,11 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindings)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
+            QueryAccessController
+                    .checkWriteAccess(session, database.getKey(), "create and perform");
             return queryDatabaseWithKey(database.getKey(), sqlQuery, bindings);
         } catch (DataAccessException ex)
         {
@@ -224,13 +234,14 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     public TableModel queryDatabase(String sessionToken, TechId queryId,
             QueryParameterBindings bindings)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
             QueryPE query = queryDAO.getByTechId(queryId);
             String dbKey = query.getQueryDatabaseKey();
             String expression = StringEscapeUtils.unescapeHtml(query.getExpression());
+            QueryAccessController.checkReadAccess(session, dbKey);
             return queryDatabaseWithKey(dbKey, expression, bindings);
         } catch (DataAccessException ex)
         {
@@ -293,7 +304,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             final String creatorMinimalRoleString =
                     PropertyUtils.getProperty(databaseProperties, CREATOR_MINIMAL_ROLE_KEY,
                             DEFAULT_CREATOR_MINIMAL_ROLE);
-            final String dataSpaceOrNull =
+            final String dataSpaceOrNullString =
                     PropertyUtils.getProperty(databaseProperties, DATA_SPACE_KEY);
 
             if (labels.contains(label))
@@ -303,11 +314,22 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
                                 + "' label is used more than once.");
             }
             labels.add(label);
-
+            GroupPE dataSpaceOrNull = null;
+            if (dataSpaceOrNullString != null)
+            {
+                dataSpaceOrNull =
+                        getDAOFactory().getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(
+                                dataSpaceOrNullString, getDAOFactory().getHomeDatabaseInstance());
+                if (dataSpaceOrNull == null)
+                {
+                    throw new UnsupportedOperationException("Query database '" + databaseKey
+                            + "' is not defined properly. Space '" + dataSpaceOrNullString
+                            + "' doesn't exist.");
+                }
+            }
             try
             {
                 final RoleSet creatorMinimalRole = RoleSet.valueOf(creatorMinimalRoleString);
-                // TODO validate space
                 definitions.put(databaseKey, new DatabaseDefinition(configurationContext,
                         databaseKey, label, creatorMinimalRole, dataSpaceOrNull));
             } catch (IllegalArgumentException ex)
@@ -318,5 +340,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             }
 
         }
+
+        QueryAccessController.initialize(definitions);
     }
 }

@@ -23,15 +23,16 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.QueryAccessController;
+import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.DeleteQueryPredicate;
+import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.UpdateQueryPredicate;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
@@ -39,10 +40,9 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
- * @see QueryAccessController for authorization
  * @author Franz-Josef Elmer
  */
-public interface IQueryServer extends IServer
+public interface CopyOfIQueryServer extends IServer
 {
 
     @Transactional(readOnly = true)
@@ -54,7 +54,7 @@ public interface IQueryServer extends IServer
     public List<QueryDatabase> listQueryDatabases(String sessionToken);
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleSet.POWER_USER)
     public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindings);
 
@@ -66,7 +66,7 @@ public interface IQueryServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
-    public List<QueryExpression> listQueries(String sessionToken, QueryType queryType);
+    public List<QueryExpression> listQueries(String sessionToken);
 
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
@@ -74,12 +74,14 @@ public interface IQueryServer extends IServer
     public void registerQuery(String sessionToken, NewQuery expression);
 
     @Transactional
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.QUERY)
-    public void deleteQueries(String sessionToken, List<TechId> queryIds);
+    public void deleteQueries(String sessionToken,
+            @AuthorizationGuard(guardClass = DeleteQueryPredicate.class) List<TechId> queryIds);
 
     @Transactional
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.QUERY)
-    public void updateQuery(String sessionToken, IQueryUpdates updates);
+    public void updateQuery(String sessionToken,
+            @AuthorizationGuard(guardClass = UpdateQueryPredicate.class) IQueryUpdates updates);
 }
