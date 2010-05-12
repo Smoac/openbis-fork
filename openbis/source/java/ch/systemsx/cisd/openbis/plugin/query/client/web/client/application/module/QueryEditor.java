@@ -191,7 +191,9 @@ public class QueryEditor extends Dialog
         statementField = createStatementField();
         isPublicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false);
         queryTypeField = new QueryTypeComboBox(viewContext);
-        queryDatabaseSelectionWidget = new QueryDatabaseSelectionWidget(viewContext);
+        queryDatabaseSelectionWidget =
+                new QueryDatabaseSelectionWidget(viewContext, (queryOrNull != null) ? queryOrNull
+                        .getQueryDatabase() : null);
         queryTypeField.addListener(Events.SelectionChange, statementField);
         if (queryOrNull != null)
         {
@@ -200,8 +202,6 @@ public class QueryEditor extends Dialog
             statementField.setValue(StringEscapeUtils.unescapeHtml(queryOrNull.getExpression()));
             isPublicField.setValue(queryOrNull.isPublic());
             queryTypeField.setSimpleValue(queryOrNull.getQueryType());
-            queryDatabaseSelectionWidget.setValue(new QueryDatabaseModel(queryOrNull
-                    .getQueryDatabase()));
         }
         form.add(nameField, FORM_DATA);
         form.add(queryDatabaseSelectionWidget, FORM_DATA);
@@ -325,6 +325,7 @@ public class QueryEditor extends Dialog
             query.setExpression(statementField.getValue());
             query.setPublic(isPublicField.getValue());
             query.setQueryType(queryTypeField.getSimpleValue());
+            query.setQueryDatabase(queryDatabaseSelectionWidget.tryGetSelected());
             viewContext.getService().registerQuery(query, registrationCallback);
         } else
         {
@@ -333,6 +334,7 @@ public class QueryEditor extends Dialog
             queryOrNull.setExpression(statementField.getValue());
             queryOrNull.setPublic(isPublicField.getValue());
             queryOrNull.setQueryType(queryTypeField.getSimpleValue());
+            queryOrNull.setQueryDatabase(queryDatabaseSelectionWidget.tryGetSelected());
             viewContext.getService().updateQuery(queryOrNull, registrationCallback);
         }
     }

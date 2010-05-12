@@ -48,8 +48,13 @@ public final class QueryTranslator
         final List<QueryExpression> result = new ArrayList<QueryExpression>();
         for (final QueryPE query : queries)
         {
-            result.add(QueryTranslator.translate(query, definitions
-                    .get(query.getQueryDatabaseKey())));
+            final String dbKey = query.getQueryDatabaseKey();
+            final DatabaseDefinition database = definitions.get(dbKey);
+            // FIXME silent error
+            if (database != null)
+            {
+                result.add(QueryTranslator.translate(query, database));
+            }
         }
         return result;
     }

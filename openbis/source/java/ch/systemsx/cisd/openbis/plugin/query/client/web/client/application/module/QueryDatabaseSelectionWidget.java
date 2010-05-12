@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.modu
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -45,12 +46,16 @@ public final class QueryDatabaseSelectionWidget extends
 
     private final IViewContext<IQueryClientServiceAsync> viewContext;
 
-    public QueryDatabaseSelectionWidget(final IViewContext<IQueryClientServiceAsync> viewContext)
+    private final QueryDatabase initialDatabaseOrNull;
+
+    public QueryDatabaseSelectionWidget(final IViewContext<IQueryClientServiceAsync> viewContext,
+            QueryDatabase initialDatabaseOrNull)
     {
-        super(viewContext, SUFFIX, Dict.QUERY_DATABASE, ModelDataPropertyNames.NAME, Dict.QUERY,
-                "databases");
-        setEditable(false);
+        super(viewContext, SUFFIX, Dict.QUERY_DATABASE, ModelDataPropertyNames.NAME,
+                Dict.QUERY_DATABASE, "databases");
         this.viewContext = viewContext;
+        this.initialDatabaseOrNull = initialDatabaseOrNull;
+        setEditable(false);
         setCallbackId(createCallbackId());
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.NAME,
                 ModelDataPropertyNames.TOOLTIP));
@@ -70,7 +75,8 @@ public final class QueryDatabaseSelectionWidget extends
     @Override
     protected void loadData(AbstractAsyncCallback<List<QueryDatabase>> callback)
     {
-        viewContext.getService().listQueryDatabases(callback);
+        viewContext.getService().listQueryDatabases(new ListDatabasesCallback(viewContext));
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -78,4 +84,45 @@ public final class QueryDatabaseSelectionWidget extends
         return DatabaseModificationKind.any(ObjectKind.QUERY);
     }
 
+    // 
+    // initial value support
+    //
+
+    private void selectInitialValue()
+    {
+        if (initialDatabaseOrNull != null)
+        {
+            trySelect(initialDatabaseOrNull);
+            updateOriginalValue();
+        }
+    }
+
+    private void trySelect(QueryDatabase database)
+    {
+        try
+        {
+            GWTUtils.setSelectedItem(this, ModelDataPropertyNames.NAME, database.getLabel());
+        } catch (IllegalArgumentException ex)
+        {
+            viewContext.log(ex.getMessage());
+            MessageBox.alert("Error", "Query Database '" + database.getLabel()
+                    + "' isn't configured.", null);
+        }
+    }
+
+    private class ListDatabasesCallback extends QueryDatabaseSelectionWidget.ListItemsCallback
+    {
+
+        protected ListDatabasesCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(List<QueryDatabase> result)
+        {
+            super.process(result);
+            selectInitialValue();
+        }
+    }
 }

@@ -49,7 +49,7 @@ public class RunCustomQueryToolbar extends AbstractQueryProviderToolbar
         super(viewContext);
         setAlignment(HorizontalAlignment.CENTER);
         this.queryField = createQueryField();
-        this.queryDatabaseSelectionWidget = new QueryDatabaseSelectionWidget(viewContext);
+        this.queryDatabaseSelectionWidget = new QueryDatabaseSelectionWidget(viewContext, null);
         add(new LabelToolItem(viewContext.getMessage(Dict.SQL_QUERY)
                 + GenericConstants.LABEL_SEPARATOR));
         add(queryField);
@@ -69,7 +69,7 @@ public class RunCustomQueryToolbar extends AbstractQueryProviderToolbar
     @Override
     protected boolean isQueryValid()
     {
-        return queryField.isValid();
+        return queryField.isValid() && queryDatabaseSelectionWidget.isValid();
     }
 
     //
