@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
- * The {@link View} extension for logging.
+ * The {@link View} extension for logging in.
  * 
  * @author Izabela Adamczyk
  */
@@ -45,7 +45,7 @@ public class LoginView extends View
     private void initUI()
     {
         RootPanel.get().clear();
-            RootPanel.get().add(loginPage);
+        RootPanel.get().add(loginPage);
     }
 
     //
