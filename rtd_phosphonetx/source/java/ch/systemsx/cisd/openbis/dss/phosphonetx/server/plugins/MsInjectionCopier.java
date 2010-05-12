@@ -24,9 +24,12 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFile;
@@ -51,6 +54,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
 {
     
+    @Private static final String SAMPLE_UNKNOWN = "sample-unknown";
+
     private static final class ExceptionWithStatus extends RuntimeException
     {
         private static final long serialVersionUID = 1L;
@@ -58,6 +63,12 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
 
         ExceptionWithStatus(Status status)
         {
+            this.status = status;
+        }
+
+        ExceptionWithStatus(Status status, Exception ex)
+        {
+            super(ex);
             this.status = status;
         }
 
@@ -77,17 +88,26 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
     
     private static final class LocalExcecutor implements IExecutor
     {
+        private final IFileOperations fileOperations;
+
+        LocalExcecutor(IFileOperations fileOperations)
+        {
+            this.fileOperations = fileOperations;
+        }
+        
         public BooleanStatus exists(File file)
         {
-            return BooleanStatus.createFromBoolean(file.exists());
+            return BooleanStatus.createFromBoolean(fileOperations.exists(file));
         }
 
         public void deleteFolder(File folder)
         {
-            boolean successful = folder.delete();
-            if (successful == false)
+            try
             {
-                operationLog.error("Deletion of '" + folder + "' failed for some unknown reason.");
+                fileOperations.deleteRecursively(folder);
+            } catch (Exception ex)
+            {
+                operationLog.error("Deletion of '" + folder + "' failed.", ex);
                 throw new ExceptionWithStatus(Status.createError("couldn't delete"));
             }
         }
@@ -96,11 +116,18 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
         {
             try
             {
-                FileUtilities.copyFileTo(dataSet, destination, true);
+                if (dataSet.isFile())
+                {
+                    fileOperations.copyFileToDirectory(dataSet, destination);
+                } else
+                {
+                    fileOperations.copyDirectoryToDirectory(dataSet, destination);
+                }
+                new File(destination, dataSet.getName()).setLastModified(dataSet.lastModified());
             } catch (Exception ex)
             {
-                operationLog.error("Couldn't copy '" + dataSet + "' to '" + destination + "'.");
-                throw new ExceptionWithStatus(Status.createError("copy failed"));
+                operationLog.error("Couldn't copy '" + dataSet + "' to '" + destination + "'", ex);
+                throw new ExceptionWithStatus(Status.createError("copy failed"), ex);
             }
         }
 
@@ -142,7 +169,7 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
         public void deleteFolder(File folder)
         {
             ProcessResult result =
-                executor.tryExecuteCommandRemotely("delete " + folder.getPath(),
+                executor.tryExecuteCommandRemotely("rm -rf " + folder.getPath(),
                         DataSetCopier.SSH_TIMEOUT_MILLIS);
             if (result.isOK() == false)
             {
@@ -199,12 +226,26 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
     private final static Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, MsInjectionCopier.class);
 
-    private final IExecutor executor;
+    private final Properties properties;
 
-    private final File destination;
+    private final IPathCopierFactory pathCopierFactory;
 
+    private final ISshCommandExecutorFactory sshCommandExecutorFactory;
+
+    private transient IExecutor executor;
+    
+    private transient File destination;
+    
     MsInjectionCopier(Properties properties, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
+    {
+        this.properties = properties;
+        this.pathCopierFactory = pathCopierFactory;
+        this.sshCommandExecutorFactory = sshCommandExecutorFactory;
+        init();
+    }
+
+    private void init()
     {
         String hostFile =
                 PropertyUtils.getMandatoryProperty(properties, DataSetCopier.DESTINATION_KEY);
@@ -213,7 +254,7 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
         destination = hostAwareFile.getFile();
         if (hostOrNull == null)
         {
-            executor = new LocalExcecutor();
+            executor = new LocalExcecutor(FileOperations.getMonitoredInstanceForCurrentThread());
         } else
         {
             File sshExecutable = Copier.getExecutable(properties, DataSetCopier.SSH_EXEC);
@@ -239,6 +280,10 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
     public Status handle(File originalData, DataSetInformation dataSetInformation,
             Map<String, String> parameterBindings)
     {
+        if (destination == null)
+        {
+            init();
+        }
         try
         {
             String target = createTargetFolderName(dataSetInformation, parameterBindings);
@@ -246,7 +291,7 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
             deleteTargetFolder(targetFolder);
             executor.copyDataSet(originalData, destination);
             executor.renameTo(targetFolder, new File(destination, originalData.getName()));
-            return null;
+            return Status.OK;
             
         } catch (ExceptionWithStatus ex)
         {
@@ -259,7 +304,7 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
     {
         String dataSetTypeCode = dataSetInformation.getDataSetType().getCode();
         String sampleCode = parameterBindings.get(dataSetInformation.getDataSetCode());
-        return (sampleCode == null ? "sample-unknown" : sampleCode) + "_" + dataSetTypeCode;
+        return (sampleCode == null ? SAMPLE_UNKNOWN : sampleCode) + "_" + dataSetTypeCode;
     }
     
     private void deleteTargetFolder(File targetFolder)
