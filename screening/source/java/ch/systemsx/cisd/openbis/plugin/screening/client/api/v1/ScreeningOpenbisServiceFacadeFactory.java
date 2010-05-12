@@ -16,23 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
-import ch.systemsx.cisd.openbis.generic.shared.DefaultLimsServiceStubFactory;
-import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
 public class ScreeningOpenbisServiceFacadeFactory
 {
-    // Helper method for figuring out the actual url of openbis.
-    private static String getOpenBisUrl(String serverUrl)
-    {
-        OpenBisServiceFactory openBisServiceFactory =
-                new OpenBisServiceFactory(serverUrl, new DefaultLimsServiceStubFactory());
-        openBisServiceFactory.createService();
-        return openBisServiceFactory.getUsedServerUrl();
-    }
-
     /**
      * Creates a service facade which communicates with the openBIS server at the specified URL.
      * Authenticates the user.
@@ -42,8 +31,7 @@ public class ScreeningOpenbisServiceFacadeFactory
     public static IScreeningOpenbisServiceFacade tryCreate(String userId, String userPassword,
             String serverUrl)
     {
-        String openBisUrl = getOpenBisUrl(serverUrl);
-        return ScreeningOpenbisServiceFacade.tryCreate(userId, userPassword, openBisUrl);
+        return ScreeningOpenbisServiceFacade.tryCreate(userId, userPassword, serverUrl);
     }
 
     /**

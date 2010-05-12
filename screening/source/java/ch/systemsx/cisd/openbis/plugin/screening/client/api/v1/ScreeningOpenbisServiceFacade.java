@@ -75,8 +75,20 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
     {
-        return HttpInvokerUtils.createServiceStub(IScreeningApiServer.class, serverUrl
-                + OPENBIS_SCREENING_API, SERVER_TIMEOUT_MIN);
+        ScreeningApiServerFactory.IScreeningApiServerStubFactory stubFactory =
+                new ScreeningApiServerFactory.IScreeningApiServerStubFactory()
+                    {
+
+                        public IScreeningApiServer createServiceStub(String aUrl)
+                        {
+                            return HttpInvokerUtils.createServiceStub(IScreeningApiServer.class,
+                                    aUrl, SERVER_TIMEOUT_MIN);
+                        }
+
+                    };
+        ScreeningApiServerFactory factory =
+                new ScreeningApiServerFactory(serverUrl, OPENBIS_SCREENING_API, stubFactory);
+        return factory.createService();
     }
 
     private static IDssServiceRpcScreening createScreeningDssServer(String serverUrl)
