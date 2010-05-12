@@ -96,7 +96,7 @@ public final class ProcessResult
         return (exitValue == EXIT_VALUE_OK);
     }
 
-    ProcessResult(final List<String> commandLine, final int processNumber,
+    public ProcessResult(final List<String> commandLine, final int processNumber,
             final ExecutionStatus status, final String startupFailureMessageOrNull,
             final int exitValue, final List<String> processOutputOrNull, final Logger operationLog,
             final Logger machineLog)
