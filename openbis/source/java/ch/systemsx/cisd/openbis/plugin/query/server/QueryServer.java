@@ -152,6 +152,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         query.setPublic(expression.isPublic());
         query.setRegistrator(session.tryGetPerson());
         query.setQueryType(expression.getQueryType());
+        query.setQueryDatabaseKey(expression.getQueryDatabase().getKey());
         try
         {
             getDAOFactory().getQueryDAO().createQuery(query);
@@ -194,6 +195,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             query.setExpression(updates.getExpression());
             query.setPublic(updates.isPublic());
             query.setQueryType(updates.getQueryType());
+            query.setQueryDatabaseKey(updates.getQueryDatabase().getKey());
+
             queryDAO.validateAndSaveUpdatedEntity(query);
         } catch (DataAccessException ex)
         {

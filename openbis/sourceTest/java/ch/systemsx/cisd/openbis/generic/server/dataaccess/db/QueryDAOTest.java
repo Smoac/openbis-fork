@@ -33,6 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 @Test(groups = "db")
 public class QueryDAOTest extends AbstractDAOTest
 {
+
+    private final static String DATABASE_KEY = "1";
+
     @Test
     public void testCreateQuery() throws Exception
     {
@@ -40,7 +43,7 @@ public class QueryDAOTest extends AbstractDAOTest
         assertEquals(0, queryDAO.listAllEntities().size());
         QueryPE query =
                 createQuery("q1", "test query", "select * from blabla", true, getSystemPerson(),
-                        QueryType.GENERIC);
+                        QueryType.GENERIC, DATABASE_KEY);
 
         queryDAO.createQuery(query);
 
@@ -55,7 +58,7 @@ public class QueryDAOTest extends AbstractDAOTest
     }
 
     private QueryPE createQuery(String name, String description, String expression,
-            boolean isPublic, PersonPE registrator, QueryType type)
+            boolean isPublic, PersonPE registrator, QueryType type, String databaseKey)
     {
         QueryPE query = new QueryPE();
         query.setName(name);
@@ -64,6 +67,7 @@ public class QueryDAOTest extends AbstractDAOTest
         query.setPublic(isPublic);
         query.setRegistrator(registrator);
         query.setQueryType(type);
+        query.setQueryDatabaseKey(databaseKey);
         return query;
     }
 }

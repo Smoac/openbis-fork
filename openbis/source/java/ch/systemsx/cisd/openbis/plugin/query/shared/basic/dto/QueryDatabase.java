@@ -31,6 +31,12 @@ public class QueryDatabase implements IsSerializable, Comparable<QueryDatabase>
     {
     }
 
+    /** for tests */
+    public QueryDatabase(String key)
+    {
+        this(key, key);
+    }
+
     public QueryDatabase(String key, String label)
     {
         this.key = key;

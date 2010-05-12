@@ -51,6 +51,9 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 @Test(groups = "system test")
 public class QueryEditingTest extends QuerySystemTestCase
 {
+
+    private final static QueryDatabase DATABASE = new QueryDatabase("1");
+
     @AfterMethod
     public void tearDown()
     {
@@ -86,7 +89,8 @@ public class QueryEditingTest extends QuerySystemTestCase
         assertEquals(0, queryClientService.listQueries().size());
 
         NewQuery query =
-                createQuery("query1", "select * from sample_types", true, QueryType.GENERIC);
+                createQuery("query1", "select * from sample_types", true, QueryType.GENERIC,
+                        DATABASE);
         queryClientService.registerQuery(query);
 
         List<QueryExpression> queries = queryClientService.listQueries();
@@ -119,7 +123,8 @@ public class QueryEditingTest extends QuerySystemTestCase
         logIntoCommonClientService();
 
         NewQuery query =
-                createQuery("query", "select * from sample_types", true, QueryType.GENERIC);
+                createQuery("query", "select * from sample_types", true, QueryType.GENERIC,
+                        DATABASE);
         queryClientService.registerQuery(query);
 
         try
@@ -139,9 +144,11 @@ public class QueryEditingTest extends QuerySystemTestCase
         logIntoCommonClientService();
 
         NewQuery query1 =
-                createQuery("query1", "select * from sample_types", true, QueryType.GENERIC);
+                createQuery("query1", "select * from sample_types", true, QueryType.GENERIC,
+                        DATABASE);
         NewQuery query2 =
-                createQuery("query2", "select * from experiment_types", true, QueryType.GENERIC);
+                createQuery("query2", "select * from experiment_types", true, QueryType.GENERIC,
+                        DATABASE);
         queryClientService.registerQuery(query1);
         queryClientService.registerQuery(query2);
 
@@ -190,7 +197,7 @@ public class QueryEditingTest extends QuerySystemTestCase
 
         NewQuery query =
                 createQuery("query", "select id, code from sample_types where id = ${id}", true,
-                        QueryType.GENERIC);
+                        QueryType.GENERIC, DATABASE);
         queryClientService.registerQuery(query);
 
         List<QueryExpression> queries = queryClientService.listQueries();
@@ -227,7 +234,7 @@ public class QueryEditingTest extends QuerySystemTestCase
     }
 
     private NewQuery createQuery(String name, String expression, boolean isPublic,
-            QueryType queryType)
+            QueryType queryType, QueryDatabase database)
     {
         NewQuery query = new NewQuery();
         query.setName(name);
@@ -235,6 +242,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         query.setExpression(expression);
         query.setPublic(isPublic);
         query.setQueryType(queryType);
+        query.setQueryDatabase(database);
         return query;
     }
 

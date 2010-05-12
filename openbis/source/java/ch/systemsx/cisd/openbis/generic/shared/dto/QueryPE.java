@@ -41,8 +41,7 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    // FIXME get rid of this "1" when LMS-1495 is finished
-    private String queryDatabaseKey = "1";
+    private String queryDatabaseKey;
 
     private String name;
 

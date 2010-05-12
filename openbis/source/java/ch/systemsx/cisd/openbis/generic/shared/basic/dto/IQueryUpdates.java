@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
+
 /**
  * Description of the updates that should be done to the existing query.
  * 
@@ -24,4 +26,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 public interface IQueryUpdates extends IExpressionUpdates
 {
     QueryType getQueryType();
+
+    QueryDatabase getQueryDatabase();
 }
