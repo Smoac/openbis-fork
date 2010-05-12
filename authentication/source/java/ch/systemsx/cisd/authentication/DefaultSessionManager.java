@@ -385,7 +385,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         synchronized (sessions)
         {
             final T session = getSession(sessionToken);
-            sessions.remove(session.getUserName());
+            sessions.remove(sessionToken);
             logLogout(session);
         }
     }
