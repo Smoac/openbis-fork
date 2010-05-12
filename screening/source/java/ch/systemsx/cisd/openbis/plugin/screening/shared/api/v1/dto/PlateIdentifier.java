@@ -48,11 +48,11 @@ public class PlateIdentifier implements Serializable
     @Override
     public boolean equals(Object obj)
     {
-        if (obj == null || obj instanceof Plate == false)
+        if (obj == null || obj instanceof PlateIdentifier == false)
         {
             return false;
         }
-        Plate that = (Plate) obj;
+        PlateIdentifier that = (PlateIdentifier) obj;
         return plateCode.equals(that.getPlateCode())
                 && ((spaceCodeOrNull != null && spaceCodeOrNull.equals(that.tryGetSpaceCode())) || (spaceCodeOrNull == null && that
                         .tryGetSpaceCode() == null));
