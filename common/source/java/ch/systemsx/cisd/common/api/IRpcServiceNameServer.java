@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.api;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * An Interface for finding out about the IRpcService interfaces supported by a server.
@@ -25,5 +25,23 @@ import java.util.List;
  */
 public interface IRpcServiceNameServer extends IRpcService
 {
-    List<RpcServiceInterfaceDTO> getSupportedInterfaces();
+    /**
+     * The preferred suffix of the url of the name server service
+     */
+    public static String PREFFERED_URL_SUFFIX = "/rmi-name-server";
+
+    /**
+     * The preferred name of the bean in Spring
+     */
+    public static String PREFFERED_BEAN_NAME = "rpc-name-server";
+
+    /**
+     * The preferred name of the bean in Spring
+     */
+    public static String PREFFERED_SERVICE_NAME = "name-server";
+
+    /**
+     * Return a collection of interfaces supported by this server
+     */
+    Collection<RpcServiceInterfaceDTO> getSupportedInterfaces();
 }

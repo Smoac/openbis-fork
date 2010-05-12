@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.api;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * A factory for creating proxies to RPC services on a data store server.
@@ -29,14 +29,14 @@ import java.util.List;
 public interface IRpcServiceFactory
 {
     /**
-     * Get an array of RPC service interfaces supported by the server.
+     * Get the RPC service interfaces supported by the server.
      * 
      * @param serverURL The URL of the data store server to query.
      * @param shouldGetServerCertificateFromServer If the URL scheme is https and
      *            shouldGetServerCertificateFromServer is true, the factory will retrieve the SSL
      *            certificate from the server.
      */
-    public abstract List<RpcServiceInterfaceDTO> getSupportedInterfaces(String serverURL,
+    public abstract Collection<RpcServiceInterfaceDTO> getSupportedInterfaces(String serverURL,
             boolean shouldGetServerCertificateFromServer) throws IncompatibleAPIVersionsException;
 
     /**
