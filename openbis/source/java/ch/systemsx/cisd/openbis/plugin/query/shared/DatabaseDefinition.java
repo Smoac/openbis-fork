@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.server;
+package ch.systemsx.cisd.openbis.plugin.query.shared;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 

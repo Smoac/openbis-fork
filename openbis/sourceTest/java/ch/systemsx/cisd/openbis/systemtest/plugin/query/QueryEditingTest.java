@@ -37,10 +37,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;

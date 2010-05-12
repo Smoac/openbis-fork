@@ -25,7 +25,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator;
-import ch.systemsx.cisd.openbis.plugin.query.server.DatabaseDefinition;
+import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 

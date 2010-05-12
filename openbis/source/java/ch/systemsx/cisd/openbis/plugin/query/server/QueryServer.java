@@ -45,12 +45,14 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.query.shared.SimpleDatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
@@ -116,9 +118,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     {
         checkSession(sessionToken);
 
-        initDatabaseDefinitions();
         final List<QueryDatabase> results = new ArrayList<QueryDatabase>();
-        for (DatabaseDefinition definition : definitions.values())
+        for (DatabaseDefinition definition : getDatabaseDefinitions().values())
         {
             results.add(new QueryDatabase(definition.getKey(), definition.getLabel()));
         }
