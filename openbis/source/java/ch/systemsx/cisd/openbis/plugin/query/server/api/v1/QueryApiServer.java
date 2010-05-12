@@ -127,4 +127,14 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         return tableModel;
     }
 
+    public int getMajorVersion()
+    {
+        return 1;
+    }
+
+    public int getMinorVersion()
+    {
+        return 0;
+    }
+
 }

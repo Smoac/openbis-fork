@@ -28,8 +28,6 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
@@ -44,7 +42,7 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
     {
         return null;
     }
-    
+
     public List<QueryDescription> listQueries(String sessionToken)
     {
         logAccess(sessionToken, "list_queries");
@@ -58,5 +56,15 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
                 parameterBindings.size());
         return null;
     }
-    
+
+    public int getMajorVersion()
+    {
+        return 1;
+    }
+
+    public int getMinorVersion()
+    {
+        return 0;
+    }
+
 }

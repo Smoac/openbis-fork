@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
  * @author Franz-Josef Elmer
  */
 // DO NOT CHANGE THE INTERFACE CONTRACT IN A NON-BACKWARD COMPATIBLE WAY!
-public interface IQueryApiServer
+public interface IQueryApiServer extends IRpcService
 {
     /**
      * Tries to authenticate specified user with specified password. Returns session token if
