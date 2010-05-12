@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1;
 
 import javax.annotation.Resource;
 
@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
 
 /**
  * Server wrapping {@link IRawDataService}.

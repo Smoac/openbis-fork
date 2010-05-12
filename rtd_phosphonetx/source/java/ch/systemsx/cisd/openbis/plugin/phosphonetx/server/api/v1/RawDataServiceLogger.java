@@ -14,43 +14,51 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1;
 
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-class RawDataServiceInternalLogger extends AbstractServerLogger implements IRawDataServiceInternal
+class RawDataServiceLogger extends AbstractServerLogger implements IRawDataService
 {
 
-    RawDataServiceInternalLogger(ISessionManager<Session> sessionManager,
+    RawDataServiceLogger(ISessionManager<Session> sessionManager,
             IInvocationLoggerContext context)
     {
         super(sessionManager, context);
     }
 
-    public List<MsInjectionSample> listRawDataSamples(String sessionToken)
+    public List<Sample> listRawDataSamples(String sessionToken, String userID)
     {
-        logAccess(sessionToken, "list_raw_data_samples");
+        logAccess(sessionToken, "list_raw_data_samples", "USER_ID(%s)", userID);
         return null;
     }
-    
-    public void processRawData(String sessionToken, String dataSetProcessingKey,
-            long[] rawDataSampleIDs, String dataSetType)
+
+    public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken)
+    {
+        logAccess(sessionToken, "list_data_store_services", "");
+        return null;
+    }
+
+    public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
+            long[] rawDataSampleIDs)
     {
         int numberOfDataSets = rawDataSampleIDs == null ? 0 : rawDataSampleIDs.length;
-        logAccess(sessionToken, "copy_raw_data", "NUMBER_OF_DATA_SETS(%s), DATA_SET_TYPE(%s)",
-                numberOfDataSets, dataSetType);
+        logAccess(sessionToken, "copy_raw_data",
+                "USER_ID(%s) DSS_PROCESSING_PLUGIN(%s) NUMBER_OF_DATA_SETS(%s)", userID,
+                dataSetProcessingKey, numberOfDataSets);
     }
 
 }
