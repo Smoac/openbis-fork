@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreen
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
@@ -207,14 +208,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     }
 
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets,
-            List<String> featureNames)
+            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames)
     {
         try
         {
             List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
 
-            for (IFeatureVectorDatasetIdentifier dataset : featureDatasets)
+            for (FeatureVectorDatasetReference dataset : featureDatasets)
             {
                 result.add(createFeatureVectorDataset(sessionToken, dataset, featureNames));
             }
@@ -226,7 +226,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     }
 
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
-            IFeatureVectorDatasetIdentifier dataset, List<String> featureNames) throws IOException
+            FeatureVectorDatasetReference dataset, List<String> featureNames) throws IOException
     {
         return createFeatureVectorDataset(getDatasetFile(sessionToken, dataset), dataset,
                 featureNames);
@@ -434,7 +434,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
     // exposed for testing
     static FeatureVectorDataset createFeatureVectorDataset(File datasetFile,
-            IFeatureVectorDatasetIdentifier dataset, List<String> featureNames) throws IOException
+            FeatureVectorDatasetReference dataset, List<String> featureNames) throws IOException
     {
         DatasetFileLines fileLines = CsvFileReaderHelper.getDatasetFileLines(datasetFile);
         String[] headerTokens = fileLines.getHeaderTokens();
@@ -570,13 +570,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
     private static class FeatureVectorDatasetBuilder
     {
-        private final IFeatureVectorDatasetIdentifier dataset;
+        private final FeatureVectorDatasetReference dataset;
 
         private final List<String> featureNames;
 
         private final List<FeatureVector> featureVectors;
 
-        public FeatureVectorDatasetBuilder(IFeatureVectorDatasetIdentifier dataset,
+        public FeatureVectorDatasetBuilder(FeatureVectorDatasetReference dataset,
                 List<String> featureNames)
         {
             this.dataset = dataset;

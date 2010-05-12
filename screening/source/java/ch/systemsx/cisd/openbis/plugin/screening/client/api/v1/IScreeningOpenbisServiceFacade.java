@@ -85,8 +85,7 @@ public interface IScreeningOpenbisServiceFacade
      * feature vectors.
      */
     public abstract List<FeatureVectorDataset> loadFeatures(
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets,
-            List<String> featureNames);
+            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames);
 
     /**
      * Saves images for a given list of image references (given by data set code, well position,

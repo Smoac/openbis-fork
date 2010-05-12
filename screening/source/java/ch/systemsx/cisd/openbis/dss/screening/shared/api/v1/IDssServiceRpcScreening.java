@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
@@ -45,8 +46,7 @@ public interface IDssServiceRpcScreening
      * matrix. Each column in that matrix is one feature, each row is one well in one data set.
      */
     List<FeatureVectorDataset> loadFeatures(String sessionToken,
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets,
-            List<String> featureNames);
+            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames);
 
     /**
      * Provide images for a given list of image references (given by data set code, well position,

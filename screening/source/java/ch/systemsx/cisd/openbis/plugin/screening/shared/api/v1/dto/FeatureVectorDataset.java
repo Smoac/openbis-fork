@@ -12,13 +12,13 @@ public class FeatureVectorDataset implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final IFeatureVectorDatasetIdentifier dataset;
+    private final FeatureVectorDatasetReference dataset;
 
     private final List<String> featureNames;
 
     private final List<FeatureVector> featureVectors;
 
-    public FeatureVectorDataset(IFeatureVectorDatasetIdentifier dataset, List<String> featureNames,
+    public FeatureVectorDataset(FeatureVectorDatasetReference dataset, List<String> featureNames,
             List<FeatureVector> featureVectors)
     {
         this.dataset = dataset;
@@ -27,7 +27,7 @@ public class FeatureVectorDataset implements Serializable
     }
 
     /** identifier of the dataset containing feature vectors */
-    public IDatasetIdentifier getDataset()
+    public FeatureVectorDatasetReference getDataset()
     {
         return dataset;
     }

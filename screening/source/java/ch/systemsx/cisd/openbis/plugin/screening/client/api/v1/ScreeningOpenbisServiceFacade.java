@@ -163,8 +163,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * feature vectors.
      */
     public List<FeatureVectorDataset> loadFeatures(
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets,
-            List<String> featureNames)
+            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames)
     {
         if (featureDatasets.size() == 0)
         {

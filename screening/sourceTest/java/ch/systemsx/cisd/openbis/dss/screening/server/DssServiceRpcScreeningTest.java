@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 
 /**
  * Test cases for the {@link DssServiceRpcScreening}.
@@ -71,8 +71,8 @@ public class DssServiceRpcScreeningTest extends AbstractFileSystemTestCase
             for (String data : fileData)
             {
                 FileUtilities.writeToFile(datasetFile, data);
-                IFeatureVectorDatasetIdentifier dataset =
-                        createFeatureVectorDatasetIdentifier(datasetCode, url);
+                FeatureVectorDatasetReference dataset =
+                        createFeatureVectorDatasetReference(datasetCode, url);
                 FeatureVectorDataset result =
                         DssServiceRpcScreening.createFeatureVectorDataset(datasetFile, dataset,
                                 Arrays.asList(new String[]
@@ -104,23 +104,10 @@ public class DssServiceRpcScreeningTest extends AbstractFileSystemTestCase
         }
     }
 
-    private IFeatureVectorDatasetIdentifier createFeatureVectorDatasetIdentifier(
+    private FeatureVectorDatasetReference createFeatureVectorDatasetReference(
             final String datasetCode, final String url)
     {
-        return new IFeatureVectorDatasetIdentifier()
-            {
-
-                public String getDatasetCode()
-                {
-                    return datasetCode;
-                }
-
-                public String getDatastoreServerUrl()
-                {
-                    return url;
-                }
-
-            };
+        return new FeatureVectorDatasetReference(datasetCode, url, null, null);
     }
 
 }
