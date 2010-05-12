@@ -161,7 +161,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                     sessionFactory.create(sessionToken, user, principal, getRemoteHost(), now,
                             sessionExpirationPeriodMillis);
             final FullSession<T> createdSession = new FullSession<T>(session);
-            sessions.put(user, createdSession);
+            sessions.put(createdSession.getSession().getSessionToken(), createdSession);
             return session;
         }
     }
@@ -250,12 +250,14 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         {
             return false;
         }
-        final String[] splittedToken = StringUtils.split(sessionTokenOrNull, SESSION_TOKEN_SEPARATOR);
+        final String[] splittedToken =
+                StringUtils.split(sessionTokenOrNull, SESSION_TOKEN_SEPARATOR);
         if (splittedToken.length < 2)
         {
             return false;
         }
-        String[] splittedTimeStampToken = StringUtils.split(splittedToken[1], TIMESTAMP_TOKEN_SEPARATOR);
+        String[] splittedTimeStampToken =
+                StringUtils.split(splittedToken[1], TIMESTAMP_TOKEN_SEPARATOR);
         if (splittedTimeStampToken.length < 2)
         {
             return false;
@@ -288,7 +290,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 throw new InvalidSessionException(msg);
             }
             final String user = getUserName(splittedToken);
-            final FullSession<T> session = sessions.get(user);
+            final FullSession<T> session = sessions.get(sessionToken);
             if (session == null)
             {
                 final String msg =
