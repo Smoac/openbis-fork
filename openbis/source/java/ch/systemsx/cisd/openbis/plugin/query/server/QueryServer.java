@@ -19,9 +19,11 @@ package ch.systemsx.cisd.openbis.plugin.query.server;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -44,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.query.shared.SimpleDatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
@@ -277,6 +279,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         SectionProperties[] sectionsProperties =
                 PropertyParametersUtil
                         .extractSectionProperties(resolvedProps, DATABASE_KEYS, false);
+        Set<String> labels = new HashSet<String>();
         for (int i = 0; i < sectionsProperties.length; i++)
         {
             final String databaseKey = sectionsProperties[i].getKey();
@@ -291,6 +294,14 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
                             DEFAULT_CREATOR_MINIMAL_ROLE);
             final String dataSpaceOrNull =
                     PropertyUtils.getProperty(databaseProperties, DATA_SPACE_KEY);
+
+            if (labels.contains(label))
+            {
+                throw new UnsupportedOperationException(
+                        "Query databases need to have unique labels but '" + label
+                                + "' label is used more than once.");
+            }
+            labels.add(label);
 
             try
             {

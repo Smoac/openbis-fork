@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 
 /**
  * Description of the updates that should be done to the existing query.
