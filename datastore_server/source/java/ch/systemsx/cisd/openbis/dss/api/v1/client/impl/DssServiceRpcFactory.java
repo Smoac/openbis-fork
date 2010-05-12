@@ -21,7 +21,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.List;
+import java.util.Collection;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.IRpcServiceFactory;
@@ -45,9 +45,9 @@ public class DssServiceRpcFactory implements IRpcServiceFactory
 {
     private static final int SERVER_TIMEOUT_MIN = 5;
 
-    private static final String NAME_SERVER_SUFFIX = "/rpc";
+    private static final String NAME_SERVER_SUFFIX = "/rmi-name-server";
 
-    public List<RpcServiceInterfaceDTO> getSupportedInterfaces(String serverURL,
+    public Collection<RpcServiceInterfaceDTO> getSupportedInterfaces(String serverURL,
             boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException
     {
         // We assume the location of the name server follows the convention
