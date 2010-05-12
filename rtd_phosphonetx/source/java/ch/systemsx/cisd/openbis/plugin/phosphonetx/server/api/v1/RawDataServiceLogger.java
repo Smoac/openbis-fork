@@ -27,15 +27,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class RawDataServiceLogger extends AbstractServerLogger implements IRawDataService
 {
 
-    RawDataServiceLogger(ISessionManager<Session> sessionManager,
-            IInvocationLoggerContext context)
+    RawDataServiceLogger(ISessionManager<Session> sessionManager, IInvocationLoggerContext context)
     {
         super(sessionManager, context);
     }
@@ -59,6 +56,16 @@ class RawDataServiceLogger extends AbstractServerLogger implements IRawDataServi
         logAccess(sessionToken, "copy_raw_data",
                 "USER_ID(%s) DSS_PROCESSING_PLUGIN(%s) NUMBER_OF_DATA_SETS(%s)", userID,
                 dataSetProcessingKey, numberOfDataSets);
+    }
+
+    public int getMajorVersion()
+    {
+        return 1;
+    }
+
+    public int getMinorVersion()
+    {
+        return 0;
     }
 
 }

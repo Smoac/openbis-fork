@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -28,10 +29,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * Service for querying raw data.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public interface IRawDataService extends IServer
+public interface IRawDataService extends IServer, IRpcService
 {
     /**
      * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample which
@@ -47,11 +48,11 @@ public interface IRawDataService extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken);
-    
+
     /**
      * Processes the data sets of specified samples by the DSS processing plug-in of specified key
-     * for the specified user. Implementations should check that the specified user is allowed
-     * to read specified samples.
+     * for the specified user. Implementations should check that the specified user is allowed to
+     * read specified samples.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)

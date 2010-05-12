@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * Imlementation of {@link IRawDataService}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class RawDataService extends AbstractServer<IRawDataService> implements IRawDataService
@@ -50,13 +50,13 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
     {
     }
 
-    public RawDataService(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
-            IRawDataServiceInternal service)
+    public RawDataService(final ISessionManager<Session> sessionManager,
+            final IDAOFactory daoFactory, IRawDataServiceInternal service)
     {
         super(sessionManager, daoFactory);
         this.service = service;
     }
-    
+
     public IRawDataService createLogger(IInvocationLoggerContext context)
     {
         return new RawDataServiceLogger(getSessionManager(), context);
@@ -75,7 +75,7 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
                 result.add(sample.getSample());
             }
             return result;
-            
+
         } finally
         {
             service.logout(session.getSessionToken());
@@ -116,7 +116,7 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
             service.logout(session.getSessionToken());
         }
     }
-    
+
     private SessionContextDTO login(String userID)
     {
         SessionContextDTO session = service.tryToAuthenticate(userID, "dummy-password");
@@ -126,5 +126,15 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         }
         return session;
     }
-    
+
+    public int getMajorVersion()
+    {
+        return 1;
+    }
+
+    public int getMinorVersion()
+    {
+        return 0;
+    }
+
 }
