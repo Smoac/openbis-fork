@@ -49,9 +49,30 @@ public class OpenBisServiceFactory
 
     private final String initialServerUrl;
 
+    private final String urlServiceSuffix;
+
     private final ILimsServiceStubFactory stubFactory;
 
     private String usedServerUrl;
+
+    /**
+     * Constructor for the OpenBisServiceFactory. The service factory works best when the serverUrl
+     * is simply the protocol://machine:port of the openBIS application server. It will
+     * automatically append likely locations of the openBIS service to the url.
+     * <p>
+     * Examples:
+     * <ul>
+     * <li>OpenBisServiceFactory("http://localhost:8888/", "/rmi-etl", stubFactory)</li>
+     * <li>OpenBisServiceFactory("https://openbis.ethz.ch:8443/", "/rmi-etl", stubFactory)</li>
+     * </ul>
+     * 
+     * @param serverUrl The Url where the openBIS server is assumed to be.
+     * @param stubFactory A factory that, given a url, returns an IETLLIMSService proxy to the url
+     */
+    public OpenBisServiceFactory(String serverUrl, ILimsServiceStubFactory stubFactory)
+    {
+        this(serverUrl, "/rmi-etl", stubFactory);
+    }
 
     /**
      * Constructor for the OpenBisServiceFactory. The service factory works best when the serverUrl
@@ -65,11 +86,14 @@ public class OpenBisServiceFactory
      * </ul>
      * 
      * @param serverUrl The Url where the openBIS server is assumed to be.
+     * @param urlServiceSuffix The suffix appended to the url to refer to the service.
      * @param stubFactory A factory that, given a url, returns an IETLLIMSService proxy to the url
      */
-    public OpenBisServiceFactory(String serverUrl, ILimsServiceStubFactory stubFactory)
+    public OpenBisServiceFactory(String serverUrl, String urlServiceSuffix,
+            ILimsServiceStubFactory stubFactory)
     {
         this.initialServerUrl = serverUrl;
+        this.urlServiceSuffix = urlServiceSuffix;
         this.stubFactory = stubFactory;
         this.usedServerUrl = "";
     }
@@ -84,7 +108,7 @@ public class OpenBisServiceFactory
         IETLLIMSService service;
         usedServerUrl = computeOpenbisOpenbisServerUrl(initialServerUrl);
         // Try the url that ends in openbis/openbis
-        service = stubFactory.createServiceStub(usedServerUrl + "/rmi-etl");
+        service = stubFactory.createServiceStub(usedServerUrl + urlServiceSuffix);
         if (canConnectToService(service))
         {
             return service;
@@ -92,7 +116,7 @@ public class OpenBisServiceFactory
 
         // Try the url that ends in just one openbis
         usedServerUrl = computeOpenbisServerUrl(initialServerUrl);
-        service = stubFactory.createServiceStub(usedServerUrl + "/rmi-etl");
+        service = stubFactory.createServiceStub(usedServerUrl + urlServiceSuffix);
         if (canConnectToService(service))
         {
             return service;
@@ -100,7 +124,7 @@ public class OpenBisServiceFactory
 
         // Try the url as provided
         usedServerUrl = initialServerUrl;
-        service = stubFactory.createServiceStub(usedServerUrl + "/rmi-etl");
+        service = stubFactory.createServiceStub(usedServerUrl + urlServiceSuffix);
         return service;
     }
 
