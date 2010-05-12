@@ -28,14 +28,13 @@ import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.generic.shared.DefaultLimsServiceStubFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
-import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory.ILimsServiceStubFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -51,8 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  */
 public class DssComponent implements IDssComponent
 {
-    private static final int SERVER_TIMEOUT_MIN = 5;
-
     private final IETLLIMSService openBisService;
 
     private final IRpcServiceFactory dssServiceFactory;
@@ -103,16 +100,8 @@ public class DssComponent implements IDssComponent
 
     private static IETLLIMSService createOpenBisService(String openBISURL)
     {
-        ILimsServiceStubFactory stubFactory = new ILimsServiceStubFactory()
-            {
-                public IETLLIMSService createServiceStub(String serverUrl)
-                {
-                    return HttpInvokerUtils.createServiceStub(IETLLIMSService.class, serverUrl,
-                            SERVER_TIMEOUT_MIN);
-                }
-
-            };
-        return new OpenBisServiceFactory(openBISURL, stubFactory).createService();
+        return new OpenBisServiceFactory(openBISURL, new DefaultLimsServiceStubFactory())
+                .createService();
     }
 
     /**

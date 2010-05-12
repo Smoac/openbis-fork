@@ -26,13 +26,12 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.DefaultLimsServiceStubFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
-import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory.ILimsServiceStubFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -107,15 +106,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private static IETLLIMSService createOpenBisService(String openBISURL)
     {
-        ILimsServiceStubFactory stubFactory = new ILimsServiceStubFactory()
-            {
-                public IETLLIMSService createServiceStub(String serverUrl)
-                {
-                    return HttpInvokerUtils.createServiceStub(IETLLIMSService.class, serverUrl, 5);
-                }
-
-            };
-        return new OpenBisServiceFactory(openBISURL, stubFactory).createService();
+        return new OpenBisServiceFactory(openBISURL, new DefaultLimsServiceStubFactory())
+                .createService();
     }
 
     public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager, String serverURL,
