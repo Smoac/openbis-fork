@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -41,9 +42,27 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
         super(sessionManager, context);
     }
 
+    public int initDatabases(String sessionToken)
+    {
+        logAccess(sessionToken, "init_databases");
+        return 0;
+    }
+
     public String tryToGetQueryDatabaseLabel(String sessionToken)
     {
         logAccess(sessionToken, "try_to_get_query_database_label");
+        return null;
+    }
+
+    public List<String> listQueryDatabaseLabels(String sessionToken)
+    {
+        logAccess(sessionToken, "list_query_database_labels");
+        return null;
+    }
+
+    public List<QueryDatabase> listQueryDatabases(String sessionToken)
+    {
+        logAccess(sessionToken, "list_query_databases");
         return null;
     }
 
@@ -69,10 +88,11 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
                 .getName());
     }
 
-    public TableModel queryDatabase(String sessionToken, String sqlQuery,
+    public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindings)
     {
-        logAccess(sessionToken, "query_database", "SQL(%s) BINDINGS(%s)", sqlQuery, bindings);
+        logAccess(sessionToken, "query_database", "DB(%s) SQL(%s) BINDINGS(%s)", database,
+                sqlQuery, bindings);
         return null;
 
     }

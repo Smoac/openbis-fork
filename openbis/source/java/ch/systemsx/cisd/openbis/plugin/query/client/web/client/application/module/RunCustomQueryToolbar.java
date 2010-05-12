@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
@@ -41,14 +42,20 @@ public class RunCustomQueryToolbar extends AbstractQueryProviderToolbar
 
     private final TextArea queryField;
 
+    private final QueryDatabaseSelectionWidget queryDatabaseSelectionWidget;
+
     public RunCustomQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext)
     {
         super(viewContext);
         setAlignment(HorizontalAlignment.CENTER);
         this.queryField = createQueryField();
+        this.queryDatabaseSelectionWidget = new QueryDatabaseSelectionWidget(viewContext);
         add(new LabelToolItem(viewContext.getMessage(Dict.SQL_QUERY)
                 + GenericConstants.LABEL_SEPARATOR));
         add(queryField);
+        add(new LabelToolItem(viewContext.getMessage(Dict.QUERY_DATABASE)
+                + GenericConstants.LABEL_SEPARATOR));
+        add(queryDatabaseSelectionWidget);
         add(executeButton);
     }
 
@@ -77,6 +84,11 @@ public class RunCustomQueryToolbar extends AbstractQueryProviderToolbar
     public String tryGetSQLQuery()
     {
         return queryField.getValue();
+    }
+
+    public QueryDatabase tryGetQueryDatabase()
+    {
+        return queryDatabaseSelectionWidget.tryGetSelected();
     }
 
     public QueryParameterBindings tryGetQueryParameterBindings()

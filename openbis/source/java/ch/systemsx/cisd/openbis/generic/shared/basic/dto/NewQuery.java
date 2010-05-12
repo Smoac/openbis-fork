@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
+
 /**
  * @author Izabela Adamczyk
  */
@@ -25,6 +27,8 @@ public class NewQuery extends NewExpression
 
     private QueryType queryType;
 
+    private QueryDatabase queryDatabase;
+
     public QueryType getQueryType()
     {
         return queryType;
@@ -33,6 +37,16 @@ public class NewQuery extends NewExpression
     public void setQueryType(QueryType queryType)
     {
         this.queryType = queryType;
+    }
+
+    public QueryDatabase getQueryDatabase()
+    {
+        return queryDatabase;
+    }
+
+    public void setQueryDatabase(QueryDatabase queryDatabase)
+    {
+        this.queryDatabase = queryDatabase;
     }
 
 }

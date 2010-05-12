@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -38,16 +39,22 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 public interface IQueryClientServiceAsync extends IClientServiceAsync
 {
 
-    /** @see IQueryClientService#tryToGetQueryDatabaseLabel() */
-    public void tryToGetQueryDatabaseLabel(AsyncCallback<String> callback);
+    /** @see IQueryClientService#initDatabases() */
+    public void initDatabases(AsyncCallback<Integer> callback);
+
+    /** @see IQueryClientService#listQueryDatabases() */
+    public void listQueryDatabases(AsyncCallback<List<QueryDatabase>> callback);
 
     /** @see IQueryClientService#createQueryResultsReport(TechId, QueryParameterBindings) */
     public void createQueryResultsReport(TechId techId, QueryParameterBindings bindingsOrNull,
             AsyncCallback<TableModelReference> callback);
 
-    /** @see IQueryClientService#createQueryResultsReport(String, QueryParameterBindings) */
-    public void createQueryResultsReport(String sqlQuery, QueryParameterBindings bindingsOrNull,
-            AsyncCallback<TableModelReference> callback);
+    /**
+     * @see IQueryClientService#createQueryResultsReport(QueryDatabase, String,
+     *      QueryParameterBindings)
+     */
+    public void createQueryResultsReport(QueryDatabase queryDatabase, String sqlQuery,
+            QueryParameterBindings bindingsOrNull, AsyncCallback<TableModelReference> callback);
 
     /** @see IQueryClientService#listQueries(IResultSetConfig) */
     public void listQueries(IResultSetConfig<String, QueryExpression> resultSetConfig,

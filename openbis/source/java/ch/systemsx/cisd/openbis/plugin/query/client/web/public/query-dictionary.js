@@ -11,7 +11,7 @@ var query = {
 	
 	module_menu_title: "Queries",
 	
-	query_database_menu_title_template: "Query {0}",
+	query_database_menu_title: "Queries",
 	query_execute: "Execute",
 	
 	RUN_CUSTOM_QUERY_menu_item: "Run Custom SQL Query",

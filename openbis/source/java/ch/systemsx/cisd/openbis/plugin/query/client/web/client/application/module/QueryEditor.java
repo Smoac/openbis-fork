@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -162,6 +163,8 @@ public class QueryEditor extends Dialog
 
     private final SimpleComboBox<QueryType> queryTypeField;
 
+    private final QueryDatabaseSelectionWidget queryDatabaseSelectionWidget;
+
     public QueryEditor(final IViewContext<IQueryClientServiceAsync> viewContext,
             QueryExpression queryOrNull, IDelegatedAction refreshAction, int parentWidth,
             int parentHeight)
@@ -188,6 +191,7 @@ public class QueryEditor extends Dialog
         statementField = createStatementField();
         isPublicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false);
         queryTypeField = new QueryTypeComboBox(viewContext);
+        queryDatabaseSelectionWidget = new QueryDatabaseSelectionWidget(viewContext);
         queryTypeField.addListener(Events.SelectionChange, statementField);
         if (queryOrNull != null)
         {
@@ -196,8 +200,11 @@ public class QueryEditor extends Dialog
             statementField.setValue(StringEscapeUtils.unescapeHtml(queryOrNull.getExpression()));
             isPublicField.setValue(queryOrNull.isPublic());
             queryTypeField.setSimpleValue(queryOrNull.getQueryType());
+            queryDatabaseSelectionWidget.setValue(new QueryDatabaseModel(queryOrNull
+                    .getQueryDatabase()));
         }
         form.add(nameField, FORM_DATA);
+        form.add(queryDatabaseSelectionWidget, FORM_DATA);
         form.add(queryTypeField, FORM_DATA);
         form.add(descriptionField, FORM_DATA);
         form.add(statementField, FORM_DATA);
@@ -333,9 +340,11 @@ public class QueryEditor extends Dialog
     private void runQuery(QueryParameterBindings parameterBindings)
     {
         String sqlStatement = statementField.getValue();
-        if (sqlStatement != null && sqlStatement.length() > 0)
+        QueryDatabase queryDatabase = queryDatabaseSelectionWidget.tryGetSelected();
+        if (sqlStatement != null && sqlStatement.length() > 0 && queryDatabase != null)
         {
             viewContext.getService().createQueryResultsReport(
+                    queryDatabase,
                     sqlStatement,
                     parameterBindings,
                     ReportGeneratedCallback.create(viewContext.getCommonViewContext(),

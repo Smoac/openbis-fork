@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.server;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 import ch.systemsx.cisd.openbis.plugin.query.shared.translator.QueryTranslator;
@@ -72,8 +75,6 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     @Resource(name = "propertyConfigurer")
     private ExposablePropertyPaceholderConfigurer configurer;
-
-    private DatabaseDefinition databaseDefinition;
 
     /**
      * map from dbKey to IDAO
@@ -104,12 +105,25 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         return new QueryServerLogger(getSessionManager(), context);
     }
 
-    public String tryToGetQueryDatabaseLabel(String sessionToken)
+    public int initDatabases(String sessionToken)
+    {
+        checkSession(sessionToken);
+        initDatabaseDefinitions();
+        return getDatabaseDefinitions().size();
+    }
+
+    public List<QueryDatabase> listQueryDatabases(String sessionToken)
     {
         checkSession(sessionToken);
 
-        DatabaseDefinition definition = tryToGetDatabaseDefinition();
-        return definition == null ? null : definition.getLabel();
+        initDatabaseDefinitions();
+        final List<QueryDatabase> results = new ArrayList<QueryDatabase>();
+        for (DatabaseDefinition definition : definitions.values())
+        {
+            results.add(new QueryDatabase(definition.getKey(), definition.getLabel()));
+        }
+        Collections.sort(results);
+        return results;
     }
 
     public List<QueryExpression> listQueries(String sessionToken)
@@ -187,14 +201,13 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
-    public TableModel queryDatabase(String sessionToken, String sqlQuery,
+    public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindings)
     {
         checkSession(sessionToken);
         try
         {
-            // FIXME
-            return queryDatabaseWithKey("1", sqlQuery, bindings);
+            return queryDatabaseWithKey(database.getKey(), sqlQuery, bindings);
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
@@ -239,19 +252,6 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         return result;
     }
 
-    // FIXME add support for multiple DBs
-    private DatabaseDefinition tryToGetDatabaseDefinition()
-    {
-        if (databaseDefinition == null)
-        {
-            if (getDatabaseDefinitions().size() > 0)
-            {
-                databaseDefinition = getDatabaseDefinitions().values().iterator().next();
-            }
-        }
-        return databaseDefinition;
-    }
-
     private Map<String, DatabaseDefinition> getDatabaseDefinitions()
     {
         if (definitions == null)
@@ -263,12 +263,16 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     private void initDatabaseDefinitions()
     {
-        assert definitions == null;
+        if (definitions != null)
+        {
+            return;
+        }
 
         definitions = new HashMap<String, DatabaseDefinition>();
         Properties resolvedProps = configurer.getResolvedProps();
         SectionProperties[] sectionsProperties =
-                PropertyParametersUtil.extractSectionProperties(resolvedProps, DATABASE_KEYS, true);
+                PropertyParametersUtil
+                        .extractSectionProperties(resolvedProps, DATABASE_KEYS, false);
         for (int i = 0; i < sectionsProperties.length; i++)
         {
             final String databaseKey = sectionsProperties[i].getKey();

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -222,6 +223,12 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
     {
         QueryExpression selectedQueryOrNull = querySelectionWidget.tryGetSelected();
         return selectedQueryOrNull == null ? null : selectedQueryOrNull.getExpression();
+    }
+
+    public QueryDatabase tryGetQueryDatabase()
+    {
+        QueryExpression selectedQueryOrNull = querySelectionWidget.tryGetSelected();
+        return selectedQueryOrNull == null ? null : selectedQueryOrNull.getQueryDatabase();
     }
 
     public QueryParameterBindings tryGetQueryParameterBindings()

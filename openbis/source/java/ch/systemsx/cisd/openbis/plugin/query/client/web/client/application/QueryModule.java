@@ -39,9 +39,9 @@ public class QueryModule implements IModule
 
     private final IViewContext<IQueryClientServiceAsync> viewContext;
 
-    // If after initialization is finished this is still null it means that DB was not configured
-    // and this module shouldn't provide any functionality.
-    private String databaseLabelOrNull;
+    // number of configured and initialized DBs
+    // (0 means that this module shouldn't provide any functionality)
+    private int databases;
 
     QueryModule(IViewContext<IQueryClientServiceAsync> viewContext)
     {
@@ -55,27 +55,26 @@ public class QueryModule implements IModule
 
     public void initialize(AsyncCallback<Void> callback)
     {
-        viewContext.getService().tryToGetQueryDatabaseLabel(
-                new DatabaseLabelCallback(viewContext, callback));
+        viewContext.getService().initDatabases(
+                new DatabasesInitializationCallback(viewContext, callback));
     }
 
     public List<? extends MenuItem> getMenuItems()
     {
-        if (databaseLabelOrNull == null)
+        if (databases == 0)
         {
             return Collections.emptyList();
         } else
         {
-            return Collections.singletonList(new QueryModuleDatabaseMenuItem(viewContext,
-                    databaseLabelOrNull));
+            return Collections.singletonList(new QueryModuleDatabaseMenuItem(viewContext));
         }
     }
 
-    private final class DatabaseLabelCallback extends AbstractAsyncCallback<String>
+    private final class DatabasesInitializationCallback extends AbstractAsyncCallback<Integer>
     {
         private final AsyncCallback<Void> delegate;
 
-        public DatabaseLabelCallback(final IViewContext<?> viewContext,
+        public DatabasesInitializationCallback(final IViewContext<?> viewContext,
                 final AsyncCallback<Void> delegate)
         {
             super(viewContext);
@@ -83,9 +82,10 @@ public class QueryModule implements IModule
         }
 
         @Override
-        protected void process(String result)
+        protected void process(Integer result)
         {
-            databaseLabelOrNull = result;
+            viewContext.log(" query database(s) configured:" + result);
+            databases = result;
             delegate.onSuccess(null);
         }
 

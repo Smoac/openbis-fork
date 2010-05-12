@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
@@ -25,6 +26,8 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 public interface IQueryProvider extends IDatabaseModificationObserver
 {
     Long tryGetQueryId();
+
+    QueryDatabase tryGetQueryDatabase();
 
     String tryGetSQLQuery();
 

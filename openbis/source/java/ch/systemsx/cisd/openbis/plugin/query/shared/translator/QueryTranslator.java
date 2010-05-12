@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.server.DatabaseDefinition;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 
 /**
@@ -48,12 +49,13 @@ public final class QueryTranslator
         for (final QueryPE query : queries)
         {
             result.add(QueryTranslator.translate(query, definitions
-                    .get(query.getQueryDatabaseKey()).getLabel()));
+                    .get(query.getQueryDatabaseKey())));
         }
         return result;
     }
 
-    public final static QueryExpression translate(final QueryPE original, final String databaseLabel)
+    public final static QueryExpression translate(final QueryPE original,
+            final DatabaseDefinition database)
     {
         if (original == null)
         {
@@ -61,7 +63,7 @@ public final class QueryTranslator
         }
         final QueryExpression result = new QueryExpression();
         result.setName(escapeHtml(original.getName()));
-        result.setQueryDatabaseLabel(databaseLabel);
+        result.setQueryDatabase(new QueryDatabase(database.getKey(), database.getLabel()));
         result.setQueryType(original.getQueryType());
         result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
 

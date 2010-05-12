@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -36,16 +37,19 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 public interface IQueryClientService extends IClientService
 {
 
-    /** Returns label of the database used for queries or null if it is not configured. */
-    public String tryToGetQueryDatabaseLabel() throws UserFailureException;
+    /** Returns number of databases configured for queries. */
+    public int initDatabases() throws UserFailureException;
+
+    /** Returns databases used for queries. */
+    public List<QueryDatabase> listQueryDatabases() throws UserFailureException;
 
     /** Returns results of the query with specified id. */
     public TableModelReference createQueryResultsReport(TechId queryId,
             QueryParameterBindings bindingsOrNull) throws UserFailureException;
 
     /** Returns results of the specified SQL query. */
-    public TableModelReference createQueryResultsReport(String sqlQuery,
-            QueryParameterBindings bindingsOrNull) throws UserFailureException;
+    public TableModelReference createQueryResultsReport(QueryDatabase queryDatabase,
+            String sqlQuery, QueryParameterBindings bindingsOrNull) throws UserFailureException;
 
     /** Returns a list of all the canned custom queries created so far. */
     public List<QueryExpression> listQueries() throws UserFailureException;

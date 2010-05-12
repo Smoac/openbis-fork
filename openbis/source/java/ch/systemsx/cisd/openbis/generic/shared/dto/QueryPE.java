@@ -40,7 +40,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class QueryPE extends AbstractExpressionPE<QueryPE>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    private String queryDatabaseKey = "1"; // FIXME
+
+    // FIXME get rid of this "1" when LMS-1495 is finished
+    private String queryDatabaseKey = "1";
 
     private String name;
 
@@ -100,7 +102,7 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getName(), that.getName());
         builder.append(getDatabaseInstance(), that.getDatabaseInstance());
-                builder.append(getQueryDatabaseKey(), that.getQueryDatabaseKey());
+        builder.append(getQueryDatabaseKey(), that.getQueryDatabaseKey());
         return builder.isEquals();
     }
 

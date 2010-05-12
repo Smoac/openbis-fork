@@ -32,7 +32,7 @@ public class QueryExpression extends AbstractExpressionWithParameters implements
 
     private QueryType queryType;
 
-    private String queryDatabaseLabel;
+    private QueryDatabase queryDatabase;
 
     public QueryExpression()
     {
@@ -53,14 +53,19 @@ public class QueryExpression extends AbstractExpressionWithParameters implements
         return queryType;
     }
 
-    public String getQueryDatabaseLabel()
+    public QueryDatabase getQueryDatabase()
     {
-        return queryDatabaseLabel;
+        return queryDatabase;
     }
 
-    public void setQueryDatabaseLabel(String queryDatabaseLabel)
+    public void setQueryDatabase(QueryDatabase queryDatabase)
     {
-        this.queryDatabaseLabel = queryDatabaseLabel;
+        this.queryDatabase = queryDatabase;
+    }
+
+    public String getQueryDatabaseLabel()
+    {
+        return queryDatabase == null ? null : queryDatabase.getLabel();
     }
 
 }

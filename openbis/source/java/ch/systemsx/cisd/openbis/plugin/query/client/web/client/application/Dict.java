@@ -26,8 +26,7 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 {
     public static final String MODULE_MENU_TITLE = "module_menu_title";
 
-    public static final String QUERY_DATABASE_MENU_TITLE_TEMPLATE =
-            "query_database_menu_title_template";
+    public static final String QUERY_DATABASE_MENU_TITLE = "query_database_menu_title";
 
     public static final String BUTTON_ADD_QUERY = "button_add_query";
 

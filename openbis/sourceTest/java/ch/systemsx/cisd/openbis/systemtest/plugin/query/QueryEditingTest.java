@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -63,11 +64,19 @@ public class QueryEditingTest extends QuerySystemTestCase
     }
 
     @Test
-    public void testGetQueryDatabaseLabel()
+    public void testInitDatabases()
     {
         logIntoCommonClientService();
 
-        assertEquals("openBIS meta data", queryClientService.tryToGetQueryDatabaseLabel());
+        assertEquals(1, queryClientService.initDatabases());
+    }
+
+    @Test
+    public void testGetQueryDatabases()
+    {
+        logIntoCommonClientService();
+
+        assertEquals("openBIS meta data", queryClientService.listQueryDatabases().get(0).getLabel());
     }
 
     @Test
@@ -165,10 +174,11 @@ public class QueryEditingTest extends QuerySystemTestCase
     {
         logIntoCommonClientService();
 
+        QueryDatabase database = new QueryDatabase("1", "label");
         QueryParameterBindings bindings = new QueryParameterBindings();
         bindings.addBinding("id", "1");
         TableModelReference table =
-                queryClientService.createQueryResultsReport(
+                queryClientService.createQueryResultsReport(database,
                         "select id, code from sample_types where id = ${id}", bindings);
         checkTable(table);
     }

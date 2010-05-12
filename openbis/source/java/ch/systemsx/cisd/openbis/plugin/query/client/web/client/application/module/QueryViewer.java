@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
@@ -91,8 +92,9 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
     {
         Long queryIdOrNull = queryProvider.tryGetQueryId();
         String sqlQueryOrNull = queryProvider.tryGetSQLQuery();
+        QueryDatabase queryDatabaseOrNull = queryProvider.tryGetQueryDatabase();
         QueryParameterBindings bindingsOrNull = queryProvider.tryGetQueryParameterBindings();
-        if (queryIdOrNull == null && sqlQueryOrNull == null)
+        if (queryIdOrNull == null && (sqlQueryOrNull == null || queryDatabaseOrNull == null))
         {
             return;
         }
@@ -104,10 +106,10 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
         {
             viewContext.getService().createQueryResultsReport(new TechId(queryIdOrNull),
                     bindingsOrNull, callback);
-        } else if (sqlQueryOrNull != null)
+        } else if (sqlQueryOrNull != null && queryDatabaseOrNull != null)
         {
-            viewContext.getService().createQueryResultsReport(sqlQueryOrNull, bindingsOrNull,
-                    callback);
+            viewContext.getService().createQueryResultsReport(queryDatabaseOrNull, sqlQueryOrNull,
+                    bindingsOrNull, callback);
         }
     }
 

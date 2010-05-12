@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -79,26 +80,38 @@ public class QueryClientService extends AbstractClientService implements IQueryC
     // IQueryClientService
     //
 
-    public String tryToGetQueryDatabaseLabel()
+    public int initDatabases()
     {
         try
         {
             final String sessionToken = getSessionToken();
-            return queryServer.tryToGetQueryDatabaseLabel(sessionToken);
+            return queryServer.initDatabases(sessionToken);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public TableModelReference createQueryResultsReport(String sqlQuery,
+    public List<QueryDatabase> listQueryDatabases()
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            return queryServer.listQueryDatabases(sessionToken);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public TableModelReference createQueryResultsReport(QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindingsOrNull)
     {
         try
         {
             final String sessionToken = getSessionToken();
             final TableModel tableModel =
-                    queryServer.queryDatabase(sessionToken, sqlQuery, bindingsOrNull);
+                    queryServer.queryDatabase(sessionToken, database, sqlQuery, bindingsOrNull);
             return createTableModelReference(tableModel);
         } catch (final UserFailureException e)
         {

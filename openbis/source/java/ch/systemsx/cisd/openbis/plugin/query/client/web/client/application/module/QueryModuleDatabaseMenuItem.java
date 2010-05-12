@@ -37,10 +37,9 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
 {
     public static final String ID = GenericConstants.ID_PREFIX;
 
-    public QueryModuleDatabaseMenuItem(IViewContext<IQueryClientServiceAsync> viewContext,
-            String databaseLabel)
+    public QueryModuleDatabaseMenuItem(IViewContext<IQueryClientServiceAsync> viewContext)
     {
-        super(viewContext.getMessage(Dict.QUERY_DATABASE_MENU_TITLE_TEMPLATE, databaseLabel));
+        super(viewContext.getMessage(Dict.QUERY_DATABASE_MENU_TITLE));
 
         Menu submenu = new Menu();
         ActionMenuDefinition[] values = ActionMenuDefinition.values();

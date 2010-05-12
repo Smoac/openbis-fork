@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.DeleteQueryPredicate;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.predicate.UpdateQueryPredicate;
+import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -46,11 +47,15 @@ public interface IQueryServer extends IServer
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public String tryToGetQueryDatabaseLabel(String sessionToken);
+    public int initDatabases(String sessionToken);
+
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<QueryDatabase> listQueryDatabases(String sessionToken);
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.POWER_USER)
-    public TableModel queryDatabase(String sessionToken, String sqlQuery,
+    public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindings);
 
     @Transactional(readOnly = true)
