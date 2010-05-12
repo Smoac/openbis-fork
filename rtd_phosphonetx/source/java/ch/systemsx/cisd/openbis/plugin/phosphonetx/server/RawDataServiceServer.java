@@ -22,28 +22,37 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
+import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
+import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
 
-
 /**
  * Server wrapping {@link IRawDataService}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 @Controller
 @RequestMapping(
-    { "/rmi-phosphonetx-raw-data", "/openbis/rmi-phosphonetx-raw-data" })
+    { "/rmi-phosphonetx-raw-data-v1", "/openbis/rmi-phosphonetx-raw-data-v1" })
 public class RawDataServiceServer extends HttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.PHOSPHONETX_RAW_DATA_SERVICE)
     private IRawDataService service;
+
+    @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
+    private RpcServiceNameServer nameServer;
 
     @Override
     public void afterPropertiesSet()
     {
         setServiceInterface(IRawDataService.class);
         setService(service);
+        RpcServiceInterfaceVersionDTO ifaceVersion =
+                new RpcServiceInterfaceVersionDTO("phosphonetx-raw-data",
+                        "/rmi-phosphonetx-raw-data-v1", 1, 0);
+        nameServer.addSupportedInterfaceVersion(ifaceVersion);
         super.afterPropertiesSet();
     }
 }

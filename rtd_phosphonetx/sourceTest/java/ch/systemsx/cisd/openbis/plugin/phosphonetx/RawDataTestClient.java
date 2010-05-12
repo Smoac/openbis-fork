@@ -20,53 +20,68 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.openbis.generic.shared.DefaultLimsServiceStubFactory;
+import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class RawDataTestClient
 {
-    private static final String SERVER_URL = "http://localhost:8888/openbis";
-    private static final String SERVICE_PATH = SERVER_URL + "/rmi-phosphonetx-raw-data";
+    private static final String SERVER_URL = "http://localhost:8888";
+
+    private static final String SERVICE_PATH_SUFFIX = "/rmi-phosphonetx-raw-data-v1";
+
+    private static String getServicePath()
+    {
+        OpenBisServiceFactory openBisServiceFactory =
+                new OpenBisServiceFactory(SERVER_URL, new DefaultLimsServiceStubFactory());
+        openBisServiceFactory.createService();
+        return openBisServiceFactory.getUsedServerUrl() + SERVICE_PATH_SUFFIX;
+    }
 
     public static void main(String[] args)
     {
-        IRawDataService service = HttpInvokerUtils.createServiceStub(IRawDataService.class, SERVICE_PATH, 5);
-        
-        for (String user : new String[] {"test", "test_a", "test_b", "test_c"})
+        // Create the service so we can figure out which URL to use.
+        String servicePath = getServicePath();
+        IRawDataService service =
+                HttpInvokerUtils.createServiceStub(IRawDataService.class, servicePath, 5);
+
+        for (String user : new String[]
+            { "test", "test_a", "test_b", "test_c" })
         {
             try
             {
                 System.out.println("User: " + user);
                 SessionContextDTO session = service.tryToAuthenticate("test", "a");
                 String sessionToken = session.getSessionToken();
-                List<DatastoreServiceDescription> services = service.listDataStoreServices(sessionToken);
+                List<DatastoreServiceDescription> services =
+                        service.listDataStoreServices(sessionToken);
                 for (DatastoreServiceDescription datastoreServiceDescription : services)
                 {
-                    System.out.print(datastoreServiceDescription.getLabel()+" ");
+                    System.out.print(datastoreServiceDescription.getLabel() + " ");
                 }
                 System.out.println();
                 List<Sample> samples = service.listRawDataSamples(sessionToken, user);
                 for (Sample sample : samples)
                 {
-                    System.out.println("  " + sample.getCode()+" -> "+sample.getGeneratedFrom().getIdentifier());
+                    System.out.println("  " + sample.getCode() + " -> "
+                            + sample.getGeneratedFrom().getIdentifier());
                 }
             } catch (UserFailureException ex)
             {
                 System.out.println(" Exception: " + ex);
             }
-            
+
         }
         System.out.println("--------------------");
         SessionContextDTO session = service.tryToAuthenticate("test_b", "t");
         String sessionToken = session.getSessionToken();
-        
+
         List<Sample> samples = service.listRawDataSamples(sessionToken, "test_a");
         long[] ids = new long[samples.size()];
         for (int i = 0; i < samples.size(); i++)
