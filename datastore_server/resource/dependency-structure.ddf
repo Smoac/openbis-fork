@@ -34,7 +34,7 @@ check layeringOf l1 l2
 
 ######################################################################
 # Check dependencies between the api client and the rest of dss
-[dss.api.client] = ${dss}.api.v1.client.* ${dss}.api.v1.shared.* ${dss}.rpc.client.*
+[dss.api.client] = ${dss}.client.api.* ${dss}.generic.shared.api.*
 [dss.internal] = ${dss}.* excluding [dss.api.client]
 
 check [dss.api.client] independentOf [dss.internal]
