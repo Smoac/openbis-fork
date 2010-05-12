@@ -180,9 +180,8 @@ public class PlateLayouter
         verticalSeparator.setHeight("10");
         legend.add(verticalSeparator, mergedColumns);
 
-        legend.add(new Text("Put a mouse on a well or click on it to get the details."),
+        legend.add(new Text("Hold the mouse cursor over a well or click on it to get the details."),
                 mergedColumns);
-        legend.add(new Text("Legend:"), mergedColumns);
 
         legend.add(createNonEmptyWell(false));
         legend.add(new Text("Non-empty well"));
