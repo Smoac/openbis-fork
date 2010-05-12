@@ -277,6 +277,12 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
     {
     }
 
+    /**
+     * Copies specified data file/folder to destination specified in constructor. The name of the
+     * file/folder at the destination is defined as
+     * <code>&lt;sample code&gt;_&lt;data set type code&gt;</code> where sample code is provided by
+     * the parameter bindings (key: data set code).
+     */
     public Status handle(File originalData, DataSetInformation dataSetInformation,
             Map<String, String> parameterBindings)
     {
