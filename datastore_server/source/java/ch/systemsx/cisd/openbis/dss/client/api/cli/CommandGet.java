@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.api.client.cli;
+package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,9 +28,9 @@ import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.api.v1.client.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.api.v1.client.IDssComponent;
-import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
  * Comand that lists files in the data set.

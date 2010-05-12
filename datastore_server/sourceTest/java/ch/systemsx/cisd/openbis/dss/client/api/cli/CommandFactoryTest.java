@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.api.client.cli;
+package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.dss.api.client.cli.CommandFactory;
-import ch.systemsx.cisd.openbis.dss.api.client.cli.CommandGet;
-import ch.systemsx.cisd.openbis.dss.api.client.cli.CommandLs;
-import ch.systemsx.cisd.openbis.dss.api.client.cli.ICommand;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.CommandFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.CommandGet;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.CommandLs;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
 
 /**
  * @author Chandrasekhar Ramakrishnan

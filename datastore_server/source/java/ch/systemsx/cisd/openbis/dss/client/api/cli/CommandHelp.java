@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.api.client.cli;
+package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.io.PrintStream;
 import java.util.List;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.api.v1.server;
+package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,11 +23,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssBuilder;
-import ch.systemsx.cisd.openbis.dss.api.v1.shared.FileInfoDssDTO;
-import ch.systemsx.cisd.openbis.dss.api.v1.shared.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
  * Implementation of the generic RPC interface.

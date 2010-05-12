@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.api.v1.client;
+package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
-import ch.systemsx.cisd.openbis.dss.api.v1.client.impl.DssComponent;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponent;
 
 /**
  * A class that creates DssComponents.
