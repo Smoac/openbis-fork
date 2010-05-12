@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.server.api.v1;
+package ch.systemsx.cisd.openbis.generic.server;
 
 import javax.annotation.Resource;
 
@@ -26,18 +26,21 @@ import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
- * @author Franz-Josef Elmer
+ * A servlet that exports the name server via the HttpInvoker interface.
+ * 
+ * @author Chandrasekhar Ramakrishnan
  */
 @Controller
 @RequestMapping(
-    { ResourceNames.QUERY_PLUGIN_SERVER_URL, "/openbis" + ResourceNames.QUERY_PLUGIN_SERVER_URL })
-public class QueryServiceServer extends HttpInvokerServiceExporter
+    { NameServerServlet.NAME_SERVER_URL, "/openbis" + NameServerServlet.NAME_SERVER_URL })
+public class NameServerServlet extends HttpInvokerServiceExporter
 {
-    @Resource(name = ResourceNames.QUERY_PLUGIN_SERVER)
-    private IQueryApiServer server;
+    private final static String NAME_SERVER_URL = IRpcServiceNameServer.PREFFERED_URL_SUFFIX;
+
+    private final static String NAME_SERVER_SERVICE_NAME =
+            IRpcServiceNameServer.PREFFERED_SERVICE_NAME;
 
     @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
     private RpcServiceNameServer nameServer;
@@ -45,14 +48,12 @@ public class QueryServiceServer extends HttpInvokerServiceExporter
     @Override
     public void afterPropertiesSet()
     {
-        setServiceInterface(IQueryApiServer.class);
-        setService(server);
+        setServiceInterface(IRpcServiceNameServer.class);
+        setService(nameServer);
         setInterceptors(new Object[]
             { new ServiceExceptionTranslator() });
-
         RpcServiceInterfaceVersionDTO ifaceVersion =
-                new RpcServiceInterfaceVersionDTO("query", ResourceNames.QUERY_PLUGIN_SERVER_URL,
-                        1, 0);
+                new RpcServiceInterfaceVersionDTO(NAME_SERVER_SERVICE_NAME, NAME_SERVER_URL, 1, 0);
         nameServer.addSupportedInterfaceVersion(ifaceVersion);
         super.afterPropertiesSet();
     }

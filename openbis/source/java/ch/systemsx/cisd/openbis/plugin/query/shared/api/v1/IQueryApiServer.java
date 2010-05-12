@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
- * Public API interface to query server (version 1). 
- *
+ * Public API interface to query server (version 1).
+ * 
  * @author Franz-Josef Elmer
  */
 // DO NOT CHANGE THE INTERFACE CONTRACT IN A NON-BACKWARD COMPATIBLE WAY!
@@ -36,15 +36,16 @@ public interface IQueryApiServer
      * Tries to authenticate specified user with specified password. Returns session token if
      * succeeded otherwise <code>null</code> is returned.
      */
-    @Transactional    // this is not a readOnly transaction - it can create new users
+    @Transactional
+    // this is not a readOnly transaction - it can create new users
     public String tryToAuthenticateAtQueryServer(String userID, String userPassword);
-    
+
     /**
      * Logout the session with the specified session token.
      */
     @Transactional(readOnly = true)
     public void logout(String sessionToken);
-    
+
     /**
      * Lists all queries available for the user of the specified session.
      */
@@ -55,6 +56,7 @@ public interface IQueryApiServer
      * Executes specified query using specified parameter bindings.
      */
     @Transactional(readOnly = true)
-    public QueryTableModel executeQuery(String sessionToken, long queryID, Map<String, String> parameterBindings);
+    public QueryTableModel executeQuery(String sessionToken, long queryID,
+            Map<String, String> parameterBindings);
 
 }

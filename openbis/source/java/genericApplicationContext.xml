@@ -98,6 +98,8 @@
         <property name="onlineHelpSpecificPageTemplate" value="${onlinehelp.specific.page-template}"/>
     </bean>
     
+    <bean id="rpc-name-server" class="ch.systemsx.cisd.common.api.server.RpcServiceNameServer" />
+    
     <!-- 
         // Tracking
     -->
