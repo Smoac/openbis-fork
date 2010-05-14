@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.genedata;
+package ch.systemsx.cisd.openbis.dss.etl.genedata;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,6 +33,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.etlserver.HCSImageFileExtractionResult;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
+import ch.systemsx.cisd.openbis.dss.etl.genedata.HCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**

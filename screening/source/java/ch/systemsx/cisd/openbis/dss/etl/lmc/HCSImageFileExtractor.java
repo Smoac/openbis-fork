@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.lmc;
+package ch.systemsx.cisd.openbis.dss.etl.lmc;
 
 import java.util.List;
 import java.util.Properties;

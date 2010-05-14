@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.genedata;
+package ch.systemsx.cisd.openbis.dss.etl.genedata;
 
 import java.io.File;
 import java.util.List;
@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
+import ch.systemsx.cisd.openbis.dss.etl.genedata.FeatureStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**

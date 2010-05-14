@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.genedata;
+package ch.systemsx.cisd.openbis.dss.etl.genedata;
 
 import java.io.File;
 import java.util.Properties;
