@@ -1,4 +1,4 @@
--- Note that these data has to be loaded manually.
+-- Note that these data has to be loaded manually into the openBIS Core database.
 -- TODO: this sql should be converted to a generic sql without refering to technical ids. 
 -- Now the ids should be updated if some new records will be added in the generic data.
 
