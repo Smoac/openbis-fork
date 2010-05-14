@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
 
 /**
  * Stores current version of special purpose screening database.
  * 
  * @author Tomasz Pylak
  */
-public class ScreeningDatabaseVersionHolder implements IDatabaseVersionHolder
+public class ScreeningDatabaseVersionHolder 
 {
     /** Current version of the database. */
     static final String DATABASE_VERSION = "001";
