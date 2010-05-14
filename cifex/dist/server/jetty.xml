@@ -1,44 +1,34 @@
 <?xml version="1.0"?>
-<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
 
-<Configure id="Server" class="org.mortbay.jetty.Server">
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
 
-    <!--
-        // Java5 bounded threadpool with job queue.
-        // Can be found in library 'jetty-java5-threadpool.jar'. 
-    -->
-    <Set name="threadPool">
-        <New class="org.mortbay.thread.concurrent.ThreadPool">
-            <Set name="corePoolSize">250</Set>
-            <Set name="maximumPoolSize">250</Set>
-        </New>
+    <Set name="ThreadPool">
+      <!-- Default queued blocking threadpool -->
+      <New class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+        <Set name="minThreads">25</Set>
+        <Set name="maxThreads">250</Set>
+      </New>
     </Set>
 
     <Call name="addConnector">
         <Arg>
-            <!--
-                // Note: we are using the old-fashinone SslSocketConnector rather than the newer 
-                SslSelectChannelConnector here in order to avoid hangs with FireFox 3, see
-                http://jira.codehaus.org/browse/JETTY-567 
-            -->
-            <New class="org.mortbay.jetty.security.SslSocketConnector">
-                <Set name="Port">
-                    <SystemProperty name="jetty.port" default="8443" />
-                </Set>
-                <Set name="maxIdleTime">30000</Set>
-                <Set name="Acceptors">2</Set>
-                <Set name="AcceptQueueSize">100</Set>
-                <Set name="Keystore">
-                    <SystemProperty name="jetty.home" default="." />/etc/keystore
-                </Set>
-                <Set name="Password">changeit</Set>
-                <Set name="KeyPassword">changeit</Set>
-            </New>
+          <New class="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
+	             <Set name="Port">8443</Set>
+	                 <Set name="maxIdleTime">30000</Set>
+                   <Set name="Acceptors">2</Set>
+                   <Set name="AcceptQueueSize">100</Set>
+	                 <Set name="Keystore">
+	                     <SystemProperty name="jetty.home" default="." />/etc/keystore
+	                 </Set>
+                  <Set name="Password">changeit</Set>
+                  <Set name="KeyPassword">changeit</Set>
+          </New>
         </Arg>
     </Call>
 
     <Set name="handler">
-        <New class="org.mortbay.jetty.webapp.WebAppContext">
+        <New class="org.eclipse.jetty.webapp.WebAppContext">
             <Set name="contextPath">/</Set>
             <Set name="war">
                 <SystemProperty name="jetty.home" default="." />/webapps/cifex.war

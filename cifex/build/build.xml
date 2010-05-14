@@ -48,7 +48,7 @@
 
 		<property name="dist.file.name"
 		          value="${ant.project.name}-${version.number}-r${revision.number}.zip" />
-		<property name="jetty.path" value="${lib}/jetty" />
+		<property name="jetty.path" value="${lib}/jetty7" />
 		<property name="zipped.dir" value="${dist}/${ant.project.name}" />
 
 		<mkdir dir="${zipped.dir}" />

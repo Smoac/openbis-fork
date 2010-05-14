@@ -18,11 +18,6 @@
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar" sourcepath="/libraries/commons-fileupload/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/activation/activation.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty/jetty.jar" sourcepath="/libraries/jetty/src/jetty.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty/jetty-util.jar" sourcepath="/libraries/jetty/src/jetty-util.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty/servlet-api-2.5.jar" sourcepath="/libraries/jetty/src/servlet-api-2.5.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty/jetty-java5-threadpool.jar" sourcepath="/libraries/jetty/src/jetty-java5-threadpool.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty/jetty-sslengine.jar" sourcepath="/libraries/jetty/src/jetty-sslengine.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/test/spring-test.jar" sourcepath="/libraries/spring/test/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
