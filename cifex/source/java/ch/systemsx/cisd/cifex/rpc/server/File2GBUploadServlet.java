@@ -67,6 +67,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
             "    <jar href='spring-aop.jar'/>\n" + 
             "    <jar href='spring-core.jar'/>\n" + 
             "    <jar href='aopalliance.jar'/>\n" + 
+            "    <jar href='stream-supporting-httpinvoker.jar'/>\n" +
             "    <jar href='commons-codec.jar'/>\n" + 
             "    <jar href='commons-httpclient.jar'/>\n" + 
             "    <jar href='commons-io.jar'/>\n" + 
