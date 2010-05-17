@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.QueryParameterValue;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
@@ -66,20 +67,23 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
     private final Collection<ParameterField> parameterFields;
 
     // <name, value> where name starts with additional INITIAL_PARAMETER_NAME_PREFIX
-    private final Map<String, String> initialParameterValues;
+    private final Map<String, QueryParameterValue> initialParameterValues;
+
+    private final Map<String, String> initialFixedParameters;
 
     public RunCannedQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext,
             QueryType queryType)
     {
-        this(viewContext, null, new HashMap<String, String>(0), queryType);
+        this(viewContext, null, new HashMap<String, QueryParameterValue>(0), queryType);
     }
 
     public RunCannedQueryToolbar(IViewContext<IQueryClientServiceAsync> viewContext,
-            String initialQueryNameOrNull, Map<String, String> initialParameterValues,
+            String initialQueryNameOrNull, Map<String, QueryParameterValue> initialParameterValues,
             QueryType queryType)
     {
         super(viewContext);
         this.initialParameterValues = initialParameterValues;
+        initialFixedParameters = new HashMap<String, String>();
         querySelectionWidget =
                 new QuerySelectionWidget(viewContext, initialQueryNameOrNull, queryType);
         parameterContainer = new ButtonGroup(MAX_PARAMETER_COLUMNS);
@@ -159,13 +163,25 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
             };
         for (String parameter : query.getParameters())
         {
-            final String initialValueOrNull = tryGetInitialValue(parameter);
-            addParameterField(new ParameterField(parameter, updateExecuteButtonAction,
-                    initialValueOrNull));
+            final QueryParameterValue initialValueOrNull = tryGetInitialValue(parameter);
+            if (initialValueOrNull != null && initialValueOrNull.isFixed())
+            {
+                addInitialBinding(parameter, initialValueOrNull.getValue());
+            } else
+            {
+                addParameterField(new ParameterField(parameter, updateExecuteButtonAction,
+                        initialValueOrNull == null ? null : initialValueOrNull.getValue()));
+            }
         }
     }
 
-    private String tryGetInitialValue(String parameter)
+    private void addInitialBinding(String parameter, String value)
+    {
+
+        initialFixedParameters.put(parameter, value);
+    }
+
+    private QueryParameterValue tryGetInitialValue(String parameter)
     {
         return initialParameterValues.get(INITIAL_PARAMETER_NAME_PREFIX + parameter);
     }
@@ -238,6 +254,10 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
     public QueryParameterBindings tryGetQueryParameterBindings()
     {
         QueryParameterBindings bindings = new QueryParameterBindings();
+        for (String key : initialFixedParameters.keySet())
+        {
+            bindings.addBinding(key, initialFixedParameters.get(key));
+        }
         for (ParameterField field : parameterFields)
         {
             ParameterWithValue parameterWithValue = field.getParameterWithValue();

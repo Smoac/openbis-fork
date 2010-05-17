@@ -16,14 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -31,24 +28,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.AbstractQueryProviderToolbar;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.QueryModuleDatabaseMenuItem;
-import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.QueryViewer;
-import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.RunCannedQueryToolbar;
 
 /**
  * @author Piotr Buczek
  */
 public class QueryModule implements IModule
 {
+
     public static final String ID = GenericConstants.ID_PREFIX;
 
     private final IViewContext<IQueryClientServiceAsync> viewContext;
@@ -115,79 +105,6 @@ public class QueryModule implements IModule
     public Collection<? extends DisposableSectionPanel> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {
-        ArrayList<DisposableSectionPanel> result = new ArrayList<DisposableSectionPanel>();
-        final IViewContext<IQueryClientServiceAsync> queryModuleContext = viewContext;
-        result.add(createEntitySectionPanel(queryModuleContext, entity));
-        return result;
-    }
-
-    private DisposableSectionPanel createEntitySectionPanel(
-            final IViewContext<IQueryClientServiceAsync> queryModuleContext,
-            final IEntityInformationHolderWithIdentifier entity)
-    {
-        DisposableSectionPanel panel =
-                new DisposableSectionPanel(
-                        viewContext
-                                .getMessage(ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.QUERY_MODULE_MENU_TITLE),
-                        queryModuleContext)
-                    {
-                        @Override
-                        protected IDisposableComponent createDisposableContent()
-                        {
-                            HashMap<String, String> parameters = new HashMap<String, String>();
-                            if (entity.getEntityKind().equals(EntityKind.MATERIAL))
-                            {
-                                parameters.put("_key", entity.getCode());
-                                parameters.put("_type", entity.getEntityType().getCode());
-                            } else
-                            {
-                                parameters.put("_key", entity.getPermId());
-                            }
-                            AbstractQueryProviderToolbar toolbar =
-                                    new RunCannedQueryToolbar(queryModuleContext, null, parameters,
-                                            translate(entity.getEntityKind()));
-                            final DatabaseModificationAwareComponent viewer =
-                                    QueryViewer.create(queryModuleContext, toolbar);
-                            return new IDisposableComponent()
-                                {
-                                    public void dispose()
-                                    {// FIXME
-                                    }
-
-                                    public Component getComponent()
-                                    {
-                                        return viewer.get();
-                                    }
-
-                                    public DatabaseModificationKind[] getRelevantModifications()
-                                    {
-                                        return viewer.getRelevantModifications();
-                                    }
-
-                                    public void update(
-                                            Set<DatabaseModificationKind> observedModifications)
-                                    {
-                                        viewer.update(observedModifications);
-                                    }
-                                };
-                        }
-                    };
-        return panel;
-    }
-
-    private static QueryType translate(EntityKind kind)
-    {
-        switch (kind)
-        {
-            case DATA_SET:
-                return QueryType.DATA_SET;
-            case EXPERIMENT:
-                return QueryType.EXPERIMENT;
-            case MATERIAL:
-                return QueryType.MATERIAL;
-            case SAMPLE:
-                return QueryType.SAMPLE;
-        }
-        return null;
+        return Arrays.asList(new QuerySectionPanel(viewContext, entity));
     }
 }

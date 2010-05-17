@@ -1,5 +1,8 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.locator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
@@ -14,6 +17,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabA
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.QueryParameterValue;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.QueryModuleDatabaseMenuItem;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.QueryViewer;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.RunCannedQueryToolbar;
@@ -43,11 +47,17 @@ public class QueryLocatorResolver extends AbstractViewLocatorResolver
         // opens a predefined query results viewer with optional:
         // - query selection using query name
         // - filling of parameter values using parameter names
+        Map<String, String> originalParameters = locator.getParameters();
+        Map<String, QueryParameterValue> parameters = new HashMap<String, QueryParameterValue>();
+        for (String key : originalParameters.keySet())
+        {
+            parameters.put(key, new QueryParameterValue(originalParameters.get(key), false));
+        }
         final String queryNameOrNull = locator.getParameters().get(QUERY_NAME_PARAMETER_KEY);
 
         final DatabaseModificationAwareComponent component =
                 QueryViewer.create(viewContext, new RunCannedQueryToolbar(viewContext,
-                        queryNameOrNull, locator.getParameters(), QueryType.GENERIC));
+                        queryNameOrNull, parameters, QueryType.GENERIC));
 
         final ITabActionMenuItemDefinition<IQueryClientServiceAsync> definition =
                 ActionMenuDefinition.RUN_CANNED_QUERY;
