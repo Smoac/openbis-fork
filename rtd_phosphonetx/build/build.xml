@@ -8,6 +8,9 @@
 	<property name="variant" value="-phosphonetx" />
 	<property name="api.prefix" value="raw-data-api" />
 	<property name="api.jar" value="${dist}/${api.prefix}.jar" />
+	<property name="api.doc" value="${dist}/${api.prefix}/doc" />
+	<property name="api.doc.zip" value="${dist}/${api.prefix}-doc.zip" />
+	<property name="api.src.zip" value="${dist}/${api.prefix}-src.zip" />
 	<property name="api.dist.file" value="${dist}/${api.prefix}.zip" />
 
 	<target name="compile" depends="build-common.compile, clean" />
@@ -22,6 +25,8 @@
         -->
 	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
 
+  <!-- Tasks for Raw Data API -->
+	
   <target name="jar" depends="openbis.jar">
     <jar destfile="${api.jar}">
       <zipfileset src="${jar.file}">
@@ -37,10 +42,34 @@
     </jar>  	
   </target>
 	
-  <target name="make-api-dist" depends="jar" 
+  <target name="make-api-doc">
+    <javadoc 
+      destdir="${api.doc}" 
+      access="public" 
+      author="false" 
+      version="false" 
+      classpath="${ecp}">
+      <fileset dir="${sources}">
+        <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/client/api/v1/*" />
+        <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/shared/api/v1/dto/*" />
+      </fileset>
+    </javadoc>
+    <zip destfile="${api.doc.zip}">
+      <zipfileset dir="${api.doc}" includes="**" />
+    </zip>
+    <delete dir="${api.doc}" />
+    <zip destfile="${api.src.zip}">
+      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/phosphonetx/shared/api/v1/dto/**" />
+      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/phosphonetx/client/api/v1/*.java" />
+    </zip>
+  </target>
+	
+  <target name="make-api-dist" depends="jar, make-api-doc" 
   	description="Makes a distribution file for Raw Data API.">
     <zip destfile="${api.dist.file}">
       <zipfileset prefix="${api.prefix}" file="${api.jar}"/>
+      <zipfileset prefix="${api.prefix}" file="${api.doc.zip}"/>
+      <zipfileset prefix="${api.prefix}" file="${api.src.zip}"/>
       <zipfileset prefix="${api.prefix}" file="${lib}/cisd-base/cisd-base.jar"/>
       <zipfileset prefix="${api.prefix}" file="${lib}/commons-codec/commons-codec.jar"/>
       <zipfileset prefix="${api.prefix}" file="${lib}/commons-httpclient/commons-httpclient.jar"/>
