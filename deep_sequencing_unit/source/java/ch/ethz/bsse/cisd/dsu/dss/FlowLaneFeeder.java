@@ -283,10 +283,10 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         }
         if (srfInfo.isEmpty() == false)
         {
-            builder.append("\n==== SRF Info ====\n");
+            builder.append("\n==== SRF Info ====\t\n");
             for (String line : srfInfo)
             {
-                builder.append(line).append('\n');
+                builder.append(line).append("\t\n");
             }
         }
         String sampleCode = flowLaneSample.getCode();
