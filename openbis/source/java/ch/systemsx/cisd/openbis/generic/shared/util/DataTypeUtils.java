@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,50 +45,70 @@ public class DataTypeUtils
         INTEGER(DataTypeCode.INTEGER)
         {
             @Override
-            public ISerializableComparable doConvertion(String value)
+            public ISerializableComparable doConversion(String value)
             {
-                long number;
+                return new IntegerTableCell(doSimpleConversion(value));
+            }
+
+            @Override
+            public Long doSimpleConversion(String value)
+            {
                 try
                 {
-                    number = Long.parseLong(value);
+                    return new Long(value);
                 } catch (NumberFormatException ex)
                 {
                     throw new IllegalArgumentException("Is not an integer number: " + value);
                 }
-                return new IntegerTableCell(number);
             }
         },
         DOUBLE(DataTypeCode.REAL)
         {
             @Override
-            public ISerializableComparable doConvertion(String value)
+            public ISerializableComparable doConversion(String value)
             {
-                double number;
+                return new DoubleTableCell(doSimpleConversion(value));
+            }
+
+            @Override
+            public Double doSimpleConversion(String value)
+            {
                 try
                 {
-                    number = Double.parseDouble(value);
+                    return new Double(value);
                 } catch (NumberFormatException ex)
                 {
                     throw new IllegalArgumentException("Is not a floating point number: " + value);
                 }
-                return new DoubleTableCell(number);
             }
         },
         DATE(DataTypeCode.TIMESTAMP)
         {
             @Override
-            public ISerializableComparable doConvertion(String value)
+            public ISerializableComparable doConversion(String value)
             {
                 return new StringTableCell(value);
+            }
+
+            @Override
+            public Serializable doSimpleConversion(String value)
+            {
+                return value;
             }
         },
         STRING(DataTypeCode.VARCHAR, DataTypeCode.MULTILINE_VARCHAR, DataTypeCode.BOOLEAN,
                 DataTypeCode.CONTROLLEDVOCABULARY, DataTypeCode.MATERIAL, DataTypeCode.HYPERLINK)
         {
             @Override
-            public ISerializableComparable doConvertion(String value)
+            public ISerializableComparable doConversion(String value)
             {
                 return new StringTableCell(value);
+            }
+            
+            @Override
+            public Serializable doSimpleConversion(String value)
+            {
+                return value;
             }
         },
         ;
@@ -113,10 +134,16 @@ public class DataTypeUtils
             {
                 return EMPTY_CELL;
             }
-            return doConvertion(value);
+            return doConversion(value);
+        }
+        
+        public Serializable convertValue(String value)
+        {
+            return StringUtils.isBlank(value) ? null : doSimpleConversion(value);
         }
 
-        public abstract ISerializableComparable doConvertion(String value);
+        protected abstract ISerializableComparable doConversion(String value);
+        protected abstract Serializable doSimpleConversion(String value);
     }
 
     /**
@@ -127,6 +154,15 @@ public class DataTypeUtils
         return Converter.resolve(dataTypeCode).convert(value);
     }
 
+    
+    /**
+     * Converts the specified string value into a data value in accordance with specified data type.
+     */
+    public static Serializable convertValueTo(DataTypeCode dataTypeCode, String value)
+    {
+        return Converter.resolve(dataTypeCode).convertValue(value);
+    }
+    
     /**
      * Returns a data type which is compatible with the previous data type and the new data type.
      */
