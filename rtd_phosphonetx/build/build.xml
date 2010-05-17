@@ -6,6 +6,9 @@
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="rtd_phosphonetx" />
 	<property name="variant" value="-phosphonetx" />
+	<property name="api.prefix" value="raw-data-api" />
+	<property name="api.jar" value="${dist}/${api.prefix}.jar" />
+	<property name="api.dist.file" value="${dist}/${api.prefix}.zip" />
 
 	<target name="compile" depends="build-common.compile, clean" />
 
@@ -19,6 +22,38 @@
         -->
 	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
 
+  <target name="jar" depends="openbis.jar">
+    <jar destfile="${api.jar}">
+      <zipfileset src="${jar.file}">
+        <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
+        <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
+        <include name="ch/systemsx/cisd/common/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/**/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/openbis/**/server/api/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/*BuildAndEnvironmentInfo.class" />
+        <include name="*.INFO" />
+      </zipfileset>
+    </jar>  	
+  </target>
+	
+  <target name="make-api-dist" depends="jar" 
+  	description="Makes a distribution file for Raw Data API.">
+    <zip destfile="${api.dist.file}">
+      <zipfileset prefix="${api.prefix}" file="${api.jar}"/>
+      <zipfileset prefix="${api.prefix}" file="${lib}/cisd-base/cisd-base.jar"/>
+      <zipfileset prefix="${api.prefix}" file="${lib}/commons-codec/commons-codec.jar"/>
+      <zipfileset prefix="${api.prefix}" file="${lib}/commons-httpclient/commons-httpclient.jar"/>
+      <zipfileset prefix="${api.prefix}" file="${lib}/commons-logging/commons-logging.jar"/>
+      <zipfileset prefix="${api.prefix}" file="${lib}/log4j/log4j.jar"/>
+      <zipfileset prefix="${api.prefix}" file="${lib}/spring/spring.jar"/>
+      <zipfileset prefix="${api.prefix}" file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"/>
+    </zip>
+  	<delete file="${api.jar}"/>
+    <move file="${api.dist.file}" todir="${server.dist}" />
+  </target>
+
+	
 	<!--
         // Compiles the javascript using GWT compiler.
         -->
@@ -33,7 +68,7 @@
 	<!--
         // Creates WAR file.
         -->
-	<target name="war" depends="openbis.war" description="Creates project war file.">
+	<target name="war" depends="openbis.war, make-api-dist" description="Creates project war file.">
 		<war warfile="${webapp.file}" update="true">
 			<classes prefix="WEB-INF/classes/phosphonetx" dir="source">
 				<include name="**/*.sql" />
