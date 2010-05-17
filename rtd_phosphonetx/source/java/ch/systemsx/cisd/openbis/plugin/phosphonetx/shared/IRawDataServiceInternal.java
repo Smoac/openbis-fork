@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared;
 
 import java.util.List;
 

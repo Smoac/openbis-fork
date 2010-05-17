@@ -16,9 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -26,24 +35,33 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.PropertyKey;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
- * Imlementation of {@link IRawDataService}.
+ * Implementation of {@link IRawDataService}.
  * 
  * @author Franz-Josef Elmer
  */
+@Component(Constants.PHOSPHONETX_RAW_DATA_SERVICE)
 public class RawDataService extends AbstractServer<IRawDataService> implements IRawDataService
 {
+    @Resource(name = Constants.PHOSPHONETX_RAW_DATA_SERVICE_INTERNAL)
     private IRawDataServiceInternal service;
 
     public RawDataService()
@@ -57,22 +75,28 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         this.service = service;
     }
 
+    public String tryToAuthenticateAtRawDataServer(String userID, String userPassword)
+    {
+        SessionContextDTO session = tryToAuthenticate(userID, userPassword);
+        return session == null ? null : session.getSessionToken();
+    }
+
     public IRawDataService createLogger(IInvocationLoggerContext context)
     {
         return new RawDataServiceLogger(getSessionManager(), context);
     }
 
-    public List<Sample> listRawDataSamples(String sessionToken, String userID)
+    public List<MsInjectionDataInfo> listRawDataSamples(String sessionToken, String userID)
     {
         checkSession(sessionToken);
         SessionContextDTO session = login(userID);
         try
         {
             List<MsInjectionSample> list = service.listRawDataSamples(session.getSessionToken());
-            ArrayList<Sample> result = new ArrayList<Sample>();
+            ArrayList<MsInjectionDataInfo> result = new ArrayList<MsInjectionDataInfo>();
             for (MsInjectionSample sample : list)
             {
-                result.add(sample.getSample());
+                result.add(translate(sample));
             }
             return result;
 
@@ -82,11 +106,46 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         }
     }
 
-    public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken)
+    private MsInjectionDataInfo translate(MsInjectionSample sample)
+    {
+        MsInjectionDataInfo info = new MsInjectionDataInfo();
+        Sample msiSample = sample.getSample();
+        info.setMsInjectionSampleID(msiSample.getId());
+        info.setMsInjectionSampleCode(msiSample.getCode());
+        info.setMsInjectionSampleRegistrationDate(msiSample.getRegistrationDate());
+        info.setMsInjectionSampleProperties(translate(msiSample.getProperties()));
+        Sample bioSample = msiSample.getGeneratedFrom();
+        info.setBiologicalSampleID(bioSample.getId());
+        info.setBiologicalSampleIdentifier(bioSample.getIdentifier());
+        info.setBiologicalSampleProperties(translate(bioSample.getProperties()));
+        Map<String, Date> latestDataSetRegistrationDates = new HashMap<String, Date>();
+        for (Entry<String, ExternalData> entry : sample.getLatestDataSets().entrySet())
+        {
+            latestDataSetRegistrationDates.put(entry.getKey(), entry.getValue().getRegistrationDate());
+        }
+        info.setLatestDataSetRegistrationDates(latestDataSetRegistrationDates);
+        return info;
+    }
+
+    private Map<PropertyKey, Serializable> translate(List<IEntityProperty> properties)
+    {
+        HashMap<PropertyKey, Serializable> map = new HashMap<PropertyKey, Serializable>();
+        for (IEntityProperty property : properties)
+        {
+            PropertyType propertyType = property.getPropertyType();
+            PropertyKey key = new PropertyKey(propertyType.getCode(), propertyType.getLabel());
+            DataTypeCode dataTypeCode = propertyType.getDataType().getCode();
+            map.put(key, DataTypeUtils.convertValueTo(dataTypeCode, property.tryGetAsString()));
+        }
+        return map;
+    }
+
+    public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos(
+            String sessionToken)
     {
         checkSession(sessionToken);
 
-        List<DatastoreServiceDescription> result = new ArrayList<DatastoreServiceDescription>();
+        List<DataStoreServerProcessingPluginInfo> result = new ArrayList<DataStoreServerProcessingPluginInfo>();
         List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();
         for (DataStorePE dataStore : dataStores)
         {
@@ -95,22 +154,35 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
             {
                 if (dataStoreService.getKind() == DataStoreServiceKind.PROCESSING)
                 {
-                    result.add(DataStoreServiceTranslator.translate(dataStoreService));
+                    result.add(translate(dataStoreService));
                 }
             }
         }
         return result;
     }
 
+    private DataStoreServerProcessingPluginInfo translate(DataStoreServicePE dataStoreService)
+    {
+        String key = dataStoreService.getKey();
+        String label = dataStoreService.getLabel();
+        List<String> translatedCodes = new ArrayList<String>();
+        Set<DataSetTypePE> datasetTypes = dataStoreService.getDatasetTypes();
+        for (DataSetTypePE dataSetType : datasetTypes)
+        {
+            translatedCodes.add(dataSetType.getCode());
+        }
+        return new DataStoreServerProcessingPluginInfo(key, label, translatedCodes);
+    }
+
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
-            long[] rawDataSampleIDs)
+            long[] rawDataSampleIDs, String dataSetType)
     {
         checkSession(sessionToken);
         SessionContextDTO session = login(userID);
         try
         {
             service.processRawData(session.getSessionToken(), dataSetProcessingKey,
-                    rawDataSampleIDs, "");
+                    rawDataSampleIDs, dataSetType);
         } finally
         {
             service.logout(session.getSessionToken());

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
+import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
 
 /**
@@ -35,10 +35,10 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService
  */
 @Controller
 @RequestMapping(
-    { "/rmi-phosphonetx-raw-data-v1", "/openbis/rmi-phosphonetx-raw-data-v1" })
+    { Constants.RAW_DATA_SERVER_URL, "/openbis" + Constants.RAW_DATA_SERVER_URL })
 public class RawDataServiceServer extends HttpInvokerServiceExporter
 {
-    @Resource(name = ResourceNames.PHOSPHONETX_RAW_DATA_SERVICE)
+    @Resource(name = Constants.PHOSPHONETX_RAW_DATA_SERVICE)
     private IRawDataService service;
 
     @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
@@ -49,9 +49,11 @@ public class RawDataServiceServer extends HttpInvokerServiceExporter
     {
         setServiceInterface(IRawDataService.class);
         setService(service);
+        setInterceptors(new Object[]
+            { new ServiceExceptionTranslator() });
         RpcServiceInterfaceVersionDTO ifaceVersion =
                 new RpcServiceInterfaceVersionDTO("phosphonetx-raw-data",
-                        "/rmi-phosphonetx-raw-data-v1", 1, 0);
+                        Constants.RAW_DATA_SERVER_URL, 1, 0);
         nameServer.addSupportedInterfaceVersion(ifaceVersion);
         super.afterPropertiesSet();
     }

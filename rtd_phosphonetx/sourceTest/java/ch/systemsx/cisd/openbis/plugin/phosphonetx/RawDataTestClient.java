@@ -22,10 +22,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.DefaultLimsServiceStubFactory;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
 /**
  * @author Franz-Josef Elmer
@@ -57,20 +56,19 @@ public class RawDataTestClient
             try
             {
                 System.out.println("User: " + user);
-                SessionContextDTO session = service.tryToAuthenticate("test", "a");
-                String sessionToken = session.getSessionToken();
-                List<DatastoreServiceDescription> services =
-                        service.listDataStoreServices(sessionToken);
-                for (DatastoreServiceDescription datastoreServiceDescription : services)
+                String sessionToken = service.tryToAuthenticateAtRawDataServer("test", "a");
+                List<DataStoreServerProcessingPluginInfo> services =
+                        service.listDataStoreServerProcessingPluginInfos(sessionToken);
+                for (DataStoreServerProcessingPluginInfo info : services)
                 {
-                    System.out.print(datastoreServiceDescription.getLabel() + " ");
+                    System.out.print(info.getLabel() + " ");
                 }
                 System.out.println();
-                List<Sample> samples = service.listRawDataSamples(sessionToken, user);
-                for (Sample sample : samples)
+                List<MsInjectionDataInfo> samples = service.listRawDataSamples(sessionToken, user);
+                for (MsInjectionDataInfo sample : samples)
                 {
-                    System.out.println("  " + sample.getCode() + " -> "
-                            + sample.getGeneratedFrom().getIdentifier());
+                    System.out.println("  " + sample.getMsInjectionSampleCode() + " -> "
+                            + sample.getBiologicalSampleIdentifier());
                 }
             } catch (UserFailureException ex)
             {
@@ -79,16 +77,15 @@ public class RawDataTestClient
 
         }
         System.out.println("--------------------");
-        SessionContextDTO session = service.tryToAuthenticate("test_b", "t");
-        String sessionToken = session.getSessionToken();
+        String sessionToken = service.tryToAuthenticateAtRawDataServer("test_b", "t");
 
-        List<Sample> samples = service.listRawDataSamples(sessionToken, "test_a");
+        List<MsInjectionDataInfo> samples = service.listRawDataSamples(sessionToken, "test_a");
         long[] ids = new long[samples.size()];
         for (int i = 0; i < samples.size(); i++)
         {
-            Sample sample = samples.get(i);
-            ids[i] = sample.getId();
+            MsInjectionDataInfo sample = samples.get(i);
+            ids[i] = sample.getMsInjectionSampleID();
         }
-        service.processingRawData(sessionToken, "test_a", "copy-data-sets", ids);
+        service.processingRawData(sessionToken, "test_a", "copy-data-sets", ids, null);
     }
 }

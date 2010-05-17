@@ -44,7 +44,7 @@
         // Raw Data Server 
     -->
     
-    <bean id="phosphonetx-raw-data-service" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <!--bean id="phosphonetx-raw-data-service" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="proxyInterfaces">
             <list>
                 <value>ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService</value>
@@ -62,7 +62,7 @@
                 <value>exception-translator</value>
             </list>
         </property>
-    </bean>
+    </bean-->
     
     <bean id="phosphonetx-raw-data-service-internal" 
           class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1.RawDataServiceInternal" 
