@@ -324,6 +324,9 @@ public interface IMessageResources extends Messages
     @Key(value = "fileupload.duplicates.msg")
     public String getFileUploadDuplicatesMsg();
 
+    @Key(value = "header.webpage.link")
+    public String getWebpageLink();
+    
     /** Returns application description. */
     @Key(value = "footer.application.description")
     public String getFooterApplicationDescription();

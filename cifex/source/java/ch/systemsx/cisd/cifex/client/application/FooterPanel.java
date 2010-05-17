@@ -23,11 +23,8 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
@@ -93,7 +90,7 @@ final class FooterPanel extends HorizontalPanel
                     try
                     {
                         new RequestBuilder(RequestBuilder.GET, "disclaimer.html").sendRequest(null,
-                                new HTMLRequestCallback(messageResources
+                                new HTMLRequestCallback(viewContext, messageResources
                                         .getFooterDisclaimerDialogTitle()));
                     } catch (final RequestException ex)
                     {
@@ -112,8 +109,10 @@ final class FooterPanel extends HorizontalPanel
                     try
                     {
                         new RequestBuilder(RequestBuilder.GET, "documentation.html").sendRequest(
-                                null, new HTMLRequestCallback(messageResources
-                                        .getFooterDocumentationDialogTitle()));
+                                null, new HTMLRequestCallback(viewContext, messageResources
+                                        .getFooterDocumentationDialogTitle(),
+                                        DefaultLayoutDialog.DEFAULT_WIDTH * 2,
+                                        DefaultLayoutDialog.DEFAULT_HEIGHT * 2));
                     } catch (final RequestException ex)
                     {
                         showErrorMessage(ex);
@@ -152,31 +151,4 @@ final class FooterPanel extends HorizontalPanel
         MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg, null);
     }
 
-    /**
-     * A {@link RequestCallback} that shows a legal disclaimer on success.
-     */
-    private final class HTMLRequestCallback implements RequestCallback
-    {
-        private final String panelTitle;
-
-        public HTMLRequestCallback(String title)
-        {
-            this.panelTitle = title;
-        }
-
-        public final void onResponseReceived(final Request request, final Response response)
-        {
-            final DefaultLayoutDialog layoutDialog =
-                    new DefaultLayoutDialog(viewContext.getMessageResources(), this.panelTitle,
-                            DefaultLayoutDialog.DEFAULT_WIDTH, DefaultLayoutDialog.DEFAULT_HEIGHT,
-                            true, true);
-            layoutDialog.addText(response.getText());
-            layoutDialog.show();
-        }
-
-        public void onError(final Request request, final Throwable exception)
-        {
-            showErrorMessage(exception);
-        }
-    }
 }
