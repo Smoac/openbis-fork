@@ -107,12 +107,12 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
 
     public CIFEXRPCService(final IFileManager fileManager, final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
-            final IUserActionLog userBehaviorLog,
+            final IUserActionLog userActionLog,
             final IAuthenticationService externalAuthenticationService,
             final SessionManager sessionManager, final long cleaningTimeInterval,
             final int sessionExpirationPeriodMinutes, final String testingFlag)
     {
-        super(domainModel, requestContextProvider, userBehaviorLog, externalAuthenticationService,
+        super(domainModel, requestContextProvider, userActionLog, externalAuthenticationService,
                 createLoggingContextHandler(requestContextProvider), sessionExpirationPeriodMinutes);
         this.fileManager = fileManager;
         this.userManager = domainModel.getUserManager();
@@ -186,13 +186,10 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             throws AuthorizationFailureException, EnvironmentFailureException
     {
         logInvocation("session initialization", "Try to login user '" + userCode + "'.");
-        final UserDTO user = tryLoginUser(userCode, plainPassword, false);
+        final UserDTO user = tryLoginUser(userCode, plainPassword);
         if (user == null)
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logFailedLoginAttempt(userCode);
-            }
+            userActionLog.logFailedLoginAttempt(userCode);
             // Delay reporting of failure in order to make brute force password attacks
             // unattractive.
             ConcurrencyUtilities.sleep(DELAY_AFTER_FAILED_LOGIN_MILLIS);
@@ -274,10 +271,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             return fileInfoDTO;
         } finally
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logDownloadFileStart(file, success);
-            }
+            userActionLog.logDownloadFileStart(file, success);
         }
     }
 
@@ -305,10 +299,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             return fileDTO.getID();
         } finally
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logUploadFile(fileName, success);
-            }
+            userActionLog.logUploadFile(fileName, success);
         }
     }
 
@@ -341,10 +332,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             success = true;
         } finally
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logUploadFile(fileName, success);
-            }
+            userActionLog.logUploadFile(fileName, success);
         }
     }
 
@@ -415,7 +403,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         final String comment = createCommentForSharingEmail(files);
         checkIfUserIsControllingFiles(sessionID, user, files, recipientList);
         final List<String> invalidUserIdentifiers =
-                fileManager.shareFilesWith(url, user, recipientList, files, comment);
+                fileManager.shareFilesWith(url, user, recipientList, files, comment, userActionLog);
         if (invalidUserIdentifiers.isEmpty() == false)
         {
             throw new UserFailureException("Some user identifiers are invalid: "
@@ -439,10 +427,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                         .error("[" + sessionID + "]: shareFiles() failed because user "
                                 + user.getUserCode() + " is not allowed to control file="
                                 + file.toString());
-                if (userBehaviorLogOrNull != null)
-                {
-                    userBehaviorLogOrNull.logShareFilesAuthorizationFailure(files, recipientList);
-                }
+                userActionLog.logShareFilesAuthorizationFailure(files, recipientList);
                 throw new AuthorizationFailureException("Insufficient privileges for user "
                         + user.getUserCode() + ".");
             }
@@ -504,7 +489,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             success = true;
         } finally
         {
-            userBehaviorLogOrNull.logDeleteFile(file, success);
+            userActionLog.logDeleteFile(file, success);
         }
     }
 
@@ -541,7 +526,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                                     {
                                         public void update(long bytesRead, int crc32Value)
                                         {
-                                            userBehaviorLogOrNull.logDownloadFileFinished(
+                                            userActionLog.logDownloadFileFinished(
                                                     finalFile, true);
                                         }
                                     }, startPosition, ChecksumHandling.DONT_COMPUTE);
@@ -553,10 +538,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             }
         } finally
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logDownloadFileStart(file, success);
-            }
+            userActionLog.logDownloadFileStart(file, success);
         }
     }
 
@@ -595,11 +577,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             success = true;
         } finally
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logSetSessionUser(oldUserCode, userCode, success);
-            }
-
+            userActionLog.logSetSessionUser(oldUserCode, userCode, success);
         }
     }
 

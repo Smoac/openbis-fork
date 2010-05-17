@@ -98,7 +98,7 @@ public class DummyUserActionLog implements IUserActionLog
     {
     }
 
-    public void logChangeUserCodeUser(final String before, final String after, final boolean success)
+    public void logChangeUserCode(final String before, final String after, final boolean success)
     {
     }
 

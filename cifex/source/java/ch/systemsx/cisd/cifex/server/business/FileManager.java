@@ -194,7 +194,7 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public final void deleteExpiredFiles()
+    public final void deleteExpiredFiles(final IUserActionLog logOrNull)
     {
         final List<FileDTO> expiredFiles = daoFactory.getFileDAO().getExpiredFiles();
         if (operationLog.isInfoEnabled() && expiredFiles.size() > 0)
@@ -220,10 +220,16 @@ final class FileManager extends AbstractManager implements IFileManager
                             + "' could not be found in the database.");
                 }
                 success &= deleteFromFileSystem(file.getPath());
-                businessContext.getUserActionLog().logExpireFile(file, success);
+                if (logOrNull != null)
+                {
+                    logOrNull.logExpireFile(file, success);
+                }
             } catch (final RuntimeException ex)
             {
-                businessContext.getUserActionLog().logExpireFile(file, false);
+                if (logOrNull != null)
+                {
+                    logOrNull.logExpireFile(file, false);
+                }
                 operationLog.error("Error deleting file '" + file.getPath() + "'.", ex);
                 if (firstExceptionOrNull == null)
                 {
@@ -284,24 +290,16 @@ final class FileManager extends AbstractManager implements IFileManager
 
     public final FileContent getFileContent(final FileDTO fileDTO)
     {
-        boolean success = false;
+        final File realFile = getRealFile(fileDTO);
         try
         {
-            final File realFile = getRealFile(fileDTO);
-            try
-            {
-                final FileContent content =
-                        new FileContent(BeanUtils.createBean(BasicFileDTO.class, fileDTO),
-                                new FileInputStream(realFile));
-                success = true;
-                return content;
-            } catch (final FileNotFoundException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
-        } finally
+            final FileContent content =
+                    new FileContent(BeanUtils.createBean(BasicFileDTO.class, fileDTO),
+                            new FileInputStream(realFile));
+            return content;
+        } catch (final FileNotFoundException ex)
         {
-            businessContext.getUserActionLog().logDownloadFile(fileDTO, success);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
@@ -360,7 +358,6 @@ final class FileManager extends AbstractManager implements IFileManager
         final String contentType =
                 (contentTypeOrNull != null) ? contentTypeOrNull : DEFAULT_CONTENT_TYPE;
         final File file = createFile(user, fileName);
-        boolean success = false;
         try
         {
             ResumingAndChecksummingOutputStream outputStream = null;
@@ -378,7 +375,6 @@ final class FileManager extends AbstractManager implements IFileManager
                     final FileDTO fileDTO =
                             registerFile(user, fileName, comment, contentType, file, byteCount,
                                     crc32Value);
-                    success = true;
                     return fileDTO;
                 } else
                 {
@@ -400,9 +396,6 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             deleteFromFileSystem(file);
             throw e;
-        } finally
-        {
-            businessContext.getUserActionLog().logUploadFile(fileName, success);
         }
     }
 
@@ -417,70 +410,61 @@ final class FileManager extends AbstractManager implements IFileManager
         final PreCreatedFileDTO fileContainer = createFile(user, fileName, fileSize, comment);
         final File file = fileContainer.getFile();
         final FileDTO fileDTO = fileContainer.getFileDTO();
-        boolean success = false;
+        ResumingAndChecksummingOutputStream outputStream = null;
         try
         {
-            ResumingAndChecksummingOutputStream outputStream = null;
-            try
-            {
-                outputStream =
-                        new ResumingAndChecksummingOutputStream(file, PROGRESS_UPDATE_CHUNK_SIZE,
-                                new IWriteProgressListener()
-                                    {
-                                        long lastUpdated = System.currentTimeMillis();
+            outputStream =
+                    new ResumingAndChecksummingOutputStream(file, PROGRESS_UPDATE_CHUNK_SIZE,
+                            new IWriteProgressListener()
+                                {
+                                    long lastUpdated = System.currentTimeMillis();
 
-                                        public void update(long bytesWritten, int crc32Value)
+                                    public void update(long bytesWritten, int crc32Value)
+                                    {
+                                        final long now = System.currentTimeMillis();
+                                        if (now - lastUpdated > PROGRESS_UPDATE_MIN_INTERVAL_MILLIS
+                                                && bytesWritten != fileSize)
                                         {
-                                            final long now = System.currentTimeMillis();
-                                            if (now - lastUpdated > PROGRESS_UPDATE_MIN_INTERVAL_MILLIS
-                                                    && bytesWritten != fileSize)
-                                            {
-                                                fileDTO.setSize(bytesWritten);
-                                                fileDTO.setCrc32Value(crc32Value);
-                                                updateUploadProgress(fileDTO, user);
-                                                lastUpdated = now;
-                                            }
+                                            fileDTO.setSize(bytesWritten);
+                                            fileDTO.setCrc32Value(crc32Value);
+                                            updateUploadProgress(fileDTO, user);
+                                            lastUpdated = now;
                                         }
-                                    });
-                final int remoteCrc32Value =
-                        CopyUtils.copyAndReturnChecksum(inputStream, outputStream, fileSize, 0L);
-                outputStream.close();
-                final long byteCount = outputStream.getByteCount();
-                fileDTO.setSize(byteCount);
-                final int crc32Value = outputStream.getCrc32Value();
-                fileDTO.setCrc32Value(crc32Value);
-                if (remoteCrc32Value != crc32Value)
-                {
-                    deleteFromFileSystem(file);
-                    daoFactory.getFileDAO().deleteFile(fileDTO.getID());
-                    throw new CRCCheckumMismatchException(fileName, crc32Value, remoteCrc32Value);
-                }
-                if (byteCount != fileSize)
-                {
-                    deleteFromFileSystem(file);
-                    daoFactory.getFileDAO().deleteFile(fileDTO.getID());
-                    throw EnvironmentFailureException.fromTemplate(
-                            "Wrong file size of file %s [expected: %d, found: %d]", fileName,
-                            fileSize, byteCount);
-                }
-                operationLog.info(String.format("File %s has crc32 checksum %x.", fileName,
-                        crc32Value));
-                // Set file to 'complete' in database.
-                updateUploadProgress(fileDTO, user);
-                success = true;
-                return fileDTO;
-            } catch (final IOException ex)
+                                    }
+                                });
+            final int remoteCrc32Value =
+                    CopyUtils.copyAndReturnChecksum(inputStream, outputStream, fileSize, 0L);
+            outputStream.close();
+            final long byteCount = outputStream.getByteCount();
+            fileDTO.setSize(byteCount);
+            final int crc32Value = outputStream.getCrc32Value();
+            fileDTO.setCrc32Value(crc32Value);
+            if (remoteCrc32Value != crc32Value)
             {
-                throw EnvironmentFailureException.fromTemplate(ex, "Error saving file '%s'.",
-                        fileName);
-            } finally
-            {
-                IOUtils.closeQuietly(inputStream);
-                IOUtils.closeQuietly(outputStream);
+                deleteFromFileSystem(file);
+                daoFactory.getFileDAO().deleteFile(fileDTO.getID());
+                throw new CRCCheckumMismatchException(fileName, crc32Value, remoteCrc32Value);
             }
+            if (byteCount != fileSize)
+            {
+                deleteFromFileSystem(file);
+                daoFactory.getFileDAO().deleteFile(fileDTO.getID());
+                throw EnvironmentFailureException.fromTemplate(
+                        "Wrong file size of file %s [expected: %d, found: %d]", fileName, fileSize,
+                        byteCount);
+            }
+            operationLog
+                    .info(String.format("File %s has crc32 checksum %x.", fileName, crc32Value));
+            // Set file to 'complete' in database.
+            updateUploadProgress(fileDTO, user);
+            return fileDTO;
+        } catch (final IOException ex)
+        {
+            throw EnvironmentFailureException.fromTemplate(ex, "Error saving file '%s'.", fileName);
         } finally
         {
-            businessContext.getUserActionLog().logUploadFile(fileName, success);
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(outputStream);
         }
     }
 
@@ -496,97 +480,87 @@ final class FileManager extends AbstractManager implements IFileManager
 
         final String fileName = fileDTO.getName();
         final long fileSize = fileDTO.getCompleteSize();
-        boolean success = false;
+        if (startPos > fileDTO.getSize())
+        {
+            throw new IllegalArgumentException(String.format(
+                    "File id=%d: requested start position %d for resume is larger than "
+                            + "transferred size %d.", fileDTO.getID(), startPos, fileDTO.getSize()));
+        }
+        // Update comment if it has changed.
+        if (StringUtils.isNotBlank(comment)
+                && ObjectUtils.equals(comment, fileDTO.getComment()) == false)
+            daoFactory.getFileDAO().updateFileUserEdit(fileDTO.getID(), fileName, comment,
+                    calculateNewExpirationDate(fileDTO, user));
+        ResumingAndChecksummingOutputStream outputStream = null;
         try
         {
-            if (startPos > fileDTO.getSize())
-            {
-                throw new IllegalArgumentException(String.format(
-                        "File id=%d: requested start position %d for resume is larger than "
-                                + "transferred size %d.", fileDTO.getID(), startPos, fileDTO
-                                .getSize()));
-            }
-            // Update comment if it has changed.
-            if (StringUtils.isNotBlank(comment)
-                    && ObjectUtils.equals(comment, fileDTO.getComment()) == false)
-                daoFactory.getFileDAO().updateFileUserEdit(fileDTO.getID(), fileName, comment,
-                        calculateNewExpirationDate(fileDTO, user));
-            ResumingAndChecksummingOutputStream outputStream = null;
-            try
-            {
-                final int partialCrc32Value =
-                        (fileDTO.getCrc32Value() != null) ? fileDTO.getCrc32Value() : 0;
-                outputStream =
-                        new ResumingAndChecksummingOutputStream(file, PROGRESS_UPDATE_CHUNK_SIZE,
-                                new IWriteProgressListener()
-                                    {
-                                        long lastUpdated = System.currentTimeMillis();
+            final int partialCrc32Value =
+                    (fileDTO.getCrc32Value() != null) ? fileDTO.getCrc32Value() : 0;
+            outputStream =
+                    new ResumingAndChecksummingOutputStream(file, PROGRESS_UPDATE_CHUNK_SIZE,
+                            new IWriteProgressListener()
+                                {
+                                    long lastUpdated = System.currentTimeMillis();
 
-                                        public void update(long bytesWritten, int crc32Value)
+                                    public void update(long bytesWritten, int crc32Value)
+                                    {
+                                        final long now = System.currentTimeMillis();
+                                        if (now - lastUpdated > PROGRESS_UPDATE_MIN_INTERVAL_MILLIS
+                                                && bytesWritten != fileSize)
                                         {
-                                            final long now = System.currentTimeMillis();
-                                            if (now - lastUpdated > PROGRESS_UPDATE_MIN_INTERVAL_MILLIS
-                                                    && bytesWritten != fileSize)
-                                            {
-                                                fileDTO.setSize(bytesWritten);
-                                                fileDTO.setCrc32Value(crc32Value);
-                                                updateUploadProgress(fileDTO, user);
-                                                lastUpdated = now;
-                                            }
+                                            fileDTO.setSize(bytesWritten);
+                                            fileDTO.setCrc32Value(crc32Value);
+                                            updateUploadProgress(fileDTO, user);
+                                            lastUpdated = now;
                                         }
-                                    }, startPos, partialCrc32Value);
-                final int remoteCrc32Value =
-                        CopyUtils.copyAndReturnChecksum(inputStream, outputStream, fileSize,
-                                startPos);
-                outputStream.close();
-                final long byteCount = outputStream.getByteCount();
-                fileDTO.setSize(byteCount);
-                final int crc32Value = outputStream.getCrc32Value();
-                fileDTO.setCrc32Value(crc32Value);
-                if (remoteCrc32Value != crc32Value)
-                {
-                    deleteFromFileSystem(file);
-                    daoFactory.getFileDAO().deleteFile(fileDTO.getID());
-                    throw new CRCCheckumMismatchException(fileName, crc32Value, remoteCrc32Value);
-                }
-                if (byteCount != fileSize)
-                {
-                    deleteFromFileSystem(file);
-                    daoFactory.getFileDAO().deleteFile(fileDTO.getID());
-                    throw EnvironmentFailureException.fromTemplate(
-                            "Wrong file size of file %s [expected: %d, found: %d]", fileName,
-                            fileSize, byteCount);
-                }
-                operationLog.info(String.format("File %s has crc32 checksum %x.", fileName,
-                        crc32Value));
-                // Set file to 'complete' in database.
-                updateUploadProgress(fileDTO, user);
-            } catch (final IOException ex)
+                                    }
+                                }, startPos, partialCrc32Value);
+            final int remoteCrc32Value =
+                    CopyUtils.copyAndReturnChecksum(inputStream, outputStream, fileSize, startPos);
+            outputStream.close();
+            final long byteCount = outputStream.getByteCount();
+            fileDTO.setSize(byteCount);
+            final int crc32Value = outputStream.getCrc32Value();
+            fileDTO.setCrc32Value(crc32Value);
+            if (remoteCrc32Value != crc32Value)
             {
-                throw EnvironmentFailureException.fromTemplate(ex, "Error saving file '%s'.",
-                        fileName);
-            } finally
-            {
-                IOUtils.closeQuietly(inputStream);
-                IOUtils.closeQuietly(outputStream);
+                deleteFromFileSystem(file);
+                daoFactory.getFileDAO().deleteFile(fileDTO.getID());
+                throw new CRCCheckumMismatchException(fileName, crc32Value, remoteCrc32Value);
             }
+            if (byteCount != fileSize)
+            {
+                deleteFromFileSystem(file);
+                daoFactory.getFileDAO().deleteFile(fileDTO.getID());
+                throw EnvironmentFailureException.fromTemplate(
+                        "Wrong file size of file %s [expected: %d, found: %d]", fileName, fileSize,
+                        byteCount);
+            }
+            operationLog
+                    .info(String.format("File %s has crc32 checksum %x.", fileName, crc32Value));
+            // Set file to 'complete' in database.
+            updateUploadProgress(fileDTO, user);
+        } catch (final IOException ex)
+        {
+            throw EnvironmentFailureException.fromTemplate(ex, "Error saving file '%s'.", fileName);
         } finally
         {
-            businessContext.getUserActionLog().logUploadFile(fileName, success);
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(outputStream);
         }
     }
 
     @Transactional
     public List<String> registerFileLinkAndInformRecipients(UserDTO user, String fileName,
             String comment, String contentTypeOrNull, File file, int crc32Value,
-            String[] recipients, String url)
+            String[] recipients, String url, final IUserActionLog logOrNull)
     {
         final String contentType =
                 (contentTypeOrNull != null) ? contentTypeOrNull : DEFAULT_CONTENT_TYPE;
         final FileDTO fileDTO =
                 registerFile(user, fileName, comment, contentType, file, file.length(), crc32Value);
         return shareFilesWith(url, user, Arrays.asList(recipients), Collections.singleton(fileDTO),
-                comment);
+                comment, logOrNull);
     }
 
     private FileDTO registerFile(final UserDTO user, final String fileName, final String comment,
@@ -699,7 +673,7 @@ final class FileManager extends AbstractManager implements IFileManager
     @Transactional
     public final List<String> shareFilesWith(final String url, final UserDTO requestUser,
             final Collection<String> userIdentifiers, final Collection<FileDTO> files,
-            final String comment) throws UserFailureException
+            final String comment, final IUserActionLog logOrNull) throws UserFailureException
     {
         if (userIdentifiers.isEmpty())
         {
@@ -739,8 +713,11 @@ final class FileManager extends AbstractManager implements IFileManager
             return invalidEmailAdresses;
         } finally
         {
-            businessContext.getUserActionLog().logShareFiles(files, allUsers, userIdentifiers,
-                    invalidEmailAdresses, success);
+            if (logOrNull != null)
+            {
+                logOrNull.logShareFiles(files, allUsers, userIdentifiers, invalidEmailAdresses,
+                        success);
+            }
         }
     }
 
@@ -765,7 +742,7 @@ final class FileManager extends AbstractManager implements IFileManager
             }
         } else if (UserUtils.EMAIL_PATTERN.matcher(lowerCaseIdentifier).matches())
         {
-            Set<UserDTO> existingUsersOrNull = existingUsers.tryGet(lowerCaseIdentifier);
+            final Set<UserDTO> existingUsersOrNull = existingUsers.tryGet(lowerCaseIdentifier);
             if (existingUsersOrNull == null)
             {
                 password = businessContext.getPasswordGenerator().generatePassword(10);
@@ -969,35 +946,16 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         assert fileDTO != null : "Given file can not be null";
 
-        boolean success = false;
-        try
-        {
-            daoFactory.getFileDAO().deleteFile(fileDTO.getID());
-            deleteFromFileSystem(fileDTO.getPath());
-            success = true;
-        } finally
-        {
-            businessContext.getUserActionLog().logDeleteFile(fileDTO, success);
-        }
+        daoFactory.getFileDAO().deleteFile(fileDTO.getID());
+        deleteFromFileSystem(fileDTO.getPath());
     }
 
     public Date updateFileUserData(final long fileId, final String name,
             final String commentOrNull, final Date expirationDate, final UserDTO requestUser)
     {
-        Date newExpirationDate = null;
-        boolean success = false;
-        try
-        {
-            newExpirationDate = fixFileExpiration(fileId, expirationDate, requestUser);
-            daoFactory.getFileDAO().updateFileUserEdit(fileId, name, commentOrNull,
-                    newExpirationDate);
-            success = true;
-            return newExpirationDate;
-        } finally
-        {
-            businessContext.getUserActionLog()
-                    .logEditFile(fileId, name, newExpirationDate, success);
-        }
+        final Date newExpirationDate = fixFileExpiration(fileId, expirationDate, requestUser);
+        daoFactory.getFileDAO().updateFileUserEdit(fileId, name, commentOrNull, newExpirationDate);
+        return newExpirationDate;
     }
 
     public FileDTO getFile(final long fileId) throws IllegalArgumentException
@@ -1079,16 +1037,7 @@ final class FileManager extends AbstractManager implements IFileManager
 
     public void deleteSharingLink(final long fileId, final String userCode)
     {
-        boolean success = false;
-        try
-        {
-            daoFactory.getFileDAO().deleteSharingLink(fileId, userCode);
-            success = true;
-        } finally
-        {
-            businessContext.getUserActionLog().logDeleteSharingLink(fileId, userCode, success);
-        }
-
+        daoFactory.getFileDAO().deleteSharingLink(fileId, userCode);
     }
 
 }

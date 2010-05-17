@@ -92,9 +92,14 @@ public interface IBusinessContext
     public IUserSessionInvalidator getUserSessionInvalidator();
 
     /**
-     * Returns the logger of user behavior.
+     * Returns the logger of user behavior for pure HTTP sessions.
      */
-    public IUserActionLog getUserActionLog();
+    public IUserActionLog getUserActionLogHttp();
+
+    /**
+     * Returns the logger of user behavior for RPC sessions..
+     */
+    public IUserActionLog getUserActionLogRpc();
 
     /**
      * Returns the administrator email.

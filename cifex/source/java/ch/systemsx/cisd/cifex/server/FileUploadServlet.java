@@ -114,10 +114,11 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
             final String url = getURLForEmail(request);
             final IFileManager fileManager = domainModel.getFileManager();
             domainModel.getUserManager().createExternalUsers(
-                    UserUtils.extractUserCodes(userIdentifiers));
+                    UserUtils.extractUserCodes(userIdentifiers),
+                    domainModel.getBusinessContext().getUserActionLogHttp());
             final List<String> invalidUserIdentifiers =
                     fileManager.shareFilesWith(url, requestUser, userIdentifiers, files, comment
-                            .toString());
+                            .toString(), domainModel.getBusinessContext().getUserActionLogHttp());
             if (invalidUserIdentifiers.isEmpty() == false)
             {
                 final String msg =
@@ -301,10 +302,19 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                 final String fileName =
                         FilenameUtilities.ensureMaximumSize(filenameToUpload, MAX_FILENAME_LENGTH);
                 final String contentType = FilenameUtilities.getMimeType(item.getName());
-                final FileDTO file =
-                        fileManager.saveFile(requestUser, fileName, comment.toString(),
-                                contentType, stream);
-                files.add(file);
+                boolean success = false;
+                try
+                {
+                    final FileDTO file =
+                            fileManager.saveFile(requestUser, fileName, comment.toString(),
+                                    contentType, stream);
+                    success = true;
+                    files.add(file);
+                } finally
+                {
+                    domainModel.getBusinessContext().getUserActionLogHttp().logUploadFile(fileName,
+                            success);
+                }
             } else
             {
                 if (operationLog.isDebugEnabled())

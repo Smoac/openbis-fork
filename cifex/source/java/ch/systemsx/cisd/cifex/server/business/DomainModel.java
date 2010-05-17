@@ -70,9 +70,9 @@ public final class DomainModel implements IDomainModel
      * processor is correctly configured with the right TransactionInterceptor.
      */
     public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient,
-            final IUserActionLog userActionLog, final BeanPostProcessor processor,
-            final UserHttpSessionHolder userSessionHolder, final String overrideURL,
-            IAuthenticationService externalAuthenticationService)
+            final IUserActionLog userActionLogHttp, final IUserActionLog userActionLogRpc,
+            final BeanPostProcessor processor, final UserHttpSessionHolder userSessionHolder,
+            final String overrideURL, IAuthenticationService externalAuthenticationService)
     {
         assert daoFactory != null : "Undefined DAO Factory";
         assert mailClient != null : "Undefined mail client";
@@ -85,7 +85,8 @@ public final class DomainModel implements IDomainModel
         businessContext.setMailClient(mailClient);
         businessContext.setPasswordGenerator(new PasswordGenerator());
         businessContext.setUserHttpSessionHolder(userSessionHolder);
-        businessContext.setUserActionLog(userActionLog);
+        businessContext.setUserActionLogHttp(userActionLogHttp);
+        businessContext.setUserActionLogRpc(userActionLogRpc);
         businessContext.setOverrideURL(overrideURL);
         businessContext.setSystemVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
         boFactory = new BusinessObjectFactory(daoFactory, businessContext);
@@ -327,5 +328,5 @@ public final class DomainModel implements IDomainModel
     {
         businessContext.setAdministratorEmail(administratorEmail);
     }
-    
+
 }

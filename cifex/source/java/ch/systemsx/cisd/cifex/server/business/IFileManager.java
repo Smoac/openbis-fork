@@ -160,7 +160,7 @@ public interface IFileManager
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public List<String> registerFileLinkAndInformRecipients(final UserDTO user,
             final String fileName, final String comment, final String contentType, final File file,
-            int crc32Value, String[] recipients, String url);
+            int crc32Value, String[] recipients, String url, final IUserActionLog logOrNull);
 
     /**
      * Updates the file in the database specified by <var>fileDTO.getID()</var> regarding size
@@ -193,8 +193,8 @@ public interface IFileManager
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public List<String> shareFilesWith(String url, UserDTO requestUser,
-            Collection<String> userIdentifiers, Collection<FileDTO> files, String comment)
-            throws UserFailureException;
+            Collection<String> userIdentifiers, Collection<FileDTO> files, String comment,
+            final IUserActionLog logOrNull) throws UserFailureException;
 
     /**
      * Deletes file with given <code>fileId</code> from database and file system.
@@ -227,7 +227,7 @@ public interface IFileManager
 
     /** Deletes expired files from database and file system. */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void deleteExpiredFiles();
+    public void deleteExpiredFiles(final IUserActionLog logOrNull);
 
     /**
      * Update the user data of the <var>fileId</var>.

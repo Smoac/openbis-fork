@@ -129,7 +129,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 }
 
             });
-        businessContext.setUserActionLog(new DummyUserActionLog());
         mailClient = context.mock(IMailClient.class);
         businessContext.setMailClient(mailClient);
         timeProvider = context.mock(ITimeProvider.class);
@@ -190,7 +189,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 }
             });
 
-        fileManager.deleteExpiredFiles();
+        fileManager.deleteExpiredFiles(null);
         assertFalse(realFile.exists());
         context.assertIsSatisfied();
     }
@@ -402,7 +401,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             });
         final List<String> invalidUsers =
                 fileManager.shareFilesWith(url, requestUser, Collections
-                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment);
+                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment,
+                        null);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
@@ -462,7 +462,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final List<String> invalidUsers =
                 fileManager.shareFilesWith(url, requestUser, Collections
                         .singleton(Constants.USER_ID_PREFIX + receivingUserCode), Collections
-                        .singleton(file), comment);
+                        .singleton(file), comment, null);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
@@ -563,7 +563,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         users.add(emailOfSecondUserToShareWith);
         final List<String> invalidUsers =
                 fileManager.shareFilesWith(url, requestUser, users, Collections.singleton(file),
-                        comment);
+                        comment, null);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
@@ -623,7 +623,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             });
         final List<String> invalidUsers =
                 fileManager.shareFilesWith(url, requestUser, Collections
-                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment);
+                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment,
+                        null);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
@@ -650,7 +651,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
         final List<String> invalidUsers =
                 fileManager.shareFilesWith("", requestUser, Collections.singleton("hello"),
-                        Collections.singleton(file), "");
+                        Collections.singleton(file), "", null);
 
         assertEquals("[hello]", invalidUsers.toString());
         context.assertIsSatisfied();
@@ -878,7 +879,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             });
         final List<String> invalidUsers =
                 fileManager.shareFilesWith(url, requestUser, Collections
-                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment);
+                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment,
+                        null);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }

@@ -89,7 +89,7 @@ public interface IUserActionLog extends IActionLog
 
     public void logDeleteSharingLink(long fileId, String userCode, boolean success);
 
-    public void logChangeUserCodeUser(String before, String after, boolean success);
+    public void logChangeUserCode(String before, String after, boolean success);
 
     public void logSwitchToExternalAuthentication(String userCode, boolean success);
 

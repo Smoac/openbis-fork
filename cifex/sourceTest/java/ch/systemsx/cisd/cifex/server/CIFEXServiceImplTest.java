@@ -52,6 +52,7 @@ import ch.systemsx.cisd.cifex.server.business.FileInformation;
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
+import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -867,8 +868,12 @@ public class CIFEXServiceImplTest
                             DEFAULT_USER_CODE);
                     will(returnValue(principal));
 
-                    one(userManager).updateUser(externalyUpdatedUser, null, null);
-                    one(userManager).updateUser(newUser, null, newUser);
+                    one(userManager).updateUser(with(equal(externalyUpdatedUser)),
+                            with(equal((Password) null)), with(equal((UserDTO) null)),
+                            with(any(IUserActionLog.class)));
+                    one(userManager).updateUser(with(equal(newUser)),
+                            with(equal((Password) null)), with(equal(newUser)),
+                            with(any(IUserActionLog.class)));
 
                     allowing(requestContextProvider).getHttpServletRequest();
                     will(returnValue(httpServletRequest));
@@ -974,7 +979,9 @@ public class CIFEXServiceImplTest
                 {
                     one(userManager).tryFindUserByCode(code);
                     will(returnValue(oldUserDTO));
-                    one(userManager).updateUser(newUserDTO, null, null);
+                    one(userManager).updateUser(with(equal(newUserDTO)),
+                            with(equal((Password) null)), with(equal((UserDTO) null)),
+                            with(any(IUserActionLog.class)));
                 }
             });
         prepareForGettingUserFromHTTPSession(newUserDTO, true);
@@ -1015,7 +1022,9 @@ public class CIFEXServiceImplTest
                 {
                     one(userManager).tryFindUserByCode(code);
                     will(returnValue(oldUserDTO));
-                    one(userManager).updateUser(newUserDTO, null, null);
+                    one(userManager).updateUser(with(equal(newUserDTO)),
+                            with(equal((Password) null)), with(equal((UserDTO) null)),
+                            with(any(IUserActionLog.class)));
                 }
             });
         prepareForGettingUserFromHTTPSession(newUserDTO, true);
@@ -1287,9 +1296,11 @@ public class CIFEXServiceImplTest
         final UserDTO alice = createUser(true, false, 3L, "alice", adminRegistrant);
         final UserDTO aliceWannabeAdmin = createUser(true, true, 4L, "alice", adminRegistrant);
         final UserDTO aliceTemp = createUser(false, false, 5L, "alice", adminRegistrant);
-        final UserDTO permNotRegisteredByAlice = createUser(true, false, 6L, "perm1", adminRegistrant);
+        final UserDTO permNotRegisteredByAlice =
+                createUser(true, false, 6L, "perm1", adminRegistrant);
         final UserDTO permRegisteredByAlice = createUser(true, false, 7L, "perm2", alice);
-        final UserDTO tempNotRegisteredByAlice = createUser(false, false, 8L, "temp1", adminRegistrant);
+        final UserDTO tempNotRegisteredByAlice =
+                createUser(false, false, 8L, "temp1", adminRegistrant);
         final UserDTO tempRegisteredByAlice = createUser(false, false, 9L, "temp2", alice);
 
         return new Object[][]

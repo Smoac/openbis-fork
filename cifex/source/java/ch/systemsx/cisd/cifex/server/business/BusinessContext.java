@@ -69,7 +69,10 @@ class BusinessContext implements IBusinessContext
     private UserHttpSessionHolder userHttpSessionHolder;
 
     /** The logger object for user actions. */
-    private IUserActionLog userActionLog;
+    private IUserActionLog userActionLogHttp;
+
+    /** The logger object for user actions. */
+    private IUserActionLog userActionLogRpc;
 
     private String administratorEmail;
 
@@ -105,19 +108,35 @@ class BusinessContext implements IBusinessContext
     }
 
     /**
-     * Returns the logger of user behavior.
+     * Returns the logger of user behavior for pure HTTP sessions.
      */
-    public IUserActionLog getUserActionLog()
+    public IUserActionLog getUserActionLogHttp()
     {
-        return userActionLog;
+        return userActionLogHttp;
     }
 
     /**
-     * Sets the logger of user behavior.
+     * Sets the logger of user behavior for pure HTTP sessions.
      */
-    public void setUserActionLog(IUserActionLog userActionLog)
+    public void setUserActionLogHttp(IUserActionLog userActionLog)
     {
-        this.userActionLog = userActionLog;
+        this.userActionLogHttp = userActionLog;
+    }
+
+    /**
+     * Returns the logger of user behavior for RPC sessions.
+     */
+    public IUserActionLog getUserActionLogRpc()
+    {
+        return userActionLogRpc;
+    }
+
+    /**
+     * Sets the logger of user behavior for RPC sessions.
+     */
+    public void setUserActionLogRpc(IUserActionLog userActionLog)
+    {
+        this.userActionLogRpc = userActionLog;
     }
 
     public final int getFileRetention()

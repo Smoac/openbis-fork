@@ -119,7 +119,7 @@ public interface IUserManager
      * Removes expired users from user base.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.DEBUG)
-    public void deleteExpiredUsers();
+    public void deleteExpiredUsers(final IUserActionLog logOrNull);
 
     /**
      * Deletes the specified user.
@@ -128,12 +128,13 @@ public interface IUserManager
      *             the database.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void deleteUser(long id, UserDTO requestUser) throws IllegalArgumentException;
+    public void deleteUser(long id, UserDTO requestUser, final IUserActionLog logOrNull)
+            throws IllegalArgumentException;
 
     /**
      * Updates the fields of the specified user, providing the old user for comparison. Compared to
-     * {@link #updateUser(UserDTO, Password, UserDTO)}, this avoids getting the old user from the
-     * database.
+     * {@link #updateUser(UserDTO, Password, UserDTO, IUserActionLog)}, this avoids getting the old
+     * user from the database.
      * 
      * @return The updated user information.
      * @throws UserFailureException If the <var>user</var> was not found in the database.
@@ -142,7 +143,8 @@ public interface IUserManager
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public UserDTO updateUser(UserDTO oldUser, UserDTO user, Password passwordOrNull,
-            final UserDTO requestUser) throws UserFailureException, IllegalArgumentException;
+            final UserDTO requestUser, final IUserActionLog logOrNull) throws UserFailureException,
+            IllegalArgumentException;
 
     /**
      * Updates the fields of the specified user.
@@ -153,7 +155,8 @@ public interface IUserManager
      *             should be set temporary.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public UserDTO updateUser(UserDTO user, Password passwordOrNull, final UserDTO requestUserOrNull)
+    public UserDTO updateUser(UserDTO user, Password passwordOrNull,
+            final UserDTO requestUserOrNull, final IUserActionLog logOrNull)
             throws UserFailureException, IllegalArgumentException;
 
     /**
@@ -181,6 +184,6 @@ public interface IUserManager
      * @param userIdentifiers - list of emails (user@domain.net) and user ids (id:userId)
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void createExternalUsers(List<String> userIdentifiers);
+    public void createExternalUsers(List<String> userIdentifiers, final IUserActionLog logOrNull);
 
 }

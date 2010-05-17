@@ -32,7 +32,7 @@
     <bean id="cifex-service" class="ch.systemsx.cisd.cifex.server.CIFEXServiceImpl">
         <constructor-arg ref="domain-model" />
         <constructor-arg ref="request-context-provider" />
-        <constructor-arg ref="user-action-log" />
+        <constructor-arg ref="user-action-log-http" />
         <constructor-arg ref="${external-authentication-service}" />
         <constructor-arg value="${session-timeout}" />    
     </bean>
@@ -47,7 +47,8 @@
                 <constructor-arg value="${mail.smtp.password}" />
             </bean>
         </constructor-arg>
-        <constructor-arg ref="user-action-log" />
+        <constructor-arg ref="user-action-log-http" />
+        <constructor-arg ref="user-action-log-rpc" />
         <constructor-arg ref="bean-post-processor" />
         <constructor-arg ref="user-session-holder" />
         <constructor-arg value="${mail.url.override}" />
@@ -70,8 +71,15 @@
          <constructor-arg ref="session-manager" />
     </bean>
 
-    <bean id="user-action-log" class="ch.systemsx.cisd.cifex.server.UserActionLog">
+    <bean id="user-action-log-http" class="ch.systemsx.cisd.cifex.server.UserActionLog">
         <constructor-arg ref="request-context-provider" />
+        <constructor-arg value="false" />
+        <constructor-arg value="${testing}" />
+    </bean>
+    
+    <bean id="user-action-log-rpc" class="ch.systemsx.cisd.cifex.server.UserActionLog">
+        <constructor-arg ref="request-context-provider" />
+        <constructor-arg value="true" />
         <constructor-arg value="${testing}" />
     </bean>
     
@@ -86,7 +94,7 @@
 
     <bean id="session-manager" class="ch.systemsx.cisd.cifex.rpc.server.SessionManager">
                 <constructor-arg ref="request-context-provider" />
-                <constructor-arg ref="user-action-log" />
+                <constructor-arg ref="user-action-log-rpc" />
                 <constructor-arg value="${testing}" />
     </bean>
 
@@ -100,7 +108,7 @@
             <bean class="ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService">
                 <constructor-arg ref="domain-model" />
                 <constructor-arg ref="request-context-provider" />
-                <constructor-arg ref="user-action-log" />
+                <constructor-arg ref="user-action-log-rpc" />
                 <constructor-arg ref="${external-authentication-service}" />
                 <constructor-arg ref="session-manager" />
                 <constructor-arg value="60000" />    

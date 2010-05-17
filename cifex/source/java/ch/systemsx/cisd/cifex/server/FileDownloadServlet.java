@@ -54,7 +54,7 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
             throws ServletException, IOException, InvalidSessionException
     {
         final UserDTO requestUser = getUserDTO(request); // Throws exception if session is not
-                                                            // valid.
+        // valid.
         final String fileIdParameter = request.getParameter(Constants.FILE_ID_PARAMETER);
         if (StringUtils.isNotBlank(fileIdParameter))
         {
@@ -65,28 +65,38 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
                 final long fileId = Long.parseLong(fileIdParameter);
                 final IFileManager fileManager = domainModel.getFileManager();
                 final FileInformation fileInfo = fileManager.getFileInformation(fileId);
-                if (fileInfo.isFileAvailable() == false)
+                boolean success = false;
+                try
                 {
-                    throw new UserFailureException(fileInfo.getErrorMessage());
-                }
-                if (fileManager.isAllowedAccess(requestUser, fileInfo.getFileDTO()) == false)
+                    if (fileInfo.isFileAvailable() == false)
+                    {
+                        throw new UserFailureException(fileInfo.getErrorMessage());
+                    }
+                    if (fileManager.isAllowedAccess(requestUser, fileInfo.getFileDTO()) == false)
+                    {
+                        throw UserFailureException.fromTemplate(
+                                "User '%s' does not have access to file '%s'.", requestUser
+                                        .getUserCode(), fileInfo.getFileDTO().getPath());
+                    }
+                    final FileContent fileOutput =
+                            fileManager.getFileContent(fileInfo.getFileDTO());
+                    final Long size = fileOutput.getBasicFile().getSize();
+                    if (size != null && size <= Integer.MAX_VALUE)
+                    {
+                        response.setContentLength(size.intValue());
+                    }
+                    response.setContentType("application/x-unknown");
+                    response.setHeader("Content-Disposition", "attachment; filename=\""
+                            + fileOutput.getBasicFile().getName() + "\"");
+                    inputStream = fileOutput.getInputStream();
+                    outputStream = response.getOutputStream();
+                    IOUtils.copy(inputStream, outputStream);
+                    success = true;
+                } finally
                 {
-                    throw UserFailureException.fromTemplate(
-                            "User '%s' does not have access to file '%s'.", requestUser
-                                    .getUserCode(), fileInfo.getFileDTO().getPath());
+                    domainModel.getBusinessContext().getUserActionLogHttp().logDownloadFile(
+                            fileInfo.getFileDTO(), success);
                 }
-                final FileContent fileOutput = fileManager.getFileContent(fileInfo.getFileDTO());
-                final Long size = fileOutput.getBasicFile().getSize();
-                if (size != null && size <= Integer.MAX_VALUE)
-                {
-                    response.setContentLength(size.intValue());
-                }
-                response.setContentType("application/x-unknown");
-                response.setHeader("Content-Disposition", "attachment; filename=\""
-                        + fileOutput.getBasicFile().getName() + "\"");
-                inputStream = fileOutput.getInputStream();
-                outputStream = response.getOutputStream();
-                IOUtils.copy(inputStream, outputStream);
             } catch (final NumberFormatException ex)
             {
                 throw new ServletException(String.format("Given file id '%s' is not a number.",

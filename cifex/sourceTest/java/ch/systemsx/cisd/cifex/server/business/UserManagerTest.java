@@ -107,8 +107,6 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
                     one(userDAO).createUser(newUserAlice);
-                    allowing(businessContext).getUserActionLog();
-                    will(returnValue(new DummyUserActionLog()));
                 }
             });
         userManager.createUser(user, null);
@@ -136,8 +134,6 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     one(userDAO).listExpiredUsers();
                     will(returnValue(expiredUsers));
-                    allowing(businessContext).getUserActionLog();
-                    will(returnValue(new DummyUserActionLog()));
                     exactly(numberOfExpiredUsers).of(userDAO).deleteUser(userAlice, null);
                     will(returnValue(true));
                     exactly(numberOfExpiredUsers).of(businessContext).getUserSessionInvalidator();
@@ -147,7 +143,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
                 }
             });
-        userManager.deleteExpiredUsers();
+        userManager.deleteExpiredUsers(null);
         context.assertIsSatisfied();
     }
 
@@ -238,8 +234,6 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).tryFindUserByCode(after);
                     will(returnValue(null));
                     one(userDAO).changeUserCode(before, after);
-                    one(businessContext).getUserActionLog();
-                    will(returnValue(new DummyUserActionLog()));
                 }
             });
         userManager.changeUserCode(before, after);
@@ -260,12 +254,10 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).isMainUserOfQuotaGroup(userToUpdate);
                     will(returnValue(true));
                     one(userDAO).updateUser(userToUpdate);
-                    one(businessContext).getUserActionLog();
-                    will(returnValue(new DummyUserActionLog()));
                 }
             });
         userManager.updateUser(oldUserToUpdate, userToUpdate, null, oldUserToUpdate
-                .getRegistrator());
+                .getRegistrator(), null);
         assertEquals(oldUserToUpdate.isExternallyAuthenticated(), userToUpdate
                 .isExternallyAuthenticated());
         context.assertIsSatisfied();
@@ -286,12 +278,10 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).isMainUserOfQuotaGroup(userToUpdate);
                     will(returnValue(true));
                     one(userDAO).updateUser(userToUpdate);
-                    one(businessContext).getUserActionLog();
-                    will(returnValue(new DummyUserActionLog()));
                 }
             });
         userManager.updateUser(oldUserToUpdate, userToUpdate, null, oldUserToUpdate
-                .getRegistrator());
+                .getRegistrator(), null);
         assertEquals(oldUserToUpdate.isExternallyAuthenticated() == false, userToUpdate
                 .isExternallyAuthenticated());
         context.assertIsSatisfied();
@@ -309,8 +299,6 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     one(userDAO).tryFindUserByCode(before);
                     will(returnValue(null));
-                    one(businessContext).getUserActionLog();
-                    will(returnValue(new DummyUserActionLog()));
                 }
             });
         userManager.changeUserCode(before, after);
@@ -331,8 +319,6 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(new UserDTO()));
                     one(userDAO).tryFindUserByCode(after);
                     will(returnValue(new UserDTO()));
-                    one(businessContext).getUserActionLog();
-                    will(returnValue(new DummyUserActionLog()));
                 }
             });
         userManager.changeUserCode(before, after);
@@ -435,8 +421,6 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     one(userDAO).getUserById(id);
                     will(returnValue(user));
-                    allowing(businessContext).getUserActionLog();
-                    will(returnValue(new DummyUserActionLog()));
                     if (user != null)
                     {
                         one(userDAO).deleteUser(user, null);
@@ -448,7 +432,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
                 }
             });
-        userManager.deleteUser(id, new UserDTO());
+        userManager.deleteUser(id, new UserDTO(), null);
         context.assertIsSatisfied();
     }
 
@@ -466,7 +450,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(throwException(new EmptyResultDataAccessException(1)));
                 }
             });
-        userManager.deleteUser(id, null);
+        userManager.deleteUser(id, null, null);
     }
 
     @Test
@@ -501,11 +485,9 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).createUser(
                             UserManager.createExternalUser(userId, firstName + " " + lastName,
                                     email, active));
-                    allowing(businessContext).getUserActionLog();
-                    will(returnValue(new DummyUserActionLog()));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList(userId));
+        userManager.createExternalUsers(Arrays.asList(userId), null);
         context.assertIsSatisfied();
     }
 
@@ -552,11 +534,9 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).createUser(
                             UserManager.createExternalUser(userId2, firstName + " " + lastName,
                                     email, active));
-                    allowing(businessContext).getUserActionLog();
-                    will(returnValue(new DummyUserActionLog()));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList(userId, userId2));
+        userManager.createExternalUsers(Arrays.asList(userId, userId2), null);
         context.assertIsSatisfied();
     }
 
@@ -565,7 +545,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     {
         final String userId = "newuser";
         new UserManager(daoFactory, boFactory, businessContext, null).createExternalUsers(Arrays
-                .asList(userId));
+                .asList(userId), null);
         context.assertIsSatisfied();
     }
 
@@ -574,7 +554,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     {
         final String userId = "newuser";
         new UserManager(daoFactory, boFactory, businessContext, new NullAuthenticationService())
-                .createExternalUsers(Arrays.asList(userId));
+                .createExternalUsers(Arrays.asList(userId), null);
         context.assertIsSatisfied();
     }
 
@@ -598,7 +578,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(user));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList(userId));
+        userManager.createExternalUsers(Arrays.asList(userId), null);
         context.assertIsSatisfied();
     }
 
@@ -622,7 +602,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(null));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList(userId));
+        userManager.createExternalUsers(Arrays.asList(userId), null);
         context.assertIsSatisfied();
     }
 
@@ -643,7 +623,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(null));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList(userId, "other"));
+        userManager.createExternalUsers(Arrays.asList(userId, "other"), null);
         context.assertIsSatisfied();
     }
 

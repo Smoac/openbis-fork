@@ -74,14 +74,14 @@ abstract public class AbstractCIFEXService
     protected final IDomainModel domainModel;
 
     protected final IRequestContextProvider requestContextProvider;
-    
+
     protected final IRemoteHostProvider remoteHostProvider;
 
     protected final LoggingContextHandler loggingContextHandler;
 
     protected final IAuthenticationService externalAuthenticationService;
 
-    protected final IUserActionLog userBehaviorLogOrNull;
+    protected final IUserActionLog userActionLog;
 
     /** Session timeout in seconds. */
     private final int sessionExpirationPeriodInSeconds;
@@ -101,7 +101,7 @@ abstract public class AbstractCIFEXService
 
     protected AbstractCIFEXService(final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
-            final IUserActionLog userBehaviorLogOrNull,
+            final IUserActionLog userActionLog,
             final IAuthenticationService externalAuthenticationService,
             final LoggingContextHandler loggingContextHandler,
             final int sessionExpirationPeriodMinutes)
@@ -109,7 +109,7 @@ abstract public class AbstractCIFEXService
         this.domainModel = domainModel;
         this.requestContextProvider = requestContextProvider;
         this.remoteHostProvider = new RequestContextProviderAdapter(requestContextProvider);
-        this.userBehaviorLogOrNull = userBehaviorLogOrNull;
+        this.userActionLog = userActionLog;
         this.externalAuthenticationService = externalAuthenticationService;
         this.loggingContextHandler = loggingContextHandler;
         this.sessionExpirationPeriodInSeconds = sessionExpirationPeriodMinutes * 60;
@@ -179,7 +179,7 @@ abstract public class AbstractCIFEXService
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
 
-    private UserDTO finishLogin(final UserDTO userDTO, final boolean doUserActionLog)
+    private UserDTO finishLogin(final UserDTO userDTO)
     {
         // Do not transfer the password or its hash value to the client (security).
         userDTO.setPassword(null);
@@ -203,15 +203,11 @@ abstract public class AbstractCIFEXService
         {
             operationLog.debug("Successfully created session for user " + userDTO);
         }
-        if (doUserActionLog && userBehaviorLogOrNull != null)
-        {
-            userBehaviorLogOrNull.logSuccessfulLogin();
-        }
         return userDTO;
     }
 
-    protected final UserDTO tryLoginUser(final String userCode, final String plainPassword,
-            final boolean doUserActionLog) throws EnvironmentFailureException
+    protected final UserDTO tryLoginUser(final String userCode, final String plainPassword)
+            throws EnvironmentFailureException
     {
         if (operationLog.isDebugEnabled())
         {
@@ -221,8 +217,16 @@ abstract public class AbstractCIFEXService
         if (userManager.isDatabaseEmpty())
         {
             final UserDTO userDTO = createAdminUserDTO(userCode, plainPassword);
-            userManager.createUser(userDTO, null);
-            return finishLogin(userDTO, doUserActionLog);
+            boolean success = false;
+            try
+            {
+                userManager.createUser(userDTO, null);
+                success = true;
+            } finally
+            {
+                userActionLog.logCreateUser(userDTO, success);
+            }
+            return finishLogin(userDTO);
         }
         UserDTO userDTOOrNull = userManager.tryFindUserByCode(userCode);
         if (userDTOOrNull == null || userDTOOrNull.isExternallyAuthenticated())
@@ -230,21 +234,17 @@ abstract public class AbstractCIFEXService
             userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, plainPassword);
             if (userDTOOrNull != null)
             {
-                return finishLogin(userDTOOrNull, doUserActionLog);
+                return finishLogin(userDTOOrNull);
             }
         } else
         {
             final Password password = new Password(plainPassword);
             if (userDTOOrNull.isActive() && password.matches(userDTOOrNull.getPasswordHash()))
             {
-                return finishLogin(userDTOOrNull, doUserActionLog);
+                return finishLogin(userDTOOrNull);
             }
             operationLog.info("User '" + userDTOOrNull.getUserCode()
                     + "' which is deactivated tried to login.");
-        }
-        if (doUserActionLog && userBehaviorLogOrNull != null)
-        {
-            userBehaviorLogOrNull.logFailedLoginAttempt(userCode);
         }
         return null;
     }
@@ -269,10 +269,7 @@ abstract public class AbstractCIFEXService
         final String applicationToken = externalAuthenticationService.authenticateApplication();
         if (applicationToken == null)
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logFailedLoginAttempt(userOrEmail);
-            }
+            userActionLog.logFailedLoginAttempt(userOrEmail);
             final String msg =
                     "User '" + userOrEmail
                             + "' couldn't be authenticated because authentication of "
@@ -333,15 +330,20 @@ abstract public class AbstractCIFEXService
                 userDTO.setActive(domainModel.getBusinessContext()
                         .isNewExternallyAuthenticatedUserStartActive());
             }
+            boolean success = false;
             try
             {
                 userManager.createUser(userDTO, null);
+                success = true;
             } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
             {
                 operationLog.error(ex.getMessage(), ex);
                 // This is actually an environment failure since the user couldn't have done
                 // anything different.
                 throw new EnvironmentFailureException(ex.getMessage());
+            } finally
+            {
+                userActionLog.logCreateUser(userDTO, success);
             }
         } else
         { // check whether name or email of the principal have changed, and update, if
@@ -361,7 +363,7 @@ abstract public class AbstractCIFEXService
             {
                 try
                 {
-                    userManager.updateUser(userDTO, null, null);
+                    userManager.updateUser(userDTO, null, null, userActionLog);
                 } catch (final DataIntegrityViolationException ex)
                 {
                     final String msg =

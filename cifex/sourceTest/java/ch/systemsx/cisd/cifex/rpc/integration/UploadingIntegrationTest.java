@@ -269,6 +269,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                             SMALL_FILE_SIZE * 1024L);
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
+                    allowing(businessContext).getUserActionLogHttp();
+                    will(returnValue(null));
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
@@ -286,7 +288,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(true));
                     one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
                             with(equal(Arrays.asList("Albert", "Galileo"))),
-                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)),
+                            with(any((IUserActionLog.class))));
                     will(returnValue(Collections.emptyList()));
 
                     one(listener).reportProgress(0, 0);
@@ -321,6 +324,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                 {
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
+                    allowing(businessContext).getUserActionLogHttp();
+                    will(returnValue(null));
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
@@ -341,7 +346,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(true));
                     one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
                             with(equal(Arrays.asList("Albert", "Galileo"))),
-                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)),
+                            with(any(IUserActionLog.class)));
                     will(returnValue(Collections.emptyList()));
                 }
             });
@@ -369,6 +375,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                 {
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
+                    allowing(businessContext).getUserActionLogHttp();
+                    will(returnValue(null));
                     one(userActionLog).logUploadFile(LARGE_FILE, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
@@ -390,7 +398,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(true));
                     one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
                             with(equal(Arrays.asList("Albert", "Galileo"))),
-                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)),
+                            with(any(IUserActionLog.class)));
                     will(returnValue(Collections.emptyList()));
                 }
             });
@@ -464,6 +473,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                             LARGE_FILE_SIZE * 1024L);
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
+                    allowing(businessContext).getUserActionLogHttp();
+                    will(returnValue(null));
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
@@ -481,7 +492,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(true));
                     one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
                             with(equal(Arrays.asList("Albert", "Galileo"))),
-                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)),
+                            with(any((IUserActionLog.class))));
                     will(returnValue(Collections.emptyList()));
                 }
             });
@@ -543,6 +555,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                 {
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
+                    allowing(businessContext).getUserActionLogHttp();
+                    will(returnValue(null));
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     exactly(2).of(userManager).refreshQuotaInformation(user);
@@ -579,7 +593,8 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
                             with(equal(Arrays.asList("Albert", "Galileo"))),
-                            with(equal(Arrays.asList(fileDTO1, fileDTO2))), with(equal(COMMENT)));
+                            with(equal(Arrays.asList(fileDTO1, fileDTO2))), with(equal(COMMENT)),
+                            with(any(IUserActionLog.class)));
                     will(returnValue(Collections.emptyList()));
                 }
             });
@@ -605,6 +620,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                             SMALL_FILE_SIZE * 1024L);
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
+                    allowing(businessContext).getUserActionLogHttp();
+                    will(returnValue(null));
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
@@ -624,7 +641,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(true));
                     one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
                             with(equal(Arrays.asList("Albert", "Galileo"))),
-                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)),
+                            with(any(IUserActionLog.class)));
                     will(returnValue(Collections.singletonList("id:unknown")));
 
                     one(listener).exceptionOccured(with(any(UserFailureException.class)));
@@ -661,6 +679,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                 {
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
+                    allowing(businessContext).getUserActionLogHttp();
+                    will(returnValue(null));
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
@@ -680,7 +700,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(true));
                     one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
                             with(equal(Arrays.asList("Albert", "Galileo"))),
-                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)),
+                            with(any((IUserActionLog.class))));
                     will(throwException(exception));
 
                     one(listener).reportProgress(0, 0);

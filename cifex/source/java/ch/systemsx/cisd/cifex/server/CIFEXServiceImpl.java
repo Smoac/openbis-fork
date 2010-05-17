@@ -84,11 +84,11 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
     public CIFEXServiceImpl(final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
-            final IUserActionLog userBehaviorLog,
+            final IUserActionLog userActionLog,
             final IAuthenticationService externalAuthenticationService,
             final int sessionExpirationPeriodMinutes)
     {
-        super(domainModel, requestContextProvider, userBehaviorLog, externalAuthenticationService,
+        super(domainModel, requestContextProvider, userActionLog, externalAuthenticationService,
                 createLoggingContextHandler(requestContextProvider), sessionExpirationPeriodMinutes);
     }
 
@@ -151,11 +151,15 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         try
         {
-            final UserDTO userDTOOrNull = super.tryLoginUser(userCode, plainPassword, true);
+            final UserDTO userDTOOrNull = super.tryLoginUser(userCode, plainPassword);
             if (userDTOOrNull == null)
             {
+                userActionLog.logFailedLoginAttempt(userCode);
                 ConcurrencyUtilities.sleep(DELAY_AFTER_FAILED_LOGIN_MILLIS);
                 return null;
+            } else
+            {
+                userActionLog.logSuccessfulLogin();
             }
             final CurrentUserInfoDTO currentUser =
                     BeanUtils.createBean(CurrentUserInfoDTO.class, userDTOOrNull);
@@ -227,18 +231,15 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             userDTOOrNull.setExpirationDate(null);
             userDTOOrNull.setRegistrator(null);
 
-            userManager.updateUser(userDTOOrNull, null, privGetCurrentUser());
+            userManager.updateUser(userDTOOrNull, null, privGetCurrentUser(), userActionLog);
 
             copyUserDetailsExceptCode(privGetCurrentUser(), userDTOOrNull); // updating session
 
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logSwitchToExternalAuthentication(userCode, true);
-            }
+            userActionLog.logSwitchToExternalAuthentication(userCode, true);
             return BeanUtils.createBean(UserInfoDTO.class, userDTOOrNull);
         } else
         {
-            userBehaviorLogOrNull.logSwitchToExternalAuthentication(userCode, false);
+            userActionLog.logSwitchToExternalAuthentication(userCode, false);
             throw new InsufficientPrivilegesException("Password incorrect.");
         }
 
@@ -249,10 +250,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         if (userDTOOrNull.isExternallyAuthenticated())
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logSwitchToExternalAuthentication(userCode, false);
-            }
+            userActionLog.logSwitchToExternalAuthentication(userCode, false);
             throw new EnvironmentFailureException(String.format(
                     "User with code '%s' is already authenticated externally.", userCode));
         }
@@ -263,10 +261,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         if (userDTOOrNull == null)
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logSwitchToExternalAuthentication(userCode, false);
-            }
+            userActionLog.logSwitchToExternalAuthentication(userCode, false);
             throw new EnvironmentFailureException(String.format(
                     "User with code '%s' does not exist.", userCode));
         }
@@ -277,10 +272,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         if (hasExternalAuthenticationService() == false)
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logSwitchToExternalAuthentication(userCode, false);
-            }
+            userActionLog.logSwitchToExternalAuthentication(userCode, false);
             throw new EnvironmentFailureException("No external authentication service available.");
         }
     }
@@ -461,7 +453,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         checkUpdateOfUserIsAllowed(user, user);
         try
         {
-            domainModel.getUserManager().deleteUser(id, privGetCurrentUser());
+            domainModel.getUserManager().deleteUser(id, privGetCurrentUser(), userActionLog);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
         {
             throw new UserNotFoundException(ex.getMessage());
@@ -478,12 +470,20 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         {
             throw new FileNotFoundException(fileInfo.getErrorMessage());
         }
-        if (fileManager.isControlling(requestUser, fileInfo.getFileDTO()) == false)
+        boolean success = false;
+        try
         {
-            throw new InsufficientPrivilegesException("Insufficient privileges for "
-                    + describeUser(requestUser) + ".");
+            if (fileManager.isControlling(requestUser, fileInfo.getFileDTO()) == false)
+            {
+                throw new InsufficientPrivilegesException("Insufficient privileges for "
+                        + describeUser(requestUser) + ".");
+            }
+            fileManager.deleteFile(fileInfo.getFileDTO());
+            success = true;
+        } finally
+        {
+            userActionLog.logDeleteFile(fileInfo.getFileDTO(), success);
         }
-        fileManager.deleteFile(fileInfo.getFileDTO());
     }
 
     public final void registerFilenamesForUpload(final String[] filenamesForUpload)
@@ -539,7 +539,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
         final UserDTO updatedUser =
                 userManager.updateUser(oldUserDTO, newUserDTO, new Password(plainPassword),
-                        privGetCurrentUser());
+                        privGetCurrentUser(), userActionLog);
         final UserInfoDTO updatedUserInfo = BeanUtils.createBean(UserInfoDTO.class, updatedUser);
         updateCurrentUser(updatedUser);
         if (sendUpdateInformationToUser)
@@ -589,7 +589,15 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         if (requestUser.isAdmin() && requestUser.getUserCode().equals(before) == false
                 && (userBefore == null || userBefore.isExternallyAuthenticated() == false))
         {
-            userManager.changeUserCode(before, after);
+            boolean success = false;
+            try
+            {
+                userManager.changeUserCode(before, after);
+                success = true;
+            } finally
+            {
+                userActionLog.logChangeUserCode(before, after, success);
+            }
             final UserDTO user = userManager.tryFindUserByCode(after);
             if (StringUtils.isEmpty(user.getEmail()))
             {
@@ -707,7 +715,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
-        userManager.createExternalUsers(Arrays.asList(userCode));
+        userManager.createExternalUsers(Arrays.asList(userCode), userActionLog);
         final UserDTO userDTO = userManager.tryFindUserByCode(userCode);
         return BeanUtils.createBean(UserInfoDTO.class, userDTO);
     }
@@ -742,13 +750,24 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
         final FileDTO file = fileManager.getFile(fileId);
-        if (fileManager.isControlling(requestUser, file) == false)
+        Date newExpirationDate = null;
+        boolean success = false;
+        try
         {
-            throw new InsufficientPrivilegesException("Insufficient privileges for "
-                    + describeUser(requestUser) + ".");
+            if (fileManager.isControlling(requestUser, file) == false)
+            {
+                throw new InsufficientPrivilegesException("Insufficient privileges for "
+                        + describeUser(requestUser) + ".");
+            }
+            newExpirationDate =
+                    fileManager.updateFileUserData(fileId, name, commentOrNull, expirationDate,
+                            requestUser);
+            success = true;
+            return newExpirationDate;
+        } finally
+        {
+            userActionLog.logEditFile(fileId, name, newExpirationDate, success);
         }
-        return fileManager.updateFileUserData(fileId, name, commentOrNull, expirationDate,
-                requestUser);
     }
 
     public List<UserInfoDTO> listUsersFileSharedWith(final long fileId)
@@ -793,13 +812,20 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         {
             throw new FileNotFoundException(fileInfo.getErrorMessage());
         }
-        if (fileManager.isControlling(requestUser, fileInfo.getFileDTO()) == false)
+        boolean success = false;
+        try
         {
-            throw new InsufficientPrivilegesException("Insufficient privileges for "
-                    + describeUser(requestUser) + ".");
+            if (fileManager.isControlling(requestUser, fileInfo.getFileDTO()) == false)
+            {
+                throw new InsufficientPrivilegesException("Insufficient privileges for "
+                        + describeUser(requestUser) + ".");
+            }
+            fileManager.deleteSharingLink(fileId, userCode);
+            success = true;
+        } finally
+        {
+            userActionLog.logDeleteSharingLink(fileId, userCode, success);
         }
-        fileManager.deleteSharingLink(fileId, userCode);
-
     }
 
     private void createSharingLink(final long fileId, final String userIdentifiers)
@@ -836,7 +862,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         {
             invalidEmailAddresses =
                     fileManager.shareFilesWith(url, requestUser, userIdentifierList, files,
-                            fileInfo.getFileDTO().getComment());
+                            fileInfo.getFileDTO().getComment(), userActionLog);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw new UserFailureException(e.getMessage());

@@ -58,8 +58,11 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
 
     private static final SimpleDateFormat dateTimeFormat =
             new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
+    
+    private final boolean useRPCSession;
 
-    public UserActionLog(final IRequestContextProvider requestContextProvider, String testingFlag)
+    public UserActionLog(final IRequestContextProvider requestContextProvider, boolean useRPCSession,
+            String testingFlag)
     {
         super("true".equals(testingFlag) ? new IRequestContextProvider()
             {
@@ -70,6 +73,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
                 }
 
             } : requestContextProvider);
+        this.useRPCSession = useRPCSession;
     }
 
     //
@@ -80,7 +84,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     protected String getUserCode(HttpSession httpSession)
     {
         final Session sessionOrNull = AbstractCIFEXService.tryGetRPCSession(httpSession);
-        if (sessionOrNull != null)
+        if (useRPCSession && sessionOrNull != null)
         {
             return sessionOrNull.getUser().getUserCode();
         } else
@@ -106,7 +110,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     protected String getUserHostSessionDescription()
     {
         final Session sessionOrNull = AbstractCIFEXService.tryGetRPCSession(getHttpSession());
-        if (sessionOrNull != null)
+        if (useRPCSession && sessionOrNull != null)
         {
             final String remoteHost = remoteHostProvider.getRemoteHost();
             final String userName = sessionOrNull.getUser().getUserCode();
@@ -472,7 +476,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
 
     }
 
-    public void logChangeUserCodeUser(final String before, final String after, final boolean success)
+    public void logChangeUserCode(final String before, final String after, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {

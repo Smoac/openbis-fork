@@ -122,24 +122,19 @@ class UserManager extends AbstractManager implements IUserManager
     public final UserDTO createUser(final UserDTO user, UserDTO registratorOrNull)
             throws UserFailureException
     {
-        boolean success = false;
         try
         {
             final IUserBO userBO = boFactory.createUserBO();
             userBO.defineForCreate(user, registratorOrNull, false);
             userBO.save();
-            success = true;
             return userBO.getUser();
         } catch (final DataIntegrityViolationException ex)
         {
             final String msg =
                     "Cannot create user '" + user.getUserCode()
-                            + "' since a user with this id already exists in the database.";
+                            + "' since a user with this user id already exists in the database.";
             operationLog.error(msg, ex);
             throw new UserFailureException(msg);
-        } finally
-        {
-            businessContext.getUserActionLog().logCreateUser(user, success);
         }
     }
 
@@ -220,7 +215,7 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public void deleteExpiredUsers()
+    public void deleteExpiredUsers(final IUserActionLog logOrNull)
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
         final List<UserDTO> expiredUsers = userDAO.listExpiredUsers();
@@ -242,10 +237,16 @@ class UserManager extends AbstractManager implements IUserManager
                     operationLog.warn("Expired user [" + getUserDescription(user)
                             + "] could not be found in the database.");
                 }
-                businessContext.getUserActionLog().logExpireUser(user, success);
+                if (logOrNull != null)
+                {
+                    logOrNull.logExpireUser(user, success);
+                }
             } catch (final RuntimeException ex)
             {
-                businessContext.getUserActionLog().logExpireUser(user, false);
+                if (logOrNull != null)
+                {
+                    logOrNull.logExpireUser(user, false);
+                }
                 notificationLog
                         .error("Error deleting user [" + getUserDescription(user) + "].", ex);
                 if (firstExceptionOrNull == null)
@@ -262,8 +263,8 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final void deleteUser(final long id, final UserDTO requestUser)
-            throws IllegalArgumentException
+    public final void deleteUser(final long id, final UserDTO requestUser,
+            final IUserActionLog logOrNull) throws IllegalArgumentException
     {
         UserDTO user = null;
         boolean success = false;
@@ -292,24 +293,26 @@ class UserManager extends AbstractManager implements IUserManager
             throw new IllegalArgumentException(msg);
         } finally
         {
-            if (user != null)
+            if (user != null && logOrNull != null)
             {
-                businessContext.getUserActionLog().logDeleteUser(user, success);
+                logOrNull.logDeleteUser(user, success);
             }
         }
     }
 
     @Transactional
     public final UserDTO updateUser(final UserDTO userToUpdate, final Password passwordOrNull,
-            final UserDTO requestUserOrNull) throws UserFailureException, IllegalArgumentException
+            final UserDTO requestUserOrNull, final IUserActionLog logOrNull)
+            throws UserFailureException, IllegalArgumentException
     {
-        return updateUser(null, userToUpdate, passwordOrNull, requestUserOrNull);
+        return updateUser(null, userToUpdate, passwordOrNull, requestUserOrNull, logOrNull);
     }
 
     @Transactional
     public final UserDTO updateUser(final UserDTO oldUserToUpdateOrNull,
             final UserDTO userToUpdate, final Password passwordOrNull,
-            final UserDTO requestUserOrNull) throws UserFailureException, IllegalArgumentException
+            final UserDTO requestUserOrNull, final IUserActionLog logOrNull)
+            throws UserFailureException, IllegalArgumentException
     {
         assert userToUpdate != null : "Unspecified user";
 
@@ -326,7 +329,15 @@ class UserManager extends AbstractManager implements IUserManager
             return userBO.getUser();
         } finally
         {
-            businessContext.getUserActionLog().logUpdateUser(existingUser, userToUpdate, success);
+            if (existingUser == null)
+            {
+                existingUser =
+                        (oldUserToUpdateOrNull != null) ? oldUserToUpdateOrNull : userToUpdate;
+            }
+            if (logOrNull != null)
+            {
+                logOrNull.logUpdateUser(existingUser, userToUpdate, success);
+            }
         }
     }
 
@@ -409,41 +420,32 @@ class UserManager extends AbstractManager implements IUserManager
             throw new UserFailureException("User code cannot be empty.");
         }
 
-        boolean success = false;
         UserDTO oldUserOrNull = null;
         UserDTO newUserOrNull = null;
-        try
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        // Get old user entry
+        oldUserOrNull = userDAO.tryFindUserByCode(before);
+        if (oldUserOrNull == null)
         {
-            final IUserDAO userDAO = daoFactory.getUserDAO();
-            // Get old user entry
-            oldUserOrNull = userDAO.tryFindUserByCode(before);
-            if (oldUserOrNull == null)
-            {
-                throw new UserFailureException(String.format("User with code %s doesn't exist.",
-                        before));
-            }
-            if (oldUserOrNull.isExternallyAuthenticated())
-            {
-                throw new UserFailureException(String.format(
-                        "User with code %s is externally authenticated.", before));
-            }
-            newUserOrNull = userDAO.tryFindUserByCode(after);
-            if (newUserOrNull != null)
-            {
-                throw new UserFailureException(String.format("User with code %s already exist.",
-                        before));
-            }
-
-            userDAO.changeUserCode(before, after);
-            success = true;
-        } finally
-        {
-            businessContext.getUserActionLog().logChangeUserCodeUser(before, after, success);
+            throw new UserFailureException(String.format("User with code %s doesn't exist.",
+                    before));
         }
+        if (oldUserOrNull.isExternallyAuthenticated())
+        {
+            throw new UserFailureException(String.format(
+                    "User with code %s is externally authenticated.", before));
+        }
+        newUserOrNull = userDAO.tryFindUserByCode(after);
+        if (newUserOrNull != null)
+        {
+            throw new UserFailureException(String.format("User with code %s already exist.",
+                    before));
+        }
+        userDAO.changeUserCode(before, after);
     }
 
     @Transactional
-    public void createExternalUsers(List<String> userCodes)
+    public void createExternalUsers(List<String> userCodes, final IUserActionLog logOrNull)
     {
         if (userCodes.isEmpty())
         {
@@ -475,10 +477,23 @@ class UserManager extends AbstractManager implements IUserManager
                     }
                     if (userDetails != null)
                     {
-                        createUser(createExternalUser(userDetails.getUserId(), UserUtils
-                                .extractDisplayName(userDetails), userDetails.getEmail(),
-                                businessContext.isNewExternallyAuthenticatedUserStartActive()),
-                                null);
+                        final UserDTO userDTO =
+                                createExternalUser(userDetails.getUserId(), UserUtils
+                                        .extractDisplayName(userDetails), userDetails.getEmail(),
+                                        businessContext
+                                                .isNewExternallyAuthenticatedUserStartActive());
+                        boolean success = false;
+                        try
+                        {
+                            createUser(userDTO, null);
+                            success = true;
+                        } finally
+                        {
+                            if (logOrNull != null)
+                            {
+                                logOrNull.logCreateUser(userDTO, success);
+                            }
+                        }
                     }
                 }
             }

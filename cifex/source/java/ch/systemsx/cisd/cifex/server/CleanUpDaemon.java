@@ -53,12 +53,14 @@ public final class CleanUpDaemon extends TimerTask
 
     private final void deleteExpiredFiles()
     {
-        domainModel.getFileManager().deleteExpiredFiles();
+        domainModel.getFileManager().deleteExpiredFiles(
+                domainModel.getBusinessContext().getUserActionLogHttp());
     }
 
     private final void deleteExpiredUsers()
     {
-        domainModel.getUserManager().deleteExpiredUsers();
+        domainModel.getUserManager().deleteExpiredUsers(
+                domainModel.getBusinessContext().getUserActionLogHttp());
     }
 
     //

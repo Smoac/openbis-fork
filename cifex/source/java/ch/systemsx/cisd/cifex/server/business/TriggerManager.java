@@ -158,7 +158,7 @@ class TriggerManager implements ITriggerManager
             final File uploadedFile = copy(fileManager, triggerUser, fileToUpload);
             final int crc32Value = checksumCRC32(uploadedFile);
             fileManager.registerFileLinkAndInformRecipients(triggerUser, uploadedFile.getName(),
-                    comment, mimeType, uploadedFile, crc32Value, recipients, url);
+                    comment, mimeType, uploadedFile, crc32Value, recipients, url, userActionLog);
         }
 
         public void sendMessage(String subject, String content, String replyTo, From fromOrNull,
@@ -180,7 +180,15 @@ class TriggerManager implements ITriggerManager
         {
             for (FileDTO fileDTO : toBeDeleted)
             {
-                fileManager.deleteFile(fileDTO);
+                boolean success = false;
+                try
+                {
+                    fileManager.deleteFile(fileDTO);
+                    success = true;
+                } finally
+                {
+                    userActionLog.logDeleteFile(fileDTO, success);
+                }
             }
         }
 
@@ -442,11 +450,14 @@ class TriggerManager implements ITriggerManager
     private final IMailClient mailClient;
 
     private final String url;
+    
+    private final IUserActionLog userActionLog;
 
     TriggerManager(BusinessContext context)
     {
         this.mailClient = context.getMailClient();
         this.maxTriggerPermits = context.getTriggerPermits();
+        this.userActionLog = context.getUserActionLogHttp();
         this.triggerMap = getTriggers();
         if (TriggerDescription.hasAsyncTriggers(triggerMap))
         {
