@@ -156,8 +156,6 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     /**
      * Convert the data to a {@link Dataset}. If there were problems converting, create an error
      * chart. If conversion was successful, create a chart using the data set.
-     * @param imageWidth TODO
-     * @param imageHeight TODO
      */
     protected JFreeChart createChart(int imageWidth, int imageHeight)
     {

@@ -75,7 +75,7 @@ final class QuerySectionPanel extends DisposableSectionPanel
         return new IDisposableComponent()
             {
                 public void dispose()
-                {// FIXME
+                {
                 }
 
                 public Component getComponent()

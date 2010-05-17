@@ -18,7 +18,7 @@ public class InternalLinkCellRenderer implements GridCellRenderer<BaseEntityMode
         {
             return "";
         } else
-        {// FIXME: almost the same as LinkRenderer#createLinkRenderer()
+        { // TODO 2010-05-18, IA: almost the same as LinkRenderer#createLinkRenderer()
             String originalValue = String.valueOf(model.get(property));
             String tokenOrNull = model.tryGetLink(property);
             String href = "#" + (tokenOrNull != null ? tokenOrNull : "");

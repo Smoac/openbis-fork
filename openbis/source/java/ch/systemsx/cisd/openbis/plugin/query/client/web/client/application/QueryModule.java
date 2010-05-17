@@ -105,6 +105,12 @@ public class QueryModule implements IModule
     public Collection<? extends DisposableSectionPanel> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {
-        return Arrays.asList(new QuerySectionPanel(viewContext, entity));
+        if (databases == 0)
+        {
+            return Collections.emptyList();
+        } else
+        {
+            return Arrays.asList(new QuerySectionPanel(viewContext, entity));
+        }
     }
 }

@@ -126,7 +126,7 @@ public class BaseEntityModel<T> extends NonHierarchicalBaseModelData
         this.set(columnId, value);
     }
 
-    // FIXME: unify renderers and remove code below
+    // TODO 2010-05-18, IA: unify renderers and remove code below
     // ugly, ugly, ugly!
     protected String renderColumnValue(final GridRowModel<T> entity, IColumnDefinition<T> column)
     {

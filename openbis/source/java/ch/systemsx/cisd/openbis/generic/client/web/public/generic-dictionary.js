@@ -31,6 +31,11 @@ var generic = {
   data_set_properties_heading: "Data Set Properties",
   data_store: "Data Store",
   
+  // 
+  // Material Viewer
+  //
+  
+  material_properties_heading: "Material Properties",
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

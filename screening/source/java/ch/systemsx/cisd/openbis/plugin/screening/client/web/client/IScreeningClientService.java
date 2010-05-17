@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -54,11 +53,6 @@ public interface IScreeningClientService extends IClientService
      */
     public SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId)
             throws UserFailureException;
-
-    /**
-     * For given {@link TechId} returns corresponding {@link Material}.
-     */
-    public Material getMaterialInfo(final TechId materialId) throws UserFailureException;
 
     /**
      * For given {@link TechId} returns corresponding {@link ExternalData}.

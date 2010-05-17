@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -47,9 +46,6 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     /** @see IScreeningClientService#getSampleGenerationInfo(TechId) */
     public void getSampleGenerationInfo(final TechId sampleId,
             final AsyncCallback<SampleParentWithDerived> callback);
-
-    /** @see IScreeningClientService#getMaterialInfo */
-    public void getMaterialInfo(TechId materialId, AsyncCallback<Material> materialInfoCallback);
 
     /** @see IScreeningClientService#getPlateContent(TechId) */
     public void getPlateContent(TechId sampleId, final AsyncCallback<PlateContent> callback);

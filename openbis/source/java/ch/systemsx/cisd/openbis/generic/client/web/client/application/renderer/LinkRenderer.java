@@ -41,7 +41,8 @@ public class LinkRenderer
     public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
-            {// FIXME: almost the same as InternalLinkCellRenderer#createLinkRenderer()
+            {// TODO 2010-05-18, IA: almost the same as
+             // InternalLinkCellRenderer#createLinkRenderer()
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)

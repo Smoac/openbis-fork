@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -113,13 +112,6 @@ public interface IScreeningServer extends IServer
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
             throws UserFailureException;
-
-    /**
-     * For given {@link TechId} returns the corresponding {@link Material}.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
-    public Material getMaterialInfo(String sessionToken, TechId materialId);
 
     /**
      * For given {@link TechId} returns the corresponding {@link ExternalData}.

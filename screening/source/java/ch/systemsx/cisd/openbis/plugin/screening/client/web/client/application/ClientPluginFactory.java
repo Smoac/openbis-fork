@@ -162,7 +162,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 public ITabItem create()
                 {
                     final DatabaseModificationAwareComponent viewer =
-                            GeneMaterialViewer.create(viewContext, materialId,
+                            GeneMaterialViewer.create(viewContext, TechId.create(materialId),
                                     experimentIdentifierOrNull);
                     return createMaterialViewerTab(materialId, viewer, viewContext);
                 }
@@ -170,7 +170,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 @Override
                 public String getId()
                 {
-                    return GeneMaterialViewer.createId(materialId);
+                    return GeneMaterialViewer.createId(TechId.create(materialId));
                 }
 
                 @Override

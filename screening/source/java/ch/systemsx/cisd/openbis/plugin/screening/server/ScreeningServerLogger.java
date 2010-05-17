@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -90,12 +89,6 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     {
         logAccess(sessionToken, "getPlateLocations", "geneMaterialId(%s) experimentIdentifier(%s)",
                 geneMaterialId.getId(), experimentIdentifier);
-        return null;
-    }
-
-    public Material getMaterialInfo(String sessionToken, TechId materialId)
-    {
-        logAccess(sessionToken, "getMaterialInfo", "materialId(%s)", materialId.getId());
         return null;
     }
 

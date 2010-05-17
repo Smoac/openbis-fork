@@ -951,5 +951,9 @@ public abstract class Dict
 
     public static final String LOGGING_CONSOLE = "LOGGING_CONSOLE";
 
+    // Material Viewer
+
+    public static final String MATERIAL_PROPERTIES_HEADING = "material_properties_heading";
+
     // ----- end generic ------------------
 }
