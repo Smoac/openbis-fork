@@ -118,7 +118,7 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
         return modules;
     }
 
-    public void addModuleInitializationObserver(IModuleInitializationObserver observer)
+    public void registerModuleInitializationObserver(IModuleInitializationObserver observer)
     {
         ModuleInitializationController.createAndInitialize(getUninitializedModules()).addObserver(observer);
     }

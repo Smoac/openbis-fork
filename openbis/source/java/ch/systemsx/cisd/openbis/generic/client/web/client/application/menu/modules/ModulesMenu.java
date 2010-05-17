@@ -46,7 +46,7 @@ public class ModulesMenu extends TopMenuItem implements IModuleInitializationObs
         Menu submenu = new Menu();
         setMenu(submenu);
         hide();
-        clientPluginFactoryProvider.addModuleInitializationObserver(this);
+        clientPluginFactoryProvider.registerModuleInitializationObserver(this);
     }
 
     /**

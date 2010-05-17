@@ -98,7 +98,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                 addToolBarButton(createEditButton());
             }
         }
-        viewContext.getClientPluginFactoryProvider().addModuleInitializationObserver(this);
+        viewContext.getClientPluginFactoryProvider().registerModuleInitializationObserver(this);
     }
 
     private Button createEditButton()

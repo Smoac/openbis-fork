@@ -36,8 +36,9 @@ public interface IClientPluginFactoryProvider
             final BasicEntityType entityType);
 
     /**
-     * Returns a list of all defined 'technology' modules.
+     * Registers {@link IModuleInitializationObserver}, that will be modified about all initialized
+     * modules after their initialization.
      */
-    void addModuleInitializationObserver(IModuleInitializationObserver observer);
+    void registerModuleInitializationObserver(IModuleInitializationObserver observer);
 
 }
