@@ -65,7 +65,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
     }
 
     @Override
-    public IModule tryGetModule()
+    public IModule maybeCreateModule()
     {
         return new PhosphoNetXModule(getViewContext());
     }

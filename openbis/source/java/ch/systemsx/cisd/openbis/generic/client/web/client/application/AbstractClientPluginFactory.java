@@ -31,10 +31,13 @@ public abstract class AbstractClientPluginFactory<V extends IViewContext<? exten
 {
     private final V viewContext;
 
+    private final IModule module;
+
     protected AbstractClientPluginFactory(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         this.viewContext = createViewContext(originalViewContext);
+        this.module = maybeCreateModule();
     }
 
     protected abstract V createViewContext(
@@ -45,9 +48,10 @@ public abstract class AbstractClientPluginFactory<V extends IViewContext<? exten
         return viewContext;
     }
 
-    public IModule tryGetModule()
+    public final IModule tryGetModule()
     {
-        return null;
+        return module;
     }
 
+    protected abstract IModule maybeCreateModule();
 }

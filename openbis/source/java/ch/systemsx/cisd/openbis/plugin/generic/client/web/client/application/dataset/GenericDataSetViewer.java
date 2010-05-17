@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.da
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +32,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
@@ -180,14 +178,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         {
             container.addPanel(panel);
         }
-
-        Collection<? extends DisposableSectionPanel> moduleSections =
-                createModuleSectionPanels(displayIdSuffix, dataset);
-        for (DisposableSectionPanel panel : moduleSections)
-        {
-            container.addPanel(panel);
-        }
-
         // parents
         final SingleSectionPanel parentsSection = new DataSetParentsSection(viewContext, dataset);
         parentsSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION,
@@ -204,8 +194,8 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         final SingleSectionPanel dataSection = new DataViewSection(viewContext, dataset);
         dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_DATA_SECTION, displayIdSuffix);
         container.addPanel(dataSection);
-
         container.layout();
+        moduleSectionManager.initialize(container, displayIdSuffix, dataset);
         return container;
     }
 

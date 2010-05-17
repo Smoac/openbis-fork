@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModuleInitializationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Piotr Buczek
  */
-public class ModulesMenu extends TopMenuItem
+public class ModulesMenu extends TopMenuItem implements IModuleInitializationObserver
 {
 
     public ModulesMenu(IMessageProvider messageProvider,
@@ -45,12 +46,7 @@ public class ModulesMenu extends TopMenuItem
         Menu submenu = new Menu();
         setMenu(submenu);
         hide();
-        initialize(clientPluginFactoryProvider.getModules());
-    }
-
-    private void initialize(List<IModule> modules)
-    {
-        ModuleInitializationController.initialize(modules, this);
+        clientPluginFactoryProvider.addModuleInitializationObserver(this);
     }
 
     /**
@@ -90,6 +86,11 @@ public class ModulesMenu extends TopMenuItem
                 topMenu.setMenu(menuItem.getSubMenu());
             }
         }
+    }
+
+    public void notify(List<IModule> successfullyInitializedModules)
+    {
+        addModuleItems(successfullyInitializedModules);
     }
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.modules;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,23 +22,37 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
-
 /**
- * This class controls initialization process of all modules and creates a submenu of
- * {@link ModulesMenu} when all initialization is finished.
+ * This class controls initialization process of all modules and notifies the
+ * {@link IModuleInitializationObserver}s when all initialization is finished.
  * 
  * @author Piotr Buczek
  */
 public class ModuleInitializationController
-{// FIXME 2010-05-12, IA: handle initialization for detail viewers
-    public static void initialize(List<IModule> modules, ModulesMenu modulesMenu)
+{
+    private static ModuleInitializationController INSTANCE;
+
+    public static ModuleInitializationController createAndInitialize(List<IModule> modules)
     {
-        ModuleInitializationController controller =
-                new ModuleInitializationController(modules, modulesMenu);
-        for (IModule module : modules)
+        if (INSTANCE == null)
         {
-            module.initialize(new ModuleInitializationCallback(controller, module));
+            INSTANCE = new ModuleInitializationController(modules);
+            for (IModule module : modules)
+            {
+                module.initialize(new ModuleInitializationCallback(INSTANCE, module));
+            }
+        }
+        return INSTANCE;
+    }
+
+    public void addObserver(IModuleInitializationObserver observer)
+    {
+        if (remainingModulesCounter != 0)
+        {
+            observers.add(observer);
+        } else
+        {
+            observer.notify(successfullyInitializedModules);
         }
     }
 
@@ -48,11 +62,11 @@ public class ModuleInitializationController
 
     private final List<IModule> uninitializedModules = new ArrayList<IModule>();
 
-    private final ModulesMenu modulesMenu;
+    private final List<IModuleInitializationObserver> observers;
 
-    private ModuleInitializationController(List<IModule> allModules, ModulesMenu modulesMenu)
+    private ModuleInitializationController(List<IModule> allModules)
     {
-        this.modulesMenu = modulesMenu;
+        this.observers = new ArrayList<IModuleInitializationObserver>();
         successfullyInitializedModules.addAll(allModules);
         remainingModulesCounter = allModules.size();
     }
@@ -74,7 +88,10 @@ public class ModuleInitializationController
         remainingModulesCounter--;
         if (remainingModulesCounter == 0)
         {
-            modulesMenu.addModuleItems(successfullyInitializedModules);
+            for (IModuleInitializationObserver observer : observers)
+            {
+                observer.notify(successfullyInitializedModules);
+            }
             showErrorMessageIfNecessary();
         }
     }

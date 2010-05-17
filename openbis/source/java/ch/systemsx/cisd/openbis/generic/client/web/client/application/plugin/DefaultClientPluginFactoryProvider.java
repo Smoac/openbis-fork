@@ -42,7 +42,7 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
     private final Map<EntityKindAndTypeCode, IClientPluginFactory> pluginFactoryByEntityKindAndTypeCode =
             new HashMap<EntityKindAndTypeCode, IClientPluginFactory>();
 
-    private IClientPluginFactory genericPluginFactory;
+    private final IClientPluginFactory genericPluginFactory;
 
     public DefaultClientPluginFactoryProvider(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -55,8 +55,10 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         // Automatically generated part - START
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.ClientPluginFactory(originalViewContext));
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ClientPluginFactory(originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.ClientPluginFactory(
+                originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ClientPluginFactory(
+                originalViewContext));
         // Automatically generated part - END
     }
 
@@ -102,7 +104,7 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
         return genericPluginFactory;
     }
 
-    public final List<IModule> getModules()
+    private final List<IModule> getUninitializedModules()
     {
         ArrayList<IModule> modules = new ArrayList<IModule>();
         for (IClientPluginFactory factory : pluginFactories)
@@ -114,5 +116,10 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
             }
         }
         return modules;
+    }
+
+    public void addModuleInitializationObserver(IModuleInitializationObserver observer)
+    {
+        ModuleInitializationController.createAndInitialize(getUninitializedModules()).addObserver(observer);
     }
 }

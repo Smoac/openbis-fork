@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
@@ -151,7 +152,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     private static final AbstractTabItemFactory createGeneMaterialViewerTabFactory(
-            final IIdAndCodeHolder materialId, final ExperimentIdentifier experimentIdentifierOrNull,
+            final IIdAndCodeHolder materialId,
+            final ExperimentIdentifier experimentIdentifierOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         return new AbstractTabItemFactory()
@@ -341,5 +343,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         {
             return delegator.createRegistrationForEntityType(entityType);
         }
+    }
+
+    @Override
+    protected IModule maybeCreateModule()
+    {
+        return null;
     }
 }

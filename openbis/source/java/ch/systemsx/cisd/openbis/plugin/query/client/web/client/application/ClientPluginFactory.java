@@ -59,7 +59,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<QueryViewCo
     }
 
     @Override
-    public IModule tryGetModule()
+    public IModule maybeCreateModule()
     {
         return new QueryModule(getViewContext());
     }

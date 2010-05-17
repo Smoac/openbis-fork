@@ -230,7 +230,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
     }
 
     @Override
-    public IModule tryGetModule()
+    public IModule maybeCreateModule()
     {
         // uncomment to test DemoModule
         // return new DemoModule(getViewContext());

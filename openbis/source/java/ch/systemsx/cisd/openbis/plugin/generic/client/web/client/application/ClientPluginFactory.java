@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -117,12 +118,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                 "Generic plugin factory supports every sample type.");
     }
 
-    private String getViewerTitle(final String entityKindDictKey, final IIdAndCodeHolder identifiable)
+    private String getViewerTitle(final String entityKindDictKey,
+            final IIdAndCodeHolder identifiable)
     {
         return AbstractViewer.getTitle(getViewContext(), entityKindDictKey, identifiable);
     }
 
-    private String getEditorTitle(final String entityKindDictKey, final IIdAndCodeHolder identifiable)
+    private String getEditorTitle(final String entityKindDictKey,
+            final IIdAndCodeHolder identifiable)
     {
         return AbstractRegistrationForm.getEditTitle(getViewContext(), entityKindDictKey,
                 identifiable);
@@ -366,7 +369,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
     }
 
-    private final class DataSetClientPlugin extends ClientPluginAdapter<DataSetType, IIdAndCodeHolder>
+    private final class DataSetClientPlugin extends
+            ClientPluginAdapter<DataSetType, IIdAndCodeHolder>
     {
 
         @Override
@@ -426,6 +430,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     }
                 };
         }
+    }
+
+    @Override
+    protected IModule maybeCreateModule()
+    {
+        return null;
     }
 
 }

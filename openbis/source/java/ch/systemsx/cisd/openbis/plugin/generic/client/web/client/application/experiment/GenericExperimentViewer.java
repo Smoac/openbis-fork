@@ -158,9 +158,11 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
                 public void execute()
                 {
                     remove(loadingLabel);
+                    String displayIdPrefix = getDisplayIdSuffix(experimentType.getCode());
                     GenericExperimentViewer.this.rightPanelSectionsOrNull =
-                            createRightPanel(experiment);
+                            createRightPanel(experiment, displayIdPrefix);
                     SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
+                    moduleSectionManager.initialize(rightPanel, displayIdPrefix, experiment);
                     add(rightPanel, createRightBorderLayoutData());
                     layout();
                 }
@@ -231,14 +233,12 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
     }
 
     private List<DisposableSectionPanel> createRightPanel(
-            IEntityInformationHolderWithIdentifier experiment)
+            IEntityInformationHolderWithIdentifier experiment, final String displayIdSuffix)
     {
-        final String displayIdSuffix = getDisplayIdSuffix(experimentType.getCode());
+
         List<DisposableSectionPanel> allPanels = new ArrayList<DisposableSectionPanel>();
 
         allPanels.addAll(createAdditionalBrowserSectionPanels(displayIdSuffix));
-
-        allPanels.addAll(createModuleSectionPanels(displayIdSuffix, experiment));
 
         final ExperimentSamplesSection sampleSection =
                 new ExperimentSamplesSection(viewContext, experimentType, experimentId);

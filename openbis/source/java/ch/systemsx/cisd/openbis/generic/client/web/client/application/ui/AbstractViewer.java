@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,21 +35,19 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModuleInitializationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -59,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractViewer<D extends IEntityInformationHolder> extends ContentPanel
+        implements IModuleInitializationObserver
 {
 
     public static final String ID_EDIT_SUFFIX = "_edit";
@@ -74,6 +72,8 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     private LabelToolItem titleLabel;
 
     private D originalData;
+
+    protected final ModulesSectionsManager moduleSectionManager = new ModulesSectionsManager();
 
     public AbstractViewer(final IViewContext<?> viewContext, String id)
     {
@@ -98,6 +98,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                 addToolBarButton(createEditButton());
             }
         }
+        viewContext.getClientPluginFactoryProvider().addModuleInitializationObserver(this);
     }
 
     private Button createEditButton()
@@ -285,21 +286,9 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         return viewContext.getDisplaySettingsManager().getPanelCollapsedSetting(panelId);
     }
 
-    protected Collection<? extends DisposableSectionPanel> createModuleSectionPanels(
-            String displayIdSuffix, IEntityInformationHolderWithIdentifier entity)
+    public void notify(List<IModule> modules)
     {
-        ArrayList<DisposableSectionPanel> result = new ArrayList<DisposableSectionPanel>();
-        for (IModule module : viewContext.getClientPluginFactoryProvider().getModules())
-        {
-            Collection<? extends DisposableSectionPanel> sections = module.getSections(entity);
-            for (DisposableSectionPanel panel : sections)
-            {
-                panel.setDisplayID(DisplayTypeIDGenerator.MODULE_SECTION, module.getName() + "-"
-                        + displayIdSuffix);
-            }
-            result.addAll(sections);
-        }
-        return result;
+        moduleSectionManager.initialize(modules);
     }
 
 }
