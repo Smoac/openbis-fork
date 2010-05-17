@@ -469,7 +469,8 @@
       <zipfileset src="${jar.file}">
         <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
         <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
-        <include name="ch/systemsx/cisd/openbis/**/api/**/*.class" />
+        <include name="ch/systemsx/cisd/common/api/*.class" />
+        <include name="ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/openbis/**/server/api/**/*.class" />
         <include name="**/*BuildAndEnvironmentInfo.class" />
         <include name="*.INFO" />

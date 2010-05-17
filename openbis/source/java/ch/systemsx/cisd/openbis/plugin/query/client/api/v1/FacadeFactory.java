@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.openbis.generic.shared.DefaultLimsServiceStubFactory;
-import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
+import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.plugin.query.server.api.v1.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
@@ -29,26 +27,15 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
  */
 public class FacadeFactory
 {
-    private static final int SERVER_TIMEOUT_MIN = 5;
-
-    // Trick for discovering the server Url
-    private static String getServiceUrl(String serverUrl)
-    {
-        OpenBisServiceFactory openBisServiceFactory =
-                new OpenBisServiceFactory(serverUrl, new DefaultLimsServiceStubFactory());
-        openBisServiceFactory.createService();
-        return openBisServiceFactory.getUsedServerUrl() + ResourceNames.QUERY_PLUGIN_SERVER_URL;
-    }
+    private static final ServiceFinder SERVICE_FINDER =
+            new ServiceFinder("openbis", ResourceNames.QUERY_PLUGIN_SERVER_URL);
 
     /**
      * Creates a facade for specified server URL, user Id, and password.
      */
     public static IQueryApiFacade create(String serverURL, String userID, String password)
     {
-        String serviceUrl = getServiceUrl(serverURL);
-        IQueryApiServer service =
-                HttpInvokerUtils.createServiceStub(IQueryApiServer.class, serviceUrl,
-                        SERVER_TIMEOUT_MIN);
+        IQueryApiServer service = createService(serverURL);
         String sessionToken = service.tryToAuthenticateAtQueryServer(userID, password);
         if (sessionToken == null)
         {
@@ -62,9 +49,11 @@ public class FacadeFactory
      */
     public static IQueryApiFacade create(String serverURL, String sessionToken)
     {
-        IQueryApiServer service =
-                HttpInvokerUtils.createServiceStub(IQueryApiServer.class, serverURL
-                        + ResourceNames.QUERY_PLUGIN_SERVER_URL, SERVER_TIMEOUT_MIN);
-        return new QueryApiFacade(service, sessionToken);
+        return new QueryApiFacade(createService(serverURL), sessionToken);
+    }
+    
+    private static IQueryApiServer createService(String serverURL)
+    {
+        return SERVICE_FINDER.createService(IQueryApiServer.class, serverURL);
     }
 }

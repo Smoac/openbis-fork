@@ -44,6 +44,8 @@ public final class ResourceNames
     }
 
     public final static String ETL_SERVICE = "etl-service";
+    
+    public final static String ETL_SERVICE_URL = "/rmi-etl";
 
     public final static String COMMON_SERVICE = "common-service";
 
