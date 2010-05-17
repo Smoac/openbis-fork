@@ -344,7 +344,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         String lastLine = metaData.remove(metaData.size() - 1);
         assertEquals("[Parent\tnull, Code\tfc:2, Contact Person Email\tab@c.de, "
                 + "AFFILIATION\tfmi, EXTERNAL_SAMPLE_NAME\text23, , "
-                + "==== SRF Info ====, option: -l1]", metaData.toString());
+                + "==== SRF Info ====\t, option: -l1\t]", metaData.toString());
         AssertionUtil.assertContains("file: ", lastLine);
         assertEquals(8, metaData.size());
         assertHardLinkOnSameFile(originalFlowLane2, transferedFiles[0]);
