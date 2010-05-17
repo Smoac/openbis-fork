@@ -29,9 +29,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.DefaultLimsServiceStubFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -106,8 +106,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private static IETLLIMSService createOpenBisService(String openBISURL)
     {
-        return new OpenBisServiceFactory(openBISURL, new DefaultLimsServiceStubFactory())
-                .createService();
+        return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL).createService();
     }
 
     public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager, String serverURL,

@@ -32,9 +32,9 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.generic.shared.DefaultLimsServiceStubFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -100,8 +100,7 @@ public class DssComponent implements IDssComponent
 
     private static IETLLIMSService createOpenBisService(String openBISURL)
     {
-        return new OpenBisServiceFactory(openBISURL, new DefaultLimsServiceStubFactory())
-                .createService();
+        return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL).createService();
     }
 
     /**
