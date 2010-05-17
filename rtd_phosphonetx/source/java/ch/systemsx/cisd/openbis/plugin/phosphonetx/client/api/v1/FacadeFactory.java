@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.api.v1;
 
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.openbis.generic.shared.DefaultLimsServiceStubFactory;
-import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
+import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1.Constants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
 
@@ -29,26 +27,14 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService
  */
 public class FacadeFactory
 {
-    private static final int SERVER_TIMEOUT_MIN = 5;
+    private static final ServiceFinder SERVICE_FINDER = new ServiceFinder("openbis", Constants.RAW_DATA_SERVER_URL);
 
-    // Trick for discovering the server Url
-    private static String getServiceUrl(String serverUrl)
-    {
-        OpenBisServiceFactory openBisServiceFactory =
-                new OpenBisServiceFactory(serverUrl, new DefaultLimsServiceStubFactory());
-        openBisServiceFactory.createService();
-        return openBisServiceFactory.getUsedServerUrl() + Constants.RAW_DATA_SERVER_URL;
-    }
-    
     /**
      * Creates a facade for specified server URL, user Id, and password.
      */
     public static IRawDataApiFacade create(String serverURL, String userID, String password)
     {
-        String serviceUrl = getServiceUrl(serverURL);
-        IRawDataService service =
-                HttpInvokerUtils.createServiceStub(IRawDataService.class, serviceUrl,
-                        SERVER_TIMEOUT_MIN);
+        IRawDataService service = createService(serverURL);
         String sessionToken = service.tryToAuthenticateAtRawDataServer(userID, password);
         if (sessionToken == null)
         {
@@ -62,11 +48,12 @@ public class FacadeFactory
      */
     public static IRawDataApiFacade create(String serverURL, String sessionToken)
     {
-        IRawDataService service =
-                HttpInvokerUtils.createServiceStub(IRawDataService.class, serverURL
-                        + Constants.RAW_DATA_SERVER_URL, SERVER_TIMEOUT_MIN);
-        return new RawDataApiFacade(service, sessionToken);
+        return new RawDataApiFacade(createService(serverURL), sessionToken);
     }
 
-
+    private static IRawDataService createService(String serverURL)
+    {
+        return SERVICE_FINDER.createService(IRawDataService.class, serverURL);
+    }
+    
 }
