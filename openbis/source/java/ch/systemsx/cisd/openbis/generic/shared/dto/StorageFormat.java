@@ -24,6 +24,7 @@ import java.util.Map;
  * 
  * @author Bernd Rinn
  */
+// TODO 2010-05-17, Tomasz Pylak: remove me after removing BDS
 public enum StorageFormat
 {
 
