@@ -25,7 +25,6 @@
 
   <property name="jar.file.name" value="${ant.project.name}.jar" />
   <property name="jar.file" value="${dist}/${jar.file.name}" />
-  <property name="client.jar.file" value="${dist}/${ant.project.name}-client.jar" />
   <property name="admin.console" value="openbis-admin-console" />
   <property name="admin.jar.file" value="${dist}/${admin.console}.jar" />
   <property name="admin.dist.file" value="${dist}/${admin.console}.zip" />
@@ -186,7 +185,6 @@
     </loadfile>
     <echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
     <copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
-    <move file="${client.jar.file}" todir="${server.dist}" />
     <move file="${admin.dist.file}" todir="${server.dist}" />
     <move file="${query.api.dist.file}" todir="${server.dist}" />
     <copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
@@ -413,31 +411,6 @@
     <jar update="true" destfile="${jar.file}">
       <fileset dir="../${ant.project.name}/${classes}" includes="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class" />
     </jar>
-    <jar destfile="${client.jar.file}">
-      <zipfileset src="${jar.file}">
-        <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
-        <include name="ch/systemsx/cisd/common/exceptions/*.class" />
-        <include name="**/shared/I*.class" />
-        <include name="**/shared/basic/dto/*.class" />
-        <include name="**/shared/basic/*.class" />
-        <include name="**/shared/dto/**/*.class" />
-        <exclude name="**/shared/dto/*PE.class" />
-        <include name="**/shared/authorization/annotation/*.class" />
-        <include name="**/shared/authorization/ISessionProvider.class" />
-        <include name="**/*BuildAndEnvironmentInfo.class" />
-        <include name="*.INFO" />
-      </zipfileset>
-      <zipfileset src="${lib}/gwt2.0/gwt-user.jar">
-        <include name="com/google/gwt/user/client/rpc/IsSerializable.class" />
-        <include name="com/google/gwt/user/client/rpc/SerializableException.class" />
-      </zipfileset>
-      <zipfileset src="${lib}/cisd-base/cisd-base.jar">
-        <include name="**/*BuildAndEnvironmentInfo.class" />
-      </zipfileset>
-      <manifest>
-        <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo" />
-      </manifest>
-    </jar>
   	<jar destfile="${admin.jar.file}">
       <zipfileset src="${jar.file}">
         <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
@@ -469,10 +442,11 @@
       <zipfileset src="${jar.file}">
         <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
         <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
-        <include name="ch/systemsx/cisd/common/api/*.class" />
+        <include name="ch/systemsx/cisd/common/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/openbis/**/server/api/**/*.class" />
-        <include name="**/*BuildAndEnvironmentInfo.class" />
+        <include name="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class" />
         <include name="*.INFO" />
       </zipfileset>
     </jar>
