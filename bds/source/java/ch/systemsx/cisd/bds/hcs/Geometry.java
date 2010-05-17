@@ -51,7 +51,7 @@ public class Geometry implements IStorable
 
     private final int columns;
 
-    Geometry(final int rows, final int columns)
+    public Geometry(final int rows, final int columns)
     {
         assert columns > 0 : String.format(NOT_POSITIVE, "columns", columns);
         this.columns = columns;
@@ -82,7 +82,7 @@ public class Geometry implements IStorable
      * @param toString the output you get when calling {@link #toString()}.
      * @return <code>null</code> if operation fails.
      */
-    static Geometry createFromString(final String toString)
+    public static Geometry createFromString(final String toString)
     {
         assert toString != null : "Given string can not be null.";
         final int index = toString.indexOf(X);

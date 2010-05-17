@@ -34,12 +34,12 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
  * 
  * @author Franz-Josef Elmer
  */
-final class HCSImageCheckList
+public final class HCSImageCheckList
 {
 
     private final List<Map<FullLocation, Check>> list;
 
-    HCSImageCheckList(final int numberOfChannels, final Geometry plateGeometry,
+    public HCSImageCheckList(final int numberOfChannels, final Geometry plateGeometry,
             final Geometry wellGeometry)
     {
         if (numberOfChannels < 1)
@@ -79,7 +79,7 @@ final class HCSImageCheckList
         }
     }
 
-    final void checkOff(final int channel, final Location wellLocation, final Location tileLocation)
+    public final void checkOff(final int channel, final Location wellLocation, final Location tileLocation)
     {
         assert wellLocation != null : "Unspecified well location.";
         assert tileLocation != null : "Unspecified tile location.";
@@ -106,7 +106,7 @@ final class HCSImageCheckList
         check.checkOff();
     }
 
-    final List<FullLocation> getCheckedOnFullLocations()
+    public final List<FullLocation> getCheckedOnFullLocations()
     {
         final List<FullLocation> fullLocations = new ArrayList<FullLocation>();
         for (final Map<FullLocation, Check> map : list)
@@ -141,7 +141,7 @@ final class HCSImageCheckList
         }
     }
 
-    final static class FullLocation extends AbstractHashable
+    public final static class FullLocation extends AbstractHashable
     {
 
         final Location wellLocation;

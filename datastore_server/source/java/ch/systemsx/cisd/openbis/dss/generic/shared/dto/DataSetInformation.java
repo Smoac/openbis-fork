@@ -49,6 +49,7 @@ public class DataSetInformation implements Serializable
 
     private String sampleCode;
 
+    // top sample properties
     private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
 
     private DataSetType dataSetType;
