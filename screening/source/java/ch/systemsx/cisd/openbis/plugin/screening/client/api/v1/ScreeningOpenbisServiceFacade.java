@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
@@ -75,20 +76,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
     {
-        ScreeningApiServerFactory.IScreeningApiServerStubFactory stubFactory =
-                new ScreeningApiServerFactory.IScreeningApiServerStubFactory()
-                    {
-
-                        public IScreeningApiServer createServiceStub(String aUrl)
-                        {
-                            return HttpInvokerUtils.createServiceStub(IScreeningApiServer.class,
-                                    aUrl, SERVER_TIMEOUT_MIN);
-                        }
-
-                    };
-        ScreeningApiServerFactory factory =
-                new ScreeningApiServerFactory(serverUrl, OPENBIS_SCREENING_API, stubFactory);
-        return factory.createService();
+        ServiceFinder serviceFinder = new ServiceFinder("openbis", OPENBIS_SCREENING_API);
+        return serviceFinder.createService(IScreeningApiServer.class, serverUrl);
     }
 
     private static IDssServiceRpcScreening createScreeningDssServer(String serverUrl)
