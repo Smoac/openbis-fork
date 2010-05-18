@@ -149,6 +149,8 @@ CREATE TABLE IMAGES (
 /* FEATURE VECTORS                                                        */
 /* ---------------------------------------------------------------------- */ 
 
+/* --- UNUSED YET ---------------------------------------
+
 CREATE TABLE FEATURE_DEFS (
     ID BIGSERIAL  NOT NULL,
     
@@ -187,3 +189,4 @@ CREATE INDEX FEATURE_VALUES_FD_IDX ON FEATURE_VALUES(FD_ID);
 CREATE INDEX FEATURE_VALUES_DS_IDX ON FEATURE_VALUES(DS_ID);
 CREATE INDEX FEATURE_VALUES_Z_AND_T_IDX ON FEATURE_VALUES(Z_in_M, T_in_SEC);
 
+  --- END UNUSED YET --------------------------------------- */

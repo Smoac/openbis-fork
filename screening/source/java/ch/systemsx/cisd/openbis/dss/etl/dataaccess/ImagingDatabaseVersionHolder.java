@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared;
+package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
 
 /**
- * Stores current version of special purpose screening database.
+ * Stores current version of special purpose imaging database.
  * 
  * @author Tomasz Pylak
  */
-public class ScreeningDatabaseVersionHolder 
+public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
 {
     /** Current version of the database. */
     static final String DATABASE_VERSION = "001";

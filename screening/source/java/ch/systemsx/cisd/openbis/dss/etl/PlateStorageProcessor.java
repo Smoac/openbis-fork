@@ -22,6 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
+import net.lemnik.eodsql.QueryTool;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
@@ -50,6 +54,8 @@ import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.PlateDimension;
 import ch.systemsx.cisd.etlserver.PlateDimensionParser;
 import ch.systemsx.cisd.etlserver.HCSImageCheckList.FullLocation;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -79,6 +85,10 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private static final String DEPRECATED_FILE_EXTRACTOR_PROPERTY = "deprecated-file-extractor";
 
+    // -----------
+
+    private final DataSource dataSource;
+
     private final Geometry spotGeometry;
 
     private final int numberOfChannels;
@@ -87,6 +97,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private final IHCSImageFileExtractor imageFileExtractor;
 
     private final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor deprecatedImageFileExtractor;
+
+    private IImagingUploadDAO currentTransaction;
 
     public PlateStorageProcessor(final Properties properties)
     {
@@ -110,6 +122,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                     ClassUtils.create(ch.systemsx.cisd.etlserver.IHCSImageFileExtractor.class,
                             fileExtractorClass, properties);
         }
+        this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
+        this.currentTransaction = null;
     }
 
     private int extractNumberOfChannels()
@@ -122,6 +136,11 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                     NUMBER_OF_CHANNELS_PROPERTY, getClass().getName());
         }
         return channels;
+    }
+
+    private IImagingUploadDAO createQuery()
+    {
+        return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
     }
 
     private final static void checkDataSetInformation(final DataSetInformation dataSetInformation)
@@ -250,7 +269,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         {
             throw new UserFailureException("Experiment unknown for data set " + dataSetInformation);
         }
-        ScreeningContainerDatasetInfo info = createScreeningDatasetInfo(experiment, dataSetInformation);
+        ScreeningContainerDatasetInfo info =
+                createScreeningDatasetInfo(experiment, dataSetInformation);
 
         HCSImageFileExtractionResult extractionResult =
                 extractImages(dataSetInformation, incomingDataSetDirectory);
@@ -332,14 +352,29 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     @Override
     public void commit()
     {
-        // FIXME 2010--, Tomasz Pylak: implement me
+        commitDatabaseChanges();
+    }
+
+    private void commitDatabaseChanges()
+    {
+        if (currentTransaction == null)
+        {
+            throw new IllegalStateException("there is no transaction to commit");
+        }
+        try
+        {
+            currentTransaction.close(true);
+        } finally
+        {
+            currentTransaction = null;
+        }
     }
 
     public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
             Throwable exception)
     {
         unstoreFiles(incomingDataSetDirectory, storedDataDirectory);
-        unstoreFromDatabase();
+        rollbackDatabaseChanges();
         return UnstoreDataAction.MOVE_TO_ERROR;
     }
 
@@ -385,12 +420,28 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private void storeInDatabase(ScreeningContainerDatasetInfo info, List<AcquiredPlateImage> images)
     {
+        if (currentTransaction != null)
+        {
+            throw new IllegalStateException("previous transaction has not been commited!");
+        }
+        currentTransaction = createQuery();
         // FIXME 2010--, Tomasz Pylak: implement me
     }
 
-    private void unstoreFromDatabase()
+    private void rollbackDatabaseChanges()
     {
-        // FIXME 2010-05-14, Tomasz Pylak: delete the whle dataset from the screening database
+        if (currentTransaction == null)
+        {
+            throw new IllegalStateException("there is no transaction to rollback");
+        }
+        try
+        {
+            currentTransaction.rollback();
+        } finally
+        {
+            currentTransaction.close();
+            currentTransaction = null;
+        }
     }
 
     /**
@@ -514,7 +565,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                                     .createDirectoryNode(incomingDataSetDirectory),
                                     dataSetInformation, accepter);
                     return new HCSImageFileExtractionResult(accepter.getImages(),
-                            asRelativePaths(originalResult.getInvalidFiles()));
+                            asRelativePaths(originalResult.getInvalidFiles()), originalResult
+                                    .getChannels());
                 }
 
                 private List<File> asRelativePaths(List<IFile> files)

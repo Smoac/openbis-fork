@@ -17,6 +17,9 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
+
+import ch.systemsx.cisd.bds.hcs.Channel;
 
 /**
  * Class which contains the image extraction process results.
@@ -31,10 +34,14 @@ public final class HCSImageFileExtractionResult
     /** The invalid files found. */
     private final List<File> invalidFiles;
 
-    public HCSImageFileExtractionResult(List<AcquiredPlateImage> images, List<File> invalidFiles)
+    private final Set<Channel> channels;
+
+    public HCSImageFileExtractionResult(List<AcquiredPlateImage> images, List<File> invalidFiles,
+            Set<Channel> channels)
     {
         this.images = images;
         this.invalidFiles = invalidFiles;
+        this.channels = channels;
     }
 
     public List<AcquiredPlateImage> getImages()
@@ -45,5 +52,10 @@ public final class HCSImageFileExtractionResult
     public List<File> getInvalidFiles()
     {
         return invalidFiles;
+    }
+
+    public Set<Channel> getChannels()
+    {
+        return channels;
     }
 }
