@@ -240,7 +240,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         {
             closeDatasetLoaders(imageLoadersMap.values());
         }
-        return new ConcatenatedFileInputStream(imageFiles);
+        return new ConcatenatedFileInputStream(true, imageFiles);
     }
 
     private static void closeDatasetLoaders(Collection<HCSDatasetLoader> loaders)
