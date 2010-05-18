@@ -42,9 +42,9 @@ public enum RoleSet
 
     USER(POWER_USER, spaceRole(RoleCode.USER)),
 
-    INSTANCE_ADMIN_OBSERVER(USER, instanceRole(RoleCode.OBSERVER)),
+    INSTANCE_ADMIN_OBSERVER(INSTANCE_ADMIN, instanceRole(RoleCode.OBSERVER)),
     
-    OBSERVER(INSTANCE_ADMIN_OBSERVER, spaceRole(RoleCode.OBSERVER)),
+    OBSERVER(USER, spaceRole(RoleCode.OBSERVER)),
 
     ETL_SERVER(INSTANCE_ADMIN, spaceRole(RoleCode.ETL_SERVER), instanceRole(RoleCode.ETL_SERVER));
 
