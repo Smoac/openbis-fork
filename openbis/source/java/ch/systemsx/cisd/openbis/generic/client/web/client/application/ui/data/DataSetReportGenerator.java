@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import java.util.Date;
+
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -75,12 +78,15 @@ public class DataSetReportGenerator
 
                 public void execute(final IDisposableComponent reportComponent)
                 {
+                    final String reportDate =
+                            DateTimeFormat.getMediumTimeFormat().format(new Date());
                     final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
                         {
                             @Override
                             public ITabItem create()
                             {
-                                final String reportTitle = service.getLabel();
+                                final String reportTitle =
+                                        service.getLabel() + " (" + reportDate + ")";
                                 return DefaultTabItem.create(reportTitle, reportComponent,
                                         viewContext);
                             }
@@ -89,7 +95,7 @@ public class DataSetReportGenerator
                             public String getId()
                             {
                                 final String reportKey = service.getKey();
-                                return ReportGrid.createId(reportKey);
+                                return ReportGrid.createId(reportKey + "_" + reportDate);
                             }
 
                             @Override
@@ -98,6 +104,7 @@ public class DataSetReportGenerator
                                 return new HelpPageIdentifier(HelpPageDomain.DATA_SET,
                                         HelpPageAction.REPORT);
                             }
+
                         };
                     DispatcherHelper.dispatchNaviEvent(tabFactory);
                 }
