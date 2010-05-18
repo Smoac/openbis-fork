@@ -59,13 +59,7 @@ public class QueryAccessController
         GroupPE dataSpaceOrNull = database.tryGetDataSpace();
         RoleSet minimalRole = database.getCreatorMinimalRole();
 
-        if (isAuthorized(person, dataSpaceOrNull, minimalRole) == false)
-        {
-            String errorMsg =
-                    createErrorMessage(operation, session.getUserName(), dataSpaceOrNull,
-                            minimalRole, database.getLabel());
-            throw createAuthorizationError(session, operation, errorMsg);
-        }
+        checkAuthorization(session, operation, database, person, dataSpaceOrNull, minimalRole);
     }
 
     public static void checkReadAccess(Session session, String dbKey)
@@ -75,17 +69,23 @@ public class QueryAccessController
         GroupPE dataSpaceOrNull = database.tryGetDataSpace();
         RoleSet minimalRole = RoleSet.OBSERVER;
 
+        checkAuthorization(session, "perform", database, person, dataSpaceOrNull, minimalRole);
+    }
+
+    private static void checkAuthorization(Session session, String operation,
+            DatabaseDefinition database, PersonPE person, GroupPE dataSpaceOrNull,
+            RoleSet minimalRole)
+    {
         if (isAuthorized(person, dataSpaceOrNull, minimalRole) == false)
         {
             String errorMsg =
-                    createErrorMessage("perform", session.getUserName(), dataSpaceOrNull,
+                    createErrorMessage(operation, session.getUserName(), dataSpaceOrNull,
                             minimalRole, database.getLabel());
-            throw createAuthorizationError(session, "perform", errorMsg);
+            throw createAuthorizationError(session, operation, errorMsg);
         }
     }
 
-    private static boolean isAuthorized(PersonPE person, GroupPE dataSpaceOrNull,
-            RoleSet minimalRole)
+    static boolean isAuthorized(PersonPE person, GroupPE dataSpaceOrNull, RoleSet minimalRole)
     {
         final Set<Role> requiredRoles = minimalRole.getRoles();
         if (person != null)
