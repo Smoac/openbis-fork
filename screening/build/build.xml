@@ -81,10 +81,10 @@
       author="false" 
       version="false" 
       classpath="${ecp}:${classes.screening}">
-      <fileset dir="${sources}">
-        <include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/*" />
-        <include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/*" />
-      </fileset>
+      <packageset dir="${sources}">
+        <include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/**" />
+        <include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/**" />
+      </packageset>
     </javadoc>
     <zip destfile="${dist.screening-api.javadoc.zip}">
       <zipfileset dir="${dist.screening-api.javadoc}" includes="**" />
