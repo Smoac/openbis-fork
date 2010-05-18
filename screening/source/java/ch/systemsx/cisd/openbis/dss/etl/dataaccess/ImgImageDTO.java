@@ -31,7 +31,7 @@ public class ImgImageDTO
     private String filePath;
 
     @ResultColumn("PAGE")
-    private Integer pathOrNull;
+    private Integer pageOrNull;
 
     @ResultColumn("COLOR")
     private ColorComponent colorComponentOrNull;
@@ -46,10 +46,10 @@ public class ImgImageDTO
         this(filePath, null, null);
     }
 
-    public ImgImageDTO(String filePath, Integer pathOrNull, ColorComponent colorComponentOrNull)
+    public ImgImageDTO(String filePath, Integer pageOrNull, ColorComponent colorComponentOrNull)
     {
         this.filePath = filePath;
-        this.pathOrNull = pathOrNull;
+        this.pageOrNull = pageOrNull;
         this.colorComponentOrNull = colorComponentOrNull;
     }
 
@@ -73,14 +73,14 @@ public class ImgImageDTO
         this.filePath = filePath;
     }
 
-    public Integer getPath()
+    public Integer getPage()
     {
-        return pathOrNull;
+        return pageOrNull;
     }
 
-    public void setPath(Integer path)
+    public void setPage(Integer page)
     {
-        this.pathOrNull = path;
+        this.pageOrNull = page;
     }
 
     public ColorComponent getColorComponent()

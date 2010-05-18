@@ -33,4 +33,32 @@ public interface IImagingUploadDAO extends TransactionQuery
     @Select("select * from CONTAINERS where PERM_ID = ?{1}")
     public ImgContainerDTO tryGetContainerByPermId(String containerPermId);
 
+    @Select("insert into ACQUIRED_IMAGES (IMG_ID, THUMBNAIL_ID, CHANNEL_STACK_ID, CHANNEL_ID) values "
+            + "(?{1.imgageId}, ?{1.thumbnailId}, ?{1.channelStackId}, ?{1.channelId}) returning ID")
+    public long addAcquiredImage(ImgAcquiredImageDTO acquiredImage);
+
+    @Select("insert into CHANNELS (NAME, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID) values "
+            + "(?{1.name}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}) returning ID")
+    public long addChannel(ImgChannelDTO channel);
+
+    @Select("insert into CHANNEL_STACKS (X, Y, Z_in_M, T_in_SEC, DS_ID, SPOT_ID) values "
+            + "(?{1.x}, ?{1.y}, ?{1.z}, ?{1.t}, ?{1.datasetId}, ?{1.spotId}) returning ID")
+    public long addChannelStack(ImgChannelStackDTO channelStack);
+
+    @Select("insert into CONTAINERS (PERM_ID, SPOTS_WIDTH, SPOTS_HEIGHT, EXPE_ID) values "
+            + "(?{1.permId}, ?{1.spotWidth}, ?{1.spotHeight}, ?{1.experimentId}) returning ID")
+    public long addContainer(ImgContainerDTO container);
+
+    @Select("insert into DATA_SETS (PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, CONT_ID) values "
+            + "(?{1.permId}, ?{1.fieldsWidth}, ?{1.fieldsHeight}, ?{1.containerId}) returning ID")
+    public long addDataset(ImgDatasetDTO dataset);
+
+    @Select("insert into IMAGES (PATH, PAGE, COLOR) values "
+            + "(?{1.filePath}, ?{1.page}, ?{1.colorComponent}) returning ID")
+    public long addImage(ImgImageDTO image);
+
+    @Select("insert into SPOTS (PERM_ID, X, Y, CONT_ID) values "
+            + "(?{1.permId}, ?{1.x}, ?{1.y}, ?{1.containerId}) returning ID")
+    public long addSpot(ImgSpotDTO spot);
+
 }
