@@ -30,6 +30,9 @@
   <property name="admin.dist.file" value="${dist}/${admin.console}.zip" />
   <property name="query.api" value="openbis-query-api" />
   <property name="query.api.jar.file" value="${dist}/${query.api}.jar" />
+	<property name="query.api.doc" value="${dist}/${query.api}/doc" />
+	<property name="query.api.doc.zip" value="${dist}/doc.zip" />
+	<property name="query.api.src.zip" value="${dist}/src.zip" />
   <property name="query.api.dist.file" value="${dist}/${query.api}.zip" />
 
   <property name="webapp.file.name" value="openBIS.war" />
@@ -160,10 +163,29 @@
   	<delete file="${admin.jar.file}"/>
   </target>
 
-  <target name="query-api-dist" depends="jar" 
+  <target name="make-query-api-doc">
+    <javadoc destdir="${query.api.doc}}" access="public" author="false" version="false" classpath="${ecp}">
+      <fileset dir="${sources}">
+        <include name="ch/systemsx/cisd/openbis/plugin/query/client/api/v1/*" />
+        <include name="ch/systemsx/cisd/openbis/plugin/query/shared/api/v1/dto/*" />
+      </fileset>
+    </javadoc>
+    <zip destfile="${query.api.doc.zip}">
+      <zipfileset dir="${query.api.doc}" includes="**" />
+    </zip>
+    <delete dir="${query.api.doc}" />
+    <zip destfile="${query.api.src.zip}">
+      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/query/shared/api/v1/dto/**" />
+      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/query/client/api/v1/*.java" />
+    </zip>
+  </target>
+	
+  <target name="query-api-dist" depends="jar, make-query-api-doc" 
   	description="Makes a distribution file for Query API.">
     <zip destfile="${query.api.dist.file}">
       <zipfileset prefix="${query.api}" file="${query.api.jar.file}"/>
+      <zipfileset prefix="${query.api}" file="${query.api.doc.zip}"/>
+      <zipfileset prefix="${query.api}" file="${query.api.src.zip}"/>
       <zipfileset prefix="${query.api}" file="${lib}/cisd-base/cisd-base.jar"/>
       <zipfileset prefix="${query.api}" file="${lib}/commons-codec/commons-codec.jar"/>
       <zipfileset prefix="${query.api}" file="${lib}/commons-httpclient/commons-httpclient.jar"/>
@@ -173,6 +195,8 @@
       <zipfileset prefix="${query.api}" file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"/>
     </zip>
   	<delete file="${query.api.jar.file}"/>
+  	<delete file="${query.api.doc.zip}"/>
+  	<delete file="${query.api.src.zip}"/>
   </target>
 
   <target name="make-dist" description="Makes a distribution file." 
