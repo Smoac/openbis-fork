@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
@@ -75,5 +76,7 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
      *             children in other experiments.
      */
     public void deleteZombiePlaceholders(ExperimentPE experiment) throws DataAccessException;
+
+    public List<ExperimentPE> listByPermID(Set<String> values);
 
 }

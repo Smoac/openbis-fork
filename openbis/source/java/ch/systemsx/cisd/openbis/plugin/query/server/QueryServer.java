@@ -222,9 +222,10 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         Session session = getSession(sessionToken);
         try
         {
-            QueryAccessController
-                    .checkWriteAccess(session, database.getKey(), "create and perform");
-            return queryDatabaseWithKey(database.getKey(), sqlQuery, bindings);
+            String dbKey = database.getKey();
+            QueryAccessController.checkWriteAccess(session, dbKey, "create and perform");
+            return QueryAccessController.filterResults(session, dbKey, getDAOFactory(),
+                    queryDatabaseWithKey(dbKey, sqlQuery, bindings));
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
@@ -242,7 +243,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             String dbKey = query.getQueryDatabaseKey();
             String expression = StringEscapeUtils.unescapeHtml(query.getExpression());
             QueryAccessController.checkReadAccess(session, dbKey);
-            return queryDatabaseWithKey(dbKey, expression, bindings);
+            return QueryAccessController.filterResults(session, dbKey, getDAOFactory(),
+                    queryDatabaseWithKey(dbKey, expression, bindings));
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
@@ -340,7 +342,6 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             }
 
         }
-
         QueryAccessController.initialize(definitions);
     }
 }

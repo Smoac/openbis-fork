@@ -113,4 +113,6 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
      */
     public Set<TechId> findParentIds(Collection<TechId> dataSetIds);
 
+    public List<ExternalDataPE> listByCode(Set<String> values);
+
 }

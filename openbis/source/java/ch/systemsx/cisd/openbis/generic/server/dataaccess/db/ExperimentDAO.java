@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -195,5 +196,21 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
                     "Zombie placeholders connected with experiment '%s' have been deleted.",
                     experiment.getCode()));
         }
+    }
+
+    public List<ExperimentPE> listByPermID(Set<String> values)
+    {
+        if (values == null || values.isEmpty())
+        {
+            return new ArrayList<ExperimentPE>();
+        }
+        final DetachedCriteria criteria = DetachedCriteria.forClass(ExperimentPE.class);
+        criteria.add(Restrictions.in("permId", values));
+        final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d experiment(s) have been found.", list.size()));
+        }
+        return list;
     }
 }

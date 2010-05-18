@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
@@ -118,5 +119,7 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      */
     List<SamplePE> listSamplesByGroupAndProperty(final String propertyCode,
             final String propertyValue, final GroupPE group) throws DataAccessException;
+
+    List<SamplePE> listByPermID(Set<String> values);
 
 }

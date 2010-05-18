@@ -19,12 +19,14 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.validator.ClassValidator;
 import org.springframework.dao.DataAccessException;
@@ -446,6 +448,22 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         {
             operationLog.info("UPDATE: sample '" + sample + "'.");
         }
+    }
+
+    public List<SamplePE> listByPermID(Set<String> values)
+    {
+        if (values == null || values.isEmpty())
+        {
+            return new ArrayList<SamplePE>();
+        }
+        final DetachedCriteria criteria = DetachedCriteria.forClass(SamplePE.class);
+        criteria.add(Restrictions.in("permId", values));
+        final List<SamplePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d sample(s) have been found.", list.size()));
+        }
+        return list;
     }
 
 }

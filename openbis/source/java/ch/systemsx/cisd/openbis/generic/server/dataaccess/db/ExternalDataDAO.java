@@ -433,4 +433,20 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         return result;
     }
 
+    public List<ExternalDataPE> listByCode(Set<String> values)
+    {
+        if (values == null || values.isEmpty())
+        {
+            return new ArrayList<ExternalDataPE>();
+        }
+        final DetachedCriteria criteria = DetachedCriteria.forClass(ExternalDataPE.class);
+        criteria.add(Restrictions.in("code", values));
+        final List<ExternalDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d data set(s) have been found.", list.size()));
+        }
+        return list;
+    }
+
 }
