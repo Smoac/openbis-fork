@@ -52,7 +52,7 @@
     <zip destfile="${api.doc.zip}">
       <zipfileset dir="${api.doc}" includes="**" />
     </zip>
-    <delete dir="${api.doc}" />
+    <delete dir="${dist}/${api.prefix}" />
     <zip destfile="${api.src.zip}">
       <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/phosphonetx/shared/api/v1/dto/**" />
       <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/phosphonetx/client/api/v1/*.java" />
