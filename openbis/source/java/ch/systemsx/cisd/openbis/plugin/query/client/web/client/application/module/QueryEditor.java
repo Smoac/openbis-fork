@@ -266,7 +266,6 @@ public class QueryEditor extends Dialog
                                                     refreshAction.execute();
                                                 }
                                             });
-                                        hide();
                                     }
                                 }
                             });
