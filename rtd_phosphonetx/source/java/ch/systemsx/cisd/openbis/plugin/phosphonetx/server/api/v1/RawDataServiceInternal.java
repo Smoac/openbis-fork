@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.Manager;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.DataSetManager;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.RawDataSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
@@ -138,7 +138,7 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         ListOrSearchSampleCriteria criteria2 = new ListOrSearchSampleCriteria(criteria);
         criteria2.setEnrichDependentSamplesWithProperties(true);
         List<Sample> samples = sampleLister.list(criteria2);
-        Manager manager = new Manager();
+        DataSetManager manager = new DataSetManager();
         for (Sample sample : samples)
         {
             manager.addSample(sample);

@@ -34,11 +34,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
- * 
+ * Class managing indirect relation from Data Sets to Samples. 
  *
  * @author Franz-Josef Elmer
  */
-public class Manager
+public class DataSetManager
 {
     private final Map<Long, MsInjectionSample> samples = new LinkedHashMap<Long, MsInjectionSample>();
     
@@ -114,6 +114,7 @@ public class Manager
         Map<Long, Set<Long>> parentIds = datasetLister.listParentIds(ids);
         while (descendentDataSets.isEmpty() == false)
         {
+            boolean nothingRemoved = true;
             for (Iterator<ExternalData> iterator = descendentDataSets.iterator(); iterator
                     .hasNext();)
             {
@@ -122,6 +123,7 @@ public class Manager
                 if (parent == null)
                 {
                     iterator.remove();
+                    nothingRemoved = false;
                     continue;
                 }
                 if (parent.size() != 1)
@@ -135,10 +137,31 @@ public class Manager
                 {
                     dataSetSampleMap.put(dataSet.getId(), sampleID);
                     iterator.remove();
+                    nothingRemoved = false;
                 }
             }
+            assertSomeDataSetsAreRemoved(nothingRemoved, descendentDataSets);
         }
         return dataSetSampleMap;
+    }
+
+    private void assertSomeDataSetsAreRemoved(boolean nothingRemoved,
+            List<ExternalData> descendentDataSets)
+    {
+        if (nothingRemoved)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (ExternalData externalData : descendentDataSets)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append(", ");
+                }
+                builder.append(externalData.getCode());
+            }
+            throw new UserFailureException("Following data sets have wrong parents: "
+                    + builder.toString().trim());
+        }
     }
 
 }
