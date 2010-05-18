@@ -21,7 +21,12 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * 
+ * Informations about an MS_INJECTION sample and its related biological sample. There are attributes
+ * for 
+ * <ul><li>MS_INJECTION sample: ID, properties, code and registration date
+ * <li>Biological sample: identifier and properties
+ * <li>Registration dates of the most recently registered data sets for each data set type 
+ * </ul>
  *
  * @author Franz-Josef Elmer
  */

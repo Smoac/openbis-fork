@@ -47,7 +47,7 @@ public interface IRawDataApiFacade
     
     /**
      * Processes the data sets of specified samples by the DSS processing plug-in of specified key
-     * for the specified user. 
+     * for the specified user. Only the most recent data sets of specified type are processed.
      */
     public void processingRawData(String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);

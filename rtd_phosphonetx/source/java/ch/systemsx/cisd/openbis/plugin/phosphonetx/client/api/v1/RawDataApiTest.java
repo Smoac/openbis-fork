@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreSe
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
 /**
- * 
+ * Example of usage of Raw Data API.
  *
  * @author Franz-Josef Elmer
  */
