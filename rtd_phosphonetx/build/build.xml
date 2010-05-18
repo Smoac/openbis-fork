@@ -43,12 +43,7 @@
   </target>
 	
   <target name="make-api-doc">
-    <javadoc 
-      destdir="${api.doc}" 
-      access="public" 
-      author="false" 
-      version="false" 
-      classpath="${ecp}">
+    <javadoc destdir="${api.doc}" access="public" author="false" version="false" classpath="${ecp}">
       <fileset dir="${sources}">
         <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/client/api/v1/*" />
         <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/shared/api/v1/dto/*" />
@@ -79,6 +74,8 @@
       <zipfileset prefix="${api.prefix}" file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"/>
     </zip>
   	<delete file="${api.jar}"/>
+  	<delete file="${api.doc.zip}"/>
+  	<delete file="${api.src.zip}"/>
     <move file="${api.dist.file}" todir="${server.dist}" />
   </target>
 
