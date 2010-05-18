@@ -34,7 +34,7 @@ public interface IImagingUploadDAO extends TransactionQuery
     public ImgContainerDTO tryGetContainerByPermId(String containerPermId);
 
     @Select("insert into ACQUIRED_IMAGES (IMG_ID, THUMBNAIL_ID, CHANNEL_STACK_ID, CHANNEL_ID) values "
-            + "(?{1.imgageId}, ?{1.thumbnailId}, ?{1.channelStackId}, ?{1.channelId}) returning ID")
+            + "(?{1.imageId}, ?{1.thumbnailId}, ?{1.channelStackId}, ?{1.channelId}) returning ID")
     public long addAcquiredImage(ImgAcquiredImageDTO acquiredImage);
 
     @Select("insert into CHANNELS (NAME, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID) values "
@@ -54,7 +54,7 @@ public interface IImagingUploadDAO extends TransactionQuery
     public long addDataset(ImgDatasetDTO dataset);
 
     @Select("insert into IMAGES (PATH, PAGE, COLOR) values "
-            + "(?{1.filePath}, ?{1.page}, ?{1.colorComponent}) returning ID")
+            + "(?{1.filePath}, ?{1.page}, ?{1.colorComponentAsString}) returning ID")
     public long addImage(ImgImageDTO image);
 
     @Select("insert into SPOTS (PERM_ID, X, Y, CONT_ID) values "

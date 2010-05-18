@@ -41,9 +41,8 @@ public class ImgSpotDTO
     @ResultColumn("CONT_ID")
     private long containerId;
 
-    public ImgSpotDTO(long id, String permId, Integer x, Integer y, long containerId)
+    public ImgSpotDTO(String permId, Integer x, Integer y, long containerId)
     {
-        this.id = id;
         this.permId = permId;
         this.x = x;
         this.y = y;

@@ -41,6 +41,19 @@ public class ImgContainerDTO
     @ResultColumn("EXPE_ID")
     private long experimentId;
 
+    @SuppressWarnings("unused")
+    private ImgContainerDTO()
+    {
+    }
+
+    public ImgContainerDTO(String permId, Integer spotWidth, Integer spotHeight, long experimentId)
+    {
+        this.permId = permId;
+        this.spotWidth = spotWidth;
+        this.spotHeight = spotHeight;
+        this.experimentId = experimentId;
+    }
+
     public long getId()
     {
         return id;

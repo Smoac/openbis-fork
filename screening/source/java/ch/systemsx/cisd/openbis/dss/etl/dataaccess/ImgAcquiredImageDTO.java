@@ -30,15 +30,22 @@ public class ImgAcquiredImageDTO
     @ResultColumn("IMG_ID")
     private long imageId;
 
-    // can be null if there is no thumbnail
-    @ResultColumn("THUMBNAIL_ID")
-    private Long thumbnailId;
-
     @ResultColumn("CHANNEL_STACK_ID")
     private long channelStackId;
 
     @ResultColumn("CHANNEL_ID")
     private long channelId;
+
+    // can be null if there is no thumbnail
+    @ResultColumn("THUMBNAIL_ID")
+    private Long thumbnailId;
+
+    public ImgAcquiredImageDTO(long imageId, long channelStackId, long channelId)
+    {
+        this.imageId = imageId;
+        this.channelStackId = channelStackId;
+        this.channelId = channelId;
+    }
 
     public long getId()
     {

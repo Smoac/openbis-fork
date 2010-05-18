@@ -34,7 +34,7 @@ public class ImgImageDTO
     private Integer pageOrNull;
 
     @ResultColumn("COLOR")
-    private ColorComponent colorComponentOrNull;
+    private String colorComponentOrNull;
 
     public static enum ColorComponent
     {
@@ -50,7 +50,7 @@ public class ImgImageDTO
     {
         this.filePath = filePath;
         this.pageOrNull = pageOrNull;
-        this.colorComponentOrNull = colorComponentOrNull;
+        this.colorComponentOrNull = colorComponentOrNull.name();
     }
 
     public long getId()
@@ -85,12 +85,17 @@ public class ImgImageDTO
 
     public ColorComponent getColorComponent()
     {
-        return colorComponentOrNull;
+        return colorComponentOrNull == null ? null : ColorComponent.valueOf(colorComponentOrNull);
     }
 
     public void setColorComponent(ColorComponent colorComponent)
     {
-        this.colorComponentOrNull = colorComponent;
+        this.colorComponentOrNull = colorComponent.name();
+    }
+
+    public String getColorComponentAsString()
+    {
+        return colorComponentOrNull;
     }
 
 }

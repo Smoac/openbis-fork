@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
+import javax.sql.DataSource;
+
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 
@@ -26,7 +28,7 @@ import ch.systemsx.cisd.bds.hcs.Location;
  */
 public class HCSDatasetLoader
 {
-    public HCSDatasetLoader(String datasetPermId)
+    public HCSDatasetLoader(DataSource source, String datasetPermId)
     {
 
     }

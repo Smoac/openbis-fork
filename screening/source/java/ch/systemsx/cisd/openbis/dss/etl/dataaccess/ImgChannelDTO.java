@@ -62,7 +62,19 @@ public class ImgChannelDTO
     @ResultColumn("EXP_ID")
     private Long experimentIdOrNull;
 
-    public ImgChannelDTO(String name, String descriptionOrNull, Integer wavelengthOrNull,
+    public static ImgChannelDTO createDatasetChannel(String name, String descriptionOrNull,
+            Integer wavelengthOrNull, long datasetId)
+    {
+        return new ImgChannelDTO(name, descriptionOrNull, wavelengthOrNull, datasetId, null);
+    }
+
+    public static ImgChannelDTO createExperimentChannel(String name, String descriptionOrNull,
+            Integer wavelengthOrNull, long experimentId)
+    {
+        return new ImgChannelDTO(name, descriptionOrNull, wavelengthOrNull, null, experimentId);
+    }
+
+    private ImgChannelDTO(String name, String descriptionOrNull, Integer wavelengthOrNull,
             Long datasetIdOrNull, Long experimentIdOrNull)
     {
         assert (datasetIdOrNull == null && experimentIdOrNull != null)
