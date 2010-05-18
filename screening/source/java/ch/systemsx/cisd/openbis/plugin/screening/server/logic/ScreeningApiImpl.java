@@ -39,7 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -50,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
@@ -187,6 +190,7 @@ public class ScreeningApiImpl
         DataPE parentDataset = externalData.getParents().iterator().next();
         return new FeatureVectorDatasetReference(externalData.getCode(),
                 dataStore.getDownloadUrl(), createPlateIdentifier(parentDataset),
+                extractPlateGemoetry(externalData), externalData.getRegistrationDate(),
                 asImageDataset(parentDataset));
     }
 
@@ -204,17 +208,59 @@ public class ScreeningApiImpl
     {
         DataStorePE dataStore = parentDataset.getDataStore();
         return new ImageDatasetReference(parentDataset.getCode(), dataStore.getDownloadUrl(),
-                createPlateIdentifier(parentDataset));
+                createPlateIdentifier(parentDataset), extractPlateGemoetry(parentDataset),
+                parentDataset.getRegistrationDate());
     }
 
     private static PlateIdentifier createPlateIdentifier(DataPE parentDataset)
     {
-        SamplePE sample = parentDataset.tryGetSample();
-        assert sample != null : "dataset not connected to a sample: " + parentDataset;
+        SamplePE sample = getSample(parentDataset);
         final String plateCode = sample.getCode();
         GroupPE group = sample.getGroup();
         final String spaceCodeOrNull = (group != null) ? group.getCode() : null;
         return new PlateIdentifier(plateCode, spaceCodeOrNull);
+    }
+
+    private static SamplePE getSample(DataPE dataset)
+    {
+        SamplePE sample = dataset.tryGetSample();
+        assert sample != null : "dataset not connected to a sample: " + dataset;
+        return sample;
+    }
+
+    private static Geometry extractPlateGemoetry(DataPE dataSet)
+    {
+        Set<SamplePropertyPE> properties = getSample(dataSet).getProperties();
+        for (SamplePropertyPE property : properties)
+        {
+            PropertyTypePE propertyType = property.getEntityTypePropertyType().getPropertyType();
+            if (propertyType.getCode().equals(ScreeningConstants.PLATE_GEOMETRY))
+            {
+                String code = property.getVocabularyTerm().getCode();
+                int lastIndexOfUnderscore = code.lastIndexOf('_');
+                int lastIndexOfX = code.lastIndexOf('X');
+                if (lastIndexOfUnderscore < 0 || lastIndexOfX < 0)
+                {
+                    throw new UserFailureException("Invalid property "
+                            + ScreeningConstants.PLATE_GEOMETRY + ": " + code);
+                }
+                try
+                {
+                    int width =
+                            Integer.parseInt(code
+                                    .substring(lastIndexOfUnderscore + 1, lastIndexOfX));
+                    int height = Integer.parseInt(code.substring(lastIndexOfX + 1));
+                    return new Geometry(width, height);
+                } catch (NumberFormatException ex)
+                {
+                    throw new UserFailureException("Invalid property "
+                            + ScreeningConstants.PLATE_GEOMETRY + ": " + code);
+                }
+
+            }
+        }
+        throw new UserFailureException("Data Set " + dataSet.getCode() + " has no property "
+                + ScreeningConstants.PLATE_GEOMETRY);
     }
 
     private static SampleIdentifier createSampleIdentifier(PlateIdentifier plate)

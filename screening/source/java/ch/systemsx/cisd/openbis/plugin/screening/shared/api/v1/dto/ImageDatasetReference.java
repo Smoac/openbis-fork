@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import java.util.Date;
+
 /**
  * Description of one image dataset.
  * 
@@ -25,9 +27,16 @@ public class ImageDatasetReference extends DatasetReference implements IImageDat
 {
     private static final long serialVersionUID = 1L;
 
+    @Deprecated
     public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate)
     {
         super(datasetCode, datastoreServerUrl, plate);
+    }
+
+    public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
+            PlateIdentifier plate, Geometry plateGemoetry, Date registrationDate)
+    {
+        super(datasetCode, datastoreServerUrl, plate, plateGemoetry, registrationDate);
     }
 }
