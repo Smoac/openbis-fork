@@ -9,8 +9,8 @@
 	<property name="api.prefix" value="raw-data-api" />
 	<property name="api.jar" value="${dist}/${api.prefix}.jar" />
 	<property name="api.doc" value="${dist}/${api.prefix}/doc" />
-	<property name="api.doc.zip" value="${dist}/${api.prefix}-doc.zip" />
-	<property name="api.src.zip" value="${dist}/${api.prefix}-src.zip" />
+	<property name="api.doc.zip" value="${dist}/doc.zip" />
+	<property name="api.src.zip" value="${dist}/src.zip" />
 	<property name="api.dist.file" value="${dist}/${api.prefix}.zip" />
 
 	<target name="compile" depends="build-common.compile, clean" />
