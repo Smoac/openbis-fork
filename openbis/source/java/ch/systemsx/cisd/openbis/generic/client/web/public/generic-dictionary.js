@@ -36,6 +36,7 @@ var generic = {
   //
   
   material_properties_heading: "Material Properties",
+  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

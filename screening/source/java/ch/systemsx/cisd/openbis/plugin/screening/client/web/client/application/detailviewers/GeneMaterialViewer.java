@@ -78,11 +78,8 @@ public class GeneMaterialViewer extends GenericMaterialViewer
     {
 
         List<SingleSectionPanel> sections = new ArrayList<SingleSectionPanel>();
-        if (experimentIdentifierOrNull != null)
-        {
-            sections.add(new LocationsSection(screeningViewContext, materialId,
-                    experimentIdentifierOrNull));
-        }
+        sections.add(new PlateLocationsSection(screeningViewContext, materialId,
+                experimentIdentifierOrNull));
         return sections;
     }
 

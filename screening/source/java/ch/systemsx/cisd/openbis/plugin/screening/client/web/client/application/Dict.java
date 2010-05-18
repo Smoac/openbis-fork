@@ -30,6 +30,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String REGISTER = "register";
 
+    public static final String PLATE_LOCATIONS = "plate_locations";
+
     private Dict()
     {
         // Can not be instantiated.

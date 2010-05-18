@@ -24,6 +24,11 @@ var screening = {
 	//
   import_scheduled: "Import started successfully. Notification will be sent to '{0}' upon completion.",
 	register: "Register",
+	
+	//
+	// Gene Viewer
+	//
+	plate_locations: "Plate Locations",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

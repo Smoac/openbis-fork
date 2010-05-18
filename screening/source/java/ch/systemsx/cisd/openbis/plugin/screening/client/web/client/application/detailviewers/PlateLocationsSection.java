@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
@@ -37,10 +38,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
+ * Section panel presenting wells from selected experiment with given gene inhibited.
+ * 
  * @author Tomasz Pylak
  * @author Izabela Adamczyk
  */
-class LocationsSection extends SingleSectionPanel
+class PlateLocationsSection extends SingleSectionPanel
 {
     private static final int IMAGE_WIDTH_PX = 100;
 
@@ -56,10 +59,14 @@ class LocationsSection extends SingleSectionPanel
 
     private final DefaultChannelState channelState;
 
-    public LocationsSection(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+    public PlateLocationsSection(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             final TechId materialId, ExperimentIdentifier experimentIdentifierOrNull)
     {
-        super("Locations", screeningViewContext);
+        super(
+                screeningViewContext
+                        .getMessage(ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict.PLATE_LOCATIONS),
+                screeningViewContext);
+        setHeaderVisible(false);
         this.screeningViewContext = screeningViewContext;
         this.materialId = materialId;
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
@@ -71,7 +78,7 @@ class LocationsSection extends SingleSectionPanel
     protected void showContent()
     {
         LayoutContainer locationsPanel = createLocationsPanel();
-        add(locationsPanel);
+        add(locationsPanel, new MarginData(10));
         if (experimentIdentifierOrNull != null)
         {
             loadGeneLocationsPanel(experimentIdentifierOrNull, locationsPanel);
