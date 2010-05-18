@@ -10,4 +10,4 @@ then
    exit 1 
 fi
 
-psql -d openbis_productive -c "update persons set display_settings=(select display_settings from persons where user_id='${TARGET_USER}') where user_id='${SOURCE_USER}'"
+psql -d openbis_productive -c "update persons set display_settings=(select display_settings from persons where user_id='${SOURCE_USER}') where user_id='${TARGET_USER}'"
