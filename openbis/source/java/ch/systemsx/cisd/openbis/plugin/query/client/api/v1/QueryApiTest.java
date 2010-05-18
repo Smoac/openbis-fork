@@ -21,7 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 
 /**
- * 
+ * Example of usage of Query API.
  *
  * @author Franz-Josef Elmer
  */
@@ -44,7 +44,7 @@ public class QueryApiTest
         List<QueryDescription> queries = facade.listQueries();
         for (QueryDescription queryDescription : queries)
         {
-            System.out.println(queryDescription.getName()+": "+queryDescription.getParameters());
+            System.out.println(queryDescription.getName() +  ": "+ queryDescription.getParameters());
         }
 
     }

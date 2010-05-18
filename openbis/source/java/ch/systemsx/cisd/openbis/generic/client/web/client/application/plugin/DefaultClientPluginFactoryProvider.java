@@ -55,10 +55,8 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         // Automatically generated part - START
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.ClientPluginFactory(
-                originalViewContext));
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ClientPluginFactory(
-                originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.ClientPluginFactory(originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ClientPluginFactory(originalViewContext));
         // Automatically generated part - END
     }
 
