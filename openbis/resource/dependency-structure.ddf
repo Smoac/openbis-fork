@@ -212,3 +212,16 @@ layer plugin.${pq}.web.client-server = [plugin.${pq}.web.client] [plugin.${pq}.w
 
 check layeringOf plugin.${pq}.web.client-server
 
+# Check API
+#
+
+[api-shared] = ${plugin}.${pq}.shared.api.*
+[api-client] = ${plugin}.${pq}.client.api.*
+[everything-except-java] = * excluding java* *.annotation.* ch.systemsx.cisd.common.api.IRpcService
+[everything-except-java-and-api-shared] = [everything-except-java] excluding [api-shared] ch.systemsx.cisd.common.api.client.*
+
+check sets [api-shared] [api-client]
+
+check [api-shared] independentOf [everything-except-java]
+check [api-client] independentOf [everything-except-java-and-api-shared]
+

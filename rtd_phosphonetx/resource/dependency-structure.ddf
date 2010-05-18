@@ -25,3 +25,17 @@ check sets [grid-columns]
 [extjs] = com.extjs.**
 check [grid-columns] independentOf [gwt]
 check [grid-columns] independentOf [extjs]
+
+######################################################################
+# Check API
+#
+
+[api-shared] = ${phosphonetx}.shared.api.*
+[api-client] = ${phosphonetx}.client.api.*
+[everything-except-java] = * excluding java* *.annotation.* ch.systemsx.cisd.common.api.IRpcService
+[everything-except-java-and-api-shared] = [everything-except-java] excluding [api-shared] ch.systemsx.cisd.common.api.client.*
+
+check sets [api-shared] [api-client]
+
+check [api-shared] independentOf [everything-except-java]
+check [api-client] independentOf [everything-except-java-and-api-shared]
