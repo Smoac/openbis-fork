@@ -230,7 +230,8 @@ public class ScreeningApiImpl
 
     private static Geometry extractPlateGemoetry(DataPE dataSet)
     {
-        Set<SamplePropertyPE> properties = getSample(dataSet).getProperties();
+        SamplePE sample = getSample(dataSet);
+        Set<SamplePropertyPE> properties = sample.getProperties();
         for (SamplePropertyPE property : properties)
         {
             PropertyTypePE propertyType = property.getEntityTypePropertyType().getPropertyType();
@@ -259,7 +260,7 @@ public class ScreeningApiImpl
 
             }
         }
-        throw new UserFailureException("Data Set " + dataSet.getCode() + " has no property "
+        throw new UserFailureException("Sample " + sample.getIdentifier() + " has no property "
                 + ScreeningConstants.PLATE_GEOMETRY);
     }
 
