@@ -51,21 +51,28 @@ public class ConcatenatedFileInputStream extends InputStream
 
     private InputStream currentStream;
 
+    private final boolean ignoreNonExistingFiles;
+
     /**
-     * @files content of these files will be concatenated into one stream.
+     * @param ignoreNonExistingFiles If <code>true</code> non-existing files will be handled like
+     *            empty files. Otherwise an exception is thrown for a non-existing file.
+     * @param files content of these files will be concatenated into one stream.
      */
-    public ConcatenatedFileInputStream(File... files)
+    public ConcatenatedFileInputStream(boolean ignoreNonExistingFiles, File... files)
     {
+        this.ignoreNonExistingFiles = ignoreNonExistingFiles;
         this.files = files;
         this.readingFileSize = false;
     }
 
     /**
-     * @files content of these files will be concatenated into one stream.
+     * @param ignoreNonExistingFiles If <code>true</code> non-existing files will be handled like
+     *            empty files. Otherwise an exception is thrown for a non-existing file.
+     * @param files content of these files will be concatenated into one stream.
      */
-    public ConcatenatedFileInputStream(List<File> files)
+    public ConcatenatedFileInputStream(boolean ignoreNonExistingFiles, List<File> files)
     {
-        this(files.toArray(new File[files.size()]));
+        this(ignoreNonExistingFiles, files.toArray(new File[files.size()]));
     }
 
     @Override
@@ -85,7 +92,7 @@ public class ConcatenatedFileInputStream extends InputStream
             closeCurrentStream();
             if (readingFileSize)
             {
-                currentStream = createFileStream(getCurrentFile());
+                currentStream = createFileStream(ignoreNonExistingFiles, getCurrentFile());
                 readingFileSize = false;
             } else
             {
@@ -134,9 +141,23 @@ public class ConcatenatedFileInputStream extends InputStream
 
     // -------------- static helper ---------------
 
-    private static InputStream createFileStream(File currentFile) throws FileNotFoundException
+    private static InputStream createFileStream(boolean ignoreNonExistingFiles, File currentFile) throws FileNotFoundException
     {
-        return new BufferedInputStream(new FileInputStream(currentFile));
+        InputStream stream;
+        try
+        {
+            stream = new FileInputStream(currentFile);
+        } catch (FileNotFoundException ex)
+        {
+            if (ignoreNonExistingFiles)
+            {
+                stream = new ByteArrayInputStream(new byte[0]);
+            } else
+            {
+                throw ex;
+            }
+        }
+        return new BufferedInputStream(stream);
     }
 
     private static InputStream createFileSizeStream(File file) throws IOException

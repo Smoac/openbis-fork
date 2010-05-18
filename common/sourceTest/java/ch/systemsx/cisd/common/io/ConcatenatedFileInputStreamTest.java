@@ -41,7 +41,7 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
     @Test
     public void testNoFiles() throws IOException
     {
-        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(new File[0]);
+        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(false, new File[0]);
         AssertJUnit.assertEquals(-1, stream.read());
     }
 
@@ -50,7 +50,7 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
     {
         String content = createLongString("1");
         File file = createFile(content, "f1.txt");
-        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(file);
+        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(false, file);
         List<String> streamContent = readStrings(stream);
         assertEquals(1, streamContent.size());
         assertEquals(content, streamContent.get(0));
@@ -68,7 +68,7 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
         String content3 = createLongString("3");
         File file3 = createFile(content3, "f3.txt");
 
-        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(file1, file2, file3);
+        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(false, file1, file2, file3);
         List<String> streamContent = readStrings(stream);
         assertEquals(3, streamContent.size());
         assertEquals(content1, streamContent.get(0));
@@ -76,6 +76,41 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
         assertEquals(content3, streamContent.get(2));
     }
 
+    @Test
+    public void testExistingAndNonExistingFiles() throws IOException
+    {
+        String content1 = createLongString("1");
+        File file1 = createFile(content1, "f1.txt");
+        
+        File file2 = new File(workingDirectory, "f2.txt");
+        
+        String content3 = createLongString("3");
+        File file3 = createFile(content3, "f3.txt");
+        
+        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(true, file1, file2, file3);
+        List<String> streamContent = readStrings(stream);
+        assertEquals(3, streamContent.size());
+        assertEquals(content1, streamContent.get(0));
+        assertEquals("", streamContent.get(1));
+        assertEquals(content3, streamContent.get(2));
+    }
+    
+    @Test
+    public void testNonExistingFile()
+    {
+        File file = new File(workingDirectory, "f.txt");
+
+        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(false, file);
+        try
+        {
+            readStrings(stream);
+            fail("IOException expected");
+        } catch (IOException ex)
+        {
+            assertEquals(file + " (No such file or directory)", ex.getMessage());
+        }
+    }
+    
     // --------- helpers
 
     private static List<String> readStrings(ConcatenatedFileInputStream stream) throws IOException
