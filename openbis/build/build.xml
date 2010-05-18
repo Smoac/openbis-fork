@@ -165,10 +165,10 @@
 
   <target name="make-query-api-doc">
     <javadoc destdir="${query.api.doc}" access="public" author="false" version="false" classpath="${ecp}">
-      <fileset dir="../openbis/${sources}">
-        <include name="ch/systemsx/cisd/openbis/plugin/query/client/api/v1/*" />
-        <include name="ch/systemsx/cisd/openbis/plugin/query/shared/api/v1/dto/*" />
-      </fileset>
+      <packageset dir="../openbis/${sources}">
+        <include name="ch/systemsx/cisd/openbis/plugin/query/client/api/v1/**" />
+        <include name="ch/systemsx/cisd/openbis/plugin/query/shared/api/v1/dto/**" />
+      </packageset>
     </javadoc>
     <zip destfile="${query.api.doc.zip}">
       <zipfileset dir="${query.api.doc}" includes="**" />
