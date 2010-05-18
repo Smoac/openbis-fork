@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.PROCESSING;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.QUERIES;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1.RawDataServiceInternal.RAW_DATA_SAMPLE_TYPE;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1.RawDataServiceInternal.SPACE_CODE;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.RAW_DATA_SAMPLE_TYPE;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.SPACE_CODE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1.RawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
