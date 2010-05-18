@@ -24,7 +24,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -156,10 +155,11 @@ public class ImageChannelsUtils
     public static File getImagePath(HCSDatasetLoader imageAccessor, Location wellLocation,
             Location tileLocation, int chosenChannel)
     {
-        INode image = imageAccessor.tryGetStandardNodeAt(chosenChannel, wellLocation, tileLocation);
-        if (image != null)
+        String imagePath =
+                imageAccessor.tryGetStandardNodeAt(chosenChannel, wellLocation, tileLocation);
+        if (imagePath != null)
         {
-            return new File(image.getPath());
+            return new File(imagePath);
         } else
         {
             throw EnvironmentFailureException.fromTemplate(

@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds.hcs;
+package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
-import java.io.File;
-
-import ch.systemsx.cisd.bds.DataStructureLoader;
-import ch.systemsx.cisd.bds.storage.INode;
-import ch.systemsx.cisd.bds.v1_0.IDataStructureV1_0;
+import ch.systemsx.cisd.bds.hcs.Geometry;
+import ch.systemsx.cisd.bds.hcs.Location;
 
 /**
  * Helper class for easy handling of HCS image dataset standard structure.
@@ -29,39 +26,32 @@ import ch.systemsx.cisd.bds.v1_0.IDataStructureV1_0;
  */
 public class HCSDatasetLoader
 {
-    private final DataStructureLoader loader;
-
-    private final IDataStructureV1_0 dataStructure;
-
-    private final IHCSImageFormattedData imageAccessor;
-
-    public HCSDatasetLoader(File datasetRootDir)
+    public HCSDatasetLoader(String datasetPermId)
     {
-        this.loader = new DataStructureLoader(datasetRootDir);
-        this.dataStructure = (IDataStructureV1_0) loader.load(".", false);
-        this.imageAccessor = (IHCSImageFormattedData) dataStructure.getFormattedData();
 
     }
 
     /** has to be called at the end */
     public void close()
     {
-        dataStructure.close();
     }
 
     public Geometry getPlateGeometry()
     {
-        return imageAccessor.getPlateGeometry();
+        // TODO 2010-05-18, Tomasz Pylak: implement me
+        return null;
     }
 
     public Geometry getWellGeometry()
     {
-        return imageAccessor.getWellGeometry();
+        // TODO 2010-05-18, Tomasz Pylak: implement me
+        return null;
     }
 
     public int getChannelCount()
     {
-        return imageAccessor.getChannelCount();
+        // TODO 2010-05-18, Tomasz Pylak: implement me
+        return 0;
     }
 
     /**
@@ -71,14 +61,8 @@ public class HCSDatasetLoader
     public String tryGetStandardNodeAt(int chosenChannel, Location wellLocation,
             Location tileLocation)
     {
-        INode node = imageAccessor.tryGetStandardNodeAt(chosenChannel, wellLocation, tileLocation);
-        if (node != null)
-        {
-            return node.getPath();
-        } else
-        {
-            return null;
-        }
+        // TODO 2010-05-18, Tomasz Pylak: implement me
+        return null;
     }
 
 }

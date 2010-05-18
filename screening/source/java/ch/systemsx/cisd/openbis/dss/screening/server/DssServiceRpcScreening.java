@@ -34,7 +34,6 @@ import com.csvreader.CsvReader;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -185,12 +184,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         {
             for (int col = 1; col <= plateGeometry.getColumns(); col++)
             {
-                INode node =
+                String imagePath =
                         imageAccessor.tryGetStandardNodeAt(1, new Location(col, row), new Location(
                                 1, 1));
-                if (node != null)
+                if (imagePath != null)
                 {
-                    return new File(node.getPath());
+                    return new File(imagePath);
                 }
             }
         }
