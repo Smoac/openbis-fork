@@ -176,16 +176,31 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         info.setDatasetPermId(dataSetInformation.getDataSetCode());
 
         Geometry plateGeometry = getPlateGeometry(dataSetInformation);
-        info.setContainerWidth(plateGeometry.getColumns());
-        info.setContainerHeight(plateGeometry.getRows());
+        int plateCols = plateGeometry.getColumns();
+        int plateRows = plateGeometry.getRows();
+        info.setContainerWidth(plateCols);
+        info.setContainerHeight(plateRows);
 
         info.setTileWidth(spotGeometry.getColumns());
         info.setTileHeight(spotGeometry.getRows());
 
-        // FIXME 2010--, Tomasz Pylak: set other attributes
-        // info.setSpotPermIds();
+        // TODO 2010-05-18, Tomasz Pylak: fetch spots from openBIS
+        info.setSpotPermIds(createDummySpotPermIds(plateRows, plateCols));
 
         return info;
+    }
+
+    private String[][] createDummySpotPermIds(int plateRows, int plateCols)
+    {
+        String[][] spots = new String[plateRows][plateCols];
+        for (int row = 0; row < plateRows; row++)
+        {
+            for (int col = 0; col < plateCols; col++)
+            {
+                spots[row][col] = "dummy_" + row + "_" + col + "_" + System.currentTimeMillis();
+            }
+        }
+        return spots;
     }
 
     private Geometry getPlateGeometry(final DataSetInformation dataSetInformation)
@@ -425,7 +440,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
             throw new IllegalStateException("previous transaction has not been commited!");
         }
         currentTransaction = createQuery();
-        // FIXME 2010--, Tomasz Pylak: implement me
+        HCSDatasetUploader.upload(currentTransaction, info, images);
     }
 
     private void rollbackDatabaseChanges()

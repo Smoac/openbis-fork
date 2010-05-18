@@ -29,6 +29,7 @@ class ScreeningContainerDatasetInfo
 
     private String datasetPermId;
 
+    // [row][col]
     private String[][] spotPermIds;
 
     private int containerWidth, containerHeight;
