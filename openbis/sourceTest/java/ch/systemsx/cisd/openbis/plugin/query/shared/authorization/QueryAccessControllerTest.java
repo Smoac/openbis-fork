@@ -176,4 +176,10 @@ public class QueryAccessControllerTest
                 RoleSet.POWER_USER));
     }
 
+    @Test
+    public void testFilterResults() throws Exception
+    {
+
+    }
+
 }

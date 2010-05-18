@@ -24,6 +24,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -454,6 +455,26 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 { "" },
                 { null },
                 { "@XPERIMENT" }, };
+    }
+
+    @Test
+    public void testLoadByPermId() throws Exception
+    {
+        ExperimentPE exp = daoFactory.getExperimentDAO().listAllEntities().get(0);
+        HashSet<String> keys = new HashSet<String>();
+        keys.add(exp.getPermId());
+        keys.add("nonexistent");
+        List<ExperimentPE> result = daoFactory.getExperimentDAO().listByPermID(keys);
+        AssertJUnit.assertEquals(1, result.size());
+        AssertJUnit.assertEquals(exp, result.get(0));
+    }
+
+    @Test
+    public void testLoadByPermIdNoEntries() throws Exception
+    {
+        HashSet<String> keys = new HashSet<String>();
+        List<ExperimentPE> result = daoFactory.getExperimentDAO().listByPermID(keys);
+        AssertJUnit.assertTrue(result.isEmpty());
     }
 
 }

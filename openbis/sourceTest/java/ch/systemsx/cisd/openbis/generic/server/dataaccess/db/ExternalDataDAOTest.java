@@ -24,11 +24,13 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.hibernate.TransactionException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
@@ -400,6 +402,26 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
             assertEquals(String.format(expectedErrorMessageTemplate, dataSetCode),
                     transactionException.getCause().getMessage());
         }
+    }
+
+    @Test
+    public void testLoadByPermId() throws Exception
+    {
+        ExternalDataPE exp = daoFactory.getExternalDataDAO().listAllEntities().get(0);
+        HashSet<String> keys = new HashSet<String>();
+        keys.add(exp.getCode());
+        keys.add("nonexistent");
+        List<ExternalDataPE> result = daoFactory.getExternalDataDAO().listByCode(keys);
+        AssertJUnit.assertEquals(1, result.size());
+        AssertJUnit.assertEquals(exp, result.get(0));
+    }
+
+    @Test
+    public void testLoadByPermIdNoEntries() throws Exception
+    {
+        HashSet<String> keys = new HashSet<String>();
+        List<ExternalDataPE> result = daoFactory.getExternalDataDAO().listByCode(keys);
+        AssertJUnit.assertTrue(result.isEmpty());
     }
 
 }

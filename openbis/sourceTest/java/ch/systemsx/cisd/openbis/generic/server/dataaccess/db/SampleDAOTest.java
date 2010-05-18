@@ -23,12 +23,14 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.hibernate.classic.Session;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
@@ -457,5 +459,25 @@ public final class SampleDAOTest extends AbstractDAOTest
         sample.setGroup(sampleOwner.tryGetGroup());
         sample.setGeneratedFrom(generatorOrNull);
         return sample;
+    }
+
+    @Test
+    public void testLoadByPermId() throws Exception
+    {
+        SamplePE sample = daoFactory.getSampleDAO().listAllEntities().get(0);
+        HashSet<String> keys = new HashSet<String>();
+        keys.add(sample.getPermId());
+        keys.add("nonexistent");
+        List<SamplePE> result = daoFactory.getSampleDAO().listByPermID(keys);
+        AssertJUnit.assertEquals(1, result.size());
+        AssertJUnit.assertEquals(sample, result.get(0));
+    }
+
+    @Test
+    public void testLoadByPermIdNoEntries() throws Exception
+    {
+        HashSet<String> keys = new HashSet<String>();
+        List<SamplePE> result = daoFactory.getSampleDAO().listByPermID(keys);
+        AssertJUnit.assertTrue(result.isEmpty());
     }
 }

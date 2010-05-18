@@ -224,8 +224,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         {
             String dbKey = database.getKey();
             QueryAccessController.checkWriteAccess(session, dbKey, "create and perform");
-            return QueryAccessController.filterResults(session, dbKey, getDAOFactory(),
-                    queryDatabaseWithKey(dbKey, sqlQuery, bindings));
+            return QueryAccessController.filterResults(session.tryGetPerson(), dbKey,
+                    getDAOFactory(), queryDatabaseWithKey(dbKey, sqlQuery, bindings));
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
@@ -243,8 +243,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             String dbKey = query.getQueryDatabaseKey();
             String expression = StringEscapeUtils.unescapeHtml(query.getExpression());
             QueryAccessController.checkReadAccess(session, dbKey);
-            return QueryAccessController.filterResults(session, dbKey, getDAOFactory(),
-                    queryDatabaseWithKey(dbKey, expression, bindings));
+            return QueryAccessController.filterResults(session.tryGetPerson(), dbKey,
+                    getDAOFactory(), queryDatabaseWithKey(dbKey, expression, bindings));
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
