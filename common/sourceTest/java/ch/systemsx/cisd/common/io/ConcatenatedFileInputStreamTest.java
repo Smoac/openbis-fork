@@ -68,7 +68,8 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
         String content3 = createLongString("3");
         File file3 = createFile(content3, "f3.txt");
 
-        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(false, file1, file2, file3);
+        ConcatenatedFileInputStream stream =
+                new ConcatenatedFileInputStream(false, file1, file2, file3);
         List<String> streamContent = readStrings(stream);
         assertEquals(3, streamContent.size());
         assertEquals(content1, streamContent.get(0));
@@ -81,20 +82,28 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
     {
         String content1 = createLongString("1");
         File file1 = createFile(content1, "f1.txt");
-        
-        File file2 = new File(workingDirectory, "f2.txt");
-        
+
+        File unexistingFile = new File(workingDirectory, "unexisting.txt");
+
         String content3 = createLongString("3");
         File file3 = createFile(content3, "f3.txt");
-        
-        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(true, file1, file2, file3);
+
+        File fileNull = null;
+
+        ConcatenatedFileInputStream stream =
+                new ConcatenatedFileInputStream(true, fileNull, file1, fileNull, unexistingFile,
+                        file3, fileNull);
         List<String> streamContent = readStrings(stream);
-        assertEquals(3, streamContent.size());
-        assertEquals(content1, streamContent.get(0));
-        assertEquals("", streamContent.get(1));
-        assertEquals(content3, streamContent.get(2));
+        assertEquals(6, streamContent.size());
+        assertEquals("", streamContent.get(0));
+        assertEquals(content1, streamContent.get(1));
+        assertEquals("", streamContent.get(2));
+        assertEquals("", streamContent.get(3));
+        assertEquals(content3, streamContent.get(4));
+        assertEquals("", streamContent.get(5));
+
     }
-    
+
     @Test
     public void testNonExistingFile()
     {
@@ -110,7 +119,21 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
             assertEquals(file + " (No such file or directory)", ex.getMessage());
         }
     }
-    
+
+    @Test
+    public void testNullFile() throws IOException
+    {
+        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(false, new File[]
+            { null });
+        try
+        {
+            readStrings(stream);
+            fail("NullPointerException expected");
+        } catch (NullPointerException ex)
+        {
+        }
+    }
+
     // --------- helpers
 
     private static List<String> readStrings(ConcatenatedFileInputStream stream) throws IOException
