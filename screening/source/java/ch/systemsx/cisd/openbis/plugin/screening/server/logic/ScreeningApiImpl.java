@@ -190,7 +190,7 @@ public class ScreeningApiImpl
         DataPE parentDataset = externalData.getParents().iterator().next();
         return new FeatureVectorDatasetReference(externalData.getCode(),
                 dataStore.getDownloadUrl(), createPlateIdentifier(parentDataset),
-                extractPlateGemoetry(externalData), externalData.getRegistrationDate(),
+                extractPlateGeometry(externalData), externalData.getRegistrationDate(),
                 asImageDataset(parentDataset));
     }
 
@@ -208,7 +208,7 @@ public class ScreeningApiImpl
     {
         DataStorePE dataStore = parentDataset.getDataStore();
         return new ImageDatasetReference(parentDataset.getCode(), dataStore.getDownloadUrl(),
-                createPlateIdentifier(parentDataset), extractPlateGemoetry(parentDataset),
+                createPlateIdentifier(parentDataset), extractPlateGeometry(parentDataset),
                 parentDataset.getRegistrationDate());
     }
 
@@ -228,7 +228,7 @@ public class ScreeningApiImpl
         return sample;
     }
 
-    private static Geometry extractPlateGemoetry(DataPE dataSet)
+    private static Geometry extractPlateGeometry(DataPE dataSet)
     {
         SamplePE sample = getSample(dataSet);
         Set<SamplePropertyPE> properties = sample.getProperties();
