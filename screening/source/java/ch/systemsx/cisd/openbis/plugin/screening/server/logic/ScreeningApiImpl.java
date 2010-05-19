@@ -190,7 +190,7 @@ public class ScreeningApiImpl
         DataPE parentDataset = externalData.getParents().iterator().next();
         return new FeatureVectorDatasetReference(externalData.getCode(),
                 dataStore.getDownloadUrl(), createPlateIdentifier(parentDataset),
-                extractPlateGeometry(externalData), externalData.getRegistrationDate(),
+                extractPlateGeometry(parentDataset), externalData.getRegistrationDate(),
                 asImageDataset(parentDataset));
     }
 
