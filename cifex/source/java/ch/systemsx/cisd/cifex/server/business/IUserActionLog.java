@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.servlet.IActionLog;
  */
 public interface IUserActionLog extends IActionLog
 {
-    public static final String USER_ACTION_LOG_BEAN_NAME = "user-action-log";
+    public static final String USER_ACTION_LOG_BEAN_NAME = "user-action-log-http";
 
     //
     // Sessions

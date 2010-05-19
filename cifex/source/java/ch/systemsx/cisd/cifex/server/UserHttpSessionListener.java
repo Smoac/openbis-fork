@@ -20,6 +20,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -57,12 +58,14 @@ public final class UserHttpSessionListener implements HttpSessionListener
                 WebApplicationContextUtils.getRequiredWebApplicationContext(session
                         .getServletContext());
         final String beanName = IUserActionLog.USER_ACTION_LOG_BEAN_NAME;
-        final IUserActionLog userBehaviorLog = (IUserActionLog) ctx.getBean(beanName);
-        if (userBehaviorLog == null)
+        try
+        {
+            final IUserActionLog userBehaviorLog = (IUserActionLog) ctx.getBean(beanName);
+            return userBehaviorLog;
+        } catch (NoSuchBeanDefinitionException ex)
         {
             throw ConfigurationFailureException.fromTemplate("No bean '%s' defined.", beanName);
         }
-        return userBehaviorLog;
     }
 
     //
