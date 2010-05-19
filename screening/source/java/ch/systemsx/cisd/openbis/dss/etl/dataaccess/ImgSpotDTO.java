@@ -41,6 +41,12 @@ public class ImgSpotDTO
     @ResultColumn("CONT_ID")
     private long containerId;
 
+    @SuppressWarnings("unused")
+    private ImgSpotDTO()
+    {
+        // All Data-Object classes must have a default constructor.
+    }
+
     public ImgSpotDTO(String permId, Integer x, Integer y, long containerId)
     {
         this.permId = permId;
