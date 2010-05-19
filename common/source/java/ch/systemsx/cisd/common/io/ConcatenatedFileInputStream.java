@@ -54,8 +54,9 @@ public class ConcatenatedFileInputStream extends InputStream
     private final boolean ignoreNonExistingFiles;
 
     /**
-     * @param ignoreNonExistingFiles If <code>true</code> non-existing files will be handled like
-     *            empty files. Otherwise an exception is thrown for a non-existing file.
+     * @param ignoreNonExistingFiles If <code>true</code> non-existing files or elements on the list
+     *            which are null will be handled like empty files. Otherwise an exception is thrown
+     *            for a non-existing file.
      * @param files content of these files will be concatenated into one stream.
      */
     public ConcatenatedFileInputStream(boolean ignoreNonExistingFiles, File... files)
@@ -66,8 +67,9 @@ public class ConcatenatedFileInputStream extends InputStream
     }
 
     /**
-     * @param ignoreNonExistingFiles If <code>true</code> non-existing files will be handled like
-     *            empty files. Otherwise an exception is thrown for a non-existing file.
+     * @param ignoreNonExistingFiles If <code>true</code> non-existing files or elements on the list
+     *            which are null will be handled like empty files. Otherwise an exception is thrown
+     *            for a non-existing file.
      * @param files content of these files will be concatenated into one stream.
      */
     public ConcatenatedFileInputStream(boolean ignoreNonExistingFiles, List<File> files)
@@ -141,23 +143,23 @@ public class ConcatenatedFileInputStream extends InputStream
 
     // -------------- static helper ---------------
 
-    private static InputStream createFileStream(boolean ignoreNonExistingFiles, File currentFile) throws FileNotFoundException
+    private static InputStream createFileStream(boolean ignoreNonExistingFiles, File currentFile)
+            throws FileNotFoundException
     {
         InputStream stream;
-        try
+        if (ignoreNonExistingFiles && (currentFile == null || currentFile.exists() == false))
+        {
+            stream = createEmptyStream();
+        } else
         {
             stream = new FileInputStream(currentFile);
-        } catch (FileNotFoundException ex)
-        {
-            if (ignoreNonExistingFiles)
-            {
-                stream = new ByteArrayInputStream(new byte[0]);
-            } else
-            {
-                throw ex;
-            }
         }
         return new BufferedInputStream(stream);
+    }
+
+    private static ByteArrayInputStream createEmptyStream()
+    {
+        return new ByteArrayInputStream(new byte[0]);
     }
 
     private static InputStream createFileSizeStream(File file) throws IOException

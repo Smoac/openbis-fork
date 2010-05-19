@@ -233,7 +233,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 HCSDatasetLoader imageAccessor =
                         imageLoadersMap.get(imageReference.getDatasetCode());
                 assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
-                File imageFile = getImageFile(imageAccessor, imageReference);
+                File imageFile = tryGetImageFile(imageAccessor, imageReference);
                 imageFiles.add(imageFile);
             }
         } finally
@@ -277,7 +277,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return imageDatasetsMap;
     }
 
-    private File getImageFile(HCSDatasetLoader imageAccessor, PlateImageReference imageRef)
+    private File tryGetImageFile(HCSDatasetLoader imageAccessor, PlateImageReference imageRef)
     {
         Location wellLocation = asLocation(imageRef.getWellPosition());
         Location tileLocation =
@@ -288,18 +288,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                     imageRef.getChannel() + 1);
         } catch (EnvironmentFailureException e)
         {
-            throw createNoImageException(imageRef);
+            return null; // no image found
         }
     }
 
     private static IllegalStateException wrapIOException(IOException exception)
     {
         return new IllegalStateException(exception.getMessage());
-    }
-
-    private static IllegalStateException createNoImageException(PlateImageReference imageRef)
-    {
-        return new IllegalStateException("No image found: " + imageRef);
     }
 
     // tile - start from 0
