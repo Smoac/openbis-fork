@@ -235,10 +235,10 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return prepareExportEntities(exportCriteria);
     }
     
-    public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs)
+    public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs, String dataSetType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        rawDataService.processRawData(getSessionToken(), dataSetProcessingKey, rawDataSampleIDs, "");
+        rawDataService.processRawData(getSessionToken(), dataSetProcessingKey, rawDataSampleIDs, dataSetType);
     }
     
 }

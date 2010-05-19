@@ -93,5 +93,6 @@ public class Dict
     public static final String COPY_DATA_SETS_BUTTON_LABEL = "copy_data_sets_button_label";
     public static final String COPY_DATA_SETS_TITLE = "copy_data_sets_title";
     public static final String COPY_DATA_SETS_MESSAGE = "copy_data_sets_message";
+    public static final String COPY_DATA_SETS_DATA_SET_TYPE_FIELD = "copy_data_sets_data_set_type_field";
 
 }

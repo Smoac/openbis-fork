@@ -44,8 +44,9 @@ var phosphonetx = {
   openbis_raw_data_sample_browser_REGISTRATION_DATE: "Registration Date",
   openbis_raw_data_sample_browser_PARENT: "Biological Sample",
   copy_data_sets_button_label: "Process Data Sets",
-  copy_data_sets_title: "Process Data Sets Confirmation",
-  copy_data_sets_message: "Do you want to process '{0}' for the data sets of the samples {1}?", 
+  copy_data_sets_title: "Process Data Sets",
+  copy_data_sets_message: "Please, enter the data set type of the data sets of the samples {1} to be processed by '{0}'.", 
+  copy_data_sets_data_set_type_field: "Data Set Type",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

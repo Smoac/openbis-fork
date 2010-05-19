@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.appl
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -56,6 +57,8 @@ public class RawDataProcessingMenu extends TextToolItem
         private final List<GenericTableRow> samples;
 
         private final DatastoreServiceDescription datastoreServiceDescription;
+
+        private TextField<String> dataSetTypeField;
 
         private CopyConfirmationDialog(
                 IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext,
@@ -98,13 +101,19 @@ public class RawDataProcessingMenu extends TextToolItem
                 rawDataSampleIDs[i] = ((SerializableComparableIDDecorator) c).getID();
             }
             specificViewContext.getService().processRawData(datastoreServiceDescription.getKey(),
-                    rawDataSampleIDs, new VoidAsyncCallback<Void>(specificViewContext));
+                    rawDataSampleIDs, dataSetTypeField.getValue(),
+                    new VoidAsyncCallback<Void>(specificViewContext));
         }
 
         @Override
         protected void extendForm()
         {
-        }
+
+            dataSetTypeField = new TextField<String>();
+            dataSetTypeField.setFieldLabel(this.specificViewContext
+                    .getMessage(Dict.COPY_DATA_SETS_DATA_SET_TYPE_FIELD));
+            dataSetTypeField.setSelectOnFocus(true);
+            formPanel.add(dataSetTypeField);        }
     }
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;

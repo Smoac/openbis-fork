@@ -92,7 +92,7 @@ public interface IPhosphoNetXClientService extends IClientService
     public String prepareExportRawDataSamples(TableExportCriteria<GenericTableRow> exportCriteria)
             throws UserFailureException;
     
-    public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs)
+    public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs, String dataSetType)
             throws UserFailureException;
 
 }
