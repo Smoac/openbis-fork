@@ -132,6 +132,7 @@ public final class FileUploadWidget extends LayoutContainer
     {
         recipientsTextArea.setAllowBlank(false);
         recipientsTextArea.setFieldLabel(context.getMessageResources().getRecipientLegend());
+        recipientsTextArea.setToolTip(context.getMessageResources().getRecipientFieldToolTip());
         recipientsTextArea.setName("email-addresses");
         recipientsTextArea.setPreventScrollbars(false);
         recipientsTextArea.setValidator(CifexValidator.getUserFieldValidator(context

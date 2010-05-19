@@ -326,7 +326,7 @@ public interface IMessageResources extends Messages
 
     @Key(value = "header.webpage.link")
     public String getWebpageLink();
-    
+
     /** Returns application description. */
     @Key(value = "footer.application.description")
     public String getFooterApplicationDescription();
@@ -499,6 +499,10 @@ public interface IMessageResources extends Messages
     @Key(value = "recipient.legend")
     public String getRecipientLegend();
 
+    /** Returns the tooltip of the recipient field set. */
+    @Key(value = "recipient.tooltip")
+    public String getRecipientFieldToolTip();
+
     /** Returns the label of the user Registrator column. */
     @Key(value = "userlist.registrator.label")
     public String getRegistratorLabel();
@@ -510,7 +514,7 @@ public interface IMessageResources extends Messages
     /** Returns the label of the user "Total File Count" column. */
     @Key(value = "userlist.total-filecount.label")
     public String getTotalFileCountLabel();
-    
+
     /** Returns the label of the user "Custom Quota Size" column. */
     @Key(value = "userlist.custom-quota-size.label")
     public String getQuotaSizeLabel();
@@ -518,7 +522,7 @@ public interface IMessageResources extends Messages
     /** Returns the label of the user "Total File Count" column. */
     @Key(value = "userlist.custom-quota-count.label")
     public String getQuotaCountLabel();
-    
+
     /** Returns text for the 'rename' confirm box. */
     @Key(value = "rename.confirm.text")
     public String getRenameConfirmText(String before, String after);
