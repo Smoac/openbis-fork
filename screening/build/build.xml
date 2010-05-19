@@ -80,7 +80,7 @@
       access="public" 
       author="false" 
       version="false" 
-      classpath="${ecp}:${classes.screening}">
+      classpath="${ecp}:${classes.screening}:${classes.common}:${classes.common-server}">
       <packageset dir="${sources}">
         <include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/**" />
         <include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/**" />
@@ -139,8 +139,13 @@
       <zipfileset src="${lib}/log4j/log4j.jar" />     
   	</recursive-jar>
   </target>
-	
-	<target name="screening-api" depends="screening-api-doc, screening-api-libs" />
+
+	<target name="screening-api" depends="screening-api-doc, screening-api-libs" >
+     <zip destfile="${dist}/screening-api-${version.number}-r${revision.number}.zip">
+      <zipfileset dir="${dist.screening-api}" includes="**" />
+    </zip>
+    <delete dir="${dist.screening-api}" />
+  </target>
   
   <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxx END API xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
   
