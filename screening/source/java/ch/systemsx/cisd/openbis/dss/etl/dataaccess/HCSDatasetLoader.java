@@ -16,55 +16,105 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Helper class for easy handling of HCS image dataset standard structure.
  * 
  * @author Tomasz Pylak
+ * @author Piotr Buczek
  */
 public class HCSDatasetLoader
 {
-    public HCSDatasetLoader(DataSource source, String datasetPermId)
-    {
+    private final IImagingUploadDAO query;
 
+    private final ImgDatasetDTO dataset;
+
+    private ImgContainerDTO container;
+
+    private Long channelCount;
+
+    /**
+     * @exception SQLException if a database access error occurs
+     */
+    public HCSDatasetLoader(Connection connection, String datasetPermId) throws SQLException
+    {
+        this.query = QueryTool.getQuery(connection, IImagingUploadDAO.class);
+        this.dataset = query.tryGetDatasetByPermId(datasetPermId);
+        if (dataset == null)
+        {
+            throw UserFailureException.fromTemplate("Dataset '%s' not found", datasetPermId);
+        }
     }
 
     /** has to be called at the end */
     public void close()
     {
+        query.close();
+    }
+
+    private ImgContainerDTO getContainer()
+    {
+        if (container == null)
+        {
+            container = query.getContainerById(dataset.getContainerId());
+        }
+        return container;
     }
 
     public Geometry getPlateGeometry()
     {
-        // TODO 2010-05-18, Tomasz Pylak: implement me
-        return null;
+        return new Geometry(getContainer().getSpotHeight(), getContainer().getSpotWidth());
+    }
+
+    private ImgDatasetDTO getDataset()
+    {
+        return dataset;
     }
 
     public Geometry getWellGeometry()
     {
-        // TODO 2010-05-18, Tomasz Pylak: implement me
-        return null;
+        return new Geometry(getDataset().getFieldsHeight(), getDataset().getFieldsWidth());
     }
 
-    public int getChannelCount()
+    public long getChannelCount()
     {
-        // TODO 2010-05-18, Tomasz Pylak: implement me
-        return 0;
+        if (channelCount == null)
+        {
+            channelCount =
+                    query.countChannelByDatasetIdOrExperimentId(getDataset().getId(),
+                            getContainer().getExperimentId());
+        }
+        return channelCount;
     }
 
     /**
      * @param chosenChannel start from 1
-     * @return absolute path to the image
+     * @return image (with absolute path, page and color)
      */
-    public String tryGetStandardNodeAt(int chosenChannel, Location wellLocation,
+    public ImgImageDTO tryGetStandardNodeAt(int chosenChannel, Location wellLocation,
             Location tileLocation)
     {
-        // TODO 2010-05-18, Tomasz Pylak: implement me
-        return null;
-    }
+        assert chosenChannel > 0;
+        assert tileLocation.getX() <= getDataset().getFieldsWidth();
+        assert tileLocation.getY() <= getDataset().getFieldsHeight();
+        assert wellLocation.getX() <= getContainer().getSpotWidth();
+        assert wellLocation.getY() <= getContainer().getSpotHeight();
 
+        long[] channelIds =
+                query.getChannelIdsByDatasetIdOrExperimentId(getDataset().getId(), getContainer()
+                        .getExperimentId());
+        assert chosenChannel <= channelIds.length;
+
+        long chosenChannelId = channelIds[chosenChannel - 1];
+
+        return query.getImage(chosenChannelId, getDataset().getId(), tileLocation, wellLocation);
+    }
 }

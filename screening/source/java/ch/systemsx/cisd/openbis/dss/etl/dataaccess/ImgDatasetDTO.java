@@ -39,6 +39,12 @@ public class ImgDatasetDTO
     @ResultColumn("CONT_ID")
     private long containerId;
 
+    @SuppressWarnings("unused")
+    private ImgDatasetDTO()
+    {
+        // All Data-Object classes must have a default constructor.
+    }
+
     public ImgDatasetDTO(String permId, Integer fieldsWidthOrNull, Integer fieldsHeightOrNull,
             long containerId)
     {

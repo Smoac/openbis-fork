@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+
 import java.sql.SQLException;
 
 import org.testng.annotations.BeforeClass;
@@ -74,45 +77,75 @@ public class ImagingUploadDAOTest extends AbstractDBTest
 
     private long addExperiment()
     {
-        final long result = dao.addExperiment("exp");
-        return result;
+        final String permId = "expId";
+        final long experimentId = dao.addExperiment(permId);
+
+        assertEquals(Long.valueOf(experimentId), dao.tryGetExperimentIdByPermId(permId));
+
+        return experimentId;
     }
 
     private long addContainer(long experimentId)
     {
-        final ImgContainerDTO container = new ImgContainerDTO("cId", 1, 1, experimentId);
-        return dao.addContainer(container);
+        final String permId = "cId";
+        final Integer spotWidth = 1;
+        final Integer spotHeight = 2;
+        final ImgContainerDTO container =
+                new ImgContainerDTO(permId, spotWidth, spotHeight, experimentId);
+        final long containerId = dao.addContainer(container);
+
+        final ImgContainerDTO loadedContainer = dao.getContainerById(containerId);
+        assertNotNull(loadedContainer);
+        assertEquals(permId, loadedContainer.getPermId());
+        assertEquals(spotWidth, loadedContainer.getSpotWidth());
+        assertEquals(spotHeight, loadedContainer.getSpotHeight());
+        assertEquals(experimentId, loadedContainer.getExperimentId());
+
+        return containerId;
     }
 
     private long addDataset(long containerId)
     {
-        final ImgDatasetDTO dataset = new ImgDatasetDTO("dsId", 1, 1, containerId);
-        return dao.addDataset(dataset);
+        final String permId = "dsId";
+        final Integer fieldsWidth = 1;
+        final Integer fieldsHeight = 2;
+        final ImgDatasetDTO dataset =
+                new ImgDatasetDTO(permId, fieldsWidth, fieldsHeight, containerId);
+        final long datasetId = dao.addDataset(dataset);
+
+        final ImgDatasetDTO loadedDataset = dao.tryGetDatasetByPermId("dsId");
+        assertNotNull(loadedDataset);
+        assertEquals(permId, loadedDataset.getPermId());
+        assertEquals(fieldsWidth, loadedDataset.getFieldsWidth());
+        assertEquals(fieldsHeight, loadedDataset.getFieldsHeight());
+        assertEquals(containerId, loadedDataset.getContainerId());
+
+        return datasetId;
     }
 
     private long addSpot(long containerId)
     {
-        final ImgSpotDTO spot = new ImgSpotDTO("sId", 1, 1, containerId);
+        final ImgSpotDTO spot = new ImgSpotDTO("sId", 1, 2, containerId);
         return dao.addSpot(spot);
     }
 
     private long addDatasetChannel(long datasetId)
     {
         final ImgChannelDTO channel =
-                ImgChannelDTO.createDatasetChannel("name", "desc", 1, datasetId);
+                ImgChannelDTO.createDatasetChannel("dsChannel", "desc", 1, datasetId);
         return dao.addChannel(channel);
     }
 
     private long addExperimentChannel(long experimentId)
     {
         final ImgChannelDTO channel =
-                ImgChannelDTO.createExperimentChannel("name", "desc", 1, experimentId);
+                ImgChannelDTO.createExperimentChannel("expChannel", "desc", 1, experimentId);
         return dao.addChannel(channel);
     }
 
     private long addChannelStack(long datasetId, long spotId)
     {
-        final ImgChannelStackDTO channelStack = new ImgChannelStackDTO(1, 1, datasetId, spotId);
+        final ImgChannelStackDTO channelStack = new ImgChannelStackDTO(1, 2, datasetId, spotId);
         return dao.addChannelStack(channelStack);
     }
 

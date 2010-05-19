@@ -19,19 +19,56 @@ package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 
+import ch.systemsx.cisd.bds.hcs.Location;
+
 /**
  * @author Tomasz Pylak
  */
 public interface IImagingUploadDAO extends TransactionQuery
 {
+    public static final int FETCH_SIZE = 1000;
+
+    // select acquired_images.images.*
+    // from acquired_images
+    @Select("select i.* from IMAGES i, ACQUIRED_IMAGES ai, CHANNEL_STACKS cs, SPOTS s "
+            + "where                                                                "
+            // where acquired_images.channel.id = ?{channelId}
+            // and acquired_images.channel_stack.dataset.id = ?{datasetId}
+            + "ai.CHANNEL_ID = ?{1} and cs.DS_ID = ?{2} and "
+            // and acquired_images.channel_stack.x = tileX
+            // and acquired_images.channel_stack.y = tileY
+            // and acquired_images.channel_stack.spot.x = wellX
+            // and acquired_images.channel_stack.spot.y = wellY
+            + "cs.x = ?{3.x} and cs.y = ?{3.y} and s.x = ?{4.x} and s.y = ?{4.y} and "
+            // joins
+            + "ai.IMG_ID = i.ID and ai.CHANNEL_STACK_ID = cs.ID and cs.SPOT_ID = s.ID")
+    public ImgImageDTO getImage(long channelId, long datasetId, Location tileLocation,
+            Location wellLocation);
+
+    // simple getters
+
     @Select("select ID from EXPERIMENTS where PERM_ID = ?{1}")
     public Long tryGetExperimentIdByPermId(String experimentPermId);
 
-    @Select("insert into EXPERIMENTS (PERM_ID) values (?{1}) returning ID")
-    public long addExperiment(String experimentPermId);
-
     @Select("select * from CONTAINERS where PERM_ID = ?{1}")
     public ImgContainerDTO tryGetContainerByPermId(String containerPermId);
+
+    @Select("select * from DATA_SETS where PERM_ID = ?{1}")
+    public ImgDatasetDTO tryGetDatasetByPermId(String datasetPermId);
+
+    @Select("select * from CONTAINERS where ID = ?{1}")
+    public ImgContainerDTO getContainerById(long containerId);
+
+    @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
+    public long countChannelByDatasetIdOrExperimentId(long datasetId, long experimentId);
+
+    @Select(sql = "select id from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by name", fetchSize = FETCH_SIZE)
+    public long[] getChannelIdsByDatasetIdOrExperimentId(long datasetId, long experimentId);
+
+    // inserts
+
+    @Select("insert into EXPERIMENTS (PERM_ID) values (?{1}) returning ID")
+    public long addExperiment(String experimentPermId);
 
     @Select("insert into ACQUIRED_IMAGES (IMG_ID, THUMBNAIL_ID, CHANNEL_STACK_ID, CHANNEL_ID) values "
             + "(?{1.imageId}, ?{1.thumbnailId}, ?{1.channelStackId}, ?{1.channelId}) returning ID")

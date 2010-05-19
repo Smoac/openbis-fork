@@ -41,6 +41,12 @@ public class ImgImageDTO
         RED, GREEN, BLUE
     }
 
+    @SuppressWarnings("unused")
+    private ImgImageDTO()
+    {
+        // All Data-Object classes must have a default constructor.
+    }
+
     public ImgImageDTO(String filePath)
     {
         this(filePath, null, null);
