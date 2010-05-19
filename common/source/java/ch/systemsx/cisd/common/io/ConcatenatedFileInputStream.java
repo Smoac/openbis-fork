@@ -94,17 +94,17 @@ public class ConcatenatedFileInputStream extends InputStream
             closeCurrentStream();
             if (readingFileSize)
             {
-                currentStream = createFileStream(ignoreNonExistingFiles, getCurrentFile());
+                currentStream = createFileStream(ignoreNonExistingFiles, tryGetCurrentFile());
                 readingFileSize = false;
             } else
             {
-                File nextFile = tryGetNextFile();
-                if (nextFile == null)
+                currentIndex++;
+                if (hasCurrentFile() == false)
                 {
                     eof = true;
                     return EOF;
                 }
-                currentStream = createFileSizeStream(nextFile);
+                currentStream = createFileSizeStream(tryGetCurrentFile());
                 readingFileSize = true;
             }
             result = currentStream.read();
@@ -112,27 +112,26 @@ public class ConcatenatedFileInputStream extends InputStream
         return result;
     }
 
-    private File getCurrentFile()
+    // null means that the current file has not been specified. This case will be treated in the
+    // same way as an empty file if ignoreNonExistingFiles is true
+    private File tryGetCurrentFile()
     {
-        return files[currentIndex];
+        if (hasCurrentFile() == false)
+        {
+            throw new IllegalStateException("there are no more files to read");
+        }
+        return files[currentIndex]; // can be null
+    }
+
+    // returns true if there is a file to read
+    private boolean hasCurrentFile()
+    {
+        return (files != null && currentIndex < files.length);
     }
 
     private int readCurrent() throws IOException
     {
         return (eof || currentStream == null) ? EOF : currentStream.read();
-    }
-
-    // returns the next file to read
-    private File tryGetNextFile() throws IOException
-    {
-        currentIndex++;
-        if (files != null && currentIndex < files.length)
-        {
-            return getCurrentFile();
-        } else
-        {
-            return null;
-        }
     }
 
     private void closeCurrentStream()
@@ -143,16 +142,18 @@ public class ConcatenatedFileInputStream extends InputStream
 
     // -------------- static helper ---------------
 
-    private static InputStream createFileStream(boolean ignoreNonExistingFiles, File currentFile)
-            throws FileNotFoundException
+    private static InputStream createFileStream(boolean ignoreNonExistingFiles,
+            File currentFileOrNull) throws FileNotFoundException
     {
         InputStream stream;
-        if (ignoreNonExistingFiles && (currentFile == null || currentFile.exists() == false))
+        if (ignoreNonExistingFiles
+                && (currentFileOrNull == null || currentFileOrNull.exists() == false))
         {
             stream = createEmptyStream();
         } else
         {
-            stream = new FileInputStream(currentFile);
+            // exception will be thrown if the file is null or does not exist
+            stream = new FileInputStream(currentFileOrNull);
         }
         return new BufferedInputStream(stream);
     }
@@ -162,9 +163,9 @@ public class ConcatenatedFileInputStream extends InputStream
         return new ByteArrayInputStream(new byte[0]);
     }
 
-    private static InputStream createFileSizeStream(File file) throws IOException
+    private static InputStream createFileSizeStream(File fileOrNull) throws IOException
     {
-        long fileSize = file.length();
+        long fileSize = (fileOrNull == null) ? 0 : fileOrNull.length();
         byte[] data = longToBytes(fileSize);
         return new ByteArrayInputStream(data);
     }
