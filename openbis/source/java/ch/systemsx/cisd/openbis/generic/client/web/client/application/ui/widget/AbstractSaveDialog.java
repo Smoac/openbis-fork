@@ -121,7 +121,6 @@ abstract public class AbstractSaveDialog extends Window
                                     if (form.isValid())
                                     {
                                         save(new SaveDialogCallback(viewContext));
-                                        hide();
                                     }
                                 }
                             });
