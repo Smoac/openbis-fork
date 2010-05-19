@@ -107,7 +107,7 @@ public class DssServiceRpcScreeningTest extends AbstractFileSystemTestCase
     private FeatureVectorDatasetReference createFeatureVectorDatasetReference(
             final String datasetCode, final String url)
     {
-        return new FeatureVectorDatasetReference(datasetCode, url, null, null);
+        return new FeatureVectorDatasetReference(datasetCode, url, null, null, null, null);
     }
 
 }
