@@ -69,6 +69,7 @@ public class RawDataProcessingMenu extends TextToolItem
             this.specificViewContext = specificViewContext;
             this.datastoreServiceDescription = datastoreServiceDescription;
             this.samples = samples;
+            setWidth(400);
         }
 
         @Override
@@ -108,12 +109,14 @@ public class RawDataProcessingMenu extends TextToolItem
         @Override
         protected void extendForm()
         {
-
             dataSetTypeField = new TextField<String>();
-            dataSetTypeField.setFieldLabel(this.specificViewContext
+            dataSetTypeField.setFieldLabel(specificViewContext
                     .getMessage(Dict.COPY_DATA_SETS_DATA_SET_TYPE_FIELD));
             dataSetTypeField.setSelectOnFocus(true);
-            formPanel.add(dataSetTypeField);        }
+            dataSetTypeField.setWidth(200);
+            formPanel.add(dataSetTypeField);
+            formPanel.setLabelWidth(100);
+        }
     }
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
