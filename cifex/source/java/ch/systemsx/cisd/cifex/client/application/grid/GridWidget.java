@@ -254,6 +254,7 @@ public class GridWidget<M extends IModelDataWithID>
         Grid<M> grid = new Grid<M>(new ListStore<M>(), new ColumnModel(columnConfigs));
         grid.setHeight(Constants.GRID_HEIGHT);
         grid.setAutoWidth(true);
+        grid.setView(new ExtendedGridView());
         return grid;
     }
 
