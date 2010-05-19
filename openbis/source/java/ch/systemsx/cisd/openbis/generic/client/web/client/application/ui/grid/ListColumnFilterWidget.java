@@ -88,6 +88,8 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         setEmptyText(label);
         setToolTip(label);
         setTemplate(GWTUtils.getTooltipTemplate(MODEL_DISPLAY_KEY, ModelDataPropertyNames.TOOLTIP));
+
+        GWTUtils.setupAutoWidth(this);        
     }
 
     private static DelayedTask createFilterApplierTask(final IDelegatedAction onFilterAction)

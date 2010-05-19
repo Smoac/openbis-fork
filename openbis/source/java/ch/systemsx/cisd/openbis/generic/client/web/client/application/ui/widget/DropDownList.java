@@ -104,6 +104,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         setDisplayField(displayField);
         setFieldLabel(label);
         setStore(createEmptyStoreWithContainsFilter(this));
+        GWTUtils.setupAutoWidth(this);
     }
 
     public static <M extends ModelData> ListStore<M> createEmptyStoreWithContainsFilter(

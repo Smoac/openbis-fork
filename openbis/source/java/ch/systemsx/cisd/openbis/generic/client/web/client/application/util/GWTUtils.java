@@ -19,8 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.TextMetrics;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -71,6 +76,44 @@ public final class GWTUtils
     public static void testing()
     {
         testing = true;
+    }
+
+    /**
+     * Sets up {@link ComboBox} to have width of list auto adjusted to maximum width of elements in
+     * the list.
+     */
+    // FIXME 2010-05-19, PTR: the width is not updated when store is changed;
+    public static void setupAutoWidth(final ComboBox<?> comboBox)
+    {
+        // can't get el() of listView before it is rendered
+        comboBox.getListView().addListener(Events.Render, new Listener<BaseEvent>()
+            {
+                private final static int MARGIN = 30;
+
+                public void handleEvent(BaseEvent be)
+                {
+                    comboBox.setMinListWidth(MARGIN
+                            + computeMaxLabelWidth(comboBox.getListView().el()));
+                }
+
+                public int computeMaxLabelWidth(El el)
+                {
+                    final TextMetrics metrics = TextMetrics.get();
+                    metrics.bind(el);
+                    final String displayField = comboBox.getDisplayField();
+
+                    int maxLabelWidth = 0;
+                    for (ModelData model : comboBox.getStore().getModels())
+                    {
+                        String displayedString = model.get(displayField);
+                        maxLabelWidth = Math.max(maxLabelWidth, metrics.getWidth(displayedString));
+                    }
+                    // It makes sense to limit width of the list because it doesn't look good
+                    // if it takes whole width of the window.
+                    return Math.min(Window.getClientWidth() / 2, maxLabelWidth);
+                }
+
+            });
     }
 
     /**

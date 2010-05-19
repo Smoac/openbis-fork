@@ -63,6 +63,7 @@ public final class SectionSelectionWidget extends SimpleComboBox<String>
     {
         setFieldLabel(fieldLabel);
         GWTUtils.setToolTip(this, toolTip);
+        GWTUtils.setupAutoWidth(this);
         if (sections.size() == 0)
         {
             setEmptyText(emptyText);
