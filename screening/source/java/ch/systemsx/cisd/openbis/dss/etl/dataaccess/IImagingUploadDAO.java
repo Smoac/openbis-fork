@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
+import java.util.List;
+
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 
@@ -42,6 +44,7 @@ public interface IImagingUploadDAO extends TransactionQuery
             + "cs.x = ?{3.x} and cs.y = ?{3.y} and s.x = ?{4.x} and s.y = ?{4.y} and "
             // joins
             + "ai.IMG_ID = i.ID and ai.CHANNEL_STACK_ID = cs.ID and cs.SPOT_ID = s.ID")
+    // TODO 2010-05-19, Tomasz Pylak: add unit tests
     public ImgImageDTO getImage(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
 
@@ -50,8 +53,8 @@ public interface IImagingUploadDAO extends TransactionQuery
     @Select("select ID from EXPERIMENTS where PERM_ID = ?{1}")
     public Long tryGetExperimentIdByPermId(String experimentPermId);
 
-    @Select("select * from CONTAINERS where PERM_ID = ?{1}")
-    public ImgContainerDTO tryGetContainerByPermId(String containerPermId);
+    @Select("select ID from CONTAINERS where PERM_ID = ?{1}")
+    public Long tryGetContainerIdPermId(String containerPermId);
 
     @Select("select * from DATA_SETS where PERM_ID = ?{1}")
     public ImgDatasetDTO tryGetDatasetByPermId(String datasetPermId);
@@ -97,5 +100,9 @@ public interface IImagingUploadDAO extends TransactionQuery
     @Select("insert into SPOTS (PERM_ID, X, Y, CONT_ID) values "
             + "(?{1.permId}, ?{1.x}, ?{1.y}, ?{1.containerId}) returning ID")
     public long addSpot(ImgSpotDTO spot);
+
+    // TODO 2010-05-19, Tomasz Pylak: implement me
+    @Select("select * from SPOTS where TODO")
+    public List<ImgSpotDTO> listSpots(List<String> spotPermIds);
 
 }
