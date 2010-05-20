@@ -127,7 +127,7 @@
   		</fileset> 
       <fileset dir="${classes.common}">
             <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
-            <include name="ch/systemsx/cisd/common/io/ConcatFileOutputStreamWriter.class" />
+            <include name="ch/systemsx/cisd/common/io/ConcatenatedFileOutputStreamWriter.class" />
       </fileset> 
     </jar>
     <recursive-jar destfile="${dist.screening-api.lib}/spring-ext.jar">
