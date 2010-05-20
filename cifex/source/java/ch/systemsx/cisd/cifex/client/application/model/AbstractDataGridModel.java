@@ -70,6 +70,7 @@ public abstract class AbstractDataGridModel extends BaseModelData implements IMo
         columnConfig.setId(code);
         columnConfig.setHeader(title);
         columnConfig.setWidth(width);
+        columnConfig.setMenuDisabled(true);
         return columnConfig;
     }
 

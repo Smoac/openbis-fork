@@ -724,6 +724,10 @@ public interface IMessageResources extends Messages
     @Key(value = "grid.filters")
     public String getGridFiltersLabel();
 
+    /** Returns the grid columns label */
+    @Key(value = "grid.columns")
+    public String getGridColumnsLabel();
+
     /** Returns the expiration date for user / file creation editing */
     @Key(value = "userfile.expiration.date")
     public String getExpirationDateLabel();

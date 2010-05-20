@@ -95,7 +95,8 @@ public class GridWidget<M extends IModelDataWithID>
                 }
             };
         return createFilterAndPagingToolbar(filterFields, onFilterAction, new FilterMenu(
-                filterFields, messageResources.getGridFiltersLabel(), grid.getColumnModel()));
+                filterFields, messageResources.getGridFiltersLabel(), grid.getColumnModel()),
+                new ColumnMenu(messageResources.getGridColumnsLabel(), grid.getColumnModel()));
     }
 
     public void setDataAndRefresh(List<M> models)
@@ -205,9 +206,10 @@ public class GridWidget<M extends IModelDataWithID>
 
     private static <M extends ModelData> PagingToolBar createFilterAndPagingToolbar(
             List<AbstractFilterField<M>> filterFields, IDelegatedAction onFilterAction,
-            FilterMenu filterMenu)
+            FilterMenu filterMenu, ColumnMenu columnMenu)
     {
-        List<Component> filterItems = createFilterItems(filterFields, onFilterAction, filterMenu);
+        List<Component> filterItems =
+                createFilterItems(filterFields, onFilterAction, filterMenu, columnMenu);
         return new PagingToolBarWithItems(PAGE_SIZE, filterItems);
     }
 
@@ -237,9 +239,10 @@ public class GridWidget<M extends IModelDataWithID>
 
     private static <M extends ModelData> List<Component> createFilterItems(
             List<AbstractFilterField<M>> filterFields, IDelegatedAction onFilterAction,
-            FilterMenu filterMenu)
+            FilterMenu filterMenu, ColumnMenu columnMenu)
     {
         List<Component> filterItems = new ArrayList<Component>();
+        filterItems.add(columnMenu);
         filterItems.add(filterMenu);
         for (AbstractFilterField<M> filterField : filterFields)
         {
