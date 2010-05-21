@@ -283,7 +283,10 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                 viewContext.initDisplaySettingsManager();
                 dispatcher.dispatch(AppEvents.INIT);
                 afterInitAction.execute();
-                GWTUtils.setConfirmExitMessage();
+                if (viewContext.isSimpleMode() == false)
+                {
+                    GWTUtils.setConfirmExitMessage();
+                }
             }
         }
     }
