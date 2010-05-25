@@ -74,7 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = DataSetHandler.class)
-public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
+public class DataSetHandlerTest extends AbstractFileSystemTestCase
 {
 
     private static final String DATA_SET_PROPERTIES_FILE = "data-set-properties.txt";
@@ -227,42 +227,6 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testWrongDataSetType() throws IOException
-    {
-        Properties properties = new Properties();
-        properties.setProperty(
-                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
-                        .getAbsolutePath());
-        properties.setProperty(
-                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
-                        .getAbsolutePath());
-        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
-                dropBox.getAbsolutePath());
-        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
-                DATA_SET_PROPERTIES_FILE);
-        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
-        properties.setProperty(Util.TRANSLATION_KEY + "a", "Alpha");
-        prepareDataSetPropertiesValidator("Alpha", "B");
-        DataSetHandler handler = createHandler(properties);
-        File file = createDataExample();
-        DataSetInformation dataSetInformation = createDataSetInformation("BLABLA");
-        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
-
-        try
-        {
-            handler.handle(file, dataSetInformation, null);
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Data has to be uploaded for data set type "
-                    + "[TIME_SERIES, LCA_MTP_PCAV_TIME_SERIES, LCA_MTP_TIME_SERIES, LCA_MIC_TIME_SERIES, LCA_MIC] "
-                    + "instead of BLABLA.", ex.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testMissingExperiment() throws IOException
     {
         Properties properties = new Properties();
@@ -382,7 +346,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void test()
+    public void testTimeSeries()
     {
         Properties properties = new Properties();
         properties.setProperty(
@@ -516,6 +480,49 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    
+    @Test
+    public void testGeneric()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(
+                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
+                .getAbsolutePath());
+        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
+                dropBox.getAbsolutePath());
+        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
+                DATA_SET_PROPERTIES_FILE);
+        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS, b");
+        properties.setProperty(Util.TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
+        prepareDataSetPropertiesValidator("METABOLITE_LCMS", "B");
+        DataSetHandler handler = createHandler(properties);
+        File file = createDataExample();
+        prepareGetOrCreateDataSet(false);
+        prepareCreateRows();
+        prepareCreateColumn("ID", "CHEBI:15721", "CHEBI:18211");
+        prepareCreateColumn("HumanReadable", "sedoheptulose 7-phosphate", "citrulline");
+        prepareCreateDataColumn("GM::BR::B1::200::EX::T1::CE::"
+                + "MetaboliteLCMS::Value[mM]::Log10::NB::NC", null, 0.34, 0.87);
+        prepareCreateDataColumn("GM::BR::B1::+7200::EX::T2::CE::" + "b::Value[mM]::LIN::NB::NC",
+                null, 0.799920281, 1.203723714);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryToGetExperiment(
+                            new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
+                    will(returnValue(createExperiment("GM_BR_B1")));
+                }
+            });
+        
+        DataSetInformation dataSetInformation =
+            createDataSetInformation("GENERIC");
+        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
+                "GM_BR_B1"));
+        handler.handle(file, dataSetInformation, null);
+        
+        context.assertIsSatisfied();
+    }
+    
     private void prepareCreateRows()
     {
         context.checking(new Expectations()
@@ -602,7 +609,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             });
     }
 
-    private void prepareCreateDataColumn(final String columnHeader, final long sampleID,
+    private void prepareCreateDataColumn(final String columnHeader, final Long sampleID,
             final Double dataOfRow1, final Double dataOfRow2)
     {
         context.checking(new Expectations()

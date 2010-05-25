@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  *
  * @author Franz-Josef Elmer
  */
-class LcaMicDataSetPropertiesExtractor extends TimeSeriesDataSetPropertiesExtractor
+class LcaMicDataSetPropertiesExtractor extends DataSetPropertiesExtractor
 {
 
     static final String GROWTH_RATE = "GROWTH_RATE";

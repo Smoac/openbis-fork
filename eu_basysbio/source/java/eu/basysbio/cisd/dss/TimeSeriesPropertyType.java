@@ -32,7 +32,11 @@ enum TimeSeriesPropertyType {
 			DataHeaderProperty.CultivationMethodExperimentCode),
 
 	EXPERIMENT_CODE(DataHeaderProperty.ExperimentCode),
+	
+	GENOTYPE(DataHeaderProperty.GENOTYPE),
 
+	GROWTH_PHASE(DataHeaderProperty.GROWTH_PHASE),
+	
 	SCALE_LIST(DataHeaderProperty.Scale, true),
 
 	TIME_POINT_LIST(DataHeaderProperty.TimePoint, true),

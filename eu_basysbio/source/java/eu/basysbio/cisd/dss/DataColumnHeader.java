@@ -81,6 +81,8 @@ public final class DataColumnHeader
     private final String scale;
     private final String biID;
     private final String controlledGene;
+    private final String growthPhase;
+    private final String genotype;
     private final String normalizedHeader;
     private final String header;
     
@@ -99,31 +101,26 @@ public final class DataColumnHeader
         scale = propertyManager.getProperty(TimePointPropertyType.SCALE);
         biID = propertyManager.getProperty(TimePointPropertyType.BI_ID);
         controlledGene = propertyManager.getProperty(TimePointPropertyType.CG);
+        growthPhase = null;
+        genotype = null;
         normalizedHeader = createNormalizedHeader();
         this.header = normalizedHeader;
     }
-    
 
     DataColumnHeader(String header)
-    {
-        this(header, false);
-    }
-    
-    
-    DataColumnHeader(String header, boolean ignoreTimePoint)
     {
         this.header = header;
         String[] parts = header.split(SEPARATOR);
         if (parts.length < HEADER_PARTS)
         {
-            throw new IllegalArgumentException(HEADER_PARTS
+            throw new IllegalArgumentException("At least " + HEADER_PARTS
                     + " elements of the following header separated by '" + DataColumnHeader.SEPARATOR
                     + "' expected: " + header);
         }
         experimentCode = parts[0];
         cultivationMethod = parts[1];
         biologicalReplicateCode = parts[2];
-        timePoint = ignoreTimePoint ? 0 : parseTimePoint(parts[TIME_POINT_INDEX], header);
+        timePoint = parseTimePoint(parts[TIME_POINT_INDEX], header);
         timePointType = parts[TIME_POINT_TYPE_INDEX];
         technicalReplicateCode = parts[5];
         celLoc = parts[6];
@@ -132,6 +129,8 @@ public final class DataColumnHeader
         scale = parts[9];
         biID = parts[10];
         controlledGene = parts[11];
+        growthPhase = parts.length > 12 ? parts[12] : null;
+        genotype = parts.length > 13 ? parts[13] : null;
         normalizedHeader = createNormalizedHeader();
     }
     
@@ -147,6 +146,10 @@ public final class DataColumnHeader
         {
             builder.append(SEPARATOR).append(type.getElement(this));
         }
+        if (growthPhase != null)
+        {
+            builder.append(SEPARATOR).append(growthPhase).append(SEPARATOR).append(genotype);
+        }
         return builder.toString();
     }
 
@@ -157,8 +160,7 @@ public final class DataColumnHeader
             return Util.parseIntegerWithPlusSign(value);
         } catch (NumberFormatException ex)
         {
-            throw new UserFailureException((TIME_POINT_INDEX + 1) + ". element [" + value
-                    + "] of the following header isn't an integer number: " + originalHeader);
+            return 0;
         }
     }
     
@@ -222,6 +224,17 @@ public final class DataColumnHeader
         return controlledGene;
     }
     
+    public String getGrowthPhase()
+    {
+        return growthPhase;
+    }
+
+    public String getGenotype()
+    {
+        return genotype;
+    }
+
+
     @Override
     public boolean equals(Object obj)
     {

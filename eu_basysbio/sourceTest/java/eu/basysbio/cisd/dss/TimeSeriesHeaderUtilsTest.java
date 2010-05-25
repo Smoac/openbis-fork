@@ -50,7 +50,7 @@ public class TimeSeriesHeaderUtilsTest extends AssertJUnit
 
     private static final String INCONSISTENT_HEADERS_MESSAGE = "Inconsistent data column headers";
 
-    private static final String DEFAULT_HEADER = "0::1::2::3::4::5::6::7::8::9::10::11";
+    private static final String DEFAULT_HEADER = "0::1::2::3::4::5::6::7::8::9::10::11::12::13";
 
     @Test
     public void testConsistentOneHeaderNoRequirement() throws Exception

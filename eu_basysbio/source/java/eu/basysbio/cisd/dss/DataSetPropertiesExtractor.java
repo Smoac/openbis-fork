@@ -28,20 +28,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  *
  * @author Franz-Josef Elmer
  */
-class TimeSeriesDataSetPropertiesExtractor implements IDataSetPropertiesExtractor
+class DataSetPropertiesExtractor implements IDataSetPropertiesExtractor
 {
     protected final boolean ignoreEmptyLines;
     
-    TimeSeriesDataSetPropertiesExtractor(Properties properties)
+    DataSetPropertiesExtractor(Properties properties)
     {
         ignoreEmptyLines =
                 PropertyUtils.getBoolean(properties,
                         TimeSeriesDataSetUploaderParameters.IGNORE_EMPTY_LINES_KEY, true);
     }
-    
+
     public List<NewProperty> extractDataSetProperties(File incomingDataSetPath)
     {
-        return HeaderUtils.extractHeaderProperties(incomingDataSetPath, ignoreEmptyLines);
+        return HeaderUtils.extractHeaderProperties(incomingDataSetPath, ignoreEmptyLines, false, false);
     }
 
 }

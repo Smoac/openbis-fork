@@ -21,7 +21,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -34,6 +33,12 @@ class DataSetUploaderFactory implements IDataSetUploaderFactory
 {
     private final Map<String, IDataSetUploaderFactory> factories =
             new LinkedHashMap<String, IDataSetUploaderFactory>();
+    private final IDataSetUploaderFactory defaultFactory;
+
+    DataSetUploaderFactory(IDataSetUploaderFactory defaultFactory)
+    {
+        this.defaultFactory = defaultFactory;
+    }
 
     void register(String dataSetType, IDataSetUploaderFactory uploaderFactory)
     {
@@ -58,12 +63,7 @@ class DataSetUploaderFactory implements IDataSetUploaderFactory
     {
         String dataSetType = dataSetInformation.getDataSetType().getCode();
         IDataSetUploaderFactory factory = factories.get(dataSetType);
-        if (factory == null)
-        {
-            throw new UserFailureException("Data has to be uploaded for data set type "
-                    + factories.keySet() + " instead of " + dataSetType + ".");
-        }
-        return factory;
+        return factory == null ? defaultFactory : factory;
     }
 
 }

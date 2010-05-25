@@ -70,18 +70,16 @@ class HeaderUtils
                         TimeSeriesPropertyType.TIME_SERIES_DATA_SET_TYPE,
                         TimeSeriesPropertyType.CEL_LOC, TimeSeriesPropertyType.CG_LIST,
                         TimeSeriesPropertyType.CULTIVATION_METHOD_EXPERIMENT_CODE,
-                        TimeSeriesPropertyType.EXPERIMENT_CODE, TimeSeriesPropertyType.SCALE_LIST,
+                        TimeSeriesPropertyType.EXPERIMENT_CODE, TimeSeriesPropertyType.GENOTYPE,
+                        TimeSeriesPropertyType.GROWTH_PHASE, TimeSeriesPropertyType.SCALE_LIST,
                         TimeSeriesPropertyType.TIME_POINT_LIST,
                         TimeSeriesPropertyType.TIME_POINT_TYPE, TimeSeriesPropertyType.BI_ID,
                         TimeSeriesPropertyType.VALUE_TYPE_LIST };
 
     /**
      * Extracts data column headers, skips other columns.
-     * 
-     * @param ignoreTimePoint If <code>true</code> ignore time point in header. Time point will be
-     *            set to 0.
      */
-    private static Collection<DataColumnHeader> extractDataColumnHeaders(Collection<Column> columns, boolean ignoreTimePoint)
+    private static Collection<DataColumnHeader> extractDataColumnHeaders(Collection<Column> columns)
     {
         ArrayList<DataColumnHeader> result = new ArrayList<DataColumnHeader>();
         for (Column c : columns)
@@ -89,7 +87,7 @@ class HeaderUtils
             String header = c.getHeader();
             if (isDataColumnHeader(header))
             {
-                result.add(new DataColumnHeader(header, ignoreTimePoint));
+                result.add(new DataColumnHeader(header));
             }
         }
         return result;
@@ -129,14 +127,13 @@ class HeaderUtils
     }
 
     private static Collection<DataColumnHeader> loadHeaders(File dir, boolean ignoreEmptyLines,
-            boolean ignoreHashedLines, boolean ignoreTimePoint)
+            boolean ignoreHashedLines)
     {
         Collection<DataColumnHeader> headers = new ArrayList<DataColumnHeader>();
         List<File> tsvFiles = listFiles(dir);
         for (File tsvFile : tsvFiles)
         {
-            headers.addAll(HeaderUtils.loadHeadersFromFile(tsvFile, ignoreEmptyLines, ignoreHashedLines, 
-                    ignoreTimePoint));
+            headers.addAll(HeaderUtils.loadHeadersFromFile(tsvFile, ignoreEmptyLines, ignoreHashedLines));
         }
         return headers;
     }
@@ -166,7 +163,7 @@ class HeaderUtils
     }
 
     private static Collection<DataColumnHeader> loadHeadersFromFile(File tsvFile,
-            boolean ignoreEmptyLines, boolean ignoreHashedLines, boolean ignoreTimePoint)
+            boolean ignoreEmptyLines, boolean ignoreHashedLines)
     {
         FileReader reader = null;
         try
@@ -174,9 +171,10 @@ class HeaderUtils
             reader = new FileReader(tsvFile);
             String fileName = tsvFile.toString();
             TabSeparatedValueTable table =
-                    new TabSeparatedValueTable(reader, fileName, ignoreEmptyLines, ignoreHashedLines);
+                    new TabSeparatedValueTable(reader, fileName, ignoreEmptyLines,
+                            ignoreHashedLines);
             List<Column> columns = table.getColumns();
-            return extractDataColumnHeaders(columns, ignoreTimePoint);
+            return extractDataColumnHeaders(columns);
         } catch (RuntimeException ex)
         {
             throw ex;
@@ -332,20 +330,19 @@ class HeaderUtils
      * Extracts a list of "time series" data sets properties defined in the tsv files located in
      * chosen directory.
      * 
-     * @param ignoreTimePoint If <code>true</code> ignore time point in header. Time point will be
-     *            set to 0.
+     * @param multipleValuesAllowed If <code>true</code> multiple values for same header element allowed.
      */
     public static List<NewProperty> extractHeaderProperties(File dir, boolean ignoreEmptyLines,
-            boolean ignoreHashedLines, boolean ignoreTimePoint)
+            boolean ignoreHashedLines, boolean multipleValuesAllowed)
     {
 
-        Collection<DataColumnHeader> headers = loadHeaders(dir, ignoreEmptyLines, ignoreHashedLines, ignoreTimePoint);
+        Collection<DataColumnHeader> headers = loadHeaders(dir, ignoreEmptyLines, ignoreHashedLines);
         Map<DataHeaderProperty, Set<String>> values = extractHeaderPropertyValues(headers);
 
         List<NewProperty> headerProperties = new ArrayList<NewProperty>();
         for (TimeSeriesPropertyType pt : TIME_SERIES_HEADER_PROPERTIES)
         {
-            headerProperties.add(extractProperty(pt, ignoreTimePoint, values));
+            headerProperties.add(extractProperty(pt, multipleValuesAllowed, values));
         }
         return headerProperties;
     }

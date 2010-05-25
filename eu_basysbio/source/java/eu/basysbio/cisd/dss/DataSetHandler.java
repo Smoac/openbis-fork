@@ -43,6 +43,7 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     static final String LCA_MTP_PCAV_TIME_SERIES = "LCA_MTP_PCAV_TIME_SERIES";
     static final String LCA_MIC_TIME_SERIES = "LCA_MIC_TIME_SERIES";
     static final String LCA_MIC = "LCA_MIC";
+    static final String CHIP_CHIP = "CHIP_CHIP";
 
     private final IEncapsulatedOpenBISService service;
 
@@ -69,11 +70,8 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         this.service = service;
         parameters = new TimeSeriesDataSetUploaderParameters(properties, true);
         dropBoxFeeder = new TimePointDataDropBoxFeeder(properties, this, service);
-        factory = new DataSetUploaderFactory();
+        factory = new DataSetUploaderFactory(TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
         factory.register(TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);
-        factory.register(LCA_MTP_PCAV_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
-        factory.register(LCA_MTP_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
-        factory.register(LCA_MIC_TIME_SERIES, TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
         factory.register(LCA_MIC, LcaMicDataSetUploader.FACTORY);
     }
     

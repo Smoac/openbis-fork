@@ -46,16 +46,14 @@ public class DataSetInfoExtractor implements IDataSetInfoExtractor
     private final Map<String, IDataSetPropertiesExtractor> propertiesExtractors =
             new HashMap<String, IDataSetPropertiesExtractor>();
 
+    private IDataSetPropertiesExtractor defaultExtractor;
+
     public DataSetInfoExtractor(Properties globalProperties)
     {
         this.properties = globalProperties;
         infoExtractor = new CifexDataSetInfoExtractor(globalProperties);
         typeExtractor = new CifexTypeExtractor(globalProperties);
-        IDataSetPropertiesExtractor timeSeriesExtractor = new TimeSeriesDataSetPropertiesExtractor(properties);
-        propertiesExtractors.put(DataSetHandler.TIME_SERIES, timeSeriesExtractor);
-        propertiesExtractors.put(DataSetHandler.LCA_MTP_TIME_SERIES, timeSeriesExtractor);
-        propertiesExtractors.put(DataSetHandler.LCA_MTP_PCAV_TIME_SERIES, timeSeriesExtractor);
-        propertiesExtractors.put(DataSetHandler.LCA_MIC_TIME_SERIES, timeSeriesExtractor);
+        defaultExtractor = new DataSetPropertiesExtractor(properties);
         propertiesExtractors.put(DataSetHandler.LCA_MIC, new LcaMicDataSetPropertiesExtractor(properties));
     }
 
@@ -75,7 +73,7 @@ public class DataSetInfoExtractor implements IDataSetInfoExtractor
         IDataSetPropertiesExtractor extractor = propertiesExtractors.get(dataSetType.getCode());
         if (extractor == null)
         {
-            throw new UserFailureException("Unknown data set type: " + dataSetType);
+            extractor = defaultExtractor;
         }
         List<NewProperty> headerProperties = extractor.extractDataSetProperties(incomingDataSetPath);
         info.getDataSetProperties().addAll(headerProperties);

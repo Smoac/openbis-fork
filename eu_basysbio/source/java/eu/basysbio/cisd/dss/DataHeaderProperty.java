@@ -106,6 +106,22 @@ public enum DataHeaderProperty
         {
             return header.getControlledGene();
         }
+    },
+    GROWTH_PHASE
+    {
+        @Override
+        String getValue(DataColumnHeader header)
+        {
+            return header.getGrowthPhase();
+        }
+    },
+    GENOTYPE
+    {
+        @Override
+        String getValue(DataColumnHeader header)
+        {
+            return header.getGenotype();
+        }
     };
 
     abstract String getValue(DataColumnHeader header);
