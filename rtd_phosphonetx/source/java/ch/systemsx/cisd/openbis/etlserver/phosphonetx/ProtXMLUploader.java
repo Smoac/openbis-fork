@@ -126,7 +126,10 @@ public class ProtXMLUploader implements IDataSetUploader
     {
         try
         {
-            currentResultDataSetUploader.rollback();
+            if (currentResultDataSetUploader != null)
+            {
+                currentResultDataSetUploader.rollback();
+            }
         } finally
         {
             currentResultDataSetUploader = null;
