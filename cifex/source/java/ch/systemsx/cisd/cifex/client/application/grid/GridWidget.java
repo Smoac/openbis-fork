@@ -21,18 +21,21 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.Loader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.PagingModelMemoryProxy;
 import com.extjs.gxt.ui.client.data.SortInfo;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
@@ -47,7 +50,7 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
  */
 public class GridWidget<M extends IModelDataWithID>
 {
-    private static final int PAGE_SIZE = 50;
+    private static final int PAGE_SIZE = 10;
 
     /** creates a paged grid with specified columns and filters */
     public static <M extends IModelDataWithID> GridWidget<M> create(
@@ -161,10 +164,12 @@ public class GridWidget<M extends IModelDataWithID>
         if (widget == null)
         {
             widget = new ContentPanel();
+            widget.setBodyBorder(false);
+            widget.setBorders(true);
             widget.setHeaderVisible(false);
-            widget.setLayout(new RowLayout());
+            widget.setLayout(new FitLayout());
             widget.add(grid);
-            widget.add(toolBar);
+            widget.setBottomComponent(toolBar);
         }
         return widget;
     }
@@ -235,6 +240,19 @@ public class GridWidget<M extends IModelDataWithID>
                 items.add(startIx++, item);
             }
         }
+
+        @Override
+        public void bind(PagingLoader<?> pagingLoader)
+        {
+            super.bind(pagingLoader);
+            pagingLoader.addListener(Loader.Load, new Listener<BaseEvent>()
+                {
+                    public void handleEvent(BaseEvent be)
+                    {
+                        syncSize();
+                    }
+                });
+        }
     }
 
     private static <M extends ModelData> List<Component> createFilterItems(
@@ -256,7 +274,6 @@ public class GridWidget<M extends IModelDataWithID>
     {
         Grid<M> grid = new Grid<M>(new ListStore<M>(), new ColumnModel(columnConfigs));
         grid.setHeight(Constants.GRID_HEIGHT);
-        grid.setAutoWidth(true);
         grid.setView(new ExtendedGridView());
         return grid;
     }
