@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 
 /**
  * Abstract superclass that defines the interface for tab panels.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public abstract class MainPageTabPanel extends SimplePanel
+public abstract class MainPageTabPanel extends TabPanel
 {
 
     /**
@@ -37,6 +37,7 @@ public abstract class MainPageTabPanel extends SimplePanel
     public MainPageTabPanel()
     {
         super();
+
     }
 
     public abstract void showTab(Tab tab);

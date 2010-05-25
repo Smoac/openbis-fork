@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
@@ -48,14 +47,10 @@ final class InviteTabController extends AbstractMainPageTabController
     protected final Widget getWidget()
     {
         final ContentPanel contentPanel = createOutermostWidgetContainer();
-        Model model = context.getModel();
-        final UserInfoDTO user = model.getUser();
+        final UserInfoDTO user = context.getModel().getUser();
         ContentPanel createUserPanel = createUserPanel(user.isAdmin(), context);
+        addWidgetRow(contentPanel, createUserPanel);
         createListCreatedUserPanel(contentPanel, context);
-        if (user.isPermanent() && user.isAdmin() == false)
-        {
-            contentPanel.add(createUserPanel);
-        }
         return contentPanel;
     }
 
@@ -74,8 +69,9 @@ final class InviteTabController extends AbstractMainPageTabController
         // Delete user function
         gridWidget.getGrid().addListener(Events.CellClick,
                 new UserActionGridCellListener(context, null, gridWidget));
-        addTitlePart(listCreatedUserPanel, context.getMessageResources().getOwnUserTitle());
-        listCreatedUserPanel.add(gridWidget.getWidget());
+        addTitleRow(listCreatedUserPanel, context.getMessageResources().getOwnUserTitle());
+        addWidgetRow(listCreatedUserPanel, gridWidget.getWidget());
+
         context.getCifexService().listUsersOwnedBy(context.getModel().getUser().getID(),
                 new CreatedUserAsyncCallback(context, gridWidget));
     }

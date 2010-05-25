@@ -35,12 +35,11 @@ package ch.systemsx.cisd.cifex.client.application.page;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
@@ -52,9 +51,6 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public final class MainPageTabPanelGXT extends MainPageTabPanel
 {
-
-    private final TabPanel tabPanel;
-
     private final ShareTabController shareTab;
 
     private final TabItem shareTabItem;
@@ -79,7 +75,6 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
     {
         this.context = context;
         fileGridWidgets = new ArrayList<GridWidget<AbstractFileGridModel>>(3);
-        tabPanel = new TabPanel();
 
         // The Share tab and Inbox tab are always shown
         shareTab = new ShareTabController(this.context, fileGridWidgets);
@@ -118,8 +113,6 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         }
 
         initializePanel();
-
-        setWidget(tabPanel);
     }
 
     @Override
@@ -128,21 +121,21 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         switch (tab)
         {
             case INBOX_TAB:
-                tabPanel.setSelection(inboxTabItem);
+                setSelection(inboxTabItem);
                 break;
             case INVITE_TAB:
                 if (inviteTabItemOrNull != null)
                 {
-                    tabPanel.setSelection(inviteTabItemOrNull);
+                    setSelection(inviteTabItemOrNull);
                 }
                 break;
             case SHARE_TAB:
-                tabPanel.setSelection(shareTabItem);
+                setSelection(shareTabItem);
                 break;
             case ADMIN_TAB:
                 if (adminTabItemOrNull != null)
                 {
-                    tabPanel.setSelection(adminTabItemOrNull);
+                    setSelection(adminTabItemOrNull);
                 }
                 break;
         }
@@ -151,33 +144,30 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
     private final void initializePanel()
     {
         // Add the tabs
-        tabPanel.add(shareTabItem);
-        tabPanel.add(inboxTabItem);
+        add(shareTabItem);
+        add(inboxTabItem);
 
         if (context.getModel().getUser().isPermanent() && inviteTabItemOrNull != null)
         {
-            tabPanel.add(inviteTabItemOrNull);
+            add(inviteTabItemOrNull);
         }
 
         if (context.getModel().getUser().isAdmin() && adminTabOrNull != null)
         {
-            tabPanel.add(adminTabItemOrNull);
+            add(adminTabItemOrNull);
         }
 
-        tabPanel.ensureDebugId("cifex-tabpanel");
+        ensureDebugId("cifex-tabpanel");
     }
 
     private TabItem createTabItem(String name, final AbstractMainPageTabController tabController)
     {
         final TabItem tabItem = new TabItem(name);
+        tabItem.setLayout(new FitLayout());
         tabItem.setClosable(false);
         tabItem.add(tabController.getWidget());
-        tabItem.setScrollMode(Scroll.AUTO);
-        // WORKAROUND: set height to 95% to ensure also the toolbar of the bottom grid is shown.
-        tabItem.setSize("100%", "95%");
         tabItem.addListener(Events.Select, new Listener<TabPanelEvent>()
             {
-
                 public void handleEvent(TabPanelEvent be)
                 {
                     context.getPageController().setCurrentPage(tabController.getPageIdentifier());
@@ -186,4 +176,5 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
             });
         return tabItem;
     }
+
 }

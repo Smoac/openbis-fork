@@ -60,12 +60,12 @@ class AdminTabController extends AbstractMainPageTabController
     {
         final ContentPanel mainPanel = createOutermostWidgetContainer();
         ContentPanel createUserPanel = createUserPanel(true, context);
-        mainPanel.add(createUserPanel);
+        addWidgetRow(mainPanel, createUserPanel);
 
         GridWidget<AbstractFileGridModel> filesGrid =
                 createFileTable(new OwnerFileInfoDTO[0], context, fileGridWidgets);
-        addTitlePart(mainPanel, context.getMessageResources().getFilesPartTitle());
-        mainPanel.add(filesGrid.getWidget());
+        addTitleRow(mainPanel, context.getMessageResources().getFilesPartTitle());
+        addWidgetRow(mainPanel, filesGrid.getWidget());
 
         createListUserGrid(mainPanel, filesGrid, context);
         loadListFileGrid(filesGrid, context);
@@ -82,7 +82,7 @@ class AdminTabController extends AbstractMainPageTabController
     static private final void createListUserGrid(ContentPanel listUserPanel,
             GridWidget<AbstractFileGridModel> filesGrid, ViewContext context)
     {
-        addTitlePart(listUserPanel, context.getMessageResources().getUsersPartTitle());
+        addTitleRow(listUserPanel, context.getMessageResources().getUsersPartTitle());
         final GridWidget<UserGridModel> userGridWidget =
                 GridUtils.createUserGrid(new ArrayList<UserInfoDTO>(), context);
         userGridWidget.getGrid().getView().setEmptyText(
@@ -90,14 +90,13 @@ class AdminTabController extends AbstractMainPageTabController
         // Delete user and change code function
         userGridWidget.getGrid().addListener(Events.CellClick,
                 new UserActionGridCellListener(context, filesGrid, userGridWidget));
-        // WORKAROUND: without this the horizontal scroll bar is not fully visible in GXT 2.1.0 
-        userGridWidget.getWidget().setWidth("99%");
-        listUserPanel.add(userGridWidget.getWidget());
+        addWidgetRow(listUserPanel, userGridWidget.getWidget());
         context.getCifexService().listUsers(new UserAsyncCallback(context, userGridWidget));
     }
 
     private static final GridWidget<AbstractFileGridModel> createFileTable(
-            final OwnerFileInfoDTO[] files, ViewContext context, final List<GridWidget<AbstractFileGridModel>> fileGridWidgets)
+            final OwnerFileInfoDTO[] files, ViewContext context,
+            final List<GridWidget<AbstractFileGridModel>> fileGridWidgets)
     {
         List<AbstractFileGridModel> modelData =
                 AdminFileGridModel.convert(context.getMessageResources(), Arrays.asList(files));
@@ -117,12 +116,9 @@ class AdminTabController extends AbstractMainPageTabController
         fileGridWidgets.add(gridWidget);
 
         grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
-        grid
-                .addListener(Events.CellClick, new AdminFileActionGridCellListener(context,
-                        gridWidget, fileGridWidgets));
+        grid.addListener(Events.CellClick, new AdminFileActionGridCellListener(context, gridWidget,
+                fileGridWidgets));
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
-        // WORKAROUND: without this the horizontal scroll bar is not fully visible in GXT 2.1.0 
-        gridWidget.getWidget().setWidth("99%");
         return gridWidget;
     }
 

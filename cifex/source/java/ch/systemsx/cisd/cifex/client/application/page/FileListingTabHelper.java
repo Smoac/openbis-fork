@@ -29,7 +29,7 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.layout.FlowData;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
@@ -112,13 +112,11 @@ class FileListingTabHelper
         grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
 
-        AbstractMainPageTabController.addTitlePart(contentPanel, messageResources
+        AbstractMainPageTabController.addTitleRow(contentPanel, messageResources
                 .getDownloadFilesPartTitle());
-        contentPanel.add(gridWidget.getWidget());
+        AbstractMainPageTabController.addWidgetRow(contentPanel, gridWidget.getWidget());
 
         addWebStartDownloadClientLink(messageResources, contentPanel);
-
-        contentPanel.layout();
 
         context.getCifexService().listDownloadFiles(
                 new AbstractAsyncCallback<List<FileInfoDTO>>(context)
@@ -142,7 +140,7 @@ class FileListingTabHelper
     private static void addWebStartDownloadClientLink(IMessageResources messageResources,
             final ContentPanel verticalPanel)
     {
-        AbstractMainPageTabController.addTitlePart(verticalPanel, messageResources
+        AbstractMainPageTabController.addTitleRow(verticalPanel, messageResources
                 .getDownloadFilesPartTitleGreater2GB());
 
         String webStartTitle = messageResources.getLaunchJWSApplicationTitle();
@@ -161,9 +159,10 @@ class FileListingTabHelper
         launchButton.setHeight(30);
         launchButton.setIconAlign(IconAlign.LEFT);
 
-        verticalPanel.add(launchButton, new FlowData(new Margins(20)));
-        verticalPanel.add(new Html(messageResources.getJavaDownloaderPros()), new FlowData(
-                new Margins(0, 0, 0, 10)));
+        verticalPanel.add(launchButton, new RowData(-1, -1, new Margins(20, 20, 20,
+                20 + AbstractMainPageTabController.LEFT_MARGIN)));
+        verticalPanel.add(new Html(messageResources.getJavaDownloaderPros()), new RowData(-1, -1,
+                new Margins(0, 10, 10, 10 + AbstractMainPageTabController.LEFT_MARGIN)));
     }
 
     static void createListOwnedFilesGrid(final ViewContext context,
@@ -189,9 +188,10 @@ class FileListingTabHelper
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
         grid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(context,
                 gridWidget, fileGridWidgets, quotaUpdaterOrNull));
-        AbstractMainPageTabController.addTitlePart(contentPanel, messageResources
+        AbstractMainPageTabController.addTitleRow(contentPanel, messageResources
                 .getSharedFilesPartTitle());
-        contentPanel.add(gridWidget.getWidget());
+        AbstractMainPageTabController.addWidgetRow(contentPanel, gridWidget.getWidget());
+
         context.getCifexService().listOwnedFiles(
                 new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(context)
                     {

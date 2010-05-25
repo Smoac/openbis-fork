@@ -19,7 +19,6 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 import java.util.Date;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -66,6 +65,8 @@ public abstract class UserWidget extends LayoutContainer
     private static final int FIELD_WIDTH = 175;
 
     public static final int TOTAL_WIDTH = 700;
+
+    public static final int COLUMN_WIDTH = 320;
 
     protected final ViewContext context;
 
@@ -143,7 +144,6 @@ public abstract class UserWidget extends LayoutContainer
     {
         setLayout(new FlowLayout(5));
         setBorders(false);
-        setScrollMode(Scroll.AUTO);
         setWidth(TOTAL_WIDTH);
         this.context = context;
         this.addStatusField = addStatusField;
@@ -256,7 +256,7 @@ public abstract class UserWidget extends LayoutContainer
     private FormColumn createRigthColumn(FormData formData)
     {
         FormColumn right = new FormColumn(formData);
-        right.setStyleAttribute("paddingLeft", "10px");
+        right.setStyleAttribute("paddingRight", "20px");
         final UserInfoDTO currentUser = context.getModel().getUser();
         if (currentUser.isAdmin())
         {
@@ -303,7 +303,7 @@ public abstract class UserWidget extends LayoutContainer
     private FormColumn createLeftColumn(FormData formData)
     {
         FormColumn left = new FormColumn(formData);
-        left.setStyleAttribute("paddingRight", "10px");
+        left.setStyleAttribute("paddingRight", "20px");
         left.addField(userCodeField = createUserCodeField());
         left.addField(usernameField = createUsernameField());
         // only add it, if a new user is created, not when editing a user.
@@ -350,8 +350,8 @@ public abstract class UserWidget extends LayoutContainer
 
         LayoutContainer main = new LayoutContainer();
         main.setLayout(new ColumnLayout());
-        main.add(createLeftColumn(formData), new ColumnData(300));
-        main.add(createRigthColumn(formData), new ColumnData(300));
+        main.add(createLeftColumn(formData), new ColumnData(COLUMN_WIDTH));
+        main.add(createRigthColumn(formData), new ColumnData(COLUMN_WIDTH));
 
         formPanel.add(main);
 
@@ -468,10 +468,11 @@ public abstract class UserWidget extends LayoutContainer
                 createTextField(getMessageResources().getUserEmailLabel());
         textField
                 .setValidator(CifexValidator.getEmailFieldValidator(context.getMessageResources()));
-        // Allow a blank email field if and only if the request user is an admin, it is a user 
+        // Allow a blank email field if and only if the request user is an admin, it is a user
         // creation mode and the system has an external authentication service.
         final boolean allowBlankEmail =
-                (editUser == null) && context.getModel().getUser().isAdmin()
+                (editUser == null)
+                        && context.getModel().getUser().isAdmin()
                         && context.getModel().getConfiguration()
                                 .getSystemHasExternalAuthentication();
         textField.setAllowBlank(allowBlankEmail);

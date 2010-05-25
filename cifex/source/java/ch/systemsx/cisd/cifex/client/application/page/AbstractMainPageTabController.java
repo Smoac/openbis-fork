@@ -18,13 +18,15 @@ package ch.systemsx.cisd.cifex.client.application.page;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.layout.FlowData;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
@@ -41,6 +43,8 @@ import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
  */
 public abstract class AbstractMainPageTabController
 {
+    public final static int LEFT_MARGIN = 20;
+
     protected final ViewContext context;
 
     protected final List<GridWidget<AbstractFileGridModel>> fileGridWidgets;
@@ -67,7 +71,7 @@ public abstract class AbstractMainPageTabController
      * since a listener is automatically added to the container which informs the page context about
      * tab changes.
      */
-    protected ContentPanel createOutermostWidgetContainer()
+    protected ContentPanel createOutermostWidgetContainerMonitoringWindowResize()
     {
         ContentPanel container = new ContentPanel()
             {
@@ -105,34 +109,71 @@ public abstract class AbstractMainPageTabController
         // }
     }
 
+    /**
+     * Create a container for the widget with row layout. Subclasses should call this for their
+     * layout container, since a listener is automatically added to the container which informs the
+     * page context about tab changes.
+     */
+    protected ContentPanel createOutermostWidgetContainer()
+    {
+        ContentPanel container = new ContentPanel();
+        container.setHeaderVisible(false);
+        container.setFrame(false);
+
+        RowLayout layout = new RowLayout();
+        layout.setAdjustForScroll(true);
+        container.setLayout(layout);
+        container.addListener(Events.Show, new Listener<ComponentEvent>()
+            {
+
+                public void handleEvent(ComponentEvent be)
+                {
+                    context.getPageController().setCurrentPage(getPageIdentifier());
+                }
+            });
+        container.setScrollMode(Scroll.AUTOY);
+        return container;
+    }
+
     public static final ContentPanel createContainer()
     {
         final ContentPanel container = new ContentPanel();
+        container.setLayout(new RowLayout());
+        container.setScrollMode(Scroll.AUTOX);
         container.setHeaderVisible(false);
         return container;
     }
 
-    public static final void addTitlePart(ContentPanel container, final String text)
+    public static final void addWidgetRow(ContentPanel container, final Widget widget)
+    {
+        container.add(widget, new RowData(1, -1, new Margins(0, 0, 0, LEFT_MARGIN)));
+    }
+
+    public static final void addTitleRow(ContentPanel container, final String text)
     {
         final Html html = new Html(text);
         html.setStyleName("cifex-heading");
-        container.add(html, new FlowData(new Margins(3, 0, 0, 0)));
+        container.add(html, new RowData(1, -1, new Margins(3, 0, 0, LEFT_MARGIN)));
+    }
+
+    public static final void addTitleRowWithoutLeftMargin(ContentPanel container, final String text)
+    {
+        final Html html = new Html(text);
+        html.setStyleName("cifex-heading");
+        container.add(html, new RowData(1, -1, new Margins(3, 0, 0, 0)));
     }
 
     protected static final ContentPanel createUserPanel(final boolean allowPermanentUsers,
             ViewContext context)
     {
         ContentPanel createUserPanel = createContainer();
-        if (allowPermanentUsers)
-        {
-            addTitlePart(createUserPanel, context.getMessageResources().getAdminCreateUserLabel());
-        } else
-        {
-            addTitlePart(createUserPanel, context.getMessageResources().getCreateUserLabel());
-        }
+        String panelLabel =
+                allowPermanentUsers ? context.getMessageResources().getAdminCreateUserLabel()
+                        : context.getMessageResources().getCreateUserLabel();
+        addTitleRowWithoutLeftMargin(createUserPanel, panelLabel);
         final CreateUserWidget createUserWidget =
                 new CreateUserWidget(context, allowPermanentUsers);
-        createUserPanel.add(createUserWidget);
+        createUserPanel.add(createUserWidget, new RowData(1, -1, new Margins(5)));
         return createUserPanel;
     }
 }

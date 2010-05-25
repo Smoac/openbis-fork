@@ -18,8 +18,9 @@ package ch.systemsx.cisd.cifex.client.application.page;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.layout.FlowData;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -60,7 +61,9 @@ class ShareTabController extends AbstractMainPageTabController
         final IQuotaInformationUpdater quotaInformationUpdater =
                 new QuotaInformationUpdater(explanationWidget);
         quotaInformationUpdater.triggerUpdate();
-        contentPanel.add(createUploadPart(explanationWidget));
+        addTitleRow(contentPanel, context.getMessageResources().getUploadFilesPartTitle());
+        addWidgetRow(contentPanel, createUploadPart(explanationWidget));
+
         FileListingTabHelper.createListOwnedFilesGrid(context, contentPanel, fileGridWidgets,
                 quotaInformationUpdater);
         return contentPanel;
@@ -70,11 +73,6 @@ class ShareTabController extends AbstractMainPageTabController
     protected void onOutermostContainerWindowResize(int aWidth, int aHeight)
     {
         fileUploadWidget.onOutermostContainerWindowResize(aWidth, aHeight);
-        for (GridWidget<AbstractFileGridModel> gridWidget : fileGridWidgets)
-        {
-            gridWidget.getGrid().getView().layout();
-            gridWidget.getWidget().layout(true);
-        }
     }
 
     private String createExplanationText()
@@ -102,9 +100,8 @@ class ShareTabController extends AbstractMainPageTabController
     private ContentPanel createUploadPart(HTML explanationWidget)
     {
         final ContentPanel verticalPanel = createContainer();
-        addTitlePart(verticalPanel, context.getMessageResources().getUploadFilesPartTitle());
-        verticalPanel.add(explanationWidget);
-        verticalPanel.add(fileUploadWidget, new FlowData(5));
+        verticalPanel.add(explanationWidget, new RowData(1, -1, new Margins(2, 5, 2, 5)));
+        verticalPanel.add(fileUploadWidget, new RowData(1, -1));
         return verticalPanel;
     }
 

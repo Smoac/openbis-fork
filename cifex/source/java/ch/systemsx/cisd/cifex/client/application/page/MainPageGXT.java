@@ -70,7 +70,7 @@ public final class MainPageGXT extends Viewport
         add(createHeaderWidget(), headerLayoutData);
 
         BorderLayoutData centerLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
-        centerLayoutData.setMargins(new Margins(0, 10, 0, 10));
+        centerLayoutData.setMargins(new Margins(0, 10, 10, 10));
         add(this.tabPanel, centerLayoutData);
 
     }
