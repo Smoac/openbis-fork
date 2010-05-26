@@ -8,7 +8,7 @@
             </run>
         </groups>
         <packages>
-            <package name="ch.systemsx.cisd.plasmid.dss.*" />
+            <package name="ch.ethz.bsse.cisd.plasmid.dss.*" />
         </packages>
     </test>
 </suite>
