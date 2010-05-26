@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.assertEquals;
+import java.util.Properties;
 
+import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -26,7 +27,7 @@ import org.testng.annotations.Test;
  * 
  * @author Christian Ribeaud
  */
-public final class ExtendedPropertiesTest
+public final class ExtendedPropertiesTest extends AssertJUnit
 {
     private ExtendedProperties extendedProperties;
 
@@ -38,7 +39,7 @@ public final class ExtendedPropertiesTest
         props.setProperty("un", "${one}");
         props.setProperty("two", "zwei");
         props.setProperty("three", "drei");
-        props.setProperty("four", "${one}${three}");
+        props.setProperty("four", "${un}${three}");
         extendedProperties = props;
     }
 
@@ -59,7 +60,7 @@ public final class ExtendedPropertiesTest
     {
         assertEquals("eins", extendedProperties.getProperty("one"));
         assertEquals("eins", extendedProperties.getProperty("un"));
-        assertEquals("einsdrei", extendedProperties.getProperty("four"));
+        assertEquals("einsdrei", extendedProperties.getProperty("four", "abc"));
     }
 
     @Test
@@ -116,7 +117,108 @@ public final class ExtendedPropertiesTest
     public final void testGetUnalteredProperty()
     {
         assertEquals("${one}", extendedProperties.getUnalteredProperty("un"));
-        System.out.println(extendedProperties);
+    }
+    
+    @Test
+    public final void testGetPropertyWithInheritTree()
+    {
+        Properties properties = new Properties();
+        properties.setProperty("default.code", "42");
+        properties.setProperty("type.code", "ABC-${default.code}");
+        properties.setProperty("type.label", "abc");
+        properties.setProperty("validator.order", "1");
+        properties.setProperty("validator.type.", "type.");
+        properties.setProperty("my.validator.", "validator.");
+        properties.setProperty("my.validator.order", "2");
+        properties.setProperty("my.validator.type.label", "a-b-c");
+        properties.setProperty("another.validator.", "my.validator.");
+        properties.setProperty("another.validator.type.code", "alpha-${default.code}");
+        Properties props = ExtendedProperties.createWith(properties);
+        
+        assertEquals("2", props.getProperty("my.validator.order"));
+        assertEquals("ABC-42", props.getProperty("my.validator.type.code"));
+        assertEquals("a-b-c", props.getProperty("my.validator.type.label"));
+        assertEquals("2", props.getProperty("another.validator.order"));
+        assertEquals("alpha-42", props.getProperty("another.validator.type.code"));
+        assertEquals("a-b-c", props.getProperty("another.validator.type.label"));
+    }
+    
+    @Test
+    public final void testGetPropertyWithCyclicInheritance()
+    {
+        Properties properties = new Properties();
+        properties.setProperty("a.", "b.");
+        properties.setProperty("b.", "a.");
+        properties.setProperty("my.", "b.");
+        Properties props = ExtendedProperties.createWith(properties);
+
+        try
+        {
+            props.getProperty("my.code");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Cyclic definition of property 'b.code'.", ex.getMessage());
+        }
     }
 
+    @Test
+    public final void testGetSubsetDroppingPrefixWithInheritTree()
+    {
+        ExtendedProperties properties = new ExtendedProperties();
+        properties.setProperty("default.code", "42");
+        properties.setProperty("type.code", "ABC-${default.code}");
+        properties.setProperty("type.label", "abc");
+        properties.setProperty("validator.order", "1");
+        properties.setProperty("validator.type.", "type.");
+        properties.setProperty("my.validator.", "validator.");
+        properties.setProperty("my.validator.order", "2");
+        properties.setProperty("my.validator.type.label", "a-b-c");
+        Properties subset = properties.getSubset("my.validator.", true);
+        
+        assertEquals("2", subset.getProperty("order"));
+        assertEquals("ABC-42", subset.getProperty("type.code"));
+        assertEquals("a-b-c", subset.getProperty("type.label"));
+        assertEquals(3, subset.size());
+    }
+    
+    @Test
+    public final void testGetSubsetNotDroppingPrefixWithInheritTree()
+    {
+        ExtendedProperties properties = new ExtendedProperties();
+        properties.setProperty("default.code", "42");
+        properties.setProperty("type.code", "ABC-${default.code}");
+        properties.setProperty("type.label", "abc");
+        properties.setProperty("validator.order", "1");
+        properties.setProperty("validator.type.", "type.");
+        properties.setProperty("my.validator.", "validator.");
+        properties.setProperty("my.validator.order", "2");
+        properties.setProperty("my.validator.type.label", "a-b-c");
+        Properties subset = properties.getSubset("my.", false);
+
+        assertEquals("2", subset.getProperty("my.validator.order"));
+        assertEquals("ABC-42", subset.getProperty("my.validator.type.code"));
+        assertEquals("a-b-c", subset.getProperty("my.validator.type.label"));
+        assertEquals(3, subset.size());
+    }
+
+    
+    @Test
+    public final void testGetSubsetWithCyclicInheritance()
+    {
+        Properties properties = new Properties();
+        properties.setProperty("a.", "b.");
+        properties.setProperty("b.", "a.");
+        properties.setProperty("my.", "b.");
+        ExtendedProperties props = ExtendedProperties.createWith(properties);
+        
+        try
+        {
+            props.getSubset("my.", true);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex) {
+            assertEquals("Cyclic definition of property 'b.'.", ex.getMessage());
+        }
+    }
+    
 }
