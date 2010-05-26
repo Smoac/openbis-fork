@@ -16,8 +16,6 @@
 
 package eu.basysbio.cisd.dss;
 
-import static eu.basysbio.cisd.dss.HeaderUtils.TIME_SERIES_HEADER_PROPERTIES;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,7 +53,7 @@ public class LcaMicDataSetPropertiesExtractorTest extends AbstractFileSystemTest
         IDataSetPropertiesExtractor extractor =
                 new LcaMicDataSetPropertiesExtractor(new Properties());
         List<NewProperty> props = extractor.extractDataSetProperties(ds);
-        assertEquals(TIME_SERIES_HEADER_PROPERTIES.length + 1, props.size());
+        assertEquals(13, props.size());
         Map<String, String> map = new HashMap<String, String>();
         for (NewProperty property : props)
         {
@@ -70,6 +68,7 @@ public class LcaMicDataSetPropertiesExtractorTest extends AbstractFileSystemTest
         assertEquals("LIN", map.get(TimeSeriesPropertyType.SCALE_LIST.toString()));
         assertEquals("T1", map.get(TimeSeriesPropertyType.TECHNICAL_REPLICATE_CODE_LIST.toString()));
         assertEquals("0", map.get(TimeSeriesPropertyType.TIME_POINT_LIST.toString()));
+        assertEquals("EX", map.get(TimeSeriesPropertyType.TIME_POINT_TYPE.toString()));
         assertEquals("LcaMicAbsFl, LcaMicCfd", map.get(TimeSeriesPropertyType.TIME_SERIES_DATA_SET_TYPE.toString()));
         assertEquals(null, map.get(TimeSeriesPropertyType.UPLOADER_EMAIL.toString()));
         assertEquals("Mean[Au], Std[Au], Value[um]", map.get(TimeSeriesPropertyType.VALUE_TYPE_LIST.toString()));
