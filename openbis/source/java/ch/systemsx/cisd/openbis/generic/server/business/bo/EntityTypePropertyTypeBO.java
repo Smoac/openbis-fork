@@ -141,19 +141,19 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                 throw new UserFailureException(String.format(errorMsgTemplate, size, entityKind
                         .getLabel(), createPlural(size), entityType.getCode()));
             }
-        }
-        PersonPE registrator = findRegistrator();
-        String validatedValue =
-                propertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
-                        defaultValue);
-        for (IEntityPropertiesHolder entity : entities)
-        {
-            final EntityPropertyPE property =
-                    propertiesConverter.createValidatedProperty(propertyType, assignment,
-                            registrator, validatedValue);
-            if (property != null)
+            PersonPE registrator = findRegistrator();
+            String validatedValue =
+                    propertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
+                            defaultValue);
+            for (IEntityPropertiesHolder entity : entities)
             {
-                entity.addProperty(property);
+                final EntityPropertyPE property =
+                        propertiesConverter.createValidatedProperty(propertyType, assignment,
+                                registrator, validatedValue);
+                if (property != null)
+                {
+                    entity.addProperty(property);
+                }
             }
         }
     }
