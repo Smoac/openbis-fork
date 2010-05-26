@@ -107,7 +107,7 @@ public enum DataHeaderProperty
             return header.getControlledGene();
         }
     },
-    GROWTH_PHASE
+    GROWTH_PHASE(true)
     {
         @Override
         String getValue(DataColumnHeader header)
@@ -115,7 +115,7 @@ public enum DataHeaderProperty
             return header.getGrowthPhase();
         }
     },
-    GENOTYPE
+    GENOTYPE(true)
     {
         @Override
         String getValue(DataColumnHeader header)
@@ -123,6 +123,23 @@ public enum DataHeaderProperty
             return header.getGenotype();
         }
     };
+    
+    private final boolean optional;
+
+    private DataHeaderProperty()
+    {
+        this(false);
+    }
+    
+    private DataHeaderProperty(boolean optional)
+    {
+        this.optional = optional;
+    }
+
+    public final boolean isOptional()
+    {
+        return optional;
+    }
 
     abstract String getValue(DataColumnHeader header);
 }

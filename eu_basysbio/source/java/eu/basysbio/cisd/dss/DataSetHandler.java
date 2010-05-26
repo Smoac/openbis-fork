@@ -43,7 +43,6 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     static final String LCA_MTP_PCAV_TIME_SERIES = "LCA_MTP_PCAV_TIME_SERIES";
     static final String LCA_MIC_TIME_SERIES = "LCA_MIC_TIME_SERIES";
     static final String LCA_MIC = "LCA_MIC";
-    static final String CHIP_CHIP = "CHIP_CHIP";
 
     private final IEncapsulatedOpenBISService service;
 

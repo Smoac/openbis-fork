@@ -194,6 +194,10 @@ class HeaderUtils
         String propertyValue =
                 HeaderUtils.getPropertyValue(timeSeriesPropertyType.getHeaderProperty(),
                         map, multipleValuesAllowed || timeSeriesPropertyType.isMultipleValues());
+        if (propertyValue == null)
+        {
+            return null;
+        }
         NewProperty newProperty = new NewProperty(timeSeriesPropertyType.name(), propertyValue);
         return newProperty;
     }
@@ -342,7 +346,17 @@ class HeaderUtils
         List<NewProperty> headerProperties = new ArrayList<NewProperty>();
         for (TimeSeriesPropertyType pt : TIME_SERIES_HEADER_PROPERTIES)
         {
-            headerProperties.add(extractProperty(pt, multipleValuesAllowed, values));
+            NewProperty property = extractProperty(pt, multipleValuesAllowed, values);
+            if (property == null)
+            {
+                if (pt.isOptional() == false)
+                {
+                    throw new UserFailureException("Header property '" + pt + "' missing.");
+                }
+            } else
+            {
+                headerProperties.add(property);
+            }
         }
         return headerProperties;
     }

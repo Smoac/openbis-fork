@@ -75,6 +75,11 @@ enum TimeSeriesPropertyType {
 		this.headerPropertyOrNull = headerPropertyOrNull;
 		this.multipleValues = multipleValues;
 	}
+	
+	boolean isOptional()
+	{
+	    return headerPropertyOrNull == null ? false : headerPropertyOrNull.isOptional();
+	}
 
 	public DataHeaderProperty getHeaderProperty() {
 		if (headerPropertyOrNull == null) {

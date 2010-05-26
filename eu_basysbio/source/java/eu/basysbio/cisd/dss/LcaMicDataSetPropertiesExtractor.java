@@ -38,7 +38,7 @@ class LcaMicDataSetPropertiesExtractor extends DataSetPropertiesExtractor
 
     LcaMicDataSetPropertiesExtractor(Properties properties)
     {
-        super(properties);
+        super(properties, true);
     }
 
     @Override

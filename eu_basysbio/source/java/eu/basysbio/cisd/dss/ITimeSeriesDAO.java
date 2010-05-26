@@ -58,7 +58,7 @@ public interface ITimeSeriesDAO extends BaseQuery
     @Select("insert into data_columns (experiment_code, cultivation_method, "
             + "   biological_replicate_code, time_point, time_point_type, technical_replicate_code, "
             + "   celloc, time_series_data_set_type, value_type, scale, bi_id, controlled_gene, "
-            + "   dase_id, samp_id) "
+            + "   growth_phase, genotype, dase_id, samp_id) "
             + "values (?{1.experimentCode}, ?{1.cultivationMethod}, ?{1.biologicalReplicateCode}, "
             + "   ?{1.timePoint}, ?{1.timePointType}, ?{1.technicalReplicateCode}, ?{1.celLoc}, "
             + "   ?{1.timeSeriesDataSetType}, ?{1.valueType}, ?{1.scale}, ?{1.biID}, ?{1.controlledGene}, "

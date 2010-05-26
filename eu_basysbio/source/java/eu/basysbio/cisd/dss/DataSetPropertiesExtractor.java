@@ -31,9 +31,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 class DataSetPropertiesExtractor implements IDataSetPropertiesExtractor
 {
     protected final boolean ignoreEmptyLines;
+    private final boolean allowMultipleValues;
     
-    DataSetPropertiesExtractor(Properties properties)
+    DataSetPropertiesExtractor(Properties properties, boolean allowMultipleValues)
     {
+        this.allowMultipleValues = allowMultipleValues;
         ignoreEmptyLines =
                 PropertyUtils.getBoolean(properties,
                         TimeSeriesDataSetUploaderParameters.IGNORE_EMPTY_LINES_KEY, true);
@@ -41,7 +43,7 @@ class DataSetPropertiesExtractor implements IDataSetPropertiesExtractor
 
     public List<NewProperty> extractDataSetProperties(File incomingDataSetPath)
     {
-        return HeaderUtils.extractHeaderProperties(incomingDataSetPath, ignoreEmptyLines, false, false);
+        return HeaderUtils.extractHeaderProperties(incomingDataSetPath, ignoreEmptyLines, false, allowMultipleValues);
     }
 
 }

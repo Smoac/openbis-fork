@@ -53,7 +53,13 @@ public class DataSetInfoExtractor implements IDataSetInfoExtractor
         this.properties = globalProperties;
         infoExtractor = new CifexDataSetInfoExtractor(globalProperties);
         typeExtractor = new CifexTypeExtractor(globalProperties);
-        defaultExtractor = new DataSetPropertiesExtractor(properties);
+        defaultExtractor = new DataSetPropertiesExtractor(properties, true);
+        DataSetPropertiesExtractor timeSeriesExtractor = new DataSetPropertiesExtractor(properties, false);
+        propertiesExtractors.put(DataSetHandler.TIME_SERIES, timeSeriesExtractor);
+        propertiesExtractors.put(DataSetHandler.LCA_MTP_TIME_SERIES, timeSeriesExtractor);
+        propertiesExtractors.put(DataSetHandler.LCA_MTP_PCAV_TIME_SERIES, timeSeriesExtractor);
+        propertiesExtractors.put(DataSetHandler.LCA_MIC_TIME_SERIES, timeSeriesExtractor);
+
         propertiesExtractors.put(DataSetHandler.LCA_MIC, new LcaMicDataSetPropertiesExtractor(properties));
     }
 
