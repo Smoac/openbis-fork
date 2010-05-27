@@ -168,7 +168,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link Person}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public List<Person> listPersons(String sessionToken);
 
     /**
