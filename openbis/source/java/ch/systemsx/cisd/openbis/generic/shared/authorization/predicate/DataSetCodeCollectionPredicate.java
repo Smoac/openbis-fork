@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * A {@link IPredicate} based on a list of data set codes.
  * 
- * @author Franz-Josef Elmer
+ * @author Chandrasekhar Ramakrishnan
  */
 @ShouldFlattenCollections(value = false)
 public class DataSetCodeCollectionPredicate extends AbstractGroupPredicate<List<String>>
