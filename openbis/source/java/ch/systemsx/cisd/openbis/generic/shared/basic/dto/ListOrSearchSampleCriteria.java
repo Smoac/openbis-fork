@@ -43,6 +43,8 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 
     private Collection<Long> sampleIds;
 
+    private final String[] sampleCodes;
+
     private boolean enrichDependentSamplesWithProperties = false;
 
     /** Creates criteria that delegates to given {@link ListSampleCriteria}. */
@@ -50,6 +52,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         assert listCriteria != null;
         this.listCriteria = listCriteria;
+        this.sampleCodes = null;
     }
 
     /** Creates criteria that delegates to given {@link TrackingSampleCriteria}. */
@@ -57,6 +60,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         assert newTrackingCriteria != null;
         this.newTrackingCriteria = newTrackingCriteria;
+        this.sampleCodes = null;
     }
 
     /** Creates criteria for detailed search of samples with given ids. */
@@ -64,6 +68,16 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         assert sampleIds != null;
         this.sampleIds = sampleIds;
+        this.sampleCodes = null;
+    }
+
+    /** Creates criteria for detailed search of samples with codes. */
+    public ListOrSearchSampleCriteria(final String[] sampleCodes)
+    {
+        // Need to add the type to disambiguate method signatures for erased generic types.
+        assert sampleCodes != null;
+
+        this.sampleCodes = sampleCodes;
     }
 
     // search
@@ -71,6 +85,11 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     public Collection<Long> getSampleIds()
     {
         return sampleIds;
+    }
+
+    public String[] trySampleCodes()
+    {
+        return sampleCodes;
     }
 
     // delegation to NewTrackingSampleCriteria
@@ -149,5 +168,4 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         this.enrichDependentSamplesWithProperties = enrichDependentSamplesWithProperties;
     }
-
 }

@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntity
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -151,8 +152,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "       s.samp_id_generated_from, s.registration_timestamp, s.modification_timestamp, "
             + "       s.pers_id_registerer, s.samp_id_part_of, s.inva_id "
             + "   from samples s join groups g on s.grou_id=g.id "
-            + "   where s.expe_id is not null and g.dbin_id=?{1} " 
-            + "   order by s.code", fetchSize = FETCH_SIZE)
+            + "   where s.expe_id is not null and g.dbin_id=?{1} " + "   order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getAllGroupSamplesWithExperiment(long dbInstanceId);
 
     /**
@@ -162,8 +162,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s join groups g on s.grou_id=g.id "
-            + "   where g.dbin_id=?{1} and s.saty_id=?{2}" 
-            + "      order by s.code", fetchSize = FETCH_SIZE)
+            + "   where g.dbin_id=?{1} and s.saty_id=?{2}" + "      order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getAllGroupSamplesForSampleType(long dbInstanceId,
             long sampleTypeId);
 
@@ -222,8 +221,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "       select samp_id from sample_properties sp where sp.stpt_id in ("
             + "              select id from sample_type_property_types stpt where stpt.prty_id = "
             + "                     (select id from property_types where code=?{2})"
-            + "              ) and value=?{3}" 
-            + "       ) and not id = any(?{4})", parameterBindings =
+            + "              ) and value=?{3}" + "       ) and not id = any(?{4})", parameterBindings =
         { TypeMapper.class, TypeMapper.class, TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamplesWithPropertyValue(long sampleTypeId,
             String propertyTypeCode, String propertyValue, LongSet sampleIds);
@@ -298,6 +296,22 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "   from samples s where s.id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamples(LongSet sampleIds);
+
+    /**
+     * Returns the samples for the given <var>sampleCodes</var>.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.dbin_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s where s.code = any(?{1})", parameterBindings =
+        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamplesForCodes(String[] sampleCodes);
+
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.dbin_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s where s.code in (?{1})", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamples(String sampleCodesString);
 
     //
     // Sample Properties
