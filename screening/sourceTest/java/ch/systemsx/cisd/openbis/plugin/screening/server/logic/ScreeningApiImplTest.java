@@ -44,23 +44,23 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ScreeningApiImplTest extends AbstractServerTestCase
 {
     private static final String SERVER_URL = "server-url";
+
     private IScreeningBusinessObjectFactory screeningBOFactory;
+
     private ScreeningApiImpl screeningApi;
 
     @BeforeMethod
     public void beforeMethod()
     {
         screeningBOFactory = context.mock(IScreeningBusinessObjectFactory.class);
-        screeningApi = new ScreeningApiImpl(SESSION, screeningBOFactory, daoFactory);
+        screeningApi = new ScreeningApiImpl(SESSION, screeningBOFactory, daoFactory, "");
     }
-    
+
     @Test
     public void testListImageDatasets()
     {
@@ -82,8 +82,8 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                 }
             });
 
-   List<ImageDatasetReference> dataSets = screeningApi.listImageDatasets(Arrays.asList(pi1));
-        
+        List<ImageDatasetReference> dataSets = screeningApi.listImageDatasets(Arrays.asList(pi1));
+
         assertEquals("1", dataSets.get(0).getDatasetCode());
         assertEquals(new Geometry(16, 24), dataSets.get(0).getPlateGeometry());
         assertEquals(new Date(100), dataSets.get(0).getRegistrationDate());
@@ -92,7 +92,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         assertEquals(1, dataSets.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListImageDatasetsWithMissingPlateGeometry()
     {
@@ -124,7 +124,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListImageDatasetsWithPlateGeometryWithMissingUnderscore()
     {
@@ -138,40 +138,40 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         assertListImageDatasetsFailsFor("abc_2.4");
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListImageDatasetsWithPlateGeometryWithWidthNotANumber()
     {
         assertListImageDatasetsFailsFor("abc_aX4");
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListImageDatasetsWithPlateGeometryWithHeightNotANumber()
     {
         assertListImageDatasetsFailsFor("abc_2Xb");
         context.assertIsSatisfied();
     }
-    
+
     private void assertListImageDatasetsFailsFor(final String plateGeometry)
     {
         final PlateIdentifier pi1 = new PlateIdentifier("p1", null);
         context.checking(new Expectations()
-        {
             {
-                one(screeningBOFactory).createSampleBO(SESSION);
-                will(returnValue(sampleBO));
-                
-                one(sampleBO).loadBySampleIdentifier(asSampleIdentifier(pi1));
-                one(sampleBO).getSample();
-                SamplePE p1 = plate(pi1, plateGeometry);
-                will(returnValue(p1));
-                
-                one(externalDataDAO).listExternalData(p1);
-                will(returnValue(Arrays.asList(imageDataSet(p1, "1"))));
-            }
-        });
-        
+                {
+                    one(screeningBOFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
+
+                    one(sampleBO).loadBySampleIdentifier(asSampleIdentifier(pi1));
+                    one(sampleBO).getSample();
+                    SamplePE p1 = plate(pi1, plateGeometry);
+                    will(returnValue(p1));
+
+                    one(externalDataDAO).listExternalData(p1);
+                    will(returnValue(Arrays.asList(imageDataSet(p1, "1"))));
+                }
+            });
+
         try
         {
             screeningApi.listImageDatasets(Arrays.asList(pi1));
@@ -182,7 +182,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     + plateGeometry.toUpperCase(), ex.getMessage());
         }
     }
-    
+
     private SampleIdentifier asSampleIdentifier(PlateIdentifier plateIdentifier)
     {
         String spaceCode = plateIdentifier.tryGetSpaceCode();
@@ -194,7 +194,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         return new SampleIdentifier(new SpaceIdentifier(DatabaseInstanceIdentifier.createHome(),
                 spaceCode), plateIdentifier.getPlateCode());
     }
-    
+
     private SamplePE plate(PlateIdentifier plateIdentifier, String plateGeometryOrNull)
     {
         SamplePE sample = new SamplePE();
@@ -228,7 +228,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         dataSet.setDataSetType(dataSetType(ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE));
         return dataSet;
     }
-    
+
     private ExternalDataPE createDataSet(SamplePE sample, String code)
     {
         ExternalDataPE dataSet = new ExternalDataPE();
@@ -240,7 +240,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         dataSet.setRegistrationDate(new Date(Long.parseLong(code) * 100));
         return dataSet;
     }
-    
+
     private DataSetTypePE dataSetType(String code)
     {
         DataSetTypePE type = new DataSetTypePE();

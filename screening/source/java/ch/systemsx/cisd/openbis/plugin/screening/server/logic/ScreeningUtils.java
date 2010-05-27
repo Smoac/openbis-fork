@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -77,6 +78,25 @@ public class ScreeningUtils
     }
 
     private static boolean isTypeEqual(ExternalDataPE dataset, String datasetType)
+    {
+        return dataset.getDataSetType().getCode().equals(datasetType);
+    }
+
+    public static List<ExternalData> filterExternalDataByType(List<ExternalData> datasets,
+            String datasetTypeCode)
+    {
+        List<ExternalData> chosenDatasets = new ArrayList<ExternalData>();
+        for (ExternalData dataset : datasets)
+        {
+            if (isTypeEqual(dataset, datasetTypeCode))
+            {
+                chosenDatasets.add(dataset);
+            }
+        }
+        return chosenDatasets;
+    }
+
+    private static boolean isTypeEqual(ExternalData dataset, String datasetType)
     {
         return dataset.getDataSetType().getCode().equals(datasetType);
     }

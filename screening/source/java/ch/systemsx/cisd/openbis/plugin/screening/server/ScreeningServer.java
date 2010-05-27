@@ -199,7 +199,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     private ScreeningApiImpl createScreeningApiImpl(String sessionToken)
     {
         final Session session = getSession(sessionToken);
-        return new ScreeningApiImpl(session, businessObjectFactory, getDAOFactory());
+        return new ScreeningApiImpl(session, businessObjectFactory, getDAOFactory(),
+                getDataStoreBaseURL());
     }
 
     public void logoutScreening(String sessionToken)
