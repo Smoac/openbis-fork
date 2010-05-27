@@ -2,7 +2,8 @@
 
 usage() {
 	echo "Usage: $0 [--port <port number>] <server folder>"
-	echo "Note that service.properties, log.xml and keystore are picked up from this directory if they exist."
+	echo "Note that service.properties, log.xml, keystore, all .js and .html files and all files in the images/ sub-directory"
+	echo "are picked up from this directory if they exist. This enables to customize e.g. the favicon the login header page."
 	exit 1
 }
 
@@ -38,6 +39,10 @@ fi
 
 properties_file="$installation_folder/service.properties"
 logconf_file="$installation_folder/log.xml"
+messages_file="$installation_folder/message-dictionary.js"
+disclaimer_file="$installation_folder/disclaimer.html"
+documentation_file="$installation_folder/documentation.html"
+favicon_file="$installation_folder/favicon.ico"
 
 rel_jetty_folder="jetty-`cat $installation_folder/jetty-version.txt`"
 jetty_folder="${server_folder}/${rel_jetty_folder}"
@@ -63,9 +68,9 @@ echo Preparing and installing web archive...
 war_classes=WEB-INF/classes
 mkdir -p "$war_classes"/etc
 # Replace 'service.properties' and 'log.xml' files in war
-test -f $properties_file && cp -p "$properties_file" "$war_classes/service.properties"
-test -f $properties_file && cp -p "$logconf_file" "$war_classes/etc/log.xml"
-zip -u "$installation_folder"/cifex.war "$war_classes"/service.properties "$war_classes"/etc/log.xml
+test -f "$properties_file" && cp -p "$properties_file" "$war_classes/"
+test -f "$logconf_file" && cp -p "$logconf_file" "$war_classes/etc/"
+zip -u "$installation_folder"/cifex.war "$war_classes"/service.properties "$war_classes"/etc/log.xml *.js *.html images/*
 cp -p "$installation_folder"/cifex.war "$jetty_folder"/webapps
 rm -rf WEB-INF
 
@@ -75,6 +80,11 @@ ln -s "${rel_jetty_folder}" jetty
 cd jetty/etc
 ln -s ../work/webapp/WEB-INF/classes/service.properties .
 ln -s ../work/webapp/WEB-INF/classes/etc/log.xml .
+ln -s ../work/webapp/message-dictionary.js .
+ln -s ../work/webapp/documentation.html .
+ln -s ../work/webapp/disclaimer.html .
+ln -s ../work/webapp/tools.html .
+ln -s ../work/webapp/loginHeader.html .
 ln -s ../bin/jetty.properties .
 cd ../..
 
