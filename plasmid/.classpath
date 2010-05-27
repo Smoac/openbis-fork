@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="source/java"/>
+	<classpathentry kind="src" path="sourceTest/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/datastore_server"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
+	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
+	<classpathentry kind="lib" path="/libraries/activation/activation.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-isserializable.jar"/>
+	<classpathentry kind="output" path="targets/classes"/>
+</classpath>
