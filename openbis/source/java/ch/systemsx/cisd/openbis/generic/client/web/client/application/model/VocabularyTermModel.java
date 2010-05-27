@@ -30,7 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
  * 
  * @author Izabela Adamczyk
  */
-public class VocabularyTermModel extends NonHierarchicalBaseModel implements Comparable<VocabularyTermModel>
+public class VocabularyTermModel extends NonHierarchicalBaseModel implements
+        Comparable<VocabularyTermModel>
 {
     private static final String ORDINAL = "ordinal";
 
@@ -40,14 +41,9 @@ public class VocabularyTermModel extends NonHierarchicalBaseModel implements Com
     {
         set(ModelDataPropertyNames.CODE, term.getCode());
         set(ORDINAL, term.getOrdinal());
-        set(ModelDataPropertyNames.CODE_WITH_LABEL, getCodeWithLabel(term));
+        set(ModelDataPropertyNames.CODE_WITH_LABEL, term.getCodeOrLabel());
         set(ModelDataPropertyNames.TOOLTIP, VocabularyPropertyColRenderer.renderAsTooltip(term));
         set(ModelDataPropertyNames.OBJECT, term);
-    }
-
-    private String getCodeWithLabel(VocabularyTerm term)
-    {
-        return VocabularyPropertyColRenderer.renderCodeWithLabel(term);
     }
 
     public static final List<VocabularyTermModel> convert(List<VocabularyTerm> terms)

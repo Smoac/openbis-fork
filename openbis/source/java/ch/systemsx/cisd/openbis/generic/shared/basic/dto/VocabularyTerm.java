@@ -94,6 +94,12 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
         return label == null ? code : (code == null ? label : label + " [" + code + "]");
     }
 
+    public String getCodeOrLabel()
+    {
+        String code = getCode();
+        return label == null ? code : label;
+    }
+
     public String getUrl()
     {
         return url;

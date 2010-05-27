@@ -60,7 +60,7 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
         final String description = term.getDescription();
         final String url = term.getUrl();
 
-        String result = renderCodeWithLabel(term);
+        String result = term.getCodeOrLabel();
         if (url != null)
         {
             result = ExternalHyperlink.createAnchorString(result, url);
@@ -68,11 +68,6 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
         result = MultilineHTML.wrapUpInDivWithTooltip(result, description);
 
         return result;
-    }
-
-    public static final String renderCodeWithLabel(VocabularyTerm term)
-    {
-        return term.toString();
     }
 
     public static final String renderAsTooltip(VocabularyTerm term)
