@@ -61,9 +61,9 @@ public final class MainPage extends Viewport
 
     private final ViewContext context;
 
-    private final MainPageTabPanelGXT tabPanel;
+    private final MainPageTabPanel tabPanel;
 
-    public MainPage(final ViewContext context, final MainPageTabPanelGXT tabPanel)
+    public MainPage(final ViewContext context, final MainPageTabPanel tabPanel)
     {
         super();
         setLayout(new BorderLayout());

@@ -50,7 +50,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public final class MainPageTabPanelGXT extends TabPanel
+public final class MainPageTabPanel extends TabPanel
 {
     private final ShareTabController shareTab;
 
@@ -80,7 +80,7 @@ public final class MainPageTabPanelGXT extends TabPanel
         SHARE_TAB, INBOX_TAB, INVITE_TAB, ADMIN_TAB
     }
 
-    public MainPageTabPanelGXT(ViewContext context)
+    public MainPageTabPanel(ViewContext context)
     {
         this.context = context;
         fileGridWidgets = new ArrayList<GridWidget<AbstractFileGridModel>>(3);

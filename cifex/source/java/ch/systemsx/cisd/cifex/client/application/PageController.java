@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.page.HelpDialogController;
 import ch.systemsx.cisd.cifex.client.application.page.MainPage;
-import ch.systemsx.cisd.cifex.client.application.page.MainPageTabPanelGXT;
+import ch.systemsx.cisd.cifex.client.application.page.MainPageTabPanel;
 import ch.systemsx.cisd.cifex.client.application.page.SettingsDialogController;
 
 /**
@@ -37,7 +37,7 @@ final class PageController implements IPageController, IHistoryController
 
     private Page previousPage;
 
-    private MainPageTabPanelGXT tabPanel;
+    private MainPageTabPanel tabPanel;
 
     private Widget mainPage;
 
@@ -75,7 +75,7 @@ final class PageController implements IPageController, IHistoryController
             return;
 
         clearRootPanel();
-        tabPanel = new MainPageTabPanelGXT(viewContext);
+        tabPanel = new MainPageTabPanel(viewContext);
         mainPage = new MainPage(viewContext, tabPanel);
         isMainPageShowing = true;
         RootPanel.get().add(mainPage);
@@ -98,28 +98,28 @@ final class PageController implements IPageController, IHistoryController
     public final void showAdminPage()
     {
         showMainPage();
-        tabPanel.showTab(MainPageTabPanelGXT.Tab.ADMIN_TAB);
+        tabPanel.showTab(MainPageTabPanel.Tab.ADMIN_TAB);
         setCurrentPage(Page.ADMIN_PAGE);
     }
 
     public final void showInboxPage()
     {
         showMainPage();
-        tabPanel.showTab(MainPageTabPanelGXT.Tab.INBOX_TAB);
+        tabPanel.showTab(MainPageTabPanel.Tab.INBOX_TAB);
         setCurrentPage(Page.INBOX_PAGE);
     }
 
     public final void showSharePage()
     {
         showMainPage();
-        tabPanel.showTab(MainPageTabPanelGXT.Tab.SHARE_TAB);
+        tabPanel.showTab(MainPageTabPanel.Tab.SHARE_TAB);
         setCurrentPage(Page.SHARE_PAGE);
     }
 
     public final void showInvitePage()
     {
         showMainPage();
-        tabPanel.showTab(MainPageTabPanelGXT.Tab.INVITE_TAB);
+        tabPanel.showTab(MainPageTabPanel.Tab.INVITE_TAB);
         setCurrentPage(Page.INVITE_PAGE);
     }
 
