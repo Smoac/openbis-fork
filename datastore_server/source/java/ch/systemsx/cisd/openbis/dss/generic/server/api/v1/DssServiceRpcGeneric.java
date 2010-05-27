@@ -39,7 +39,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService)
     {
         super(openBISService);
-        operationLog.info("Started DSS API V1 service.");
+        operationLog.info("[rpc] Started DSS API V1 service.");
     }
 
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
