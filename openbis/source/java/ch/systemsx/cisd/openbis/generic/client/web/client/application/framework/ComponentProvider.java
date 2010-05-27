@@ -111,8 +111,6 @@ public final class ComponentProvider
                 @Override
                 public ITabItem create()
                 {
-                    System.err.println(initialGroupOrNull + " " + initialSampleTypeOrNull);
-
                     IDisposableComponent browser =
                             SampleBrowserGrid.create(viewContext, initialGroupOrNull,
                                     initialSampleTypeOrNull);
