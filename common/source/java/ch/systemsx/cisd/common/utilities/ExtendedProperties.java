@@ -110,10 +110,10 @@ public final class ExtendedProperties extends Properties
     {
         assert prefix != null : "Missing prefix";
 
-        return gs(prefix, dropPrefix, new HashSet<String>());
+        return getSubset(prefix, dropPrefix, new HashSet<String>());
     }
 
-    private ExtendedProperties gs(final String prefix, final boolean dropPrefix, Set<String> keys)
+    private ExtendedProperties getSubset(final String prefix, final boolean dropPrefix, Set<String> keys)
     {
         final ExtendedProperties result = new ExtendedProperties();
         final int prefixLength = prefix.length();
@@ -125,7 +125,7 @@ public final class ExtendedProperties extends Properties
                 assertNoCyclicDependency(keys, key);
                 keys.add(key);
                 String inheritTree = super.getProperty(key);
-                for (Entry<Object, Object> entry : gs(inheritTree, true, keys).entrySet())
+                for (Entry<Object, Object> entry : getSubset(inheritTree, true, keys).entrySet())
                 {
                     String newKey = key.substring(0, key.length()) + entry.getKey();
                     result.put(createKey(newKey, dropPrefix, prefixLength), entry.getValue());
