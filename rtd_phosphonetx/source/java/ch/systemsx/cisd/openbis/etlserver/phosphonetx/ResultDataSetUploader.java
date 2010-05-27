@@ -259,10 +259,10 @@ class ResultDataSetUploader extends AbstractHandler
                 logException(e, "peptide", peptide.getSequence().toString());
             }
         }
-        createIdentifiedProtein(proteinID, peptideSequences, databaseID, protein.getAnnotation());
+        createIdentifiedProtein(proteinID, peptideSequences, databaseID, protein.getAnnotation(), true);
         for (AnnotatedProtein annotatedProtein : protein.getIndistinguishableProteins())
         {
-            createIdentifiedProtein(proteinID, peptideSequences, databaseID, annotatedProtein.getAnnotation());
+            createIdentifiedProtein(proteinID, peptideSequences, databaseID, annotatedProtein.getAnnotation(), false);
         }
     }
 
@@ -299,7 +299,7 @@ class ResultDataSetUploader extends AbstractHandler
     }
 
     private void createIdentifiedProtein(long proteinID, Set<String> peptideSequences,
-            Long databaseID, ProteinAnnotation annotation)
+            Long databaseID, ProteinAnnotation annotation, boolean primary)
     {
         ProteinDescription protDesc = new ProteinDescription(annotation.getDescription());
         String accessionNumber = protDesc.getAccessionNumber();
@@ -323,7 +323,7 @@ class ResultDataSetUploader extends AbstractHandler
             sequence.setId(dao.createSequence(sequence));
         }
         double coverage = calculateCoverage(sequence.getSequence(), peptideSequences);
-        dao.createIdentifiedProtein(proteinID, sequence.getId(), coverage);
+        dao.createIdentifiedProtein(proteinID, sequence.getId(), coverage, primary);
    }
     
     private double calculateCoverage(String aminoAcidSequence, Set<String> peptideSequences)

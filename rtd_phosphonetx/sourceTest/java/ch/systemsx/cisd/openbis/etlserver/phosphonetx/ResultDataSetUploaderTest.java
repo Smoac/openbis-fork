@@ -211,9 +211,9 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         double probability = 1.0;
         prepareForCreatingProtein(probability);
         ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
-        prepareForCreatingIdentifiedProtein(a1, false);
+        prepareForCreatingIdentifiedProtein(a1, false, true);
         ProteinAnnotation a2 = createAnnotation(UNIPROT_ID2, PROTEIN_NAME2, SEQUENCE2);
-        prepareForCreatingIdentifiedProtein(a2, true);
+        prepareForCreatingIdentifiedProtein(a2, true, false);
 
         ProteinSummary summary = createProteinSummary();
         Protein p1 = createProtein(probability, a1, a2);
@@ -232,7 +232,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         ProteinSummary summary = createProteinSummary();
         prepareForCreatingProtein(probability);
         ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
-        prepareForCreatingIdentifiedProtein(a1, false);
+        prepareForCreatingIdentifiedProtein(a1, false, true);
         Protein p1 = createProtein(probability, a1);
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
@@ -263,7 +263,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCreatingProtein(probability);
         summary.getProteinGroups().add(createProteinGroup(p1));
         ProteinAnnotation a2 = createAnnotation(UNIPROT_ID2, PROTEIN_NAME2, SEQUENCE2);
-        prepareForCreatingIdentifiedProtein(a2, false);
+        prepareForCreatingIdentifiedProtein(a2, false, true);
         Protein p2 = createProtein(probability, a2);
         p2.setName(PROTEIN_NAME1);
         p2.getParameters().add(createAbundance(CELL_LYSATE1, 42.5));
@@ -345,7 +345,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         double probability = 1.0;
         prepareForCreatingProtein(probability);
         ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
-        prepareForCreatingIdentifiedProtein(a1, false);
+        prepareForCreatingIdentifiedProtein(a1, false, true);
 
         ProteinSummary summary = createProteinSummary();
         Protein p1 = createProtein(probability, a1);
@@ -374,7 +374,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         double probability = 1.0;
         prepareForCreatingProtein(probability);
         ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
-        prepareForCreatingIdentifiedProtein(a1, false);
+        prepareForCreatingIdentifiedProtein(a1, false, true);
 
         ProteinSummary summary = createProteinSummary();
         Protein p1 = createProtein(probability, a1);
@@ -468,7 +468,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     }
 
     private void prepareForCreatingIdentifiedProtein(ProteinAnnotation annotation,
-            final boolean referenceExist)
+            final boolean referenceExist, final boolean primary)
     {
         ProteinDescription proteinDescription = new ProteinDescription(annotation.getDescription());
         final String uniprotID = proteinDescription.getAccessionNumber();
@@ -511,7 +511,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                         will(returnValue(Arrays.asList(seq)));
                     }
 
-                    one(dao).createIdentifiedProtein(PROTEIN1_ID, SEQUENCE_ID, 0);
+                    one(dao).createIdentifiedProtein(PROTEIN1_ID, SEQUENCE_ID, 0, primary);
                 }
             });
     }

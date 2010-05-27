@@ -93,8 +93,8 @@ public interface IProtDAO extends BaseQuery
             + "returning id")
     public long createSequence(Sequence sequence);
 
-    @Update("insert into identified_proteins (prot_id, sequ_id, coverage) values (?{1}, ?{2}, ?{3})")
-    public void createIdentifiedProtein(long proteinID, long sequenceID, double coverage);
+    @Update("insert into identified_proteins (prot_id, sequ_id, coverage, is_primary) values (?{1}, ?{2}, ?{3}, ?{4})")
+    public void createIdentifiedProtein(long proteinID, long sequenceID, double coverage, boolean primary);
 
     @Update("insert into abundances (prot_id, samp_id, value) values (?{1}, ?{2}, ?{3})")
     public void createAbundance(long proteinID, long sampleID, double value);
