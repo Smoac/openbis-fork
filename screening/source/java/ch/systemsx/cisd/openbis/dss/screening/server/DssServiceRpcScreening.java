@@ -75,14 +75,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
         // Register the service with the name server
         RpcServiceInterfaceVersionDTO ifaceVersion =
-                new RpcServiceInterfaceVersionDTO("screening-dss", "/rmi-screening-dss-api-v1",
+                new RpcServiceInterfaceVersionDTO("screening-dss", "/rmi-datastore-server-screening-api-v1",
                         getMajorVersion(), getMinorVersion());
         HttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getRpcNameServiceExporter();
         RpcServiceNameServer nameServer = (RpcServiceNameServer) nameServiceExporter.getService();
         nameServer.addSupportedInterfaceVersion(ifaceVersion);
 
-        operationLog.info("Started DSS RPC screening service V1.");
+        operationLog.info("[rpc] Started DSS RPC screening service V1.");
     }
 
     // ------------------ impl -----------------
