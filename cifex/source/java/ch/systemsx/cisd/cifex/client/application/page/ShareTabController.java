@@ -27,7 +27,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
@@ -79,23 +78,23 @@ class ShareTabController extends AbstractMainPageTabController
 
     private String createExplanationText()
     {
-        final IMessageResources messageResources = context.getMessageResources();
         final Model model = context.getModel();
         final UserInfoDTO user = model.getUser();
         final boolean isPermanent = user.isPermanent();
         final StringBuilder notesText = new StringBuilder();
-        notesText.append(getInternationalizedLabel(UPLOADFILES_LIMITS_MSG, FileListingTabHelper
-                .getMaxFileSize(user.getMaxFileSizePerQuotaGroupInMB()), FileListingTabHelper
-                .getCurrentFileSizeInMB(user.getCurrentFileSize()), FileListingTabHelper
-                .getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));
         if (isPermanent)
         {
-            notesText.append(messageResources.getUploadFilesHelpPermanentUser());
+            notesText.append(getInternationalizedLabel(UPLOADFILES_INFO_PERMANENT_USER, FileListingTabHelper
+                    .getMaxFileSize(user.getMaxFileSizePerQuotaGroupInMB()), FileListingTabHelper
+                    .getCurrentFileSizeInMB(user.getCurrentFileSize()), FileListingTabHelper
+                    .getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));
         } else
         {
-            notesText.append(messageResources.getUploadFilesHelpTemporaryUser());
+            notesText.append(getInternationalizedLabel(UPLOADFILES_INFO_TEMPORARY_USER, FileListingTabHelper
+                    .getMaxFileSize(user.getMaxFileSizePerQuotaGroupInMB()), FileListingTabHelper
+                    .getCurrentFileSizeInMB(user.getCurrentFileSize()), FileListingTabHelper
+                    .getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));
         }
-        notesText.append(messageResources.getUploadFilesHelpSecurity());
         return notesText.toString();
     }
 

@@ -32,7 +32,9 @@ public enum MessageDictionary
 
     EDIT_USER_DIALOG_TITLE,
 
-    UPLOADFILES_LIMITS_MSG;
+    UPLOADFILES_INFO_PERMANENT_USER,
+    
+    UPLOADFILES_INFO_TEMPORARY_USER;
 
     private static final Dictionary DICT = Dictionary.getDictionary("message_dict");
 

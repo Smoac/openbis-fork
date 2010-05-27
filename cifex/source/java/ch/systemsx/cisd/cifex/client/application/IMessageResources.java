@@ -464,11 +464,6 @@ public interface IMessageResources extends Messages
     @Key(value = "uploadedfiles.part.title")
     public String getSharedFilesPartTitle();
 
-    /** Returns the help text for uploading files section upload. */
-    @Key(value = "uploadfiles.help.upload")
-    public String getSharedFilesHelpUpload(String maxFileSizePerQuotaGroup, String currentFileSize,
-            String maxFileCountPerQuotaGroup, int currentFileCount);
-
     /** Returns the label of Java uploader button title. */
     @Key(value = "uploadfiles.launchJavaUploaderButtonTitle")
     public String getLaunchJavaUploaderButtonTitle();
@@ -476,22 +471,6 @@ public interface IMessageResources extends Messages
     /** Returns the text with pros of WebStart upload client. */
     @Key(value = "uploadfiles.javaUploaderPros")
     public String getJavaUploaderPros();
-
-    /** Returns the help text for uploading files section security. */
-    @Key(value = "uploadfiles.help.security")
-    public String getUploadFilesHelpSecurity();
-
-    /**
-     * Returns the help text for uploading files section recipients (case permanent user).
-     */
-    @Key(value = "uploadfiles.help.permanentUser")
-    public String getUploadFilesHelpPermanentUser();
-
-    /**
-     * Returns the help text for uploading files section recipients (case temporary user).
-     */
-    @Key(value = "uploadfiles.help.temporaryUser")
-    public String getUploadFilesHelpTemporaryUser();
 
     /** Returns the upload file part title. */
     @Key(value = "uploadfiles.part.title")

@@ -9,7 +9,9 @@ var message_dict = {
  
   HEADER_WEBPAGE_LINK: "http://www.cisd.ethz.ch/software/CIFEX",
   
-  UPLOADFILES_LIMITS_MSG: "<b>Notes:</b><br/><i>Limits:</i> You are using {1} of your <b>{0}</b>; you are sharing {3} files and may share up to <b>{2}</b> files.",
+  UPLOADFILES_INFO_PERMANENT_USER: "<b>Notes:</b><br/><i>Limits:</i> You are using {1} of your <b>{0}</b>; you are sharing {3} files and may share up to <b>{2}</b> files.<br/><i>Recipients</i>: Temporary accounts will automatically be created.<br/><i>Security</i>: If you share confidential files, please have a look at the FAQ.<br/>",
+  
+  UPLOADFILES_INFO_TEMPORARY_USER: "<b>Notes:</b><br/><i>Limits:</i> You are using {1} of your <b>{0}</b>; you are sharing {3} files and may share up to <b>{2}</b> files.<br/><i>Recipients</i>: Only email addresses of existing accounts may be specified.<br/><i>Security</i>: If you share confidential files, please have a look at the FAQ.<br/>",
   
   //
   // Grid
