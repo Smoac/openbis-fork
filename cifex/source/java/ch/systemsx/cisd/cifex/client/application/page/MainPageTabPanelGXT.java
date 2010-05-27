@@ -39,6 +39,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
@@ -49,7 +50,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public final class MainPageTabPanelGXT extends MainPageTabPanel
+public final class MainPageTabPanelGXT extends TabPanel
 {
     private final ShareTabController shareTab;
 
@@ -70,6 +71,14 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
     private final ViewContext context;
 
     private final List<GridWidget<AbstractFileGridModel>> fileGridWidgets;
+
+    /**
+     * An enum for the various tabs of the tab panel
+     */
+    public static enum Tab
+    {
+        SHARE_TAB, INBOX_TAB, INVITE_TAB, ADMIN_TAB
+    }
 
     public MainPageTabPanelGXT(ViewContext context)
     {
@@ -115,7 +124,6 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         initializePanel();
     }
 
-    @Override
     public void showTab(Tab tab)
     {
         switch (tab)

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -32,6 +34,10 @@ import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
  */
 public class HelpDialogController extends AbstractDialogController
 {
+    public static final String FOOTER_APPLICATION_DESCRIPTION =
+            "<a href=\"" + getInternationalizedLabel(HEADER_WEBPAGE_LINK)
+                    + "\" target=\"_blank\">CISD File EXchanger</a>";
+
     /**
      * @param context
      */
@@ -69,7 +75,6 @@ public class HelpDialogController extends AbstractDialogController
 
     private final String getApplicationDescriptionHTMLString()
     {
-        IMessageResources messageResources = context.getMessageResources();
         final Element versionSpan = DOM.createSpan();
         DOM.setElementAttribute(versionSpan, "class", "cifex-light-div");
         DOM.setInnerText(versionSpan, "(Version: "
@@ -77,9 +82,7 @@ public class HelpDialogController extends AbstractDialogController
 
         final Element descDiv = DOM.createDiv();
         StringBuffer sb = new StringBuffer();
-        sb.append(messageResources.getFooterPoweredBy());
-        sb.append(" ");
-        sb.append(messageResources.getFooterApplicationDescription());
+        sb.append(FOOTER_APPLICATION_DESCRIPTION);
         sb.append(" ");
         sb.append(DOM.toString(versionSpan));
         DOM.setInnerHTML(descDiv, sb.toString());

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
@@ -51,14 +53,17 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public final class MainPageGXT extends Viewport
+public final class MainPage extends Viewport
 {
+
+    public static final String CISD_LOGO_TITLE =
+            "CISD - Center for Information Sciences and Databases";
 
     private final ViewContext context;
 
-    private final MainPageTabPanel tabPanel;
+    private final MainPageTabPanelGXT tabPanel;
 
-    public MainPageGXT(final ViewContext context, MainPageTabPanel tabPanel)
+    public MainPage(final ViewContext context, final MainPageTabPanelGXT tabPanel)
     {
         super();
         setLayout(new BorderLayout());
@@ -83,11 +88,11 @@ public final class MainPageGXT extends Viewport
         container.setLayout(layout);
 
         final Image cifexLogo = ImageUtils.getCIFEXLogoImageSmall();
-        cifexLogo.setTitle(context.getMessageResources().getCISDLogoTitle());
+        cifexLogo.setTitle(CISD_LOGO_TITLE);
         cifexLogo.setPixelSize(81, 50);
         Anchor cifexLogoLinked =
-                new Anchor(cifexLogo.getElement().getString(), true, context.getMessageResources()
-                        .getWebpageLink(), "_blank");
+                new Anchor(cifexLogo.getElement().getString(), true,
+                        getInternationalizedLabel(HEADER_WEBPAGE_LINK), "_blank");
         container.add(cifexLogoLinked, new TableData(HorizontalAlignment.LEFT,
                 VerticalAlignment.BOTTOM));
         container.add(createUserInfoWidget(), new TableData(HorizontalAlignment.RIGHT,

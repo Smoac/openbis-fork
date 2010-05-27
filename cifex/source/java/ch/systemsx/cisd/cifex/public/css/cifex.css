@@ -26,8 +26,11 @@ body, div, td, table td, select {
     display:inline;
 }
 
-.cifex-font-huge {
-    font-size: 16px;
+.cifex-welcome {
+    font-size: 24px;
+    font-style: italic;
+    margin-top: 48px;
+    margin-left: 24px;
 }
 
 .cifex-ul{
@@ -43,7 +46,6 @@ body, div, td, table td, select {
 .cifex-welcome-warning {
     margin-top: 100px;
     font-size: 14px;
-    color: red;
 }
 
 .cifex-login-header {

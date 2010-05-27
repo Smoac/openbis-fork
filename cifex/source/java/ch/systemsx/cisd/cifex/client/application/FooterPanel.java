@@ -30,6 +30,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
+import ch.systemsx.cisd.cifex.client.application.page.HelpDialogController;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -55,16 +56,13 @@ final class FooterPanel extends HorizontalPanel
         assert configuration != null : "Must not be null reached this point.";
         this.viewContext = context;
         final IMessageResources messageResources = context.getMessageResources();
-        final Widget poweredBy = new Html(messageResources.getFooterPoweredBy());
         final Widget applicationDescription =
-                new Html(messageResources.getFooterApplicationDescription());
+                new Html(HelpDialogController.FOOTER_APPLICATION_DESCRIPTION);
         final Widget contactAdministrator =
                 new Html(createContactAdministrator(configuration, messageResources));
         final Widget version = new Html(createVersionDiv(configuration));
         final Widget disclaimerLink = createDisclaimerLink(messageResources);
         final Widget documentationLink = createDocumentationLink(messageResources);
-        add(poweredBy);
-        add(createSeparator());
         add(applicationDescription);
         add(createSeparator());
         add(version);

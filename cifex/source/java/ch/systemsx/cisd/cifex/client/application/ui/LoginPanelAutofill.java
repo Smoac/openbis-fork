@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
@@ -29,7 +31,6 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.client.application.utils.CifexDict;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 
@@ -101,7 +102,7 @@ public class LoginPanelAutofill extends VerticalPanel
 
         add(formPanel);
 
-        Text label = new Text(CifexDict.get(CifexDict.WELCOME_NOTE));
+        Text label = new Text(getInternationalizedLabel(WELCOME_NOTE_START_PAGE));
         label.setStyleName("cifex-welcome-warning");
 
         add(label);

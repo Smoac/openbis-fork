@@ -37,25 +37,13 @@ public interface IMessageResources extends Messages
     @Key(value = "action.label")
     public String getActionLabel();
 
-    /** Returns the label for OK action. */
-    @Key(value = "action.ok.label")
-    public String getActionOKLabel();
-
     /** Returns label for the 'rename' field. */
     @Key(value = "action.rename.label")
     public String getActionRenameLabel();
 
-    /** Returns the label for the renew action. */
-    @Key(value = "action.renew.label")
-    public String getActionRenewLabel();
-
     /** Returns the label for the share action. */
     @Key(value = "action.shared.label")
     public String getActionSharedLabel();
-
-    /** Returns label for the 'stop sharing' field. */
-    @Key(value = "action.stop_sharing.label")
-    public String getActionStopSharingLabel();
 
     /** Returns the label for the Add User button. */
     @Key(value = "share.user.add.button.label")
@@ -76,14 +64,6 @@ public interface IMessageResources extends Messages
     /** Label for the button for the admin view. */
     @Key(value = "adminview.link.label")
     public String getAdminViewLinkLabel();
-
-    /** Label for the tooltip of button, for the admin view. */
-    @Key(value = "adminview.link.tooltip")
-    public String getAdminViewTooltipLabel();
-
-    /** Returns <i>CISD</i> logo title. */
-    @Key(value = "cisd.logo.title")
-    public String getCISDLogoTitle();
 
     /** Returns label for the Comment field. */
     @Key(value = "usercreation.comment.label")
@@ -115,18 +95,6 @@ public interface IMessageResources extends Messages
     @Key(value = "downloadfiles.part.title.greater2GB")
     public String getDownloadFilesPartTitleGreater2GB();
 
-    /** Returns the WebStart download client help text title. */
-    @Key(value = "downloadfiles.help.javaDownloaderTitle")
-    public String getDownloadFilesHelpJavaDownloaderTitle();
-
-    /** Returns the WebStart download client help text link. */
-    @Key(value = "downloadfiles.help.javaDownloaderLink")
-    public String getDownloadFilesHelpJavaDownloaderLink();
-
-    /** Returns the help text for downlading files section Java download. */
-    @Key(value = "downloadfiles.help.javaDownload")
-    public String getDownloadFilesHelpJavaDownload(Object linkWebstart);
-
     /** Returns the label of Java dowloader button title. */
     @Key(value = "downloadfiles.launchJavaDownloaderButtonTitle")
     public String getLaunchJavaDownloaderButtonTitle();
@@ -138,10 +106,6 @@ public interface IMessageResources extends Messages
     /** Returns label for the button of editing a user. */
     @Key(value = "edituser.button.label")
     public String getEditUserButtonLabel();
-
-    /** Returns dialog window title for editing an user. */
-    @Key(value = "edituser.dialog.title")
-    public String getEditUserDialogTitle(final String userCode);
 
     /** Returns label for editing a user. */
     @Key(value = "edituser.label")
@@ -172,29 +136,9 @@ public interface IMessageResources extends Messages
     @Key(value = "share.user.existing.title")
     public String getExistingUserTableTitle();
 
-    /** Returns the label for external authentication button. */
-    @Key(value = "external.authentication.button.tooltip")
-    public String getExternalAuthenticationButtonTooltip();
-
-    /** Returns the explanation for external authentication. */
-    @Key(value = "external.authentication.explanation")
-    public String getExternalAuthenticationExplanation();
-
-    /** Returns the message for external authentication failure. */
-    @Key(value = "external.authentication.fail")
-    public String getExternalAuthenticationFail(final String errorMsg);
-
     /** Returns external authentication label. */
-    @Key(value = "external.authentication.label")
+    @Key(value = "edituser.externalAuthentication.label")
     public String getExternalAuthenticationLabel();
-
-    /** Returns external authentication password button label. */
-    @Key(value = "external.authentication.password.label")
-    public String getExternalAuthenticationPasswordLabel();
-
-    /** Returns the message for successful external authentication. */
-    @Key(value = "external.authentication.successful")
-    public String getExternalAuthenticationSuccessful();
 
     /** Returns dialog window title for editing a file. */
     @Key(value = "editfile.dialog.title")
@@ -243,14 +187,6 @@ public interface IMessageResources extends Messages
     /** Returns the label of the file "shared with" column. */
     @Key(value = "file.shared_with.label")
     public String getFileSharedWithLabel();
-
-    /** Returns the label of the button for adding a new user for file sharing.. */
-    @Key(value = "filesharing.addButton.label")
-    public String getFileSharingAddButtonLabel();
-
-    /** Returns the title of the add user dialog for file sharing. */
-    @Key(value = "filesharing.adduser.title")
-    public String getFileSharingAddUserTitle();
 
     /** Returns the title of the file sharing user dialog. */
     @Key(value = "filesharing.title")
@@ -324,13 +260,6 @@ public interface IMessageResources extends Messages
     @Key(value = "fileupload.duplicates.msg")
     public String getFileUploadDuplicatesMsg();
 
-    @Key(value = "header.webpage.link")
-    public String getWebpageLink();
-
-    /** Returns application description. */
-    @Key(value = "footer.application.description")
-    public String getFooterApplicationDescription();
-
     /** Returns footer contact administrator label. */
     @Key(value = "footer.contact.administrator.text")
     public String getFooterContactAdministrator();
@@ -351,10 +280,6 @@ public interface IMessageResources extends Messages
     @Key(value = "footer.documentation.link.label")
     public String getFooterDocumentationLinkLabel();
 
-    /** Returns the 'powered by' label. */
-    @Key(value = "footer.powered.by.text")
-    public String getFooterPoweredBy();
-
     /** Returns tools link label. */
     @Key(value = "help.tools.link.label")
     public String getHelpToolsLinkLabel();
@@ -373,12 +298,6 @@ public interface IMessageResources extends Messages
     @Key(value = "exception.invocation.message")
     public String getInvocationExceptionMessage();
 
-    /**
-     * Returns the label for the login form that decides whether it is an admin login.
-     */
-    @Key(value = "login.admin.label")
-    public String getLoginAdminLabel();
-
     /** Returns the button label for the login form. */
     @Key(value = "login.button.label")
     public String getLoginButtonLabel();
@@ -387,10 +306,6 @@ public interface IMessageResources extends Messages
     @Key(value = "login.failed.message")
     public String getLoginFailedMessage();
 
-    /** Returns the login field set legend. */
-    @Key(value = "login.legend")
-    public String getLoginLegend();
-
     /** Returns the password label for the login form. */
     @Key(value = "login.password.label")
     public String getLoginPasswordLabel();
@@ -398,10 +313,6 @@ public interface IMessageResources extends Messages
     /** Returns the email label for the login form. */
     @Key(value = "login.user.label")
     public String getLoginUserLabel();
-
-    /** Returns welcome text that appears on the first page (login page). */
-    @Key(value = "login.welcome.text")
-    public String getLoginWelcomeText();
 
     /** Returns the logout label for the logout link. */
     @Key(value = "logout.link.label")
@@ -415,25 +326,13 @@ public interface IMessageResources extends Messages
     @Key(value = "inboxview.link.label")
     public String getInboxViewLinkLabel();
 
-    /** Label for the tooltip of button, for the inbox view. */
-    @Key(value = "inboxview.link.tooltip")
-    public String getInboxViewTooltipLabel();
-
     /** Label for the button for the share view. */
     @Key(value = "shareview.link.label")
     public String getShareViewLinkLabel();
 
-    /** Label for the tooltip of button, for the share view. */
-    @Key(value = "shareview.link.tooltip")
-    public String getShareViewTooltipLabel();
-
     /** Label for the button for the invite view. */
     @Key(value = "inviteview.link.label")
     public String getInviteViewLinkLabel();
-
-    /** Label for the tooltip of button, for the invite view. */
-    @Key(value = "inviteview.link.tooltip")
-    public String getInviteViewTooltipLabel();
 
     /** Label for the button for the invite view. */
     @Key(value = "help.link.label")
@@ -442,14 +341,6 @@ public interface IMessageResources extends Messages
     /** Label for the tooltip of button, for the invite view. */
     @Key(value = "help.link.tooltip")
     public String getHelpPageTooltipLabel();
-
-    /** Label for the button for the Main view. */
-    @Key(value = "mainview.link.label")
-    public String getMainViewLinkLabel();
-
-    /** Label for the tooltip of button, for the main view. */
-    @Key(value = "mainview.link.tooltip")
-    public String getMainViewTooltipLabel();
 
     /** Returns the title for error message box. */
     @Key(value = "messagebox.error.title")
@@ -490,10 +381,6 @@ public interface IMessageResources extends Messages
     /** Returns the recipient text area field label. */
     @Key(value = "value.required.text")
     public String getValueRequiredText();
-
-    /** Returns the recipient text area field label. */
-    @Key(value = "recipient.field.label")
-    public String getRecipientFieldLabel();
 
     /** Returns the title of the recipient field set. */
     @Key(value = "recipient.legend")
@@ -549,12 +436,6 @@ public interface IMessageResources extends Messages
     @Key(value = "user.not.found")
     public String getUserNotFound(String userCode);
 
-    /**
-     * Returns the error message when a file with given <var>fileName</var> is not found.
-     */
-    @Key(value = "file.not.found")
-    public String getFileNotFound(String fileName);
-
     /** Returns the label of the submit button of the Dialog */
     @Key(value = "share.submit.button.label")
     public String getShareSubmitDialogButtonLabel();
@@ -588,18 +469,6 @@ public interface IMessageResources extends Messages
     public String getSharedFilesHelpUpload(String maxFileSizePerQuotaGroup, String currentFileSize,
             String maxFileCountPerQuotaGroup, int currentFileCount);
 
-    /** Returns the help text for uploading files section Java upload. */
-    @Key(value = "uploadfiles.help.javaUpload")
-    public String getUploadFilesHelpJavaUpload(Object linkWebstart, Object linkCliDist);
-
-    /** Returns the name of Java uploader link. */
-    @Key(value = "uploadfiles.help.javaUploaderLink")
-    public String getUploadFilesHelpJavaUploaderLink();
-
-    /** Returns the title of Java uploader link. */
-    @Key(value = "uploadfiles.help.javaUploaderTitle")
-    public String getUploadFilesHelpJavaUploaderTitle();
-
     /** Returns the label of Java uploader button title. */
     @Key(value = "uploadfiles.launchJavaUploaderButtonTitle")
     public String getLaunchJavaUploaderButtonTitle();
@@ -607,14 +476,6 @@ public interface IMessageResources extends Messages
     /** Returns the text with pros of WebStart upload client. */
     @Key(value = "uploadfiles.javaUploaderPros")
     public String getJavaUploaderPros();
-
-    /** Returns the name of the Command Line Client ZIP file. */
-    @Key(value = "uploadfiles.help.cliLink")
-    public String getUploadFilesHelpCLILink();
-
-    /** Returns the title of Command Line Client link. */
-    @Key(value = "uploadfiles.help.cliTitle")
-    public String getUploadFilesHelpCLITitle();
 
     /** Returns the help text for uploading files section security. */
     @Key(value = "uploadfiles.help.security")
@@ -663,10 +524,6 @@ public interface IMessageResources extends Messages
     /** Returns the label of the field for user retention time */
     @Key(value = "usercreation.user.retention")
     public String getUserRetention();
-
-    /** Returns the label the User Create Button */
-    @Key(value = "usercreation.button.label")
-    public String getUserCreateButton();
 
     /** Returns the content the confirm MessageBox, to delete an user. */
     @Key(value = "user.delete.confirm.text")

@@ -9,7 +9,7 @@
   <!-- Inherit the core EXT GWT stuff.                            -->
   <inherits name='com.extjs.gxt.ui.GXT' />
   
-  <script src="runtime-dictionary.js" />
+  <script src="message-dictionary.js" />
   
   <!-- Define sources                .                            -->
   <source path="client"/>

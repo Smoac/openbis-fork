@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import ch.systemsx.cisd.cifex.client.application.page.MainPage;
 import ch.systemsx.cisd.cifex.client.application.ui.LoginPanelAutofill;
 import ch.systemsx.cisd.cifex.client.application.ui.LoginWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
@@ -119,15 +120,15 @@ final class LoginPage extends VerticalPanel
     private final Image createImage()
     {
         final Image image = ImageUtils.getCIFEXLogoImage();
-        image.setTitle(viewContext.getMessageResources().getCISDLogoTitle());
+        image.setTitle(MainPage.CISD_LOGO_TITLE);
         image.setPixelSize(175, 107);
         return image;
     }
 
     private final HTML createWelcomePanel()
     {
-        final HTML html = new HTML(viewContext.getMessageResources().getLoginWelcomeText());
-        html.setStyleName("cifex-font-huge");
+        final HTML html = new HTML("CISD File EXchanger");
+        html.setStyleName("cifex-welcome");
         return html;
     }
 

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -31,7 +33,6 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.client.application.utils.CifexDict;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 
 /**
@@ -76,7 +77,7 @@ public class LoginWidget extends VerticalPanel
 
         add(formPanel);
 
-        Text label = new Text(CifexDict.get(CifexDict.WELCOME_NOTE));
+        Text label = new Text(getInternationalizedLabel(WELCOME_NOTE_START_PAGE));
         label.setStyleName("cifex-welcome-warning");
 
         add(label);

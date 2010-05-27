@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.List;
 
 import com.extjs.gxt.ui.client.util.Margins;
@@ -82,7 +84,7 @@ class ShareTabController extends AbstractMainPageTabController
         final UserInfoDTO user = model.getUser();
         final boolean isPermanent = user.isPermanent();
         final StringBuilder notesText = new StringBuilder();
-        notesText.append(messageResources.getSharedFilesHelpUpload(FileListingTabHelper
+        notesText.append(getInternationalizedLabel(UPLOADFILES_LIMITS_MSG, FileListingTabHelper
                 .getMaxFileSize(user.getMaxFileSizePerQuotaGroupInMB()), FileListingTabHelper
                 .getCurrentFileSizeInMB(user.getCurrentFileSize()), FileListingTabHelper
                 .getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));
