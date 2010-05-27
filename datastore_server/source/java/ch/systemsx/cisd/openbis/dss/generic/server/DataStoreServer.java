@@ -214,7 +214,7 @@ public class DataStoreServer
 
         // Export the spring bean to the world by wrapping it in an HttpInvokerServlet
         String rpcV1Suffix = "/rmi-dss-api-v1";
-        String rpcV1Path = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME + rpcV1Suffix;
+        String rpcV1Path = rpcV1Suffix;
         context.addServlet(new ServletHolder(new HttpInvokerServlet(v1ServiceExporter, rpcV1Path)),
                 rpcV1Path);
 
@@ -230,9 +230,7 @@ public class DataStoreServer
                         rpcV1Suffix, 1, 0);
         rpcNameServer.addSupportedInterfaceVersion(v1Interface);
 
-        String nameServerPath =
-                "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME
-                        + IRpcServiceNameServer.PREFFERED_URL_SUFFIX;
+        String nameServerPath = IRpcServiceNameServer.PREFFERED_URL_SUFFIX;
         RpcServiceInterfaceVersionDTO nameServerVersion =
                 new RpcServiceInterfaceVersionDTO(IRpcServiceNameServer.PREFFERED_SERVICE_NAME,
                         IRpcServiceNameServer.PREFFERED_URL_SUFFIX, 1, 0);
