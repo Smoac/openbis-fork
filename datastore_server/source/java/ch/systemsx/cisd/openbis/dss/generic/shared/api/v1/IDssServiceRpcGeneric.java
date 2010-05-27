@@ -33,19 +33,58 @@ public interface IDssServiceRpcGeneric extends IRpcService
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
      * 
+     * @param sessionToken The session token
+     * @param fileOrFolder The file or folder to get information on
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
-    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
-            String startPath, boolean isRecursive) throws IOExceptionUnchecked,
-            IllegalArgumentException;
+    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, FileReferenceDTO fileOrFolder)
+            throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
      * 
+     * @param sessionToken The session token
+     * @param fileOrFolder The file or folder to retrieve
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
-    public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String startPath)
+    public InputStream getFileForDataSet(String sessionToken, FileReferenceDTO fileOrFolder)
+            throws IOExceptionUnchecked, IllegalArgumentException;
+
+    /**
+     * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
+     * 
+     * @param sessionToken The session token
+     * @param dataSetCode The data set to retrieve file information about
+     * @param path The path within the data set to retrieve file information about
+     * @param isRecursive Should the result include information for sub folders?
+     * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
+     * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
+     */
+    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
+            String path, boolean isRecursive) throws IOExceptionUnchecked, IllegalArgumentException;
+
+    /**
+     * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
+     * 
+     * @param sessionToken The session token
+     * @param dataSetCode The data set to retrieve file from
+     * @param path The path within the data set to retrieve file information about
+     * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
+     * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
+     */
+    public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String path)
+            throws IOExceptionUnchecked, IllegalArgumentException;
+
+    /**
+     * Upload a new data set to the DSS.
+     * 
+     * @param sessionToken The session token
+     * @param newDataset The new data set that should be registered
+     * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
+     * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
+     */
+    public void putDataSet(String sessionToken, NewDatasetDTO newDataset)
             throws IOExceptionUnchecked, IllegalArgumentException;
 }

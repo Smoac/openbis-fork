@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
- * Comand that lists files in the data set.
+ * Command that lists files in the data set.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

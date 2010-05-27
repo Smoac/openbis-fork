@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
+package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
  * Helper Class for creating FileInfoDss objects
@@ -87,19 +89,10 @@ public class FileInfoDssBuilder
 
     private FileInfoDssDTO fileInfoForFile(File file) throws IOException
     {
-        FileInfoDssDTO fileInfo = new FileInfoDssDTO();
-
-        fileInfo.setPathInDataSet(pathRelativeToDataSetRoot(file));
-        fileInfo.setPathInListing(pathRelativeToListingRoot(file));
-        fileInfo.setDirectory(file.isDirectory());
-        if (fileInfo.isDirectory())
-        {
-            fileInfo.setFileSize(-1);
-        } else
-        {
-            fileInfo.setFileSize(file.length());
-        }
-
+        FileInfoDssDTO fileInfo =
+                new FileInfoDssDTO(pathRelativeToDataSetRoot(file),
+                        pathRelativeToListingRoot(file), file.isDirectory(),
+                        (file.isDirectory()) ? -1 : file.length());
         return fileInfo;
     }
 

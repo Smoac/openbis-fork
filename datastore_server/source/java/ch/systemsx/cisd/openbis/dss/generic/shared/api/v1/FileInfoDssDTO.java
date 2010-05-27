@@ -27,17 +27,21 @@ public class FileInfoDssDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private String pathInDataSet;
+    private final String pathInDataSet;
 
-    private String pathInListing;
+    private final String pathInListing;
 
-    private boolean isDirectory;
+    private final boolean isDirectory;
 
-    private long fileSize;
+    private final long fileSize;
 
-    FileInfoDssDTO()
+    public FileInfoDssDTO(String pathInDataSet, String pathInListing, boolean isDirectory,
+            long fileSize)
     {
-
+        this.pathInDataSet = pathInDataSet;
+        this.pathInListing = pathInListing;
+        this.isDirectory = isDirectory;
+        this.fileSize = fileSize;
     }
 
     /**
@@ -71,38 +75,6 @@ public class FileInfoDssDTO implements Serializable
     public long getFileSize()
     {
         return fileSize;
-    }
-
-    /**
-     * Package-visible method for configuring instances.
-     */
-    void setPathInDataSet(String pathInDataSet)
-    {
-        this.pathInDataSet = pathInDataSet;
-    }
-
-    /**
-     * Package-visible method for configuring instances.
-     */
-    void setPathInListing(String relativePath)
-    {
-        this.pathInListing = relativePath;
-    }
-
-    /**
-     * Package-visible method for configuring instances.
-     */
-    void setDirectory(boolean isDirectory)
-    {
-        this.isDirectory = isDirectory;
-    }
-
-    /**
-     * Package-visible method for configuring instances.
-     */
-    void setFileSize(long fileSize)
-    {
-        this.fileSize = fileSize;
     }
 
     @Override
