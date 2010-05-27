@@ -35,8 +35,7 @@ public class HttpInvokerServlet extends HttpServlet
     @Override
     public void init() throws ServletException
     {
-        DataStoreServer.operationLog.info("HTTP invoker-based RPC service available at "
-                + description);
+        DataStoreServer.operationLog.info("[http-invoker] RPC service available at " + description);
     }
 
     // Code copied from org.springframework.web.context.support.HttpRequestHandlerServlet
