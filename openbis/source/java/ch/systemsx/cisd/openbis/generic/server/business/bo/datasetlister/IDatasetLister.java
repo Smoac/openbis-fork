@@ -46,12 +46,12 @@ public interface IDatasetLister
     /** @return datasets that are parents of a dataset with the specified id */
     List<ExternalData> listByChildTechId(TechId childDatasetId);
 
-    /** @return datasets that are parents of a dataset with the specified id */
+    /** @return datasets that are children of a dataset with the specified id */
     List<ExternalData> listByParentTechId(TechId parentDatasetId);
-    
+
     /**
-     * Returns a map with all parent data set IDs of specified data set IDs. The keys of the map
-     * are IDs from the argument. A value of the map contains at least one alement. 
+     * Returns a map with all parent data set IDs of specified data set IDs. The keys of the map are
+     * IDs from the argument. A value of the map contains at least one alement.
      */
     Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs);
 
@@ -65,4 +65,9 @@ public interface IDatasetLister
 
     /** @return datasets specified by given criteria */
     List<ExternalData> listByArchiverCriteria(String dataStoreCode, ArchiverDataSetCriteria criteria);
+
+    /**
+     * @return Datasets connected to the samples with the specified ids
+     */
+    List<ExternalData> listBySampleIds(Collection<Long> sampleIds);
 }

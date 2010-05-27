@@ -64,6 +64,13 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public DataIterator<DatasetRecord> getDatasetsForSample(long sampleId);
 
     /**
+     * Returns the directly connected datasets for the given sample ids.
+     */
+    @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.samp_id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getDatasetsForSamples(LongSet sampleIds);
+
+    /**
      * Returns datasets that are newer than dataset with given id (<var>lastSeenDatasetId</var>) and
      * are directly connected with samples of sample type with given <var>sampleTypeId</var>.
      */
@@ -97,11 +104,11 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      */
     @Select(sql = "select id from data where data.samp_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<Long> getDatasetIdsForSample(long sampleId);
-    
+
     @Select(sql = "select * from data_set_relationships where data_id_child = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRelationRecord> listParentDataSetIds(LongSet ids);
-    
+
     /**
      * Returns the datasets that are children of a dataset with given id.
      */

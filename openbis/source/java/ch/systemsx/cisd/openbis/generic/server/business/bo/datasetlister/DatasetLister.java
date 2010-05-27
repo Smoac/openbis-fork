@@ -168,6 +168,16 @@ public class DatasetLister implements IDatasetLister
         }
     }
 
+    public List<ExternalData> listBySampleIds(Collection<Long> sampleIds)
+    {
+        LongSet ids = new LongOpenHashSet();
+        for (Long id : sampleIds)
+        {
+            ids.add(id);
+        }
+        return enrichDatasets(query.getDatasetsForSamples(ids));
+    }
+
     public List<ExternalData> listByExperimentTechIds(Collection<TechId> experimentIds)
     {
         LongSet ids = new LongOpenHashSet();
