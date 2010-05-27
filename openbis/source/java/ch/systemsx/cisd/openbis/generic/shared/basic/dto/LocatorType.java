@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * The <i>GWT</i> equivalent to {@link LocatorType}.
+ * The <i>GWT</i> equivalent to LocatorTypePE.
  * 
  * @author Christian Ribeaud
  */
