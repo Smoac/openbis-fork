@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -26,17 +27,15 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
@@ -48,6 +47,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class ScreeningApiImplTest extends AbstractServerTestCase
 {
+    private static final String DSS_URL = "http://localhost:8889/";
+
     private static final String SERVER_URL = "server-url";
 
     private IScreeningBusinessObjectFactory screeningBOFactory;
@@ -58,7 +59,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     public void beforeMethod()
     {
         screeningBOFactory = context.mock(IScreeningBusinessObjectFactory.class);
-        screeningApi = new ScreeningApiImpl(SESSION, screeningBOFactory, daoFactory, "");
+        screeningApi = new ScreeningApiImpl(SESSION, screeningBOFactory, daoFactory, DSS_URL);
     }
 
     @Test
@@ -68,15 +69,15 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleBO(SESSION);
-                    will(returnValue(sampleBO));
+                    one(screeningBOFactory).createSampleLister(SESSION);
+                    will(returnValue(sampleLister));
+                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    Sample p1 = plateSample(pi1, "384_WELLS_16X24");
+                    will(returnValue(Arrays.asList(p1)));
 
-                    one(sampleBO).loadBySampleIdentifier(asSampleIdentifier(pi1));
-                    one(sampleBO).getSample();
-                    SamplePE p1 = plate(pi1, "384_WELLS_16X24");
-                    will(returnValue(p1));
-
-                    one(externalDataDAO).listExternalData(p1);
+                    one(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
+                    will(returnValue(datasetLister));
+                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1"), imageAnalysisDataSet(p1,
                             "2"))));
                 }
@@ -100,15 +101,15 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleBO(SESSION);
-                    will(returnValue(sampleBO));
+                    one(screeningBOFactory).createSampleLister(SESSION);
+                    will(returnValue(sampleLister));
+                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    Sample p1 = plateSample(pi1, null);
+                    will(returnValue(Arrays.asList(p1)));
 
-                    one(sampleBO).loadBySampleIdentifier(asSampleIdentifier(pi1));
-                    one(sampleBO).getSample();
-                    SamplePE p1 = plate(pi1, null);
-                    will(returnValue(p1));
-
-                    one(externalDataDAO).listExternalData(p1);
+                    one(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
+                    will(returnValue(datasetLister));
+                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1"))));
                 }
             });
@@ -119,7 +120,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Sample p1 has no property " + ScreeningConstants.PLATE_GEOMETRY, ex
+            assertEquals("Sample /p1 has no property " + ScreeningConstants.PLATE_GEOMETRY, ex
                     .getMessage());
         }
         context.assertIsSatisfied();
@@ -159,15 +160,15 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleBO(SESSION);
-                    will(returnValue(sampleBO));
+                    one(screeningBOFactory).createSampleLister(SESSION);
+                    will(returnValue(sampleLister));
+                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    Sample p1 = plateSample(pi1, plateGeometry);
+                    will(returnValue(Arrays.asList(p1)));
 
-                    one(sampleBO).loadBySampleIdentifier(asSampleIdentifier(pi1));
-                    one(sampleBO).getSample();
-                    SamplePE p1 = plate(pi1, plateGeometry);
-                    will(returnValue(p1));
-
-                    one(externalDataDAO).listExternalData(p1);
+                    one(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
+                    will(returnValue(datasetLister));
+                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1"))));
                 }
             });
@@ -183,68 +184,60 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         }
     }
 
-    private SampleIdentifier asSampleIdentifier(PlateIdentifier plateIdentifier)
+    private Sample plateSample(PlateIdentifier plateIdentifier, String plateGeometryOrNull)
     {
-        String spaceCode = plateIdentifier.tryGetSpaceCode();
-        if (spaceCode == null)
-        {
-            return new SampleIdentifier(DatabaseInstanceIdentifier.createHome(), plateIdentifier
-                    .getPlateCode());
-        }
-        return new SampleIdentifier(new SpaceIdentifier(DatabaseInstanceIdentifier.createHome(),
-                spaceCode), plateIdentifier.getPlateCode());
-    }
-
-    private SamplePE plate(PlateIdentifier plateIdentifier, String plateGeometryOrNull)
-    {
-        SamplePE sample = new SamplePE();
+        Sample sample = new Sample();
+        sample.setId((long) 1);
         sample.setCode(plateIdentifier.getPlateCode());
+        sample.setIdentifier(plateIdentifier.toString());
         if (plateGeometryOrNull != null)
         {
-            SamplePropertyPE property = new SamplePropertyPE();
-            SampleTypePropertyTypePE etpt = new SampleTypePropertyTypePE();
-            PropertyTypePE propertyType = new PropertyTypePE();
+            IEntityProperty property = new EntityProperty();
+            PropertyType propertyType = new PropertyType();
             propertyType.setCode(ScreeningConstants.PLATE_GEOMETRY);
-            etpt.setPropertyType(propertyType);
-            property.setEntityTypePropertyType(etpt);
-            VocabularyTermPE term = new VocabularyTermPE();
-            term.setCode(plateGeometryOrNull);
+            property.setPropertyType(propertyType);
+            VocabularyTerm term = new VocabularyTerm();
+            term.setCode(plateGeometryOrNull.toUpperCase());
             property.setVocabularyTerm(term);
-            sample.addProperty(property);
+            sample.setProperties(Arrays.asList(property));
+        } else
+        {
+            sample.setProperties(new ArrayList<IEntityProperty>());
         }
         return sample;
     }
 
-    private ExternalDataPE imageDataSet(SamplePE sample, String code)
+    private ExternalData imageDataSet(Sample sample, String code)
     {
-        ExternalDataPE dataSet = createDataSet(sample, code);
+        ExternalData dataSet = createDataSet(sample, code);
         dataSet.setDataSetType(dataSetType(ScreeningConstants.IMAGE_DATASET_TYPE));
         return dataSet;
     }
 
-    private ExternalDataPE imageAnalysisDataSet(SamplePE sample, String code)
+    private ExternalData imageAnalysisDataSet(Sample sample, String code)
     {
-        ExternalDataPE dataSet = createDataSet(sample, code);
+        ExternalData dataSet = createDataSet(sample, code);
         dataSet.setDataSetType(dataSetType(ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE));
         return dataSet;
     }
 
-    private ExternalDataPE createDataSet(SamplePE sample, String code)
+    private ExternalData createDataSet(Sample sample, String code)
     {
-        ExternalDataPE dataSet = new ExternalDataPE();
+        ExternalData dataSet = new ExternalData();
         dataSet.setCode(code);
         dataSet.setSample(sample);
-        DataStorePE dataStorePE = new DataStorePE();
-        dataStorePE.setDownloadUrl(SERVER_URL);
-        dataSet.setDataStore(dataStorePE);
+        DataStore dataStore = new DataStore();
+        dataStore.setDownloadUrl(SERVER_URL);
+        dataSet.setDataStore(dataStore);
         dataSet.setRegistrationDate(new Date(Long.parseLong(code) * 100));
         return dataSet;
     }
 
-    private DataSetTypePE dataSetType(String code)
+    private DataSetType dataSetType(String code)
     {
-        DataSetTypePE type = new DataSetTypePE();
+        DataSetType type = new DataSetType();
         type.setCode(code);
         return type;
     }
+
 }
