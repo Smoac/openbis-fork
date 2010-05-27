@@ -254,27 +254,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         this.contentPanel = createEmptyContentPanel();
         bottomToolbars = createBottomToolbars(contentPanel, pagingToolbar);
+        configureBottomToolbarSyncSize();
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(false);
-        pagingLoader.addListener(Loader.Load, new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    // fixes for problems of:
-                    // - no 'overflow' button when some buttons don't fit into pagingToolbar
-                    pagingToolbar.syncSize();
-                }
-            });
-        pagingToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    // fixes for problems of:
-                    // - hidden paging toolbar
-                    contentPanel.syncSize();
-                }
-            });
         columnListener = new ColumnListener<T, M>(grid);
         registerLinkClickListenerFor(Dict.CODE, new ICellListener<T>()
             {
@@ -287,6 +270,40 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         add(contentPanel);
 
         addRefreshDisplaySettingsListener();
+        configureLoggingBetweenEvents(logID);
+    }
+
+    private void configureBottomToolbarSyncSize()
+    {
+        // fixes problems with:
+        // - no 'overflow' button when some buttons don't fit into pagingToolbar
+        pagingLoader.addListener(Loader.Load, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    pagingToolbar.syncSize();
+                }
+            });
+        // - hidden paging toolbar
+        pagingToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    contentPanel.syncSize();
+                }
+            });
+        // - bottom toolbar is not resized when new filter row appears
+        filterToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    contentPanel.syncSize();
+                }
+            });
+    }
+
+    private void configureLoggingBetweenEvents(int logID)
+    {
         if (viewContext.isLoggingEnabled())
         {
             ComponentEventLogger logger = new ComponentEventLogger(viewContext, getId());
@@ -1573,6 +1590,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         // if user quickly changes tab / hides section before it is layouted. On the other hand
         // it is slower than adding it after requesting server for data.
         bottomToolbars.add(pagingToolbar, new RowData(1, -1));
+        // filter toolbar is added on request
         return bottomToolbars;
     }
 
@@ -1607,6 +1625,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         grid.setLoadMask(true);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.setView(new ExtendedGridView());
+        grid.setStripeRows(true);
         return grid;
     }
 
@@ -1757,4 +1776,5 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     .getTotalCount()).show();
         }
     }
+
 }
