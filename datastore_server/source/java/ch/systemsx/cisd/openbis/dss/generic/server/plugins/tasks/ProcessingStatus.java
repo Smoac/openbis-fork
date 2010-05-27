@@ -32,18 +32,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class ProcessingStatus
 {
 
-    private Map<Status, List<DatasetDescription>> datasetByStatus =
-            new LinkedHashMap<Status, List<DatasetDescription>>();
+    private Map<Status, List<String/* dataset code */>> datasetByStatus =
+            new LinkedHashMap<Status, List<String>>();
 
-    public void addDatasetStatus(DatasetDescription dataset, Status status)
+    public void addDatasetStatus(String datasetCode, Status status)
     {
-        List<DatasetDescription> datasets = datasetByStatus.get(status);
+        List<String> datasets = datasetByStatus.get(status);
         if (datasets == null)
         {
-            datasets = new ArrayList<DatasetDescription>();
+            datasets = new ArrayList<String>();
             datasetByStatus.put(status, datasets);
         }
-        datasets.add(dataset);
+        datasets.add(datasetCode);
     }
 
     public List<Status> getErrorStatuses()
@@ -53,9 +53,14 @@ public class ProcessingStatus
         return result;
     }
 
-    public List<DatasetDescription> getDatasetsByStatus(Status status)
+    public List<String/* dataset code */> getDatasetsByStatus(Status status)
     {
         return datasetByStatus.get(status);
+    }
+
+    public void addDatasetStatus(DatasetDescription dataset, Status status)
+    {
+        addDatasetStatus(dataset.getDatasetCode(), status);
     }
 
 }

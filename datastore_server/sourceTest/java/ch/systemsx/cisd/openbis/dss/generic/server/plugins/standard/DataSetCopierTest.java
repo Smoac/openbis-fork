@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataS
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -128,7 +129,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         ds4Data = new File(ds4Folder, "existing");
         ds4Data.mkdirs();
     }
-    
+
     private DatasetDescription createDataSetDescription(String dataSetCode, String location)
     {
         DatasetDescription description = new DatasetDescription();
@@ -205,8 +206,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     {
         properties.setProperty(DESTINATION_KEY, "host:tmp/test");
         prepareCreateAndCheckCopier("host", null, 1, false);
-        DataSetCopier dataSetCopier = new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
-        
+        DataSetCopier dataSetCopier =
+                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+
         try
         {
             dataSetCopier.process(Arrays.asList(ds1), null);
@@ -225,8 +227,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         properties.setProperty(DESTINATION_KEY, "host:abc:tmp/test");
         properties.setProperty(RSYNC_PASSWORD_FILE_KEY, "abc-password");
         prepareCreateAndCheckCopier("host", "abc", 1, false);
-        DataSetCopier dataSetCopier = new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
-        
+        DataSetCopier dataSetCopier =
+                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+
         try
         {
             dataSetCopier.process(Arrays.asList(ds1), null);
@@ -441,15 +444,18 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     }
 
     private void prepareCreateAndCheckCopier(final String hostOrNull,
-            final String rsyncModuleOrNull, final int numberOfExpectedCreations, final boolean checkingResult)
+            final String rsyncModuleOrNull, final int numberOfExpectedCreations,
+            final boolean checkingResult)
     {
         context.checking(new Expectations()
             {
                 {
-                    exactly(numberOfExpectedCreations).of(pathFactory).create(rsyncExecutableDummy, sshExecutableDummy);
+                    exactly(numberOfExpectedCreations).of(pathFactory).create(rsyncExecutableDummy,
+                            sshExecutableDummy);
                     will(returnValue(copier));
 
-                    exactly(numberOfExpectedCreations).of(sshFactory).create(sshExecutableDummy, hostOrNull);
+                    exactly(numberOfExpectedCreations).of(sshFactory).create(sshExecutableDummy,
+                            hostOrNull);
                     will(returnValue(sshCommandExecutor));
 
                     exactly(numberOfExpectedCreations).of(copier).check();
@@ -457,11 +463,13 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     {
                         if (rsyncModuleOrNull != null)
                         {
-                            exactly(numberOfExpectedCreations).of(copier).checkRsyncConnectionViaRsyncServer(hostOrNull,
-                                    rsyncModuleOrNull, rsyncModuleOrNull + "-password");
+                            exactly(numberOfExpectedCreations).of(copier)
+                                    .checkRsyncConnectionViaRsyncServer(hostOrNull,
+                                            rsyncModuleOrNull, rsyncModuleOrNull + "-password");
                         } else
                         {
-                            exactly(numberOfExpectedCreations).of(copier).checkRsyncConnectionViaSsh(hostOrNull, null);
+                            exactly(numberOfExpectedCreations).of(copier)
+                                    .checkRsyncConnectionViaSsh(hostOrNull, null);
                         }
                         will(returnValue(checkingResult));
                     }
@@ -491,10 +499,19 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     private void checkStatus(ProcessingStatus processingStatus, Status status,
             DatasetDescription... expectedDatasets)
     {
-        final List<DatasetDescription> actualDatasets =
-                processingStatus.getDatasetsByStatus(status);
+        final List<String> actualDatasets = processingStatus.getDatasetsByStatus(status);
         assertEquals(expectedDatasets.length, actualDatasets.size());
-        assertTrue(actualDatasets.containsAll(Arrays.asList(expectedDatasets)));
+        assertTrue(actualDatasets.containsAll(asCodes(Arrays.asList(expectedDatasets))));
+    }
+
+    private static List<String> asCodes(List<DatasetDescription> datasets)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (DatasetDescription dataset : datasets)
+        {
+            codes.add(dataset.getDatasetCode());
+        }
+        return codes;
     }
 
     private File getCanonicalFile(String fileName)

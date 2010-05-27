@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class ProcessDatasetsCommand implements IDataSetCommand
     private final List<DatasetDescription> datasets;
 
     private final Map<String, String> parameterBindings;
-    
+
     private final String userEmailOrNull;
 
     private final DatastoreServiceDescription serviceDescription;
@@ -149,7 +150,18 @@ public class ProcessDatasetsCommand implements IDataSetCommand
 
     private String getDescription(String prefix)
     {
-        return String.format("%s on data set(s): \n%s", prefix, getDataSetCodes(datasets));
+        return String.format("%s on %d data set(s): \n%s", prefix, datasets.size(),
+                getDataSetCodes(asCodes(datasets)));
+    }
+
+    private static List<String> asCodes(List<DatasetDescription> datasets)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (DatasetDescription dataset : datasets)
+        {
+            codes.add(dataset.getDatasetCode());
+        }
+        return codes;
     }
 
     public String getDescription()
@@ -157,7 +169,7 @@ public class ProcessDatasetsCommand implements IDataSetCommand
         return getDescription(getShortDescription(""));
     }
 
-    private static String getDataSetCodes(List<DatasetDescription> datasets)
+    private static String getDataSetCodes(List<String> datasets)
     {
         if (datasets.isEmpty())
         {
@@ -165,9 +177,9 @@ public class ProcessDatasetsCommand implements IDataSetCommand
         } else
         {
             final StringBuilder sb = new StringBuilder();
-            for (DatasetDescription dataset : datasets)
+            for (String dataset : datasets)
             {
-                sb.append(dataset.getDatasetCode());
+                sb.append(dataset);
                 sb.append(',');
             }
             sb.setLength(sb.length() - 1);
@@ -178,20 +190,27 @@ public class ProcessDatasetsCommand implements IDataSetCommand
     private static String generateDescription(ProcessingStatus processingStatus)
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("Data sets:\n");
-        List<DatasetDescription> successfullyProcessed =
-                processingStatus.getDatasetsByStatus(Status.OK);
+        sb
+                .append("This is an automatically generated report from the completed processing of data sets in openBIS.\n");
+        List<String> successfullyProcessed = processingStatus.getDatasetsByStatus(Status.OK);
         if (successfullyProcessed != null && successfullyProcessed.isEmpty() == false)
         {
-            sb.append("- successfully processed: ");
+            sb.append("- number of successfully processed data sets: ");
+            sb.append(successfullyProcessed.size());
+            sb.append(". Datasets: ");
             sb.append(getDataSetCodes(successfullyProcessed));
             sb.append("\n");
         }
         List<Status> errorStatuses = processingStatus.getErrorStatuses();
         for (Status errorStatus : errorStatuses)
         {
-            sb.append("- " + errorStatus.tryGetErrorMessage() + ": ");
-            sb.append(getDataSetCodes(processingStatus.getDatasetsByStatus(errorStatus)));
+            List<String> unsuccessfullyProcessed =
+                    processingStatus.getDatasetsByStatus(errorStatus);
+            sb.append("- processing of ");
+            sb.append(unsuccessfullyProcessed.size());
+            sb.append(" data set(s) failed because: ");
+            sb.append(" " + errorStatus.tryGetErrorMessage() + ". Datasets: ");
+            sb.append(getDataSetCodes(unsuccessfullyProcessed));
             sb.append("\n");
         }
         return sb.toString();

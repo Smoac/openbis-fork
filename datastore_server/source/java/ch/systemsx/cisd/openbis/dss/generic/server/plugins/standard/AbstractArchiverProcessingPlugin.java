@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.ProcessDatasetsCommand;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IArchiverTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
@@ -45,8 +44,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         IArchiverTask
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ProcessDatasetsCommand.class);
+    protected static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, AbstractArchiverProcessingPlugin.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -62,9 +61,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
     }
 
-    abstract protected void archive(DatasetDescription dataset) throws UserFailureException;
+    abstract protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets)
+            throws UserFailureException;
 
-    abstract protected void unarchive(DatasetDescription dataset) throws UserFailureException;
+    abstract protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets)
+            throws UserFailureException;
 
     public ProcessingStatus archive(List<DatasetDescription> datasets)
     {
@@ -73,27 +74,17 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return handleDatasets(datasets, DataSetArchivingStatus.ARCHIVED,
                 DataSetArchivingStatus.AVAILABLE, new IDatasetDescriptionHandler()
                     {
-
-                        public Status handle(DatasetDescription dataset)
+                        public DatasetProcessingStatuses handle(List<DatasetDescription> allDatasets)
                         {
-                            if (archivePrerequisiteOrNull != null)
+                            Status prerequisiteStatus = checkArchivePrerequisite(allDatasets);
+                            if (prerequisiteStatus.isError())
                             {
-                                Status status = archivePrerequisiteOrNull.check();
-                                if (status.isError())
-                                {
-                                    return status;
-                                }
+                                return createStatusesFrom(prerequisiteStatus, allDatasets, true);
+                            } else
+                            {
+                                return doArchive(allDatasets);
                             }
-                            try
-                            {
-                                archive(dataset);
-                            } catch (UserFailureException ex)
-                            {
-                                return Status.createError(ex.getMessage());
-                            }
-                            return Status.OK;
                         }
-
                     });
     }
 
@@ -104,49 +95,122 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return handleDatasets(datasets, DataSetArchivingStatus.AVAILABLE,
                 DataSetArchivingStatus.ARCHIVED, new IDatasetDescriptionHandler()
                     {
-
-                        public Status handle(DatasetDescription dataset)
+                        public DatasetProcessingStatuses handle(List<DatasetDescription> allDatasets)
                         {
-                            if (unarchivePrerequisiteOrNull != null)
+                            Status prerequisiteStatus = checkUnarchivePrerequisite(allDatasets);
+                            if (prerequisiteStatus.isError())
                             {
-                                Status status = unarchivePrerequisiteOrNull.check();
-                                if (status.isError())
-                                {
-                                    return status;
-                                }
+                                return createStatusesFrom(prerequisiteStatus, allDatasets, false);
+                            } else
+                            {
+                                return doUnarchive(allDatasets);
                             }
-                            try
-                            {
-                                unarchive(dataset);
-                            } catch (UserFailureException ex)
-                            {
-                                return Status
-                                        .createError(ex.getMessage() == null ? "unknown reason"
-                                                : ex.getMessage());
-                            }
-                            return Status.OK;
                         }
-
                     });
+    }
+
+    protected final Status checkUnarchivePrerequisite(List<DatasetDescription> datasets)
+    {
+        if (unarchivePrerequisiteOrNull != null)
+        {
+            return unarchivePrerequisiteOrNull.check(datasets.size());
+        } else
+        {
+            return Status.OK;
+        }
+    }
+
+    protected final Status checkArchivePrerequisite(List<DatasetDescription> datasets)
+    {
+        if (archivePrerequisiteOrNull != null)
+        {
+            return archivePrerequisiteOrNull.check(datasets.size());
+        } else
+        {
+            return Status.OK;
+        }
+    }
+
+    protected static class DatasetProcessingStatuses
+    {
+        private final List<String> successfulDatasetCodes;
+
+        private final List<String> failedDatasetCodes;
+
+        private final ProcessingStatus processingStatus;
+
+        public DatasetProcessingStatuses()
+        {
+            this.successfulDatasetCodes = new ArrayList<String>();
+            this.failedDatasetCodes = new ArrayList<String>();
+            this.processingStatus = new ProcessingStatus();
+        }
+
+        public void addResult(String datasetCode, Status status, boolean isArchiving)
+        {
+            String logMessage = createLogMessage(datasetCode, status, isArchiving);
+            if (status.isError())
+            {
+                operationLog.error(logMessage);
+                failedDatasetCodes.add(datasetCode);
+            } else
+            {
+                operationLog.debug(logMessage);
+                successfulDatasetCodes.add(datasetCode);
+            }
+            processingStatus.addDatasetStatus(datasetCode, status);
+        }
+
+        private String createLogMessage(String datasetCode, Status status, boolean isArchiving)
+        {
+            String operationDescription = isArchiving ? "Archiving" : "Unarchiving";
+            return String.format("%s for dataset %s finished with the status: %s.",
+                    operationDescription, datasetCode, status);
+        }
+
+        public List<String> getSuccessfulDatasetCodes()
+        {
+            return successfulDatasetCodes;
+        }
+
+        public List<String> getFailedDatasetCodes()
+        {
+            return failedDatasetCodes;
+        }
+
+        public ProcessingStatus getProcessingStatus()
+        {
+            return processingStatus;
+        }
     }
 
     private ProcessingStatus handleDatasets(List<DatasetDescription> datasets,
             DataSetArchivingStatus success, DataSetArchivingStatus failure,
             IDatasetDescriptionHandler handler)
     {
-        final ProcessingStatus result = new ProcessingStatus();
-        List<String> successful = new ArrayList<String>();
-        List<String> failed = new ArrayList<String>();
+        DatasetProcessingStatuses statuses = handler.handle(datasets);
+        asyncUpdateStatuses(statuses, success, failure);
+        return statuses.getProcessingStatus();
+    }
+
+    // creates the same status for all datasets
+    protected final static DatasetProcessingStatuses createStatusesFrom(Status status,
+            List<DatasetDescription> datasets, boolean isArchiving)
+    {
+        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (DatasetDescription dataset : datasets)
         {
-            Status status = handler.handle(dataset);
-            List<String> codes = status.isError() ? failed : successful;
-            codes.add(dataset.getDatasetCode());
-            result.addDatasetStatus(dataset, status);
+            statuses.addResult(dataset.getDatasetCode(), status, isArchiving);
         }
-        asyncUpdateStatuses(successful, success);
-        asyncUpdateStatuses(failed, failure);
-        return result;
+        return statuses;
+    }
+
+    private void asyncUpdateStatuses(DatasetProcessingStatuses statuses,
+            DataSetArchivingStatus success, DataSetArchivingStatus failure)
+    {
+        asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), success);
+        asyncUpdateStatuses(statuses.getFailedDatasetCodes(), failure);
+
     }
 
     private static void asyncUpdateStatuses(List<String> dataSetCodes,
@@ -158,7 +222,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private interface IDatasetDescriptionHandler
     {
-        public Status handle(DatasetDescription dataset);
+        public DatasetProcessingStatuses handle(List<DatasetDescription> datasets);
     }
 
 }

@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataS
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,17 +38,11 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopierForUsers;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = DataSetCopier.class)
@@ -138,7 +133,8 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         DataSetCopier dataSetCopier =
                 new DataSetCopierForUsers(properties, storeRoot, pathFactory, sshFactory);
 
-        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds), parameterBindings);
+        ProcessingStatus processingStatus =
+                dataSetCopier.process(Arrays.asList(ds), parameterBindings);
         assertNoErrors(processingStatus);
         assertSuccessful(processingStatus, ds);
 
@@ -151,23 +147,24 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         properties.setProperty(DESTINATION_KEY, "tmp/test");
         prepareCreateAndCheckCopier();
         context.checking(new Expectations()
-        {
             {
-                File canonicalFile = getCanonicalFile("tmp/test");
-                one(copier).copyToRemote(dsData, canonicalFile, null, null, null);
-                will(returnValue(Status.OK));
-            }
-        });
+                {
+                    File canonicalFile = getCanonicalFile("tmp/test");
+                    one(copier).copyToRemote(dsData, canonicalFile, null, null, null);
+                    will(returnValue(Status.OK));
+                }
+            });
         DataSetCopier dataSetCopier =
-            new DataSetCopierForUsers(properties, storeRoot, pathFactory, sshFactory);
-        
-        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds), parameterBindings);
+                new DataSetCopierForUsers(properties, storeRoot, pathFactory, sshFactory);
+
+        ProcessingStatus processingStatus =
+                dataSetCopier.process(Arrays.asList(ds), parameterBindings);
         assertNoErrors(processingStatus);
         assertSuccessful(processingStatus, ds);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private void prepareCreateAndCheckCopier()
     {
         context.checking(new Expectations()
@@ -199,10 +196,19 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
     private void checkStatus(ProcessingStatus processingStatus, Status status,
             DatasetDescription... expectedDatasets)
     {
-        final List<DatasetDescription> actualDatasets =
-                processingStatus.getDatasetsByStatus(status);
+        final List<String> actualDatasets = processingStatus.getDatasetsByStatus(status);
         assertEquals(expectedDatasets.length, actualDatasets.size());
-        assertTrue(actualDatasets.containsAll(Arrays.asList(expectedDatasets)));
+        assertTrue(actualDatasets.containsAll(asCodes(Arrays.asList(expectedDatasets))));
+    }
+
+    private static List<String> asCodes(List<DatasetDescription> datasets)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (DatasetDescription dataset : datasets)
+        {
+            codes.add(dataset.getDatasetCode());
+        }
+        return codes;
     }
 
     private File getCanonicalFile(String fileName)

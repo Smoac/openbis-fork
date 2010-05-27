@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -33,20 +35,22 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     public DemoArchiver(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, null, null);
-        // NOTE using HighWaterMarkChecker before archiving every dataset degrades performance
-        // super(properties, storeRoot, new HighWaterMarkChecker(storeRoot), new HighWaterMarkChecker(storeRoot);
     }
 
     @Override
-    protected void archive(DatasetDescription dataset) throws UserFailureException
+    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets)
+            throws UserFailureException
     {
-        System.out.println("DemoArchiver - Archived: " + dataset);
+        System.out.println("DemoArchiver - Archived: " + datasets);
+        return createStatusesFrom(Status.OK, datasets, true);
     }
 
     @Override
-    protected void unarchive(DatasetDescription dataset) throws UserFailureException
+    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets)
+            throws UserFailureException
     {
-        System.out.println("DemoArchiver - Unarchived: " + dataset);
+        System.out.println("DemoArchiver - Unarchived: " + datasets);
+        return createStatusesFrom(Status.OK, datasets, false);
     }
 
 }
