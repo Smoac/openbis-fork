@@ -40,8 +40,6 @@ public class Configuration implements IsSerializable
 
     private Integer maxFileCountPerQuotaGroup;
 
-    private String administratorEmail;
-
     private String systemVersion;
 
     private Boolean systemHasExternalAuthentication;
@@ -104,16 +102,6 @@ public class Configuration implements IsSerializable
     public final void setMaxFileCountPerQuotaGroup(Integer maxFileCountPerQuotaGroup)
     {
         this.maxFileCountPerQuotaGroup = maxFileCountPerQuotaGroup;
-    }
-
-    public final void setAdministratorEmail(final String administratorEmail)
-    {
-        this.administratorEmail = administratorEmail;
-    }
-
-    public final String getAdministratorEmail()
-    {
-        return administratorEmail;
     }
 
     public final String getSystemVersion()

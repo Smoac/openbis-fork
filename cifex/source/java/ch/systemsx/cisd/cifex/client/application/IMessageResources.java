@@ -260,10 +260,6 @@ public interface IMessageResources extends Messages
     @Key(value = "fileupload.duplicates.msg")
     public String getFileUploadDuplicatesMsg();
 
-    /** Returns footer contact administrator label. */
-    @Key(value = "footer.contact.administrator.text")
-    public String getFooterContactAdministrator();
-
     /** Returns title of the disclaimer window dialog. */
     @Key(value = "footer.disclaimer.dialog.title")
     public String getFooterDisclaimerDialogTitle();

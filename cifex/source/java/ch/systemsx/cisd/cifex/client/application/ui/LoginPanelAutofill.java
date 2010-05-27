@@ -102,7 +102,7 @@ public class LoginPanelAutofill extends VerticalPanel
 
         add(formPanel);
 
-        Text label = new Text(getInternationalizedLabel(WELCOME_NOTE_START_PAGE));
+        Text label = new Text(getInternationalizedLabel(START_PAGE_WELCOME_NOTE));
         label.setStyleName("cifex-welcome-warning");
 
         add(label);

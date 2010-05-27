@@ -324,9 +324,4 @@ public final class DomainModel implements IDomainModel
         return businessContext.getPasswordGenerator();
     }
 
-    public final void setAdministratorEmail(String administratorEmail)
-    {
-        businessContext.setAdministratorEmail(administratorEmail);
-    }
-
 }

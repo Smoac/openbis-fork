@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import static ch.systemsx.cisd.cifex.client.application.WidgetFactory.getLinkWidget;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
 
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -130,8 +131,8 @@ final class FooterPanel extends HorizontalPanel
     private final static String createContactAdministrator(final Configuration configuration,
             final IMessageResources messageResources)
     {
-        return DOMUtils.createEmailAnchor(configuration.getAdministratorEmail(), messageResources
-                .getFooterContactAdministrator());
+        return DOMUtils.createEmailAnchor(getInternationalizedLabel(SUPPORT_EMAIL),
+                getInternationalizedLabel(CONTACT_SUPPORT_LABEL));
     }
 
     private final void showErrorMessage(final Throwable ex)

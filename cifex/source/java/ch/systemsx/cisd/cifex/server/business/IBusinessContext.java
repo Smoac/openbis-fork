@@ -102,11 +102,6 @@ public interface IBusinessContext
     public IUserActionLog getUserActionLogRpc();
 
     /**
-     * Returns the administrator email.
-     */
-    public String getAdministratorEmail();
-
-    /**
      * Returns the URL to be used for links in emails, or an empty String, if the base URL from the
      * HTTP request should be used.
      */

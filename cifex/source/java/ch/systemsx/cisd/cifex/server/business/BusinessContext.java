@@ -74,8 +74,6 @@ class BusinessContext implements IBusinessContext
     /** The logger object for user actions. */
     private IUserActionLog userActionLogRpc;
 
-    private String administratorEmail;
-
     /**
      * The URL to use for emails in override mode.
      */
@@ -238,16 +236,6 @@ class BusinessContext implements IBusinessContext
     public final void setPasswordGenerator(final PasswordGenerator passwordGenerator)
     {
         this.passwordGenerator = passwordGenerator;
-    }
-
-    public final void setAdministratorEmail(String administratorEmail)
-    {
-        this.administratorEmail = administratorEmail;
-    }
-
-    public final String getAdministratorEmail()
-    {
-        return administratorEmail;
     }
 
     public final String getSystemVersion()

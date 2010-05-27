@@ -66,8 +66,8 @@ public class HelpDialogController extends AbstractDialogController
         appendBlockAnchor(sb, "documentation.html", messageResources.getHelpFAQLinkLabel());
         appendBlockAnchor(sb, "disclaimer.html", messageResources.getFooterDisclaimerLinkLabel());
         appendBlockAnchor(sb, "tools.html", messageResources.getHelpToolsLinkLabel());
-        appendBlock(sb, DOMUtils.createEmailAnchor(context.getModel().getConfiguration()
-                .getAdministratorEmail(), messageResources.getFooterContactAdministrator()));
+        appendBlock(sb, DOMUtils.createEmailAnchor(getInternationalizedLabel(SUPPORT_EMAIL),
+                getInternationalizedLabel(CONTACT_SUPPORT_LABEL)));
         sb.append(getApplicationDescriptionHTMLString());
 
         return sb.toString();
@@ -82,6 +82,7 @@ public class HelpDialogController extends AbstractDialogController
 
         final Element descDiv = DOM.createDiv();
         StringBuffer sb = new StringBuffer();
+        sb.append("<br/><br/>");
         sb.append(FOOTER_APPLICATION_DESCRIPTION);
         sb.append(" ");
         sb.append(DOM.toString(versionSpan));

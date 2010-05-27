@@ -26,11 +26,15 @@ import com.google.gwt.i18n.client.Dictionary;
  */
 public enum MessageDictionary
 {
-    WELCOME_NOTE_START_PAGE,
+    START_PAGE_WELCOME_NOTE,
 
     HEADER_WEBPAGE_LINK,
 
     EDIT_USER_DIALOG_TITLE,
+    
+    SUPPORT_EMAIL,
+    
+    CONTACT_SUPPORT_LABEL,
 
     UPLOADFILES_INFO_PERMANENT_USER,
     
