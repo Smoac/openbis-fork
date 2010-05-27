@@ -1,6 +1,6 @@
 #show allResults
 
-{root} = ch.systemsx.cisd.plasmid
+{root} = ethz.bsse.cisd.plasmid
 {dss} = ${root}.dss
 {openbis} = ch.systemsx.cisd.openbis
 
