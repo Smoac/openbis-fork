@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -26,20 +30,26 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 /**
  * @author Tomasz Pylak
  */
+@ShouldFlattenCollections(value = false)
 public class ScreenerReadonlyPlatePredicate extends
-        DelegatedPredicate<SampleOwnerIdentifier, PlateIdentifier>
+        DelegatedPredicate<List<SampleOwnerIdentifier>, List<PlateIdentifier>>
 {
 
     public ScreenerReadonlyPlatePredicate()
     {
-        super(new SampleOwnerIdentifierPredicate(true));
+        super(new SampleOwnerIdentifierCollectionPredicate(true));
     }
 
     @Override
-    public SampleOwnerIdentifier convert(PlateIdentifier value)
+    public List<SampleOwnerIdentifier> convert(List<PlateIdentifier> values)
     {
-        return new SampleOwnerIdentifier(new SpaceIdentifier(DatabaseInstanceIdentifier
-                .createHome(), value.tryGetSpaceCode()));
+        ArrayList<SampleOwnerIdentifier> soIds = new ArrayList<SampleOwnerIdentifier>();
+        for (PlateIdentifier value : values)
+        {
+            soIds.add(new SampleOwnerIdentifier(new SpaceIdentifier(DatabaseInstanceIdentifier
+                    .createHome(), value.tryGetSpaceCode())));
+        }
+        return soIds;
     }
 
     @Override
