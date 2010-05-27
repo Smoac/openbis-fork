@@ -162,8 +162,9 @@
 			</manifest>
 			<fileset dir="${classes}">
 				<include name="**/*.class" />
-				<!-- Exclude 'service.properties' and 'log.xml' file. -->
+				<!-- Exclude 'service.properties', 'IMessageResources.properties' and 'log.xml' file. -->
 				<exclude name="service.properties" />
+				<exclude name="**/IMessageResources.properties" />
 				<exclude name="log.xml" />
 				<include name="**/*.properties" />
 				<include name="${build.info.filename}" />
