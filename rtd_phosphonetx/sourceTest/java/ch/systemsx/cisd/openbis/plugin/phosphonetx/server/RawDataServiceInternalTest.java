@@ -37,7 +37,6 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -50,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
@@ -65,7 +63,6 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
     private static final String COPY_PROCESSING_KEY = "copy-data-sets";
     private IRawDataServiceInternal service;
     private ICommonBusinessObjectFactory boFactory;
-    private ISampleLister sampleLister;
 
     @Override
     @BeforeMethod
@@ -73,7 +70,6 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
     {
         super.setUp();
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
-        sampleLister = context.mock(ISampleLister.class);
         service = new RawDataServiceInternal(sessionManager, daoFactory, boFactory);
     }
     
