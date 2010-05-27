@@ -100,7 +100,7 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
         DataStore dataStore = externalData.getDataStore();
         ExternalData parentDataset = externalData.getParents().iterator().next();
         return new FeatureVectorDatasetReference(externalData.getCode(),
-                dataStore.getDownloadUrl(), createPlateIdentifier(parentDataset),
+                getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(parentDataset),
                 extractPlateGeometry(parentDataset), externalData.getRegistrationDate(),
                 asImageDataset(parentDataset));
     }

@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
@@ -223,6 +226,25 @@ class PlateDatasetLoader
             sampleIds.add(sample.getId());
         }
         return sampleIds;
+    }
+
+    protected String getDataStoreUrlFromDataStore(DataStore dataStore)
+    {
+        String datastoreUrl = dataStore.getDownloadUrl();
+        // The url objained form a DataStore object is the *download* url. Convert this to the
+        // datastore URL
+        if (datastoreUrl.endsWith(DATA_STORE_SERVER_WEB_APPLICATION_NAME))
+        {
+            datastoreUrl =
+                    datastoreUrl.substring(0, datastoreUrl.length()
+                            - DATA_STORE_SERVER_WEB_APPLICATION_NAME.length());
+        }
+        if (datastoreUrl.endsWith("/"))
+        {
+            datastoreUrl = datastoreUrl.substring(0, datastoreUrl.length() - 1);
+        }
+
+        return datastoreUrl;
     }
 
     protected static SampleIdentifier createSampleIdentifier(PlateIdentifier plate)
