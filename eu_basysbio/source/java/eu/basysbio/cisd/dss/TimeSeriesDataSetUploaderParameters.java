@@ -52,13 +52,10 @@ class TimeSeriesDataSetUploaderParameters
 
     private final boolean ignoreEmptyLines;
 
-    private final boolean checkExistingDataSets;
-
     private final File timeSeriesDropBox;
 
-    TimeSeriesDataSetUploaderParameters(Properties properties, boolean checkExistingDataSets)
+    TimeSeriesDataSetUploaderParameters(Properties properties)
     {
-        this.checkExistingDataSets = checkExistingDataSets;
         String timeSeriesDataSetDropBoxPath =
                 PropertyUtils.getMandatoryProperty(properties, TIME_SERIES_DATA_SET_DROP_BOX_PATH);
         timeSeriesDropBox = new File(timeSeriesDataSetDropBoxPath);
@@ -105,11 +102,6 @@ class TimeSeriesDataSetUploaderParameters
     boolean isIgnoreEmptyLines()
     {
         return ignoreEmptyLines;
-    }
-
-    boolean isCheckExistingDataSets()
-    {
-        return checkExistingDataSets;
     }
 
 }

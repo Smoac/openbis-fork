@@ -67,7 +67,7 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         super(FileOperations.getInstance());
         this.dataSource = dataSource;
         this.service = service;
-        parameters = new TimeSeriesDataSetUploaderParameters(properties, true);
+        parameters = new TimeSeriesDataSetUploaderParameters(properties);
         dropBoxFeeder = new TimePointDataDropBoxFeeder(properties, this, service);
         factory = new DataSetUploaderFactory(TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
         factory.register(TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);

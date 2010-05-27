@@ -54,14 +54,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -316,13 +313,12 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
                             new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
                     will(returnValue(createExperiment("GM_BR_B1")));
 
-                    one(service).listSamples(with(any(ListSampleCriteria.class)));
-                    Sample sample200 = createSample(SAMPLE_EX_200);
-                    will(returnValue(Arrays.<Sample> asList(sample200)));
-
-                    one(service).listDataSetsBySampleID(sample200.getId(), true);
-                    will(returnValue(Arrays
-                            .asList(createData("ds0", "T0"), createData("ds1", "T1"))));
+                    one(dao).listDataSetsByDataColumnHeader(
+                            new DataColumnHeader("GM::BR::B1::200::EX::T1::CE::"
+                                    + "MetaboliteLCMS::Value[mM]::Log10::NB::NC"));
+                    MockDataSet<String> dataSets = new MockDataSet<String>();
+                    dataSets.add("ds1");
+                    will(returnValue(dataSets));
                 }
 
             });
@@ -339,7 +335,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         {
             assertEquals(
                     "For data column 'GM::BR::B1::200::EX::T1::CE::MetaboliteLCMS::Value[mM]::Log10::NB::NC' "
-                            + "the data set 'ds1' has already been registered.", ex.getMessage());
+                            + "following data sets have already been registered: [ds1]", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -402,9 +398,6 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
                         }));
                     will(returnValue(Arrays.<Sample> asList(sample200)));
 
-                    one(service).listDataSetsBySampleID(sample200.getId(), true);
-                    will(returnValue(Arrays.asList()));
-
                     final NewSample sample = createNewSample(SAMPLE_EX_7200);
                     one(service).registerSample(with(new BaseMatcher<NewSample>()
                         {
@@ -430,9 +423,6 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
                             }
                         }), with((String) null));
                     will(returnValue(sample7200.getId()));
-
-                    one(service).listDataSetsBySampleID(sample7200.getId(), true);
-                    will(returnValue(Arrays.asList()));
                 }
             });
 
@@ -615,7 +605,11 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dao).createDataColumn(new DataColumnHeader(columnHeader),
+                    DataColumnHeader dataColumnHeader = new DataColumnHeader(columnHeader);
+                    one(dao).listDataSetsByDataColumnHeader(dataColumnHeader);
+                    will(returnValue(new MockDataSet<String>()));
+                    
+                    one(dao).createDataColumn(dataColumnHeader,
                             DATA_SET_SPECIAL_ID, sampleID);
                     long id = columnHeader.hashCode();
                     will(returnValue(id));
@@ -681,7 +675,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
                 IDataSetUploader createUploader(DataSetInformation dataSetInformation)
                 {
                     return factory.create(dataSetInformation, dao, service,
-                            new TimeSeriesDataSetUploaderParameters(properties, true));
+                            new TimeSeriesDataSetUploaderParameters(properties));
                 }
             };
     }
@@ -779,37 +773,4 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         return dataSetInformation;
     }
 
-    private ExternalData createData(String code, String technicalReplicateCode)
-    {
-        ExternalData externalData = new ExternalData();
-        externalData.setCode(code);
-        EntityProperty tr =
-                createProperty(TimePointPropertyType.TECHNICAL_REPLICATE_CODE,
-                        technicalReplicateCode);
-        EntityProperty biID = createProperty(TimePointPropertyType.BI_ID, "NB");
-        EntityProperty cg = createProperty(TimePointPropertyType.CG, "NC");
-        EntityProperty vt = createProperty(TimePointPropertyType.VALUE_TYPE, "Value[mM]");
-        EntityProperty scale = createProperty(TimePointPropertyType.SCALE, "LOG10");
-        EntityProperty celLoc = createProperty(TimePointPropertyType.CEL_LOC, "CE");
-        EntityProperty t =
-                createProperty(TimePointPropertyType.TIME_SERIES_DATA_SET_TYPE, "MetaboliteLCMS");
-        externalData.setDataSetProperties(Arrays.<IEntityProperty> asList(tr, biID, cg, vt, scale,
-                celLoc, t));
-        return externalData;
-    }
-
-    private EntityProperty createProperty(TimePointPropertyType type, String value)
-    {
-        return createProperty(type.toString(), value);
-    }
-
-    private EntityProperty createProperty(String code, String value)
-    {
-        EntityProperty entityProperty = new EntityProperty();
-        PropertyType propertyType = new PropertyType();
-        propertyType.setCode(code);
-        entityProperty.setPropertyType(propertyType);
-        entityProperty.setValue(value);
-        return entityProperty;
-    }
 }

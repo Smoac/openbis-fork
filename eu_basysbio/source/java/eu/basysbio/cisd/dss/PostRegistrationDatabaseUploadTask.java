@@ -85,7 +85,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
 
     public void setUp(String pluginName, Properties properties)
     {
-        parameters = new TimeSeriesDataSetUploaderParameters(properties, false);
+        parameters = new TimeSeriesDataSetUploaderParameters(properties);
         dataSource = DBUtils.createDBContext(properties).getDataSource();
     }
     

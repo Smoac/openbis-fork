@@ -55,6 +55,23 @@ public interface ITimeSeriesDAO extends BaseQuery
     @Select("insert into samples (perm_id) values (?{1}) returning id")
     public long createSample(String samplePermID);
     
+    @Select("select perm_id from data_columns join data_sets on dase_id = data_sets.id " +
+    		"where experiment_code = ?{1.experimentCode} " +
+    		"and cultivation_method = ?{1.cultivationMethod} " +
+    		"and biological_replicate_code = ?{1.biologicalReplicateCode} " + 
+    		"and time_point = ?{1.timePoint} " +
+    		"and time_point_type = ?{1.timePointType} " +
+    		"and technical_replicate_code = ?{1.technicalReplicateCode} " +
+    		"and celloc = ?{1.celLoc} " + 
+    		"and time_series_data_set_type = ?{1.timeSeriesDataSetType} " +
+    		"and value_type = ?{1.valueType} " +
+    		"and scale = ?{1.scale} " +
+    		"and bi_id = ?{1.biID} " +
+    		"and controlled_gene = ?{1.controlledGene} " + 
+    		"and (growth_phase is null or growth_phase = ?{1.growthPhase}) " +
+    		"and (genotype is null or genotype = ?{1.genotype})")
+    public DataSet<String> listDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader);
+    
     @Select("insert into data_columns (experiment_code, cultivation_method, "
             + "   biological_replicate_code, time_point, time_point_type, technical_replicate_code, "
             + "   celloc, time_series_data_set_type, value_type, scale, bi_id, controlled_gene, "

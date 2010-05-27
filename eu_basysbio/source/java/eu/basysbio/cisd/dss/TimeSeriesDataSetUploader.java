@@ -28,6 +28,8 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import net.lemnik.eodsql.DataSet;
+
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -39,7 +41,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -193,9 +194,13 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
         {
             throw new UserFailureException("Data column '" + dataColumnHeader + "' appears twice.");
         }
+        assertUniqueDataColumnHeader(dataColumnHeader);
         Experiment experiment = getExperiment(dataColumnHeader, dataSetInformation);
         String sampleCode = createSampleCode(dataColumnHeader).toUpperCase();
-        createSampleIfNecessary(dataColumnHeader, experiment, sampleCode);
+        if (ignoringTimePointDataSetCreation == false)
+        {
+            createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
+        }
         headers.add(dataColumnHeader);
 
         createSampleAndDataColumn(dataColumn, dataSetID, rowIDManager, dataColumnHeader,
@@ -208,27 +213,24 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
         }
     }
 
-    private void createSampleIfNecessary(DataColumnHeader dataColumnHeader, Experiment experiment,
-            String sampleCode)
+    private void assertUniqueDataColumnHeader(DataColumnHeader dataColumnHeader)
     {
-        if (ignoringTimePointDataSetCreation == false)
+        DataSet<String> permIDs = dao.listDataSetsByDataColumnHeader(dataColumnHeader);
+        List<String> dataSets = new ArrayList<String>();
+        try
         {
-            long sampleID =
-                    createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
-            if (parameters.isCheckExistingDataSets())
+            for (String id : permIDs)
             {
-                List<ExternalData> dataSets = service.listDataSetsBySampleID(sampleID, true);
-                for (ExternalData dataSet : dataSets)
-                {
-                    DataColumnHeader header = new DataColumnHeader(dataColumnHeader, dataSet);
-                    if (dataColumnHeader.equals(header))
-                    {
-                        throw new UserFailureException("For data column '" + dataColumnHeader
-                                + "' the data set '" + dataSet.getCode()
-                                + "' has already been registered.");
-                    }
-                }
+                dataSets.add(id);
             }
+        } finally
+        {
+            permIDs.close();
+        }
+        if (dataSets.isEmpty() == false)
+        {
+            throw new UserFailureException("For data column '" + dataColumnHeader
+                    + "' following data sets have already been registered: " + dataSets);
         }
     }
 

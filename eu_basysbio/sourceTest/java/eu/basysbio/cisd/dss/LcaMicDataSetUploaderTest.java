@@ -78,7 +78,7 @@ public class LcaMicDataSetUploaderTest extends AbstractFileSystemTestCase
                         .toString());
         uploader =
                 new LcaMicDataSetUploader(dao, service, new TimeSeriesDataSetUploaderParameters(
-                        properties, true));
+                        properties));
     }
     
     @AfterMethod
