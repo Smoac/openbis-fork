@@ -42,7 +42,6 @@ public class DssScreeningApiServlet extends HttpInvokerServlet
 
     public DssScreeningApiServlet()
     {
-        super(getDssScreeningService(), "rmi-screening-dss-api");
+        super(getDssScreeningService(), "/rmi-datastore-server-screening-api-v1");
     }
-
 }
