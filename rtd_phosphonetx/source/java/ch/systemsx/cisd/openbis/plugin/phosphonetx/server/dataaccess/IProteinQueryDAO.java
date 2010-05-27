@@ -49,7 +49,7 @@ public interface IProteinQueryDAO extends BaseQuery
             + "left join identified_proteins as ip on ip.sequ_id = s.id "
             + "left join proteins as p on ip.prot_id = p.id "
             + "left join data_sets as d on p.dase_id = d.id "
-            + "left join experiments as e on d.expe_id = e.id where e.perm_id = ?{1}")
+            + "left join experiments as e on d.expe_id = e.id where e.perm_id = ?{1} and ip.is_primary = 't'")
     public DataSet<ProteinReferenceWithProtein> listProteinReferencesByExperiment(
             String experimentPermID);
     
@@ -65,7 +65,7 @@ public interface IProteinQueryDAO extends BaseQuery
             + "left join peptides as pe on pe.prot_id = p.id "
             + "left join data_sets as d on p.dase_id = d.id "
             + "left join experiments as e on d.expe_id = e.id " 
-            + "where e.perm_id = ?{1} ")
+            + "where e.perm_id = ?{1} and ip.is_primary = 't'")
     public DataSet<ProteinReferenceWithProbabilityAndPeptide> listProteinsWithProbabilityAndPeptidesByExperiment(
             String experimentPermID);
     
@@ -89,11 +89,11 @@ public interface IProteinQueryDAO extends BaseQuery
             + "probability, count(pe.id) as peptide_count, amino_acid_sequence, s.db_id, name_and_version "
             + "from data_sets as ds join experiments as e on ds.expe_id = e.id "
             + "                     join proteins as p on p.dase_id = ds.id "
-            + "                     join identified_proteins as i on i.prot_id = p.id "
-            + "                     join sequences as s on i.sequ_id = s.id "
+            + "                     join identified_proteins as ip on ip.prot_id = p.id "
+            + "                     join sequences as s on ip.sequ_id = s.id "
             + "                     join databases as db on s.db_id = db.id "
             + "                     left join peptides as pe on pe.prot_id = p.id "
-            + "where s.prre_id = ?{2} and e.perm_id = ?{1} "
+            + "where s.prre_id = ?{2} and e.perm_id = ?{1} and ip.is_primary = 't' "
             + "group by data_set_id, data_set_perm_id, protein_id, probability, "
             + "         amino_acid_sequence, s.db_id, name_and_version order by data_set_perm_id")
     public DataSet<IdentifiedProtein> listProteinsByProteinReferenceAndExperiment(
@@ -106,10 +106,10 @@ public interface IProteinQueryDAO extends BaseQuery
             + "from abundances as a left join proteins as p on a.prot_id = p.id "
             + "                     left join data_sets as d on p.dase_id = d.id "
             + "                     left join experiments as e on d.expe_id = e.id "
-            + "                     left join identified_proteins as i on i.prot_id = p.id "
-            + "                     left join sequences as s on i.sequ_id = s.id "
+            + "                     left join identified_proteins as ip on ip.prot_id = p.id "
+            + "                     left join sequences as s on ip.sequ_id = s.id "
             + "                     left join samples on a.samp_id = samples.id "
-            + "where e.perm_id = ?{1} and s.prre_id = ?{2}")
+            + "where e.perm_id = ?{1} and s.prre_id = ?{2} and ip.is_primary = 't'")
     public DataSet<SampleAbundance> listSampleAbundanceByProtein(String experimentPermID,
             long proteinReferenceID);
     
