@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
@@ -166,6 +167,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IDataStoreDAO dataStoreDAO;
 
+    protected ISampleLister sampleLister;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -206,6 +209,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         externalDataBO = context.mock(IExternalDataBO.class);
         // Table
         externalDataTable = context.mock(IExternalDataTable.class);
+        sampleLister = context.mock(ISampleLister.class);
         datasetLister = context.mock(IDatasetLister.class);
         experimentTable = context.mock(IExperimentTable.class);
         propertyTypeTable = context.mock(IPropertyTypeTable.class);
@@ -270,7 +274,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                 }
             });
     }
-    
+
     protected void prepareRegisterPerson()
     {
         context.checking(new Expectations()
@@ -278,22 +282,22 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                 {
                     one(personDAO).listByCodes(Arrays.asList(CommonTestUtils.USER_ID));
                     will(returnValue(new ArrayList<PersonPE>()));
-    
+
                     final String applicationToken = "application-token";
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
-    
+
                     final PersonPE systemPerson = createSystemUser();
                     one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
                     will(returnValue(systemPerson));
-    
+
                     one(authenticationService).getPrincipal(applicationToken,
                             CommonTestUtils.USER_ID);
                     will(returnValue(PRINCIPAL));
-    
+
                     final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
                     person.setDisplaySettings(systemPerson.getDisplaySettings());
-    
+
                     one(personDAO).createPerson(with(new PersonWithDisplaySettingsMatcher(person)));
                 }
             });
@@ -312,7 +316,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     {
         return new DisplaySettings();
     }
-
 
     static final protected ExperimentPE createExperiment(final String experimentTypeCode,
             final String experimentCode, final String groupCode)
