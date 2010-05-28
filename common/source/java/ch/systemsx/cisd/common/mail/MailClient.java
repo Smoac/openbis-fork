@@ -20,6 +20,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -250,6 +252,7 @@ public final class MailClient extends Authenticator implements IMailClient
             {
                 messagePreparerOrNull.prepareMessage(msg);
             }
+            msg.setSentDate(new Date());
             send(msg);
         } catch (MessagingException ex)
         {
@@ -292,6 +295,7 @@ public final class MailClient extends Authenticator implements IMailClient
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void writeMessageToFile(MimeMessage msg) throws MessagingException
     {
         File emailFolder = new File(smtpHost.substring(FILE_PREFIX.length()));
@@ -313,10 +317,11 @@ public final class MailClient extends Authenticator implements IMailClient
         }
         File file = FileUtilities.createNextNumberedFile(new File(emailFolder, "email"), null);
         StringBuilder builder = new StringBuilder();
-        builder.append("Subj: ").append(msg.getSubject()).append('\n');
-        builder.append("From: ").append(renderAddresses(msg.getFrom())).append('\n');
-        builder.append("To:   ").append(renderAddresses(msg.getAllRecipients())).append('\n');
-        builder.append("Reply-To: ").append(renderAddresses(msg.getReplyTo())).append('\n');
+        final Enumeration<String> headers = msg.getAllHeaderLines();
+        while (headers.hasMoreElements())
+        {
+            builder.append(headers.nextElement()).append('\n');
+        }
         builder.append("Content:\n");
         try
         {
@@ -337,23 +342,6 @@ public final class MailClient extends Authenticator implements IMailClient
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
         FileUtilities.writeToFile(file, builder.toString());
-    }
-
-    private String renderAddresses(Address[] addresses)
-    {
-        StringBuilder builder = new StringBuilder();
-        if (addresses != null)
-        {
-            for (int i = 0; i < addresses.length; i++)
-            {
-                builder.append(addresses[i]);
-                if (i < addresses.length - 1)
-                {
-                    builder.append(", ");
-                }
-            }
-        }
-        return builder.toString();
     }
 
     //
