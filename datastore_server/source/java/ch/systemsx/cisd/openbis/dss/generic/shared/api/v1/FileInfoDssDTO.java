@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 /**
  * Represents information about a file stored in DSS.
  * 
@@ -80,12 +83,9 @@ public class FileInfoDssDTO implements Serializable
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("FileInfoDss[");
+        ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         sb.append(getPathInDataSet());
-        sb.append(",");
         sb.append(getFileSize());
-        sb.append("]");
         return sb.toString();
     }
 }
