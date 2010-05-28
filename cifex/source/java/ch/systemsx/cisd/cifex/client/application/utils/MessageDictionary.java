@@ -19,41 +19,67 @@ package ch.systemsx.cisd.cifex.client.application.utils;
 import com.google.gwt.i18n.client.Dictionary;
 
 /**
- * Allows to access messages defined in message-dictionary.js. These messages can be changed at
- * runtime.
+ * Allows to access messages defined in <code>message-dictionary.js</code>. Entries in this
+ * dictionary can be changed at runtime.
  * 
  * @author Tomasz Pylak
  */
 public enum MessageDictionary
 {
-    START_PAGE_WELCOME_NOTE,
+    UNKNOWN_LABEL,
 
-    HEADER_WEBPAGE_LINK,
+    LAUNCH_JWS_APPLICATION_TITLE,
 
-    EDIT_USER_DIALOG_TITLE,
-    
-    SUPPORT_EMAIL,
-    
+    GRID_FILTERS_LABEL,
+
+    GRID_COLUMNS_LABEL,
+
     CONTACT_SUPPORT_LABEL,
 
-    UPLOADFILES_INFO_PERMANENT_USER,
+    HELP_DISCLAIMER_LABEL,
+
+    HELP_DISCLAIMER_TITLE,
+
+    HELP_FAQ_LABEL,
     
+    HELP_FAQ_TITLE,
+    
+    HELP_MANUAL_LABEL,
+    
+    HELP_TOOLS_LABEL,
+
+    EDIT_USER_DIALOG_TITLE,
+
+    UPLOADFILES_INFO_PERMANENT_USER,
+
     UPLOADFILES_INFO_TEMPORARY_USER;
 
-    private static final Dictionary DICT = Dictionary.getDictionary("message_dict");
+    private static final Dictionary MSG_DICT = Dictionary.getDictionary("message_dict");
 
     private static final String[] PLACEHOLDERS =
         { "{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}", "{9}" };
 
-    public static final String getInternationalizedLabel(MessageDictionary key, Object... args)
+    /**
+     * Returns a localized message string from <code>message-dictionary.js</code>.
+     */
+    public static final String msg(MessageDictionary key)
+    {
+        return MSG_DICT.get(key.name());
+    }
+
+    /**
+     * Returns a localized message string from <code>message-dictionary.js</code>.
+     */
+    public static final String msg(MessageDictionary key, Object... args)
     {
         assert args.length <= PLACEHOLDERS.length;
 
-        String value = DICT.get(key.name());
+        String value = MSG_DICT.get(key.name());
         for (int i = 0; i < args.length; ++i)
         {
             value = value.replace(PLACEHOLDERS[i], args[i].toString());
         }
         return value;
     }
+
 }

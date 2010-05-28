@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import static ch.systemsx.cisd.cifex.client.application.WidgetFactory.getLinkWidget;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
 
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
@@ -63,7 +64,7 @@ final class FooterPanel extends HorizontalPanel
                 new Html(createContactAdministrator(configuration, messageResources));
         final Widget version = new Html(createVersionDiv(configuration));
         final Widget disclaimerLink = createDisclaimerLink(messageResources);
-        final Widget documentationLink = createDocumentationLink(messageResources);
+        final Widget documentationLink = createFAQLink(messageResources);
         add(applicationDescription);
         add(createSeparator());
         add(version);
@@ -82,15 +83,15 @@ final class FooterPanel extends HorizontalPanel
 
     private final Widget createDisclaimerLink(final IMessageResources messageResources)
     {
-        return getLinkWidget(messageResources.getFooterDisclaimerLinkLabel(), new ClickHandler()
+        return getLinkWidget(msg(HELP_DISCLAIMER_LABEL), new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
                     try
                     {
-                        new RequestBuilder(RequestBuilder.GET, "disclaimer.html").sendRequest(null,
-                                new HTMLRequestCallback(viewContext, messageResources
-                                        .getFooterDisclaimerDialogTitle()));
+                        new RequestBuilder(RequestBuilder.GET, HelpDialogController.DISCLAIMER_HTML)
+                                .sendRequest(null, new HTMLRequestCallback(viewContext,
+                                        msg(HELP_DISCLAIMER_TITLE)));
                     } catch (final RequestException ex)
                     {
                         showErrorMessage(ex);
@@ -99,18 +100,17 @@ final class FooterPanel extends HorizontalPanel
             });
     }
 
-    private final Widget createDocumentationLink(final IMessageResources messageResources)
+    private final Widget createFAQLink(final IMessageResources messageResources)
     {
-        return getLinkWidget(messageResources.getFooterDocumentationLinkLabel(), new ClickHandler()
+        return getLinkWidget(msg(HELP_FAQ_LABEL), new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
                     try
                     {
-                        new RequestBuilder(RequestBuilder.GET, "documentation.html").sendRequest(
-                                null, new HTMLRequestCallback(viewContext, messageResources
-                                        .getFooterDocumentationDialogTitle(),
-                                        DefaultLayoutDialog.DEFAULT_WIDTH * 2,
+                        new RequestBuilder(RequestBuilder.GET, HelpDialogController.FAQ_HTML)
+                                .sendRequest(null, new HTMLRequestCallback(viewContext,
+                                        msg(HELP_FAQ_TITLE), DefaultLayoutDialog.DEFAULT_WIDTH * 2,
                                         DefaultLayoutDialog.DEFAULT_HEIGHT * 2));
                     } catch (final RequestException ex)
                     {
@@ -131,8 +131,7 @@ final class FooterPanel extends HorizontalPanel
     private final static String createContactAdministrator(final Configuration configuration,
             final IMessageResources messageResources)
     {
-        return DOMUtils.createEmailAnchor(getInternationalizedLabel(SUPPORT_EMAIL),
-                getInternationalizedLabel(CONTACT_SUPPORT_LABEL));
+        return DOMUtils.createEmailAnchor(info(SUPPORT_EMAIL), msg(CONTACT_SUPPORT_LABEL));
     }
 
     private final void showErrorMessage(final Throwable ex)

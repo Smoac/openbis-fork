@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -91,8 +92,8 @@ public final class MainPage extends Viewport
         cifexLogo.setTitle(CISD_LOGO_TITLE);
         cifexLogo.setPixelSize(81, 50);
         Anchor cifexLogoLinked =
-                new Anchor(cifexLogo.getElement().getString(), true,
-                        getInternationalizedLabel(HEADER_WEBPAGE_LINK), "_blank");
+                new Anchor(cifexLogo.getElement().getString(), true, info(HEADER_WEBPAGE_LINK),
+                        "_blank");
         container.add(cifexLogoLinked, new TableData(HorizontalAlignment.LEFT,
                 VerticalAlignment.BOTTOM));
         container.add(createUserInfoWidget(), new TableData(HorizontalAlignment.RIGHT,
@@ -221,20 +222,16 @@ public final class MainPage extends Viewport
 
     private Widget createFAQWidget()
     {
-        final IMessageResources messageResources = context.getMessageResources();
-        Anchor html =
-                clickableHTMLWidget(messageResources.getFooterDocumentationLinkLabel(),
-                        messageResources.getFooterDocumentationDialogTitle());
+        Anchor html = clickableHTMLWidget(msg(HELP_FAQ_LABEL), msg(HELP_FAQ_TITLE));
         html.addClickHandler(new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
                     try
                     {
-                        new RequestBuilder(RequestBuilder.GET, "documentation.html").sendRequest(
-                                null, new HTMLRequestCallback(context, messageResources
-                                        .getFooterDocumentationDialogTitle(),
-                                        DefaultLayoutDialog.DEFAULT_WIDTH * 2,
+                        new RequestBuilder(RequestBuilder.GET, HelpDialogController.FAQ_HTML)
+                                .sendRequest(null, new HTMLRequestCallback(context,
+                                        msg(HELP_FAQ_TITLE), DefaultLayoutDialog.DEFAULT_WIDTH * 2,
                                         DefaultLayoutDialog.DEFAULT_HEIGHT * 2));
                     } catch (final RequestException ex)
                     {
@@ -247,19 +244,16 @@ public final class MainPage extends Viewport
 
     private Widget createDisclamerWidget()
     {
-        final IMessageResources messageResources = context.getMessageResources();
-        Anchor html =
-                clickableHTMLWidget(messageResources.getFooterDisclaimerLinkLabel(),
-                        messageResources.getFooterDisclaimerDialogTitle());
+        Anchor html = clickableHTMLWidget(msg(HELP_DISCLAIMER_LABEL), msg(HELP_DISCLAIMER_TITLE));
         html.addClickHandler(new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
                     try
                     {
-                        new RequestBuilder(RequestBuilder.GET, "disclaimer.html").sendRequest(null,
-                                new HTMLRequestCallback(context, messageResources
-                                        .getFooterDisclaimerDialogTitle()));
+                        new RequestBuilder(RequestBuilder.GET, HelpDialogController.DISCLAIMER_HTML)
+                                .sendRequest(null, new HTMLRequestCallback(context,
+                                        msg(HELP_DISCLAIMER_TITLE)));
                     } catch (final RequestException ex)
                     {
                         showErrorMessage(ex);

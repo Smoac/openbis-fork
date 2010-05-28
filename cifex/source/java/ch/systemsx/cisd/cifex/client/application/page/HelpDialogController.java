@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
@@ -34,8 +34,16 @@ import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
  */
 public class HelpDialogController extends AbstractDialogController
 {
+    public static final String USER_MANUAL_PDF = "CIFEX-User_Manual.pdf";
+    
+    public static final String TOOLS_HTML = "tools.html";
+    
+    public static final String DISCLAIMER_HTML = "disclaimer.html";
+    
+    public static final String FAQ_HTML = "faq.html";
+    
     public static final String FOOTER_APPLICATION_DESCRIPTION =
-            "<a href=\"" + getInternationalizedLabel(HEADER_WEBPAGE_LINK)
+            "<a href=\"" + info(HEADER_WEBPAGE_LINK)
                     + "\" target=\"_blank\">CISD File EXchanger</a>";
 
     /**
@@ -59,15 +67,13 @@ public class HelpDialogController extends AbstractDialogController
 
     private final String getHelpPageHTMLString()
     {
-        IMessageResources messageResources = context.getMessageResources();
         StringBuffer sb = new StringBuffer();
-        appendBlockAnchor(sb, "CIFEX-10.01-User_Manual.pdf", messageResources
-                .getHelpDocumentationLinkLabel());
-        appendBlockAnchor(sb, "documentation.html", messageResources.getHelpFAQLinkLabel());
-        appendBlockAnchor(sb, "disclaimer.html", messageResources.getFooterDisclaimerLinkLabel());
-        appendBlockAnchor(sb, "tools.html", messageResources.getHelpToolsLinkLabel());
-        appendBlock(sb, DOMUtils.createEmailAnchor(getInternationalizedLabel(SUPPORT_EMAIL),
-                getInternationalizedLabel(CONTACT_SUPPORT_LABEL)));
+        appendBlockAnchor(sb, USER_MANUAL_PDF, msg(HELP_MANUAL_LABEL));
+        appendBlockAnchor(sb, FAQ_HTML, msg(HELP_FAQ_TITLE));
+        appendBlockAnchor(sb, DISCLAIMER_HTML, msg(HELP_DISCLAIMER_TITLE));
+        appendBlockAnchor(sb, TOOLS_HTML, msg(HELP_TOOLS_LABEL));
+        appendBlock(sb, DOMUtils.createEmailAnchor(info(SUPPORT_EMAIL),
+                msg(CONTACT_SUPPORT_LABEL)));
         sb.append(getApplicationDescriptionHTMLString());
 
         return sb.toString();

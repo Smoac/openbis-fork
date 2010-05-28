@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -77,7 +77,7 @@ public class LoginWidget extends VerticalPanel
 
         add(formPanel);
 
-        Text label = new Text(getInternationalizedLabel(START_PAGE_WELCOME_NOTE));
+        Text label = new Text(info(START_PAGE_WELCOME_NOTE));
         label.setStyleName("cifex-welcome-warning");
 
         add(label);

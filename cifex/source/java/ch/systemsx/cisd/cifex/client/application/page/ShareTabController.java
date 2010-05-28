@@ -84,13 +84,13 @@ class ShareTabController extends AbstractMainPageTabController
         final StringBuilder notesText = new StringBuilder();
         if (isPermanent)
         {
-            notesText.append(getInternationalizedLabel(UPLOADFILES_INFO_PERMANENT_USER, FileListingTabHelper
+            notesText.append(msg(UPLOADFILES_INFO_PERMANENT_USER, FileListingTabHelper
                     .getMaxFileSize(user.getMaxFileSizePerQuotaGroupInMB()), FileListingTabHelper
                     .getCurrentFileSizeInMB(user.getCurrentFileSize()), FileListingTabHelper
                     .getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));
         } else
         {
-            notesText.append(getInternationalizedLabel(UPLOADFILES_INFO_TEMPORARY_USER, FileListingTabHelper
+            notesText.append(msg(UPLOADFILES_INFO_TEMPORARY_USER, FileListingTabHelper
                     .getMaxFileSize(user.getMaxFileSizePerQuotaGroupInMB()), FileListingTabHelper
                     .getCurrentFileSizeInMB(user.getCurrentFileSize()), FileListingTabHelper
                     .getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));

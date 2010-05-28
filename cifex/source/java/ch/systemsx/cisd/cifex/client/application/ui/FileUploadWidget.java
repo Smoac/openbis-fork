@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -164,7 +166,7 @@ public final class FileUploadWidget extends LayoutContainer
         uploaderPanel.setBorders(true);
         uploaderPanel.setHeight(335);
 
-        final String webStartTitle = messageResources.getLaunchJWSApplicationTitle();
+        final String webStartTitle = msg(LAUNCH_JWS_APPLICATION_TITLE);
         final String servletName = ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME;
         final String buttonTitle = messageResources.getLaunchJavaUploaderButtonTitle();
         final Button launchButton = new Button(buttonTitle, new SelectionListener<ButtonEvent>()

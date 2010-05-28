@@ -45,7 +45,7 @@ public final class EditUserDialog extends DefaultLayoutDialog
     public EditUserDialog(final ViewContext context, final UserInfoDTO user,
             final GridWidget<UserGridModel> userGrid)
     {
-        super(context.getMessageResources(), getInternationalizedLabel(EDIT_USER_DIALOG_TITLE, user
+        super(context.getMessageResources(), msg(EDIT_USER_DIALOG_TITLE, user
                 .getUserCode()), UserWidget.TOTAL_WIDTH + 30, getHeight(context));
         editUserWidget =
                 new EditUserWidget(context, context.getModel().getUser().isAdmin(), user, false)

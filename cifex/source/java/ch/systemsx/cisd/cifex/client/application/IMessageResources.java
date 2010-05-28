@@ -260,34 +260,6 @@ public interface IMessageResources extends Messages
     @Key(value = "fileupload.duplicates.msg")
     public String getFileUploadDuplicatesMsg();
 
-    /** Returns title of the disclaimer window dialog. */
-    @Key(value = "footer.disclaimer.dialog.title")
-    public String getFooterDisclaimerDialogTitle();
-
-    /** Returns disclaimer link label. */
-    @Key(value = "footer.disclaimer.link.label")
-    public String getFooterDisclaimerLinkLabel();
-
-    /** Returns title of the disclaimer window dialog. */
-    @Key(value = "footer.documentation.dialog.title")
-    public String getFooterDocumentationDialogTitle();
-
-    /** Returns documentation link label. */
-    @Key(value = "footer.documentation.link.label")
-    public String getFooterDocumentationLinkLabel();
-
-    /** Returns tools link label. */
-    @Key(value = "help.tools.link.label")
-    public String getHelpToolsLinkLabel();
-
-    /** Returns documentation link label. */
-    @Key(value = "help.documentation.link.label")
-    public String getHelpDocumentationLinkLabel();
-
-    /** Returns FAQ link label. */
-    @Key(value = "help.faq.link.label")
-    public String getHelpFAQLinkLabel();
-
     /**
      * Returns a default invocation exception message (as it obviously does not contain any).
      */
@@ -444,10 +416,6 @@ public interface IMessageResources extends Messages
     @Key(value = "usercreation.role.temporary")
     public String getTemporaryRoleName();
 
-    /** Returns unknown label. */
-    @Key(value = "unknown.label")
-    public String getUnknownLabel();
-
     /** Returns the message text for shared files being loaded. */
     @Key(value = "uploadedfiles.loading")
     public String getSharedFilesLoading();
@@ -552,21 +520,9 @@ public interface IMessageResources extends Messages
     @Key(value = "value.user.code.text")
     public String getValueUserCode();
 
-    /** Returns the grid filters label */
-    @Key(value = "grid.filters")
-    public String getGridFiltersLabel();
-
-    /** Returns the grid columns label */
-    @Key(value = "grid.columns")
-    public String getGridColumnsLabel();
-
     /** Returns the expiration date for user / file creation editing */
     @Key(value = "userfile.expiration.date")
     public String getExpirationDateLabel();
-
-    /** Returns the title of Java Web Start Applications button. */
-    @Key(value = "launchJWSApplicationTitle")
-    public String getLaunchJWSApplicationTitle();
 
     /** Returns the title of the reset button */
     @Key(value = "reset.button.title")

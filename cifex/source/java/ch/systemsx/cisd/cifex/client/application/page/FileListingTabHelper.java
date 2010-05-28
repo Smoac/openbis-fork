@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -143,7 +145,7 @@ class FileListingTabHelper
         AbstractMainPageTabController.addTitleRow(verticalPanel, messageResources
                 .getDownloadFilesPartTitleGreater2GB());
 
-        String webStartTitle = messageResources.getLaunchJWSApplicationTitle();
+        String webStartTitle = msg(LAUNCH_JWS_APPLICATION_TITLE);
         final String servletName = ServletPathConstants.FILE2GB_DOWNLOAD_SERVLET_NAME;
         final String buttonTitle = messageResources.getLaunchJavaDownloaderButtonTitle();
         final Button launchButton = new Button(buttonTitle, new SelectionListener<ButtonEvent>()

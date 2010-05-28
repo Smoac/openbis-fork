@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.grid;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -98,8 +100,8 @@ public class GridWidget<M extends IModelDataWithID>
                 }
             };
         return createFilterAndPagingToolbar(filterFields, onFilterAction, new FilterMenu(
-                filterFields, messageResources.getGridFiltersLabel(), grid.getColumnModel()),
-                new ColumnMenu(messageResources.getGridColumnsLabel(), grid.getColumnModel()));
+                filterFields, msg(GRID_FILTERS_LABEL), grid.getColumnModel()),
+                new ColumnMenu(msg(GRID_COLUMNS_LABEL), grid.getColumnModel()));
     }
 
     public void setDataAndRefresh(List<M> models)

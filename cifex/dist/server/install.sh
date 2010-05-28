@@ -39,10 +39,6 @@ fi
 
 properties_file="$installation_folder/service.properties"
 logconf_file="$installation_folder/log.xml"
-messages_file="$installation_folder/message-dictionary.js"
-disclaimer_file="$installation_folder/disclaimer.html"
-documentation_file="$installation_folder/documentation.html"
-favicon_file="$installation_folder/favicon.ico"
 
 rel_jetty_folder="jetty-`cat $installation_folder/jetty-version.txt`"
 jetty_folder="${server_folder}/${rel_jetty_folder}"
@@ -80,8 +76,8 @@ ln -s "${rel_jetty_folder}" jetty
 cd jetty/etc
 ln -s ../work/webapp/WEB-INF/classes/service.properties .
 ln -s ../work/webapp/WEB-INF/classes/etc/log.xml .
-ln -s ../work/webapp/message-dictionary.js .
-ln -s ../work/webapp/documentation.html .
+ln -s ../work/webapp/info-dictionary.js .
+ln -s ../work/webapp/faq.html .
 ln -s ../work/webapp/disclaimer.html .
 ln -s ../work/webapp/tools.html .
 ln -s ../work/webapp/loginHeader.html .

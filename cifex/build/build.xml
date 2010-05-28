@@ -31,7 +31,7 @@
 	<property name="gwt.war.web-inf.lib" value="${gwt.war.web-inf}/lib" />
 	<property name="gwt.war.web-inf.classes" value="${gwt.war.web-inf}/classes" />
 	<property name="cifex.cli.zip" value="${dist}/cifex_cli.zip" />
-	<property name="usermanual.pdf" value="${original.dist.server}/CIFEX-10.01-User_Manual.pdf" />
+	<property name="usermanual.pdf" value="${original.dist.server}/CIFEX-User_Manual.pdf" />
 
 	<!-- 
 	// Cleans distribution directory.
@@ -73,8 +73,9 @@
 		</copy>
 		<copy todir="${zipped.dir}" flatten="true">
 			<fileset dir="${sources}">
+				<include name="**/info-dictionary.js" />
 				<include name="**/message-dictionary.js" />
-				<include name="**/documentation.html" />
+				<include name="**/faq.html" />
 				<include name="**/disclaimer.html" />
 				<include name="**/loginHeader.html" />
 			</fileset>
