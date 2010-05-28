@@ -157,7 +157,6 @@ public class DssClient
         }
 
         String commandName = args[0];
-        System.out.println("Command " + commandName);
         ICommand command = commandFactory.tryCommandForName(commandName);
         if (null == command)
         {

@@ -342,8 +342,8 @@ class AuthenticatedState extends AbstractDssComponentState
     @Override
     public IDssServiceRpcGeneric getDefaultDssService()
     {
-        
-        return null;
+        String url = service.getDefaultDataStoreBaseURL(sessionToken);
+        return getDssServiceForUrl(url);
     }
 
     /**

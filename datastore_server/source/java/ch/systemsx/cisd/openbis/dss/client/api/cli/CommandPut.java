@@ -65,10 +65,10 @@ class CommandPut extends AbstractCommand
 
         private final IDssServiceRpcGeneric dssService;
 
-        CommandPutExecutor(IDssServiceRpcGeneric dataSet, CommandPutArguments arguments)
+        CommandPutExecutor(IDssServiceRpcGeneric dssService, CommandPutArguments arguments)
         {
             this.arguments = arguments;
-            this.dssService = dataSet;
+            this.dssService = dssService;
         }
 
         int execute()

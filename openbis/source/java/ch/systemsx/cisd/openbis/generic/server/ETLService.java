@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -679,6 +681,21 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
     public String getDefaultDataStoreBaseURL(String sessionToken)
     {
-        return getDataStoreBaseURL();
+        String url = getDataStoreBaseURL();
+        // Strip the web application name from the URL
+        if (url.endsWith("/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME))
+        {
+            url =
+                    url.substring(0, url.length()
+                            - (DATA_STORE_SERVER_WEB_APPLICATION_NAME.length() + 1));
+        }
+        // Strip "/data_store" from the URL as well
+        final String dataStoreString = "/data_store";
+        if (url.endsWith(dataStoreString))
+        {
+            url = url.substring(0, url.length() - dataStoreString.length());
+        }
+
+        return url;
     }
 }
