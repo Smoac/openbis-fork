@@ -204,6 +204,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 dataSetCodes);
     }
 
+    public void checkSpaceAccess(String sessionToken, SpaceIdentifier spaceId)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "checkSpaceAccess", "SPACE(%s)", spaceId);
+    }
+
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException
     {

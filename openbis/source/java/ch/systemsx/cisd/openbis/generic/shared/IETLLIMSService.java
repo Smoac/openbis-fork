@@ -271,7 +271,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Check which of the list of of data sets the current user can access.
+     * Check if the current user can access all the data sets in the list
      * 
      * @param sessionToken The user's session token.
      * @param dataSetCodes The data set codes the user wants to access.
@@ -392,7 +392,18 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     /**
      * Returns the URL for the default data store server for this openBIS AS.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public String getDefaultDataStoreBaseURL(String sessionToken);
+
+    /**
+     * Check if the user has USER access on the space
+     * 
+     * @param sessionToken The user's session token.
+     * @param spaceId The id for the space the user wants to access
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.USER)
+    public void checkSpaceAccess(String sessionToken,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceId);
 }

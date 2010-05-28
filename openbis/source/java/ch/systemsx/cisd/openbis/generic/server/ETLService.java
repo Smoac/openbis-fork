@@ -631,6 +631,13 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         // do nothing, the access rights specified in method annotations are checked by a proxy
     }
 
+    public void checkSpaceAccess(String sessionToken, SpaceIdentifier spaceId)
+            throws UserFailureException
+    {
+        checkSession(sessionToken);
+        // do nothing, the access rights specified in method annotations are checked by a proxy
+    }
+
     public List<Sample> listSamplesByCriteria(String sessionToken,
             ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
