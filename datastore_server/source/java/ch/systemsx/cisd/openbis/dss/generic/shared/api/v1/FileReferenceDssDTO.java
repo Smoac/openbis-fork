@@ -23,7 +23,7 @@ import java.io.Serializable;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class FileReferenceDTO implements Serializable
+public class FileReferenceDssDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -33,7 +33,7 @@ public class FileReferenceDTO implements Serializable
 
     private final boolean isRecursive;
 
-    public FileReferenceDTO(String dataSetCode, String path, boolean isRecursive)
+    public FileReferenceDssDTO(String dataSetCode, String path, boolean isRecursive)
     {
         this.dataSetCode = dataSetCode;
         this.path = path;

@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
  */
 class CommandGet extends AbstractCommand
 {
-    private static class CommandGetArguments extends GlobalArguments
+    private static class CommandGetArguments extends DataSetArguments
     {
         @Option(name = "r", longName = "recursive", usage = "Recurse into directories")
         private boolean recursive = false;

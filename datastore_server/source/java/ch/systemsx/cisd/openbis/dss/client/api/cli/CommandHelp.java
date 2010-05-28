@@ -74,7 +74,7 @@ class CommandHelp extends AbstractCommand
     @Override
     public void printUsage(PrintStream out)
     {
-        out.println("usage: " + getProgramCallString() + " COMMAND [options...] DATA_SET_CODE");
+        out.println("usage: " + getProgramCallString() + " COMMAND [options...] <command arguments>");
         List<String> commands = commandFactory.getKnownCommands();
         out.println("\nCommands:");
         for (String cmd : commands)

@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
  */
 class CommandLs extends AbstractCommand
 {
-    private static class CommandLsArguments extends GlobalArguments
+    private static class CommandLsArguments extends DataSetArguments
     {
         @Option(name = "r", longName = "recursive", usage = "Recurse into directories")
         private boolean recursive = false;

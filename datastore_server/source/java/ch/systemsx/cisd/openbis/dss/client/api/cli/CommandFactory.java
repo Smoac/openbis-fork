@@ -26,7 +26,7 @@ class CommandFactory
 {
     private static enum Command
     {
-        LS, GET, HELP
+        LS, GET, HELP, PUT
     }
 
     /**
@@ -58,6 +58,9 @@ class CommandFactory
             case HELP:
                 result = new CommandHelp(this);
                 break;
+            case PUT:
+                result = new CommandPut();
+                break;
             default:
                 result = null;
                 break;
@@ -69,7 +72,7 @@ class CommandFactory
     List<String> getKnownCommands()
     {
         String[] commands =
-            { "ls", "get" };
+            { "ls", "get", "put" };
         return Arrays.asList(commands);
     }
 }

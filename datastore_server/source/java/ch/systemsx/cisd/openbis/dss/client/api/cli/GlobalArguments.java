@@ -88,30 +88,6 @@ class GlobalArguments
         this.serverBaseUrl = serverBaseUrl;
     }
 
-    public String getDataSetCode()
-    {
-        List<String> args = getArguments();
-        if (args.size() < 1)
-        {
-            return "";
-        }
-        return args.get(0);
-    }
-
-    public String getRequestedPath()
-    {
-        List<String> args = getArguments();
-        String path;
-        if (args.size() < 2)
-        {
-            path = "/";
-        } else
-        {
-            path = args.get(1);
-        }
-        return path;
-    }
-
     public List<String> getArguments()
     {
         return arguments;
@@ -141,12 +117,7 @@ class GlobalArguments
         {
             return false;
         }
-        if (getDataSetCode().length() < 1)
-        {
-            return false;
-        }
 
         return true;
-
     }
 }

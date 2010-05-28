@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
  * A component that manages a connection to openBIS and 1 or more data store servers.
@@ -61,6 +62,16 @@ public interface IDssComponent
      *             the server.
      */
     public IDataSetDss getDataSet(String code) throws IllegalStateException,
+            EnvironmentFailureException;
+
+    /**
+     * Get a proxy to the default DSS server for the openBIS AS.
+     * 
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public IDssServiceRpcGeneric getDefaultDssService() throws IllegalStateException,
             EnvironmentFailureException;
 
     /**

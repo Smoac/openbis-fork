@@ -38,7 +38,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
-    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, FileReferenceDTO fileOrFolder)
+    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, FileReferenceDssDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -49,7 +49,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
-    public InputStream getFileForDataSet(String sessionToken, FileReferenceDTO fileOrFolder)
+    public InputStream getFileForDataSet(String sessionToken, FileReferenceDssDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -85,6 +85,6 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
-    public void putDataSet(String sessionToken, NewDatasetDTO newDataset)
+    public void putDataSet(String sessionToken, NewDataSetDssDTO newDataset)
             throws IOExceptionUnchecked, IllegalArgumentException;
 }

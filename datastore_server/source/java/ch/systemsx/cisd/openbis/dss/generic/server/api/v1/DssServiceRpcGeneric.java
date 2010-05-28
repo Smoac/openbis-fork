@@ -26,9 +26,9 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileReferenceDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileReferenceDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDatasetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDssDTO;
 
 /**
  * Implementation of the generic RPC interface.
@@ -86,7 +86,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
         }
     }
 
-    public void putDataSet(String sessionToken, NewDatasetDTO newDataSet)
+    public void putDataSet(String sessionToken, NewDataSetDssDTO newDataSet)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
 
@@ -121,14 +121,14 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
         factory.appendFileInfosForFile(requestedFile, list, isRecursive);
     }
 
-    public InputStream getFileForDataSet(String sessionToken, FileReferenceDTO fileOrFolder)
+    public InputStream getFileForDataSet(String sessionToken, FileReferenceDssDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         return this.getFileForDataSet(sessionToken, fileOrFolder.getDataSetCode(), fileOrFolder
                 .getPath());
     }
 
-    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, FileReferenceDTO fileOrFolder)
+    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, FileReferenceDssDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         return this.listFilesForDataSet(sessionToken, fileOrFolder.getDataSetCode(), fileOrFolder

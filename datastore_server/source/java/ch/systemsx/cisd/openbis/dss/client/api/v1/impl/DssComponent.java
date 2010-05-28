@@ -177,6 +177,12 @@ public class DssComponent implements IDssComponent
         state.login(user, password);
         state = new AuthenticatedState(openBisService, dssServiceFactory, state.getSessionToken());
     }
+
+    public IDssServiceRpcGeneric getDefaultDssService() throws IllegalStateException,
+            EnvironmentFailureException
+    {
+        return state.getDefaultDssService();
+    }
 }
 
 /**
@@ -202,6 +208,11 @@ abstract class AbstractDssComponentState implements IDssComponent
     }
 
     public IDataSetDss getDataSet(String code) throws IllegalStateException
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    public IDssServiceRpcGeneric getDefaultDssService() throws IllegalStateException
     {
         throw new IllegalStateException("Please log in");
     }
@@ -326,7 +337,13 @@ class AuthenticatedState extends AbstractDssComponentState
         IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
         // Return a proxy to the data set
         return new DataSetDss(code, dssService, this);
+    }
 
+    @Override
+    public IDssServiceRpcGeneric getDefaultDssService()
+    {
+        
+        return null;
     }
 
     /**

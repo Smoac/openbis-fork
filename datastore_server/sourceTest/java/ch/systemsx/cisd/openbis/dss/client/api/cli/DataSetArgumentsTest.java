@@ -26,30 +26,35 @@ import ch.systemsx.cisd.args4j.CmdLineParser;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class GlobalArgumentsTest extends AssertJUnit
+public class DataSetArgumentsTest extends AssertJUnit
 {
 
-    private GlobalArguments arguments;
+    private DataSetArguments arguments;
 
     private CmdLineParser parser;
 
     @BeforeMethod
     public void setUp()
     {
-        arguments = new GlobalArguments();
+        arguments = new DataSetArguments();
         parser = new CmdLineParser(arguments);
     }
 
     @Test
-    public void testHelp()
+    public void testParseBasicArguments()
     {
         String[] args =
-            { "-h" };
+                    { "-u", "foo", "-p", "bar", "-s", "http://localhost:8888/openbis",
+                            "20100318094819344-4" };
         try
         {
             parser.parseArgument(args);
+            assertEquals("foo", arguments.getUsername());
+            assertEquals("bar", arguments.getPassword());
+            assertEquals("http://localhost:8888/openbis", arguments.getServerBaseUrl());
+            assertEquals("20100318094819344-4", arguments.getDataSetCode());
             assertTrue(arguments.isComplete());
-            assertTrue(arguments.isHelp());
+            assertFalse(arguments.isHelp());
         } catch (CmdLineException c)
         {
             fail("Should have parsed arguments");
@@ -57,15 +62,14 @@ public class GlobalArgumentsTest extends AssertJUnit
     }
 
     @Test
-    public void testHelpWithCommand()
+    public void testParseIncompleteArguments()
     {
         String[] args =
-            { "-h", "get" };
+            { "-u", "foo", "-p", "bar", "-s", "http://localhost:8888/openbis" };
         try
         {
             parser.parseArgument(args);
-            assertTrue(arguments.isComplete());
-            assertTrue(arguments.isHelp());
+            assertFalse(arguments.isComplete());
         } catch (CmdLineException c)
         {
             fail("Should have parsed arguments");

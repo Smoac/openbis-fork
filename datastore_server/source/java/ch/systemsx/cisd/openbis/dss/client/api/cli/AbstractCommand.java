@@ -48,7 +48,7 @@ abstract class AbstractCommand implements ICommand
         out.println(getUsagePrefixString() + " [options] <data set code> <path>");
         parser.printUsage(out);
         out.println("  Example : " + getCommandCallString() + " "
-                + parser.printExample(ExampleMode.ALL));
+                + parser.printExample(ExampleMode.ALL) + " <data set code> <path>");
     }
 
     /**
@@ -82,15 +82,15 @@ abstract class AbstractCommand implements ICommand
     protected IDssComponent login(GlobalArguments arguments)
     {
         IDssComponent component =
-                DssComponentFactory.tryCreate(arguments.getUsername(), arguments.getPassword(), arguments
-                        .getServerBaseUrl());
+                DssComponentFactory.tryCreate(arguments.getUsername(), arguments.getPassword(),
+                        arguments.getServerBaseUrl());
         return component;
     }
 
     /**
      * Retuns a proxy to the DSS object referenced by the arguments.
      */
-    protected IDataSetDss getDataSet(IDssComponent component, GlobalArguments arguments)
+    protected IDataSetDss getDataSet(IDssComponent component, DataSetArguments arguments)
     {
         return component.getDataSet(arguments.getDataSetCode());
     }

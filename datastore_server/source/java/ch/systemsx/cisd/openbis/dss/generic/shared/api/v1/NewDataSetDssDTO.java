@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class NewDatasetDTO implements Serializable
+public class NewDataSetDssDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -44,7 +44,7 @@ public class NewDatasetDTO implements Serializable
      * @param inputStream An input stream on the file or folder to register. If a folder is to be
      *            registered, the input stream must be a {@link ConcatenatedFileInputStream}.
      */
-    public NewDatasetDTO(String storageProcessName, InputStream inputStream)
+    public NewDataSetDssDTO(String storageProcessName, InputStream inputStream)
     {
         this.storageProcessName = storageProcessName;
         this.inputStream = inputStream;
