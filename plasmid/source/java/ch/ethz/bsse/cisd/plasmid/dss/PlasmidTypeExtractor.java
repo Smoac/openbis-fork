@@ -19,18 +19,18 @@ package ch.ethz.bsse.cisd.plasmid.dss;
 import java.io.File;
 import java.util.Properties;
 
+import ch.ethz.bsse.cisd.plasmid.dss.DataSetTypeOracle.DataSetTypeInfo;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
- * The extractor that expects recognizes following data set types:
+ * The extractor that expects a single file and recognizes following data set types:
  * <ul>
  * <li>GB -- for a file with {@code .gb} extension
  * <li>SEQUENCING -- for a file with {@code .ab1} extension
  * <li>VERIFICATION -- for all other files
- * <li>UNKNOWN -- if a directory is provided instead of a file
  * </ul>
  * 
  * @author Piotr Buczek
@@ -38,43 +38,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 public class PlasmidTypeExtractor implements ITypeExtractor
 {
 
-    private final String GB_DATASET_TYPE = "GB";
-
-    private final String GB_DATASET_TYPE_FILE_EXTENSION = ".gb";
-
-    private final String SEQUENCING_DATASET_TYPE = "SEQUENCING";
-
-    private final String SEQUENCING_DATASET_TYPE_FILE_EXTENSION = ".ab1";
-
-    private final String VERIFICATION_DATASET_TYPE = "VERIFICATION";
-
-    private final String UNKNOWN_DATASET_TYPE = "UNKNOWN";
-
     public PlasmidTypeExtractor(final Properties properties)
     {
-
     }
 
     public DataSetType getDataSetType(File incomingDataSetPath)
     {
-        final String code;
-        if (incomingDataSetPath.isDirectory())
-        {
-            code = UNKNOWN_DATASET_TYPE;
-        } else
-        {
-            final String filename = incomingDataSetPath.getName();
-            if (filename.toLowerCase().endsWith(GB_DATASET_TYPE_FILE_EXTENSION))
-            {
-                code = GB_DATASET_TYPE;
-            } else if (filename.toLowerCase().endsWith(SEQUENCING_DATASET_TYPE_FILE_EXTENSION))
-            {
-                code = SEQUENCING_DATASET_TYPE;
-            } else
-            {
-                code = VERIFICATION_DATASET_TYPE;
-            }
-        }
+        final String code =
+                DataSetTypeOracle.extractDataSetTypeInfo(incomingDataSetPath).getDataSetTypeCode();
         return new DataSetType(code);
     }
 
@@ -95,7 +66,8 @@ public class PlasmidTypeExtractor implements ITypeExtractor
 
     public boolean isMeasuredData(File incomingDataSetPath)
     {
-        return true;
+        // only GB files are derived, SEQUENCING and VERIFICATION files are measured
+        return DataSetTypeOracle.extractDataSetTypeInfo(incomingDataSetPath) != DataSetTypeInfo.GB;
     }
 
 }

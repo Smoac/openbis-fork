@@ -21,25 +21,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Data set handler for plasmid data sets.
+ * <p>
+ * All files in the handled directory are delegated to the handler provided in the constructor. As
+ * the result a new data set will be created for each file in the directory.
  * 
  * @author Piotr Buczek
  */
 public class PlasmidDataSetHandler implements IDataSetHandler
 {
-    @SuppressWarnings("unused")
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, PlasmidDataSetHandler.class);
-
     private final IDataSetHandler delegator;
 
     public PlasmidDataSetHandler(Properties parentProperties, IDataSetHandler delegator,
@@ -50,13 +47,26 @@ public class PlasmidDataSetHandler implements IDataSetHandler
 
     public List<DataSetInformation> handleDataSet(File dataSet)
     {
+        if (dataSet.isDirectory() == false)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Failed to handle file '%s'. Expected a directory.", dataSet);
+        }
+
         List<DataSetInformation> result = new ArrayList<DataSetInformation>();
         File[] files = dataSet.listFiles();
+
         for (File file : files)
         {
             result.addAll(delegator.handleDataSet(file));
         }
+
+        if (dataSet.delete() == false)
+        {
+            throw new EnvironmentFailureException(String.format("Failed to delete '%s' directory.",
+                    dataSet));
+        }
+
         return result;
     }
-
 }
