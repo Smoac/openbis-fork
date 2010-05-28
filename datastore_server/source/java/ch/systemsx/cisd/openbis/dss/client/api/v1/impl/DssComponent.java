@@ -28,10 +28,12 @@ import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
@@ -178,10 +180,10 @@ public class DssComponent implements IDssComponent
         state = new AuthenticatedState(openBisService, dssServiceFactory, state.getSessionToken());
     }
 
-    public IDssServiceRpcGeneric getDefaultDssService() throws IllegalStateException,
-            EnvironmentFailureException
+    public void putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+            throws IllegalStateException, EnvironmentFailureException
     {
-        return state.getDefaultDssService();
+        state.putDataSet(newDataset, inputStream);
     }
 }
 
@@ -212,7 +214,8 @@ abstract class AbstractDssComponentState implements IDssComponent
         throw new IllegalStateException("Please log in");
     }
 
-    public IDssServiceRpcGeneric getDefaultDssService() throws IllegalStateException
+    public void putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+            throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
@@ -340,10 +343,12 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     @Override
-    public IDssServiceRpcGeneric getDefaultDssService()
+    public void putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+            throws IllegalStateException, EnvironmentFailureException
     {
         String url = service.getDefaultDataStoreBaseURL(sessionToken);
-        return getDssServiceForUrl(url);
+        IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
+        dssService.putDataSet(sessionToken, newDataset, inputStream);
     }
 
     /**

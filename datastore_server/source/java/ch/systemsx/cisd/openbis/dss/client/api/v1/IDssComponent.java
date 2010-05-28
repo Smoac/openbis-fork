@@ -18,7 +18,8 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
 /**
  * A component that manages a connection to openBIS and 1 or more data store servers.
@@ -65,14 +66,16 @@ public interface IDssComponent
             EnvironmentFailureException;
 
     /**
-     * Get a proxy to the default DSS server for the openBIS AS.
+     * Upload a new data set to the DSS.
      * 
+     * @param newDataset The new data set that should be registered
+     * @param inputStream An input stream on the file or folder to register.
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public IDssServiceRpcGeneric getDefaultDssService() throws IllegalStateException,
-            EnvironmentFailureException;
+    public void putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+            throws IllegalStateException, EnvironmentFailureException;
 
     /**
      * Logs the current user out.

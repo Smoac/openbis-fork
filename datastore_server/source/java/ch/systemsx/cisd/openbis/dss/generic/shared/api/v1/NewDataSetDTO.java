@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
-import java.io.InputStream;
 import java.io.Serializable;
+import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-
-import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
 
 /**
  * Represents a new data set that the DSS should register.
@@ -38,22 +36,17 @@ public class NewDataSetDTO implements Serializable
 
     private final String storageProcessName;
 
-    private final String fileName;
-
-    private final InputStream inputStream;
+    private final List<FileInfoDssDTO> fileInfos;
 
     /**
      * Constructor
      * 
      * @param storageProcessName The storage process that should handle this data set
-     * @param inputStream An input stream on the file or folder to register. If a folder is to be
-     *            registered, the input stream must be a {@link ConcatenatedFileInputStream}.
      */
-    public NewDataSetDTO(String storageProcessName, String fileName, InputStream inputStream)
+    public NewDataSetDTO(String storageProcessName, List<FileInfoDssDTO> fileInfos)
     {
         this.storageProcessName = storageProcessName;
-        this.fileName = fileName;
-        this.inputStream = inputStream;
+        this.fileInfos = fileInfos;
     }
 
     public String getStorageProcessName()
@@ -61,22 +54,17 @@ public class NewDataSetDTO implements Serializable
         return storageProcessName;
     }
 
-    public String getFileName()
+    public List<FileInfoDssDTO> getFileInfos()
     {
-        return fileName;
-    }
-
-    public InputStream getInputStream()
-    {
-        return inputStream;
+        return fileInfos;
     }
 
     @Override
     public String toString()
     {
         ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        sb.append("storageProcess", getStorageProcessName());
-        sb.append("fileName", getFileName());
+        sb.append(getStorageProcessName());
+        sb.append(getFileInfos());
         return sb.toString();
     }
 }

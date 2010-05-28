@@ -17,9 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
@@ -27,7 +28,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
 /**
@@ -66,35 +68,62 @@ class CommandPut extends AbstractCommand
     {
         private final CommandPutArguments arguments;
 
-        private final IDssServiceRpcGeneric dssService;
+        private final IDssComponent component;
 
-        CommandPutExecutor(IDssServiceRpcGeneric dssService, CommandPutArguments arguments)
+        CommandPutExecutor(IDssComponent dssService, CommandPutArguments arguments)
         {
             this.arguments = arguments;
-            this.dssService = dssService;
+            this.component = dssService;
         }
 
         int execute()
         {
-            NewDataSetDTO newDataSet = getNewDataSet();
-            dssService.putDataSet("", newDataSet);
+            try
+            {
+                NewDataSetDTO newDataSet = getNewDataSet();
+                if (newDataSet.getFileInfos().isEmpty())
+                {
+                    System.err.println("Data set file does not exist");
+                    return -1;
+                }
+                ConcatenatedFileInputStream fileInputStream =
+                        new ConcatenatedFileInputStream(true, getFilesForFileInfos(newDataSet
+                                .getFileInfos()));
+                component.putDataSet(newDataSet, fileInputStream);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+                return -1;
+            }
 
             return 0;
         }
 
-        private NewDataSetDTO getNewDataSet()
+        private NewDataSetDTO getNewDataSet() throws IOException
         {
             String storageProcessName = arguments.getStorageProcess();
             String filePath = arguments.getFilePath();
-            InputStream fileInputStream =
-                    new ConcatenatedFileInputStream(true, getFilesFromPath(filePath));
-            return new NewDataSetDTO(storageProcessName, filePath, fileInputStream);
+            ArrayList<FileInfoDssDTO> fileInfos = getFileInfosForPath(filePath);
+            return new NewDataSetDTO(storageProcessName, fileInfos);
         }
 
-        private ArrayList<File> getFilesFromPath(String path)
+        private ArrayList<FileInfoDssDTO> getFileInfosForPath(String path) throws IOException
+        {
+            ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
+            File file = new File(path);
+            if (false == file.exists())
+            {
+                return fileInfos;
+            }
+            FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
+            builder.appendFileInfosForFile(file, fileInfos, true);
+            return fileInfos;
+        }
+
+        private ArrayList<File> getFilesForFileInfos(List<FileInfoDssDTO> fileInfos)
         {
             ArrayList<File> files = new ArrayList<File>();
-            
+
             return files;
         }
     }
@@ -126,8 +155,7 @@ class CommandPut extends AbstractCommand
         }
 
         IDssComponent component = login(arguments);
-        IDssServiceRpcGeneric dssService = component.getDefaultDssService();
-        return new CommandPutExecutor(dssService, arguments).execute();
+        return new CommandPutExecutor(component, arguments).execute();
     }
 
     public String getName()

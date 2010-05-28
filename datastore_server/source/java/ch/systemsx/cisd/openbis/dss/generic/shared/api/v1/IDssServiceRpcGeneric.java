@@ -82,9 +82,11 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * 
      * @param sessionToken The session token
      * @param newDataset The new data set that should be registered
+     * @param inputStream An input stream on the file or folder to register
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
-    public void putDataSet(String sessionToken, NewDataSetDTO newDataset)
-            throws IOExceptionUnchecked, IllegalArgumentException;
+    public void putDataSet(String sessionToken, NewDataSetDTO newDataset,
+            InputStream inputStream) throws IOExceptionUnchecked,
+            IllegalArgumentException;
 }
