@@ -392,6 +392,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     /**
      * Returns the URL for the default data store server for this openBIS AS.
      */
+    @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     public String getDefaultDataStoreBaseURL(String sessionToken);
 }
