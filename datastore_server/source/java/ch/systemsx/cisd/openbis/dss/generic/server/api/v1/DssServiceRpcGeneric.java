@@ -90,6 +90,13 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
     public void putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
+        // TODO: Check that put has been configured (requires a temp folder)
+
+        // TODO: Check that the session owner has at least user access to the space the new data set
+        // should belongs to
+
+        // TODO: When registering, set the registrator to the session owner; only an admin on the
+        // space or an ETL server can override.
         System.out.println("put " + newDataSet);
         try
         {

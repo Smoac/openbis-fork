@@ -31,6 +31,8 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 
 /**
  * Command that lists files in the data set.
@@ -41,14 +43,24 @@ class CommandPut extends AbstractCommand
 {
     private static class CommandPutArguments extends GlobalArguments
     {
-        public String getStorageProcess()
+        public String getDataSetType()
         {
             return getArguments().get(0);
         }
 
+        public DataSetOwnerType getOwnerType()
+        {
+            return DataSetOwnerType.valueOf(getArguments().get(1).toString().toUpperCase());
+        }
+
+        public String getOwnerIdentifier()
+        {
+            return getArguments().get(2);
+        }
+
         public String getFilePath()
         {
-            return getArguments().get(1);
+            return getArguments().get(3);
         }
 
         @Override
@@ -57,8 +69,16 @@ class CommandPut extends AbstractCommand
             if (false == super.isComplete())
                 return false;
 
-            if (getArguments().size() < 2)
+            if (getArguments().size() < 3)
                 return false;
+
+            try
+            {
+                DataSetOwnerType.valueOf(getArguments().get(1).toString().toUpperCase());
+            } catch (IllegalArgumentException e)
+            {
+                return false;
+            }
 
             return true;
         }
@@ -101,10 +121,14 @@ class CommandPut extends AbstractCommand
 
         private NewDataSetDTO getNewDataSet() throws IOException
         {
-            String storageProcessName = arguments.getStorageProcess();
+            String dataSetType = arguments.getDataSetType();
+            // That the owner type is valid has already been checked by CmdPutArguments#isComplete
+            DataSetOwnerType ownerType = arguments.getOwnerType();
+            String ownerIdentifier = arguments.getOwnerIdentifier();
+            DataSetOwner owner = new NewDataSetDTO.DataSetOwner(ownerType, ownerIdentifier);
             String filePath = arguments.getFilePath();
             ArrayList<FileInfoDssDTO> fileInfos = getFileInfosForPath(filePath);
-            return new NewDataSetDTO(storageProcessName, fileInfos);
+            return new NewDataSetDTO(dataSetType, owner, fileInfos);
         }
 
         private ArrayList<FileInfoDssDTO> getFileInfosForPath(String path) throws IOException
@@ -169,9 +193,13 @@ class CommandPut extends AbstractCommand
     @Override
     public void printUsage(PrintStream out)
     {
-        out.println(getUsagePrefixString() + " [options] <storage process> <path>");
+        out.println(getUsagePrefixString()
+                + " [options] <data set type> <owner type> <owner> <path>");
         parser.printUsage(out);
-        out.println("  Example : " + getCommandCallString() + " "
-                + parser.printExample(ExampleMode.ALL) + " <storage process> <path>");
+        out.println("  Examples : ");
+        out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
+                + " HCS_IMAGE EXPERIMENT <experiment identifier> <path>");
+        out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
+                + " HCS_IMAGE SAMPLE <sample identifier> <path>");
     }
 }

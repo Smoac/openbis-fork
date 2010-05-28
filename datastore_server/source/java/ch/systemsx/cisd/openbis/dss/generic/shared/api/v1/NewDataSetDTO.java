@@ -32,9 +32,61 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public class NewDataSetDTO implements Serializable
 {
+    /**
+     * The different types of owners of data sets; there are two: experiment and sample.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static enum DataSetOwnerType
+    {
+        EXPERIMENT, SAMPLE
+    }
+
+    /**
+     * The identifier of the owner of the new data set. This could either be an experiment
+     * identifier or a sample identifier.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static class DataSetOwner implements Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        private final DataSetOwnerType type;
+
+        private final String identifier;
+
+        public DataSetOwner(DataSetOwnerType type, String identifier)
+        {
+            this.type = type;
+            this.identifier = identifier;
+        }
+
+        public DataSetOwnerType getType()
+        {
+            return type;
+        }
+
+        public String getIdentifier()
+        {
+            return identifier;
+        }
+
+        @Override
+        public String toString()
+        {
+            ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+            sb.append(getType());
+            sb.append(getIdentifier());
+            return sb.toString();
+        }
+    }
+
     private static final long serialVersionUID = 1L;
 
-    private final String storageProcessName;
+    private final String dataSetType;
+
+    private final DataSetOwner dataSetOwner;
 
     private final List<FileInfoDssDTO> fileInfos;
 
@@ -43,15 +95,17 @@ public class NewDataSetDTO implements Serializable
      * 
      * @param storageProcessName The storage process that should handle this data set
      */
-    public NewDataSetDTO(String storageProcessName, List<FileInfoDssDTO> fileInfos)
+    public NewDataSetDTO(String storageProcessName, DataSetOwner dataSetOwner,
+            List<FileInfoDssDTO> fileInfos)
     {
-        this.storageProcessName = storageProcessName;
+        this.dataSetType = storageProcessName;
+        this.dataSetOwner = dataSetOwner;
         this.fileInfos = fileInfos;
     }
 
-    public String getStorageProcessName()
+    public String getDataSetType()
     {
-        return storageProcessName;
+        return dataSetType;
     }
 
     public List<FileInfoDssDTO> getFileInfos()
@@ -59,11 +113,17 @@ public class NewDataSetDTO implements Serializable
         return fileInfos;
     }
 
+    public DataSetOwner getDataSetOwner()
+    {
+        return dataSetOwner;
+    }
+
     @Override
     public String toString()
     {
         ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        sb.append(getStorageProcessName());
+        sb.append(getDataSetType());
+        sb.append(getDataSetOwner());
         sb.append(getFileInfos());
         return sb.toString();
     }
