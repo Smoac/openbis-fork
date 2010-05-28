@@ -388,4 +388,10 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public int unarchiveDatasets(
             String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
+
+    /**
+     * Returns the URL for the default data store server for this openBIS AS.
+     */
+    @RolesAllowed(RoleSet.OBSERVER)
+    public String getDefaultDataStoreBaseURL(String sessionToken);
 }

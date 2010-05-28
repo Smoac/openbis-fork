@@ -264,4 +264,10 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         logTracking(sessionToken, "updateDataSetStatus", "NO_OF_DATASETS(%s) STATUS(%s)",
                 dataSetCodes.size(), newStatus);
     }
+
+    public String getDefaultDataStoreBaseURL(String sessionToken)
+    {
+        logAccess(sessionToken, "getDefaultDataStoreBaseURL");
+        return null;
+    }
 }

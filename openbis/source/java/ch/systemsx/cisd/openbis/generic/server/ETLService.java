@@ -676,4 +676,9 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         checkSession(sessionToken);
         return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
+
+    public String getDefaultDataStoreBaseURL(String sessionToken)
+    {
+        return getDataStoreBaseURL();
+    }
 }
