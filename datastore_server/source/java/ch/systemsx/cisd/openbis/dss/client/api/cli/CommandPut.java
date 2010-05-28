@@ -16,13 +16,16 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -83,8 +86,16 @@ class CommandPut extends AbstractCommand
         {
             String storageProcessName = arguments.getStorageProcess();
             String filePath = arguments.getFilePath();
-            InputStream fileInputStream = null;
+            InputStream fileInputStream =
+                    new ConcatenatedFileInputStream(true, getFilesFromPath(filePath));
             return new NewDataSetDTO(storageProcessName, filePath, fileInputStream);
+        }
+
+        private ArrayList<File> getFilesFromPath(String path)
+        {
+            ArrayList<File> files = new ArrayList<File>();
+            
+            return files;
         }
     }
 

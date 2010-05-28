@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
  * Helper Class for creating FileInfoDss objects
