@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.mail;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.activation.DataHandler;
 
@@ -49,11 +50,16 @@ public final class MailClientTest extends AbstractFileSystemTestCase
         File[] files = emailFolder.listFiles();
         assertEquals(1, files.length);
         assertEquals("email", files[0].getName());
-        assertEquals(
-                "Subj: some message\n" + "From: sender\n" + "To:   a@b.c, d@e.f\n"
-                        + "Reply-To: user@reply.com\n" + "Content:\n"
-                        + "Hello world\nHow are you today?\n", FileUtilities.loadToString(files[0]));
-
+        List<String> lines = FileUtilities.loadToStringList(files[0]);
+        assertEquals(8, lines.size());
+        assertTrue(lines.get(0).startsWith("Date: "));
+        assertEquals("From: sender", lines.get(1));
+        assertEquals("Reply-To: user@reply.com", lines.get(2));
+        assertEquals("To: a@b.c, d@e.f", lines.get(3));
+        assertEquals("Subject: some message", lines.get(4));
+        assertEquals("Content:", lines.get(5));
+        assertEquals("Hello world", lines.get(6));
+        assertEquals("How are you today?", lines.get(7));
         // second mail
         mailClient.sendMessage("Greetings", "Hello world!", null, null);
         files = emailFolder.listFiles();
@@ -61,8 +67,13 @@ public final class MailClientTest extends AbstractFileSystemTestCase
         assertEquals(2, files.length);
         assertEquals("email", files[0].getName());
         assertEquals("email1", files[1].getName());
-        assertEquals("Subj: Greetings\n" + "From: sender\n" + "To:   \n" + "Reply-To: sender\n"
-                + "Content:\n" + "Hello world!\n", FileUtilities.loadToString(files[1]));
+        lines = FileUtilities.loadToStringList(files[1]);
+        assertEquals(5, lines.size());
+        assertTrue(lines.get(0).startsWith("Date: "));
+        assertEquals("From: sender", lines.get(1));
+        assertEquals("Subject: Greetings", lines.get(2));
+        assertEquals("Content:", lines.get(3));
+        assertEquals("Hello world!", lines.get(4));
 
         // third mail - 'from' overwritten
         mailClient.sendMessage("Greetings", "Hello world!", null, new From("user@from.com"));
@@ -72,10 +83,13 @@ public final class MailClientTest extends AbstractFileSystemTestCase
         assertEquals("email", files[0].getName());
         assertEquals("email1", files[1].getName());
         assertEquals("email2", files[2].getName());
-        assertEquals("Subj: Greetings\n" + "From: user@from.com\n" + "To:   \n"
-                + "Reply-To: user@from.com\n" + "Content:\n" + "Hello world!\n", FileUtilities
-                .loadToString(files[2]));
-
+        lines = FileUtilities.loadToStringList(files[2]);
+        assertEquals(5, lines.size());
+        assertTrue(lines.get(0).startsWith("Date: "));
+        assertEquals("From: user@from.com", lines.get(1));
+        assertEquals("Subject: Greetings", lines.get(2));
+        assertEquals("Content:", lines.get(3));
+        assertEquals("Hello world!", lines.get(4));
     }
 
     @Test
@@ -102,20 +116,21 @@ public final class MailClientTest extends AbstractFileSystemTestCase
 
         // Split the file into lines and check one line at a time
         String[] lines = fileContent.split("\n+");
-        assertEquals(lines.length, 13);
-        assertEquals(lines[0], "Subj: some message");
+        assertEquals(lines.length, 14);
+        assertTrue(lines[0].startsWith("Date:"));
         assertEquals(lines[1], "From: sender");
-        assertEquals(lines[2], "To:   a@b.c, d@e.f");
-        assertEquals(lines[3], "Reply-To: user@reply.com");
-        assertEquals(lines[4], "Content:");
-        assertTrue(lines[5].startsWith("------=_Part_0"));
-        assertEquals(lines[6], "Hello world");
-        assertEquals(lines[7], "How are you today?");
+        assertEquals(lines[2], "Reply-To: user@reply.com");
+        assertEquals(lines[3], "To: a@b.c, d@e.f");
+        assertEquals(lines[4], "Subject: some message");
+        assertEquals(lines[5], "Content:");
+        assertTrue(lines[6].startsWith("------=_Part_0"));
+        assertEquals(lines[7], "Hello world");
+        assertEquals(lines[8], "How are you today?");
 
-        assertTrue(lines[8].startsWith("------=_Part_0"));
-        assertEquals(lines[9], "Content-Disposition: attachment; filename=file.properties");
-        assertEquals(lines[10], "name.first = First Name");
-        assertEquals(lines[11], "name.last = Last Name");
-        assertTrue(lines[12].startsWith("------=_Part_0"));
+        assertTrue(lines[9].startsWith("------=_Part_0"));
+        assertEquals(lines[10], "Content-Disposition: attachment; filename=file.properties");
+        assertEquals(lines[11], "name.first = First Name");
+        assertEquals(lines[12], "name.last = Last Name");
+        assertTrue(lines[13].startsWith("------=_Part_0"));
     }
 }
