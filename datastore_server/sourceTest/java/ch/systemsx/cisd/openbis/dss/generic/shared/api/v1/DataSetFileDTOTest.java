@@ -16,43 +16,21 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
-import java.io.Serializable;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
- * Represents a reference to a file/path within a data set.
- * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class FileReferenceDssDTO implements Serializable
+public class DataSetFileDTOTest extends AssertJUnit
 {
-    private static final long serialVersionUID = 1L;
-
-    private final String dataSetCode;
-
-    private final String path;
-
-    private final boolean isRecursive;
-
-    public FileReferenceDssDTO(String dataSetCode, String path, boolean isRecursive)
+    @Test
+    public void testToString()
     {
-        this.dataSetCode = dataSetCode;
-        this.path = path;
-        this.isRecursive = isRecursive;
-    }
+        DataSetFileDTO dsf = new DataSetFileDTO("code", "path", false);
+        assertEquals("DataSetFileDTO[code,path]", dsf.toString());
 
-    public String getDataSetCode()
-    {
-        return dataSetCode;
+        dsf = new DataSetFileDTO("code", "path", true);
+        assertEquals("DataSetFileDTO[code,path,recursive]", dsf.toString());
     }
-
-    public String getPath()
-    {
-        return path;
-    }
-
-    public boolean isRecursive()
-    {
-        return isRecursive;
-    }
-
 }

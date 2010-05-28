@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDssDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
 /**
  * Command that lists files in the data set.
@@ -73,19 +73,18 @@ class CommandPut extends AbstractCommand
 
         int execute()
         {
-            NewDataSetDssDTO newDataSet = getNewDataSet();
+            NewDataSetDTO newDataSet = getNewDataSet();
             dssService.putDataSet("", newDataSet);
 
             return 0;
         }
 
-        private NewDataSetDssDTO getNewDataSet()
+        private NewDataSetDTO getNewDataSet()
         {
             String storageProcessName = arguments.getStorageProcess();
             String filePath = arguments.getFilePath();
-            filePath.length();
             InputStream fileInputStream = null;
-            return new NewDataSetDssDTO(storageProcessName, fileInputStream);
+            return new NewDataSetDTO(storageProcessName, filePath, fileInputStream);
         }
     }
 

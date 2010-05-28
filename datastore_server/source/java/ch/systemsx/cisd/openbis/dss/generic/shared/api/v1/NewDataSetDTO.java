@@ -19,6 +19,9 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 import java.io.InputStream;
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
 
 /**
@@ -29,11 +32,13 @@ import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class NewDataSetDssDTO implements Serializable
+public class NewDataSetDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     private final String storageProcessName;
+
+    private final String fileName;
 
     private final InputStream inputStream;
 
@@ -44,9 +49,10 @@ public class NewDataSetDssDTO implements Serializable
      * @param inputStream An input stream on the file or folder to register. If a folder is to be
      *            registered, the input stream must be a {@link ConcatenatedFileInputStream}.
      */
-    public NewDataSetDssDTO(String storageProcessName, InputStream inputStream)
+    public NewDataSetDTO(String storageProcessName, String fileName, InputStream inputStream)
     {
         this.storageProcessName = storageProcessName;
+        this.fileName = fileName;
         this.inputStream = inputStream;
     }
 
@@ -55,8 +61,22 @@ public class NewDataSetDssDTO implements Serializable
         return storageProcessName;
     }
 
+    public String getFileName()
+    {
+        return fileName;
+    }
+
     public InputStream getInputStream()
     {
         return inputStream;
+    }
+
+    @Override
+    public String toString()
+    {
+        ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        sb.append("storageProcess", getStorageProcessName());
+        sb.append("fileName", getFileName());
+        return sb.toString();
     }
 }
