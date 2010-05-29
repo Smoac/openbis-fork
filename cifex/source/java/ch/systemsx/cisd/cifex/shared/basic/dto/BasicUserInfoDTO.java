@@ -20,6 +20,8 @@ import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
+
 /**
  * Basic information about a user.
  * 
@@ -136,6 +138,31 @@ public class BasicUserInfoDTO implements IsSerializable, Serializable
     public final String toString()
     {
         return userCode;
+    }
+
+    /**
+     * Concatenates the user codes of <var>users</var>, separated by ",".
+     */
+    public final static String concatUserCodes(final BasicUserInfoDTO[] users)
+    {
+        assert users != null : "Unspecified user.";
+    
+        if (users.length == 0)
+        {
+            return Constants.TABLE_NULL_VALUE;
+        }
+        String anchor = "";
+        for (int i = 0; i < users.length; ++i)
+        {
+            if (i < users.length - 1)
+            {
+                anchor += users[i].getUserCode() + ", ";
+            } else
+            {
+                anchor += users[i].getUserCode();
+            }
+        }
+        return anchor;
     }
 
 }

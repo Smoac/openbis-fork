@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -41,7 +43,7 @@ public final class SettingsDialogController extends AbstractDialogController
 
     public SettingsDialogController(final ViewContext context)
     {
-        super(context, context.getMessageResources().getEditUserLabel());
+        super(context, msg(EDIT_USER_LABEL));
 
         // Otherwise the user can remove its own admin rights.
         final boolean allowPermanentUsers = false;
@@ -98,7 +100,7 @@ public final class SettingsDialogController extends AbstractDialogController
         dialog.addButton(okButton);
 
         Button cancelButton = dialog.getButtonById(Dialog.CLOSE);
-        cancelButton.setText(context.getMessageResources().getDialogCloseButtonLabel());
+        cancelButton.setText(msg(DIALOG_CLOSE_BUTTON_LABEL));
         cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override

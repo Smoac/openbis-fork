@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -66,7 +68,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     public void onFailure(final Throwable caught)
     {
-        IMessageResources messageResources = context.getMessageResources();
         final String msg;
         if (caught instanceof InvocationException)
         {
@@ -75,10 +76,9 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                 if (caught instanceof StatusCodeException
                         || (((StatusCodeException) caught).getStatusCode() == 0))
                 {
-                    msg =
-                            "StatusCodeException with status code 0 -- Are you in Mozilla working offline? If so, turn off 'Work Offline' mode.";
+                    msg = msg(EXCEPTION_STATUS_CODE0);
                 } else
-                    msg = messageResources.getInvocationExceptionMessage();
+                    msg = msg(EXCEPTION_INVOCATION_MSG);
             } else
             {
                 msg = caught.getMessage();
@@ -88,13 +88,13 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             final String message = caught.getMessage();
             if (StringUtils.isBlank(message))
             {
-                msg = messageResources.getExceptionWithoutMessage(caught.getClass().getName());
+                msg = msg(UNKNOWN_FAILURE_MSG, caught.getClass().getName());
             } else
             {
                 msg = message;
             }
         }
-        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg,
+        MessageBox.alert(msg(MESSAGE_BOX_ERROR_TITLE), msg,
         // go to login page after message box is closed if the problem is caused by invalid session
                 new Listener<MessageBoxEvent>()
                     {

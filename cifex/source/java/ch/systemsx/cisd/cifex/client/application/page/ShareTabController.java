@@ -62,7 +62,7 @@ class ShareTabController extends AbstractMainPageTabController
         final IQuotaInformationUpdater quotaInformationUpdater =
                 new QuotaInformationUpdater(explanationWidget);
         quotaInformationUpdater.triggerUpdate();
-        addTitleRow(contentPanel, context.getMessageResources().getUploadFilesPartTitle());
+        addTitleRow(contentPanel, msg(SHARE_FILES_PANEL_TITLE));
         addWidgetRow(contentPanel, createUploadPart(explanationWidget));
 
         FileListingTabHelper.createListOwnedFilesGrid(context, contentPanel, fileGridWidgets,
@@ -84,13 +84,13 @@ class ShareTabController extends AbstractMainPageTabController
         final StringBuilder notesText = new StringBuilder();
         if (isPermanent)
         {
-            notesText.append(msg(UPLOADFILES_INFO_PERMANENT_USER, FileListingTabHelper
+            notesText.append(msg(UPLOAD_FILES_PERMANENT_USER_INFO, FileListingTabHelper
                     .getMaxFileSize(user.getMaxFileSizePerQuotaGroupInMB()), FileListingTabHelper
                     .getCurrentFileSizeInMB(user.getCurrentFileSize()), FileListingTabHelper
                     .getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));
         } else
         {
-            notesText.append(msg(UPLOADFILES_INFO_TEMPORARY_USER, FileListingTabHelper
+            notesText.append(msg(UPLOAD_FILES_TEMPORARY_USER_INFO, FileListingTabHelper
                     .getMaxFileSize(user.getMaxFileSizePerQuotaGroupInMB()), FileListingTabHelper
                     .getCurrentFileSizeInMB(user.getCurrentFileSize()), FileListingTabHelper
                     .getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -168,8 +170,7 @@ public abstract class AbstractMainPageTabController
     {
         ContentPanel createUserPanel = createContainer();
         String panelLabel =
-                allowPermanentUsers ? context.getMessageResources().getAdminCreateUserLabel()
-                        : context.getMessageResources().getCreateUserLabel();
+                allowPermanentUsers ? msg(CREATE_USER_LABEL) : msg(CREATE_TEMP_USER_LABEL);
         addTitleRowWithoutLeftMargin(createUserPanel, panelLabel);
         final CreateUserWidget createUserWidget =
                 new CreateUserWidget(context, allowPermanentUsers);

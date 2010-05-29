@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application.ui;
 
 import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -31,7 +32,6 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 
@@ -85,7 +85,7 @@ public class LoginWidget extends VerticalPanel
 
     private final Button createButton()
     {
-        final Button b = new Button(context.getMessageResources().getLoginButtonLabel());
+        final Button b = new Button(msg(LOGIN_BUTTON_LABEL));
         b.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -108,7 +108,7 @@ public class LoginWidget extends VerticalPanel
     private final TextField<String> createUserField()
     {
         final TextField<String> field = new TextField<String>();
-        field.setFieldLabel(context.getMessageResources().getLoginUserLabel());
+        field.setFieldLabel(msg(LOGIN_USER_LABEL));
         field.setAllowBlank(false);
         field.setValidateOnBlur(true);
         field.setName(USERNAME_NAME_AND_ID);
@@ -141,7 +141,7 @@ public class LoginWidget extends VerticalPanel
     {
         final TextField<String> field = new TextField<String>();
         field.setPassword(true);
-        field.setFieldLabel(context.getMessageResources().getLoginPasswordLabel());
+        field.setFieldLabel(msg(LOGIN_PASSWORD_LABEL));
         field.setAllowBlank(false);
         field.setValidateOnBlur(true);
         field.setName(PASSWORD_NAME_AND_ID);
@@ -236,9 +236,8 @@ public class LoginWidget extends VerticalPanel
                 loginSuccessful(result);
             } else
             {
-                final IMessageResources messageResources = context.getMessageResources();
-                final String title = messageResources.getMessageBoxWarningTitle();
-                MessageBox.alert(title, messageResources.getLoginFailedMessage(), null);
+                final String title = msg(MESSAGE_BOX_WARNING_TITLE);
+                MessageBox.alert(title, msg(LOGIN_FAILED_MSG), null);
                 getButton().enable();
             }
         }

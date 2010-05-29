@@ -59,7 +59,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.FileShareUploadDialog;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
@@ -133,8 +132,8 @@ public final class FileUploadWidget extends LayoutContainer
     private void initializeRecipientsTextArea()
     {
         recipientsTextArea.setAllowBlank(false);
-        recipientsTextArea.setFieldLabel(context.getMessageResources().getRecipientLegend());
-        recipientsTextArea.setToolTip(context.getMessageResources().getRecipientFieldToolTip());
+        recipientsTextArea.setFieldLabel(msg(UPLOAD_FILES_RECIPIENT_FIELD_LABEL));
+        recipientsTextArea.setToolTip(msg(UPLOAD_FILES_RECIPIENT_FIELD_TOOLTIP));
         recipientsTextArea.setName("email-addresses");
         recipientsTextArea.setPreventScrollbars(false);
         recipientsTextArea.setValidator(CifexValidator.getUserFieldValidator(context
@@ -144,7 +143,7 @@ public final class FileUploadWidget extends LayoutContainer
 
     private void initializeFormPanel()
     {
-        formPanel.setHeading(context.getMessageResources().getUploadFilesPartTitleLess2GB());
+        formPanel.setHeading(msg(UPLOAD_FILES_BROWSER_PANEL_TITLE));
         formPanel.setHeaderVisible(true);
         formPanel.setBodyBorder(false);
         formPanel.setBorders(true);
@@ -158,9 +157,7 @@ public final class FileUploadWidget extends LayoutContainer
 
     private void initializeUploaderPanel()
     {
-        IMessageResources messageResources = context.getMessageResources();
-
-        uploaderPanel.setHeading(messageResources.getUploadFilesPartTitleGreater2GB());
+        uploaderPanel.setHeading(msg(UPLOAD_FILES_WEBSTART_PANEL_TITLE));
         uploaderPanel.setHeaderVisible(true);
         uploaderPanel.setBodyBorder(false);
         uploaderPanel.setBorders(true);
@@ -168,7 +165,7 @@ public final class FileUploadWidget extends LayoutContainer
 
         final String webStartTitle = msg(LAUNCH_JWS_APPLICATION_TITLE);
         final String servletName = ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME;
-        final String buttonTitle = messageResources.getLaunchJavaUploaderButtonTitle();
+        final String buttonTitle = msg(UPLOAD_FILES_LAUNCH_WEBSTART_LABEL);
         final Button launchButton = new Button(buttonTitle, new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -183,16 +180,15 @@ public final class FileUploadWidget extends LayoutContainer
         launchButton.setIconAlign(IconAlign.LEFT);
 
         uploaderPanel.add(launchButton, new FlowData(new Margins(20)));
-        uploaderPanel.add(new Html(messageResources.getJavaUploaderPros()), new FlowData(
-                new Margins(0, 0, 0, 10)));
+        uploaderPanel.add(new Html(msg(UPLOAD_FILES_WEBSTART_PROS_INFO)), new FlowData(new Margins(
+                0, 0, 0, 10)));
     }
 
     private final void createForm()
     {
         FormData formData = new FormData("95%");
 
-        formPanel.addButton(submitButton =
-                new Button(context.getMessageResources().getFileUploadButtonLabel()));
+        formPanel.addButton(submitButton = new Button(msg(UPLOAD_FILES_SUBMIT_BUTTON_LABEL)));
         submitButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -205,10 +201,10 @@ public final class FileUploadWidget extends LayoutContainer
         submitButton.setIcon(AbstractImagePrototype.create(ImageUtils.ICONS.getUploaderIcon()));
 
         formPanel.addButton(validateButton =
-                new Button(context.getMessageResources().getValidateUsersButtonLabel()));
+                new Button(msg(UPLOAD_FILES_VALIDATE_USERS_BUTTON_LABEL)));
         validateButton.addSelectionListener(getUserValidateButtonListener());
 
-        formPanel.addButton(new Button(context.getMessageResources().getResetButtonTitle(),
+        formPanel.addButton(new Button(msg(UPLOAD_FILES_RESET_BUTTON_LABEL),
                 new SelectionListener<ButtonEvent>()
                     {
 
@@ -255,7 +251,7 @@ public final class FileUploadWidget extends LayoutContainer
         layout.setWidth("100%");
         layout.setCellSpacing(2);
         uploadFilesFieldSet.setLayout(layout);
-        uploadFilesFieldSet.setHeading(context.getMessageResources().getFileUploadLegend());
+        uploadFilesFieldSet.setHeading(msg(UPLOAD_FILES_PANEL_TITLE));
         for (int i = 0; i < FILE_FIELD_NUMBER; i++)
         {
             FileUploadField field = createFileField(i);
@@ -347,8 +343,7 @@ public final class FileUploadWidget extends LayoutContainer
     {
         final UserTextArea textAreaConfig = new UserTextArea();
         textAreaConfig.setAllowBlank(true);
-        final IMessageResources messageResources = context.getMessageResources();
-        textAreaConfig.setFieldLabel(messageResources.getCommentLabel());
+        textAreaConfig.setFieldLabel(msg(CREATE_USER_COMMENT_LABEL));
         textAreaConfig.setName("upload-comment");
         textAreaConfig.setPreventScrollbars(true);
         trySetInitialValueFromURL(textAreaConfig, Constants.COMMENT_PARAMETER);
@@ -366,13 +361,13 @@ public final class FileUploadWidget extends LayoutContainer
                     this.readOnly = readOnly;
                 }
             };
-        fileField.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(index + 1));
+        fileField.setFieldLabel(msg(UPLOAD_FILES_FILE_FIELD_LABEL, index + 1));
         fileField.setName(getFilenameFieldName(index));
         fileField.setWidth("100%");
         fileField.setAllowBlank(index > 0);
         fileField.setValidateOnBlur(false);
         Menu menu = new Menu();
-        menu.add(new MenuItem(context.getMessageResources().getResetButtonTitle(),
+        menu.add(new MenuItem(msg(UPLOAD_FILES_RESET_BUTTON_LABEL),
                 new SelectionListener<MenuEvent>()
                     {
 
@@ -446,9 +441,8 @@ public final class FileUploadWidget extends LayoutContainer
             registerFilenames(filenames);
         } else
         {
-            final IMessageResources messageResources = context.getMessageResources();
-            final String title = messageResources.getFileUploadDuplicatesTitle();
-            final String msg = messageResources.getFileUploadDuplicatesMsg();
+            final String title = msg(UPLOAD_FILES_DUPLICATES_MSGBOX_TITLE);
+            final String msg = msg(UPLOAD_FILES_DUPLICATES_MSG);
             MessageBox.confirm(title, msg, new Listener<MessageBoxEvent>()
                 {
                     public void handleEvent(MessageBoxEvent messageEvent)

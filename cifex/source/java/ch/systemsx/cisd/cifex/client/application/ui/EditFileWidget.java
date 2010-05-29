@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.Date;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -33,7 +35,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
@@ -121,9 +122,8 @@ public final class EditFileWidget extends LayoutContainer
 
     private final DateField createExpirationDateField()
     {
-        final IMessageResources messages = context.getMessageResources();
         final DateField dateField = new DateField();
-        dateField.setFieldLabel(messages.getExpirationDateLabel());
+        dateField.setFieldLabel(msg(EDIT_FILE_EXPIRATION_DATE_LABEL));
         final long registrationTimeOrNow = editFile.getRegistrationDate().getTime();
         final Date minExpirationDate = new Date(registrationTimeOrNow);
         CalendarUtil.addDaysToDate(minExpirationDate, 1);

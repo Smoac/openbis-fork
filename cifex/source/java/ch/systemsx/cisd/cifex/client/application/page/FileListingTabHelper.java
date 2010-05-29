@@ -182,7 +182,7 @@ class FileListingTabHelper
                 GridWidget.create(columnConfigs, new ArrayList<AbstractFileGridModel>(),
                         filterItems, messageResources);
         final Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
-        grid.getView().setEmptyText(messageResources.getSharedFilesLoading());
+        grid.getView().setEmptyText(msg(LIST_FILES_SHARED_LOADING_MSG));
 
         fileGridWidgets.add(gridWidget);
 
@@ -190,8 +190,7 @@ class FileListingTabHelper
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
         grid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(context,
                 gridWidget, fileGridWidgets, quotaUpdaterOrNull));
-        AbstractMainPageTabController.addTitleRow(contentPanel, messageResources
-                .getSharedFilesPartTitle());
+        AbstractMainPageTabController.addTitleRow(contentPanel, msg(LIST_FILES_SHARED_TITLE));
         AbstractMainPageTabController.addWidgetRow(contentPanel, gridWidget.getWidget());
 
         context.getCifexService().listOwnedFiles(
@@ -199,7 +198,7 @@ class FileListingTabHelper
                     {
                         public void onSuccess(List<OwnerFileInfoDTO> result)
                         {
-                            grid.getView().setEmptyText(messageResources.getSharedFilesEmpty());
+                            grid.getView().setEmptyText(msg(LIST_FILES_SHARED_EMPTY_MSG));
                             gridWidget.setDataAndRefresh(OwnedFileGridModel.convert(
                                     messageResources, result));
                         }
@@ -207,7 +206,7 @@ class FileListingTabHelper
                         @Override
                         public void onFailure(Throwable caught)
                         {
-                            grid.getView().setEmptyText(messageResources.getSharedFilesEmpty());
+                            grid.getView().setEmptyText(msg(LIST_FILES_SHARED_EMPTY_MSG));
                             super.onFailure(caught);
                         }
                     });

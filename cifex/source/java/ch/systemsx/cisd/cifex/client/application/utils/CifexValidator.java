@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
@@ -54,7 +56,7 @@ public class CifexValidator
                                 && StringUtils.matches(Constants.USER_CODE_WITH_ID_PREFIX_REGEX,
                                         item) == false)
                         {
-                            return messageResources.getRecipientFieldInvalidText();
+                            return msg(UPLOAD_FILES_RECIPIENT_FIELD_INVALID_MSG);
                         }
                     }
                     return null;

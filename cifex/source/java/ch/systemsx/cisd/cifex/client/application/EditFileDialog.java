@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.Date;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -38,16 +40,16 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 public final class EditFileDialog extends DefaultLayoutDialog
 {
     private static final int HEIGHT = 260;
-    
+
     private final EditFileWidget editFileWidget;
-    
+
     private final AsyncCallback<Date> refreshCallback;
 
     public EditFileDialog(final ViewContext context, final FileInfoDTO file,
             final AsyncCallback<Date> refreshCallback)
     {
-        super(context.getMessageResources(), context.getMessageResources().getEditFileDialogTitle(
-                file.getName()), EditFileWidget.WIDTH + 30, HEIGHT);
+        super(context.getMessageResources(), msg(EDIT_FILE_DIALOG_TITLE, file.getName()),
+                EditFileWidget.WIDTH + 30, HEIGHT);
         this.editFileWidget = new EditFileWidget(context, file);
         this.refreshCallback = refreshCallback;
         add(editFileWidget);

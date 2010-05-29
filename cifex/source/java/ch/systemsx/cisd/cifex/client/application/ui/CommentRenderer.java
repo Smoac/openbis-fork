@@ -16,32 +16,38 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
  * Takes care of rendering a comment field.
  * 
  * @author Bernd Rinn
  */
-public final class CommentRenderer
+public final class CommentRenderer implements IGridCellRendererNonPlainText<AbstractFileGridModel>
 {
-
     private static final int COMMENT_MAX_LENGTH = 20;
+
+    /** The unique instance of <code>CommentRenderer</code>. */
+    public final static CommentRenderer COMMENT_RENDERER = new CommentRenderer();
 
     private CommentRenderer()
     {
         // Can not be instantiated.
     }
 
-    /**
-     * Nicely renders given <code>comment</code>.
-     */
-    public final static String createCommentAnchor(final FileInfoDTO file)
+    public Object render(AbstractFileGridModel model, String property, ColumnData config,
+            int rowIndex, int colIndex, ListStore<AbstractFileGridModel> store,
+            Grid<AbstractFileGridModel> grid)
     {
-        String fileComment = file.getComment();
+        final String fileComment = (String) model.get(property);
         if (StringUtils.isBlank(fileComment))
         {
             return Constants.TABLE_NULL_VALUE;
@@ -50,4 +56,10 @@ public final class CommentRenderer
         return DOMUtils.createAnchor(fileComment, abbreviatedComment, Constants.SHOW_COMMENT_ID,
                 false);
     }
+
+    public GridCellRenderer<AbstractFileGridModel> getPlainTextRenderer()
+    {
+        return null;
+    }
+
 }

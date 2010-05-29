@@ -32,6 +32,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,19 +91,15 @@ public final class MainPageTabPanel extends TabPanel
         shareTab = new ShareTabController(this.context, fileGridWidgets);
         inboxTab = new InboxTabController(this.context, fileGridWidgets);
 
-        shareTabItem =
-                createTabItem(context.getMessageResources().getShareViewLinkLabel(), shareTab);
-        inboxTabItem =
-                createTabItem(context.getMessageResources().getInboxViewLinkLabel(), inboxTab);
+        shareTabItem = createTabItem(msg(SHARE_VIEW_LABEL), shareTab);
+        inboxTabItem = createTabItem(msg(INBOX_VIEW_LABEL), inboxTab);
 
         // Only create the invite tab if the user is permanent and not an administrator
         final UserInfoDTO user = context.getModel().getUser();
         if (user.isPermanent() && user.isAdmin() == false)
         {
             inviteTabOrNull = new InviteTabController(this.context, fileGridWidgets);
-            inviteTabItemOrNull =
-                    createTabItem(context.getMessageResources().getInviteViewLinkLabel(),
-                            inviteTabOrNull);
+            inviteTabItemOrNull = createTabItem(msg(INVITE_VIEW_LABEL), inviteTabOrNull);
         } else
         {
             inviteTabOrNull = null;
@@ -112,9 +110,7 @@ public final class MainPageTabPanel extends TabPanel
         if (user.isAdmin())
         {
             adminTabOrNull = new AdminTabController(this.context, fileGridWidgets);
-            adminTabItemOrNull =
-                    createTabItem(context.getMessageResources().getAdminViewLinkLabel(),
-                            adminTabOrNull);
+            adminTabItemOrNull = createTabItem(msg(ADMIN_VIEW_LABEL), adminTabOrNull);
         } else
         {
             adminTabOrNull = null;

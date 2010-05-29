@@ -42,7 +42,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AsyncCallbackAdapter;
 import ch.systemsx.cisd.cifex.client.application.HTMLRequestCallback;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.WidgetFactory;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
@@ -173,9 +172,7 @@ public final class MainPage extends Viewport
 
     private Widget createEditSettingsWidget()
     {
-        Anchor html =
-                clickableHTMLWidget(context.getMessageResources().getEditUserLinkLabel(), context
-                        .getMessageResources().getEditUserTooltipLabel());
+        Anchor html = clickableHTMLWidget(msg(PROFILE_LINK_LABEL), msg(PROFILE_LINK_TOOPTIP));
         html.addClickHandler(new ClickHandler()
             {
                 public void onClick(ClickEvent event)
@@ -188,9 +185,7 @@ public final class MainPage extends Viewport
 
     private Widget createLogoutWidget()
     {
-        Anchor html =
-                clickableHTMLWidget(context.getMessageResources().getLogoutLinkLabel(), context
-                        .getMessageResources().getLogoutLinkTooltip());
+        Anchor html = clickableHTMLWidget(msg(LOGOUT_LINK_LABEL), msg(LOGOUT_LINK_TOOLTIP));
 
         html.addClickHandler(new ClickHandler()
             {
@@ -206,9 +201,7 @@ public final class MainPage extends Viewport
 
     private Widget createHelpWidget()
     {
-        Anchor html =
-                clickableHTMLWidget(context.getMessageResources().getHelpPageLinkLabel(), context
-                        .getMessageResources().getHelpPageTooltipLabel());
+        Anchor html = clickableHTMLWidget(msg(HELP_LINK_LABEL), msg(HELP_LINK_TOOLTIP));
         html.addClickHandler(new ClickHandler()
             {
                 public void onClick(ClickEvent event)
@@ -272,14 +265,13 @@ public final class MainPage extends Viewport
     {
         final String msg;
         final String message = ex.getMessage();
-        final IMessageResources messageResources = context.getMessageResources();
         if (StringUtils.isBlank(message))
         {
-            msg = messageResources.getExceptionWithoutMessage(ex.getClass().getName());
+            msg = msg(UNKNOWN_FAILURE_MSG, ex.getClass().getName());
         } else
         {
             msg = message;
         }
-        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg, null);
+        MessageBox.alert(msg(MESSAGE_BOX_ERROR_TITLE), msg, null);
     }
 }

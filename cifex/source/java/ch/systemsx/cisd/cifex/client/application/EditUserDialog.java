@@ -40,13 +40,17 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public final class EditUserDialog extends DefaultLayoutDialog
 {
+    private static final int HEIGHT_WITHOUT_EXTERNAL_AUTH = 350;
+
+    private static final int HEIGHT_WITH_EXTERNAL_AUTH = 370;
+
     private final EditUserWidget editUserWidget;
 
     public EditUserDialog(final ViewContext context, final UserInfoDTO user,
             final GridWidget<UserGridModel> userGrid)
     {
-        super(context.getMessageResources(), msg(EDIT_USER_DIALOG_TITLE, user
-                .getUserCode()), UserWidget.TOTAL_WIDTH + 30, getHeight(context));
+        super(context.getMessageResources(), msg(EDIT_USER_DIALOG_TITLE, user.getUserCode()),
+                UserWidget.TOTAL_WIDTH + 30, getHeight(context));
         editUserWidget =
                 new EditUserWidget(context, context.getModel().getUser().isAdmin(), user, false)
                     {
@@ -67,7 +71,8 @@ public final class EditUserDialog extends DefaultLayoutDialog
         // higher.
         final boolean hasExternalAuthentication =
                 context.getModel().getConfiguration().getSystemHasExternalAuthentication();
-        return hasExternalAuthentication ? 330 : 320;
+        return hasExternalAuthentication ? HEIGHT_WITH_EXTERNAL_AUTH
+                : HEIGHT_WITHOUT_EXTERNAL_AUTH;
     }
 
     private void createUpdateButton()

@@ -22,11 +22,10 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
-import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 
 /**
@@ -63,10 +62,10 @@ public class AdminFileGridModel extends AbstractFileGridModel
         super(messageResources);
         set(ID, file.getID());// long
         set(NAME, file.getName());// String
-        set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
-        set(OWNER, UserRenderer.createUserAnchor(file.getOwner()));// String
+        set(COMMENT, file.getComment());// String
+        set(OWNER, file.getOwner());// String
         set(REGISTRATOR, file.getRegistratorCode());// String
-        set(SHARED_WITH, UserRenderer.createUserAnchor(file.getSharingUsers()));// String
+        set(SHARED_WITH, BasicUserInfoDTO.concatUserCodes(file.getSharingUsers()));// String
         set(CONTENT_TYPE, file.getContentType());// String
         set(SIZE, FileUtils.tryToGetFileSize(file));// Double
         set(COMPLETE_SIZE, new Double(file.getCompleteSize()));// Double

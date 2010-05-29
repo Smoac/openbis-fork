@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.Date;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -58,9 +60,6 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public abstract class UserWidget extends LayoutContainer
 {
-
-    private static final String EXPIRATION_DATE_TOOLTIP_CHOOSE_MSG =
-            "For temporary accounts, choose a date in the allowed range.";
 
     private static final int FIELD_WIDTH = 175;
 
@@ -397,8 +396,8 @@ public abstract class UserWidget extends LayoutContainer
     {
         if (equalOrBothNull() == false)
         {
-            MessageBox.alert(getMessageResources().getMessageBoxErrorTitle(), getMessageResources()
-                    .getPasswordMissmatchMessage(), null);
+            MessageBox.alert(msg(MESSAGE_BOX_ERROR_TITLE), msg(CREATE_USER_PASSWD_MISMATCH_MSG),
+                    null);
             return false;
         }
         return true;
@@ -419,17 +418,17 @@ public abstract class UserWidget extends LayoutContainer
 
     protected final boolean isTemporaryStatus()
     {
-        return isStatus(getMessageResources().getTemporaryRoleName());
+        return isStatus(msg(CREATE_USER_ROLE_TEMP_TAG));
     }
 
     protected final boolean isPermanentStatus()
     {
-        return isStatus(getMessageResources().getPermanentRoleName());
+        return isStatus(msg(CREATE_USER_ROLE_REGULAR_TAG));
     }
 
     protected final boolean isAdminStatus()
     {
-        return isStatus(getMessageResources().getAdminRoleName());
+        return isStatus(msg(CREATE_USER_ROLE_ADMIN_TAG));
     }
 
     protected final IMessageResources getMessageResources()
@@ -439,8 +438,7 @@ public abstract class UserWidget extends LayoutContainer
 
     private final TextField<String> createUserCodeField()
     {
-        final TextField<String> textField =
-                createTextField(getMessageResources().getUserCodeLabel());
+        final TextField<String> textField = createTextField(msg(USER_ID_LABEL));
         textField.setAllowBlank(false);
         textField.setValidator(CifexValidator.getUserCodeFieldValidator(context
                 .getMessageResources()));
@@ -464,8 +462,7 @@ public abstract class UserWidget extends LayoutContainer
 
     private final TextField<String> createEmailField()
     {
-        final TextField<String> textField =
-                createTextField(getMessageResources().getUserEmailLabel());
+        final TextField<String> textField = createTextField(msg(LIST_USERS_EMAIL_COLUMN_HEADER));
         textField
                 .setValidator(CifexValidator.getEmailFieldValidator(context.getMessageResources()));
         // Allow a blank email field if and only if the request user is an admin, it is a user
@@ -495,8 +492,7 @@ public abstract class UserWidget extends LayoutContainer
 
     private final TextField<String> createUsernameField()
     {
-        final TextField<String> textField =
-                createTextField(getMessageResources().getUserFullNameLabel());
+        final TextField<String> textField = createTextField(msg(LIST_USERS_FULLNAME_COLUMN_HEADER));
         textField.setAllowBlank(true);
         textField.setValidateOnBlur(false);
         if (editUser != null && editUser.getUserFullName() != null)
@@ -508,8 +504,7 @@ public abstract class UserWidget extends LayoutContainer
 
     private final TextField<String> createPasswordField()
     {
-        final TextField<String> textField =
-                createTextField(getMessageResources().getPasswordLabel());
+        final TextField<String> textField = createTextField(msg(CREATE_USER_PASSWD_LABEL));
         textField.setPassword(true);
         textField.setAllowBlank(true);
         textField.setValidateOnBlur(false);
@@ -519,8 +514,7 @@ public abstract class UserWidget extends LayoutContainer
 
     private final TextField<String> createValidatePasswordField()
     {
-        final TextField<String> textField =
-                createTextField(getMessageResources().getValidatePasswordLabel());
+        final TextField<String> textField = createTextField(msg(CREATE_USER_REPEAT_PASSWD_LABEL));
         textField.setPassword(true);
         textField.setAllowBlank(true);
         textField.setValidateOnBlur(false);
@@ -532,7 +526,7 @@ public abstract class UserWidget extends LayoutContainer
     {
         final TextArea textArea = new TextArea();
         textArea.setAllowBlank(true);
-        textArea.setFieldLabel(getMessageResources().getCommentLabel());
+        textArea.setFieldLabel(msg(CREATE_USER_COMMENT_LABEL));
         textArea.setName("user-comment");
         textArea.setPreventScrollbars(true);
         textArea.setWidth(FIELD_WIDTH);
@@ -541,8 +535,7 @@ public abstract class UserWidget extends LayoutContainer
 
     private TextField<String> createMaxFileSizeField()
     {
-        final TextField<String> textField =
-                createTextField(getMessageResources().getMaxFileSizeLabel());
+        final TextField<String> textField = createTextField(msg(CREATE_USER_MAX_FILESIZE_LABEL));
         textField.setValidator(new Validator()
             {
                 public String validate(Field<?> field, String value)
@@ -584,8 +577,7 @@ public abstract class UserWidget extends LayoutContainer
 
     private TextField<String> createMaxFileCountField()
     {
-        final TextField<String> textField =
-                createTextField(getMessageResources().getMaxFileCountLabel());
+        final TextField<String> textField = createTextField(msg(CREATE_USER_MAX_FILECOUNT_LABEL));
         textField.setValidator(new Validator()
             {
                 public String validate(Field<?> field, String value)
@@ -627,8 +619,7 @@ public abstract class UserWidget extends LayoutContainer
 
     private TextField<String> createFileRetention()
     {
-        final TextField<String> textField =
-                createTextField(getMessageResources().getFileRetention());
+        final TextField<String> textField = createTextField(msg(CREATE_USER_FILE_RETENTION_LABEL));
         textField.setValidator(new Validator()
             {
                 public String validate(Field<?> field, String value)
@@ -661,8 +652,7 @@ public abstract class UserWidget extends LayoutContainer
 
     private TextField<String> createUserRetention()
     {
-        final TextField<String> textField =
-                createTextField(getMessageResources().getUserRetention());
+        final TextField<String> textField = createTextField(msg(CREATE_USER_USER_RETENTION_LABEL));
         textField.setValidator(new Validator()
             {
                 public String validate(Field<?> field, String value)
@@ -699,7 +689,7 @@ public abstract class UserWidget extends LayoutContainer
         checkbox.setBoxLabel(""); // WORKAROUND to align check box to left
         checkbox.setValue(true);
         checkbox.setName("send-user-information");
-        checkbox.setFieldLabel(getMessageResources().getSendUserUpdateInformationLabel());
+        checkbox.setFieldLabel(msg(EDIT_USER_NOTIFY_LABEL));
         checkbox.setWidth(FIELD_WIDTH);
         return checkbox;
     }
@@ -717,7 +707,7 @@ public abstract class UserWidget extends LayoutContainer
             checkBox.setValue(true);
         }
         checkBox.setName("user-is-active");
-        checkBox.setFieldLabel(getMessageResources().getUserActiveLabel());
+        checkBox.setFieldLabel(msg(USER_ACTIVE_LABEL));
         checkBox.setWidth(FIELD_WIDTH);
         return checkBox;
     }
@@ -731,7 +721,7 @@ public abstract class UserWidget extends LayoutContainer
 
         checkBox.setName(Constants.EXTERNAL_AUTHENTICATION_ID);
         checkBox.setId(Constants.EXTERNAL_AUTHENTICATION_ID);
-        checkBox.setFieldLabel(getMessageResources().getExternalAuthenticationLabel());
+        checkBox.setFieldLabel(msg(EDIT_USER_EXTERNAL_AUTHENTICATION_LABEL));
         checkBox.setWidth(FIELD_WIDTH);
         return checkBox;
     }
@@ -740,15 +730,15 @@ public abstract class UserWidget extends LayoutContainer
     {
 
         final SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
-        final String adminRoleName = getMessageResources().getAdminRoleName();
-        final String permanentRoleName = getMessageResources().getPermanentRoleName();
-        final String temporaryRoleName = getMessageResources().getTemporaryRoleName();
+        final String adminRoleName = msg(CREATE_USER_ROLE_ADMIN_TAG);
+        final String permanentRoleName = msg(CREATE_USER_ROLE_REGULAR_TAG);
+        final String temporaryRoleName = msg(CREATE_USER_ROLE_TEMP_TAG);
         comboBox.add(adminRoleName);
         comboBox.add(permanentRoleName);
         comboBox.add(temporaryRoleName);
         comboBox.setWidth(FIELD_WIDTH);
         comboBox.setTriggerAction(TriggerAction.ALL);
-        comboBox.setFieldLabel(getMessageResources().getUserStatusLabel());
+        comboBox.setFieldLabel(msg(CREATE_USER_STATUS_LABEL));
         comboBox.setForceSelection(true);
         comboBox.setEditable(false);
         comboBox.setAllowBlank(false);
@@ -770,7 +760,7 @@ public abstract class UserWidget extends LayoutContainer
     private final DateField createExpirationDateField()
     {
         final DateField dateField = new DateField();
-        dateField.setFieldLabel(getMessageResources().getExpirationDateLabel());
+        dateField.setFieldLabel(msg(CREATE_USER_EXPIRATION_DATE_LABEL));
         final long registrationTimeOrNow =
                 (editUser != null) ? editUser.getRegistrationDate().getTime() : System
                         .currentTimeMillis();
@@ -785,7 +775,7 @@ public abstract class UserWidget extends LayoutContainer
             dateField.setMaxValue(maxExpirationDate);
         }
         dateField.getPropertyEditor().setFormat(DateTimeFormat.getFormat("yyyy-MM-dd"));
-        dateField.setToolTip(EXPIRATION_DATE_TOOLTIP_CHOOSE_MSG);
+        dateField.setToolTip(msg(CREATE_USER_EXPIRATION_DATE_TOOLTIP));
         dateField.setAllowBlank(false);
         if (statusField == null || isTemporaryStatus())
         {

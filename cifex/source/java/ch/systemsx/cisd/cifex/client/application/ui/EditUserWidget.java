@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
@@ -84,7 +86,7 @@ public class EditUserWidget extends UserWidget
     @Override
     public final String getSubmitButtonLabel()
     {
-        return getMessageResources().getEditUserButtonLabel();
+        return msg(EDIT_USER_UPDATE_BUTTON_LABEL);
     }
 
     //

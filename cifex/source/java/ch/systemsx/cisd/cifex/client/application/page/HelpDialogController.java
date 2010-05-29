@@ -51,7 +51,7 @@ public class HelpDialogController extends AbstractDialogController
      */
     public HelpDialogController(final ViewContext context)
     {
-        super(context, context.getMessageResources().getHelpPageTooltipLabel());
+        super(context, msg(HELP_LINK_TOOLTIP));
     }
 
     @Override
@@ -73,7 +73,7 @@ public class HelpDialogController extends AbstractDialogController
         appendBlockAnchor(sb, DISCLAIMER_HTML, msg(HELP_DISCLAIMER_TITLE));
         appendBlockAnchor(sb, TOOLS_HTML, msg(HELP_TOOLS_LABEL));
         appendBlock(sb, DOMUtils.createEmailAnchor(info(SUPPORT_EMAIL),
-                msg(CONTACT_SUPPORT_LABEL)));
+                msg(HELP_CONTACT_SUPPORT_LABEL)));
         sb.append(getApplicationDescriptionHTMLString());
 
         return sb.toString();

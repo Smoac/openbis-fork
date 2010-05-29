@@ -53,32 +53,6 @@ public interface IMessageResources extends Messages
     @Key(value = "share.user.add.title")
     public String getAddUserFormTitle();
 
-    /** Returns the label for creating new User */
-    @Key(value = "usercreation.label.admin")
-    public String getAdminCreateUserLabel();
-
-    /** Returns the role name for an administrator. */
-    @Key(value = "usercreation.role.admin")
-    public String getAdminRoleName();
-
-    /** Label for the button for the admin view. */
-    @Key(value = "adminview.link.label")
-    public String getAdminViewLinkLabel();
-
-    /** Returns label for the Comment field. */
-    @Key(value = "usercreation.comment.label")
-    public String getCommentLabel();
-
-    /** Returns the label for creating new User */
-    @Key(value = "usercreation.label")
-    public String getCreateUserLabel();
-
-    /**
-     * Returns a default invocation exception message (as it obviously does not contain any).
-     */
-    @Key(value = "dialog.closebutton.label")
-    public String getDialogCloseButtonLabel();
-
     /** Returns the message text for downloadable files being loaded. */
     @Key(value = "downloadfiles.loading")
     public String getDownloadFilesLoading();
@@ -103,46 +77,13 @@ public interface IMessageResources extends Messages
     @Key(value = "downloadfiles.javaDownloaderPros")
     public String getJavaDownloaderPros();
 
-    /** Returns label for the button of editing a user. */
-    @Key(value = "edituser.button.label")
-    public String getEditUserButtonLabel();
-
-    /** Returns label for editing a user. */
-    @Key(value = "edituser.label")
-    public String getEditUserLabel();
-
-    /** Label for the button, to edit the user */
-    @Key(value = "edituser.link.label")
-    public String getEditUserLinkLabel();
-
-    /** Label for the tooltip of button, to edit the user */
-    @Key(value = "edituser.link.tooltip")
-    public String getEditUserTooltipLabel();
-
     /** Returns the label of the field, to add new Email Adresses. */
     @Key(value = "share.email.field.label")
     public String getEmailFielLabel();
 
-    /**
-     * Returns a default message for exception that does not contain any message. *
-     * <p>
-     * The returned error message will contain the type of the exception thrown. *
-     * </p>
-     */
-    @Key(value = "exception.without.message")
-    public String getExceptionWithoutMessage(final String typeName);
-
     /** Returns the title for the existing user table */
     @Key(value = "share.user.existing.title")
     public String getExistingUserTableTitle();
-
-    /** Returns external authentication label. */
-    @Key(value = "edituser.externalAuthentication.label")
-    public String getExternalAuthenticationLabel();
-
-    /** Returns dialog window title for editing a file. */
-    @Key(value = "editfile.dialog.title")
-    public String getEditFileDialogTitle(final String fileName);
 
     /** Returns the label of the comment name column. */
     @Key(value = "file.comment.label")
@@ -176,10 +117,6 @@ public interface IMessageResources extends Messages
     @Key(value = "file.registrationdate.label")
     public String getFileRegistrationDateLabel();
 
-    /** Returns the label of the file registrator column. */
-    @Key(value = "file.registrator.label")
-    public String getFileRegistratorLabel();
-
     /** Returns the label of the file owner column. */
     @Key(value = "file.owner.label")
     public String getFileOwnerLabel();
@@ -187,10 +124,6 @@ public interface IMessageResources extends Messages
     /** Returns the label of the file "shared with" column. */
     @Key(value = "file.shared_with.label")
     public String getFileSharedWithLabel();
-
-    /** Returns the title of the file sharing user dialog. */
-    @Key(value = "filesharing.title")
-    public String getFileSharingTitle(String fileName);
 
     /** Returns the label of the file size column. */
     @Key(value = "file.size.label")
@@ -220,163 +153,13 @@ public interface IMessageResources extends Messages
     @Key(value = "files.empty")
     public String getFilesEmpty();
 
-    /** Returns the file upload submit button label. */
-    @Key(value = "fileupload.button.label")
-    public String getFileUploadButtonLabel();
-
-    /** Returns the file upload feedback 'byte read till now' label. */
-    @Key(value = "fileupload.feedback.bytes.label")
-    public String getFileUploadFeedbackBytesLabel(final String bytesRead, final String contentLength);
-
-    /** Returns the file upload feedback 'file being read' label. */
-    @Key(value = "fileupload.feedback.file.label")
-    public String getFileUploadFeedbackFileLabel(final String fileName);
-
-    /** Returns the file upload feedback window initializing message. */
-    @Key(value = "fileupload.feedback.message")
-    public String getFileUploadFeedbackMessage();
-
-    /** Returns the file upload feedback 'time remaining' label. */
-    @Key(value = "fileupload.feedback.time.label")
-    public String getFileUploadFeedbackTimeLabel(final String remainingTime);
-
-    /** Returns the file upload feedback window title. */
-    @Key(value = "fileupload.feedback.title")
-    public String getFileUploadFeedbackTitle();
-
-    /** Returns the file upload field label. */
-    @Key(value = "fileupload.field.label")
-    public String getFileUploadFieldLabel(final int index);
-
-    /** Returns the title of the file upload field set. */
-    @Key(value = "fileupload.legend")
-    public String getFileUploadLegend();
-
-    /** Returns title for confirmation window when uploading files with duplicated names. */
-    @Key(value = "fileupload.duplicates.title")
-    public String getFileUploadDuplicatesTitle();
-
-    /** Returns message for confirmation window when uploading files with duplicated names. */
-    @Key(value = "fileupload.duplicates.msg")
-    public String getFileUploadDuplicatesMsg();
-
-    /**
-     * Returns a default invocation exception message (as it obviously does not contain any).
-     */
-    @Key(value = "exception.invocation.message")
-    public String getInvocationExceptionMessage();
-
-    /** Returns the button label for the login form. */
-    @Key(value = "login.button.label")
-    public String getLoginButtonLabel();
-
-    /** Returns message that you get when the login failed. */
-    @Key(value = "login.failed.message")
-    public String getLoginFailedMessage();
-
-    /** Returns the password label for the login form. */
-    @Key(value = "login.password.label")
-    public String getLoginPasswordLabel();
-
-    /** Returns the email label for the login form. */
-    @Key(value = "login.user.label")
-    public String getLoginUserLabel();
-
-    /** Returns the logout label for the logout link. */
-    @Key(value = "logout.link.label")
-    public String getLogoutLinkLabel();
-
-    /** Returns the logout tooltip for the logout link. */
-    @Key(value = "logout.link.tooltip")
-    public String getLogoutLinkTooltip();
-
-    /** Label for the button for the inbox view. */
-    @Key(value = "inboxview.link.label")
-    public String getInboxViewLinkLabel();
-
-    /** Label for the button for the share view. */
-    @Key(value = "shareview.link.label")
-    public String getShareViewLinkLabel();
-
-    /** Label for the button for the invite view. */
-    @Key(value = "inviteview.link.label")
-    public String getInviteViewLinkLabel();
-
-    /** Label for the button for the invite view. */
-    @Key(value = "help.link.label")
-    public String getHelpPageLinkLabel();
-
-    /** Label for the tooltip of button, for the invite view. */
-    @Key(value = "help.link.tooltip")
-    public String getHelpPageTooltipLabel();
-
-    /** Returns the title for error message box. */
-    @Key(value = "messagebox.error.title")
-    public String getMessageBoxErrorTitle();
-
-    /** Returns the title for info message box. */
-    @Key(value = "messagebox.info.title")
-    public String getMessageBoxInfoTitle();
-
-    /** Returns the title for warning message box. */
-    @Key(value = "messagebox.warning.title")
-    public String getMessageBoxWarningTitle();
-
     /** Returns the title for the new user table */
     @Key(value = "share.user.new.label")
     public String getNewUserTableTitle();
 
-    /** Returns the title of Own User Table. */
-    @Key(value = "userlist.ownusers.part.title")
-    public String getOwnUserTitle();
-
-    /** Returns label for the Password field. */
-    @Key(value = "usercreation.password.label")
-    public String getPasswordLabel();
-
-    /** Returns the Message for thhe alert Box, if the 2 Password did not match. */
-    @Key(value = "usercreation.password.missmatch.message")
-    public String getPasswordMissmatchMessage();
-
-    /** Returns the role name for an permanent user. */
-    @Key(value = "usercreation.role.permanent")
-    public String getPermanentRoleName();
-
-    /** Returns the recipient text area field label. */
-    @Key(value = "recipient.field.invalid.text")
-    public String getRecipientFieldInvalidText();
-
     /** Returns the recipient text area field label. */
     @Key(value = "value.required.text")
     public String getValueRequiredText();
-
-    /** Returns the title of the recipient field set. */
-    @Key(value = "recipient.legend")
-    public String getRecipientLegend();
-
-    /** Returns the tooltip of the recipient field set. */
-    @Key(value = "recipient.tooltip")
-    public String getRecipientFieldToolTip();
-
-    /** Returns the label of the user Registrator column. */
-    @Key(value = "userlist.registrator.label")
-    public String getRegistratorLabel();
-
-    /** Returns the label of the user "Total File Size" column. */
-    @Key(value = "userlist.total-filesize.label")
-    public String getTotalFileSizeLabel();
-
-    /** Returns the label of the user "Total File Count" column. */
-    @Key(value = "userlist.total-filecount.label")
-    public String getTotalFileCountLabel();
-
-    /** Returns the label of the user "Custom Quota Size" column. */
-    @Key(value = "userlist.custom-quota-size.label")
-    public String getQuotaSizeLabel();
-
-    /** Returns the label of the user "Total File Count" column. */
-    @Key(value = "userlist.custom-quota-count.label")
-    public String getQuotaCountLabel();
 
     /** Returns text for the 'rename' confirm box. */
     @Key(value = "rename.confirm.text")
@@ -390,83 +173,13 @@ public interface IMessageResources extends Messages
     @Key(value = "rename.prompt.title")
     public String getRenamePromptTitle();
 
-    /** Returns label for the Comment field. */
-    @Key(value = "edituser.sendUpdateInformation.label")
-    public String getSendUserUpdateInformationLabel();
-
     /** Returns the share label. */
     @Key(value = "file.share.label")
     public String getShareLabel();
 
-    /**
-     * Returns the error message when a user with given <var>userCode</var> is not found.
-     */
-    @Key(value = "user.not.found")
-    public String getUserNotFound(String userCode);
-
     /** Returns the label of the submit button of the Dialog */
     @Key(value = "share.submit.button.label")
     public String getShareSubmitDialogButtonLabel();
-
-    /** Returns the label of the user Status column. */
-    @Key(value = "userlist.status.label")
-    public String getStatusLabel();
-
-    /** Returns the role name for an permanent user. */
-    @Key(value = "usercreation.role.temporary")
-    public String getTemporaryRoleName();
-
-    /** Returns the message text for shared files being loaded. */
-    @Key(value = "uploadedfiles.loading")
-    public String getSharedFilesLoading();
-
-    /** Returns the message text for no file uploaded. */
-    @Key(value = "uploadedfiles.empty")
-    public String getSharedFilesEmpty();
-
-    /** Returns the uploaded files part title. */
-    @Key(value = "uploadedfiles.part.title")
-    public String getSharedFilesPartTitle();
-
-    /** Returns the label of Java uploader button title. */
-    @Key(value = "uploadfiles.launchJavaUploaderButtonTitle")
-    public String getLaunchJavaUploaderButtonTitle();
-
-    /** Returns the text with pros of WebStart upload client. */
-    @Key(value = "uploadfiles.javaUploaderPros")
-    public String getJavaUploaderPros();
-
-    /** Returns the upload file part title. */
-    @Key(value = "uploadfiles.part.title")
-    public String getUploadFilesPartTitle();
-
-    /** Returns the upload files part title section &lt; 2GB. */
-    @Key(value = "uploadfiles.part.title.less2GB")
-    public String getUploadFilesPartTitleLess2GB();
-
-    /** Returns the upload files part title section &gt; 2GB. */
-    @Key(value = "uploadfiles.part.title.greater2GB")
-    public String getUploadFilesPartTitleGreater2GB();
-
-    /** Returns label for the User Code field. */
-    @Key(value = "usercreation.usercode.label")
-    public String getUserCodeLabel();
-
-    /** Returns the label of the field for the maximum size of all files in MB */
-    @Key(value = "usercreation.max.file.size.label")
-    public String getMaxFileSizeLabel();
-
-    /** Returns the label of the field for the maximum number of all files in MB */
-    @Key(value = "usercreation.max.file.count.label")
-    public String getMaxFileCountLabel();
-
-    /** Returns the label of the field for file retention time */
-    @Key(value = "usercreation.file.retention")
-    public String getFileRetention();
-
-    /** Returns the label of the field for user retention time */
-    @Key(value = "usercreation.user.retention")
-    public String getUserRetention();
 
     /** Returns the content the confirm MessageBox, to delete an user. */
     @Key(value = "user.delete.confirm.text")
@@ -476,42 +189,6 @@ public interface IMessageResources extends Messages
     @Key(value = "user.delete.title")
     public String getUserDeleteTitle();
 
-    /** Returns the label of the user email column. */
-    @Key(value = "userlist.email.label")
-    public String getUserEmailLabel();
-
-    /** Returns the label of the user Full Name column. */
-    @Key(value = "userlist.fullname.label")
-    public String getUserFullNameLabel();
-
-    /** Returns the User List part title. */
-    @Key(value = "userlist.part.title")
-    public String getUsersPartTitle();
-
-    /** Returns the message that users are being loaded. */
-    @Key(value = "userlist.loading")
-    public String getUsersLoading();
-
-    /** Returns the message that the users list is empty. */
-    @Key(value = "userlist.empty")
-    public String getUsersEmpty();
-
-    /** Returns user status label. */
-    @Key(value = "user.status.label")
-    public String getUserStatusLabel();
-
-    /** Returns user "Is Active" label. */
-    @Key(value = "usercreation.role.active")
-    public String getUserActiveLabel();
-
-    /** Returns label for the validate Password field. */
-    @Key(value = "usercreation.password.validate.label")
-    public String getValidatePasswordLabel();
-
-    /** Returns the label of the button to validate the users */
-    @Key(value = "fileupload.validate.button.label")
-    public String getValidateUsersButtonLabel();
-
     /** Returns the email validation text */
     @Key(value = "value.email.text")
     public String getValueEmailText();
@@ -520,11 +197,4 @@ public interface IMessageResources extends Messages
     @Key(value = "value.user.code.text")
     public String getValueUserCode();
 
-    /** Returns the expiration date for user / file creation editing */
-    @Key(value = "userfile.expiration.date")
-    public String getExpirationDateLabel();
-
-    /** Returns the title of the reset button */
-    @Key(value = "reset.button.title")
-    public String getResetButtonTitle();
 }

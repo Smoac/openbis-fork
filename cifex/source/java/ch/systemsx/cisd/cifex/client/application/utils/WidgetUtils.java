@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -54,13 +56,13 @@ public final class WidgetUtils
         String title;
         if (Message.INFO.equals(type))
         {
-            title = messageResources.getMessageBoxInfoTitle();
+            title = msg(MESSAGE_BOX_INFO_TITLE);
         } else if (Message.WARNING.equals(type))
         {
-            title = messageResources.getMessageBoxWarningTitle();
+            title = msg(MESSAGE_BOX_WARNING_TITLE);
         } else
         {
-            title = messageResources.getMessageBoxErrorTitle();
+            title = msg(MESSAGE_BOX_ERROR_TITLE);
         }
         MessageBox.alert(title, message.getMessageText(), eventListenerOrNull);
     }

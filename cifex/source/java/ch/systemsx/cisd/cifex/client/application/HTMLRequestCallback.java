@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
@@ -71,14 +73,13 @@ public final class HTMLRequestCallback implements RequestCallback
     {
         final String msg;
         final String message = ex.getMessage();
-        final IMessageResources messageResources = context.getMessageResources();
         if (StringUtils.isBlank(message))
         {
-            msg = messageResources.getExceptionWithoutMessage(ex.getClass().getName());
+            msg = msg(UNKNOWN_FAILURE_MSG, ex.getClass().getName());
         } else
         {
             msg = message;
         }
-        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg, null);
+        MessageBox.alert(msg(MESSAGE_BOX_ERROR_TITLE), msg, null);
     }
 }

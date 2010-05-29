@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -169,9 +171,8 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
         {
             if (resultOrNull == null)
             {
-                final IMessageResources messages = viewContext.getMessageResources();
-                MessageBox.alert(messages.getMessageBoxErrorTitle(), messages
-                        .getUserNotFound(userCode), null);
+                MessageBox.alert(msg(MESSAGE_BOX_ERROR_TITLE), msg(UNKNOWN_USER_MSG, userCode),
+                        null);
             }
             new EditUserDialog(viewContext, resultOrNull, grid).show();
         }

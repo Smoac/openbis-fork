@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -67,7 +69,7 @@ public class DefaultLayoutDialog extends Dialog
 
     private final Button createCloseButton()
     {
-        final Button button = new Button(messageResources.getDialogCloseButtonLabel());
+        final Button button = new Button(msg(DIALOG_CLOSE_BUTTON_LABEL));
         button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 

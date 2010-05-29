@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -42,11 +41,6 @@ public final class UserGridModel extends AbstractUserGridModel
     public UserGridModel(final ViewContext viewContext, UserInfoDTO user)
     {
         super(viewContext.getMessageResources(), viewContext.getModel().getUser());
-        String registratorAnchor = null;
-        if (user.getRegistrator() != null)
-        {
-            registratorAnchor = UserRenderer.createUserAnchor(user.getRegistrator());
-        }
         set(ID, user.getID());// long
         set(USER_CODE, user.getUserCode());// String
         set(USER_EMAIL, user.getEmail());// String
@@ -57,7 +51,7 @@ public final class UserGridModel extends AbstractUserGridModel
         set(ACTIVE, new Boolean(user.isActive()));// Boolean
         set(QUOTA_SIZE, getMaxFileSizePerQuotaGroup(user));// Long
         set(QUOTA_COUNT, getMaxFileCountPerQuotaGroup(user));// Integer
-        set(REGISTRATOR, (registratorAnchor));// String
+        set(REGISTRATOR, user.getRegistrator());// UserInfoDTO
         set(ACTION, listActionsForUser(user));// String
 
     }

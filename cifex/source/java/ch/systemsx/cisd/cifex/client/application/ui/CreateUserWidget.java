@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
@@ -73,10 +75,10 @@ public class CreateUserWidget extends UserWidget
     {
         if (context.getModel().getUser().isAdmin())
         {
-            return getMessageResources().getAdminCreateUserLabel();
+            return msg(CREATE_USER_LABEL);
         } else
         {
-            return getMessageResources().getCreateUserLabel();
+            return msg(CREATE_TEMP_USER_LABEL);
         }
     }
 

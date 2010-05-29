@@ -73,20 +73,19 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
     private final String createUpdateMessage(final FileUploadFeedback feedback)
     {
         final StringBuffer buffer = new StringBuffer();
-        final IMessageResources messageResources = getViewContext().getMessageResources();
-        buffer.append(messageResources.getFileUploadFeedbackFileLabel(feedback.getFileName()));
+        buffer.append(msg(UPLOAD_FILE_FEEDBACK_FILE_LABEL, feedback.getFileName()));
         buffer.append(DOMUtils.BR);
         final String byteRead = FileUtils.byteCountToDisplaySize(feedback.getBytesRead());
         final long length = feedback.getContentLength();
         final String contentLength =
                 (length == Long.MAX_VALUE) ? msg(UNKNOWN_LABEL) : FileUtils
                         .byteCountToDisplaySize(length);
-        buffer.append(messageResources.getFileUploadFeedbackBytesLabel(byteRead, contentLength));
+        buffer.append(msg(UPLOAD_FILE_FEEDBACK_PROGRESS_LABEL, byteRead, contentLength));
         buffer.append(DOMUtils.BR);
         final long timeLeft = feedback.getTimeLeft();
         if (timeLeft < Long.MAX_VALUE)
         {
-            buffer.append(messageResources.getFileUploadFeedbackTimeLabel(DateTimeUtils
+            buffer.append(msg(UPLOAD_FILE_FEEDBACK_TIME_REMAINING_LABEL, DateTimeUtils
                     .formatDuration(timeLeft)));
         }
         return buffer.toString();
@@ -133,8 +132,8 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
         if (messageBox == null)
         {
             messageBox =
-                    MessageBox.progress(messageResources.getFileUploadFeedbackTitle(),
-                            messageResources.getFileUploadFeedbackMessage(), null);
+                    MessageBox.progress(msg(UPLOAD_FILE_FEEDBACK_MSGBOX_TITLE),
+                            msg(UPLOAD_FILE_FEEDBACK_MSG), null);
         } else
         {
             // Convert a percentage to a double between 0 and 1

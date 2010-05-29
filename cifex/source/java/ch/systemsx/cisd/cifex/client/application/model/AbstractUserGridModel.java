@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,7 +29,8 @@ import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.ui.FileCountRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
-import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
+import ch.systemsx.cisd.cifex.client.application.ui.EmailLinkRenderer;
+import ch.systemsx.cisd.cifex.client.application.ui.UserDescriptionRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -101,7 +104,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(USER_CODE, messageResources.getUserCodeLabel(), 180);
+                createSortableColumnConfig(USER_CODE, msg(USER_ID_LABEL), 180);
         return columnConfig;
     }
 
@@ -109,8 +112,8 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(USER_EMAIL, messageResources.getUserEmailLabel(), 180);
-        columnConfig.setRenderer(UserRenderer.USER_RENDERER);
+                createSortableColumnConfig(USER_EMAIL, msg(LIST_USERS_EMAIL_COLUMN_HEADER), 180);
+        columnConfig.setRenderer(EmailLinkRenderer.USER_RENDERER);
         return columnConfig;
     }
 
@@ -118,7 +121,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(FILE_SIZE, messageResources.getTotalFileSizeLabel(), 80);
+                createSortableColumnConfig(FILE_SIZE, msg(LIST_USERS_FILESIZE_COLUMN_HEADER), 80);
         columnConfig.setRenderer(FileSizeRenderer.FILE_SIZE_NULL_AS_MISSING_RENDERER);
         return columnConfig;
     }
@@ -127,8 +130,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(FILE_COUNT, messageResources.getTotalFileCountLabel(),
-                        60);
+                createSortableColumnConfig(FILE_COUNT, msg(LIST_USERS_FILECOUNT_COLUMN_HEADER), 60);
         columnConfig.setRenderer(FileCountRenderer.FILE_COUNT_RENDERER);
         return columnConfig;
     }
@@ -140,31 +142,32 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180);
+                createColumnConfig(REGISTRATOR, msg(LIST_USERS_CREATOR_COLUMN_HEADER), 180);
+        columnConfig.setRenderer(UserDescriptionRenderer.USER_DESCRIPTION_RENDERER);
         return columnConfig;
     }
 
     protected final static ColumnConfig createStatusColumnConfig(IMessageResources messageResources)
     {
-        return createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 200);
+        return createSortableColumnConfig(STATUS, msg(LIST_USERS_STATUS_COLUMN_HEADER), 200);
     }
 
     protected final static ColumnConfig createActiveColumnConfig(IMessageResources messageResources)
     {
-        return createSortableColumnConfig(ACTIVE, messageResources.getUserActiveLabel(), 80);
+        return createSortableColumnConfig(ACTIVE, msg(USER_ACTIVE_LABEL), 80);
     }
 
     protected final static ColumnConfig createFullNameColumnConfig(
             IMessageResources messageResources)
     {
-        return createSortableColumnConfig(FULL_NAME, messageResources.getUserFullNameLabel(), 180);
+        return createSortableColumnConfig(FULL_NAME, msg(LIST_USERS_FULLNAME_COLUMN_HEADER), 180);
     }
 
     protected final static ColumnConfig createQuotaSizeColumnConfig(
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(QUOTA_SIZE, messageResources.getQuotaSizeLabel(), 80);
+                createSortableColumnConfig(QUOTA_SIZE, msg(LIST_USERS_QUOTASIZE_COLUMN_HEADER), 80);
         columnConfig.setRenderer(FileSizeRenderer.FILE_SIZE_NULL_AS_MISSING_RENDERER);
         columnConfig.setHidden(true);
         return columnConfig;
@@ -174,7 +177,8 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(QUOTA_COUNT, messageResources.getQuotaCountLabel(), 80);
+                createSortableColumnConfig(QUOTA_COUNT, msg(LIST_USERS_QUOTACOUNT_COLUMN_HEADER),
+                        80);
         columnConfig.setRenderer(FileCountRenderer.FILE_COUNT_RENDERER);
         columnConfig.setHidden(true);
         return columnConfig;
@@ -185,18 +189,16 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
         String stateField = "";
         if (user.isAdmin())
         {
-            stateField = messageResources.getAdminRoleName();
+            stateField = msg(CREATE_USER_ROLE_ADMIN_LABEL);
         } else if (user.isPermanent())
         {
-            stateField += messageResources.getPermanentRoleName() + " User";
+            stateField += msg(CREATE_USER_ROLE_REGULAR_LABEL);
         } else
         {
-            stateField += messageResources.getTemporaryRoleName();
-            if (user.getExpirationDate() != null)
-            {
-                stateField +=
-                        " User until ".concat(DateTimeUtils.formatDate(user.getExpirationDate()));
-            }
+            final String expirationDate =
+                    (user.getExpirationDate() != null) ? DateTimeUtils.formatDate(user
+                            .getExpirationDate()) : "???";
+            stateField += msg(CREATE_USER_ROLE_TEMP_LABEL, expirationDate);
         }
         return stateField;
     }

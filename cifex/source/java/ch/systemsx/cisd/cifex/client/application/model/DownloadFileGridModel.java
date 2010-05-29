@@ -22,8 +22,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
-import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
@@ -42,10 +40,10 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         super(messageResources);
         set(ID, file.getID());// long
         set(NAME, file.getName());// String
-        set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
+        set(COMMENT, file.getComment());// String
         set(CONTENT_TYPE, file.getContentType());// String
         set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
-        set(OWNER, UserRenderer.createUserAnchor(file.getOwner()));// String
+        set(OWNER, file.getOwner());// String
         set(CRC32_CHECKSUM, file.getCrc32Str());// String
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +53,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 {
-    private static final int DIALOG_HEIGHT = 680;
+    private static final int DIALOG_HEIGHT = 690;
 
     private static final int DIALOG_WIDTH = 980;
 
@@ -77,8 +79,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
             final List<UserInfoDTO> oldSharingUsers, final List<UserInfoDTO> newUsers,
             final String name)
     {
-        super(context.getMessageResources(), context.getMessageResources()
-                .getFileSharingTitle(name), DIALOG_WIDTH, DIALOG_HEIGHT);
+        super(context.getMessageResources(), msg(SHARE_FILE_DIALOG_TITLE, name), DIALOG_WIDTH,
+                DIALOG_HEIGHT);
         this.existingUsers = oldSharingUsers;
         this.newUsers = newUsers;
         this.viewContext = context;
@@ -253,10 +255,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                 checkboxChangeAction();
                                             } else
                                             {
-                                                MessageBox.alert(viewContext.getMessageResources()
-                                                        .getMessageBoxErrorTitle(), viewContext
-                                                        .getMessageResources().getUserNotFound(
-                                                                userCode), null);
+                                                MessageBox.alert(msg(MESSAGE_BOX_ERROR_TITLE), msg(
+                                                        UNKNOWN_USER_MSG, userCode), null);
                                             }
                                         }
 

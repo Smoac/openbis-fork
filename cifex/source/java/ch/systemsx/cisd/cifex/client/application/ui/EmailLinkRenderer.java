@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,45 +16,46 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
+import ch.systemsx.cisd.cifex.client.application.model.AbstractUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
- * A <code>Renderer</code> implementation that create an anchor element with inner text
+ * A <code>Renderer</code> implementation that create an email anchor element with inner text
  * <code>value.toString()</code>.
  * 
  * @author Christian Ribeaud
  */
-public class LinkRenderer implements IGridCellRendererNonPlainText<BaseModelData>
+public final class EmailLinkRenderer implements IGridCellRendererNonPlainText<AbstractUserGridModel>
 {
 
-    /** The unique instance of <code>LinkRenderer</code>. */
-    public final static LinkRenderer LINK_RENDERER = new LinkRenderer();
+    /** The unique instance of <code>UserRenderer</code>. */
+    public final static EmailLinkRenderer USER_RENDERER = new EmailLinkRenderer();
 
-    private LinkRenderer()
+    private EmailLinkRenderer()
     {
+        // Can not be instantiated.
     }
 
-    public Object render(BaseModelData model, String property, ColumnData config, int rowIndex,
-            int colIndex, ListStore<BaseModelData> store, Grid<BaseModelData> grid)
+    public Object render(AbstractUserGridModel model, String property, ColumnData config,
+            int rowIndex, int colIndex, ListStore<AbstractUserGridModel> store,
+            Grid<AbstractUserGridModel> grid)
     {
-        Object value = model.get(property);
+        String value = String.valueOf(model.get(property));
         if (value == null)
         {
             return Constants.TABLE_NULL_VALUE;
         }
-        return DOMUtils.createAnchor(value.toString());
+        return DOMUtils.createEmailAnchor(value, null);
     }
 
-    public GridCellRenderer<BaseModelData> getPlainTextRenderer()
+    public GridCellRenderer<AbstractUserGridModel> getPlainTextRenderer()
     {
         return null;
     }
-
 }

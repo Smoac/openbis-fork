@@ -131,22 +131,21 @@ final class FooterPanel extends HorizontalPanel
     private final static String createContactAdministrator(final Configuration configuration,
             final IMessageResources messageResources)
     {
-        return DOMUtils.createEmailAnchor(info(SUPPORT_EMAIL), msg(CONTACT_SUPPORT_LABEL));
+        return DOMUtils.createEmailAnchor(info(SUPPORT_EMAIL), msg(HELP_CONTACT_SUPPORT_LABEL));
     }
 
     private final void showErrorMessage(final Throwable ex)
     {
         final String msg;
         final String message = ex.getMessage();
-        final IMessageResources messageResources = viewContext.getMessageResources();
         if (StringUtils.isBlank(message))
         {
-            msg = messageResources.getExceptionWithoutMessage(ex.getClass().getName());
+            msg = msg(UNKNOWN_FAILURE_MSG, ex.getClass().getName());
         } else
         {
             msg = message;
         }
-        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg, null);
+        MessageBox.alert(msg(MESSAGE_BOX_ERROR_TITLE), msg, null);
     }
 
 }

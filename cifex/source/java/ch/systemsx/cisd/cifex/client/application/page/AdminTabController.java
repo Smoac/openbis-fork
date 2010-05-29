@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -82,11 +84,10 @@ class AdminTabController extends AbstractMainPageTabController
     static private final void createListUserGrid(ContentPanel listUserPanel,
             GridWidget<AbstractFileGridModel> filesGrid, ViewContext context)
     {
-        addTitleRow(listUserPanel, context.getMessageResources().getUsersPartTitle());
+        addTitleRow(listUserPanel, msg(LIST_USERS_GRID_TITLE));
         final GridWidget<UserGridModel> userGridWidget =
                 GridUtils.createUserGrid(new ArrayList<UserInfoDTO>(), context);
-        userGridWidget.getGrid().getView().setEmptyText(
-                context.getMessageResources().getUsersLoading());
+        userGridWidget.getGrid().getView().setEmptyText(msg(LIST_USERS_LOADING_MSG));
         // Delete user and change code function
         userGridWidget.getGrid().addListener(Events.CellClick,
                 new UserActionGridCellListener(context, filesGrid, userGridWidget));
@@ -142,16 +143,14 @@ class AdminTabController extends AbstractMainPageTabController
 
         public final void onSuccess(final List<UserInfoDTO> result)
         {
-            userGrid.getGrid().getView()
-                    .setEmptyText(context.getMessageResources().getUsersEmpty());
+            userGrid.getGrid().getView().setEmptyText(msg(LIST_USERS_EMPTY_MSG));
             userGrid.setDataAndRefresh(UserGridModel.convert(context, result));
         }
 
         @Override
         public void onFailure(Throwable caught)
         {
-            userGrid.getGrid().getView()
-                    .setEmptyText(context.getMessageResources().getUsersEmpty());
+            userGrid.getGrid().getView().setEmptyText(msg(LIST_USERS_EMPTY_MSG));
             super.onFailure(caught);
         }
     }

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +30,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -50,17 +51,12 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
             final UserInfoDTO currentUser, final UserInfoDTO user, final boolean checkedUser)
     {
         super(messageResources, currentUser);
-        String registratorAnchor = null;
-        if (user.getRegistrator() != null)
-        {
-            registratorAnchor = UserRenderer.createUserAnchor(user.getRegistrator());
-        }
         set(ID, user.getID());// long
         set(SHARE_FILE, new Boolean(checkedUser));// Boolean
         set(USER_CODE, user.getUserCode());// String
         set(USER_EMAIL, user.getEmail());// String
         set(FULL_NAME, user.getUserFullName());// String
-        set(REGISTRATOR, registratorAnchor);// String
+        set(REGISTRATOR, user.getRegistrator());// UserInfoDTO
         set(STATUS, getUserRoleDescription(user));// String
         set(ACTIVE, new Boolean(user.isActive()));// Boolean
     }
@@ -122,7 +118,7 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
         configs.add(createUserEmailColumnConfig(messageResources));
         configs.add(createFullNameColumnConfig(messageResources));
         configs.add(createRegistratorColumnConfig(messageResources));
-        configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 200));
+        configs.add(createSortableColumnConfig(STATUS, msg(LIST_USERS_STATUS_COLUMN_HEADER), 195));
         return configs;
     }
 

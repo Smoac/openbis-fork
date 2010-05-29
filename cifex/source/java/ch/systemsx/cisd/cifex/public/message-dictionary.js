@@ -20,7 +20,7 @@ var message_dict = {
   // Help
   //
   
-  CONTACT_SUPPORT_LABEL: 'Contact Support',
+  HELP_CONTACT_SUPPORT_LABEL: 'Contact Support',
   
   HELP_DISCLAIMER_LABEL: 'Disclaimer',
   
@@ -34,50 +34,147 @@ var message_dict = {
   
   HELP_TOOLS_LABEL: 'Tools',
   
+  HELP_LINK_LABEL: 'Help',
+  
+  HELP_LINK_TOOLTIP: 'Information on how to use CIFEX',
+  
   //
   // Exception
   //
+  
+  EXCEPTION_INVOCATION_MSG: 'Failed to contact service.',
+  
+  UNKNOWN_FAILURE_MSG: 'Unknown failure has occurred (ask support):<br>{0}',
+  
+  EXCEPTION_STATUS_CODE0: 'StatusCodeException with status code 0 - Is browser in offline mode? If so, turn off "Work Offline" mode.',
+  
+  UNKNOWN_USER_MSG: 'User [{0}] is not known to the system.',
   
   //
   // Message Box
   //
   
+  MESSAGE_BOX_ERROR_TITLE: 'Error',
+  
+  MESSAGE_BOX_WARNING_TITLE: 'Warning',
+  
+  MESSAGE_BOX_INFO_TITLE: 'Information',
+  
   //
   // Login
   //
+  
+  LOGIN_BUTTON_LABEL: 'Login',
+  
+  LOGIN_USER_LABEL: 'User',
+  
+  LOGIN_PASSWORD_LABEL: 'Password',
+  
+  LOGIN_FAILED_MSG: 'Sorry, you entered an invalid<br/>user or password. Please try again.',
   
   //
   // Logout
   //
   
-  //
-  // Main View
-  //
+  LOGOUT_LINK_LABEL: 'Logout',
+  
+  LOGOUT_LINK_TOOLTIP: 'Click here to end your session',
   
   //
   // Inbox View
   //
+
+  INBOX_VIEW_LABEL: 'Inbox',
+
+  //
+  // Share View
+  //
+
+  SHARE_VIEW_LABEL: 'Share',
   
   //
   // Invite View
   //
   
+  INVITE_VIEW_LABEL: 'Invite',
+  
   //
   // Admin View
   //
   
+  ADMIN_VIEW_LABEL: 'Admin',
+  
   //
-  // Help Page
+  // Profile
   //
+  
+  PROFILE_LINK_LABEL: 'Profile',
+  
+  PROFILE_LINK_TOOPTIP: 'Edit my profile',
+  
+  //
+  // User
+  //
+  
+  USER_ID_LABEL: 'User Name',
+  
+  USER_ACTIVE_LABEL: 'Active',
   
   //
   // Edit User
   //
+  
+  EDIT_USER_LABEL: 'Edit User',
+  
+  EDIT_USER_UPDATE_BUTTON_LABEL: 'Update',
+  
+  EDIT_USER_NOTIFY_LABEL: 'Notify User',
+  
+  EDIT_USER_EXTERNAL_AUTHENTICATION_LABEL: 'External Authentication',
+  
   EDIT_USER_DIALOG_TITLE: 'Edit User > {0}',
   
   //
-  // Create User
+  // Create / Edit User
   //
+  
+  CREATE_USER_LABEL: 'Create Account',
+  
+  CREATE_TEMP_USER_LABEL: 'Create Temporary Account',
+  
+  CREATE_USER_PASSWD_MISMATCH_MSG: 'The two passwords do not match!',
+  
+  CREATE_USER_COMMENT_LABEL: 'Comment',
+  
+  CREATE_USER_PASSWD_LABEL: 'Password',
+  
+  CREATE_USER_REPEAT_PASSWD_LABEL: 'Repeat Password',
+  
+  CREATE_USER_STATUS_LABEL: 'Status',
+  
+  CREATE_USER_ROLE_ADMIN_TAG: 'Admin',
+  
+  CREATE_USER_ROLE_REGULAR_TAG: 'Regular',
+  
+  CREATE_USER_ROLE_TEMP_TAG: 'Temp.',
+  
+  CREATE_USER_ROLE_ADMIN_LABEL: 'Admin',
+  
+  CREATE_USER_ROLE_REGULAR_LABEL: 'Regular User',
+  
+  CREATE_USER_ROLE_TEMP_LABEL: 'Temp. User until {0}',
+  
+  CREATE_USER_EXPIRATION_DATE_LABEL: 'Expiration Date',
+  
+  CREATE_USER_EXPIRATION_DATE_TOOLTIP: 'For temporary accounts, choose a date in the allowed range.',
+  
+  CREATE_USER_MAX_FILESIZE_LABEL: 'Max. size (all files) in MB',
+  
+  CREATE_USER_MAX_FILECOUNT_LABEL: 'Max. number of all files',
+  
+  CREATE_USER_FILE_RETENTION_LABEL: 'File Retention Time (in days)',
+  
+  CREATE_USER_USER_RETENTION_LABEL: 'User Retention Time (in days)',
   
   //
   // Delete User
@@ -91,13 +188,37 @@ var message_dict = {
   // User List
   //
   
-  //
-  // Users
-  //
+  LIST_USERS_GRID_TITLE: 'Users',
+  
+  LIST_OWNUSERS_GRID_TITLE: 'Users I have created',
+  
+  LIST_USERS_EMAIL_COLUMN_HEADER: 'Email',
+  
+  LIST_USERS_FULLNAME_COLUMN_HEADER: 'Full Name',
+  
+  LIST_USERS_STATUS_COLUMN_HEADER: 'Status',
+  
+  LIST_USERS_CREATOR_COLUMN_HEADER: 'Created by',
+  
+  LIST_USERS_FILESIZE_COLUMN_HEADER: 'File Size',
+  
+  LIST_USERS_FILECOUNT_COLUMN_HEADER: '# Files',
+  
+  LIST_USERS_QUOTASIZE_COLUMN_HEADER: 'Quota',
+  
+  LIST_USERS_QUOTACOUNT_COLUMN_HEADER: 'Quota #',
+  
+  LIST_USERS_LOADING_MSG: 'Loading Users...',
+  
+  LIST_USERS_EMPTY_MSG: 'No Users.',
   
   //
   // Edit File
   //
+  
+  EDIT_FILE_DIALOG_TITLE: 'Edit File > {0}',
+  
+  EDIT_FILE_EXPIRATION_DATE_LABEL: 'Expiration Date',
   
   //
   // Delete File
@@ -107,15 +228,55 @@ var message_dict = {
   // Upload File 
   //
   
-  UPLOADFILES_INFO_PERMANENT_USER: '<b>Notes:</b><br/><i>Limits:</i> You are using {1} of your <b>{0}</b>; \
-    you are sharing {3} files and may share up to <b>{2}</b> files.<br/>\
+  UPLOAD_FILES_PANEL_TITLE: '<b>Upload Files</b>',
+  
+  UPLOAD_FILES_BROWSER_PANEL_TITLE: 'Upload Files via Browser (for files < 2GB &mdash; for larger files use the CIFEX Uploader)',
+  
+  UPLOAD_FILES_WEBSTART_PANEL_TITLE: 'Upload Files with CIFEX Uploader',
+  
+  UPLOAD_FILES_LAUNCH_WEBSTART_LABEL: 'Launch CIFEX Uploader',
+  
+  UPLOAD_FILES_WEBSTART_PROS_INFO: '<b>Advantages</b> of CIFEX Uploader over web interface include:\
+    <li>support for uploading files larger than 2GB,\
+    <li>resuming interrupted uploads.',
+  
+  UPLOAD_FILES_PERMANENT_USER_INFO: '<b>Notes:</b><br/><i>Limits:</i> You are using {1} of your <b>{0}</b>; \
+    you are sharing {3} file(s) and may share up to <b>{2}</b> files.<br/>\
     <i>Recipients</i>: Temporary accounts will automatically be created.<br/>\
     <i>Security</i>: If you share confidential files, please have a look at the FAQ.<br/>',
   
-  UPLOADFILES_INFO_TEMPORARY_USER: '<b>Notes:</b><br/><i>Limits:</i> You are using {1} of your <b>{0}</b>; \
-    you are sharing {3} files and may share up to <b>{2}</b> files.<br/>\
+  UPLOAD_FILES_TEMPORARY_USER_INFO: '<b>Notes:</b><br/><i>Limits:</i> You are using {1} of your <b>{0}</b>; \
+    you are sharing {3} file(s) and may share up to <b>{2}</b> files.<br/>\
     <i>Recipients</i>: Only email addresses of existing accounts may be specified.<br/>\
     <i>Security</i>: If you share confidential files, please have a look at the FAQ.<br/>',
+    
+  UPLOAD_FILES_FILE_FIELD_LABEL: 'File {0}',
+  
+  UPLOAD_FILES_SUBMIT_BUTTON_LABEL: 'Upload',
+  
+  UPLOAD_FILES_RESET_BUTTON_LABEL: 'Reset',
+  
+  UPLOAD_FILES_VALIDATE_USERS_BUTTON_LABEL: 'Validate Users',
+  
+  UPLOAD_FILES_RECIPIENT_FIELD_LABEL: 'Recipients',
+  
+  UPLOAD_FILES_RECIPIENT_FIELD_TOOLTIP: 'Comma separated list of email addresses<br/><i>Example: john@smith.com, emma@smith.com</i>',
+  
+  UPLOAD_FILES_RECIPIENT_FIELD_INVALID_MSG: 'Only valid email addresses or user names with the prefix "id:" separated by commas and blanks are allowed here.',
+  
+  UPLOAD_FILES_DUPLICATES_MSGBOX_TITLE: 'Duplicated Filenames',
+  
+  UPLOAD_FILES_DUPLICATES_MSG: 'Some of the files requested selected for upload have the same names. Are you sure you want to upload all of them?',
+  
+  UPLOAD_FILE_FEEDBACK_MSGBOX_TITLE: 'File Upload',
+  
+  UPLOAD_FILE_FEEDBACK_MSG: 'Please wait...',
+  
+  UPLOAD_FILE_FEEDBACK_FILE_LABEL: 'File being read: <i>{0}</i>',
+  
+  UPLOAD_FILE_FEEDBACK_PROGRESS_LABEL: 'Bytes read: <i>{0} of {1}</i>',
+  
+  UPLOAD_FILE_FEEDBACK_TIME_REMAINING_LABEL: 'Time remaining: <i>{0}</i>',
   
   //
   // Download File
@@ -125,9 +286,21 @@ var message_dict = {
   // Share File
   //
   
+  SHARE_FILE_DIALOG_TITLE: 'File Sharing > {0}',
+  
+  SHARE_FILES_PANEL_TITLE: 'Share Files',
+  
   //
-  // User / File - Creation / Editing
+  // File List
   //
+  
+  LIST_FILES_SHARED_TITLE: 'Shared Files',
+  
+  LIST_FILES_SHARED_LOADING_MSG: 'Loading Shared Files...',
+  
+  LIST_FILES_SHARED_EMPTY_MSG: 'No Shared Files.',
+  
+  LIST_FILES_UPLOADER_COLUMN_HEADER: 'Uploaded by',
   
   //
   // Action
@@ -136,6 +309,8 @@ var message_dict = {
   //
   // Dialog
   //
+  
+  DIALOG_CLOSE_BUTTON_LABEL: 'Close',
   
   //
   // Validation

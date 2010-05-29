@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,12 +66,11 @@ final class InviteTabController extends AbstractMainPageTabController
     {
         final GridWidget<UserGridModel> gridWidget =
                 GridUtils.createUserGrid(new ArrayList<UserInfoDTO>(), context);
-        gridWidget.getGrid().getView()
-                .setEmptyText(context.getMessageResources().getUsersLoading());
+        gridWidget.getGrid().getView().setEmptyText(msg(LIST_USERS_LOADING_MSG));
         // Delete user function
         gridWidget.getGrid().addListener(Events.CellClick,
                 new UserActionGridCellListener(context, null, gridWidget));
-        addTitleRow(listCreatedUserPanel, context.getMessageResources().getOwnUserTitle());
+        addTitleRow(listCreatedUserPanel, msg(LIST_OWNUSERS_GRID_TITLE));
         addWidgetRow(listCreatedUserPanel, gridWidget.getWidget());
 
         context.getCifexService().listUsersOwnedBy(context.getModel().getUser().getID(),
@@ -90,16 +91,14 @@ final class InviteTabController extends AbstractMainPageTabController
 
         public final void onSuccess(final List<UserInfoDTO> result)
         {
-            userGrid.getGrid().getView().setEmptyText(
-                    getViewContext().getMessageResources().getUsersEmpty());
+            userGrid.getGrid().getView().setEmptyText(msg(LIST_USERS_EMPTY_MSG));
             userGrid.setDataAndRefresh(UserGridModel.convert(getViewContext(), result));
         }
 
         @Override
         public void onFailure(Throwable caught)
         {
-            userGrid.getGrid().getView().setEmptyText(
-                    getViewContext().getMessageResources().getUsersEmpty());
+            userGrid.getGrid().getView().setEmptyText(msg(LIST_USERS_EMPTY_MSG));
             super.onFailure(caught);
         }
     }

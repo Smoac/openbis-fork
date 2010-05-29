@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application.ui;
 
 import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
@@ -29,7 +30,6 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
@@ -196,9 +196,8 @@ public class LoginPanelAutofill extends VerticalPanel
                 loginSuccessful(result);
             } else
             {
-                final IMessageResources messageResources = context.getMessageResources();
-                final String title = messageResources.getMessageBoxWarningTitle();
-                MessageBox.alert(title, messageResources.getLoginFailedMessage(), null);
+                final String title = msg(MESSAGE_BOX_WARNING_TITLE);
+                MessageBox.alert(title, msg(LOGIN_FAILED_MSG), null);
                 getButtonElement().setDisabled(false);
             }
         }
