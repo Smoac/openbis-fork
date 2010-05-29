@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Some utilities around <code>String</code>.
+ * Some utilities for <code>String</code>.
  * 
  * @author Christian Ribeaud
  */
@@ -37,12 +39,12 @@ public final class StringUtils
     /**
      * Whether given <var>value</var> is blank or not.
      */
-    public final static boolean isBlank(final String value)
+    public static final boolean isBlank(final String value)
     {
         return value == null || value.trim().length() == 0;
     }
 
-    public final static String abbreviate(final String value, final int maxLength)
+    public static final String abbreviate(final String value, final int maxLength)
     {
         assert maxLength > 4;
         if (value.length() > maxLength)
@@ -57,21 +59,86 @@ public final class StringUtils
     /**
      * Returns <code>null</code> if given <var>value</var> is blank.
      */
-    public final static String nullIfBlank(final String value)
+    public static final String nullIfBlank(final String value)
     {
         return isBlank(value) ? null : value;
     }
 
     /** Returns an empty if given <var>stringOrNull</var> is <code>null</code>. */
-    public final static String emptyIfNull(final String stringOrNull)
+    public static final String emptyIfNull(final String stringOrNull)
     {
         return stringOrNull == null ? EMPTY_STRING : stringOrNull;
     }
 
     /**
-     * Returns <code>true</code> if given <var>regExp</var> could be found in given <var>value</var>.
+     * Returns <var>defaultStr</var>, if <var>str</var> is blank, or otherwise it returns
+     * <var>str</var> itself.
      */
-    public final native static boolean matches(final String regExp, final String value) /*-{
+    public static final String defaultIfBlank(String str, String defaultStr)
+    {
+        return isBlank(str) ? defaultStr : str;
+    }
+
+    /**
+     * Returns the tokens found in <var>str</var>, where tokens are separated by white spaces.
+     */
+    public static final List<String> tokenize(String str)
+    {
+        final List<String> tokens = new ArrayList<String>(5);
+        String s = str;
+        int len = s.length();
+        char endChar;
+        boolean quoteMode;
+        while (len > 0)
+        {
+            int idx = 0;
+            while (idx < len && s.charAt(idx) == ' ')
+            {
+                ++idx;
+            }
+            if (idx > 0)
+            {
+                s = s.substring(idx);
+                len = s.length();
+                idx = 0;
+            }
+            if (len == 0)
+            {
+                break;
+            }
+            endChar = s.charAt(0);
+            quoteMode = (endChar == '\'' || endChar == '"');
+            if (quoteMode == false)
+            {
+                endChar = ' ';
+            } else
+            {
+                s = s.substring(1);
+                --len;
+            }
+            while (idx < len && s.charAt(idx) != endChar)
+            {
+                ++idx;
+            }
+            if (idx > 0)
+            {
+                tokens.add(s.substring(0, idx));
+                if (idx == len)
+                {
+                    break;
+                }
+                s = s.substring(idx + 1);
+                len = s.length();
+            }
+        }
+        return tokens;
+    }
+
+    /**
+     * Returns <code>true</code> if given <var>regExp</var> could be found in given
+     * <var>value</var>.
+     */
+    public static final native boolean matches(final String regExp, final String value) /*-{
                    var re = new RegExp(regExp);
                    return value.search(re) > -1;
                 }-*/;

@@ -16,9 +16,14 @@
 
 package ch.systemsx.cisd.cifex.client.application.grid;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
+import ch.systemsx.cisd.cifex.client.application.ui.IGridCellRendererNonPlainText;
+import ch.systemsx.cisd.cifex.client.application.utils.ObjectUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 
 /**
@@ -28,38 +33,103 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
  */
 public class ContainFilterField<M extends ModelData> extends AbstractFilterField<M>
 {
+    private static final String PREFIX_NOT = "!";
+
+    private static final String PREFIX_START = "^";
+
+    private static final String SUFFIX_END = "$";
+
     private final GridCellRenderer<ModelData> rendererOrNull;
+    
+    private List<String> alternatives = Collections.emptyList();
 
     public ContainFilterField(String filteredPropertyKey, String title,
             GridCellRenderer<ModelData> rendererOrNull)
     {
         super(filteredPropertyKey, title);
-        this.rendererOrNull = rendererOrNull;
+        if (rendererOrNull instanceof IGridCellRendererNonPlainText<?>)
+        {
+            this.rendererOrNull =
+                    ((IGridCellRendererNonPlainText<ModelData>) rendererOrNull)
+                            .getPlainTextRenderer();
+        } else
+        {
+            this.rendererOrNull = rendererOrNull;
+        }
+    }
+
+    @Override
+    protected void onFilter()
+    {
+        alternatives = StringUtils.tokenize(getRawValue());
+        super.onFilter();
     }
 
     @Override
     public boolean isMatching(M record)
     {
-        return doSelect(record, getRawValue(), getProperty());
+        return doSelect(record, alternatives, getProperty());
     }
 
+    private boolean doSelect(ModelData record, List<String> filterTextAlternatives, String filteredPropertyKey)
+    {
+        if (filterTextAlternatives.isEmpty())
+        {
+            return true;
+        }
+        for (String filterText : filterTextAlternatives)
+        {
+            if (doSelect(record, filterText, filteredPropertyKey))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private boolean doSelect(ModelData record, String filterText, String filteredPropertyKey)
     {
         if (StringUtils.isBlank(filterText))
         {
             return true;
         }
-        final String renderedText =
-                ((rendererOrNull == null) ? record.get(filteredPropertyKey).toString()
-                        : ((String) rendererOrNull.render(record, filteredPropertyKey, null, 0, 0,
-                                null, null))).toLowerCase();
-        if (filterText.startsWith("!"))
+        final String renderedText;
+        if (rendererOrNull == null)
         {
-            return (renderedText.contains(filterText.substring(1).toLowerCase()) == false);
+            renderedText = ObjectUtils.toString(record.get(filteredPropertyKey)).toLowerCase();
         } else
         {
-            return renderedText.contains(filterText.toLowerCase());
+            renderedText =
+                    ((String) rendererOrNull.render(record, filteredPropertyKey, null, 0, 0, null,
+                            null)).toLowerCase();
         }
-
+        boolean comparisonValue = true;
+        String lowerCaseFilterText = filterText.toLowerCase();
+        if (filterText.startsWith(PREFIX_NOT))
+        {
+            comparisonValue = false;
+            lowerCaseFilterText = lowerCaseFilterText.substring(1);
+        }
+        if (lowerCaseFilterText.startsWith(PREFIX_START))
+        {
+            if (lowerCaseFilterText.endsWith(SUFFIX_END))
+            {
+                return (renderedText.equals(lowerCaseFilterText.substring(1, lowerCaseFilterText
+                        .length() - 1)) == comparisonValue);
+            } else
+            {
+                return (renderedText.startsWith(lowerCaseFilterText.substring(1)) == comparisonValue);
+            }
+        } else
+        {
+            if (lowerCaseFilterText.endsWith(SUFFIX_END))
+            {
+                return (renderedText.endsWith(lowerCaseFilterText.substring(0, lowerCaseFilterText
+                        .length() - 1)) == comparisonValue);
+            } else
+            {
+                return (renderedText.contains(lowerCaseFilterText) == comparisonValue);
+            }
+        }
     }
 }
