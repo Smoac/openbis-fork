@@ -19,22 +19,27 @@ package ch.systemsx.cisd.cifex.client.application.grid;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
+import ch.systemsx.cisd.cifex.client.application.utils.ObjectUtils;
+
 /**
  * A field to filter grid rows by the value of one specified column.
  * 
- * @see ColumnFilter
+ * @see AlternativesStringFilter
  * 
  * @author Tomasz Pylak
  */
 public class ColumnFilterField<M extends ModelData> extends AbstractFilterField<M>
 {
-    private final ColumnFilter filter;
+    private final AlternativesStringFilter filter;
     
+    private final GridCellRenderer<ModelData> rendererOrNull;
+
     public ColumnFilterField(String filterPropertyKey, String title,
             GridCellRenderer<ModelData> rendererOrNull)
     {
         super(filterPropertyKey, title);
-        this.filter = new ColumnFilter(rendererOrNull, filterPropertyKey);
+        this.rendererOrNull = rendererOrNull;
+        this.filter = new AlternativesStringFilter();
     }
 
     @Override
@@ -47,7 +52,21 @@ public class ColumnFilterField<M extends ModelData> extends AbstractFilterField<
     @Override
     public boolean isMatching(M record)
     {
-        return filter.passes(record);
+        return filter.passes(getValue(record));
     }
 
+    private String getValue(ModelData record)
+    {
+        final String renderedText;
+        if (rendererOrNull == null)
+        {
+            renderedText = ObjectUtils.toString(record.get(getProperty())).toLowerCase();
+        } else
+        {
+            renderedText =
+                    ((String) rendererOrNull.render(record, getProperty(), null, 0, 0, null,
+                            null)).toLowerCase();
+        }
+        return renderedText;
+    }
 }

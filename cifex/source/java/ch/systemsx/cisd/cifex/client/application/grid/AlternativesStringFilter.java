@@ -19,21 +19,22 @@ package ch.systemsx.cisd.cifex.client.application.grid;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-
-import ch.systemsx.cisd.cifex.client.application.ui.IGridCellRendererNonPlainText;
-import ch.systemsx.cisd.cifex.client.application.utils.ObjectUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 
 /**
- * A filter for {@link ModelData} records. It supports: <li>Alternatives (by ' ') <li>Negation (by
- * '!') <li>Binding to start of value (by '^') <li>Binding to end of value (by '$') <li>Quoting by
- * single ("'") and double ('"') quotes <li>Escaping of special characters (by '\')
+ * A filter for <code>String</code> values. It supports:
+ * <ul>
+ * <li>Alternatives (by ' ')</li>
+ * <li>Negation (by '!')</li>
+ * <li>Binding to start of value (by '^')</li>
+ * <li>Binding to end of value (by '$')</li>
+ * <li>Quoting by single ("'") and double ('"') quotes</li>
+ * <li>Escaping of special characters (by '\')</li>
+ * </ul>
  * 
  * @author Bernd Rinn
  */
-public class ColumnFilter
+public class AlternativesStringFilter
 {
     private static final String PREFIX_NOT = "!";
 
@@ -41,13 +42,9 @@ public class ColumnFilter
 
     private static final String SUFFIX_END_ANCHOR = "$";
 
-    private final static String ESCAPE = "\\";
+    private static final String ESCAPE = "\\";
 
     private static final String SUFFIX_ESCAPED_END_ANCHOR = ESCAPE + SUFFIX_END_ANCHOR;
-
-    private final GridCellRenderer<ModelData> rendererOrNull;
-
-    private final String filterPropertyKey;
 
     private List<Matcher> alternatives = new ArrayList<Matcher>();
 
@@ -139,20 +136,6 @@ public class ColumnFilter
 
     }
 
-    ColumnFilter(GridCellRenderer<ModelData> rendererOrNull, String filterPropertyKey)
-    {
-        if (rendererOrNull instanceof IGridCellRendererNonPlainText<?>)
-        {
-            this.rendererOrNull =
-                    ((IGridCellRendererNonPlainText<ModelData>) rendererOrNull)
-                            .getPlainTextRenderer();
-        } else
-        {
-            this.rendererOrNull = rendererOrNull;
-        }
-        this.filterPropertyKey = filterPropertyKey;
-    }
-
     /**
      * Sets a new filter <var>value</var>.
      */
@@ -174,8 +157,7 @@ public class ColumnFilter
                             comparisonValue));
                 } else
                 {
-                    alternatives.add(new StartAnchorMatcher(s.substring(1),
-                            comparisonValue));
+                    alternatives.add(new StartAnchorMatcher(s.substring(1), comparisonValue));
                 }
             } else if (isEndAnchored(s))
             {
@@ -199,16 +181,14 @@ public class ColumnFilter
     }
 
     /**
-     * Returns <code>true</code>, if the given <var>filteredPropertyKey</var> of <var>record</var>
-     * passes this filter.
+     * Returns <code>true</code>, if the given <var>value</var> passes this filter.
      */
-    public boolean passes(ModelData record)
+    public boolean passes(String value)
     {
         if (alternatives.isEmpty())
         {
             return true;
         }
-        final String value = getValue(record);
         for (final Matcher matcher : alternatives)
         {
             if (matcher.matches(value))
@@ -217,20 +197,5 @@ public class ColumnFilter
             }
         }
         return false;
-    }
-
-    private String getValue(ModelData record)
-    {
-        final String renderedText;
-        if (rendererOrNull == null)
-        {
-            renderedText = ObjectUtils.toString(record.get(filterPropertyKey)).toLowerCase();
-        } else
-        {
-            renderedText =
-                    ((String) rendererOrNull.render(record, filterPropertyKey, null, 0, 0, null,
-                            null)).toLowerCase();
-        }
-        return renderedText;
     }
 }
