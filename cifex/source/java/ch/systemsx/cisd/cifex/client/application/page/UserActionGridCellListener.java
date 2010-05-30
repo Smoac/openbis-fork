@@ -31,7 +31,6 @@ import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.EditUserDialog;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
@@ -209,7 +208,6 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
         final int colIndex = be.getColIndex();
         final Event e = be.getEvent();
 
-        final IMessageResources messageResources = viewContext.getMessageResources();
         if (grid.getColumnModel().getDataIndex(colIndex).equals(UserGridModel.ACTION))
         {
             final UserGridModel model = grid.getStore().getAt(rowIndex);
@@ -228,8 +226,8 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
             if (Constants.DELETE_ID.equals(targetId))
             {
                 assert userCode.equals(viewContext.getModel().getUser().getUserCode()) == false : "An user can not delete himself.";
-                MessageBox.confirm(messageResources.getUserDeleteTitle(), messageResources
-                        .getUserDeleteConfirmText(userDescription), new Listener<MessageBoxEvent>()
+                MessageBox.confirm(msg(DELETE_USER_MSGBOX_TITLE), msg(DELETE_USER_CONFIRM_LABEL,
+                        userDescription), new Listener<MessageBoxEvent>()
                     {
 
                         public void handleEvent(MessageBoxEvent messageEvent)
@@ -257,7 +255,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
             {
                 // Change users code
                 assert userCode.equals(viewContext.getModel().getUser().getUserCode()) == false : "An user cannot change his own code.";
-                MessageBox.prompt(messageResources.getRenamePromptTitle(), userCode,
+                MessageBox.prompt(msg(RENAME_USER_MSGBOX_TITLE), userCode,
                         new Listener<MessageBoxEvent>()
                             {
 
@@ -275,9 +273,9 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
                                                     Constants.VALID_USER_CODE_DESCRIPTION, null);
                                         } else
                                         {
-                                            MessageBox.confirm(messageResources
-                                                    .getRenameConfirmTitle(), messageResources
-                                                    .getRenameConfirmText(userCode,
+                                            MessageBox.confirm(
+                                                    msg(RENAME_USER_CONFIRM_MSGBOX_TITLE), msg(
+                                                            RENAME_USER_CONFIRM_LABEL, userCode,
                                                             userCodeAfterRenaming),
                                                     new RenamingConfirmCallback(userCode,
                                                             userCodeAfterRenaming, userGridWidget));

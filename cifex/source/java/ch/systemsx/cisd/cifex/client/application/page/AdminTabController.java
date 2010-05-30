@@ -66,7 +66,7 @@ class AdminTabController extends AbstractMainPageTabController
 
         GridWidget<AbstractFileGridModel> filesGrid =
                 createFileTable(new OwnerFileInfoDTO[0], context, fileGridWidgets);
-        addTitleRow(mainPanel, context.getMessageResources().getFilesPartTitle());
+        addTitleRow(mainPanel, msg(LIST_FILES_TITLE));
         addWidgetRow(mainPanel, filesGrid.getWidget());
 
         createListUserGrid(mainPanel, filesGrid, context);
@@ -112,7 +112,7 @@ class AdminTabController extends AbstractMainPageTabController
                         .getMessageResources());
 
         Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
-        grid.getView().setEmptyText(context.getMessageResources().getFilesLoading());
+        grid.getView().setEmptyText(msg(LIST_FILES_LOADING_MSG));
 
         fileGridWidgets.add(gridWidget);
 
@@ -176,8 +176,7 @@ class AdminTabController extends AbstractMainPageTabController
 
         public final void onSuccess(final List<OwnerFileInfoDTO> result)
         {
-            filesGrid.getGrid().getView().setEmptyText(
-                    context.getMessageResources().getFilesEmpty());
+            filesGrid.getGrid().getView().setEmptyText(msg(LIST_FILES_EMPTY_MSG));
             filesGrid.setDataAndRefresh(AdminFileGridModel.convert(context.getMessageResources(),
                     result));
         }
@@ -185,8 +184,7 @@ class AdminTabController extends AbstractMainPageTabController
         @Override
         public void onFailure(Throwable caught)
         {
-            filesGrid.getGrid().getView().setEmptyText(
-                    context.getMessageResources().getFilesEmpty());
+            filesGrid.getGrid().getView().setEmptyText(msg(LIST_FILES_EMPTY_MSG));
             super.onFailure(caught);
         }
     }

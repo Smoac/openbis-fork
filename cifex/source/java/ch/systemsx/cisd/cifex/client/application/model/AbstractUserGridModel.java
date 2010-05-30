@@ -96,7 +96,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
     protected final static ColumnConfig createActionColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig actionColumn =
-                createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 200);
+                createSortableColumnConfig(ACTION, msg(LIST_USERSFILES_ACTIONS_COLUMN_HEADER), 200);
         return actionColumn;
     }
 

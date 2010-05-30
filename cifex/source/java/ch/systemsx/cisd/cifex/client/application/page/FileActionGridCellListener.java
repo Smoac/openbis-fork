@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +35,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.EditFileDialog;
 import ch.systemsx.cisd.cifex.client.application.FileShareUpdateUserDialog;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
@@ -177,7 +178,6 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         final String dataIndex = grid.getColumnModel().getDataIndex(colindex);
         if (dataIndex.equals(AbstractFileGridModel.ACTION))
         {
-            final IMessageResources messageResources = viewContext.getMessageResources();
             final Element element = be.getTarget();
             if (element == null)
             {
@@ -187,8 +187,8 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
             // Delete
             if (Constants.DELETE_ID.equals(targetId))
             {
-                MessageBox.confirm(messageResources.getFileDeleteTitle(), messageResources
-                        .getFileDeleteConfirmText(name), new Listener<MessageBoxEvent>()
+                MessageBox.confirm(msg(DELETE_FILE_MSGBOX_TITLE), msg(DELETE_FILE_CONFIRM_LABEL,
+                        name), new Listener<MessageBoxEvent>()
                     {
 
                         public void handleEvent(MessageBoxEvent messageEvent)

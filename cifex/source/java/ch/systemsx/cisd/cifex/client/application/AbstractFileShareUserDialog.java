@@ -145,7 +145,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     private final void insertExistingUserGrid(final LayoutContainer verticalPanel)
     {
-        final HTML html = new HTML(viewContext.getMessageResources().getExistingUserTableTitle());
+        final HTML html = new HTML(msg(LIST_USERS_FILESHARING_EXISTING_GRID_TITLE));
         html.setStyleName("cifex-heading");
         verticalPanel.add(html);
         verticalPanel.add(existingUserGrid.getWidget());
@@ -173,7 +173,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     private final void insertNewUserGrid(final LayoutContainer verticalPanel)
     {
-        final HTML html = new HTML(viewContext.getMessageResources().getNewUserTableTitle());
+        final HTML html = new HTML(msg(LIST_USERS_FILESHARING_NEW_GRID_TITLE));
         html.setStyleName("cifex-heading");
         verticalPanel.add(html);
         verticalPanel.add(newUserGrid.getWidget());
@@ -188,10 +188,10 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         form.setBorders(false);
         form.setButtonAlign(HorizontalAlignment.LEFT);
 
-        final HTML html = new HTML(viewContext.getMessageResources().getAddUserFormTitle());
+        final HTML html = new HTML(msg(SHARE_FILE_ADDUSER_PANEL_TITEL));
         html.setStyleName("cifex-heading");
         TextField<String> addUserField = new TextField<String>();
-        addUserField.setFieldLabel(viewContext.getMessageResources().getEmailFielLabel());
+        addUserField.setFieldLabel(msg(SHARE_FILE_ADDUSER_EMAIL_LABEL));
         addUserField.setValidateOnBlur(true);
         addUserField.setName(EMAIL_FIELD_CONFIG);
         addUserField.setValidateOnBlur(true);
@@ -199,7 +199,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                 .getMessageResources()));
 
         form.add(addUserField);
-        String buttonLabel = viewContext.getMessageResources().getAddUserButtonLabel();
+        String buttonLabel = msg(SHARE_FILE_ADDUSER_BUTTON_LABEL);
         Button submitButton = new Button(buttonLabel);
         submitButton.addSelectionListener(getSubmitButtonListener(addUserField));
         form.addButton(submitButton);

@@ -40,9 +40,9 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 /**
  * Panel displaying footer information.
  * <p>
- * Administrator email is taken from <code>service.properties</code> file, version from
+ * Administrator / Support email is taken from <code>info-dictionary.js</code> file, version from
  * <code>BuildAndEnvironmentInfo</code> class. Other texts to display are taken from
- * <code>IMessageResources.properties</code> file.
+ * <code>message-dictionary.js</code> file.
  * </p>
  * 
  * @author Izabela Adamczyk

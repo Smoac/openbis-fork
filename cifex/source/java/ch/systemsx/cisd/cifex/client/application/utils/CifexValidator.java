@@ -45,7 +45,7 @@ public class CifexValidator
                     final String[] result = value.split("[,\\s]+");
                     if (result.length == 0)
                     {
-                        return messageResources.getValueRequiredText();
+                        return msg(VALIDATION_REQUIRED_BLANK_MSG);
                     }
                     for (int i = 0; i < result.length; i++)
                     {
@@ -77,16 +77,16 @@ public class CifexValidator
                 {
                     if (value == null)
                     {
-                        return messageResources.getValueRequiredText();
+                        return msg(VALIDATION_REQUIRED_BLANK_MSG);
                     }
                     final String item = value.trim();
                     if (item.length() == 0)
                     {
-                        return messageResources.getValueRequiredText();
+                        return msg(VALIDATION_REQUIRED_BLANK_MSG);
                     }
                     if (StringUtils.matches(Constants.EMAIL_REGEX, item) == false)
                     {
-                        return messageResources.getValueEmailText();
+                        return msg(VALIDATION_EMAIL_MSG);
                     }
                     return null;
                 }
@@ -106,11 +106,11 @@ public class CifexValidator
                 {
                     if (value == null || value.length() == 0)
                     {
-                        return messageResources.getValueRequiredText();
+                        return msg(VALIDATION_REQUIRED_BLANK_MSG);
                     }
                     if (StringUtils.matches(Constants.USER_CODE_REGEX, value) == false)
                     {
-                        return messageResources.getValueUserCode();
+                        return msg(VALIDATION_WRONG_USERCODE_MSG);
                     }
                     return null;
                 }

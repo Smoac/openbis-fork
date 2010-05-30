@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,13 +75,9 @@ public class AdminFileGridModel extends AbstractFileGridModel
         set(CRC32_CHECKSUM, file.getCrc32Str());// String
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date
-        set(ACTION, DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID)
-                + " | "
-                + DOMUtils.createAnchor(messageResources.getActionSharedLabel(),
-                        Constants.SHARED_ID)
-                + " | "
-                + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
-                        Constants.DELETE_ID));// String
+        set(ACTION, DOMUtils.createAnchor(msg(ACTION_EDIT_LABEL), Constants.EDIT_ID) + " | "
+                + DOMUtils.createAnchor(msg(ACTION_EDITSHARING_LABEL), Constants.SHARED_ID) + " | "
+                + DOMUtils.createAnchor(msg(ACTION_DELETE_LABEL), Constants.DELETE_ID));// String
     }
 
     public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,

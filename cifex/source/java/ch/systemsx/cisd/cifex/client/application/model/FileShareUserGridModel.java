@@ -126,7 +126,7 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(SHARE_FILE, messageResources.getShareLabel(), 45);
+                createSortableColumnConfig(SHARE_FILE, msg(LIST_USERS_FILESHARING_SHAREFLAG_COLUMN_HEADER), 45);
         columnConfig.setFixed(true);
         columnConfig.setRenderer(new GridCellRenderer<FileShareUserGridModel>()
             {

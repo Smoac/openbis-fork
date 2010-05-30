@@ -102,7 +102,7 @@ public final class EditFileWidget extends LayoutContainer
     private TextField<String> createFileNameField()
     {
         final TextField<String> fieldConfig = new TextField<String>();
-        fieldConfig.setFieldLabel(context.getMessageResources().getFileNameLabel());
+        fieldConfig.setFieldLabel(msg(LIST_FILES_NAME_COLUMN_HEADER));
         fieldConfig.setName("file-name");
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValue(editFile.getName());
@@ -113,7 +113,7 @@ public final class EditFileWidget extends LayoutContainer
     {
         final UserTextArea textAreaConfig = new UserTextArea();
         textAreaConfig.setAllowBlank(true);
-        textAreaConfig.setFieldLabel(context.getMessageResources().getFileCommentLabel());
+        textAreaConfig.setFieldLabel(msg(LIST_FILES_COMMENT_COLUMN_HEADER));
         textAreaConfig.setName("file-comment");
         textAreaConfig.setHeight(COMMENT_AREA_HEIGHT);
         textAreaConfig.setValue(editFile.getComment());

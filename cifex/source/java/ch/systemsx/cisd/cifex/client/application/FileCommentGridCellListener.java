@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Format;
@@ -53,7 +55,6 @@ public class FileCommentGridCellListener implements Listener<GridEvent<AbstractF
         final String dataIndex = grid.getColumnModel().getDataIndex(colindex);
         if (dataIndex.equals(AbstractFileGridModel.COMMENT))
         {
-            final IMessageResources messageResources = viewContext.getMessageResources();
             final Element element = be.getTarget();
             if (element == null)
             {
@@ -66,8 +67,9 @@ public class FileCommentGridCellListener implements Listener<GridEvent<AbstractF
                 final String comment =
                         DOM.getElementAttribute(be.getTarget(), "title").replaceAll("\n", "<br/>");
                 final DefaultLayoutDialog layoutDialog =
-                        new DefaultLayoutDialog(viewContext.getMessageResources(), messageResources
-                                .getFileCommentTitle(), DefaultLayoutDialog.DEFAULT_WIDTH,
+                        new DefaultLayoutDialog(viewContext.getMessageResources(),
+                                msg(LIST_FILES_COMMENT_MSGBOX_TITLE),
+                                DefaultLayoutDialog.DEFAULT_WIDTH,
                                 DefaultLayoutDialog.DEFAULT_HEIGHT, true, true);
                 layoutDialog.add(new Html(Format.htmlEncode(comment.replaceAll("<br/>", "\n"))
                         .replaceAll("\n", "<br/>")));

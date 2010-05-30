@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,24 +133,21 @@ public final class UserGridModel extends AbstractUserGridModel
     protected String listActionsForUser(final UserInfoDTO user)
     {
         final String sep = " | ";
-        String actionLabel =
-                DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID);
+        String actionLabel = DOMUtils.createAnchor(msg(ACTION_EDIT_LABEL), Constants.EDIT_ID);
         // Change user code
         if (user.equals(currentUser) == false && currentUser.isAdmin()
                 && user.isExternallyAuthenticated() == false)
         {
             actionLabel +=
                     sep
-                            + DOMUtils.createAnchor(messageResources.getActionRenameLabel(),
+                            + DOMUtils.createAnchor(msg(ACTION_RENAME_LABEL),
                                     Constants.CHANGE_USER_CODE_ID);
         }
         // An user can not delete itself.
         if (user.equals(currentUser) == false)
         {
             actionLabel +=
-                    sep
-                            + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
-                                    Constants.DELETE_ID);
+                    sep + DOMUtils.createAnchor(msg(ACTION_DELETE_LABEL), Constants.DELETE_ID);
         }
         return actionLabel;
     }

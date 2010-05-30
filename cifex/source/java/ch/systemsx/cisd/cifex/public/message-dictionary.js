@@ -46,7 +46,7 @@ var message_dict = {
   
   UNKNOWN_FAILURE_MSG: 'Unknown failure has occurred (ask support):<br>{0}',
   
-  EXCEPTION_STATUS_CODE0: 'StatusCodeException with status code 0 - Is browser in offline mode? If so, turn off "Work Offline" mode.',
+  EXCEPTION_STATUS_CODE0: 'StatusCodeException with status code 0 &mdash; Is browser in offline mode? If so, turn off "Work Offline" mode.',
   
   UNKNOWN_USER_MSG: 'User [{0}] is not known to the system.',
   
@@ -180,9 +180,20 @@ var message_dict = {
   // Delete User
   //
   
+  DELETE_USER_MSGBOX_TITLE: 'Delete User',
+  
+  DELETE_USER_CONFIRM_LABEL: 'Are you sure you want<br/>to delete user [{0}]?',
+  
   //
   // Rename User
   //
+  
+  RENAME_USER_MSGBOX_TITLE: 'Rename User',
+  
+  RENAME_USER_CONFIRM_MSGBOX_TITLE: 'Confirm Renaming',
+  
+  RENAME_USER_CONFIRM_LABEL: 'Are you sure you want to change<br/>\
+    the user code of user [{0}] to [{1}]?',
   
   //
   // User List
@@ -212,6 +223,12 @@ var message_dict = {
   
   LIST_USERS_EMPTY_MSG: 'No Users.',
   
+  LIST_USERS_FILESHARING_EXISTING_GRID_TITLE: 'Existing Users',
+  
+  LIST_USERS_FILESHARING_NEW_GRID_TITLE: 'New Users',
+  
+  LIST_USERS_FILESHARING_SHAREFLAG_COLUMN_HEADER: 'Share',
+  
   //
   // Edit File
   //
@@ -223,6 +240,10 @@ var message_dict = {
   //
   // Delete File
   //
+  
+  DELETE_FILE_MSGBOX_TITLE: 'Delete File',
+  
+  DELETE_FILE_CONFIRM_LABEL: 'Are you sure you want<br/>to delete file [{0}]?',
   
   //
   // Upload File 
@@ -282,6 +303,20 @@ var message_dict = {
   // Download File
   //
   
+  DOWNLOAD_FILES_PANEL_TITLE: 'Available Files',
+  
+  DOWNLOAD_FILES_WEBSTART_PANEL_TITLE: 'Download Files with CIFEX Downloader',
+  
+  DOWNLOAD_FILES_LAUNCH_WEBSTART_LABEL: 'Launch CIFEX Downloader',
+  
+  DOWNLOAD_FILES_WEBSTART_PROS_INFO: '<b>Advantages</b> of CIFEX Downloader over web interface include:\
+    <li>support for downloading files larger than 2GB,\
+    <li>resume function for interrupted downloads.',
+  
+  DOWNLOAD_FILES_LOADING_MSG: 'Loading Files Available for Download...',
+  
+  DOWNLOAD_FILES_EMPTY_MSG: 'No Files to Download.',
+  
   //
   // Share File
   //
@@ -289,6 +324,14 @@ var message_dict = {
   SHARE_FILE_DIALOG_TITLE: 'File Sharing > {0}',
   
   SHARE_FILES_PANEL_TITLE: 'Share Files',
+  
+  SHARE_FILE_ADDUSER_PANEL_TITEL: 'Add User',
+  
+  SHARE_FILE_ADDUSER_BUTTON_LABEL: 'Add',
+  
+  SHARE_FILE_ADDUSER_EMAIL_LABEL: 'Email or Id',
+  
+  SHARE_FILE_SUBMIT_BUTTON_LABEL: 'Update File Share',
   
   //
   // File List
@@ -300,11 +343,51 @@ var message_dict = {
   
   LIST_FILES_SHARED_EMPTY_MSG: 'No Shared Files.',
   
+  LIST_FILES_TITLE: 'Files',
+  
+  LIST_FILES_LOADING_MSG: 'Loading Files...',
+  
+  LIST_FILES_EMPTY_MSG: 'No Files.',
+  
+  LIST_FILES_NAME_COLUMN_HEADER: 'File Name',
+  
+  LIST_FILES_COMMENT_COLUMN_HEADER: 'Comment',
+  
+  LIST_FILES_CONTENTTYPE_COLUMN_HEADER: 'Content Type',
+  
+  LIST_FILES_SIZE_COLUMN_HEADER: 'Size',
+  
+  LIST_FILES_COMPLETESIZE_COLUMN_HEADER: 'Complete Size',
+  
+  LIST_FILES_ISCOMPLETE_COLUMN_HEADER: 'Complete?',
+  
+  LIST_FILES_CRC32CHECKSUM_COLUMN_HEADER: 'CRC32',
+  
+  LIST_FILES_EXPIRATIONDATE_COLUMN_HEADER: 'Will be deleted at',
+  
+  LIST_FILES_REGISTRATIONDATE_COLUMN_HEADER: 'Uploaded at',
+  
+  LIST_FILES_OWNER_COLUMN_HEADER: 'Owned by',
+  
+  LIST_FILES_SHAREDWITH_COLUMN_HEADER: 'Shared with',
+  
   LIST_FILES_UPLOADER_COLUMN_HEADER: 'Uploaded by',
+  
+  LIST_FILES_COMMENT_MSGBOX_TITLE: 'Comment Provided on File Upload',
   
   //
   // Action
   //
+  
+  LIST_USERSFILES_ACTIONS_COLUMN_HEADER: 'Actions',
+  
+  ACTION_DELETE_LABEL: 'Delete',
+  
+  ACTION_EDIT_LABEL: 'Edit',
+  
+  ACTION_EDITSHARING_LABEL: 'Edit sharing',
+  
+  ACTION_RENAME_LABEL: 'Rename',
   
   //
   // Dialog
@@ -315,6 +398,12 @@ var message_dict = {
   //
   // Validation
   //
+  
+  VALIDATION_REQUIRED_BLANK_MSG: 'Required field cannot be left blank',
+  
+  VALIDATION_EMAIL_MSG: 'This field should be an email address in the format "user@domain.com" ',
+  
+  VALIDATION_WRONG_USERCODE_MSG: 'Wrong user code',
   
   // LAST LINE: KEEP IT AT THE END
   lastline: '' // we need a line without a comma

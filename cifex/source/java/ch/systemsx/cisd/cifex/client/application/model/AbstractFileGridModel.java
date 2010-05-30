@@ -77,7 +77,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     protected final static ColumnConfig createNameColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 140);
+                createSortableColumnConfig(NAME, msg(LIST_FILES_NAME_COLUMN_HEADER), 140);
         columnConfig.setRenderer(LinkRenderer.LINK_RENDERER);
         return columnConfig;
     }
@@ -85,7 +85,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     protected final static ColumnConfig createCommentColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(COMMENT, messageResources.getFileCommentLabel(), 140);
+                createSortableColumnConfig(COMMENT, msg(LIST_FILES_COMMENT_COLUMN_HEADER), 140);
         columnConfig.setRenderer(CommentRenderer.COMMENT_RENDERER);
         return columnConfig;
     }
@@ -94,8 +94,8 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(EXPIRATION_DATE, messageResources
-                        .getFileExpirationDateLabel(), 120);
+                createSortableColumnConfig(EXPIRATION_DATE,
+                        msg(LIST_FILES_EXPIRATIONDATE_COLUMN_HEADER), 120);
         columnConfig.setRenderer(DateRenderer.DATE_RENDERER);
         return columnConfig;
     }
@@ -104,8 +104,8 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(REGISTRATION_DATE, messageResources
-                        .getFileRegistrationDateLabel(), 150);
+                createSortableColumnConfig(REGISTRATION_DATE,
+                        msg(LIST_FILES_REGISTRATIONDATE_COLUMN_HEADER), 150);
         columnConfig.setRenderer(DateRenderer.FULL_DATE_RENDERER);
         return columnConfig;
     }
@@ -116,7 +116,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     protected final static ColumnConfig createOwnerColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createColumnConfig(OWNER, messageResources.getFileOwnerLabel(), 120);
+                createColumnConfig(OWNER, msg(LIST_FILES_OWNER_COLUMN_HEADER), 120);
         columnConfig.setRenderer(UserDescriptionRenderer.USER_DESCRIPTION_RENDERER);
         return columnConfig;
     }
@@ -137,21 +137,21 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createColumnConfig(SHARED_WITH, messageResources.getFileSharedWithLabel(), 120);
+                createColumnConfig(SHARED_WITH, msg(LIST_FILES_SHAREDWITH_COLUMN_HEADER), 120);
         return columnConfig;
     }
 
     static protected final ColumnConfig createActionColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 180);
+                createSortableColumnConfig(ACTION, msg(LIST_USERSFILES_ACTIONS_COLUMN_HEADER), 180);
         return columnConfig;
     }
 
     protected final static ColumnConfig createSizeColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 80);
+                createSortableColumnConfig(SIZE, msg(LIST_FILES_SIZE_COLUMN_HEADER), 80);
         columnConfig.setRenderer(FileSizeRenderer.FILE_SIZE_RENDERER);
         return columnConfig;
     }
@@ -160,8 +160,8 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(COMPLETE_SIZE, messageResources
-                        .getCompleteFileSizeLabel(), 80);
+                createSortableColumnConfig(COMPLETE_SIZE,
+                        msg(LIST_FILES_COMPLETESIZE_COLUMN_HEADER), 80);
         columnConfig.setRenderer(FileSizeRenderer.FILE_SIZE_RENDERER);
         columnConfig.setHidden(true);
         return columnConfig;
@@ -171,7 +171,8 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(IS_COMPLETE, messageResources.getIsCompleteLabel(), 80);
+                createSortableColumnConfig(IS_COMPLETE, msg(LIST_FILES_ISCOMPLETE_COLUMN_HEADER),
+                        80);
         return columnConfig;
     }
 
@@ -180,7 +181,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(CRC32_CHECKSUM,
-                        messageResources.getCRC32ChecksumLabel(), 80);
+                        msg(LIST_FILES_CRC32CHECKSUM_COLUMN_HEADER), 80);
         columnConfig.setHidden(true);
         return columnConfig;
     }
@@ -188,7 +189,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     protected final static ColumnConfig createContentTypeColumnConfig(
             IMessageResources messageResources)
     {
-        return createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(),
+        return createSortableColumnConfig(CONTENT_TYPE, msg(LIST_FILES_CONTENTTYPE_COLUMN_HEADER),
                 140);
     }
 

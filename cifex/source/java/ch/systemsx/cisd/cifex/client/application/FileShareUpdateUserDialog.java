@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,7 +108,7 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
                 {
                     usersToRemove.remove(userIdentifier);
                 }
-                // If the user is not along the users the file was initially sharing with not yet 
+                // If the user is not along the users the file was initially sharing with not yet
                 // on the list of users to add, add him now
                 if (initialSharingUsers.contains(tmpUser) == false
                         && usersToAdd.contains(userIdentifierWithPrefix) == false)
@@ -153,8 +155,7 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
 
     private final void createUpdateButton()
     {
-        final Button button =
-                new Button(viewContext.getMessageResources().getShareSubmitDialogButtonLabel());
+        final Button button = new Button(msg(SHARE_FILE_SUBMIT_BUTTON_LABEL));
         addButton(button);
         button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {

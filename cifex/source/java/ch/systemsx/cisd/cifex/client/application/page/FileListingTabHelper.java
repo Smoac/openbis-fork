@@ -107,15 +107,14 @@ class FileListingTabHelper
                 GridWidget.create(columnConfigs, new ArrayList<AbstractFileGridModel>(),
                         filterItems, messageResources);
         final Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
-        grid.getView().setEmptyText(messageResources.getDownloadFilesLoading());
+        grid.getView().setEmptyText(msg(DOWNLOAD_FILES_LOADING_MSG));
 
         fileGridWidgets.add(gridWidget);
 
         grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
 
-        AbstractMainPageTabController.addTitleRow(contentPanel, messageResources
-                .getDownloadFilesPartTitle());
+        AbstractMainPageTabController.addTitleRow(contentPanel, msg(DOWNLOAD_FILES_PANEL_TITLE));
         AbstractMainPageTabController.addWidgetRow(contentPanel, gridWidget.getWidget());
 
         addWebStartDownloadClientLink(messageResources, contentPanel);
@@ -125,7 +124,7 @@ class FileListingTabHelper
                     {
                         public void onSuccess(List<FileInfoDTO> result)
                         {
-                            grid.getView().setEmptyText(messageResources.getDownloadFilesEmpty());
+                            grid.getView().setEmptyText(msg(DOWNLOAD_FILES_EMPTY_MSG));
                             gridWidget.setDataAndRefresh(DownloadFileGridModel.convert(
                                     messageResources, result));
                         }
@@ -133,7 +132,7 @@ class FileListingTabHelper
                         @Override
                         public void onFailure(Throwable caught)
                         {
-                            grid.getView().setEmptyText(messageResources.getDownloadFilesEmpty());
+                            grid.getView().setEmptyText(msg(DOWNLOAD_FILES_EMPTY_MSG));
                             super.onFailure(caught);
                         }
                     });
@@ -142,12 +141,12 @@ class FileListingTabHelper
     private static void addWebStartDownloadClientLink(IMessageResources messageResources,
             final ContentPanel verticalPanel)
     {
-        AbstractMainPageTabController.addTitleRow(verticalPanel, messageResources
-                .getDownloadFilesPartTitleGreater2GB());
+        AbstractMainPageTabController.addTitleRow(verticalPanel,
+                msg(DOWNLOAD_FILES_WEBSTART_PANEL_TITLE));
 
         String webStartTitle = msg(LAUNCH_JWS_APPLICATION_TITLE);
         final String servletName = ServletPathConstants.FILE2GB_DOWNLOAD_SERVLET_NAME;
-        final String buttonTitle = messageResources.getLaunchJavaDownloaderButtonTitle();
+        final String buttonTitle = msg(DOWNLOAD_FILES_LAUNCH_WEBSTART_LABEL);
         final Button launchButton = new Button(buttonTitle, new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -163,7 +162,7 @@ class FileListingTabHelper
 
         verticalPanel.add(launchButton, new RowData(-1, -1, new Margins(20, 20, 20,
                 20 + AbstractMainPageTabController.LEFT_MARGIN)));
-        verticalPanel.add(new Html(messageResources.getJavaDownloaderPros()), new RowData(-1, -1,
+        verticalPanel.add(new Html(msg(DOWNLOAD_FILES_WEBSTART_PROS_INFO)), new RowData(-1, -1,
                 new Margins(0, 10, 10, 10 + AbstractMainPageTabController.LEFT_MARGIN)));
     }
 
