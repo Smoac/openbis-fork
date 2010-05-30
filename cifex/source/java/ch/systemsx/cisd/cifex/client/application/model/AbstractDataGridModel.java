@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
-import ch.systemsx.cisd.cifex.client.application.grid.ContainFilterField;
+import ch.systemsx.cisd.cifex.client.application.grid.ColumnFilterField;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
@@ -74,8 +74,8 @@ public abstract class AbstractDataGridModel extends BaseModelData implements IMo
         {
             if (false == cc.isHidden() || false == cc.isFixed())
             {
-                ContainFilterField<M> field =
-                        new ContainFilterField<M>(cc.getId(), cc.getHeader(), cc.getRenderer());
+                ColumnFilterField<M> field =
+                        new ColumnFilterField<M>(cc.getId(), cc.getHeader(), cc.getRenderer());
                 boolean initiallyVisible = initialFilters.contains(cc.getId());
                 field.setVisible(initiallyVisible);
                 field.setEnabled(initiallyVisible);

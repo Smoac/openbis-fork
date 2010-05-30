@@ -86,4 +86,20 @@ public class StringUtilsTest
         assertEquals("    ", result.get(0));
         
     }
+
+    @Test
+    public void testTokenizeWithEscapedQuotes()
+    {
+        List<String> result = StringUtils.tokenize("a \\'berta\\' c");
+        assertEquals(3, result.size());
+        assertEquals("a", result.get(0));
+        assertEquals("\\'berta\\'", result.get(1));
+        assertEquals("c", result.get(2));
+
+        result = StringUtils.tokenize("a 'berta\\' somemore' c");
+        assertEquals(3, result.size());
+        assertEquals("a", result.get(0));
+        assertEquals("berta\\' somemore", result.get(1));
+        assertEquals("c", result.get(2));
+}
 }

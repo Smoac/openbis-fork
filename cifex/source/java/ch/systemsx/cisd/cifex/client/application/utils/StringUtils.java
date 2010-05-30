@@ -31,6 +31,8 @@ public final class StringUtils
 
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
 
+    private final static char ESC = '\\';
+    
     private StringUtils()
     {
         // Can not be instantiated
@@ -84,7 +86,7 @@ public final class StringUtils
      */
     public static final List<String> tokenize(String str)
     {
-        final List<String> tokens = new ArrayList<String>(5);
+        final List<String> tokens = new ArrayList<String>();
         String s = str;
         int len = s.length();
         char endChar;
@@ -116,9 +118,14 @@ public final class StringUtils
                 s = s.substring(1);
                 --len;
             }
-            while (idx < len && s.charAt(idx) != endChar)
+            char c;
+            while (idx < len && (c = s.charAt(idx)) != endChar)
             {
                 ++idx;
+                if (idx < len && c == ESC)
+                {
+                    ++idx;
+                }
             }
             if (idx > 0)
             {
