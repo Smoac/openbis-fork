@@ -35,13 +35,13 @@ import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 public class HelpDialogController extends AbstractDialogController
 {
     public static final String USER_MANUAL_PDF = "CIFEX-User_Manual.pdf";
-    
+
     public static final String TOOLS_HTML = "tools.html";
-    
+
     public static final String DISCLAIMER_HTML = "disclaimer.html";
-    
+
     public static final String FAQ_HTML = "faq.html";
-    
+
     public static final String FOOTER_APPLICATION_DESCRIPTION =
             "<a href=\"" + info(HEADER_WEBPAGE_LINK)
                     + "\" target=\"_blank\">CISD File EXchanger</a>";
@@ -58,9 +58,8 @@ public class HelpDialogController extends AbstractDialogController
     public Dialog getDialog()
     {
         final DefaultLayoutDialog layoutDialog =
-                new DefaultLayoutDialog(context.getMessageResources(), this.panelTitle,
-                        DefaultLayoutDialog.DEFAULT_WIDTH, DefaultLayoutDialog.DEFAULT_HEIGHT,
-                        true, true);
+                new DefaultLayoutDialog(this.panelTitle, DefaultLayoutDialog.DEFAULT_WIDTH,
+                        DefaultLayoutDialog.DEFAULT_HEIGHT, true, true);
         layoutDialog.addText(getHelpPageHTMLString());
         return layoutDialog;
     }

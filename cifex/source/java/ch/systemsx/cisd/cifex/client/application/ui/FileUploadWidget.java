@@ -136,8 +136,7 @@ public final class FileUploadWidget extends LayoutContainer
         recipientsTextArea.setToolTip(msg(UPLOAD_FILES_RECIPIENT_FIELD_TOOLTIP));
         recipientsTextArea.setName("email-addresses");
         recipientsTextArea.setPreventScrollbars(false);
-        recipientsTextArea.setValidator(CifexValidator.getUserFieldValidator(context
-                .getMessageResources()));
+        recipientsTextArea.setValidator(CifexValidator.getUserFieldValidator());
         trySetInitialValueFromURL(recipientsTextArea, Constants.RECIPIENTS_PARAMETER);
     }
 

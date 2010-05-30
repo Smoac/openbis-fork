@@ -50,8 +50,7 @@ class UpdateAdminFileAsyncCallback extends AbstractAsyncCallback<Void>
                     {
                         public final void onSuccess(final List<OwnerFileInfoDTO> res)
                         {
-                            modelBasedGrid.setDataAndRefresh(AdminFileGridModel.convert(context
-                                    .getMessageResources(), res));
+                            modelBasedGrid.setDataAndRefresh(AdminFileGridModel.convert(res));
                         }
                     });
     }

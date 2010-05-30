@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
@@ -35,7 +34,7 @@ public class CifexValidator
      * user codes (with the prefix 'id:'). The Validator allows that the field has one or more
      * entries, which are separated by comma or tabs.
      */
-    public static Validator getUserFieldValidator(final IMessageResources messageResources)
+    public static Validator getUserFieldValidator()
     {
         return new Validator()
             {
@@ -68,7 +67,7 @@ public class CifexValidator
      * Returns a validator which only allows email addresses in a user field. There is only one
      * email address allowed per field.
      */
-    public static Validator getEmailFieldValidator(final IMessageResources messageResources)
+    public static Validator getEmailFieldValidator()
     {
         return new Validator()
             {
@@ -97,7 +96,7 @@ public class CifexValidator
      * Returns a validator for a user code field. Available user codes are defined by
      * <code>StringUtils.USER_CODE_REGEX</code>.
      */
-    public static Validator getUserCodeFieldValidator(final IMessageResources messageResources)
+    public static Validator getUserCodeFieldValidator()
     {
         return new Validator()
             {

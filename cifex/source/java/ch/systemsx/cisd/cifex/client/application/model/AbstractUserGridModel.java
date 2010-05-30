@@ -24,7 +24,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.ui.FileCountRenderer;
@@ -67,7 +66,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
     public static final String ACTION = "action";
 
     public static <M extends ModelData> List<AbstractFilterField<M>> createFilterItems(
-            IMessageResources messageResources, List<ColumnConfig> columnConfigs)
+            List<ColumnConfig> columnConfigs)
     {
         return createFilterItems(columnConfigs, getInitialFilters());
     }
@@ -86,30 +85,26 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
      */
     protected final UserInfoDTO currentUser;
 
-    public AbstractUserGridModel(final IMessageResources messageResources,
-            final UserInfoDTO currentUser)
+    public AbstractUserGridModel(final UserInfoDTO currentUser)
     {
-        super(messageResources);
         this.currentUser = currentUser;
     }
 
-    protected final static ColumnConfig createActionColumnConfig(IMessageResources messageResources)
+    protected final static ColumnConfig createActionColumnConfig()
     {
         final ColumnConfig actionColumn =
                 createSortableColumnConfig(ACTION, msg(LIST_USERSFILES_ACTIONS_COLUMN_HEADER), 200);
         return actionColumn;
     }
 
-    protected final static ColumnConfig createUserCodeColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createUserCodeColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(USER_CODE, msg(USER_ID_LABEL), 180);
         return columnConfig;
     }
 
-    protected final static ColumnConfig createUserEmailColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createUserEmailColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(USER_EMAIL, msg(LIST_USERS_EMAIL_COLUMN_HEADER), 180);
@@ -117,8 +112,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createTotalFileSizeColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createTotalFileSizeColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(FILE_SIZE, msg(LIST_USERS_FILESIZE_COLUMN_HEADER), 80);
@@ -126,8 +120,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createTotalFileCountColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createTotalFileCountColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(FILE_COUNT, msg(LIST_USERS_FILECOUNT_COLUMN_HEADER), 60);
@@ -138,8 +131,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
     /**
      * Note that this column is NOT sortable.
      */
-    protected final static ColumnConfig createRegistratorColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createRegistratorColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createColumnConfig(REGISTRATOR, msg(LIST_USERS_CREATOR_COLUMN_HEADER), 180);
@@ -147,24 +139,22 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createStatusColumnConfig(IMessageResources messageResources)
+    protected final static ColumnConfig createStatusColumnConfig()
     {
         return createSortableColumnConfig(STATUS, msg(LIST_USERS_STATUS_COLUMN_HEADER), 200);
     }
 
-    protected final static ColumnConfig createActiveColumnConfig(IMessageResources messageResources)
+    protected final static ColumnConfig createActiveColumnConfig()
     {
         return createSortableColumnConfig(ACTIVE, msg(USER_ACTIVE_LABEL), 80);
     }
 
-    protected final static ColumnConfig createFullNameColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createFullNameColumnConfig()
     {
         return createSortableColumnConfig(FULL_NAME, msg(LIST_USERS_FULLNAME_COLUMN_HEADER), 180);
     }
 
-    protected final static ColumnConfig createQuotaSizeColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createQuotaSizeColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(QUOTA_SIZE, msg(LIST_USERS_QUOTASIZE_COLUMN_HEADER), 80);
@@ -173,8 +163,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createQuotaCountColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createQuotaCountColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(QUOTA_COUNT, msg(LIST_USERS_QUOTACOUNT_COLUMN_HEADER),

@@ -33,33 +33,29 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
  */
 public final class HTMLRequestCallback implements RequestCallback
 {
-    private final ViewContext context;
-
     private final String panelTitle;
 
     private final int popupWidth;
 
     private final int popupHeight;
 
-    public HTMLRequestCallback(ViewContext context, String title, int width, int height)
+    public HTMLRequestCallback(String title, int width, int height)
     {
-        this.context = context;
         this.panelTitle = title;
         this.popupWidth = width;
         this.popupHeight = height;
     }
 
-    public HTMLRequestCallback(ViewContext context, String title)
+    public HTMLRequestCallback(String title)
     {
-        this(context, title, DefaultLayoutDialog.DEFAULT_WIDTH,
-                DefaultLayoutDialog.DEFAULT_HEIGHT);
+        this(title, DefaultLayoutDialog.DEFAULT_WIDTH, DefaultLayoutDialog.DEFAULT_HEIGHT);
     }
 
     public final void onResponseReceived(final Request request, final Response response)
     {
         final DefaultLayoutDialog layoutDialog =
-                new DefaultLayoutDialog(context.getMessageResources(), this.panelTitle,
-                        this.popupWidth, this.popupHeight, true, true);
+                new DefaultLayoutDialog(this.panelTitle, this.popupWidth, this.popupHeight, true,
+                        true);
         layoutDialog.addText(response.getText());
         layoutDialog.show();
     }

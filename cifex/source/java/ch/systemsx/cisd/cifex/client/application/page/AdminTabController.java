@@ -99,17 +99,13 @@ class AdminTabController extends AbstractMainPageTabController
             final OwnerFileInfoDTO[] files, ViewContext context,
             final List<GridWidget<AbstractFileGridModel>> fileGridWidgets)
     {
-        List<AbstractFileGridModel> modelData =
-                AdminFileGridModel.convert(context.getMessageResources(), Arrays.asList(files));
-        List<ColumnConfig> columnConfigs =
-                AdminFileGridModel.getColumnConfigs(context.getMessageResources());
+        List<AbstractFileGridModel> modelData = AdminFileGridModel.convert(Arrays.asList(files));
+        List<ColumnConfig> columnConfigs = AdminFileGridModel.getColumnConfigs();
         List<AbstractFilterField<AbstractFileGridModel>> filterItems =
-                AbstractFileGridModel.createFilterItems(context.getMessageResources(),
-                        columnConfigs);
+                AbstractFileGridModel.createFilterItems(columnConfigs);
 
         GridWidget<AbstractFileGridModel> gridWidget =
-                GridWidget.create(columnConfigs, modelData, filterItems, context
-                        .getMessageResources());
+                GridWidget.create(columnConfigs, modelData, filterItems);
 
         Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
         grid.getView().setEmptyText(msg(LIST_FILES_LOADING_MSG));
@@ -119,7 +115,7 @@ class AdminTabController extends AbstractMainPageTabController
         grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
         grid.addListener(Events.CellClick, new AdminFileActionGridCellListener(context, gridWidget,
                 fileGridWidgets));
-        grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
+        grid.addListener(Events.CellClick, new FileCommentGridCellListener());
         return gridWidget;
     }
 
@@ -163,22 +159,18 @@ class AdminTabController extends AbstractMainPageTabController
             AbstractAsyncCallback<List<OwnerFileInfoDTO>>
     {
 
-        private final ViewContext context;
-
         private final GridWidget<AbstractFileGridModel> filesGrid;
 
         FileAdminAsyncCallback(ViewContext context, GridWidget<AbstractFileGridModel> filesGrid)
         {
             super(context);
-            this.context = context;
             this.filesGrid = filesGrid;
         }
 
         public final void onSuccess(final List<OwnerFileInfoDTO> result)
         {
             filesGrid.getGrid().getView().setEmptyText(msg(LIST_FILES_EMPTY_MSG));
-            filesGrid.setDataAndRefresh(AdminFileGridModel.convert(context.getMessageResources(),
-                    result));
+            filesGrid.setDataAndRefresh(AdminFileGridModel.convert(result));
         }
 
         @Override

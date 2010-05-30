@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
@@ -105,7 +104,6 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
     public final void onSuccess(final FileUploadFeedback result)
     {
         final FileUploadFeedback feedback = result;
-        final IMessageResources messageResources = getViewContext().getMessageResources();
         final Message message = feedback.getMessage();
         if (message != null)
         {
@@ -113,7 +111,7 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
             {
                 messageBox.close();
             }
-            WidgetUtils.showMessage(message, messageResources, new Listener<MessageBoxEvent>()
+            WidgetUtils.showMessage(message, new Listener<MessageBoxEvent>()
                 {
                     public void handleEvent(MessageBoxEvent be)
                     {

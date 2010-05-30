@@ -50,8 +50,7 @@ class UpdateUploadedFileAsyncCallback extends AbstractAsyncCallback<Void>
                     {
                         public final void onSuccess(final List<OwnerFileInfoDTO> res)
                         {
-                            modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(context
-                                    .getMessageResources(), res));
+                            modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(res));
                         }
                     });
     }

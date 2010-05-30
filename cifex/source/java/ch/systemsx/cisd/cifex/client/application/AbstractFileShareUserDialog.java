@@ -79,8 +79,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
             final List<UserInfoDTO> oldSharingUsers, final List<UserInfoDTO> newUsers,
             final String name)
     {
-        super(context.getMessageResources(), msg(SHARE_FILE_DIALOG_TITLE, name), DIALOG_WIDTH,
-                DIALOG_HEIGHT);
+        super(msg(SHARE_FILE_DIALOG_TITLE, name), DIALOG_WIDTH, DIALOG_HEIGHT);
         this.existingUsers = oldSharingUsers;
         this.newUsers = newUsers;
         this.viewContext = context;
@@ -101,10 +100,10 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
      */
     public void refresh()
     {
-        newUserGrid.setDataAndRefresh(FileShareUserGridModel.convert(messageResources, viewContext
-                .getModel().getUser(), newUsers, null));
-        existingUserGrid.setDataAndRefresh(FileShareUserGridModel.convert(messageResources,
-                viewContext.getModel().getUser(), existingUsers, null));
+        newUserGrid.setDataAndRefresh(FileShareUserGridModel.convert(viewContext.getModel()
+                .getUser(), newUsers, null));
+        existingUserGrid.setDataAndRefresh(FileShareUserGridModel.convert(viewContext.getModel()
+                .getUser(), existingUsers, null));
     }
 
     static ArrayList<UserInfoDTO> getArrayList(UserInfoDTO[] users)
@@ -154,17 +153,13 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
     private final GridWidget<FileShareUserGridModel> createUserGrid(final List<UserInfoDTO> users)
     {
         List<FileShareUserGridModel> data =
-                FileShareUserGridModel.convert(messageResources, viewContext.getModel().getUser(),
-                        users, null);
-        List<ColumnConfig> columnConfigs =
-                FileShareUserGridModel.getColumnConfigs(messageResources);
+                FileShareUserGridModel.convert(viewContext.getModel().getUser(), users, null);
+        List<ColumnConfig> columnConfigs = FileShareUserGridModel.getColumnConfigs();
         List<AbstractFilterField<FileShareUserGridModel>> filterItems =
-                AbstractUserGridModel.createFilterItems(viewContext.getMessageResources(),
-                        columnConfigs);
+                AbstractUserGridModel.createFilterItems(columnConfigs);
 
         GridWidget<FileShareUserGridModel> gridWidget =
-                GridWidget.create(columnConfigs, data, filterItems, viewContext
-                        .getMessageResources());
+                GridWidget.create(columnConfigs, data, filterItems);
 
         Grid<FileShareUserGridModel> grid = gridWidget.getGrid();
         grid.addListener(Events.CellClick, new FileShareUserGridCellListener(this));
@@ -195,8 +190,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         addUserField.setValidateOnBlur(true);
         addUserField.setName(EMAIL_FIELD_CONFIG);
         addUserField.setValidateOnBlur(true);
-        addUserField.setValidator(CifexValidator.getUserFieldValidator(viewContext
-                .getMessageResources()));
+        addUserField.setValidator(CifexValidator.getUserFieldValidator());
 
         form.add(addUserField);
         String buttonLabel = msg(SHARE_FILE_ADDUSER_BUTTON_LABEL);
@@ -246,10 +240,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                 }
                                                 existingUserGrid
                                                         .setDataAndRefresh(FileShareUserGridModel
-                                                                .convert(messageResources,
-                                                                        viewContext.getModel()
-                                                                                .getUser(),
-                                                                        existingUsers,
+                                                                .convert(viewContext.getModel()
+                                                                        .getUser(), existingUsers,
                                                                         existingUserGrid.getGrid()
                                                                                 .getStore()));
                                                 checkboxChangeAction();
@@ -282,10 +274,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                 }
                                                 existingUserGrid
                                                         .setDataAndRefresh(FileShareUserGridModel
-                                                                .convert(messageResources,
-                                                                        viewContext.getModel()
-                                                                                .getUser(),
-                                                                        existingUsers,
+                                                                .convert(viewContext.getModel()
+                                                                        .getUser(), existingUsers,
                                                                         existingUserGrid.getGrid()
                                                                                 .getStore()));
                                             } else
@@ -299,11 +289,9 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                 addUserToFileShare(user);
                                                 newUserGrid
                                                         .setDataAndRefresh(FileShareUserGridModel
-                                                                .convert(messageResources,
-                                                                        viewContext.getModel()
-                                                                                .getUser(),
-                                                                        newUsers, newUserGrid
-                                                                                .getGrid()
+                                                                .convert(viewContext.getModel()
+                                                                        .getUser(), newUsers,
+                                                                        newUserGrid.getGrid()
                                                                                 .getStore()));
                                             }
                                             checkboxChangeAction();

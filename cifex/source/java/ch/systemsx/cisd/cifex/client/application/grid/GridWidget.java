@@ -40,7 +40,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.model.IModelDataWithID;
 import ch.systemsx.cisd.cifex.client.application.utils.IDelegatedAction;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -57,9 +56,9 @@ public class GridWidget<M extends IModelDataWithID>
     /** creates a paged grid with specified columns and filters */
     public static <M extends IModelDataWithID> GridWidget<M> create(
             List<ColumnConfig> columnConfigs, List<M> models,
-            List<AbstractFilterField<M>> filterFields, IMessageResources messageResources)
+            List<AbstractFilterField<M>> filterFields)
     {
-        return new GridWidget<M>(columnConfigs, models, filterFields, messageResources);
+        return new GridWidget<M>(columnConfigs, models, filterFields);
     }
 
     // --------------------------------------------
@@ -80,17 +79,17 @@ public class GridWidget<M extends IModelDataWithID>
     private ContentPanel widget = null;
 
     private GridWidget(List<ColumnConfig> columnConfigs, List<M> models,
-            List<AbstractFilterField<M>> filterFields, IMessageResources messageResources)
+            List<AbstractFilterField<M>> filterFields)
     {
         this.models = models;
         this.filterFields = filterFields;
         this.grid = createGrid(columnConfigs);
-        this.toolBar = createFilterAndPagingToolbar(messageResources);
+        this.toolBar = createFilterAndPagingToolbar();
 
         refreshStore();
     }
 
-    private PagingToolBar createFilterAndPagingToolbar(IMessageResources messageResources)
+    private PagingToolBar createFilterAndPagingToolbar()
     {
         IDelegatedAction onFilterAction = new IDelegatedAction()
             {

@@ -46,7 +46,6 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -431,17 +430,11 @@ public abstract class UserWidget extends LayoutContainer
         return isStatus(msg(CREATE_USER_ROLE_ADMIN_TAG));
     }
 
-    protected final IMessageResources getMessageResources()
-    {
-        return context.getMessageResources();
-    }
-
     private final TextField<String> createUserCodeField()
     {
         final TextField<String> textField = createTextField(msg(USER_ID_LABEL));
         textField.setAllowBlank(false);
-        textField.setValidator(CifexValidator.getUserCodeFieldValidator(context
-                .getMessageResources()));
+        textField.setValidator(CifexValidator.getUserCodeFieldValidator());
         textField.setValidateOnBlur(false);
         if (editUser != null && editUser.getUserCode() != null)
         {
@@ -463,8 +456,7 @@ public abstract class UserWidget extends LayoutContainer
     private final TextField<String> createEmailField()
     {
         final TextField<String> textField = createTextField(msg(LIST_USERS_EMAIL_COLUMN_HEADER));
-        textField
-                .setValidator(CifexValidator.getEmailFieldValidator(context.getMessageResources()));
+        textField.setValidator(CifexValidator.getEmailFieldValidator());
         // Allow a blank email field if and only if the request user is an admin, it is a user
         // creation mode and the system has an external authentication service.
         final boolean allowBlankEmail =

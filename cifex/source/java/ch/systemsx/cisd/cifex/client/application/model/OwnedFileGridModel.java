@@ -23,7 +23,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -39,10 +38,9 @@ public class OwnedFileGridModel extends AbstractFileGridModel
 {
     private static final long serialVersionUID = Constants.VERSION;
 
-    public OwnedFileGridModel(IMessageResources messageResources, OwnerFileInfoDTO file)
+    public OwnedFileGridModel(OwnerFileInfoDTO file)
     {
 
-        super(messageResources);
         set(ID, file.getID());// long
         set(NAME, file.getName());// String
         set(COMMENT, file.getComment());// String
@@ -65,33 +63,32 @@ public class OwnedFileGridModel extends AbstractFileGridModel
         return get(ID);
     }
 
-    public final static List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
+    public final static List<ColumnConfig> getColumnConfigs()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(createIdColumnConfig());
-        configs.add(createNameColumnConfig(messageResources));
-        configs.add(createCommentColumnConfig(messageResources));
-        configs.add(createOwnerColumnConfig(messageResources));
-        configs.add(createSharedWithColumnConfig(messageResources));
-        configs.add(createContentTypeColumnConfig(messageResources));
-        configs.add(createSizeColumnConfig(messageResources));
-        configs.add(createCompleteSizeColumnConfig(messageResources));
-        configs.add(createIsCompleteColumnConfig(messageResources));
-        configs.add(createCRC32ChecksumColumnConfig(messageResources));
-        configs.add(createRegistrationDateColumnConfig(messageResources));
-        configs.add(createExpirationDateColumnConfig(messageResources));
-        configs.add(createActionColumnConfig(messageResources));
+        configs.add(createNameColumnConfig());
+        configs.add(createCommentColumnConfig());
+        configs.add(createOwnerColumnConfig());
+        configs.add(createSharedWithColumnConfig());
+        configs.add(createContentTypeColumnConfig());
+        configs.add(createSizeColumnConfig());
+        configs.add(createCompleteSizeColumnConfig());
+        configs.add(createIsCompleteColumnConfig());
+        configs.add(createCRC32ChecksumColumnConfig());
+        configs.add(createRegistrationDateColumnConfig());
+        configs.add(createExpirationDateColumnConfig());
+        configs.add(createActionColumnConfig());
         return configs;
     }
 
-    public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,
-            final List<OwnerFileInfoDTO> filters)
+    public final static List<AbstractFileGridModel> convert(final List<OwnerFileInfoDTO> filters)
     {
         final List<AbstractFileGridModel> result = new ArrayList<AbstractFileGridModel>();
 
         for (final OwnerFileInfoDTO filter : filters)
         {
-            result.add(new OwnedFileGridModel(messageResources, filter));
+            result.add(new OwnedFileGridModel(filter));
         }
         return result;
     }

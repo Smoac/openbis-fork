@@ -23,7 +23,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -42,7 +41,7 @@ public final class UserGridModel extends AbstractUserGridModel
 
     public UserGridModel(final ViewContext viewContext, UserInfoDTO user)
     {
-        super(viewContext.getMessageResources(), viewContext.getModel().getUser());
+        super(viewContext.getModel().getUser());
         set(ID, user.getID());// long
         set(USER_CODE, user.getUserCode());// String
         set(USER_EMAIL, user.getEmail());// String
@@ -112,21 +111,21 @@ public final class UserGridModel extends AbstractUserGridModel
         return result;
     }
 
-    static public final List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
+    static public final List<ColumnConfig> getColumnConfigs()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(createIdColumnConfig());
-        configs.add(createUserCodeColumnConfig(messageResources));
-        configs.add(createUserEmailColumnConfig(messageResources));
-        configs.add(createTotalFileSizeColumnConfig(messageResources));
-        configs.add(createTotalFileCountColumnConfig(messageResources));
-        configs.add(createFullNameColumnConfig(messageResources));
-        configs.add(createStatusColumnConfig(messageResources));
-        configs.add(createActiveColumnConfig(messageResources));
-        configs.add(createQuotaSizeColumnConfig(messageResources));
-        configs.add(createQuotaCountColumnConfig(messageResources));
-        configs.add(createRegistratorColumnConfig(messageResources));
-        configs.add(createActionColumnConfig(messageResources));
+        configs.add(createUserCodeColumnConfig());
+        configs.add(createUserEmailColumnConfig());
+        configs.add(createTotalFileSizeColumnConfig());
+        configs.add(createTotalFileCountColumnConfig());
+        configs.add(createFullNameColumnConfig());
+        configs.add(createStatusColumnConfig());
+        configs.add(createActiveColumnConfig());
+        configs.add(createQuotaSizeColumnConfig());
+        configs.add(createQuotaCountColumnConfig());
+        configs.add(createRegistratorColumnConfig());
+        configs.add(createActionColumnConfig());
         return configs;
     }
 

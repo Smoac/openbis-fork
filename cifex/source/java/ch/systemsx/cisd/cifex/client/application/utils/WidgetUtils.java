@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
 
 /**
@@ -34,22 +33,16 @@ public final class WidgetUtils
 {
     /**
      * Shows the specified method.
-     * 
-     * @param messageResources Message resources used for getting message box title.
      */
-    public final static void showMessage(final Message message,
-            final IMessageResources messageResources)
+    public final static void showMessage(final Message message)
     {
-        showMessage(message, messageResources, null);
+        showMessage(message, null);
     }
 
     /**
      * Shows the specified method.
-     * 
-     * @param messageResources Message resources used for getting message box title.
      */
     public final static void showMessage(final Message message,
-            final IMessageResources messageResources,
             final Listener<MessageBoxEvent> eventListenerOrNull)
     {
         final String type = message.getType();

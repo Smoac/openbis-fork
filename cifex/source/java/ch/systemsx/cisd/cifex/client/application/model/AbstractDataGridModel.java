@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.ContainFilterField;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -38,13 +37,6 @@ public abstract class AbstractDataGridModel extends BaseModelData implements IMo
     private static final long serialVersionUID = Constants.VERSION;
 
     public static final String ID = "id";
-
-    protected final IMessageResources messageResources;
-
-    public AbstractDataGridModel(final IMessageResources messageResources)
-    {
-        this.messageResources = messageResources;
-    }
 
     protected final static ColumnConfig createSortableColumnConfig(final String code,
             final String title, final int width)

@@ -223,8 +223,8 @@ public final class MainPage extends Viewport
                     try
                     {
                         new RequestBuilder(RequestBuilder.GET, HelpDialogController.FAQ_HTML)
-                                .sendRequest(null, new HTMLRequestCallback(context,
-                                        msg(HELP_FAQ_TITLE), DefaultLayoutDialog.DEFAULT_WIDTH * 2,
+                                .sendRequest(null, new HTMLRequestCallback(msg(HELP_FAQ_TITLE),
+                                        DefaultLayoutDialog.DEFAULT_WIDTH * 2,
                                         DefaultLayoutDialog.DEFAULT_HEIGHT * 2));
                     } catch (final RequestException ex)
                     {
@@ -245,7 +245,7 @@ public final class MainPage extends Viewport
                     try
                     {
                         new RequestBuilder(RequestBuilder.GET, HelpDialogController.DISCLAIMER_HTML)
-                                .sendRequest(null, new HTMLRequestCallback(context,
+                                .sendRequest(null, new HTMLRequestCallback(
                                         msg(HELP_DISCLAIMER_TITLE)));
                     } catch (final RequestException ex)
                     {

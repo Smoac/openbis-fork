@@ -24,7 +24,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
@@ -69,12 +68,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     public static final String ACTION = "action";
 
-    AbstractFileGridModel(final IMessageResources messageResources)
-    {
-        super(messageResources);
-    }
-
-    protected final static ColumnConfig createNameColumnConfig(IMessageResources messageResources)
+    protected final static ColumnConfig createNameColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(NAME, msg(LIST_FILES_NAME_COLUMN_HEADER), 140);
@@ -82,7 +76,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createCommentColumnConfig(IMessageResources messageResources)
+    protected final static ColumnConfig createCommentColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(COMMENT, msg(LIST_FILES_COMMENT_COLUMN_HEADER), 140);
@@ -90,8 +84,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createExpirationDateColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createExpirationDateColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(EXPIRATION_DATE,
@@ -100,8 +93,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createRegistrationDateColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createRegistrationDateColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(REGISTRATION_DATE,
@@ -113,7 +105,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     /**
      * Note that this column is not sortable.
      */
-    protected final static ColumnConfig createOwnerColumnConfig(IMessageResources messageResources)
+    protected final static ColumnConfig createOwnerColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createColumnConfig(OWNER, msg(LIST_FILES_OWNER_COLUMN_HEADER), 120);
@@ -121,8 +113,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createRegistratorColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createRegistratorColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(REGISTRATOR, msg(LIST_FILES_UPLOADER_COLUMN_HEADER), 80);
@@ -133,22 +124,21 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     /**
      * Note that this column is not sortable.
      */
-    protected final static ColumnConfig createSharedWithColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createSharedWithColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createColumnConfig(SHARED_WITH, msg(LIST_FILES_SHAREDWITH_COLUMN_HEADER), 120);
         return columnConfig;
     }
 
-    static protected final ColumnConfig createActionColumnConfig(IMessageResources messageResources)
+    static protected final ColumnConfig createActionColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(ACTION, msg(LIST_USERSFILES_ACTIONS_COLUMN_HEADER), 180);
         return columnConfig;
     }
 
-    protected final static ColumnConfig createSizeColumnConfig(IMessageResources messageResources)
+    protected final static ColumnConfig createSizeColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(SIZE, msg(LIST_FILES_SIZE_COLUMN_HEADER), 80);
@@ -156,8 +146,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createCompleteSizeColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createCompleteSizeColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(COMPLETE_SIZE,
@@ -167,8 +156,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createIsCompleteColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createIsCompleteColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(IS_COMPLETE, msg(LIST_FILES_ISCOMPLETE_COLUMN_HEADER),
@@ -176,8 +164,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createCRC32ChecksumColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createCRC32ChecksumColumnConfig()
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(CRC32_CHECKSUM,
@@ -186,15 +173,14 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final static ColumnConfig createContentTypeColumnConfig(
-            IMessageResources messageResources)
+    protected final static ColumnConfig createContentTypeColumnConfig()
     {
         return createSortableColumnConfig(CONTENT_TYPE, msg(LIST_FILES_CONTENTTYPE_COLUMN_HEADER),
                 140);
     }
 
     public static <M extends ModelData> List<AbstractFilterField<M>> createFilterItems(
-            IMessageResources messageResources, List<ColumnConfig> columnConfigs)
+            List<ColumnConfig> columnConfigs)
     {
         return createFilterItems(columnConfigs, getInitialFilters());
     }

@@ -50,21 +50,17 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 final class FooterPanel extends HorizontalPanel
 {
 
-    private final ViewContext viewContext;
-
     FooterPanel(final ViewContext context)
     {
         final Configuration configuration = context.getModel().getConfiguration();
         assert configuration != null : "Must not be null reached this point.";
-        this.viewContext = context;
-        final IMessageResources messageResources = context.getMessageResources();
+        
         final Widget applicationDescription =
                 new Html(HelpDialogController.FOOTER_APPLICATION_DESCRIPTION);
-        final Widget contactAdministrator =
-                new Html(createContactAdministrator(configuration, messageResources));
+        final Widget contactAdministrator = new Html(createContactAdministrator(configuration));
         final Widget version = new Html(createVersionDiv(configuration));
-        final Widget disclaimerLink = createDisclaimerLink(messageResources);
-        final Widget documentationLink = createFAQLink(messageResources);
+        final Widget disclaimerLink = createDisclaimerLink();
+        final Widget documentationLink = createFAQLink();
         add(applicationDescription);
         add(createSeparator());
         add(version);
@@ -81,7 +77,7 @@ final class FooterPanel extends HorizontalPanel
         return new Html("&nbsp;-&nbsp;");
     }
 
-    private final Widget createDisclaimerLink(final IMessageResources messageResources)
+    private final Widget createDisclaimerLink()
     {
         return getLinkWidget(msg(HELP_DISCLAIMER_LABEL), new ClickHandler()
             {
@@ -90,7 +86,7 @@ final class FooterPanel extends HorizontalPanel
                     try
                     {
                         new RequestBuilder(RequestBuilder.GET, HelpDialogController.DISCLAIMER_HTML)
-                                .sendRequest(null, new HTMLRequestCallback(viewContext,
+                                .sendRequest(null, new HTMLRequestCallback(
                                         msg(HELP_DISCLAIMER_TITLE)));
                     } catch (final RequestException ex)
                     {
@@ -100,7 +96,7 @@ final class FooterPanel extends HorizontalPanel
             });
     }
 
-    private final Widget createFAQLink(final IMessageResources messageResources)
+    private final Widget createFAQLink()
     {
         return getLinkWidget(msg(HELP_FAQ_LABEL), new ClickHandler()
             {
@@ -109,8 +105,8 @@ final class FooterPanel extends HorizontalPanel
                     try
                     {
                         new RequestBuilder(RequestBuilder.GET, HelpDialogController.FAQ_HTML)
-                                .sendRequest(null, new HTMLRequestCallback(viewContext,
-                                        msg(HELP_FAQ_TITLE), DefaultLayoutDialog.DEFAULT_WIDTH * 2,
+                                .sendRequest(null, new HTMLRequestCallback(msg(HELP_FAQ_TITLE),
+                                        DefaultLayoutDialog.DEFAULT_WIDTH * 2,
                                         DefaultLayoutDialog.DEFAULT_HEIGHT * 2));
                     } catch (final RequestException ex)
                     {
@@ -128,8 +124,7 @@ final class FooterPanel extends HorizontalPanel
         return DOM.toString(versionDiv);
     }
 
-    private final static String createContactAdministrator(final Configuration configuration,
-            final IMessageResources messageResources)
+    private final static String createContactAdministrator(final Configuration configuration)
     {
         return DOMUtils.createEmailAnchor(info(SUPPORT_EMAIL), msg(HELP_CONTACT_SUPPORT_LABEL));
     }

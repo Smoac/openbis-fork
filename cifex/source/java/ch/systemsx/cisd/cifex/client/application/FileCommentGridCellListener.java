@@ -41,13 +41,6 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
  */
 public class FileCommentGridCellListener implements Listener<GridEvent<AbstractFileGridModel>>
 {
-    private final ViewContext viewContext;
-
-    public FileCommentGridCellListener(ViewContext viewContext)
-    {
-        this.viewContext = viewContext;
-    }
-
     public void handleEvent(GridEvent<AbstractFileGridModel> be)
     {
         Grid<AbstractFileGridModel> grid = be.getGrid();
@@ -67,8 +60,7 @@ public class FileCommentGridCellListener implements Listener<GridEvent<AbstractF
                 final String comment =
                         DOM.getElementAttribute(be.getTarget(), "title").replaceAll("\n", "<br/>");
                 final DefaultLayoutDialog layoutDialog =
-                        new DefaultLayoutDialog(viewContext.getMessageResources(),
-                                msg(LIST_FILES_COMMENT_MSGBOX_TITLE),
+                        new DefaultLayoutDialog(msg(LIST_FILES_COMMENT_MSGBOX_TITLE),
                                 DefaultLayoutDialog.DEFAULT_WIDTH,
                                 DefaultLayoutDialog.DEFAULT_HEIGHT, true, true);
                 layoutDialog.add(new Html(Format.htmlEncode(comment.replaceAll("<br/>", "\n"))

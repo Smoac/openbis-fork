@@ -127,8 +127,7 @@
 	</target>
 
 	<!--
-	// Add 'IMessageResources.properties' and 'service.properties' (will be excluded later on)
-	// files to 'build-common.compile' target.
+	// Add 'service.properties' (will be excluded later on) to 'build-common.compile' target.
 	-->
 	<target name="compile"
 	        depends="build-common.compile"
@@ -171,9 +170,8 @@
 			</manifest>
 			<fileset dir="${classes}">
 				<include name="**/*.class" />
-				<!-- Exclude 'service.properties', 'IMessageResources.properties' and 'log.xml' file. -->
+				<!-- Exclude 'service.properties' and 'log.xml' file. -->
 				<exclude name="service.properties" />
-				<exclude name="**/IMessageResources.properties" />
 				<exclude name="log.xml" />
 				<include name="**/*.properties" />
 				<include name="${build.info.filename}" />

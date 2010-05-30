@@ -61,12 +61,9 @@ public final class CIFEXEntryPoint implements EntryPoint
 
     private final ViewContext createViewContext(final ICIFEXServiceAsync cifexService)
     {
-        final IMessageResources messageResources =
-                (IMessageResources) GWT.create(IMessageResources.class);
         final PageController pageController = new PageController();
         final ViewContext viewContext =
-                new ViewContext(pageController, pageController, cifexService, new Model(),
-                        messageResources);
+                new ViewContext(pageController, pageController, cifexService, new Model());
         pageController.setViewContext(viewContext);
         return viewContext;
     }

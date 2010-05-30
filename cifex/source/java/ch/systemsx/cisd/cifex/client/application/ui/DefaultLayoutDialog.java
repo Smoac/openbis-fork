@@ -24,8 +24,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-
 /**
  * {@link Dialog} adjusted to project settings.
  * 
@@ -37,23 +35,19 @@ public class DefaultLayoutDialog extends Dialog
 
     public static final int DEFAULT_HEIGHT = 300;
 
-    protected final IMessageResources messageResources;
-
-    public DefaultLayoutDialog(final IMessageResources messageResources, final String title)
+    public DefaultLayoutDialog(final String title)
     {
-        this(messageResources, title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        this(title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
-    public DefaultLayoutDialog(final IMessageResources messageResources, final String title,
-            final int width, final int height)
+    public DefaultLayoutDialog(final String title, final int width, final int height)
     {
-        this(messageResources, title, width, height, false, true);
+        this(title, width, height, false, true);
     }
 
-    public DefaultLayoutDialog(final IMessageResources messageResources, final String title,
-            final int width, final int height, final boolean modal, final boolean closable)
+    public DefaultLayoutDialog(final String title, final int width, final int height,
+            final boolean modal, final boolean closable)
     {
-        this.messageResources = messageResources;
         setHeading(title);
         setModal(modal);
         setWidth(width);

@@ -38,7 +38,6 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.FileCommentGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.FileDownloadGridCellListener;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
 import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
@@ -97,27 +96,25 @@ class FileListingTabHelper
             final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
             final IQuotaInformationUpdater quotaUpdaterOrNull)
     {
-        final IMessageResources messageResources = context.getMessageResources();
-        final List<ColumnConfig> columnConfigs =
-                DownloadFileGridModel.getColumnConfigs(messageResources);
+        final List<ColumnConfig> columnConfigs = DownloadFileGridModel.getColumnConfigs();
         final List<AbstractFilterField<AbstractFileGridModel>> filterItems =
-                AbstractFileGridModel.createFilterItems(messageResources, columnConfigs);
+                AbstractFileGridModel.createFilterItems(columnConfigs);
 
         final GridWidget<AbstractFileGridModel> gridWidget =
                 GridWidget.create(columnConfigs, new ArrayList<AbstractFileGridModel>(),
-                        filterItems, messageResources);
+                        filterItems);
         final Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
         grid.getView().setEmptyText(msg(DOWNLOAD_FILES_LOADING_MSG));
 
         fileGridWidgets.add(gridWidget);
 
         grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
-        grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
+        grid.addListener(Events.CellClick, new FileCommentGridCellListener());
 
         AbstractMainPageTabController.addTitleRow(contentPanel, msg(DOWNLOAD_FILES_PANEL_TITLE));
         AbstractMainPageTabController.addWidgetRow(contentPanel, gridWidget.getWidget());
 
-        addWebStartDownloadClientLink(messageResources, contentPanel);
+        addWebStartDownloadClientLink(contentPanel);
 
         context.getCifexService().listDownloadFiles(
                 new AbstractAsyncCallback<List<FileInfoDTO>>(context)
@@ -125,8 +122,7 @@ class FileListingTabHelper
                         public void onSuccess(List<FileInfoDTO> result)
                         {
                             grid.getView().setEmptyText(msg(DOWNLOAD_FILES_EMPTY_MSG));
-                            gridWidget.setDataAndRefresh(DownloadFileGridModel.convert(
-                                    messageResources, result));
+                            gridWidget.setDataAndRefresh(DownloadFileGridModel.convert(result));
                         }
 
                         @Override
@@ -138,8 +134,7 @@ class FileListingTabHelper
                     });
     }
 
-    private static void addWebStartDownloadClientLink(IMessageResources messageResources,
-            final ContentPanel verticalPanel)
+    private static void addWebStartDownloadClientLink(final ContentPanel verticalPanel)
     {
         AbstractMainPageTabController.addTitleRow(verticalPanel,
                 msg(DOWNLOAD_FILES_WEBSTART_PANEL_TITLE));
@@ -171,22 +166,20 @@ class FileListingTabHelper
             final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
             final IQuotaInformationUpdater quotaUpdaterOrNull)
     {
-        final IMessageResources messageResources = context.getMessageResources();
-        final List<ColumnConfig> columnConfigs =
-                OwnedFileGridModel.getColumnConfigs(messageResources);
+        final List<ColumnConfig> columnConfigs = OwnedFileGridModel.getColumnConfigs();
         final List<AbstractFilterField<AbstractFileGridModel>> filterItems =
-                AbstractFileGridModel.createFilterItems(messageResources, columnConfigs);
+                AbstractFileGridModel.createFilterItems(columnConfigs);
 
         final GridWidget<AbstractFileGridModel> gridWidget =
                 GridWidget.create(columnConfigs, new ArrayList<AbstractFileGridModel>(),
-                        filterItems, messageResources);
+                        filterItems);
         final Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
         grid.getView().setEmptyText(msg(LIST_FILES_SHARED_LOADING_MSG));
 
         fileGridWidgets.add(gridWidget);
 
         grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
-        grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
+        grid.addListener(Events.CellClick, new FileCommentGridCellListener());
         grid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(context,
                 gridWidget, fileGridWidgets, quotaUpdaterOrNull));
         AbstractMainPageTabController.addTitleRow(contentPanel, msg(LIST_FILES_SHARED_TITLE));
@@ -198,8 +191,7 @@ class FileListingTabHelper
                         public void onSuccess(List<OwnerFileInfoDTO> result)
                         {
                             grid.getView().setEmptyText(msg(LIST_FILES_SHARED_EMPTY_MSG));
-                            gridWidget.setDataAndRefresh(OwnedFileGridModel.convert(
-                                    messageResources, result));
+                            gridWidget.setDataAndRefresh(OwnedFileGridModel.convert(result));
                         }
 
                         @Override

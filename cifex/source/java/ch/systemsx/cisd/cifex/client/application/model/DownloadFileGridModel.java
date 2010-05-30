@@ -21,7 +21,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
@@ -35,9 +34,8 @@ public class DownloadFileGridModel extends AbstractFileGridModel
 {
     private static final long serialVersionUID = Constants.VERSION;
 
-    public DownloadFileGridModel(IMessageResources messageResources, FileInfoDTO file)
+    public DownloadFileGridModel(FileInfoDTO file)
     {
-        super(messageResources);
         set(ID, file.getID());// long
         set(NAME, file.getName());// String
         set(COMMENT, file.getComment());// String
@@ -54,29 +52,28 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         return get(ID);
     }
 
-    public final static List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
+    public final static List<ColumnConfig> getColumnConfigs()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(createIdColumnConfig());
-        configs.add(createNameColumnConfig(messageResources));
-        configs.add(createCommentColumnConfig(messageResources));
-        configs.add(createContentTypeColumnConfig(messageResources));
-        configs.add(createSizeColumnConfig(messageResources));
-        configs.add(createOwnerColumnConfig(messageResources));
-        configs.add(createCRC32ChecksumColumnConfig(messageResources));
-        configs.add(createRegistrationDateColumnConfig(messageResources));
-        configs.add(createExpirationDateColumnConfig(messageResources));
+        configs.add(createNameColumnConfig());
+        configs.add(createCommentColumnConfig());
+        configs.add(createContentTypeColumnConfig());
+        configs.add(createSizeColumnConfig());
+        configs.add(createOwnerColumnConfig());
+        configs.add(createCRC32ChecksumColumnConfig());
+        configs.add(createRegistrationDateColumnConfig());
+        configs.add(createExpirationDateColumnConfig());
         return configs;
     }
 
-    public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,
-            final List<FileInfoDTO> files)
+    public final static List<AbstractFileGridModel> convert(final List<FileInfoDTO> files)
     {
         final List<AbstractFileGridModel> result = new ArrayList<AbstractFileGridModel>();
 
         for (final FileInfoDTO file : files)
         {
-            result.add(new DownloadFileGridModel(messageResources, file));
+            result.add(new DownloadFileGridModel(file));
         }
 
         return result;

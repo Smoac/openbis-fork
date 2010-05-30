@@ -48,8 +48,7 @@ public final class EditFileDialog extends DefaultLayoutDialog
     public EditFileDialog(final ViewContext context, final FileInfoDTO file,
             final AsyncCallback<Date> refreshCallback)
     {
-        super(context.getMessageResources(), msg(EDIT_FILE_DIALOG_TITLE, file.getName()),
-                EditFileWidget.WIDTH + 30, HEIGHT);
+        super(msg(EDIT_FILE_DIALOG_TITLE, file.getName()), EditFileWidget.WIDTH + 30, HEIGHT);
         this.editFileWidget = new EditFileWidget(context, file);
         this.refreshCallback = refreshCallback;
         add(editFileWidget);

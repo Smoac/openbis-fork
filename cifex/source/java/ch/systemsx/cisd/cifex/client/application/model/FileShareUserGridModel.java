@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -47,10 +46,10 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
 
     public static final String SHARE_FILE = "shareFile";
 
-    public FileShareUserGridModel(final IMessageResources messageResources,
-            final UserInfoDTO currentUser, final UserInfoDTO user, final boolean checkedUser)
+    public FileShareUserGridModel(final UserInfoDTO currentUser, final UserInfoDTO user,
+            final boolean checkedUser)
     {
-        super(messageResources, currentUser);
+        super(currentUser);
         set(ID, user.getID());// long
         set(SHARE_FILE, new Boolean(checkedUser));// Boolean
         set(USER_CODE, user.getUserCode());// String
@@ -61,9 +60,8 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
         set(ACTIVE, new Boolean(user.isActive()));// Boolean
     }
 
-    public final static List<FileShareUserGridModel> convert(IMessageResources messageResources,
-            final UserInfoDTO currentUser, final List<UserInfoDTO> users,
-            final ListStore<FileShareUserGridModel> storeOrNull)
+    public final static List<FileShareUserGridModel> convert(final UserInfoDTO currentUser,
+            final List<UserInfoDTO> users, final ListStore<FileShareUserGridModel> storeOrNull)
     {
         if (users == null)
         {
@@ -97,9 +95,7 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
                 checkedUserValue = checkStatusMap.get(user.getEmail());
             }
             final boolean checkedUser = (Boolean.FALSE.equals(checkedUserValue) == false);
-            result
-                    .add(new FileShareUserGridModel(messageResources, currentUser, user,
-                            checkedUser));
+            result.add(new FileShareUserGridModel(currentUser, user, checkedUser));
         }
         return result;
     }
@@ -109,24 +105,24 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
         return get(ID);
     }
 
-    static public final List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
+    static public final List<ColumnConfig> getColumnConfigs()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(createIdColumnConfig());
-        configs.add(createShareFileCheckboxColumnConfig(messageResources));
-        configs.add(createUserCodeColumnConfig(messageResources));
-        configs.add(createUserEmailColumnConfig(messageResources));
-        configs.add(createFullNameColumnConfig(messageResources));
-        configs.add(createRegistratorColumnConfig(messageResources));
+        configs.add(createShareFileCheckboxColumnConfig());
+        configs.add(createUserCodeColumnConfig());
+        configs.add(createUserEmailColumnConfig());
+        configs.add(createFullNameColumnConfig());
+        configs.add(createRegistratorColumnConfig());
         configs.add(createSortableColumnConfig(STATUS, msg(LIST_USERS_STATUS_COLUMN_HEADER), 195));
         return configs;
     }
 
-    private final static ColumnConfig createShareFileCheckboxColumnConfig(
-            IMessageResources messageResources)
+    private final static ColumnConfig createShareFileCheckboxColumnConfig()
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(SHARE_FILE, msg(LIST_USERS_FILESHARING_SHAREFLAG_COLUMN_HEADER), 45);
+                createSortableColumnConfig(SHARE_FILE,
+                        msg(LIST_USERS_FILESHARING_SHAREFLAG_COLUMN_HEADER), 45);
         columnConfig.setFixed(true);
         columnConfig.setRenderer(new GridCellRenderer<FileShareUserGridModel>()
             {

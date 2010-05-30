@@ -29,19 +29,15 @@ public class ViewContext
 
     private final IHistoryController historyController;
 
-    private final IMessageResources messageResources;
-
     private final ICIFEXServiceAsync cifexService;
 
     private final Model model;
 
     ViewContext(final IPageController pageController, final IHistoryController historyController,
-            final ICIFEXServiceAsync cifexService, final Model model,
-            final IMessageResources messageResources)
+            final ICIFEXServiceAsync cifexService, final Model model)
     {
         this.pageController = pageController;
         this.historyController = historyController;
-        this.messageResources = messageResources;
         this.cifexService = cifexService;
         this.model = model;
     }
@@ -49,11 +45,6 @@ public class ViewContext
     public final ICIFEXServiceAsync getCifexService()
     {
         return cifexService;
-    }
-
-    public final IMessageResources getMessageResources()
-    {
-        return messageResources;
     }
 
     public final Model getModel()

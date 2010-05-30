@@ -20,7 +20,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
@@ -38,13 +37,11 @@ public class GridUtils
             ViewContext viewContext)
     {
         List<UserGridModel> data = UserGridModel.convert(viewContext, users);
-        IMessageResources messageResources = viewContext.getMessageResources();
-        List<ColumnConfig> columnConfigs = UserGridModel.getColumnConfigs(messageResources);
+        List<ColumnConfig> columnConfigs = UserGridModel.getColumnConfigs();
         List<AbstractFilterField<UserGridModel>> filterItems =
-                AbstractUserGridModel.createFilterItems(messageResources, columnConfigs);
+                AbstractUserGridModel.createFilterItems(columnConfigs);
 
-        GridWidget<UserGridModel> gridWidget =
-                GridWidget.create(columnConfigs, data, filterItems, messageResources);
+        GridWidget<UserGridModel> gridWidget = GridWidget.create(columnConfigs, data, filterItems);
         return gridWidget;
     }
 }
