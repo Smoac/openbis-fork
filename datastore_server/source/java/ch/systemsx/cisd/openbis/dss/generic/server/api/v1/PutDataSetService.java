@@ -105,7 +105,12 @@ class PutDataSetService
  */
 class PutDataSetServiceInitializer
 {
-    private final Parameters params = new Parameters();
+    private final Parameters params;
+
+    PutDataSetServiceInitializer()
+    {
+        params = new Parameters();
+    }
 
     File getIncomingDir()
     {

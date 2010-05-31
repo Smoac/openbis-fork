@@ -155,7 +155,7 @@ public class Parameters
 
     public Parameters()
     {
-        this(new String[0], SystemExit.SYSTEM_EXIT);
+        this(new String[0], SystemExit.SYSTEM_EXIT, false);
     }
 
     Parameters(final String[] args)
@@ -164,6 +164,11 @@ public class Parameters
     }
 
     Parameters(final String[] args, final IExitHandler systemExitHandler)
+    {
+        this(args, systemExitHandler, true);
+    }
+
+    Parameters(final String[] args, final IExitHandler systemExitHandler, boolean checkParameters)
     {
         try
         {
@@ -176,7 +181,10 @@ public class Parameters
             initCommandLineParametersFromProperties();
 
             parser.parseArgument(args);
-            ensureParametersCorrect();
+            if (checkParameters)
+            {
+                ensureParametersCorrect();
+            }
         } catch (final Exception ex)
         {
             outputException(ex);
