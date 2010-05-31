@@ -45,9 +45,8 @@
 	// Makes a distribution file.
 	-->
 	<target name="dist" description="Makes a distribution file." depends="clean, war">
-
-		<property name="dist.file.name"
-		          value="${ant.project.name}-${version.number}-r${revision.number}.zip" />
+    <property name="dist.file.name"
+              value="${ant.project.name}-${version.number}-r${revision.number}.zip" />
 		<property name="jetty.path" value="${lib}/jetty7" />
 		<property name="zipped.dir" value="${dist}/${ant.project.name}" />
 
@@ -151,6 +150,11 @@
 	// Creates 'cifex.jar'. Note that this will not contain any '*.sql' resp. '*.csv' file.
 	-->
 	<target name="jar" depends="compile, build-info" description="Creates project jar file.">
+	  <property name="dist.file.name"
+	            value="${ant.project.name}-${version.number}-r${revision.number}" />
+	  <property name="jars.to.be.signed" value="${dist.file.name}_jars_to_be_signed" />
+	  <property name="jars.to.be.signed.dir" value="${targets}/${jars.to.be.signed}" />
+	  <property name="jars.to.be.signed.zip" value="${dist}/${jars.to.be.signed}.zip" />
 		<delete file="${jar.file}" />
 		<!--
 		// 'applicationContext.xml' and imported files.
@@ -178,12 +182,14 @@
 			</fileset>
 		</recursive-jar>
 		<jar update="true" destfile="${jar.file}">
-			<zipfileset src="${gwt.lib}/gwt-user.jar" 
-								  includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
+			<zipfileset src="${gwt.lib}/gwt-user.jar"
+			            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
 		</jar>
 
 		<delete dir="${targets.www}" />
 		<mkdir dir="${targets.www}" />
+		<delete dir="${jars.to.be.signed.dir}" />
+		<mkdir dir="${jars.to.be.signed.dir}" />
 		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${dist}" />
 			<param name="jar" value="${jar.file.name}" />
@@ -248,12 +254,12 @@
 			<param name="dir" value="${lib}/spring/third-party" />
 			<param name="jar" value="stream-supporting-httpinvoker.jar" />
 		</antcall>
-	  <copy todir="${dist}/cifex">
-	    <fileset dir="${original.dist.client}"/>
-	  </copy>
+		<copy todir="${dist}/cifex">
+			<fileset dir="${original.dist.client}" />
+		</copy>
 		<mkdir dir="${dist}/cifex/lib" />
 		<copy todir="${dist}/cifex/lib">
-				<fileset dir="${targets.www}"/>
+			<fileset dir="${targets.www}" />
 		</copy>
 		<copy file="${lib}/jline/jline.jar" todir="${dist}/cifex/lib" />
 		<zip destfile="${cifex.cli.zip}" basedir="${dist}" includes="cifex/**" excludes="**/*.sh" />
@@ -261,10 +267,14 @@
 			<zipfileset dir="${dist}/cifex" includes="*.sh" filemode="755" prefix="cifex" />
 		</zip>
 		<delete dir="${dist}/cifex" />
+		<zip destfile="${jars.to.be.signed.zip}"
+		     basedir="${targets}"
+		     includes="${jars.to.be.signed}/**" />
 	</target>
 
 	<target name="copy-and-sign-jar">
 		<copy file="${dir}/${jar}" todir="${targets.www}" />
+		<copy file="${dir}/${jar}" todir="${jars.to.be.signed.dir}" />
 		<signjar jar="${targets.www}/${jar}"
 		         keystore="etc/dev.keystore"
 		         alias="cifex"
@@ -385,37 +395,38 @@
 		<copy todir="${gwt.war.web-inf.lib}" overwrite="true" failonerror="true">
 			<fileset dir="${cifex.server.resource}" includes="*.xml" />
 		</copy>
-		<copy file="${lib}/mail/mail.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/activation/activation.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${gwt.lib}/gwt-servlet.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/spring/webmvc/spring-webmvc.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/spring/spring.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/postgresql/postgresql.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/h2/h2.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/log4j/log4j.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/commons-pool/commons-pool.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/mail/mail.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/activation/activation.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${gwt.lib}/gwt-servlet.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/spring/webmvc/spring-webmvc.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/spring/spring.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"
+		      todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/postgresql/postgresql.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/h2/h2.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/log4j/log4j.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/commons-pool/commons-pool.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy todir="${gwt.war.web-inf.lib}">
 			<fileset dir="${lib}/commons-logging" includes="*.jar" />
 		</copy>
-		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/commons-io/commons-io.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/commons-io/commons-io.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy todir="${gwt.war.web-inf.lib}">
-					<fileset dir="${lib}/commons-fileupload" includes="*.jar" />
+			<fileset dir="${lib}/commons-fileupload" includes="*.jar" />
 		</copy>
-		<copy file="${lib}/commons-dbcp/commons-dbcp.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${gwt.war.web-inf.lib}"/>	
-		<copy file="${lib}/gxt2.1/gxt.jar" todir="${gwt.war.web-inf.lib}"/>	
-		<copy file="${lib}/cglib/cglib-nodep.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${lib}/hibernate-search/jms.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${gwt.lib}/gwt-dev.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/commons-dbcp/commons-dbcp.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/gxt2.1/gxt.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/cglib/cglib-nodep.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/hibernate-search/jms.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${gwt.lib}/gwt-dev.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${dist}/${jar.file.name}" todir="${gwt.war.web-inf.lib}" />
 		<delete failonerror="true" dir="../${ant.project.name}/.gwt-cache" />
 		<delete file="${gwt.war.web-inf}/gwt.xml" />
 	</target>
-	
+
 	<!-- 
 			//
 			// MODULE TEST
@@ -442,9 +453,9 @@
 			<arg value="-war" />
 			<arg value="${targets}/www" />
 			<arg value="${module-test.module}Safari" />
-    	<arg value="-draftCompile" />
+			<arg value="-draftCompile" />
 			<arg value="-style" />
-      <arg value="PRETTY" />
+			<arg value="PRETTY" />
 		</java>
 		<move todir="${targets}/www/${module-test.path}">
 			<fileset dir="${targets}/www/${module-test.module}" />
@@ -489,7 +500,7 @@
 			<arg value="-port" />
 			<arg value="8895" />
 			<arg value="-codeServerPort" />
-			<arg value="9998" /> 
+			<arg value="9998" />
 		</java>
 	</target>
 
