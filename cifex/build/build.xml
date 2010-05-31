@@ -150,9 +150,9 @@
 	// Creates 'cifex.jar'. Note that this will not contain any '*.sql' resp. '*.csv' file.
 	-->
 	<target name="jar" depends="compile, build-info" description="Creates project jar file.">
-	  <property name="dist.file.name"
+	  <property name="dist.file.name.without.ext"
 	            value="${ant.project.name}-${version.number}-r${revision.number}" />
-	  <property name="jars.to.be.signed" value="${dist.file.name}_jars_to_be_signed" />
+	  <property name="jars.to.be.signed" value="${dist.file.name.without.ext}_jars_to_be_signed" />
 	  <property name="jars.to.be.signed.dir" value="${targets}/${jars.to.be.signed}" />
 	  <property name="jars.to.be.signed.zip" value="${dist}/${jars.to.be.signed}.zip" />
 		<delete file="${jar.file}" />
