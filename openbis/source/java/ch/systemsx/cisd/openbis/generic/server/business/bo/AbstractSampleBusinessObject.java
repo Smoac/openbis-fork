@@ -201,12 +201,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                     "Cannot register sample '%s': parent '%s' has been invalidated.",
                     sampleIdentifier, parentIdentifierOrNull);
         }
-        if (parentPE.getContainer() != null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "Cannot register sample '%s': parent '%s' is part of another sample.",
-                    sampleIdentifier, parentIdentifierOrNull);
-        }
         return parentPE;
     }
 
