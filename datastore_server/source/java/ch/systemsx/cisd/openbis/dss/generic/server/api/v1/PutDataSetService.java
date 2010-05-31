@@ -24,7 +24,6 @@ import java.util.Properties;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.MailClient;
-import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
@@ -122,7 +121,7 @@ class PutDataSetServiceInitializer
         return null;
     }
 
-    IETLServerPlugin getPlugin()
+    Object getPlugin()
     {
         // ThreadParameters[] threadParams = params.getThreads();
         // return threadParams[0].getPlugin();
