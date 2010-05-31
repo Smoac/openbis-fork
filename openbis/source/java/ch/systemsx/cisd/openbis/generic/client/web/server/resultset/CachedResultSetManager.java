@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.lang.text.StrMatcher;
 import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.log4j.Logger;
@@ -526,48 +525,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             return;
         }
-        Comparator<GridRowModel<T>> comparator = createComparator(sortDir, sortField);
+        Comparator<GridRowModel<T>> comparator =
+                ColumnSortUtils.createComparator(sortDir, sortField);
         Collections.sort(data, comparator);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Comparator<GridRowModel<T>> createComparator(final SortDir sortDir,
-            final IColumnDefinition<T> sortField)
-    {
-        Comparator<GridRowModel<T>> comparator = new Comparator<GridRowModel<T>>()
-            {
-
-                public int compare(GridRowModel<T> o1, GridRowModel<T> o2)
-                {
-                    Comparable v1 = sortField.tryGetComparableValue(o1);
-                    Comparable v2 = sortField.tryGetComparableValue(o2);
-                    // treat null as minimal value
-                    if (v1 == null)
-                    {
-                        return -1;
-                    } else if (v2 == null)
-                    {
-                        return 1;
-                    } else
-                    {
-                        return v1.compareTo(v2);
-                    }
-                }
-
-            };
-
-        return applySortDir(sortDir, comparator);
-    }
-
-    private static <T> Comparator<T> applySortDir(final SortDir sortDir, Comparator<T> comparator)
-    {
-        if (sortDir == SortDir.DESC)
-        {
-            return ComparatorUtils.reversedComparator(comparator);
-        } else
-        {
-            return comparator;
-        }
     }
 
     private static int getLimit(final int size, final int limit, final int offset)
