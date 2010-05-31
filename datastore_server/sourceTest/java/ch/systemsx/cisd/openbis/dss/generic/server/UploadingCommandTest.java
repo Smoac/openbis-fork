@@ -247,9 +247,10 @@ public class UploadingCommandTest extends AssertJUnit
         File[] emails = EMAILS.listFiles();
         assertEquals("One email expected", 1, emails.length);
         List<String> email = FileUtilities.loadToStringList(emails[0]);
-        assertEquals("Subj: [Data Set Server] Uploading failed", email.get(0));
         assertEquals("From: a@bc.de", email.get(1));
-        assertEquals("To:   user@bc.de", email.get(2));
+        assertEquals("To: user@bc.de", email.get(2));
+        assertEquals("Subject: [Data Set Server] Uploading failed", email.get(3));
+
         assertTrue("Actual: " + email.get(5), email.get(5).startsWith(messageStart));
     }
 
