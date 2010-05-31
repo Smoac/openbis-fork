@@ -19,7 +19,6 @@ package ch.ethz.bsse.cisd.plasmid.dss;
 import java.io.File;
 import java.util.Properties;
 
-import ch.ethz.bsse.cisd.plasmid.dss.DataSetTypeOracle.DataSetTypeInfo;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -66,8 +65,7 @@ public class PlasmidTypeExtractor implements ITypeExtractor
 
     public boolean isMeasuredData(File incomingDataSetPath)
     {
-        // only GB files are derived, SEQUENCING and VERIFICATION files are measured
-        return DataSetTypeOracle.extractDataSetTypeInfo(incomingDataSetPath) != DataSetTypeInfo.GB;
+        return DataSetTypeOracle.extractDataSetTypeInfo(incomingDataSetPath).isMeasured();
     }
 
 }

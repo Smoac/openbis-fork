@@ -38,13 +38,17 @@ class DataSetTypeOracle
      */
     static enum DataSetTypeInfo
     {
-        GB("gb"), SEQUENCING("ab1"), VERIFICATION(null);
+        // only GB files are derived, SEQUENCING and VERIFICATION files are measured
+        GB("gb", false), SEQUENCING("ab1", true), VERIFICATION(null, true);
 
         private final String fileExtension;
 
-        DataSetTypeInfo(String fileExtension)
+        private final boolean measured;
+
+        DataSetTypeInfo(String fileExtension, boolean measured)
         {
             this.fileExtension = fileExtension;
+            this.measured = measured;
         }
 
         public String tryGetFileExtension()
@@ -55,6 +59,11 @@ class DataSetTypeOracle
         public String getDataSetTypeCode()
         {
             return name();
+        }
+
+        public boolean isMeasured()
+        {
+            return measured;
         }
     }
 
@@ -69,12 +78,11 @@ class DataSetTypeOracle
     }
 
     /**
-     * Scan the folder and return the metadata file for the folder along with its associated type.
-     * <p>
-     * Returns type UNKNOWN if the folder cannot be identified and throws an error if the
-     * identification is ambiguous.
+     * Extracts {@link DataSetTypeInfo} from the name of the dataset file.
+     * 
+     * @throws UserFailureException if <var>incomingDataSetPath</var> is a path to a directory
      */
-    public static DataSetTypeInfo extractDataSetTypeInfo(File incomingDataSetPath)
+    static DataSetTypeInfo extractDataSetTypeInfo(File incomingDataSetPath)
             throws UserFailureException
     {
         if (incomingDataSetPath.isDirectory())
