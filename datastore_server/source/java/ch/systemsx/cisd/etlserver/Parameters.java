@@ -153,6 +153,11 @@ public class Parameters
         }
     }
 
+    public Parameters()
+    {
+        this(new String[0], SystemExit.SYSTEM_EXIT);
+    }
+
     Parameters(final String[] args)
     {
         this(args, SystemExit.SYSTEM_EXIT);
@@ -264,7 +269,7 @@ public class Parameters
         return threadParameters;
     }
 
-    final static Properties createMailProperties(final Properties serviceProperties)
+    public final static Properties createMailProperties(final Properties serviceProperties)
     {
         final Properties properties =
                 ExtendedProperties.getSubset(serviceProperties, "mail", false);

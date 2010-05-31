@@ -176,7 +176,7 @@ public final class ThreadParameters
         return incomingDataDirectory;
     }
 
-    final IETLServerPlugin getPlugin()
+    public final IETLServerPlugin getPlugin()
     {
         return plugin;
     }
