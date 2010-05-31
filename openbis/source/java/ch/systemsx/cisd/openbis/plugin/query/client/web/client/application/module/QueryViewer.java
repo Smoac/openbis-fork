@@ -100,7 +100,7 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
         }
         AsyncCallback<TableModelReference> callback =
                 ReportGeneratedCallback.create(viewContext.getCommonViewContext(),
-                        createReportInformationProvider(sqlQueryOrNull),
+                        createReportInformationProvider(sqlQueryOrNull, queryIdOrNull),
                         createDisplayQueryResultsAction());
         if (queryIdOrNull != null)
         {
@@ -123,7 +123,8 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
         queryProvider.update(observedModifications);
     }
 
-    private IReportInformationProvider createReportInformationProvider(final String sqlQuery)
+    private IReportInformationProvider createReportInformationProvider(final String sqlQuery,
+            final Long queryIdOrNull)
     {
         return new IReportInformationProvider()
             {
@@ -135,6 +136,10 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
 
                 public String getKey()
                 {
+                    if (queryIdOrNull != null)
+                    {
+                        return queryIdOrNull.toString();
+                    }
                     if (sqlQuery == null)
                     {
                         return "null";
