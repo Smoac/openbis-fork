@@ -239,12 +239,12 @@ class HCSDatasetUploader
     private Long[][] getOrCreateSpots(long contId, ScreeningContainerDatasetInfo info,
             List<AcquiredPlateImage> images)
     {
-        List<ImgSpotDTO> allSpots = dao.listSpots(contId);
+        List<ImgSpotDTO> oldSpots = dao.listSpots(contId);
         List<ImgSpotDTO> newSpots =
-                createNewSpots(contId, images, allSpots, info.getContainerRows(), info
+                createNewSpots(contId, images, oldSpots, info.getContainerRows(), info
                         .getContainerColumns());
-        allSpots.addAll(newSpots);
-        return makeTechIdMatrix(allSpots, info.getContainerRows(), info.getContainerColumns());
+        newSpots.addAll(oldSpots);
+        return makeTechIdMatrix(newSpots, info.getContainerRows(), info.getContainerColumns());
     }
 
     private List<ImgSpotDTO> createNewSpots(long contId, List<AcquiredPlateImage> images,

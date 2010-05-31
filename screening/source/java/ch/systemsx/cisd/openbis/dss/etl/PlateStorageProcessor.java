@@ -134,7 +134,12 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private static String[] extractChannelNames(Properties properties)
     {
         String names = PropertyUtils.getMandatoryProperty(properties, CHANNEL_NAMES);
-        return names.split(CHANNEL_SEPARATOR);
+        String[] channelNames = names.split(CHANNEL_SEPARATOR);
+        for (int i = 0; i < channelNames.length; i++)
+        {
+            channelNames[i] = channelNames[i].trim();
+        }
+        return channelNames;
     }
 
     private IImagingUploadDAO createQuery()
@@ -516,11 +521,11 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
         File originalFolder = getOriginalFolder(storedDataDirectory);
         File[] content = originalFolder.listFiles();
-        if (originalFolder.length() == 0)
+        if (content == null || content.length == 0)
         {
             return null;
         }
-        if (originalFolder.length() > 1)
+        if (content.length > 1)
         {
             operationLog.error("There should be exactly one original folder inside '"
                     + originalFolder + "', but " + originalFolder.length() + " has been found.");

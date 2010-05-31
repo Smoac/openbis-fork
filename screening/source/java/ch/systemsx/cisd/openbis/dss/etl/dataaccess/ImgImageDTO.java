@@ -58,7 +58,8 @@ public class ImgImageDTO extends AbstractHashable
     {
         this.filePath = filePath;
         this.pageOrNull = pageOrNull;
-        this.colorComponentOrNull = colorComponentOrNull.name();
+        this.colorComponentOrNull =
+                colorComponentOrNull == null ? null : colorComponentOrNull.name();
     }
 
     public long getId()
