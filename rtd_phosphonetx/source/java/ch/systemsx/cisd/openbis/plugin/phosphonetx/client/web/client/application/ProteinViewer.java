@@ -24,7 +24,6 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
@@ -174,7 +173,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
                     details.getIndistinguishableProteinInfos();
             LayoutContainer southPanel = new LayoutContainer();
             RowLayoutManager rowDataManager = new RowLayoutManager(southPanel, new RowLayout());
-            add(southPanel, bld(LayoutRegion.CENTER));
+            add(southPanel, createBorderLayoutData(LayoutRegion.CENTER));
             rowDataManager.addToContainer(propertyPanel, new RowData(1, 0.5f));
             if (indistinguishableProteins.isEmpty() == false)
             {
@@ -206,7 +205,9 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
             item.setLayout(new FitLayout());
             PropertyGrid propertyGrid = new PropertyGrid(viewContext, 3);
             final Map<String, Object> properties = new LinkedHashMap<String, Object>();
-            properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), accessionNumber);
+            properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), info);
+            propertyGrid.registerPropertyValueRenderer(IndistinguishableProteinInfo.class,
+                    PropertyValueRenderers.createProteinIdentLinkRenderer(viewContext));
             properties.put(viewContext.getMessage(Dict.PROTEIN_DESCRIPTION), info
                     .getDescription());
             String markedSequence = markPeptides(info.getSequence(), peptides);
@@ -219,20 +220,10 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
             item.add(contentPanel);
             tabPanel.add(item);
         }
-        
         panel.add(tabPanel, new RowData(1, 1));
         return panel;
     }
     
-    private BorderLayoutData bld(LayoutRegion region)
-    {
-        BorderLayoutData data = new BorderLayoutData(region);
-        data.setSplit(true);
-        data.setCollapsible(true);
-        data.setMargins(new Margins(2));
-        return data;
-    }
-
     private void recreateUIWithDatasetTable(ProteinByExperiment protein, ContentPanel propertyPanel)
     {
         BorderLayoutData layoutData = createBorderLayoutData(LayoutRegion.WEST);

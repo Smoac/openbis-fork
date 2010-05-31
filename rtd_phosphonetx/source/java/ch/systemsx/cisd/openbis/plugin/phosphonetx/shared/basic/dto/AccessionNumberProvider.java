@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,43 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
+import java.io.Serializable;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * 
+ *
  * @author Franz-Josef Elmer
  */
-public class ProteinByExperiment extends AccessionNumberProvider
+public class AccessionNumberProvider implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private String accessionNumberType;
     
-    private String description;
-
-    private ProteinDetails details;
-
-    public final String getDescription()
+    private String accessionNumber;
+    
+    public final String getAccessionNumberType()
     {
-        return description;
+        return accessionNumberType;
     }
 
-    public final void setDescription(String description)
+    public final void setAccessionNumberType(String accessionNumberType)
     {
-        this.description = description;
+        this.accessionNumberType = accessionNumberType;
     }
 
-    public ProteinDetails getDetails()
+    public final String getAccessionNumber()
     {
-        return details;
+        return accessionNumber;
     }
 
-    public void setDetails(ProteinDetails details)
+    public final void setAccessionNumber(String accessionNumber)
     {
-        this.details = details;
+        this.accessionNumber = accessionNumber;
     }
 
 }

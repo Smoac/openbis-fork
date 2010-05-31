@@ -103,7 +103,9 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
             for (IndistinguishableProtein protein : proteins)
             {
                 IndistinguishableProteinInfo info = new IndistinguishableProteinInfo();
-                info.setAccessionNumber(protein.getAccessionNumber());
+                AccessionNumberBuilder builder = new AccessionNumberBuilder(protein.getAccessionNumber());
+                info.setAccessionNumber(builder.getAccessionNumber());
+                info.setAccessionNumberType(builder.getTypeOrNull());
                 info.setDescription(protein.getDescription());
                 info.setSequence(protein.getSequence());
                 infos.add(info);

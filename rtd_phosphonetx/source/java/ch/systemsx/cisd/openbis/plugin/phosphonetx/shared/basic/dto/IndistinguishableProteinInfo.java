@@ -16,10 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -27,13 +23,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  *
  * @author Franz-Josef Elmer
  */
-public class IndistinguishableProteinInfo implements IsSerializable, Serializable
+public class IndistinguishableProteinInfo extends AccessionNumberProvider
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String sequence;
-    
-    private String accessionNumber;
     
     private String description;
 
@@ -45,16 +39,6 @@ public class IndistinguishableProteinInfo implements IsSerializable, Serializabl
     public final void setSequence(String sequence)
     {
         this.sequence = sequence;
-    }
-
-    public final String getAccessionNumber()
-    {
-        return accessionNumber;
-    }
-
-    public final void setAccessionNumber(String accessionNumber)
-    {
-        this.accessionNumber = accessionNumber;
     }
 
     public final String getDescription()

@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.ProteinViewer.DatasetInformationHolder;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AccessionNumberProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Peptide;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 
 /**
  * Provides {@link IPropertyValueRenderer} implementations to render properties in
@@ -51,10 +51,10 @@ public final class PropertyValueRenderers
      * Allows to render a property identifier which is a link to an external page with a
      * description.
      */
-    public final static IPropertyValueRenderer<ProteinByExperiment> createProteinIdentLinkRenderer(
+    public final static IPropertyValueRenderer<AccessionNumberProvider> createProteinIdentLinkRenderer(
             final IViewContext<?> viewContext)
     {
-        return new ProteinByExperimentRenderer(viewContext);
+        return new AccessionNumberRenderer(viewContext);
     }
 
     public final static IPropertyValueRenderer<Peptide> createPeptideRenderer(
@@ -77,16 +77,16 @@ public final class PropertyValueRenderers
                 viewContext);
     }
 
-    private final static class ProteinByExperimentRenderer extends
-            AbstractPropertyValueRenderer<ProteinByExperiment>
+    private final static class AccessionNumberRenderer extends
+            AbstractPropertyValueRenderer<AccessionNumberProvider>
     {
 
-        ProteinByExperimentRenderer(final IMessageProvider messageProvider)
+        AccessionNumberRenderer(final IMessageProvider messageProvider)
         {
             super(messageProvider);
         }
 
-        public Widget getAsWidget(ProteinByExperiment object)
+        public Widget getAsWidget(AccessionNumberProvider object)
         {
             String accessionNumber = object.getAccessionNumber();
             String type = object.getAccessionNumberType();
