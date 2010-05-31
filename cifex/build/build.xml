@@ -95,7 +95,6 @@
 		<delete failonerror="true" includeemptydirs="true">
 			<fileset dir="${dist}">
 				<exclude name="${dist.file.name.zip}" />
-				<exclude name="${jars.to.be.signed.zip}" />
 			</fileset>
 		</delete>
 	</target>
