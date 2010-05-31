@@ -25,8 +25,6 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
-import ch.systemsx.cisd.etlserver.Parameters;
-import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
@@ -53,7 +51,8 @@ class PutDataSetService
         incomingDir = initializer.getIncomingDir();
         incomingDir.mkdir();
 
-        mailClient = new MailClient(initializer.getMailProperties());
+        // mailClient = new MailClient(initializer.getMailProperties());
+        mailClient = null;
     }
 
     void putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
@@ -105,11 +104,11 @@ class PutDataSetService
  */
 class PutDataSetServiceInitializer
 {
-    private final Parameters params;
+    // private final Parameters params;
 
     PutDataSetServiceInitializer()
     {
-        params = new Parameters();
+        // params = new Parameters();
     }
 
     File getIncomingDir()
@@ -119,13 +118,15 @@ class PutDataSetServiceInitializer
 
     Properties getMailProperties()
     {
-        return Parameters.createMailProperties(params.getProperties());
+        // return Parameters.createMailProperties(params.getProperties());
+        return null;
     }
 
     IETLServerPlugin getPlugin()
     {
-        ThreadParameters[] threadParams = params.getThreads();
-        return threadParams[0].getPlugin();
+        // ThreadParameters[] threadParams = params.getThreads();
+        // return threadParams[0].getPlugin();
+        return null;
     }
 
 }
