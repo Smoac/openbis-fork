@@ -105,7 +105,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * 
      * @param sessionToken the user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @return <code>null</code> if no sample could be found for given <var>sampleIdentifier</var>.
+     * @return <code>null</code> if no sample attached to an experiment could be found for given
+     *         <var>sampleIdentifier</var>.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)

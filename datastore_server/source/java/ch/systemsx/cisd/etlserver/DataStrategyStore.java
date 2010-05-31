@@ -135,24 +135,30 @@ final class DataStrategyStore implements IDataStrategyStore
         } else
         {
             final Sample sample = tryGetSample(sampleIdentifier);
-            final Experiment experiment = (sample == null) ? null : sample.getExperiment();
-            if (experiment == null)
+            if (sample == null)
             {
                 error(emailOrNull, createNotificationMessage(dataSetInfo, incomingDataSetPath));
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
+            }
+            final Experiment experiment = sample.getExperiment();
+            if (experiment == null)
+            {
+                error(emailOrNull, String.format("Data set for sample '%s' can not be registered "
+                        + "because the sample is not attached to an experiment.", sampleIdentifier));
+                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             } else if (experiment.getInvalidation() != null)
             {
-                error(emailOrNull, "Data set for sample '" + sampleIdentifier
-                        + "' can not be registered because experiment '" + experiment.getCode()
-                        + "' has been invalidated.");
+                error(emailOrNull, String.format("Data set for sample '%s' can not be registered "
+                        + "because experiment '%s' has been invalidated.", sampleIdentifier,
+                        experiment.getCode()));
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             }
             dataSetInfo.setSample(sample);
             experimentIdentifier = new ExperimentIdentifier(experiment);
             dataSetInfo.setExperimentIdentifier(experimentIdentifier);
-            
+
             final IEntityProperty[] properties =
-                limsService.getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    limsService.getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
             if (properties == null)
             {
                 final Person registrator = experiment.getRegistrator();
@@ -165,14 +171,18 @@ final class DataStrategyStore implements IDataStrategyStore
                 } else
                 {
                     error(emailOrNull, "The registrator '" + registrator
-                            + "' has a blank email, sending the following email failed:\n" + message);
+                            + "' has a blank email, sending the following email failed:\n"
+                            + message);
                 }
-                operationLog.error(String.format("Incoming data set '%s' claims to "
-                        + "belong to experiment '%s' and sample"
-                        + " identifier '%s', but according to the openBIS server "
-                        + "there is no such sample for this "
-                        + "experiment (it has maybe been invalidated?). We thus consider it invalid.",
-                        incomingDataSetPath, experimentIdentifier, sampleIdentifier));
+                operationLog
+                        .error(String
+                                .format(
+                                        "Incoming data set '%s' claims to "
+                                                + "belong to experiment '%s' and sample"
+                                                + " identifier '%s', but according to the openBIS server "
+                                                + "there is no such sample for this "
+                                                + "experiment (it has maybe been invalidated?). We thus consider it invalid.",
+                                        incomingDataSetPath, experimentIdentifier, sampleIdentifier));
                 return dataStoreStrategies.get(DataStoreStrategyKey.INVALID);
             }
             dataSetInfo.setProperties(properties);
@@ -180,13 +190,13 @@ final class DataStrategyStore implements IDataStrategyStore
 
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Identified that database knows experiment '"
-                    + experimentIdentifier + "'"
+            operationLog.info("Identified that database knows experiment '" + experimentIdentifier
+                    + "'"
                     + (sampleIdentifier == null ? "." : " and sample '" + sampleIdentifier + "'."));
         }
         return dataStoreStrategies.get(DataStoreStrategyKey.IDENTIFIED);
     }
-    
+
     private void error(String emailOrNull, String message)
     {
         if (emailOrNull == null)
@@ -194,7 +204,8 @@ final class DataStrategyStore implements IDataStrategyStore
             notificationLog.error(message);
         } else
         {
-            mailClient.sendMessage("Error during registration of a data set", message, null, null, emailOrNull);
+            mailClient.sendMessage("Error during registration of a data set", message, null, null,
+                    emailOrNull);
             operationLog.error(message);
         }
     }
