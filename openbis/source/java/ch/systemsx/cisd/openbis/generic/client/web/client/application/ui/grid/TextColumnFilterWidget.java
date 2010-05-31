@@ -40,6 +40,8 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
 
     private final IDelegatedAction onFilterAction;
 
+    private boolean disableApply = false;
+
     /** @param onFilterAction callback executed when data are about to be filtered. */
     public TextColumnFilterWidget(IColumnDefinition<T> filteredField,
             IDelegatedAction onFilterAction)
@@ -71,8 +73,11 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
     @Override
     protected void onFilter()
     {
-        super.onFilter();
-        onFilterAction.execute();
+        if (disableApply == false)
+        {
+            super.onFilter();
+            onFilterAction.execute();
+        }
     }
 
     /** NOTE: We do not use this method, data are filtered on the server side */
@@ -103,9 +108,10 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
     @Override
     public void reset()
     {
-        // Simple 'f.reset()' causes automatic filter application,
-        // but we want to reload data only once after all filters are cleared.
-        setRawValue(getEmptyText());
-        applyEmptyText();
+        // 'super.reset()' causes automatic filter application,
+        // but we want to reload data only once after all filters are cleared
+        disableApply = true;
+        super.reset();
+        disableApply = false;
     }
 }

@@ -63,6 +63,8 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
 
     private final DelayedTask delayedFilterApplierTask;
 
+    private boolean disableApply = false;
+
     public ListColumnFilterWidget(IColumnDefinition<T> filteredField,
             final IDelegatedAction onFilterAction, List<String> distinctValues)
     {
@@ -76,7 +78,10 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ModelData> event)
                 {
-                    onFilterAction.execute();
+                    if (disableApply == false)
+                    {
+                        onFilterAction.execute();
+                    }
                 }
             });
 
@@ -89,7 +94,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         setToolTip(label);
         setTemplate(GWTUtils.getTooltipTemplate(MODEL_DISPLAY_KEY, ModelDataPropertyNames.TOOLTIP));
 
-        GWTUtils.setupAutoWidth(this);        
+        GWTUtils.setupAutoWidth(this);
     }
 
     private static DelayedTask createFilterApplierTask(final IDelegatedAction onFilterAction)
@@ -210,10 +215,11 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
     @Override
     public void reset()
     {
-        // Simple 'f.reset()' causes automatic filter application,
-        // but we want to reload data only once after all filters are cleared.
-        setRawValue(getEmptyText());
-        applyEmptyText();
+        // 'super.reset()' causes automatic filter application,
+        // but we want to reload data only once after all filters are cleared
+        disableApply = true;
+        super.reset();
+        disableApply = false;
     }
 
 }
