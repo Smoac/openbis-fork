@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -30,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.bds.hcs.Channel;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.hcs.PlateGeometry;
@@ -48,12 +51,11 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
-import ch.systemsx.cisd.etlserver.HCSImageCheckList;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.PlateDimension;
 import ch.systemsx.cisd.etlserver.PlateDimensionParser;
-import ch.systemsx.cisd.etlserver.HCSImageCheckList.FullLocation;
+import ch.systemsx.cisd.openbis.dss.etl.HCSImageCheckList.FullLocation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -77,13 +79,16 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PlateStorageProcessor.class);
 
-    private static final String NUMBER_OF_CHANNELS_PROPERTY = "number_of_channels";
-
     private static final String SPOT_GEOMETRY_PROPERTY = "well_geometry";
 
     private static final String FILE_EXTRACTOR_PROPERTY = "file-extractor";
 
     private static final String DEPRECATED_FILE_EXTRACTOR_PROPERTY = "deprecated-file-extractor";
+
+    // comma separated list of channel names, order matters
+    private static final String CHANNEL_NAMES = "channel-names";
+
+    private static final String CHANNEL_SEPARATOR = ",";
 
     // -----------
 
@@ -91,7 +96,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private final Geometry spotGeometry;
 
-    private final int numberOfChannels;
+    private final String[] channelNames;
 
     // one of the extractors is always null and one not null
     private final IHCSImageFileExtractor imageFileExtractor;
@@ -106,7 +111,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         String spotGeometryText = getMandatoryProperty(SPOT_GEOMETRY_PROPERTY);
         this.spotGeometry = Geometry.createFromString(spotGeometryText);
 
-        this.numberOfChannels = extractNumberOfChannels();
+        this.channelNames = extractChannelNames(properties);
 
         String fileExtractorClass = PropertyUtils.getProperty(properties, FILE_EXTRACTOR_PROPERTY);
         if (fileExtractorClass != null)
@@ -126,16 +131,10 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         this.currentTransaction = null;
     }
 
-    private int extractNumberOfChannels()
+    private static String[] extractChannelNames(Properties properties)
     {
-        int channels = PropertyUtils.getInt(properties, NUMBER_OF_CHANNELS_PROPERTY, -1);
-        if (channels == -1)
-        {
-            throw UserFailureException.fromTemplate(
-                    "Unconfigured property %s for storage processor %s.",
-                    NUMBER_OF_CHANNELS_PROPERTY, getClass().getName());
-        }
-        return channels;
+        String names = PropertyUtils.getMandatoryProperty(properties, CHANNEL_NAMES);
+        return names.split(CHANNEL_SEPARATOR);
     }
 
     private IImagingUploadDAO createQuery()
@@ -176,31 +175,15 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         info.setDatasetPermId(dataSetInformation.getDataSetCode());
 
         Geometry plateGeometry = getPlateGeometry(dataSetInformation);
-        int plateCols = plateGeometry.getColumns();
         int plateRows = plateGeometry.getRows();
-        info.setContainerWidth(plateCols);
-        info.setContainerHeight(plateRows);
+        int plateCols = plateGeometry.getColumns();
+        info.setContainerRows(plateRows);
+        info.setContainerColumns(plateCols);
 
-        info.setTileWidth(spotGeometry.getColumns());
-        info.setTileHeight(spotGeometry.getRows());
-
-        // TODO 2010-05-18, Tomasz Pylak: fetch spots from openBIS
-        info.setSpotPermIds(createDummySpotPermIds(plateRows, plateCols));
+        info.setTileRows(spotGeometry.getRows());
+        info.setTileColumns(spotGeometry.getColumns());
 
         return info;
-    }
-
-    private String[][] createDummySpotPermIds(int plateRows, int plateCols)
-    {
-        String[][] spots = new String[plateRows][plateCols];
-        for (int row = 0; row < plateRows; row++)
-        {
-            for (int col = 0; col < plateCols; col++)
-            {
-                spots[row][col] = "dummy_" + row + "_" + col + "_" + System.currentTimeMillis();
-            }
-        }
-        return spots;
     }
 
     private Geometry getPlateGeometry(final DataSetInformation dataSetInformation)
@@ -284,17 +267,17 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         {
             throw new UserFailureException("Experiment unknown for data set " + dataSetInformation);
         }
-        ScreeningContainerDatasetInfo info =
-                createScreeningDatasetInfo(experiment, dataSetInformation);
-
         HCSImageFileExtractionResult extractionResult =
                 extractImages(dataSetInformation, incomingDataSetDirectory);
+
+        ScreeningContainerDatasetInfo info =
+                createScreeningDatasetInfo(experiment, dataSetInformation);
 
         validateImages(dataSetInformation, mailClient, incomingDataSetDirectory, info,
                 extractionResult);
 
         moveFileToDirectory(incomingDataSetDirectory, originalFolder);
-        storeInDatabase(info, extractionResult.getImages());
+        storeInDatabase(info, extractionResult.getImages(), extractionResult.getChannels());
         return rootDirectory;
     }
 
@@ -326,8 +309,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         List<AcquiredPlateImage> images = extractionResult.getImages();
         for (AcquiredPlateImage image : images)
         {
-            imageCheckList.checkOff(image.getChannel(), image.getWellLocation(), image
-                    .getTileLocation());
+            imageCheckList.checkOff(image);
         }
     }
 
@@ -335,7 +317,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     {
         Geometry plateGeometry = getPlateGeometry(info);
         HCSImageCheckList imageCheckList =
-                new HCSImageCheckList(numberOfChannels, plateGeometry, spotGeometry);
+                new HCSImageCheckList(channelNames, plateGeometry, spotGeometry);
         return imageCheckList;
     }
 
@@ -346,7 +328,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         IHCSImageFileExtractor extractor = imageFileExtractor;
         if (extractor == null)
         {
-            extractor = adapt(deprecatedImageFileExtractor, incomingDataSetDirectory);
+            extractor = adapt(deprecatedImageFileExtractor, incomingDataSetDirectory, channelNames);
         }
         final HCSImageFileExtractionResult result =
                 extractor.extract(incomingDataSetDirectory, dataSetInformation);
@@ -361,7 +343,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private static Geometry getPlateGeometry(ScreeningContainerDatasetInfo info)
     {
-        return new Geometry(info.getContainerHeight(), info.getContainerWidth());
+        return new Geometry(info.getContainerRows(), info.getContainerColumns());
     }
 
     @Override
@@ -433,14 +415,15 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         }
     }
 
-    private void storeInDatabase(ScreeningContainerDatasetInfo info, List<AcquiredPlateImage> images)
+    private void storeInDatabase(ScreeningContainerDatasetInfo info,
+            List<AcquiredPlateImage> images, Set<HCSImageFileExtractionResult.Channel> channels)
     {
         if (currentTransaction != null)
         {
             throw new IllegalStateException("previous transaction has not been commited!");
         }
         currentTransaction = createQuery();
-        HCSDatasetUploader.upload(currentTransaction, info, images);
+        HCSDatasetUploader.upload(currentTransaction, info, images, channels);
     }
 
     private void rollbackDatabaseChanges()
@@ -566,7 +549,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     // adapts old-style image extractor to the new one which is stateless
     private static IHCSImageFileExtractor adapt(
             final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor extractor,
-            final File imageFileRootDirectory)
+            final File imageFileRootDirectory, final String[] channelNames)
     {
         return new IHCSImageFileExtractor()
             {
@@ -574,14 +557,28 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                         DataSetInformation dataSetInformation)
                 {
                     HCSImageFileAccepter accepter =
-                            new HCSImageFileAccepter(imageFileRootDirectory);
+                            new HCSImageFileAccepter(imageFileRootDirectory, channelNames);
                     ch.systemsx.cisd.etlserver.HCSImageFileExtractionResult originalResult =
                             extractor.process(NodeFactory
                                     .createDirectoryNode(incomingDataSetDirectory),
                                     dataSetInformation, accepter);
+                    Set<HCSImageFileExtractionResult.Channel> channels =
+                            convert(originalResult.getChannels());
                     return new HCSImageFileExtractionResult(accepter.getImages(),
-                            asRelativePaths(originalResult.getInvalidFiles()), originalResult
-                                    .getChannels());
+                            asRelativePaths(originalResult.getInvalidFiles()), channels);
+                }
+
+                private Set<HCSImageFileExtractionResult.Channel> convert(Set<Channel> channels)
+                {
+                    Set<HCSImageFileExtractionResult.Channel> result =
+                            new HashSet<HCSImageFileExtractionResult.Channel>();
+                    for (Channel channel : channels)
+                    {
+                        String name = getChannelName(channelNames, channel.getCounter());
+                        result.add(new HCSImageFileExtractionResult.Channel(name, null, channel
+                                .getWavelength()));
+                    }
+                    return result;
                 }
 
                 private List<File> asRelativePaths(List<IFile> files)
@@ -596,15 +593,29 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
             };
     }
 
+    private static String getChannelName(final String[] channelNames, int channelId)
+    {
+        if (channelId > channelNames.length)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Too large channel number %d, configured channels: %s.", channelId,
+                    CollectionUtils.abbreviate(channelNames, -1));
+        }
+        return channelNames[channelId - 1];
+    }
+
     private static final class HCSImageFileAccepter implements IHCSImageFileAccepter
     {
         private final List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
 
         private final File imageFileRootDirectory;
 
-        public HCSImageFileAccepter(File imageFileRootDirectory)
+        private final String[] channelNames;
+
+        public HCSImageFileAccepter(File imageFileRootDirectory, String[] channelNames)
         {
             this.imageFileRootDirectory = imageFileRootDirectory;
+            this.channelNames = channelNames;
         }
 
         public final void accept(final int channel, final Location wellLocation,
@@ -614,8 +625,9 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                     FileUtilities.getRelativeFile(imageFileRootDirectory, new File(imageFile
                             .getPath()));
             assert imageRelativePath != null : "Image relative path should not be null.";
+            String channelName = getChannelName(channelNames, channel);
             AcquiredPlateImage imageDesc =
-                    new AcquiredPlateImage(wellLocation, tileLocation, channel, null, null,
+                    new AcquiredPlateImage(wellLocation, tileLocation, channelName, null, null,
                             new RelativeImagePath(imageRelativePath));
             images.add(imageDesc);
         }

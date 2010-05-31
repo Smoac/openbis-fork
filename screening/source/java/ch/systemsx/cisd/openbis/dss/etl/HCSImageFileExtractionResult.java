@@ -19,8 +19,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.bds.hcs.Channel;
-
 /**
  * Class which contains the image extraction process results.
  * 
@@ -58,4 +56,46 @@ public final class HCSImageFileExtractionResult
     {
         return channels;
     }
+
+    /**
+     * A channel in which the image has been acquired.
+     * <p>
+     * Each channel has its <code>name</code> which uniquely identifies it in one experiment or
+     * dataset.
+     * </p>
+     * 
+     * @author Tomasz Pylak
+     */
+    public static final class Channel
+    {
+        private final String name;
+
+        private final String description;
+
+        private final int wavelength;
+
+        public Channel(String name, String description, int wavelength)
+        {
+            assert name != null : "name is null";
+            this.name = name;
+            this.description = description;
+            this.wavelength = wavelength;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public String getDescription()
+        {
+            return description;
+        }
+
+        public int getWavelength()
+        {
+            return wavelength;
+        }
+    }
+
 }

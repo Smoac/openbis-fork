@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
@@ -60,11 +61,9 @@ public class ImagingUploadDAOTest extends AbstractDBTest
 
     private static final String DS_PERM_ID = "dsId";
 
-    private static final String SPOT_ID = "sId";
-
     private static final String DS_CHANNEL = "dsChannel";
 
-    private static final String DESCRIPTION = "desc";
+    private static final String CHANNEL_DESCRIPTION = "channel desc";
 
     private static final String EXP_CHANNEL = "expChannel";
 
@@ -95,14 +94,7 @@ public class ImagingUploadDAOTest extends AbstractDBTest
         final long channelId1 = addDatasetChannel(datasetId);
         final long channelId2 = addExperimentChannel(experimentId);
 
-        // test countChannelByDatasetIdOrExperimentId
-        assertEquals(2, dao.countChannelByDatasetIdOrExperimentId(datasetId, experimentId));
-
-        // test getChannelIdsByDatasetIdOrExperimentId
-        long[] channels = dao.getChannelIdsByDatasetIdOrExperimentId(datasetId, experimentId);
-        assertEquals(2, channels.length);
-        AssertJUnit.assertTrue(channels[0] == channelId1 && channels[1] == channelId2
-                || channels[1] == channelId1 && channels[0] == channelId2);
+        testChannelMethods(experimentId, datasetId, channelId1, channelId2);
 
         // create channel stack, images and acquired images
         final long channelStackId = addChannelStack(datasetId, spotId);
@@ -111,7 +103,11 @@ public class ImagingUploadDAOTest extends AbstractDBTest
         addAcquiredImage(imageId1, channelStackId, channelId1);
         addAcquiredImage(imageId2, channelStackId, channelId2);
 
-        // test getImage
+        testGetImage(datasetId, channelId1, channelId2);
+    }
+
+    private void testGetImage(final long datasetId, final long channelId1, final long channelId2)
+    {
         ImgImageDTO image1 =
                 dao.getImage(channelId1, datasetId, new Location(X_WELL_COLUMN, Y_WELL_ROW),
                         new Location(X_TILE_COLUMN, Y_TILE_ROW));
@@ -123,6 +119,29 @@ public class ImagingUploadDAOTest extends AbstractDBTest
                         new Location(X_TILE_COLUMN, Y_TILE_ROW));
         assertEquals(PATH2, image2.getFilePath());
         assertEquals(ColorComponent.RED, image2.getColorComponent());
+    }
+
+    private void testChannelMethods(final long experimentId, final long datasetId,
+            final long channelId1, final long channelId2)
+    {
+        // test countChannelByDatasetIdOrExperimentId
+        assertEquals(2, dao.countChannelByDatasetIdOrExperimentId(datasetId, experimentId));
+
+        // test getChannelIdsByDatasetIdOrExperimentId
+        long[] channels = dao.getChannelIdsByDatasetIdOrExperimentId(datasetId, experimentId);
+        assertEquals(2, channels.length);
+        AssertJUnit.assertTrue(channels[0] == channelId1 && channels[1] == channelId2
+                || channels[1] == channelId1 && channels[0] == channelId2);
+
+        List<ImgChannelDTO> experimentChannels = dao.getChannelsByExperimentId(experimentId);
+        assertEquals(1, experimentChannels.size());
+
+        // test update
+        ImgChannelDTO channel = experimentChannels.get(0);
+        channel.setDescription("new " + CHANNEL_DESCRIPTION);
+        channel.setWavelength(WAVELENGTH + 100);
+        dao.updateChannel(channel);
+        assertEquals(channel, dao.getChannelsByExperimentId(experimentId).get(0));
     }
 
     private long addImage(String path, ColorComponent colorComponent)
@@ -147,15 +166,15 @@ public class ImagingUploadDAOTest extends AbstractDBTest
         final Integer spotWidth = 1;
         final Integer spotHeight = 2;
         final ImgContainerDTO container =
-                new ImgContainerDTO(permId, spotWidth, spotHeight, experimentId);
+                new ImgContainerDTO(permId, spotHeight, spotWidth, experimentId);
         final Long containerId = dao.addContainer(container);
         // test tryGetContainerIdPermId
         assertEquals(containerId, dao.tryGetContainerIdPermId(permId));
         final ImgContainerDTO loadedContainer = dao.getContainerById(containerId);
         assertNotNull(loadedContainer);
         assertEquals(permId, loadedContainer.getPermId());
-        assertEquals(spotWidth, loadedContainer.getSpotWidth());
-        assertEquals(spotHeight, loadedContainer.getSpotHeight());
+        assertEquals(spotWidth, loadedContainer.getNumberOfColumns());
+        assertEquals(spotHeight, loadedContainer.getNumberOfRows());
         assertEquals(experimentId, loadedContainer.getExperimentId());
 
         return containerId;
@@ -167,14 +186,14 @@ public class ImagingUploadDAOTest extends AbstractDBTest
         final Integer fieldsWidth = 1;
         final Integer fieldsHeight = 2;
         final ImgDatasetDTO dataset =
-                new ImgDatasetDTO(permId, fieldsWidth, fieldsHeight, containerId);
+                new ImgDatasetDTO(permId, fieldsHeight, fieldsWidth, containerId);
         final long datasetId = dao.addDataset(dataset);
 
         final ImgDatasetDTO loadedDataset = dao.tryGetDatasetByPermId(DS_PERM_ID);
         assertNotNull(loadedDataset);
         assertEquals(permId, loadedDataset.getPermId());
-        assertEquals(fieldsWidth, loadedDataset.getFieldsWidth());
-        assertEquals(fieldsHeight, loadedDataset.getFieldsHeight());
+        assertEquals(fieldsWidth, loadedDataset.getFieldNumberOfColumns());
+        assertEquals(fieldsHeight, loadedDataset.getFieldNumberOfRows());
         assertEquals(containerId, loadedDataset.getContainerId());
 
         return datasetId;
@@ -182,21 +201,22 @@ public class ImagingUploadDAOTest extends AbstractDBTest
 
     private long addSpot(long containerId)
     {
-        final ImgSpotDTO spot = new ImgSpotDTO(SPOT_ID, X_WELL_COLUMN, Y_WELL_ROW, containerId);
+        final ImgSpotDTO spot = new ImgSpotDTO(Y_WELL_ROW, X_WELL_COLUMN, containerId);
         return dao.addSpot(spot);
     }
 
     private long addDatasetChannel(long datasetId)
     {
         final ImgChannelDTO channel =
-                ImgChannelDTO.createDatasetChannel(DS_CHANNEL, DESCRIPTION, WAVELENGTH, datasetId);
+                ImgChannelDTO.createDatasetChannel(DS_CHANNEL, CHANNEL_DESCRIPTION, WAVELENGTH,
+                        datasetId);
         return dao.addChannel(channel);
     }
 
     private long addExperimentChannel(long experimentId)
     {
         final ImgChannelDTO channel =
-                ImgChannelDTO.createExperimentChannel(EXP_CHANNEL, DESCRIPTION, WAVELENGTH,
+                ImgChannelDTO.createExperimentChannel(EXP_CHANNEL, CHANNEL_DESCRIPTION, WAVELENGTH,
                         experimentId);
         return dao.addChannel(channel);
     }
@@ -204,7 +224,7 @@ public class ImagingUploadDAOTest extends AbstractDBTest
     private long addChannelStack(long datasetId, long spotId)
     {
         final ImgChannelStackDTO channelStack =
-                new ImgChannelStackDTO(X_TILE_COLUMN, Y_TILE_ROW, datasetId, spotId);
+                new ImgChannelStackDTO(Y_TILE_ROW, X_TILE_COLUMN, datasetId, spotId);
         return dao.addChannelStack(channelStack);
     }
 

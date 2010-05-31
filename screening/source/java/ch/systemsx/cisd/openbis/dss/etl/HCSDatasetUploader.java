@@ -17,13 +17,20 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgAcquiredImageDTO;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgChannelDTO;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgChannelStackDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgImageDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgSpotDTO;
 
 /**
@@ -32,9 +39,9 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgSpotDTO;
 class HCSDatasetUploader
 {
     public static void upload(IImagingUploadDAO dao, ScreeningContainerDatasetInfo info,
-            List<AcquiredPlateImage> images)
+            List<AcquiredPlateImage> images, Set<HCSImageFileExtractionResult.Channel> channels)
     {
-        new HCSDatasetUploader(dao).upload(info, images);
+        new HCSDatasetUploader(dao).upload(info, images, channels);
     }
 
     private final IImagingUploadDAO dao;
@@ -44,100 +51,276 @@ class HCSDatasetUploader
         this.dao = dao;
     }
 
-    private void upload(ScreeningContainerDatasetInfo info, List<AcquiredPlateImage> images)
+    private void upload(ScreeningContainerDatasetInfo info, List<AcquiredPlateImage> images,
+            Set<HCSImageFileExtractionResult.Channel> channels)
     {
         long expId = getOrCreateExperiment(info);
         long contId = getOrCreateContainer(expId, info);
-        Long[][] spotIds = getOrCreateSpots(contId, info);
+        Long[][] spotIds = getOrCreateSpots(contId, info, images);
+        Map<String, Long/* (tech id */> channelsMap = getOrCreateChannels(expId, channels);
         long datasetId = createDataset(contId, info);
-        createImages(images, spotIds, datasetId);
+
+        createImages(images, spotIds, channelsMap, datasetId);
     }
 
-    private void createImages(List<AcquiredPlateImage> images, Long[][] spotIds, long datasetId)
+    private Map<String, Long> getOrCreateChannels(long expId,
+            Set<HCSImageFileExtractionResult.Channel> channels)
     {
-        // TODO 2010-05-18, Tomasz Pylak: create immages and channels
+        Map<String/* name */, ImgChannelDTO> existingChannels =
+                asNameMap(dao.getChannelsByExperimentId(expId));
+        Map<String, Long> map = new HashMap<String, Long>();
+        for (HCSImageFileExtractionResult.Channel channel : channels)
+        {
+            ImgChannelDTO channelDTO = getOrCreateChannel(channel, expId, existingChannels);
+            map.put(channelDTO.getName(), channelDTO.getId());
+        }
+        return map;
+    }
+
+    private static Map<String, ImgChannelDTO> asNameMap(List<ImgChannelDTO> channels)
+    {
+        Map<String, ImgChannelDTO> nameMap = new HashMap<String, ImgChannelDTO>();
+        for (ImgChannelDTO channel : channels)
+        {
+            nameMap.put(channel.getName(), channel);
+        }
+        return nameMap;
+    }
+
+    private ImgChannelDTO getOrCreateChannel(HCSImageFileExtractionResult.Channel channel,
+            long expId, Map<String, ImgChannelDTO> existingChannels)
+    {
+        ImgChannelDTO channelDTO = createChannelDTO(channel, expId);
+        ImgChannelDTO existingChannel = existingChannels.get(channelDTO.getName());
+        if (existingChannel != null)
+        {
+            // if a channel with a specified name already exists for an experiment, its description
+            // will be updated
+            if (existingChannel.getWavelength() != channelDTO.getWavelength())
+            {
+                throw UserFailureException
+                        .fromTemplate(
+                                "There are already datasets registered for the experiment "
+                                        + "which use the same channel name, but with a different wavelength! "
+                                        + "Channel %s, old wavelength %d, new wavelength %d.",
+                                channelDTO.getName(), existingChannel.getWavelength(), channelDTO
+                                        .getWavelength());
+            }
+            channelDTO.setId(existingChannel.getId());
+            dao.updateChannel(channelDTO);
+        } else
+        {
+            // if a channel with a specified name does not exists for an experiment, it's created
+            long channelId = dao.addChannel(channelDTO);
+            channelDTO.setId(channelId);
+        }
+        return channelDTO;
+    }
+
+    private static ImgChannelDTO createChannelDTO(HCSImageFileExtractionResult.Channel channel,
+            long expId)
+    {
+        return ImgChannelDTO.createExperimentChannel(channel.getName(), channel.getDescription(),
+                channel.getWavelength(), expId);
+    }
+
+    private static class AcquiredImageInStack
+    {
+        private final String channelName;
+
+        private final RelativeImagePath imageFilePath;
+
+        public AcquiredImageInStack(String channelName, RelativeImagePath imageFilePath)
+        {
+            this.channelName = channelName;
+            this.imageFilePath = imageFilePath;
+        }
+
+        public String getChannelName()
+        {
+            return channelName;
+        }
+
+        public RelativeImagePath getImageFilePath()
+        {
+            return imageFilePath;
+        }
+    }
+
+    private void createImages(List<AcquiredPlateImage> images, Long[][] spotIds,
+            Map<String, Long> channelsMap, long datasetId)
+    {
+        Map<ImgChannelStackDTO, List<AcquiredImageInStack>> stackImagesMap =
+                makeStackImagesMap(images, spotIds, datasetId);
+        createChannelStacks(stackImagesMap.keySet());
+        createImages(stackImagesMap, channelsMap);
+    }
+
+    private Map<ImgChannelStackDTO, List<AcquiredImageInStack>> makeStackImagesMap(
+            List<AcquiredPlateImage> images, Long[][] spotIds, long datasetId)
+    {
+        Map<ImgChannelStackDTO, List<AcquiredImageInStack>> map =
+                new HashMap<ImgChannelStackDTO, List<AcquiredImageInStack>>();
+        for (AcquiredPlateImage image : images)
+        {
+            ImgChannelStackDTO stackDTO = makeStackDTO(image, spotIds, datasetId);
+            List<AcquiredImageInStack> stackImages = map.get(stackDTO);
+            if (stackImages == null)
+            {
+                stackImages = new ArrayList<AcquiredImageInStack>();
+            }
+            stackImages.add(makeAcquiredImageInStack(image));
+            map.put(stackDTO, stackImages);
+        }
+        return map;
+    }
+
+    private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredPlateImage image)
+    {
+        return new AcquiredImageInStack(image.getChannelName(), image.getImageFilePath());
+    }
+
+    private static ImgChannelStackDTO makeStackDTO(AcquiredPlateImage image, Long[][] spotIds,
+            long datasetId)
+    {
+        long spotId = getSpotId(image, spotIds);
+        return new ImgChannelStackDTO(image.getTileRow(), image.getTileColumn(), datasetId, spotId);
+    }
+
+    private static long getSpotId(AcquiredPlateImage image, Long[][] spotIds)
+    {
+        int wellRow = image.getWellRow();
+        int wellColumn = image.getWellColumn();
+        Long spotId = spotIds[wellRow - 1][wellColumn - 1];
+        assert spotId != null : "no spot for " + image;
+        return spotId;
+    }
+
+    private void createImages(Map<ImgChannelStackDTO, List<AcquiredImageInStack>> stackImagesMap,
+            Map<String, Long> channelsMap)
+    {
+        for (Entry<ImgChannelStackDTO, List<AcquiredImageInStack>> entry : stackImagesMap
+                .entrySet())
+        {
+            long stackId = entry.getKey().getId();
+            createImages(stackId, channelsMap, entry.getValue());
+        }
+    }
+
+    private void createImages(long stackId, Map<String, Long> channelsMap,
+            List<AcquiredImageInStack> images)
+    {
+        for (AcquiredImageInStack image : images)
+        {
+            long channelTechId = channelsMap.get(image.getChannelName());
+            createImage(stackId, channelTechId, image);
+        }
+    }
+
+    private void createImage(long stackId, long channelTechId, AcquiredImageInStack image)
+    {
+        long imageId = dao.addImage(new ImgImageDTO(image.getImageFilePath().getImagePath()));
+        ImgAcquiredImageDTO acquiredImage =
+                new ImgAcquiredImageDTO(imageId, stackId, channelTechId);
+        dao.addAcquiredImage(acquiredImage);
+    }
+
+    private void createChannelStacks(Set<ImgChannelStackDTO> stacks)
+    {
+        for (ImgChannelStackDTO stack : stacks)
+        {
+            long id = dao.addChannelStack(stack);
+            stack.setId(id);
+        }
     }
 
     // returns a matrix of spot tech ids. The matrix[row][col] contains null is spot at (row,col)
     // does not exist. Spot coordinates are 0-based in the matrix.
-    private Long[][] getOrCreateSpots(long contId, ScreeningContainerDatasetInfo info)
+    private Long[][] getOrCreateSpots(long contId, ScreeningContainerDatasetInfo info,
+            List<AcquiredPlateImage> images)
     {
-        String[][] wantedSpotPermIds = info.getSpotPermIds();
-        List<ImgSpotDTO> spots = dao.listSpots(asList(wantedSpotPermIds));
-        List<ImgSpotDTO> newSpots = findSpotsToCreate(spots, wantedSpotPermIds, contId);
-        addSpotsAndSetIds(newSpots);
-        spots.addAll(newSpots);
-        return createPermIdMatrix(spots, info.getContainerWidth(), info.getContainerHeight());
+        List<ImgSpotDTO> allSpots = dao.listSpots(contId);
+        List<ImgSpotDTO> newSpots =
+                createNewSpots(contId, images, allSpots, info.getContainerRows(), info
+                        .getContainerColumns());
+        allSpots.addAll(newSpots);
+        return makeTechIdMatrix(allSpots, info.getContainerRows(), info.getContainerColumns());
     }
 
-    private static Long[][] createPermIdMatrix(List<ImgSpotDTO> spots, int width, int height)
+    private List<ImgSpotDTO> createNewSpots(long contId, List<AcquiredPlateImage> images,
+            List<ImgSpotDTO> existingSpots, int rows, int columns)
     {
-        Long[][] matrix = new Long[width][height];
-        for (ImgSpotDTO spot : spots)
-        {
-            matrix[spot.getY() - 1][spot.getX() - 1] = spot.getId();
-        }
-        return matrix;
-    }
-
-    private void addSpotsAndSetIds(List<ImgSpotDTO> spots)
-    {
-        for (ImgSpotDTO spot : spots)
+        Boolean[][] newSpotMatrix = extractNewSpots(rows, columns, images, existingSpots);
+        List<ImgSpotDTO> newSpots = makeSpotDTOs(newSpotMatrix, contId);
+        for (ImgSpotDTO spot : newSpots)
         {
             long id = dao.addSpot(spot);
             spot.setId(id);
         }
+        return newSpots;
     }
 
-    private static List<ImgSpotDTO> findSpotsToCreate(List<ImgSpotDTO> existingSpots,
-            String[][] wantedSpotPermIds, long contId)
+    private Boolean[][] extractNewSpots(int rows, int columns, List<AcquiredPlateImage> images,
+            List<ImgSpotDTO> existingSpots)
     {
-        List<ImgSpotDTO> newSpots = new ArrayList<ImgSpotDTO>();
-        Set<String> existingPermIds = asPermIdSet(existingSpots);
-        for (int row = 0; row < wantedSpotPermIds.length; row++)
+        Boolean[][] spots = extractExistingSpots(rows, columns, images);
+        unmarkSpots(existingSpots, spots);
+        return spots;
+    }
+
+    private static Boolean[][] extractExistingSpots(int rows, int columns,
+            List<AcquiredPlateImage> images)
+    {
+        Boolean[][] spots = new Boolean[rows][columns];
+        for (AcquiredPlateImage image : images)
         {
-            String[] spotRow = wantedSpotPermIds[row];
+            spots[image.getWellRow() - 1][image.getWellColumn() - 1] = true;
+        }
+        return spots;
+    }
+
+    private static Long[][] makeTechIdMatrix(List<ImgSpotDTO> existingSpots, int rows, int columns)
+    {
+        Long[][] matrix = new Long[rows][columns];
+        for (ImgSpotDTO spot : existingSpots)
+        {
+            matrix[spot.getRow() - 1][spot.getColumn() - 1] = spot.getId();
+        }
+        return matrix;
+    }
+
+    private static List<ImgSpotDTO> makeSpotDTOs(Boolean[][] spots, long contId)
+    {
+
+        List<ImgSpotDTO> newSpots = new ArrayList<ImgSpotDTO>();
+        for (int row = 0; row < spots.length; row++)
+        {
+            Boolean[] spotRow = spots[row];
             for (int col = 0; col < spotRow.length; col++)
             {
-                String spotPermId = spotRow[col];
-                if (spotPermId != null && existingPermIds.contains(spotPermId) == false)
+                Boolean wanted = spotRow[col];
+                if (wanted != null && wanted)
                 {
-                    newSpots.add(new ImgSpotDTO(spotPermId, col + 1, row + 1, contId));
+                    newSpots.add(new ImgSpotDTO(row + 1, col + 1, contId));
                 }
             }
         }
         return newSpots;
     }
 
-    private static Set<String> asPermIdSet(List<ImgSpotDTO> spots)
+    private static void unmarkSpots(List<ImgSpotDTO> existingSpots, Boolean[][] spotMatrix)
     {
-        Set<String> set = new HashSet<String>();
-        for (ImgSpotDTO spot : spots)
+        for (ImgSpotDTO existingSpot : existingSpots)
         {
-            set.add(spot.getPermId());
+            spotMatrix[existingSpot.getRow()][existingSpot.getColumn()] = false;
         }
-        return set;
-    }
-
-    private static List<String> asList(String[][] spotPermIds)
-    {
-        List<String> result = new ArrayList<String>();
-        for (int row = 0; row < spotPermIds.length; row++)
-        {
-            String[] spotRow = spotPermIds[row];
-            for (int col = 0; col < spotRow.length; col++)
-            {
-                result.add(spotRow[col]);
-            }
-        }
-        return result;
     }
 
     private long createDataset(long contId, ScreeningContainerDatasetInfo info)
     {
         ImgDatasetDTO dataset =
-                new ImgDatasetDTO(info.getDatasetPermId(), info.getTileWidth(), info
-                        .getTileHeight(), contId);
+                new ImgDatasetDTO(info.getDatasetPermId(), info.getTileRows(), info
+                        .getTileColumns(), contId);
         return dao.addDataset(dataset);
     }
 
@@ -151,8 +334,8 @@ class HCSDatasetUploader
         } else
         {
             ImgContainerDTO container =
-                    new ImgContainerDTO(containerPermId, info.getContainerWidth(), info
-                            .getContainerHeight(), expId);
+                    new ImgContainerDTO(containerPermId, info.getContainerRows(), info
+                            .getContainerColumns(), expId);
             return dao.addContainer(container);
         }
     }

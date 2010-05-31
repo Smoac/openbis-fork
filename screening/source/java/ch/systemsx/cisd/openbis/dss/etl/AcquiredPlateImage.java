@@ -17,49 +17,60 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
 /**
  * Describes properties extracted for one screening image.
  * 
  * @author Tomasz Pylak
  */
-public class AcquiredPlateImage
+public class AcquiredPlateImage extends AbstractHashable
 {
     private final Location wellLocation;
 
     private final Location tileLocation;
 
-    private final int channel;
+    private final String channelName;
 
     // can be null
     private final Float timePointOrNull, depthOrNull;
 
     private final RelativeImagePath imageFilePath; // relative to the dataset directory
 
-    public AcquiredPlateImage(Location wellLocation, Location tileLocation, int channel,
+    public AcquiredPlateImage(Location wellLocation, Location tileLocation, String channelName,
             Float timePointOrNull, Float depthOrNull, RelativeImagePath imageFilePath)
     {
         this.wellLocation = wellLocation;
         this.tileLocation = tileLocation;
-        this.channel = channel;
+        this.channelName = channelName;
         this.timePointOrNull = timePointOrNull;
         this.depthOrNull = depthOrNull;
         this.imageFilePath = imageFilePath;
     }
 
-    public Location getWellLocation()
+    public int getWellRow()
     {
-        return wellLocation;
+        return wellLocation.getY();
     }
 
-    public Location getTileLocation()
+    public int getWellColumn()
     {
-        return tileLocation;
+        return wellLocation.getX();
     }
 
-    public int getChannel()
+    public int getTileRow()
     {
-        return channel;
+        return tileLocation.getY();
+    }
+
+    public int getTileColumn()
+    {
+        return tileLocation.getX();
+    }
+
+    public String getChannelName()
+    {
+        return channelName;
     }
 
     public Float tryGetTimePoint()

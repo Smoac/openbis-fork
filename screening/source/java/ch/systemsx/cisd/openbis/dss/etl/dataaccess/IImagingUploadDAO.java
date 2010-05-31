@@ -20,6 +20,7 @@ import java.util.List;
 
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
+import net.lemnik.eodsql.Update;
 
 import ch.systemsx.cisd.bds.hcs.Location;
 
@@ -68,6 +69,12 @@ public interface IImagingUploadDAO extends TransactionQuery
     @Select(sql = "select id from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by name", fetchSize = FETCH_SIZE)
     public long[] getChannelIdsByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
+    @Select(sql = "select * from CHANNELS where EXP_ID = ?{1} order by name", fetchSize = FETCH_SIZE)
+    public List<ImgChannelDTO> getChannelsByExperimentId(long experimentId);
+
+    @Select("select * from SPOTS where cont_id = ?{1}")
+    public List<ImgSpotDTO> listSpots(long contId);
+
     // inserts
 
     @Select("insert into EXPERIMENTS (PERM_ID) values (?{1}) returning ID")
@@ -82,27 +89,30 @@ public interface IImagingUploadDAO extends TransactionQuery
     public long addChannel(ImgChannelDTO channel);
 
     @Select("insert into CHANNEL_STACKS (X, Y, Z_in_M, T_in_SEC, DS_ID, SPOT_ID) values "
-            + "(?{1.x}, ?{1.y}, ?{1.z}, ?{1.t}, ?{1.datasetId}, ?{1.spotId}) returning ID")
+            + "(?{1.column}, ?{1.row}, ?{1.z}, ?{1.t}, ?{1.datasetId}, ?{1.spotId}) returning ID")
     public long addChannelStack(ImgChannelStackDTO channelStack);
 
     @Select("insert into CONTAINERS (PERM_ID, SPOTS_WIDTH, SPOTS_HEIGHT, EXPE_ID) values "
-            + "(?{1.permId}, ?{1.spotWidth}, ?{1.spotHeight}, ?{1.experimentId}) returning ID")
+            + "(?{1.permId}, ?{1.numberOfColumns}, ?{1.numberOfRows}, ?{1.experimentId}) returning ID")
     public long addContainer(ImgContainerDTO container);
 
     @Select("insert into DATA_SETS (PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, CONT_ID) values "
-            + "(?{1.permId}, ?{1.fieldsWidth}, ?{1.fieldsHeight}, ?{1.containerId}) returning ID")
+            + "(?{1.permId}, ?{1.fieldNumberOfColumns}, ?{1.fieldNumberOfRows}, ?{1.containerId}) returning ID")
     public long addDataset(ImgDatasetDTO dataset);
 
     @Select("insert into IMAGES (PATH, PAGE, COLOR) values "
             + "(?{1.filePath}, ?{1.page}, ?{1.colorComponentAsString}) returning ID")
     public long addImage(ImgImageDTO image);
 
-    @Select("insert into SPOTS (PERM_ID, X, Y, CONT_ID) values "
-            + "(?{1.permId}, ?{1.x}, ?{1.y}, ?{1.containerId}) returning ID")
+    @Select("insert into SPOTS (X, Y, CONT_ID) values "
+            + "(?{1.column}, ?{1.row}, ?{1.containerId}) returning ID")
     public long addSpot(ImgSpotDTO spot);
 
-    // TODO 2010-05-19, Tomasz Pylak: implement me
-    @Select("select * from SPOTS where TODO")
-    public List<ImgSpotDTO> listSpots(List<String> spotPermIds);
+    // updates
+
+    @Update("update CHANNELS "
+            + "set DESCRIPTION = ?{1.description}, WAVELENGTH = ?{1.wavelength} "
+            + "where ID = ?{1.id}")
+    public void updateChannel(ImgChannelDTO channel);
 
 }

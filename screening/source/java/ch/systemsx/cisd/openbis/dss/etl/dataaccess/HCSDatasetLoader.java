@@ -71,7 +71,7 @@ public class HCSDatasetLoader
 
     public Geometry getPlateGeometry()
     {
-        return new Geometry(getContainer().getSpotHeight(), getContainer().getSpotWidth());
+        return new Geometry(getContainer().getNumberOfRows(), getContainer().getNumberOfColumns());
     }
 
     private ImgDatasetDTO getDataset()
@@ -81,7 +81,8 @@ public class HCSDatasetLoader
 
     public Geometry getWellGeometry()
     {
-        return new Geometry(getDataset().getFieldsHeight(), getDataset().getFieldsWidth());
+        return new Geometry(getDataset().getFieldNumberOfRows(), getDataset()
+                .getFieldNumberOfColumns());
     }
 
     public long getChannelCount()
@@ -103,10 +104,10 @@ public class HCSDatasetLoader
             Location tileLocation)
     {
         assert chosenChannel > 0;
-        assert tileLocation.getX() <= getDataset().getFieldsWidth();
-        assert tileLocation.getY() <= getDataset().getFieldsHeight();
-        assert wellLocation.getX() <= getContainer().getSpotWidth();
-        assert wellLocation.getY() <= getContainer().getSpotHeight();
+        assert tileLocation.getX() <= getDataset().getFieldNumberOfColumns();
+        assert tileLocation.getY() <= getDataset().getFieldNumberOfRows();
+        assert wellLocation.getX() <= getContainer().getNumberOfColumns();
+        assert wellLocation.getY() <= getContainer().getNumberOfRows();
 
         long[] channelIds =
                 query.getChannelIdsByDatasetIdOrExperimentId(getDataset().getId(), getContainer()

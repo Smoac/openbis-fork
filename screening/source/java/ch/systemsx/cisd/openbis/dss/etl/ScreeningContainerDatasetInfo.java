@@ -29,12 +29,9 @@ class ScreeningContainerDatasetInfo
 
     private String datasetPermId;
 
-    // [row][col]
-    private String[][] spotPermIds;
+    private int containerRows, containerColumns;
 
-    private int containerWidth, containerHeight;
-
-    private int tileWidth, tileHeight;
+    private int tileRows, tileColumns;
 
     public String getExperimentPermId()
     {
@@ -66,54 +63,44 @@ class ScreeningContainerDatasetInfo
         this.datasetPermId = datasetPermId;
     }
 
-    public String[][] getSpotPermIds()
+    public int getContainerRows()
     {
-        return spotPermIds;
+        return containerRows;
     }
 
-    public void setSpotPermIds(String[][] spotPermIds)
+    public void setContainerRows(int containerRows)
     {
-        this.spotPermIds = spotPermIds;
+        this.containerRows = containerRows;
     }
 
-    public int getContainerWidth()
+    public int getContainerColumns()
     {
-        return containerWidth;
+        return containerColumns;
     }
 
-    public void setContainerWidth(int containerWidth)
+    public void setContainerColumns(int containerColumns)
     {
-        this.containerWidth = containerWidth;
+        this.containerColumns = containerColumns;
     }
 
-    public int getContainerHeight()
+    public int getTileRows()
     {
-        return containerHeight;
+        return tileRows;
     }
 
-    public void setContainerHeight(int containerHeight)
+    public void setTileRows(int tileRows)
     {
-        this.containerHeight = containerHeight;
+        this.tileRows = tileRows;
     }
 
-    public int getTileWidth()
+    public int getTileColumns()
     {
-        return tileWidth;
+        return tileColumns;
     }
 
-    public void setTileWidth(int tileWidth)
+    public void setTileColumns(int tileColumns)
     {
-        this.tileWidth = tileWidth;
-    }
-
-    public int getTileHeight()
-    {
-        return tileHeight;
-    }
-
-    public void setTileHeight(int tileHeight)
-    {
-        this.tileHeight = tileHeight;
+        this.tileColumns = tileColumns;
     }
 
 }
