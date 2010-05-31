@@ -38,8 +38,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonH
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
@@ -160,15 +160,15 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     private ProteinByExperimentBrowserGrid browserGrid;
 
-    private IIdAndCodeHolder experimentId;
+    private Experiment experiment;
 
     private ProteinSummaryGrid summaryGrid;
 
     ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            IIdAndCodeHolder experimentId)
+            Experiment experiment)
     {
         this.viewContext = viewContext;
-        this.experimentId = experimentId;
+        this.experiment = experiment;
         setBorders(true);
         // WORKAROUND to get all elements in the toolbar present independent of the original width
         // of the parent
@@ -275,9 +275,9 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         return comboBox;
     }
 
-    IIdAndCodeHolder getExperimentOrNull()
+    Experiment getExperimentOrNull()
     {
-        return experimentId;
+        return experiment;
     }
 
     void setBrowserGrid(ProteinByExperimentBrowserGrid browserGrid)
@@ -292,9 +292,9 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     void update()
     {
-        if (experimentId != null)
+        if (experiment != null)
         {
-            final TechId experimentID = TechId.create(experimentId);
+            final TechId experimentID = TechId.create(experiment);
             browserGrid.setLoadMaskImmediately(true);
             browserGrid.setPostRefreshCallback(new IDataRefreshCallback()
                 {

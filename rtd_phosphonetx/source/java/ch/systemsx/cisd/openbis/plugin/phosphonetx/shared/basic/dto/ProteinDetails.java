@@ -48,6 +48,8 @@ public class ProteinDetails implements IsSerializable, Serializable
     private TechId proteinID;
 
     private List<Peptide> peptides;
+    
+    private List<IndistinguishableProteinInfo> indistinguishableProteinInfos;
 
     public String getSequence()
     {
@@ -137,5 +139,15 @@ public class ProteinDetails implements IsSerializable, Serializable
     public void setDataSetTypeCode(String dataSetTypeCode)
     {
         this.dataSetTypeCode = dataSetTypeCode;
+    }
+
+    public void setIndistinguishableProteinInfos(List<IndistinguishableProteinInfo> indistinguishableProteinInfos)
+    {
+        this.indistinguishableProteinInfos = indistinguishableProteinInfos;
+    }
+
+    public List<IndistinguishableProteinInfo> getIndistinguishableProteinInfos()
+    {
+        return indistinguishableProteinInfos;
     }
 }

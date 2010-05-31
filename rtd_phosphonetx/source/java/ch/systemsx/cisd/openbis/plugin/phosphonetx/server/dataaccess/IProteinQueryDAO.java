@@ -25,6 +25,7 @@ import net.lemnik.eodsql.Select;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IndistinguishableProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
@@ -98,9 +99,15 @@ public interface IProteinQueryDAO extends BaseQuery
             + "         amino_acid_sequence, s.db_id, name_and_version order by data_set_perm_id")
     public DataSet<IdentifiedProtein> listProteinsByProteinReferenceAndExperiment(
             String experimentPermID, long proteinReferenceID);
-
+    
     @Select("select * from peptides where prot_id = ?{1}")
     public DataSet<IdentifiedPeptide> listIdentifiedPeptidesByProtein(long proteinID);
+    
+    @Select("select accession_number, description, amino_acid_sequence "
+            + "from identified_proteins as ip join sequences as s on ip.sequ_id = s.id "
+            + "                               join protein_references as pr on s.prre_id = pr.id "
+            + "where ip.prot_id = ?{1} and ip.is_primary = 'f'")
+    public DataSet<IndistinguishableProtein> listIndistinguishableProteinsByProteinID(long proteinID);
     
     @Select("select distinct a.id, samples.perm_id, value "
             + "from abundances as a left join proteins as p on a.prot_id = p.id "

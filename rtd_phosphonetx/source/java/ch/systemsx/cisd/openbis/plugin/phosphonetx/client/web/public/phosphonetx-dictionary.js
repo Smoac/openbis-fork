@@ -22,6 +22,7 @@ var phosphonetx = {
   protein_browser: "Proteins",
   protein_summary: "Protein/Peptide Counts",
   database_name_and_version: "Database",
+  indistinguishable_proteins: "Indistinguishable Proteins",
   sequence: "Amino Acid Sequence",
   sequences: "Amino Acid Sequences",
   data_set_proteins: "Data Sets",

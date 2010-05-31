@@ -59,6 +59,8 @@ public class Dict
 
     public static final String DATABASE_NAME_AND_VERSION = "database_name_and_version";
 
+    public static final String INDISTINGUISHABLE_PROTEINS = "indistinguishable_proteins";
+    
     public static final String SEQUENCE = "sequence";
 
     public static final String SEQUENCES = "sequences";
@@ -80,7 +82,6 @@ public class Dict
     // Protein Detail View
     public static final String PROBABILITY = "protein_probability";
 
-
     // SampleAbundance Browser
 
     public static final String ABUNDANCE = "abundance";
@@ -94,5 +95,6 @@ public class Dict
     public static final String COPY_DATA_SETS_TITLE = "copy_data_sets_title";
     public static final String COPY_DATA_SETS_MESSAGE = "copy_data_sets_message";
     public static final String COPY_DATA_SETS_DATA_SET_TYPE_FIELD = "copy_data_sets_data_set_type_field";
+
 
 }

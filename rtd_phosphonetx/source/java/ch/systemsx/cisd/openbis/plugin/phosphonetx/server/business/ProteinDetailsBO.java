@@ -28,10 +28,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.IndistinguishableProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Peptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinDetails;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IndistinguishableProtein;
 
 /**
  * @author Franz-Josef Elmer
@@ -79,8 +81,34 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
                     details.setDataSetTypeCode(ds.getDataSetType().getCode());
                 }
                 details.setPeptides(loadPeptides(protein));
-                details.setProteinID(new TechId(protein.getProteinID()));
+                long proteinID = protein.getProteinID();
+                details.setProteinID(new TechId(proteinID));
+                details.setIndistinguishableProteinInfos(loadIndistinguishableProteinInfos(proteinID));
             }
+        } finally
+        {
+            proteins.close();
+        }
+    }
+    
+    private List<IndistinguishableProteinInfo> loadIndistinguishableProteinInfos(long proteinID)
+    {
+        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
+        DataSet<IndistinguishableProtein> proteins =
+                proteinQueryDAO.listIndistinguishableProteinsByProteinID(proteinID);
+        try
+        {
+            List<IndistinguishableProteinInfo> infos =
+                    new ArrayList<IndistinguishableProteinInfo>();
+            for (IndistinguishableProtein protein : proteins)
+            {
+                IndistinguishableProteinInfo info = new IndistinguishableProteinInfo();
+                info.setAccessionNumber(protein.getAccessionNumber());
+                info.setDescription(protein.getDescription());
+                info.setSequence(protein.getSequence());
+                infos.add(info);
+            }
+            return infos;
         } finally
         {
             proteins.close();
@@ -92,16 +120,21 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
         IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
         DataSet<IdentifiedPeptide> identifiedPeptides =
                 proteinQueryDAO.listIdentifiedPeptidesByProtein(protein.getProteinID());
-        List<Peptide> peptides = new ArrayList<Peptide>();
-        for (IdentifiedPeptide identifiedPeptide : identifiedPeptides)
+        try
         {
-            Peptide peptide = new Peptide();
-            peptide.setSequence(identifiedPeptide.getSequence());
-            peptide.setCharge(identifiedPeptide.getCharge());
-            peptides.add(peptide);
+            List<Peptide> peptides = new ArrayList<Peptide>();
+            for (IdentifiedPeptide identifiedPeptide : identifiedPeptides)
+            {
+                Peptide peptide = new Peptide();
+                peptide.setSequence(identifiedPeptide.getSequence());
+                peptide.setCharge(identifiedPeptide.getCharge());
+                peptides.add(peptide);
+            }
+            return peptides;
+        } finally
+        {
+            identifiedPeptides.close();
         }
-        identifiedPeptides.close();
-        return peptides;
     }
 
     private String getExperimentPermIDFor(TechId experimentId)

@@ -24,9 +24,16 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
@@ -53,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.IndistinguishableProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Peptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinDetails;
@@ -64,7 +72,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> implements
         IDatabaseModificationObserver
 {
-    private static final int AMINOACIDS_IN_SEQUENCE_PER_LINE = 60;
+    private static final int AMINOACIDS_IN_SEQUENCE_PER_LINE = 90;
 
     private static final int AMINOACIDS_IN_ONE_BLOCK = 10;
 
@@ -74,25 +82,25 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
 
     static AbstractTabItemFactory createTabItemFactory(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            final IIdAndCodeHolder experimentId, final ProteinInfo proteinInfo)
+            final Experiment experiment, final ProteinInfo proteinInfo)
     {
         return new AbstractTabItemFactory()
             {
                 @Override
                 public String getId()
                 {
-                    return createWidgetID(experimentId, proteinInfo.getId());
+                    return createWidgetID(experiment, proteinInfo.getId());
                 }
 
                 @Override
                 public ITabItem create()
                 {
                     ProteinViewer viewer =
-                            new ProteinViewer(viewContext, experimentId, proteinInfo.getId());
+                            new ProteinViewer(viewContext, experiment, proteinInfo.getId());
                     DatabaseModificationAwareComponent c =
                             new DatabaseModificationAwareComponent(viewer, viewer);
                     String description = getAbbreviatedDescription(proteinInfo);
-                    String identifier = experimentId == null ? "?" : experimentId.getCode();
+                    String identifier = experiment == null ? "?" : experiment.getCode();
                     return DefaultTabItem.create(viewContext.getMessage(
                             Dict.PROTEIN_IN_EXPERIMENT_TAB_LABEL, description, identifier), c,
                             viewContext, false);
@@ -124,27 +132,27 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
 
-    private final IIdAndCodeHolder experimentIdOrNull;
+    private final Experiment experimentOrNull;
 
     private final TechId proteinReferenceID;
 
     private ProteinSamplesSection proteinSamplesSection;
 
     private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            IIdAndCodeHolder experimentId, TechId proteinReferenceID)
+            Experiment experiment, TechId proteinReferenceID)
     {
-        super(viewContext, "", createWidgetID(experimentId, proteinReferenceID), false);
+        super(viewContext, "", createWidgetID(experiment, proteinReferenceID), false);
         this.viewContext = viewContext;
-        this.experimentIdOrNull = experimentId;
+        this.experimentOrNull = experiment;
         this.proteinReferenceID = proteinReferenceID;
         reloadAllData();
     }
 
     private void reloadAllData()
     {
-        if (experimentIdOrNull != null)
+        if (experimentOrNull != null)
         {
-            viewContext.getService().getProteinByExperiment(new TechId(experimentIdOrNull.getId()),
+            viewContext.getService().getProteinByExperiment(new TechId(experimentOrNull.getId()),
                     proteinReferenceID, new ProteinByExperimentCallback(viewContext, this));
         }
     }
@@ -156,17 +164,73 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         setScrollMode(Scroll.AUTO);
         ContentPanel propertyPanel = createPropertyPanel(protein);
 
-        if (protein.getDetails() == null)
+        ProteinDetails details = protein.getDetails();
+        if (details == null)
         {
             recreateUIWithDatasetTable(protein, propertyPanel);
         } else
         {
-            add(propertyPanel, createBorderLayoutData(LayoutRegion.CENTER));
+            List<IndistinguishableProteinInfo> indistinguishableProteins =
+                    details.getIndistinguishableProteinInfos();
+            LayoutContainer southPanel = new LayoutContainer();
+            RowLayoutManager rowDataManager = new RowLayoutManager(southPanel, new RowLayout());
+            add(southPanel, bld(LayoutRegion.CENTER));
+            rowDataManager.addToContainer(propertyPanel, new RowData(1, 0.5f));
+            if (indistinguishableProteins.isEmpty() == false)
+            {
+                List<Peptide> peptides = details.getPeptides();
+                ContentPanel panel =
+                        createIndistinguishableProteinsSection(indistinguishableProteins, peptides);
+                rowDataManager.addToContainer(panel, new RowData(1, 0.3f));
+            }
             proteinSamplesSection =
-                    new ProteinSamplesSection(viewContext, proteinReferenceID, experimentIdOrNull);
-            add(proteinSamplesSection, createBorderLayoutData(LayoutRegion.SOUTH));
+                    new ProteinSamplesSection(viewContext, proteinReferenceID, experimentOrNull);
+            rowDataManager.addToContainer(proteinSamplesSection, new RowData(1, 0.2f));
             layout();
         }
+    }
+    
+    private ContentPanel createIndistinguishableProteinsSection(
+            List<IndistinguishableProteinInfo> indistinguishableProteins, List<Peptide> peptides)
+    {
+        ContentPanel panel = new ContentPanel(new RowLayout());
+        panel.setHeading(viewContext.getMessage(Dict.INDISTINGUISHABLE_PROTEINS));
+        panel.setCollapsible(true);
+        panel.setHeight("100%");
+        TabPanel tabPanel = new TabPanel();
+        tabPanel.setTabScroll(true);
+        for (IndistinguishableProteinInfo info : indistinguishableProteins)
+        {
+            String accessionNumber = info.getAccessionNumber();
+            TabItem item = new TabItem(accessionNumber);
+            item.setLayout(new FitLayout());
+            PropertyGrid propertyGrid = new PropertyGrid(viewContext, 3);
+            final Map<String, Object> properties = new LinkedHashMap<String, Object>();
+            properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), accessionNumber);
+            properties.put(viewContext.getMessage(Dict.PROTEIN_DESCRIPTION), info
+                    .getDescription());
+            String markedSequence = markPeptides(info.getSequence(), peptides);
+            properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), markedSequence);
+            propertyGrid.setProperties(properties);
+            ContentPanel contentPanel = new ContentPanel();
+            contentPanel.setHeight("100%");
+            contentPanel.setScrollMode(Scroll.AUTO);
+            contentPanel.add(propertyGrid);
+            item.add(contentPanel);
+            tabPanel.add(item);
+        }
+        
+        panel.add(tabPanel, new RowData(1, 1));
+        return panel;
+    }
+    
+    private BorderLayoutData bld(LayoutRegion region)
+    {
+        BorderLayoutData data = new BorderLayoutData(region);
+        data.setSplit(true);
+        data.setCollapsible(true);
+        data.setMargins(new Margins(2));
+        return data;
     }
 
     private void recreateUIWithDatasetTable(ProteinByExperiment protein, ContentPanel propertyPanel)
@@ -193,7 +257,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
                         protected IDisposableComponent createDisposableContent()
                         {
                             return DataSetProteinGrid.create(ProteinViewer.this.viewContext,
-                                    experimentIdOrNull, proteinReferenceID);
+                                    experimentOrNull, proteinReferenceID);
                         }
                     };
         add(proteinsSection, createBorderLayoutData(LayoutRegion.SOUTH));
@@ -205,6 +269,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         PropertyGrid propertyGrid = createPropertyGrid(protein);
         ContentPanel contentPanel = new ContentPanel();
         contentPanel.setScrollMode(Scroll.AUTO);
+        contentPanel.setCollapsible(true);
         contentPanel.add(propertyGrid);
         return contentPanel;
     }
@@ -213,9 +278,9 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         PropertyGrid propertyGrid = new PropertyGrid(viewContext, 0);
-        if (experimentIdOrNull != null)
+        if (experimentOrNull != null)
         {
-            properties.put(viewContext.getMessage(Dict.EXPERIMENT_LABEL), experimentIdOrNull);
+            properties.put(viewContext.getMessage(Dict.EXPERIMENT_LABEL), experimentOrNull);
             propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
                     .createExperimentPropertyValueRenderer(viewContext));
         }

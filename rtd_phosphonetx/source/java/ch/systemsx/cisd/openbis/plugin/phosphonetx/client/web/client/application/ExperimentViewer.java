@@ -67,7 +67,7 @@ public class ExperimentViewer extends GenericExperimentViewer
                         protected IDisposableComponent createDisposableContent()
                         {
                             return ProteinByExperimentBrowserGrid.create(specificViewContext,
-                                    experimentType, experimentId);
+                                    experimentType, experiment);
                         }
                     };
         section.setDisplayID(DisplayTypeIDGenerator.PROTEIN_SECTION, displyIdSuffix);
