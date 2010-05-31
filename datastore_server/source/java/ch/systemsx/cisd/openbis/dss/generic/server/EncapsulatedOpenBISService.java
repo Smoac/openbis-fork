@@ -605,6 +605,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         service.checkDataSetCollectionAccess(sToken, dataSetCodes);
     }
 
+    synchronized public void checkSpaceAccess(String sToken, SpaceIdentifier spaceId)
+    {
+        checkSessionToken();
+        service.checkSpaceAccess(sToken, spaceId);
+    }
+
     synchronized public List<SimpleDataSetInformationDTO> listDataSets()
             throws UserFailureException
     {

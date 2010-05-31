@@ -220,4 +220,7 @@ public interface IEncapsulatedOpenBISService
     /** See {@link IETLLIMSService#updateDataSetStatuses(String, List, DataSetArchivingStatus)} */
     public void updateDataSetStatuses(List<String> codes, DataSetArchivingStatus newStatus)
             throws UserFailureException;
+
+    /** See {@link IETLLIMSService#checkSpaceAccess(String, SpaceIdentifier)} */
+    public void checkSpaceAccess(String sToken, SpaceIdentifier spaceId);
 }
