@@ -294,7 +294,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         }
         if (changed)
         {
-            // contentPanel of AbstractBrowserGrid was listening on this layout and synchronized size
+            // contentPanel of AbstractBrowserGrid was listening on this layout and synchronized
+            // size
             layout(); // TODO 2010-04-16, Piotr Buczek: second layout
         }
     }
@@ -323,10 +324,9 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     {
         if (disableApply == false)
         {
-            if (isValid())
-            {
-                applyFiltersAction.execute();
-            }
+            // NOTE: table will be refreshed without applying any filter if custom filter is invalid
+            // - see tryGetCustomFilter()
+            applyFiltersAction.execute();
         }
     }
 
