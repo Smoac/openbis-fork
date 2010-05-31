@@ -55,7 +55,7 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
 
     public static final String KEEP_FILE_REGEX_KEY = "keep-file-regex";
 
-    private final String keppFileRegex;
+    private final String keepFileRegex;
 
     private File dirToRestore;
 
@@ -66,7 +66,7 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
     public CifexStorageProcessor(Properties properties)
     {
         super(properties);
-        keppFileRegex = PropertyUtils.getProperty(properties, KEEP_FILE_REGEX_KEY);
+        keepFileRegex = PropertyUtils.getProperty(properties, KEEP_FILE_REGEX_KEY);
     }
 
     @Override
@@ -74,9 +74,9 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
             IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
     {
         File result = super.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory, rootDir);
-        if (StringUtils.isBlank(keppFileRegex) == false)
+        if (StringUtils.isBlank(keepFileRegex) == false)
         {
-            clean(tryGetProprietaryData(rootDir), keppFileRegex);
+            clean(tryGetProprietaryData(rootDir), keepFileRegex);
         }
         return result;
     }
