@@ -86,7 +86,6 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
-    public void putDataSet(String sessionToken, NewDataSetDTO newDataset,
-            InputStream inputStream) throws IOExceptionUnchecked,
-            IllegalArgumentException;
+    public void putDataSet(String sessionToken, NewDataSetDTO newDataset, InputStream inputStream)
+            throws IOExceptionUnchecked, IllegalArgumentException;
 }

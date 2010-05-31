@@ -32,6 +32,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public class NewDataSetDTO implements Serializable
 {
+    private static String DEFAULT_DATA_SET_FOLDER_NAME = "original";
+
     /**
      * The different types of owners of data sets; there are two: experiment and sample.
      * 
@@ -88,24 +90,44 @@ public class NewDataSetDTO implements Serializable
 
     private final DataSetOwner dataSetOwner;
 
+    private final String dataSetFolderName;
+
     private final List<FileInfoDssDTO> fileInfos;
 
     /**
      * Constructor
      * 
-     * @param storageProcessName The storage process that should handle this data set
+     * @param dataSetType The type of the new data set
+     * @param dataSetOwner The owner of the new data set
+     * @param dataSetFolderNameOrNull The name of the folder the data is stored in. If the data set
+     *            is just a single file and the folder name is null, a folder will be created.
+     * @param fileInfos FileInfoDssDTO objects for each of the files in the data set.
      */
-    public NewDataSetDTO(String storageProcessName, DataSetOwner dataSetOwner,
-            List<FileInfoDssDTO> fileInfos)
+    public NewDataSetDTO(String dataSetType, DataSetOwner dataSetOwner,
+            String dataSetFolderNameOrNull, List<FileInfoDssDTO> fileInfos)
     {
-        this.dataSetType = storageProcessName;
+        this.dataSetType = dataSetType;
         this.dataSetOwner = dataSetOwner;
+        this.dataSetFolderName =
+                (null == dataSetFolderNameOrNull) ? DEFAULT_DATA_SET_FOLDER_NAME
+                        : dataSetFolderNameOrNull;
         this.fileInfos = fileInfos;
     }
 
+    /**
+     * The code for the type of the new data set
+     */
     public String getDataSetType()
     {
         return dataSetType;
+    }
+
+    /**
+     * The name of the folder containing the files in the data set
+     */
+    public String getDataSetFolderName()
+    {
+        return dataSetFolderName;
     }
 
     public List<FileInfoDssDTO> getFileInfos()

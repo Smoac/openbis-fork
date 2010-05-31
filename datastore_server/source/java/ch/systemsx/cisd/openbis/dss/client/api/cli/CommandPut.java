@@ -127,14 +127,16 @@ class CommandPut extends AbstractCommand
             String ownerIdentifier = arguments.getOwnerIdentifier();
             DataSetOwner owner = new NewDataSetDTO.DataSetOwner(ownerType, ownerIdentifier);
             String filePath = arguments.getFilePath();
-            ArrayList<FileInfoDssDTO> fileInfos = getFileInfosForPath(filePath);
-            return new NewDataSetDTO(dataSetType, owner, fileInfos);
+            File file = new File(filePath);
+            ArrayList<FileInfoDssDTO> fileInfos = getFileInfosForPath(filePath, file);
+            String parentNameOrNull = (file.isDirectory()) ? file.getName() : null;
+            return new NewDataSetDTO(dataSetType, owner, parentNameOrNull, fileInfos);
         }
 
-        private ArrayList<FileInfoDssDTO> getFileInfosForPath(String path) throws IOException
+        private ArrayList<FileInfoDssDTO> getFileInfosForPath(String path, File file)
+                throws IOException
         {
             ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
-            File file = new File(path);
             if (false == file.exists())
             {
                 return fileInfos;
