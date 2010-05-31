@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 class PutDataSetExecutor
 {
     // General State
-    private final IEncapsulatedOpenBISService openBisService;
+    private final PutDataSetService service;
 
     // Command Context State
     private final String sessionToken;
@@ -59,14 +59,14 @@ class PutDataSetExecutor
 
     private final File dataSetDir;
 
-    PutDataSetExecutor(IEncapsulatedOpenBISService openBisService, File incomingDir,
-            String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
+    PutDataSetExecutor(PutDataSetService service, String sessionToken, NewDataSetDTO newDataSet,
+            InputStream inputStream)
     {
-        this.openBisService = openBisService;
+        this.service = service;
         this.sessionToken = sessionToken;
         this.newDataSet = newDataSet;
         this.inputStream = inputStream;
-        this.dataSetDir = new File(incomingDir, newDataSet.getDataSetFolderName());
+        this.dataSetDir = new File(service.getIncomingDir(), newDataSet.getDataSetFolderName());
         if (false == this.dataSetDir.mkdir())
         {
             throw new EnvironmentFailureException("Could not create directory for data set "
@@ -85,7 +85,7 @@ class PutDataSetExecutor
         // Check that the session owner has at least user access to the space the new data
         // set should belongs to
         SpaceIdentifier spaceId = getSpaceIdentifierForNewDataSet();
-        openBisService.checkSpaceAccess(sessionToken, spaceId);
+        getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
 
         writeDataSetToTempDirectory();
 
@@ -156,5 +156,10 @@ class PutDataSetExecutor
             spaceId = sampleId.getSpaceLevel();
         }
         return spaceId;
+    }
+
+    private IEncapsulatedOpenBISService getOpenBisService()
+    {
+        return service.getOpenBisService();
     }
 }

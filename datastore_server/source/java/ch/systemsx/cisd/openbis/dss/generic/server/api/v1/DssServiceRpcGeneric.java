@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
@@ -41,26 +40,18 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
  */
 public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssServiceRpcGeneric
 {
-    private final File incomingDir;
-
     static Logger getOperationLog()
     {
         return operationLog;
     }
 
+    private final PutDataSetService putService;
+
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService)
     {
         super(openBISService);
-        incomingDir = new File(System.getProperty("java.io.tmpdir"), "dss_rpc_incoming");
-        incomingDir.mkdir();
+        putService = new PutDataSetService(openBISService);
         operationLog.info("[rpc] Started DSS API V1 service.");
-        intializeFromProperties();
-    }
-
-    private void intializeFromProperties()
-    {
-        // ExtendedProperties props = DssPropertyParametersUtil.loadServiceProperties();
-        // Parameters.createThreadParameters(props);
     }
 
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
@@ -109,28 +100,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
     public void putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
-        try
-        {
-            new PutDataSetExecutor(getOpenBISService(), incomingDir, sessionToken, newDataSet,
-                    inputStream).execute();
-
-        } catch (UserFailureException e)
-        {
-            throw new IllegalArgumentException(e);
-        } catch (IOException e)
-        {
-            throw new IOExceptionUnchecked(e);
-        } finally
-        {
-            // Close the input stream now that we are done with it
-            try
-            {
-                inputStream.close();
-            } catch (IOException ex)
-            {
-
-            }
-        }
+        putService.putDataSet(sessionToken, newDataSet, inputStream);
     }
 
     public int getMajorVersion()
