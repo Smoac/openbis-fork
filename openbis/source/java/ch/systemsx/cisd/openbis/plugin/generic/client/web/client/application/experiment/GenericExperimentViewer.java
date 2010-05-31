@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -70,6 +69,8 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
     protected final IIdAndCodeHolder experimentId;
 
     protected final BasicEntityType experimentType;
+    
+    protected Experiment experiment;
 
     private ExperimentPropertiesPanel propertiesPanelOrNull;
 
@@ -123,10 +124,12 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
     {
         reloadExperiment(new AbstractAsyncCallback<Experiment>(viewContext)
             {
+
                 @Override
                 protected final void process(final Experiment result)
                 {
-                    layoutExperimentDetailView(result);
+                    experiment = result;
+                    layoutExperimentDetailView();
                 }
             });
     }
@@ -136,7 +139,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         viewContext.getService().getExperimentInfo(new TechId(experimentId), callback);
     }
 
-    private void layoutExperimentDetailView(final Experiment experiment)
+    private void layoutExperimentDetailView()
     {
         int logId = viewContext.log("layoutExperimentDetailView");
         updateOriginalData(experiment);
@@ -160,7 +163,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
                     remove(loadingLabel);
                     String displayIdPrefix = getDisplayIdSuffix(experimentType.getCode());
                     GenericExperimentViewer.this.rightPanelSectionsOrNull =
-                            createRightPanel(experiment, displayIdPrefix);
+                            createRightPanel(displayIdPrefix);
                     SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
                     moduleSectionManager.initialize(rightPanel, displayIdPrefix, experiment);
                     add(rightPanel, createRightBorderLayoutData());
@@ -232,8 +235,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return GENERIC_EXPERIMENT_VIEWER + "-" + suffix;
     }
 
-    private List<DisposableSectionPanel> createRightPanel(
-            IEntityInformationHolderWithIdentifier experiment, final String displayIdSuffix)
+    private List<DisposableSectionPanel> createRightPanel(final String displayIdSuffix)
     {
 
         List<DisposableSectionPanel> allPanels = new ArrayList<DisposableSectionPanel>();
