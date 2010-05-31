@@ -23,6 +23,7 @@ import org.python.core.PyCode;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
+import org.python.core.PyJavaInstance;
 import org.python.core.PyLong;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
@@ -195,6 +196,15 @@ public final class Evaluator
         } else if (obj instanceof PyNone)
         {
             return null;
+        } else if (obj instanceof PyJavaInstance)
+        {
+            Object proxy = ((PyJavaInstance) obj).__tojava__(Object.class);
+            if (proxy instanceof Long == false && proxy instanceof Double == false
+                    && proxy instanceof String == false)
+            {
+                return proxy.toString();
+            }
+            return proxy;
         } else
         {
             return obj.toString();
