@@ -286,8 +286,13 @@ public class RemoteConsole
                     return;
                 }
             }
-            Assert.fail("Failed callback " + callback + ": " + failureMessage + "["
-                    + throwable.getClass() + "]");
+            String msg = throwable.getMessage();
+            if (msg == null)
+            {
+                msg = "empty";
+            }
+            Assert.fail("Failed callback " + callback + ": " + failureMessage + " ["
+                    + throwable.getClass() + ": " + msg + "]");
         }
 
         public void registerCallback(final AbstractAsyncCallback<?> callback)
