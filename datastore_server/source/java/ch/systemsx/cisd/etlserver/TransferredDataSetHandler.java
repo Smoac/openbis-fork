@@ -84,37 +84,37 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private final IStoreRootDirectoryHolder storeRootDirectoryHolder;
 
-    final IEncapsulatedOpenBISService limsService;
+    private final IEncapsulatedOpenBISService limsService;
 
-    final IDataStrategyStore dataStrategyStore;
+    private final IDataStrategyStore dataStrategyStore;
 
-    final IDataSetInfoExtractor dataSetInfoExtractor;
+    private final IDataSetInfoExtractor dataSetInfoExtractor;
 
-    final IFileOperations fileOperations;
+    private final IFileOperations fileOperations;
 
     private final Lock registrationLock;
 
-    final ITypeExtractor typeExtractor;
+    private final ITypeExtractor typeExtractor;
 
-    final IStorageProcessor storageProcessor;
+    private final IStorageProcessor storageProcessor;
 
-    final IMailClient mailClient;
+    private final IMailClient mailClient;
 
-    final String dssCode;
+    private final String dssCode;
 
-    final boolean notifySuccessfulRegistration;
+    private final boolean notifySuccessfulRegistration;
 
     private final boolean useIsFinishedMarkerFile;
 
-    boolean stopped = false;
+    private boolean stopped = false;
 
-    boolean deleteUnidentified = false;
+    private boolean deleteUnidentified = false;
 
     private DatabaseInstance homeDatabaseInstance;
 
     private final IDataSetHandler dataSetHandler;
 
-    final IDataSetValidator dataSetValidator;
+    private final IDataSetValidator dataSetValidator;
 
     /**
      * @param dataSetValidator
