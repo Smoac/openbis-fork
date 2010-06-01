@@ -354,11 +354,6 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         return result;
     }
 
-    private static Geometry getPlateGeometry(ScreeningContainerDatasetInfo info)
-    {
-        return new Geometry(info.getContainerRows(), info.getContainerColumns());
-    }
-
     @Override
     public void commit()
     {
