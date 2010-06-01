@@ -27,13 +27,13 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
  */
 public class ScreeningConstants
 {
+    // name of the data source (configured in service.properties) which allows to access imaging db
+    public static final String IMAGING_DATA_SOURCE = "imaging-db";
+
     // name of the property which stores material (gene) inhibited by the material stored in a well
     public static final String INHIBITOR_PROPERTY_CODE = "INHIBITOR_OF";
 
     // ---- required DSS plugins
-
-    // id of the DSS screening reporting plugin to get the images
-    public static final String PLATE_IMAGE_REPORT_KEY = "plate-image-reporter";
 
     // id of the DSS screening reporting plugin to get the images parameters
     public static final String PLATE_IMAGE_PARAMS_REPORT_KEY = "plate-image-params-reporter";

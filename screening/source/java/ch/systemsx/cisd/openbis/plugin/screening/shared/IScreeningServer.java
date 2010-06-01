@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -72,15 +71,6 @@ public interface IScreeningServer extends IServer
             String sessionToken,
             TechId geneMaterialId,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier);
-
-    /**
-     * loads all images from all existing image datasets (in BDS-HCS format) for the specified
-     * plate.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
-    public List<PlateSingleImageReference> listPlateImages(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId);
 
     /**
      * Loads all analysis results from all existing image-analysis datasets connected with the

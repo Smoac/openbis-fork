@@ -43,7 +43,7 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
      * @throw EnvironmentFailureException if image does not exist
      */
     protected abstract ResponseContentStream createImageResponse(TileImageReference params,
-            File datasetRoot) throws IOException, EnvironmentFailureException;
+            File datasetRoot, String datasetCode) throws IOException, EnvironmentFailureException;
 
     protected static class RequestParams extends TileImageReference
     {
@@ -151,7 +151,7 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
         ResponseContentStream responseStream;
         try
         {
-            responseStream = createImageResponse(params, datasetRoot);
+            responseStream = createImageResponse(params, datasetRoot, params.getDatasetCode());
         } catch (EnvironmentFailureException e)
         {
             operationLog.warn(e.getMessage());

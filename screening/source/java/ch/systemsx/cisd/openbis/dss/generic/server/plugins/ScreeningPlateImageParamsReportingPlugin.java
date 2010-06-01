@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
-import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetLoaderFactory;
+import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
@@ -71,7 +72,8 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
         for (DatasetDescription dataset : datasets)
         {
             File datasetFile = new File(storeRoot, dataset.getDataSetLocation());
-            HCSDatasetLoader imageAccessor = new HCSDatasetLoader(datasetFile);
+            IHCSDatasetLoader imageAccessor =
+                    HCSDatasetLoaderFactory.create(datasetFile, dataset.getDatasetCode());
             addReportRows(builder, dataset, imageAccessor);
             imageAccessor.close();
         }
@@ -90,7 +92,7 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
     }
 
     private void addReportRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
-            HCSDatasetLoader imageAccessor)
+            IHCSDatasetLoader imageAccessor)
     {
         Geometry plateGeometry = imageAccessor.getPlateGeometry();
         Geometry wellGeometry = imageAccessor.getWellGeometry();

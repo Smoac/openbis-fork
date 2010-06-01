@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
@@ -57,15 +56,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 public class PlateContentLoader
 {
-    /**
-     * loads all images from all existing image datasets for the specified plate.
-     */
-    public static List<PlateSingleImageReference> listPlateImages(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
-    {
-        return new PlateContentLoader(session, businessObjectFactory).loadAllImages(plateId);
-    }
-
     public static TableModel loadImageAnalysisForPlate(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
     {
@@ -158,24 +148,6 @@ public class PlateContentLoader
         String dataStoreCode = extractDataStoreCode(analysisDatasets);
         return DatasetReportsLoader.loadAnalysisResults(datasetCodes, dataStoreCode,
                 externalDataTable);
-    }
-
-    private List<PlateSingleImageReference> loadAllImages(TechId plateId)
-    {
-        IExternalDataTable externalDataTable = createExternalDataTable();
-        List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
-        List<ExternalDataPE> imageDatasets = ScreeningUtils.filterImageDatasets(datasets);
-        List<PlateSingleImageReference> imagePaths = new ArrayList<PlateSingleImageReference>();
-        if (imageDatasets.size() > 0)
-        {
-            List<String> datasetCodes = extractCodes(imageDatasets);
-            // NOTE: we assume that all datasets for one plate come from the same datastore
-            String dataStoreCode = extractDataStoreCode(imageDatasets);
-            imagePaths =
-                    DatasetReportsLoader.loadPlateImages(datasetCodes, dataStoreCode,
-                            externalDataTable);
-        }
-        return imagePaths;
     }
 
     private String extractDataStoreCode(List<ExternalDataPE> imageDatasets)

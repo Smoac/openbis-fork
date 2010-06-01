@@ -59,7 +59,10 @@ CREATE INDEX SPOTS_CONT_IDX ON SPOTS(CONT_ID);
 
 CREATE TABLE DATA_SETS (
   ID BIGSERIAL NOT NULL,
-  PERM_ID CODE NOT NULL,  
+  PERM_ID CODE NOT NULL,
+  -- All images paths are relative to the IMAGES_DIRECTORY folder. 
+  -- The folder path itself is relative to the dataset root directory.
+  IMAGES_DIRECTORY FILE_PATH,  
   
 	FIELDS_WIDTH INTEGER,
 	FIELDS_HEIGHT INTEGER,	

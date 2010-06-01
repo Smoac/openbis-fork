@@ -35,7 +35,6 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.bds.hcs.Channel;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.bds.hcs.PlateGeometry;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -168,8 +167,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     // ---------------------------------
 
-    private ScreeningContainerDatasetInfo createScreeningDatasetInfo(final Experiment experiment,
-            final DataSetInformation dataSetInformation)
+    private ScreeningContainerDatasetInfo createScreeningDatasetInfo(Experiment experiment,
+            DataSetInformation dataSetInformation, String relativeImagesDirectory)
     {
         ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
         info.setExperimentPermId(experiment.getPermId());
@@ -179,19 +178,21 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         info.setContainerPermId(sample.getPermId());
         info.setDatasetPermId(dataSetInformation.getDataSetCode());
 
-        Geometry plateGeometry = getPlateGeometry(dataSetInformation);
-        int plateRows = plateGeometry.getRows();
-        int plateCols = plateGeometry.getColumns();
+        PlateDimension plateGeometry = getPlateGeometry(dataSetInformation);
+        int plateRows = plateGeometry.getRowsNum();
+        int plateCols = plateGeometry.getColsNum();
         info.setContainerRows(plateRows);
         info.setContainerColumns(plateCols);
 
         info.setTileRows(spotGeometry.getRows());
         info.setTileColumns(spotGeometry.getColumns());
 
+        info.setRelativeImagesDirectory(relativeImagesDirectory);
+
         return info;
     }
 
-    private Geometry getPlateGeometry(final DataSetInformation dataSetInformation)
+    private PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
     {
         final IEntityProperty[] sampleProperties = dataSetInformation.getProperties();
         final PlateDimension plateDimension =
@@ -202,9 +203,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                     "Missing plate geometry for the plate registered for sample identifier '"
                             + dataSetInformation.getSampleIdentifier() + "'.");
         }
-        final Geometry plateGeometry =
-                new PlateGeometry(plateDimension.getRowsNum(), plateDimension.getColsNum());
-        return plateGeometry;
+        return plateDimension;
     }
 
     // ---------------------------------
@@ -275,22 +274,33 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         HCSImageFileExtractionResult extractionResult =
                 extractImages(dataSetInformation, incomingDataSetDirectory);
 
-        ScreeningContainerDatasetInfo info =
-                createScreeningDatasetInfo(experiment, dataSetInformation);
+        validateImages(dataSetInformation, mailClient, incomingDataSetDirectory, extractionResult);
 
-        validateImages(dataSetInformation, mailClient, incomingDataSetDirectory, info,
-                extractionResult);
+        File imagesInStoreFolder = moveFileToDirectory(incomingDataSetDirectory, originalFolder);
+        String relativeImagesDirectory =
+                getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder);
 
-        moveFileToDirectory(incomingDataSetDirectory, originalFolder);
-        storeInDatabase(info, extractionResult.getImages(), extractionResult.getChannels());
+        storeInDatabase(experiment, dataSetInformation, extractionResult, relativeImagesDirectory);
         return rootDirectory;
+    }
+
+    private String getRelativeImagesDirectory(File rootDirectory, File imagesInStoreFolder)
+    {
+        String root = rootDirectory.getAbsolutePath();
+        String imgDir = imagesInStoreFolder.getAbsolutePath();
+        if (imgDir.startsWith(root) == false)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Directory %s should be a subdirectory of directory %s.", imgDir, root);
+        }
+        return imgDir.substring(root.length());
     }
 
     private void validateImages(final DataSetInformation dataSetInformation,
             final IMailClient mailClient, final File incomingDataSetDirectory,
-            ScreeningContainerDatasetInfo info, HCSImageFileExtractionResult extractionResult)
+            HCSImageFileExtractionResult extractionResult)
     {
-        HCSImageCheckList imageCheckList = createImageCheckList(info);
+        HCSImageCheckList imageCheckList = createImageCheckList(dataSetInformation);
         checkImagesForDuplicates(extractionResult, imageCheckList);
         if (extractionResult.getInvalidFiles().size() > 0)
         {
@@ -318,12 +328,10 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         }
     }
 
-    private HCSImageCheckList createImageCheckList(ScreeningContainerDatasetInfo info)
+    private HCSImageCheckList createImageCheckList(DataSetInformation dataSetInformation)
     {
-        Geometry plateGeometry = getPlateGeometry(info);
-        HCSImageCheckList imageCheckList =
-                new HCSImageCheckList(channelNames, plateGeometry, spotGeometry);
-        return imageCheckList;
+        PlateDimension plateGeometry = getPlateGeometry(dataSetInformation);
+        return new HCSImageCheckList(channelNames, plateGeometry, spotGeometry);
     }
 
     private HCSImageFileExtractionResult extractImages(final DataSetInformation dataSetInformation,
@@ -386,6 +394,12 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         checkParameters(incomingDataSetDirectory, storedDataDirectory);
 
         final File originalDataFile = tryGetProprietaryData(storedDataDirectory);
+        if (originalDataFile == null)
+        {
+            // nothing has been stored in the file system yet,
+            // e.g. because images could not be validated
+            return;
+        }
         // Move the data from the 'original' directory back to the 'incoming' directory.
         final File incomingDirectory = incomingDataSetDirectory.getParentFile();
         try
@@ -420,22 +434,27 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         }
     }
 
-    private void storeInDatabase(ScreeningContainerDatasetInfo info,
-            List<AcquiredPlateImage> images, Set<HCSImageFileExtractionResult.Channel> channels)
+    private void storeInDatabase(Experiment experiment, DataSetInformation dataSetInformation,
+            HCSImageFileExtractionResult extractionResult, String relativeImagesDirectory)
     {
+        ScreeningContainerDatasetInfo info =
+                createScreeningDatasetInfo(experiment, dataSetInformation, relativeImagesDirectory);
+
         if (currentTransaction != null)
         {
             throw new IllegalStateException("previous transaction has not been commited!");
         }
         currentTransaction = createQuery();
-        HCSDatasetUploader.upload(currentTransaction, info, images, channels);
+
+        HCSDatasetUploader.upload(currentTransaction, info, extractionResult.getImages(),
+                extractionResult.getChannels());
     }
 
     private void rollbackDatabaseChanges()
     {
         if (currentTransaction == null)
         {
-            throw new IllegalStateException("there is no transaction to rollback");
+            return; // storing in the imaging db has not started
         }
         try
         {

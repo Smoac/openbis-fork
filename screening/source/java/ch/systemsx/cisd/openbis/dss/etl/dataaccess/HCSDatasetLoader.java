@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import net.lemnik.eodsql.QueryTool;
+import java.io.File;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
+import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
 
 /**
  * Helper class for easy handling of HCS image dataset standard structure.
@@ -31,26 +29,26 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public class HCSDatasetLoader
+public class HCSDatasetLoader implements IHCSDatasetLoader
 {
+    private final File datasetRootDir;
+
     private final IImagingUploadDAO query;
 
     private final ImgDatasetDTO dataset;
 
     private ImgContainerDTO container;
 
-    private Long channelCount;
+    private Integer channelCount;
 
-    /**
-     * @exception SQLException if a database access error occurs
-     */
-    public HCSDatasetLoader(Connection connection, String datasetPermId) throws SQLException
+    public HCSDatasetLoader(IImagingUploadDAO query, String datasetPermId, File datasetRootDir)
     {
-        this.query = QueryTool.getQuery(connection, IImagingUploadDAO.class);
+        this.datasetRootDir = datasetRootDir;
+        this.query = query;
         this.dataset = query.tryGetDatasetByPermId(datasetPermId);
         if (dataset == null)
         {
-            throw UserFailureException.fromTemplate("Dataset '%s' not found", datasetPermId);
+            throw new IllegalStateException(String.format("Dataset '%s' not found", datasetPermId));
         }
     }
 
@@ -85,7 +83,7 @@ public class HCSDatasetLoader
                 .getFieldNumberOfColumns());
     }
 
-    public long getChannelCount()
+    public int getChannelCount()
     {
         if (channelCount == null)
         {
@@ -100,7 +98,7 @@ public class HCSDatasetLoader
      * @param chosenChannel start from 1
      * @return image (with absolute path, page and color)
      */
-    public ImgImageDTO tryGetStandardNodeAt(int chosenChannel, Location wellLocation,
+    public AbsoluteImageReference tryGetImage(int chosenChannel, Location wellLocation,
             Location tileLocation)
     {
         assert chosenChannel > 0;
@@ -116,6 +114,23 @@ public class HCSDatasetLoader
 
         long chosenChannelId = channelIds[chosenChannel - 1];
 
-        return query.getImage(chosenChannelId, getDataset().getId(), tileLocation, wellLocation);
+        ImgImageDTO imageDTO =
+                query
+                        .tryGetImage(chosenChannelId, getDataset().getId(), tileLocation,
+                                wellLocation);
+        if (imageDTO != null)
+        {
+            return new AbsoluteImageReference(getAbsolutePath(imageDTO), imageDTO.getPage(),
+                    imageDTO.getColorComponent());
+        } else
+        {
+            return null;
+        }
+    }
+
+    private String getAbsolutePath(ImgImageDTO imageDTO)
+    {
+        File imgDir = new File(datasetRootDir, dataset.getImagesDirectoryPath());
+        return new File(imgDir, imageDTO.getFilePath()).getAbsolutePath();
     }
 }

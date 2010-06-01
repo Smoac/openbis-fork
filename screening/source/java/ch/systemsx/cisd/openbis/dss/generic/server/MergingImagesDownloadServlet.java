@@ -42,9 +42,9 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet
      **/
     @Override
     protected final ResponseContentStream createImageResponse(TileImageReference params,
-            File datasetRoot) throws IOException, EnvironmentFailureException
+            File datasetRoot, String datasetCode) throws IOException, EnvironmentFailureException
     {
-        List<File> imageFiles = ImageChannelsUtils.getImagePaths(datasetRoot, params);
+        List<File> imageFiles = ImageChannelsUtils.getImagePaths(datasetRoot, datasetCode, params);
         BufferedImage image = ImageChannelsUtils.mergeImageChannels(params, imageFiles);
         File singleFileOrNull = imageFiles.size() == 1 ? imageFiles.get(0) : null;
         return createResponseContentStream(image, singleFileOrNull);

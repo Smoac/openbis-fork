@@ -109,13 +109,13 @@ public class ImagingUploadDAOTest extends AbstractDBTest
     private void testGetImage(final long datasetId, final long channelId1, final long channelId2)
     {
         ImgImageDTO image1 =
-                dao.getImage(channelId1, datasetId, new Location(X_WELL_COLUMN, Y_WELL_ROW),
+                dao.tryGetImage(channelId1, datasetId, new Location(X_WELL_COLUMN, Y_WELL_ROW),
                         new Location(X_TILE_COLUMN, Y_TILE_ROW));
         assertEquals(PATH1, image1.getFilePath());
         assertEquals(ColorComponent.BLUE, image1.getColorComponent());
 
         ImgImageDTO image2 =
-                dao.getImage(channelId2, datasetId, new Location(X_WELL_COLUMN, Y_WELL_ROW),
+                dao.tryGetImage(channelId2, datasetId, new Location(X_WELL_COLUMN, Y_WELL_ROW),
                         new Location(X_TILE_COLUMN, Y_TILE_ROW));
         assertEquals(PATH2, image2.getFilePath());
         assertEquals(ColorComponent.RED, image2.getColorComponent());
@@ -186,7 +186,7 @@ public class ImagingUploadDAOTest extends AbstractDBTest
         final Integer fieldsWidth = 1;
         final Integer fieldsHeight = 2;
         final ImgDatasetDTO dataset =
-                new ImgDatasetDTO(permId, fieldsHeight, fieldsWidth, containerId);
+                new ImgDatasetDTO(permId, ".", fieldsHeight, fieldsWidth, containerId);
         final long datasetId = dao.addDataset(dataset);
 
         final ImgDatasetDTO loadedDataset = dao.tryGetDatasetByPermId(DS_PERM_ID);

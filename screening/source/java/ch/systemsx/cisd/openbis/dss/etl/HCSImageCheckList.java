@@ -23,6 +23,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.etlserver.PlateDimension;
 
 /**
  * Helper class to set the <code>is_complete</code> flag in the <i>BDS</i> library.
@@ -38,7 +39,7 @@ public final class HCSImageCheckList
 
     private final Map<FullLocation, Check> imageMap;
 
-    public HCSImageCheckList(final String[] channelNames, final Geometry plateGeometry,
+    public HCSImageCheckList(final String[] channelNames, final PlateDimension plateGeometry,
             final Geometry wellGeometry)
     {
         if (channelNames.length < 1)
@@ -56,9 +57,9 @@ public final class HCSImageCheckList
         imageMap = new HashMap<FullLocation, Check>();
         for (String channelName : channelNames)
         {
-            for (int wellCol = 1; wellCol <= plateGeometry.getColumns(); wellCol++)
+            for (int wellCol = 1; wellCol <= plateGeometry.getColsNum(); wellCol++)
             {
-                for (int wellRow = 1; wellRow <= plateGeometry.getRows(); wellRow++)
+                for (int wellRow = 1; wellRow <= plateGeometry.getRowsNum(); wellRow++)
                 {
                     for (int tileCol = 1; tileCol <= wellGeometry.getColumns(); tileCol++)
                     {
@@ -71,8 +72,8 @@ public final class HCSImageCheckList
                 }
             }
         }
-        assert imageMap.size() == channelNames.length * plateGeometry.getColumns()
-                * plateGeometry.getRows() * wellGeometry.getColumns() * wellGeometry.getRows() : "Wrong map size";
+        assert imageMap.size() == channelNames.length * plateGeometry.getColsNum()
+                * plateGeometry.getRowsNum() * wellGeometry.getColumns() * wellGeometry.getRows() : "Wrong map size";
     }
 
     public final void checkOff(AcquiredPlateImage image)
@@ -147,7 +148,7 @@ public final class HCSImageCheckList
 
         private final static String toString(final int row, final int col, final String type)
         {
-            return type + "= (" + row + ", " + col + ")";
+            return type + "=(" + row + "," + col + ")";
         }
 
         //
@@ -157,7 +158,7 @@ public final class HCSImageCheckList
         @Override
         public final String toString()
         {
-            return "[ channel = " + channelName + "," + toString(wellRow, wellCol, "well") + ","
+            return "[channel=" + channelName + ", " + toString(wellRow, wellCol, "well") + ", "
                     + toString(tileRow, tileCol, "tile") + "]";
         }
     }

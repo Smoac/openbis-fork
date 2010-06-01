@@ -58,7 +58,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -136,12 +135,6 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         return GenePlateLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
                 geneMaterialId, experimentIdentifier);
-    }
-
-    public List<PlateSingleImageReference> listPlateImages(String sessionToken, TechId plateId)
-    {
-        Session session = getSession(sessionToken);
-        return PlateContentLoader.listPlateImages(session, businessObjectFactory, plateId);
     }
 
     public TableModel loadImageAnalysisForExperiment(String sessionToken, TechId experimentId)

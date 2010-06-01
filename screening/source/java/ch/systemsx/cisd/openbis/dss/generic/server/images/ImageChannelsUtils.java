@@ -22,9 +22,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
+import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetLoaderFactory;
+import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
@@ -57,9 +59,10 @@ public class ImageChannelsUtils
      *         be merged.
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
-    public static List<File> getImagePaths(File datasetRoot, TileImageReference params)
+    public static List<File> getImagePaths(File datasetRoot, String datasetCode,
+            TileImageReference params)
     {
-        HCSDatasetLoader imageAccessor = new HCSDatasetLoader(datasetRoot);
+        IHCSDatasetLoader imageAccessor = HCSDatasetLoaderFactory.create(datasetRoot, datasetCode);
         Location wellLocation = params.getWellLocation();
         Location tileLocation = params.getTileLocation();
         List<File> paths = new ArrayList<File>();
@@ -152,14 +155,16 @@ public class ImageChannelsUtils
      * @param chosenChannel starts from 1
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
-    public static File getImagePath(HCSDatasetLoader imageAccessor, Location wellLocation,
+    public static File getImagePath(IHCSDatasetLoader imageAccessor, Location wellLocation,
             Location tileLocation, int chosenChannel)
     {
-        String imagePath =
-                imageAccessor.tryGetStandardNodeAt(chosenChannel, wellLocation, tileLocation);
-        if (imagePath != null)
+        AbsoluteImageReference image =
+                imageAccessor.tryGetImage(chosenChannel, wellLocation, tileLocation);
+        if (image != null)
         {
-            return new File(imagePath);
+            // TODO 2010-05-31, Tomasz Pylak: add support for tiff paged images and channels
+            // splitting
+            return new File(image.getImageAbsolutePath());
         } else
         {
             throw EnvironmentFailureException.fromTemplate(

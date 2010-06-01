@@ -20,9 +20,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetLoaderFactory;
+import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.TileImageReference;
 
@@ -38,10 +39,10 @@ public class SplittingImagesDownloadServlet extends AbstractImagesDownloadServle
     private static final long serialVersionUID = 1L;
 
     /** throws {@link EnvironmentFailureException} when image does not exist */
-    private File getImagePath(File datasetRoot, TileImageReference params)
+    private File getImagePath(File datasetRoot, String datasetCode, TileImageReference params)
             throws EnvironmentFailureException
     {
-        HCSDatasetLoader imageAccessor = new HCSDatasetLoader(datasetRoot);
+        IHCSDatasetLoader imageAccessor = HCSDatasetLoaderFactory.create(datasetRoot, datasetCode);
         Location wellLocation = params.getWellLocation();
         Location tileLocation = params.getTileLocation();
         int channel = 1; // NOTE: we assume that there is only one channel
@@ -56,9 +57,9 @@ public class SplittingImagesDownloadServlet extends AbstractImagesDownloadServle
      **/
     @Override
     protected final ResponseContentStream createImageResponse(TileImageReference params,
-            File datasetRoot) throws IOException, EnvironmentFailureException
+            File datasetRoot, String datasetCode) throws IOException, EnvironmentFailureException
     {
-        File imageFile = getImagePath(datasetRoot, params);
+        File imageFile = getImagePath(datasetRoot, datasetCode, params);
         BufferedImage image = ImageChannelsUtils.mergeImageChannels(params, imageFile);
         return createResponseContentStream(image, imageFile);
     }
