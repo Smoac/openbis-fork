@@ -51,6 +51,8 @@ public class PutDataSetService
 
     private final DataStrategyStore dataStrategyStore;
 
+    private boolean isInitialized = false;
+
     private MailClient mailClient;
 
     private IETLServerPlugin plugin;
@@ -62,15 +64,6 @@ public class PutDataSetService
         this.openBisService = openBisService;
         this.operationLog = operationLog;
 
-        // PutDataSetServiceInitializer initializer = new PutDataSetServiceInitializer();
-        //
-        // incomingDir = initializer.getIncomingDir();
-        // incomingDir.mkdir();
-        //
-        // plugin = initializer.getPlugin();
-        //
-        // mailClient = new MailClient(initializer.getMailProperties());
-
         this.registrationLock = new ReentrantLock();
 
         this.dataStrategyStore = new DataStrategyStore(this.openBisService, mailClient);
@@ -79,6 +72,11 @@ public class PutDataSetService
     public void putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
+        if (false == isInitialized)
+        {
+            doInitialization();
+        }
+
         try
         {
             new PutDataSetExecutor(this, plugin, sessionToken, newDataSet, inputStream).execute();
@@ -100,6 +98,20 @@ public class PutDataSetService
 
             }
         }
+    }
+
+    private void doInitialization()
+    {
+        PutDataSetServiceInitializer initializer = new PutDataSetServiceInitializer();
+
+        incomingDir = initializer.getIncomingDir();
+        incomingDir.mkdir();
+
+        plugin = initializer.getPlugin();
+
+        mailClient = new MailClient(initializer.getMailProperties());
+
+        isInitialized = true;
     }
 
     IEncapsulatedOpenBISService getOpenBisService()
