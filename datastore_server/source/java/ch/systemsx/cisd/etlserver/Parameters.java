@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.common.utilities.VoidExitHandler;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
@@ -153,9 +154,14 @@ public class Parameters
         }
     }
 
-    public Parameters()
+    /**
+     * This factory method is used by the DSS API to get information about the threads that have
+     * been configured. Since the validity of the parameters has already been verified by the
+     * ETLServer startup, it does not need to be verified again.
+     */
+    public static Parameters createParametersForApiUse()
     {
-        this(new String[0], SystemExit.SYSTEM_EXIT, false);
+        return new Parameters(new String[0], VoidExitHandler.INSTANCE, false);
     }
 
     Parameters(final String[] args)
