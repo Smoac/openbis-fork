@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -52,6 +53,8 @@ class PutDataSetExecutor
     private final PutDataSetService service;
 
     // Command Context State
+    private final IETLServerPlugin plugin;
+
     private final String sessionToken;
 
     private final NewDataSetDTO newDataSet;
@@ -60,10 +63,11 @@ class PutDataSetExecutor
 
     private final File dataSetDir;
 
-    PutDataSetExecutor(PutDataSetService service, String sessionToken, NewDataSetDTO newDataSet,
-            InputStream inputStream)
+    PutDataSetExecutor(PutDataSetService service, IETLServerPlugin plugin, String sessionToken,
+            NewDataSetDTO newDataSet, InputStream inputStream)
     {
         this.service = service;
+        this.plugin = plugin;
         this.sessionToken = sessionToken;
         this.newDataSet = newDataSet;
         this.inputStream = inputStream;
@@ -94,6 +98,10 @@ class PutDataSetExecutor
         // the space or an ETL server can override.
 
         // Register data set
+        DataSetRegistrationHelper helper =
+                new DataSetRegistrationHelper(service, plugin, dataSetDir, null);
+        helper.prepare();
+        helper.registerDataSet();
 
         deleteDataSetDir();
     }

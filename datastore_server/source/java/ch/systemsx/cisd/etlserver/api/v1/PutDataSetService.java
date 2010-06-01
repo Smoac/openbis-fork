@@ -20,13 +20,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.MailClient;
+import ch.systemsx.cisd.etlserver.DataStrategyStore;
+import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.etlserver.Parameters;
+import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
@@ -40,24 +45,35 @@ public class PutDataSetService
 {
     private final IEncapsulatedOpenBISService openBisService;
 
-    private final MailClient mailClient;
-
-    private final File incomingDir;
-
     private final Logger operationLog;
+
+    private final Lock registrationLock;
+
+    private final DataStrategyStore dataStrategyStore;
+
+    private MailClient mailClient;
+
+    private IETLServerPlugin plugin;
+
+    private File incomingDir;
 
     public PutDataSetService(IEncapsulatedOpenBISService openBisService, Logger operationLog)
     {
         this.openBisService = openBisService;
         this.operationLog = operationLog;
 
-        PutDataSetServiceInitializer initializer = new PutDataSetServiceInitializer();
-
-        incomingDir = initializer.getIncomingDir();
-        incomingDir.mkdir();
-
+        // PutDataSetServiceInitializer initializer = new PutDataSetServiceInitializer();
+        //
+        // incomingDir = initializer.getIncomingDir();
+        // incomingDir.mkdir();
+        //
+        // plugin = initializer.getPlugin();
+        //
         // mailClient = new MailClient(initializer.getMailProperties());
-        mailClient = null;
+
+        this.registrationLock = new ReentrantLock();
+
+        this.dataStrategyStore = new DataStrategyStore(this.openBisService, mailClient);
     }
 
     public void putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
@@ -65,7 +81,7 @@ public class PutDataSetService
     {
         try
         {
-            new PutDataSetExecutor(this, sessionToken, newDataSet, inputStream).execute();
+            new PutDataSetExecutor(this, plugin, sessionToken, newDataSet, inputStream).execute();
 
         } catch (UserFailureException e)
         {
@@ -105,6 +121,17 @@ public class PutDataSetService
     {
         return operationLog;
     }
+
+    public Lock getRegistrationLock()
+    {
+        return registrationLock;
+    }
+
+    public DataStrategyStore getDataStrategyStore()
+    {
+        return dataStrategyStore;
+    }
+
 }
 
 /**
@@ -131,11 +158,10 @@ class PutDataSetServiceInitializer
         return Parameters.createMailProperties(params.getProperties());
     }
 
-    Object getPlugin()
+    IETLServerPlugin getPlugin()
     {
-        // ThreadParameters[] threadParams = params.getThreads();
-        // return threadParams[0].getPlugin();
-        return null;
+        ThreadParameters[] threadParams = params.getThreads();
+        return threadParams[0].getPlugin();
     }
 
 }
