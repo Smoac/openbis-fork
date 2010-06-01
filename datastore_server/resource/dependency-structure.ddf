@@ -51,4 +51,4 @@ check sets [dss.api.server] [etl.api.server]
 layer dssApi = [dss.api.server]
 layer etlApi = [etl.api.server]
 
-check layeringOf etlApi dssApickow
+check layeringOf etlApi dssApi
