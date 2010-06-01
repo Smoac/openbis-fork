@@ -20,10 +20,13 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
+import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -43,6 +46,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         IEntityTypePropertyTypeBO
 {
+
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, EntityTypePropertyTypeBO.class);
     private EntityKind entityKind;
 
     private IEntityPropertiesConverter propertiesConverter;
@@ -103,6 +109,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     public void createAssignment(String propertyTypeCode, String entityTypeCode,
             boolean isMandatory, String defaultValue, String section, Long previousETPTOrdinal)
     {
+        setBatchUpdateMode(true);
         EntityTypePE entityType = findEntityType(entityTypeCode);
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
         assignment =
@@ -123,6 +130,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             List<IEntityPropertiesHolder> entities = getAllEntities(entityType);
             addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities, null);
         }
+        setBatchUpdateMode(false);
     }
 
     private List<IEntityPropertiesHolder> getAllEntities(EntityTypePE entityType)
@@ -134,6 +142,10 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             String defaultValue, List<IEntityPropertiesHolder> entities, String errorMsgTemplate)
     {
         final int size = entities.size();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(getMemoryUsageMessage());
+        }
         if (size > 0)
         {
             if (StringUtils.isEmpty(defaultValue))
@@ -145,8 +157,17 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             String validatedValue =
                     propertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
                             defaultValue);
-            for (IEntityPropertiesHolder entity : entities)
+            for (int i = 0; i < entities.size(); i++)
             {
+                if (i % 1000 == 0)
+                {
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.info("entity " + i + ", " + getMemoryUsageMessage());
+                    }
+                    getSessionFactory().getCurrentSession().flush();
+                }
+                IEntityPropertiesHolder entity = entities.get(i);
                 final EntityPropertyPE property =
                         propertiesConverter.createValidatedProperty(propertyType, assignment,
                                 registrator, validatedValue);
@@ -157,6 +178,17 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             }
         }
     }
+    
+    private String getMemoryUsageMessage()
+    {
+        Runtime runtime = Runtime.getRuntime();
+        long mb = 1024l * 1024l;
+        long totalMemory = runtime.totalMemory() / mb;
+        long freeMemory = runtime.freeMemory() / mb;
+        long maxMemory = runtime.maxMemory() / mb;
+        return "MEMORY (in MB): free:" + freeMemory + " total:"+totalMemory+" max:"+maxMemory;
+    }
+
 
     public void updateLoadedAssignment(final boolean isMandatory, final String defaultValue,
             final String section, final Long previousETPTOrdinal)
