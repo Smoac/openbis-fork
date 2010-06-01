@@ -51,6 +51,8 @@ public class Dict
     // Protein Viewer
     public static final String PROTEINS_SECTION = "proteins_section";
 
+    public static final String PRIMARY_PROTEIN = "primary_protein";
+    
     public static final String PROTEIN_IN_EXPERIMENT_TAB_LABEL = "protein_in_experiment_tab_label";
 
     public static final String EXPERIMENT_LABEL = "experiment_label";
@@ -95,6 +97,7 @@ public class Dict
     public static final String COPY_DATA_SETS_TITLE = "copy_data_sets_title";
     public static final String COPY_DATA_SETS_MESSAGE = "copy_data_sets_message";
     public static final String COPY_DATA_SETS_DATA_SET_TYPE_FIELD = "copy_data_sets_data_set_type_field";
+
 
 
 }

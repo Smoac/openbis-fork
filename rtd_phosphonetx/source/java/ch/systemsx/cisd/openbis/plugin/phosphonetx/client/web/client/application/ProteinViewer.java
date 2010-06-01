@@ -169,12 +169,12 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
             recreateUIWithDatasetTable(protein, propertyPanel);
         } else
         {
-            List<IndistinguishableProteinInfo> indistinguishableProteins =
-                    details.getIndistinguishableProteinInfos();
-            LayoutContainer southPanel = new LayoutContainer();
-            RowLayoutManager rowDataManager = new RowLayoutManager(southPanel, new RowLayout());
-            add(southPanel, createBorderLayoutData(LayoutRegion.CENTER));
+            LayoutContainer centerPanel = new LayoutContainer();
+            RowLayoutManager rowDataManager = new RowLayoutManager(centerPanel, new RowLayout());
+            add(centerPanel, createBorderLayoutData(LayoutRegion.CENTER));
             rowDataManager.addToContainer(propertyPanel, new RowData(1, 0.5f));
+            List<IndistinguishableProteinInfo> indistinguishableProteins =
+                details.getIndistinguishableProteinInfos();
             if (indistinguishableProteins.isEmpty() == false)
             {
                 List<Peptide> peptides = details.getPeptides();
@@ -259,6 +259,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
     {
         PropertyGrid propertyGrid = createPropertyGrid(protein);
         ContentPanel contentPanel = new ContentPanel();
+        contentPanel.setHeading(viewContext.getMessage(Dict.PRIMARY_PROTEIN));
         contentPanel.setScrollMode(Scroll.AUTO);
         contentPanel.setCollapsible(true);
         contentPanel.add(propertyGrid);
