@@ -349,8 +349,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     private final class RegistrationHelper extends DataSetRegistrationAlgorithm
     {
 
-        private final TransferredDataSetHandler transferredDataSetHandler;
-
         /**
          * @param transferredDataSetHandler
          * @param incomingDataSetFile
@@ -360,7 +358,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 File incomingDataSetFile, IDelegatedActionWithResult<Boolean> cleanAftrewardsAction)
         {
             super(incomingDataSetFile, cleanAftrewardsAction);
-            this.transferredDataSetHandler = transferredDataSetHandler;
         }
 
         // state accessors
@@ -463,9 +460,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         @Override
         protected void rollback(final Throwable throwable) throws Error
         {
-            this.transferredDataSetHandler.stopped |=
-                    throwable instanceof InterruptedExceptionUnchecked;
-            if (this.transferredDataSetHandler.stopped)
+            stopped |= throwable instanceof InterruptedExceptionUnchecked;
+            if (stopped)
             {
                 Thread.interrupted(); // Ensure the thread's interrupted state is cleared.
                 getOperationLog().warn(
@@ -484,7 +480,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 throw (Error) throwable;
             }
             UnstoreDataAction action = rollbackStorageProcessor(throwable);
-            if (this.transferredDataSetHandler.stopped == false)
+            if (stopped == false)
             {
                 if (action == UnstoreDataAction.MOVE_TO_ERROR)
                 {
