@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
+package ch.systemsx.cisd.etlserver.api.v1;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -132,8 +133,7 @@ class PutDataSetExecutor
             FileUtils.deleteDirectory(dataSetDir);
         } catch (IOException ex)
         {
-            DssServiceRpcGeneric.getOperationLog().error(
-                    "Could not delete data set directory " + dataSetDir, ex);
+            getOperationLog().error("Could not delete data set directory " + dataSetDir, ex);
             ex.printStackTrace();
         }
     }
@@ -161,5 +161,10 @@ class PutDataSetExecutor
     private IEncapsulatedOpenBISService getOpenBisService()
     {
         return service.getOpenBisService();
+    }
+
+    private Logger getOperationLog()
+    {
+        return service.getOperationLog();
     }
 }

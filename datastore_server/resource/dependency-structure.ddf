@@ -23,7 +23,7 @@ check [dss] [etlserver] independentOf [private_openbis]
 # Check dependencies of etlserver to dss
 
 [dss.shared] = ${dss}.generic.shared.*
-[private_dss] = ${dss}.* excluding [dss.shared] ${dss}.BuildAndEnvironmentInfo ${dss}.generic.DataStoreServer 
+[private_dss] = ${dss}.* excluding [dss.shared] ${dss}.BuildAndEnvironmentInfo ${dss}.generic.DataStoreServer ${dss}.generic.server.api.v1.DssServiceRpcGeneric
 
 check sets [dss.shared] [private_dss]
 
@@ -37,4 +37,18 @@ check layeringOf l1 l2
 [dss.api.client] = ${dss}.client.api.* ${dss}.generic.shared.api.*
 [dss.internal] = ${dss}.* excluding [dss.api.client]
 
+check sets [dss.api.client] [dss.internal]
+
 check [dss.api.client] independentOf [dss.internal]
+
+######################################################################
+# Check dependencies between the dss api and the etl api
+[dss.api.server] = ${dss}.generic.server.api.* 
+[etl.api.server] = ${etlserver}.api.*
+
+check sets [dss.api.server] [etl.api.server]
+
+layer dssApi = [dss.api.server]
+layer etlApi = [etl.api.server]
+
+check layeringOf etlApi dssApickow

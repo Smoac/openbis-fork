@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
+package ch.systemsx.cisd.etlserver.api.v1;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.MailClient;
+import ch.systemsx.cisd.etlserver.Parameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
@@ -33,7 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class PutDataSetService
+public class PutDataSetService
 {
     private final IEncapsulatedOpenBISService openBisService;
 
@@ -41,9 +44,12 @@ class PutDataSetService
 
     private final File incomingDir;
 
-    PutDataSetService(IEncapsulatedOpenBISService openBisService)
+    private final Logger operationLog;
+
+    public PutDataSetService(IEncapsulatedOpenBISService openBisService, Logger operationLog)
     {
         this.openBisService = openBisService;
+        this.operationLog = operationLog;
 
         PutDataSetServiceInitializer initializer = new PutDataSetServiceInitializer();
 
@@ -54,7 +60,7 @@ class PutDataSetService
         mailClient = null;
     }
 
-    void putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
+    public void putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         try
@@ -94,6 +100,11 @@ class PutDataSetService
     {
         return incomingDir;
     }
+
+    Logger getOperationLog()
+    {
+        return operationLog;
+    }
 }
 
 /**
@@ -103,11 +114,11 @@ class PutDataSetService
  */
 class PutDataSetServiceInitializer
 {
-    // private final Parameters params;
+    private final Parameters params;
 
     PutDataSetServiceInitializer()
     {
-        // params = new Parameters();
+        params = Parameters.createParametersForApiUse();
     }
 
     File getIncomingDir()
@@ -117,8 +128,7 @@ class PutDataSetServiceInitializer
 
     Properties getMailProperties()
     {
-        // return Parameters.createMailProperties(params.getProperties());
-        return null;
+        return Parameters.createMailProperties(params.getProperties());
     }
 
     Object getPlugin()
