@@ -138,24 +138,27 @@ public class StorageProcessorTest extends AbstractFileSystemTestCase
 
         // Split the file into lines and check one line at a time
         String[] lines = fileContent.split("\n+");
+        System.out.println(fileContent);
         assertEquals(lines.length, 13);
-        assertTrue(lines[0] + " should start with "
-                + "Subj: [CINA] Registered Experiment /CINA/CINA1/EXP-", lines[0]
-                .startsWith("Subj: [CINA] Registered Experiment /CINA/CINA1/EXP-"));
-        assertEquals(lines[1], "From: sender");
-        assertEquals(lines[2], "To:   no-one@nowhere.ch");
-        assertEquals(lines[3], "Reply-To: sender");
-        assertEquals(lines[4], "Content:");
-        assertTrue(lines[5].startsWith("------=_Part_0"));
-        assertEquals(lines[6],
-                "Experiment was successfully registered. Use the attached metadata file to register Samples");
+        int i = 0;
+        assertTrue(lines[i] + " should start with " + "Date:", lines[i++].startsWith("Date:"));
+        assertEquals("From: sender", lines[i++]);
+        assertEquals("To: no-one@nowhere.ch", lines[i++]);
+        assertTrue(lines[i] + " should start with "
+                + "Subject: [CINA] Registered Experiment /CINA/CINA1/EXP-", lines[i++]
+                .startsWith("Subject: [CINA] Registered Experiment /CINA/CINA1/EXP-"));
+        assertEquals("Content:", lines[i++]);
+        assertTrue(lines[i++].startsWith("------=_Part_0"));
+        assertEquals(
+                "Experiment was successfully registered. Use the attached metadata file to register Samples",
+                lines[i++]);
 
-        assertTrue(lines[7].startsWith("------=_Part_0"));
-        assertEquals(lines[8], "Content-Disposition: attachment; filename=sample.properties");
-        assertTrue(lines[9].startsWith("experiment.identifier=/CINA/CINA1/EXP-"));
-        assertEquals(lines[10], "experiment.owner-email=no-one@nowhere.ch");
-        assertEquals(lines[11], "sample.code-prefix=S");
-        assertTrue(lines[12].startsWith("------=_Part_0"));
+        assertTrue(lines[i++].startsWith("------=_Part_0"));
+        assertEquals("Content-Disposition: attachment; filename=sample.properties", lines[i++]);
+        assertTrue(lines[i++].startsWith("experiment.identifier=/CINA/CINA1/EXP-"));
+        assertEquals("experiment.owner-email=no-one@nowhere.ch", lines[i++]);
+        assertEquals("sample.code-prefix=S", lines[i++]);
+        assertTrue(lines[i++].startsWith("------=_Part_0"));
     }
 
     private void doStoreData(File datasetFolder)
