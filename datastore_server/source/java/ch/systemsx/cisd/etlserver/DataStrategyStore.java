@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Christian Ribeaud
  */
-final class DataStrategyStore implements IDataStrategyStore
+public final class DataStrategyStore implements IDataStrategyStore
 {
     static final String SUBJECT_FORMAT = "ATTENTION: experiment '%s'";
 
@@ -61,7 +61,8 @@ final class DataStrategyStore implements IDataStrategyStore
 
     private final Map<DataStoreStrategyKey, IDataStoreStrategy> dataStoreStrategies;
 
-    DataStrategyStore(final IEncapsulatedOpenBISService limsService, final IMailClient mailClient)
+    public DataStrategyStore(final IEncapsulatedOpenBISService limsService,
+            final IMailClient mailClient)
     {
         this.mailClient = mailClient;
         dataStoreStrategies = createDataStoreStrategies();

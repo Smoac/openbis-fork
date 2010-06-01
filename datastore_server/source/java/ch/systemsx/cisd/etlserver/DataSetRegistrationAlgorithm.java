@@ -69,7 +69,7 @@ public abstract class DataSetRegistrationAlgorithm
 
     protected String errorMessageTemplate;
 
-    DataSetRegistrationAlgorithm(File incomingDataSetFile,
+    public DataSetRegistrationAlgorithm(File incomingDataSetFile,
             IDelegatedActionWithResult<Boolean> cleanAftrewardsAction)
     {
         this.errorMessageTemplate = TransferredDataSetHandler.DATA_SET_STORAGE_FAILURE_TEMPLATE;
@@ -90,7 +90,10 @@ public abstract class DataSetRegistrationAlgorithm
         this.storeRoot = getStorageProcessor().getStoreRootDirectory();
     }
 
-    final void prepare()
+    /**
+     * Prepare registration of a data set.
+     */
+    public final void prepare()
     {
         final File baseDirectory =
                 createBaseDirectory(dataStoreStrategy, storeRoot, dataSetInformation);
@@ -104,9 +107,9 @@ public abstract class DataSetRegistrationAlgorithm
     }
 
     /**
-     * This method is only ever called for identified data sets.
+     * Register the data set. This method is only ever called for identified data sets.
      */
-    final List<DataSetInformation> registerDataSet()
+    public final List<DataSetInformation> registerDataSet()
     {
         String processorID = getTypeExtractor().getProcessorType(incomingDataSetFile);
         try

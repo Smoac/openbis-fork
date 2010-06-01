@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Christian Ribeaud
  */
-interface IDataStrategyStore
+public interface IDataStrategyStore
 {
 
     /**
