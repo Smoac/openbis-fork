@@ -15,5 +15,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/eu_basysbio"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/screening"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/rtd_cina"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/plasmid"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
