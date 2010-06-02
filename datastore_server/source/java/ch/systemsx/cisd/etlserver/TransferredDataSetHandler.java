@@ -71,7 +71,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     static final String SUCCESSFULLY_REGISTERED = "Successfully registered data set: [";
 
     @Private
-    static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for experiment '%s";
+    public static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for experiment '%s";
 
     static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, TransferredDataSetHandler.class);

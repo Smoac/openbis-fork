@@ -85,9 +85,14 @@ public abstract class DataSetRegistrationAlgorithm
         this.dataStoreStrategy =
                 getDataStrategyStore()
                         .getDataStoreStrategy(dataSetInformation, incomingDataSetFile);
-        this.dataSetType = getTypeExtractor().getDataSetType(incomingDataSetFile);
+        this.dataSetType = extractDataSetType();
         dataSetInformation.setDataSetType(dataSetType);
         this.storeRoot = getStorageProcessor().getStoreRootDirectory();
+    }
+
+    protected DataSetType extractDataSetType()
+    {
+        return getTypeExtractor().getDataSetType(incomingDataSetFile);
     }
 
     /**
@@ -101,7 +106,7 @@ public abstract class DataSetRegistrationAlgorithm
                 new BaseDirectoryHolder(dataStoreStrategy, baseDirectory, incomingDataSetFile);
     }
 
-    final boolean hasDataSetBeenIdentified()
+    public final boolean hasDataSetBeenIdentified()
     {
         return dataStoreStrategy.getKey() == DataStoreStrategyKey.IDENTIFIED;
     }
@@ -259,7 +264,7 @@ public abstract class DataSetRegistrationAlgorithm
     /**
      * This method is only ever called for unidentified data sets.
      */
-    final void dealWithUnidentifiedDataSet()
+    public final void dealWithUnidentifiedDataSet()
     {
         final boolean ok =
                 shouldDeleteUnidentified() ? (removeAndLog(incomingDataSetFile.getName()
@@ -360,7 +365,7 @@ public abstract class DataSetRegistrationAlgorithm
      * 
      * @return never <code>null</code> but prefers to throw an exception.
      */
-    private final DataSetInformation extractDataSetInformation(final File incomingDataSetPath)
+    protected DataSetInformation extractDataSetInformation(final File incomingDataSetPath)
     {
         String errorMessage =
                 "Error when trying to identify data set '" + incomingDataSetPath.getAbsolutePath()
@@ -426,7 +431,7 @@ public abstract class DataSetRegistrationAlgorithm
         final NewExternalData data = new NewExternalData();
         data.setExtractableData(dataSetInformation.getExtractableData());
         data.setLocatorType(getTypeExtractor().getLocatorType(incomingDataSetFile));
-        data.setDataSetType(getTypeExtractor().getDataSetType(incomingDataSetFile));
+        data.setDataSetType(extractDataSetType());
         data.setFileFormatType(getTypeExtractor().getFileFormatType(incomingDataSetFile));
         data.setMeasured(getTypeExtractor().isMeasuredData(incomingDataSetFile));
         data.setDataStoreCode(getDataStoreCode());
