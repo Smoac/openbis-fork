@@ -32,8 +32,12 @@ import ch.systemsx.cisd.etlserver.DataStrategyStore;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.etlserver.Parameters;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
+import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
+import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
  * Helper class that maintains the state for handling put requests. The requests themselves are
@@ -51,6 +55,12 @@ public class PutDataSetService
 
     private final DataStrategyStore dataStrategyStore;
 
+    // These are all initialized only once, but it is not possible to initialize them at
+    // construction time, since this causes a dependency loop that causes problems in Spring.
+    private File storeDirectory;
+
+    private String dataStoreCode;
+
     private boolean isInitialized = false;
 
     private MailClient mailClient;
@@ -58,6 +68,10 @@ public class PutDataSetService
     private IETLServerPlugin plugin;
 
     private File incomingDir;
+
+    private IDataSetValidator dataSetValidator;
+
+    private DatabaseInstance homeDatabaseInstance;
 
     public PutDataSetService(IEncapsulatedOpenBISService openBisService, Logger operationLog)
     {
@@ -80,7 +94,6 @@ public class PutDataSetService
         try
         {
             new PutDataSetExecutor(this, plugin, sessionToken, newDataSet, inputStream).execute();
-
         } catch (UserFailureException e)
         {
             throw new IllegalArgumentException(e);
@@ -108,8 +121,15 @@ public class PutDataSetService
         incomingDir.mkdir();
 
         plugin = initializer.getPlugin();
+        plugin.getStorageProcessor().setStoreRootDirectory(storeDirectory);
 
         mailClient = new MailClient(initializer.getMailProperties());
+
+        this.dataStoreCode = initializer.getDataStoreCode();
+
+        homeDatabaseInstance = openBisService.getHomeDatabaseInstance();
+
+        dataSetValidator = initializer.getDataSetValidator();
 
         isInitialized = true;
     }
@@ -134,14 +154,39 @@ public class PutDataSetService
         return operationLog;
     }
 
-    public Lock getRegistrationLock()
+    Lock getRegistrationLock()
     {
         return registrationLock;
     }
 
-    public DataStrategyStore getDataStrategyStore()
+    DataStrategyStore getDataStrategyStore()
     {
         return dataStrategyStore;
+    }
+
+    String getDataStoreCode()
+    {
+        return dataStoreCode;
+    }
+
+    IDataSetValidator getDataSetValidator()
+    {
+        return dataSetValidator;
+    }
+
+    DatabaseInstance getHomeDatabaseInstance()
+    {
+        return homeDatabaseInstance;
+    }
+
+    public File getStoreRootDirectory()
+    {
+        return storeDirectory;
+    }
+
+    public void setStoreDirectory(File storeDirectory)
+    {
+        this.storeDirectory = storeDirectory;
     }
 
 }
@@ -176,4 +221,13 @@ class PutDataSetServiceInitializer
         return threadParams[0].getPlugin();
     }
 
+    String getDataStoreCode()
+    {
+        return DssPropertyParametersUtil.getDataStoreCode(params.getProperties());
+    }
+
+    DataSetValidator getDataSetValidator()
+    {
+        return new DataSetValidator(params.getProperties());
+    }
 }
