@@ -159,7 +159,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                             defaultValue);
             for (int i = 0; i < entities.size(); i++)
             {
-                if (i % 1000 == 0)
+                if (i > 0 && i % 1000 == 0)
                 {
                     if (operationLog.isDebugEnabled())
                     {

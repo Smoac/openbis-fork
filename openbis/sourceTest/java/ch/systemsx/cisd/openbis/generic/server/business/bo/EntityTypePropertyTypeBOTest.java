@@ -118,6 +118,9 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    one(daoFactory).setBatchUpdateMode(true);
+                    one(daoFactory).setBatchUpdateMode(false);
+                    
                     one(entityPropertyTypeDAO).tryFindAssignment(experimentType, propertyType);
                     will(returnValue(null));
 
