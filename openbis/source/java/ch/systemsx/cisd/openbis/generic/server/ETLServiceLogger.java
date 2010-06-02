@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleComponentsDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -274,6 +276,16 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public String getDefaultDataStoreBaseURL(String sessionToken)
     {
         logAccess(sessionToken, "getDefaultDataStoreBaseURL");
+        return null;
+    }
+
+    public Map<String, String> listOrRegisterComponents(String sessionToken,
+            SampleComponentsDescription components)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "listOrRegisterComponents", "CONTAINER(%s) CODES(%s) TYPE(%s)",
+                components.getContainerPermId(), components.getCodes().size(), components.getSampleTypeCode());
+
         return null;
     }
 }

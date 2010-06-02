@@ -90,6 +90,21 @@ public class ConversionUtils
 
     }
 
+    static public String convertToSpreadsheetLocation(Point p)
+    {
+        if (p == null)
+        {
+            throw new IllegalArgumentException("Unspecified point.");
+        }
+        if (p.getX() >= 26 || p.getX() < 0)
+        {
+            throw new IllegalArgumentException("Unsupported value: " + p.getX());
+        }
+        char x = (char) (p.getX() + 'A');
+        int y = p.getY() + 1;
+        return String.format("%s%s", x, y);
+    }
+
     private static int getLetterNumber(final char ch)
     {
         return Character.toUpperCase(ch) - 'A' + 1;

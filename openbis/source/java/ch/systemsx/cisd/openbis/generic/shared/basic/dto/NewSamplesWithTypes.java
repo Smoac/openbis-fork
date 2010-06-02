@@ -29,6 +29,18 @@ public class NewSamplesWithTypes
 
     List<NewSample> newSamples;
 
+    boolean allowUpdateIfExist = false;
+
+    public boolean isAllowUpdateIfExist()
+    {
+        return allowUpdateIfExist;
+    }
+
+    public void setAllowUpdateIfExist(boolean allowUpdateIfExist)
+    {
+        this.allowUpdateIfExist = allowUpdateIfExist;
+    }
+
     public NewSamplesWithTypes()
     {
     }

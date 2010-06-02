@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampl
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSamplesByPropertyPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleComponentsDescriptionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
@@ -58,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleComponentsDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -407,4 +410,17 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleSet.USER)
     public void checkSpaceAccess(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceId);
+
+    /**
+     * Load perm ids of samples contained in given container. Register samples that don't exist.
+     * 
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
+    public Map<String, String> listOrRegisterComponents(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleComponentsDescriptionPredicate.class) SampleComponentsDescription components)
+            throws UserFailureException;
+
 }

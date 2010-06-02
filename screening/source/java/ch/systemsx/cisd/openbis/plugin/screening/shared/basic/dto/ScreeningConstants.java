@@ -50,6 +50,10 @@ public class ScreeningConstants
     // type of the dataset which stores image analysis data, there should be at most one
     public static final String IMAGE_ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA";
 
+    public static final String OLIGO_WELL_TYPE_CODE = "OLIGO_WELL";
+
+    public static final String CONTROL_WELL_TYPE_CODE = "CONTROL_WELL";
+
     public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
 
     public static final String LIBRARY_PLUGIN_TYPE_CODE = "LIBRARY";

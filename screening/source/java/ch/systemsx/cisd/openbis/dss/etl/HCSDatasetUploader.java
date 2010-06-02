@@ -18,11 +18,13 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
@@ -33,6 +35,9 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgImageDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgSpotDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * @author Tomasz Pylak
@@ -127,17 +132,17 @@ class HCSDatasetUploader
             throw createInvalidNewChannelException(expId, existingChannels, channelName);
         }
         // a channel with a specified name already exists for an experiment, its description
-        // will be updated
+            // will be updated
         if (existingChannel.getWavelength().equals(channelDTO.getWavelength()) == false)
-        {
+            {
             throw UserFailureException.fromTemplate(
-                    "There are already datasets registered for the experiment "
-                            + "which use the same channel name, but with a different wavelength! "
+                                "There are already datasets registered for the experiment "
+                                        + "which use the same channel name, but with a different wavelength! "
                             + "Channel %s, old wavelength %d, new wavelength %d.", channelName,
                     existingChannel.getWavelength(), channelDTO.getWavelength());
-        }
-        channelDTO.setId(existingChannel.getId());
-        dao.updateChannel(channelDTO);
+            }
+            channelDTO.setId(existingChannel.getId());
+            dao.updateChannel(channelDTO);
         return channelDTO;
     }
 
@@ -153,10 +158,10 @@ class HCSDatasetUploader
     }
 
     private ImgChannelDTO createChannel(long expId, HCSImageFileExtractionResult.Channel channel)
-    {
+        {
         ImgChannelDTO channelDTO = makeChannelDTO(channel, expId);
-        long channelId = dao.addChannel(channelDTO);
-        channelDTO.setId(channelId);
+            long channelId = dao.addChannel(channelDTO);
+            channelDTO.setId(channelId);
         return channelDTO;
     }
 
@@ -285,16 +290,17 @@ class HCSDatasetUploader
         List<ImgSpotDTO> oldSpots = dao.listSpots(contId);
         List<ImgSpotDTO> newSpots =
                 createNewSpots(contId, images, oldSpots, info.getContainerRows(), info
-                        .getContainerColumns());
+                        .getContainerColumns(), info.getContainerPermId());
         newSpots.addAll(oldSpots);
         return makeTechIdMatrix(newSpots, info.getContainerRows(), info.getContainerColumns());
     }
 
     private List<ImgSpotDTO> createNewSpots(long contId, List<AcquiredPlateImage> images,
-            List<ImgSpotDTO> existingSpots, int rows, int columns)
+            List<ImgSpotDTO> existingSpots, int rows, int columns, String containerPermId)
     {
         Boolean[][] newSpotMatrix = extractNewSpots(rows, columns, images, existingSpots);
         List<ImgSpotDTO> newSpots = makeSpotDTOs(newSpotMatrix, contId);
+        enrichWithPermIds(newSpots, containerPermId);
         for (ImgSpotDTO spot : newSpots)
         {
             long id = dao.addSpot(spot);
@@ -303,8 +309,35 @@ class HCSDatasetUploader
         return newSpots;
     }
 
-    private static Boolean[][] extractNewSpots(int rows, int columns,
-            List<AcquiredPlateImage> images, List<ImgSpotDTO> existingSpots)
+    private void enrichWithPermIds(List<ImgSpotDTO> newSpots, String containerPermId)
+    {
+        Map<String, String> permIds = getOrCreateWells(newSpots, containerPermId);
+        for (ImgSpotDTO spot : newSpots)
+        {
+            spot.setPermId(permIds.get(createCoordinate(spot)));
+        }
+    }
+
+    private Map<String, String> getOrCreateWells(List<ImgSpotDTO> newSpots, String containerPermId)
+    {
+        IEncapsulatedOpenBISService server = ServiceProvider.getOpenBISService();
+        Set<String> codes = new HashSet<String>();
+        for (ImgSpotDTO spot : newSpots)
+        {
+            codes.add(createCoordinate(spot));
+        }
+        return server.listOrRegisterComponents(containerPermId, codes,
+                ScreeningConstants.OLIGO_WELL_TYPE_CODE);
+    }
+
+    String createCoordinate(ImgSpotDTO spot)
+    {
+        return Location.tryCreateMatrixCoordinateFromLocation(new Location(spot.getColumn(), spot
+                .getRow()));
+    }
+
+    private static Boolean[][] extractNewSpots(int rows, int columns, List<AcquiredPlateImage> images,
+            List<ImgSpotDTO> existingSpots)
     {
         Boolean[][] spots = extractExistingSpots(rows, columns, images);
         unmarkSpots(existingSpots, spots);

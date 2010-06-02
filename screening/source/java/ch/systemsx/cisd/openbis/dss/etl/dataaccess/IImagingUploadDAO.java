@@ -103,8 +103,8 @@ public interface IImagingUploadDAO extends TransactionQuery
             + "(?{1.filePath}, ?{1.page}, ?{1.colorComponentAsString}) returning ID")
     public long addImage(ImgImageDTO image);
 
-    @Select("insert into SPOTS (X, Y, CONT_ID) values "
-            + "(?{1.column}, ?{1.row}, ?{1.containerId}) returning ID")
+    @Select("insert into SPOTS (X, Y, CONT_ID, PERM_ID) values "
+            + "(?{1.column}, ?{1.row}, ?{1.containerId}, ?{1.permId}) returning ID")
     public long addSpot(ImgSpotDTO spot);
 
     // updates

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
@@ -68,6 +69,11 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * Returns the sample with given <var>techId</var>.
      */
     public SamplePE getSample(TechId techId);
+
+    /**
+     * Returns the sample with given <var>permId</var>.
+     */
+    public SamplePE getSample(PermId id);
 
     /**
      * Returns the filter with given <var>techId</var>

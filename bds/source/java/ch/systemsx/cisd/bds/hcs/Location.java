@@ -92,6 +92,19 @@ public final class Location
         }
     }
 
+    /**
+     * For given location returns corresponding matrix coordinate.
+     */
+    public static final String tryCreateMatrixCoordinateFromLocation(final Location location)
+    {
+        if (location == null)
+        {
+            throw new IllegalArgumentException("Location unspecified");
+        }
+        Point point = new Point(location.getY() - 1, location.getX() - 1);
+        return ConversionUtils.convertToSpreadsheetLocation(point);
+    }
+
     //
     // Object
     //

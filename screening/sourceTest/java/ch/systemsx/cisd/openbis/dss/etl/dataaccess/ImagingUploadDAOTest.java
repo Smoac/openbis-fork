@@ -39,6 +39,8 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgImageDTO.ColorComponent;
 public class ImagingUploadDAOTest extends AbstractDBTest
 {
 
+    private static final String PERM_ID = "PERM_ID";
+
     private static final int PAGE = 1;
 
     private static final int Y_TILE_ROW = 2;
@@ -202,6 +204,7 @@ public class ImagingUploadDAOTest extends AbstractDBTest
     private long addSpot(long containerId)
     {
         final ImgSpotDTO spot = new ImgSpotDTO(Y_WELL_ROW, X_WELL_COLUMN, containerId);
+        spot.setPermId(PERM_ID);
         return dao.addSpot(spot);
     }
 

@@ -90,7 +90,7 @@ class LibraryRegistrationTask implements Runnable
         }
         try
         {
-            genericServer.registerSamples(sessionToken, newSamplesWithType);
+            genericServer.registerOrUpdateSamples(sessionToken, newSamplesWithType);
             for (NewSamplesWithTypes s : newSamplesWithType)
             {
                 message.append("Successfuly registered " + s.getNewSamples().size()

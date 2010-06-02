@@ -108,7 +108,17 @@ class LibraryExtractor
                         .asList(new NamedInputStream(new FileInputStream(platesFile), platesFile
                                 .getName(), null)), null, null, true,
                         BatchOperationKind.REGISTRATION);
-        return prepared.getSamples();
+        List<NewSamplesWithTypes> samples = prepared.getSamples();
+        setUpdatableTypes(samples);
+        return samples;
+    }
+
+    private static void setUpdatableTypes(List<NewSamplesWithTypes> samples)
+    {
+        for (NewSamplesWithTypes s : samples)
+        {
+            s.setAllowUpdateIfExist(true);
+        }
     }
 
     private static List<NewMaterial> extractMaterials(File genesFile) throws FileNotFoundException

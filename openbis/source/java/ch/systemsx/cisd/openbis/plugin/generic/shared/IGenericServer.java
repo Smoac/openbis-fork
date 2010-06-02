@@ -144,6 +144,17 @@ public interface IGenericServer extends IServer
             throws UserFailureException;
 
     /**
+     * Registers or updates samples of different types in batches.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
+    public void registerOrUpdateSamples(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class) final List<NewSamplesWithTypes> newSamplesWithType)
+            throws UserFailureException;
+
+    /**
      * Updates samples of different types in batches.
      */
     @Transactional

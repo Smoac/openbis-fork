@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
@@ -82,5 +84,10 @@ public final class GenericBusinessObjectFactory extends AbstractPluginBusinessOb
     public IProjectBO createProjectBO(Session session)
     {
         return getCommonBusinessObjectFactory().createProjectBO(session);
+    }
+
+    public ISampleLister createSampleLister(Session session)
+    {
+        return SampleLister.create(getDaoFactory(), session.getBaseIndexURL());
     }
 }

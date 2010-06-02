@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFl
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ArrayPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.CollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
@@ -329,6 +330,11 @@ public final class PredicateExecutor
         public SamplePE getSample(TechId techId)
         {
             return daoFactory.getSampleDAO().getByTechId(techId);
+        }
+
+        public SamplePE getSample(PermId id)
+        {
+            return daoFactory.getSampleDAO().tryToFindByPermID(id.getId());
         }
 
         public GridCustomFilterPE getGridCustomFilter(TechId techId)

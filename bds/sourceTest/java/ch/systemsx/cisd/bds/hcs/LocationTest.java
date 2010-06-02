@@ -101,4 +101,25 @@ public final class LocationTest
         assertEquals(new Location(7, 26), Location.tryCreateLocationFromMatrixCoordinate("z7"));
         assertEquals(new Location(34, 15), Location.tryCreateLocationFromMatrixCoordinate("O34"));
     }
+
+    @Test
+    public final void testCreateMatrixCoordinateFromLocation()
+    {
+        assertEquals("A1", Location.tryCreateMatrixCoordinateFromLocation(new Location(1, 1)));
+        assertEquals("A2", Location.tryCreateMatrixCoordinateFromLocation(new Location(2, 1)));
+        assertEquals("Z7", Location.tryCreateMatrixCoordinateFromLocation(new Location(7, 26)));
+        assertEquals("O34", Location.tryCreateMatrixCoordinateFromLocation(new Location(34, 15)));
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public final void testCreateMatrixCoordinateFromTooBigNumber()
+    {
+        Location.tryCreateMatrixCoordinateFromLocation(new Location(134, 27));
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public final void testCreateMatrixCoordinateFromNullLocation()
+    {
+        Location.tryCreateMatrixCoordinateFromLocation(null);
+    }
 }

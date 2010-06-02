@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -63,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -253,6 +255,38 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 filename, version));
     }
 
+    public final void registerOrUpdateSamples(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        final Session session = getSession(sessionToken);
+        for (NewSamplesWithTypes samples : newSamplesWithType)
+        {
+            if (samples.isAllowUpdateIfExist() == false)
+            {
+                registerSamples(session, samples);
+            } else
+            {
+                registerOrUpdate(session, samples);
+            }
+        }
+    }
+
+    private void registerOrUpdate(final Session session, NewSamplesWithTypes samples)
+    {
+        List<Sample> existingSamples =
+                businessObjectFactory.createSampleLister(session).list(
+                        SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(samples
+                                .getNewSamples()));
+        List<NewSample> samplesToUpdate =
+                SampleRegisterOrUpdateUtil.getSamplesToUpdate(samples, existingSamples);
+        List<NewSample> samplesToRegister = new ArrayList<NewSample>(samples.getNewSamples());
+        samplesToRegister.removeAll(samplesToUpdate);
+        registerSamples(session,
+                new NewSamplesWithTypes(samples.getSampleType(), samplesToRegister));
+        updateSamples(session, new NewSamplesWithTypes(samples.getSampleType(), samplesToUpdate));
+    }
+
     public final void registerSamples(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
     {
@@ -368,11 +402,30 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final String parentIdentifierOrNull = updatedSample.getParentIdentifier();
             final String containerIdentifierOrNull = updatedSample.getContainerIdentifier();
             final SampleBatchUpdateDetails batchUpdateDetails =
-                    ((UpdatedSample) updatedSample).getBatchUpdateDetails();
+                    createBatchUpdateDetails(updatedSample);
 
             batchUpdateSample(session, new SampleBatchUpdatesDTO(oldSampleIdentifier, properties,
                     experimentIdentifierOrNull, newSampleIdentifier, parentIdentifierOrNull,
                     containerIdentifierOrNull, batchUpdateDetails));
+        }
+    }
+
+    SampleBatchUpdateDetails createBatchUpdateDetails(NewSample sample)
+    {
+        if (sample instanceof UpdatedSample)
+        {
+            return ((UpdatedSample) sample).getBatchUpdateDetails();
+        } else
+        {
+            IEntityProperty[] properties = sample.getProperties();
+            Set<String> propertyCodes = new HashSet<String>();
+            for (IEntityProperty p : properties)
+            {
+                propertyCodes.add(p.getPropertyType().getCode());
+            }
+            SampleBatchUpdateDetails result =
+                    new SampleBatchUpdateDetails(false, false, false, propertyCodes);
+            return result;
         }
     }
 
