@@ -149,7 +149,6 @@ class PutDataSetExecutor
     private OutputStream getOutputStream(FileInfoDssDTO fileInfo)
     {
         File file = new File(dataSetDir, fileInfo.getPathInDataSet());
-        System.out.println(file);
 
         FileOutputStream fos;
         try

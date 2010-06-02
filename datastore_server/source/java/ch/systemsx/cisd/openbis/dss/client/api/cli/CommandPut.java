@@ -64,6 +64,11 @@ class CommandPut extends AbstractCommand
             return getArguments().get(3);
         }
 
+        public File getFile()
+        {
+            return new File(getFilePath());
+        }
+
         @Override
         public boolean isComplete()
         {
@@ -104,7 +109,17 @@ class CommandPut extends AbstractCommand
                 NewDataSetDTO newDataSet = getNewDataSet();
                 if (newDataSet.getFileInfos().isEmpty())
                 {
-                    System.err.println("Data set file does not exist");
+                    File file = arguments.getFile();
+                    if (false == file.exists())
+                    {
+                        System.err.println("Data set file does not exist");
+                    } else if (false == file.isDirectory())
+                    {
+                        System.err.println("Must select a directory to upload.");
+                    } else
+                    {
+                        System.err.println("Data set is empty.");
+                    }
                     return -1;
                 }
                 ConcatenatedFileInputStream fileInputStream =
@@ -139,6 +154,10 @@ class CommandPut extends AbstractCommand
         {
             ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
             if (false == file.exists())
+            {
+                return fileInfos;
+            }
+            if (false == file.isDirectory())
             {
                 return fileInfos;
             }
