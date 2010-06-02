@@ -139,4 +139,11 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
         return this.listFilesForDataSet(sessionToken, fileOrFolder.getDataSetCode(), fileOrFolder
                 .getPath(), fileOrFolder.isRecursive());
     }
+    
+    @Override
+    public void setStoreDirectory(File aFile)
+    {
+        super.setStoreDirectory(aFile);
+        putService.setStoreDirectory(aFile);
+    }
 }
