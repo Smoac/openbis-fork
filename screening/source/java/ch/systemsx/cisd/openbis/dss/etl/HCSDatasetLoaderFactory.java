@@ -55,6 +55,8 @@ public class HCSDatasetLoaderFactory
         return new HCSDatasetLoader(query, datasetCode, datasetRootDir);
     }
 
+    // remove when not needed
+    @SuppressWarnings("unused")
     private static IHCSDatasetLoader createBDSLoader(File datasetRootDir)
     {
         final ch.systemsx.cisd.bds.hcs.HCSDatasetLoader loader =
