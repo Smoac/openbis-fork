@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
@@ -107,8 +108,8 @@ class CommandPut extends AbstractCommand
                     return -1;
                 }
                 ConcatenatedFileInputStream fileInputStream =
-                        new ConcatenatedFileInputStream(true, getFilesForFileInfos(newDataSet
-                                .getFileInfos()));
+                        new ConcatenatedFileInputStream(true, getFilesForFileInfos(arguments
+                                .getFilePath(), newDataSet.getFileInfos()));
                 component.putDataSet(newDataSet, fileInputStream);
             } catch (IOException e)
             {
@@ -146,9 +147,19 @@ class CommandPut extends AbstractCommand
             return fileInfos;
         }
 
-        private ArrayList<File> getFilesForFileInfos(List<FileInfoDssDTO> fileInfos)
+        private List<File> getFilesForFileInfos(String filePath, List<FileInfoDssDTO> fileInfos)
         {
             ArrayList<File> files = new ArrayList<File>();
+            File parent = new File(filePath);
+            if (false == parent.isDirectory())
+            {
+                return Collections.singletonList(parent);
+            }
+
+            for (FileInfoDssDTO fileInfo : fileInfos)
+            {
+                files.add(new File(parent, fileInfo.getPathInDataSet()));
+            }
 
             return files;
         }
