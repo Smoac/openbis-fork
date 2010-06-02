@@ -176,7 +176,13 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             final HttpServletResponse response) throws IOException
     {
         response.setHeader("Content-Disposition", responseStream.getHeaderContentDisposition());
-        response.setContentLength(responseStream.getSize());
+        if (responseStream.getSize() <= Integer.MAX_VALUE)
+        {
+            response.setContentLength((int) responseStream.getSize());
+        } else
+        {
+            response.addHeader("Content-Length", Long.toString(responseStream.getSize()));
+        }
         response.setContentType(responseStream.getContentType());
 
         ServletOutputStream outputStream = null;
@@ -231,13 +237,13 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     {
         private final InputStream inputStream;
 
-        private final int size;
+        private final long size;
 
         private final String contentType;
 
         private final String headerContentDisposition;
 
-        public ResponseContentStream(InputStream inputStream, int size, String contentType,
+        public ResponseContentStream(InputStream inputStream, long size, String contentType,
                 String headerContentDisposition)
         {
             this.inputStream = inputStream;
@@ -251,7 +257,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             return inputStream;
         }
 
-        public int getSize()
+        public long getSize()
         {
             return size;
         }
