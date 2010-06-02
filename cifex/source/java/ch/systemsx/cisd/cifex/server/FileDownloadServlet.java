@@ -81,9 +81,15 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
                     final FileContent fileOutput =
                             fileManager.getFileContent(fileInfo.getFileDTO());
                     final Long size = fileOutput.getBasicFile().getSize();
-                    if (size != null && size <= Integer.MAX_VALUE)
+                    if (size != null)
                     {
-                        response.setContentLength(size.intValue());
+                        if (size <= Integer.MAX_VALUE)
+                        {
+                            response.setContentLength(size.intValue());
+                        } else
+                        {
+                            response.addHeader("Content-Length", Long.toString(size));
+                        }
                     }
                     response.setContentType("application/x-unknown");
                     response.setHeader("Content-Disposition", "attachment; filename=\""
