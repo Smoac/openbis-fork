@@ -1780,6 +1780,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         {
             List<GridCustomFilterPE> filters =
                     getDAOFactory().getGridCustomFilterDAO().listFilters(gridId);
+            Collections.sort(filters);
             return GridCustomFilterTranslator.translate(filters);
         } catch (final DataAccessException ex)
         {
