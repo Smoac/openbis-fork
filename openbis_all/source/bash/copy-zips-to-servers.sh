@@ -12,14 +12,16 @@ export SCU=bs-dsvr28-openbis-scu.ethz.ch
 export BASYSBIO=bs-dsvr10.ethz.ch
 export BASYSBIO_TEST=bs-dsvr28-openbis-test.ethz.ch
 export CINA=bs-openbis01.ethz.ch
+export PLASMIDS=bs-openbis02.ethz.ch
 
 
-# Currently there are three different types of server specific zips we distinguish
+# Different types of server specific zips we distinguish
 export ZIPS="openBIS-server-S*.zip  datastore_server-S*.zip"
 export ZIPS_PHOSPHONETX="*phosphonetx*.zip"
 export ZIPS_DSU="openBIS-server-S*.zip datastore_server-dsu*.zip openbis-tracking-client*.zip"
 export ZIPS_BASYSBIO="*basysbio*.zip openBIS-server-S*.zip"
 export ZIPS_CINA="openBIS-server-S*.zip datastore_server-cina-*.zip"
+export ZIPS_PLASMIDS="*plasmid*"
 
 # Special plugin
 export DATASTORE_PLUGIN="datastore_server_plugin*.zip"
@@ -31,6 +33,7 @@ for i in $ZIPS; do
          echo $LIVERX; scp -p $i $LIVERX:~openbis
          echo $AGRONOMICS; scp -p $i $AGRONOMICS:~openbis
          echo $SCU; scp -p $i $SCU:~openbis
+         echo $PLASMIDS; scp -p $i $PLASMIDS:~openbis
 done
 
 echo -e "\nCopying to $PHOSPHONETX...\n"
@@ -49,10 +52,12 @@ for m in $ZIPS_BASYSBIO; do
                 echo $BASYSBIO_TEST; scp -p $m $BASYSBIO_TEST:~openbis
 done
 
-echo -e "\n Copying to $CINA...\n"
-for z in $ZIPS_CINA; do
-                echo $CINA; scp -p $z $CINA:~openbis
+
+echo -e "\n Copying to $PLASMIDS...\n"
+for y in $ZIPS_PLASMIDS; do
+                echo $PLASMIDS; scp -p $y $PLASMIDS:~openbis
 done
+
 
 echo -e "\nCopying to default dss...\n"
 for l in $DATASTORE_PLUGIN; do
