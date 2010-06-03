@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroupTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPersonTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckRoleAssignmentTable;
@@ -28,10 +29,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Ope
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.RoleAssignmentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 
 /**
@@ -105,23 +106,19 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    /**
-     * Tests that authorization annotations of {@link ICommonServer#registerPerson(String, String)}
-     * are obeyed.
-     */
+    @SuppressWarnings("unchecked")
     public final void testCreatePersonByAnUnauthorizedUser()
     {
         loginAndInvokeAction("o", "o", ActionMenuKind.AUTHORIZATION_MENU_USERS);
-        final String userId = "u";
-        CreatePerson command = new CreatePerson(userId);
-        remoteConsole.prepare(command);
+
         FailureExpectation failureExpectation =
-                new FailureExpectation(AddPersonDialog.SaveDialogCallback.class)
+                new FailureExpectation(
+                        (Class<? extends AsyncCallback<?>>) AbstractBrowserGrid.ListEntitiesCallback.class)
                         .with("Authorization failure: None of method roles '[INSTANCE.ADMIN]' "
                                 + "could be found in roles of user 'o'.");
+
         remoteConsole.prepare(failureExpectation);
 
         launchTest();
     }
-
 }

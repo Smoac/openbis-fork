@@ -277,7 +277,7 @@ public class RemoteConsole
             detectCallback(callback);
             if (entryIndex < commands.size())
             {
-                ITestCommand cmd = commands.get(entryIndex);
+                ITestCommand cmd = commands.get(commands.size() - 1);
                 // It doesn't need to be the last callback that fails,
                 // but command that expects failure should be the last one.
                 if (cmd.isValidOnFailure(callback, failureMessage, throwable))
@@ -291,8 +291,8 @@ public class RemoteConsole
             {
                 msg = "empty";
             }
-            Assert.fail("Failed callback " + callback + ": " + failureMessage + " ["
-                    + throwable.getClass() + ": " + msg + "]");
+            Assert.fail("Failed callback " + callback + "(" + callback.getClass() + ")" + ": "
+                    + failureMessage + " [" + throwable.getClass() + ": " + msg + "]");
         }
 
         public void registerCallback(final AbstractAsyncCallback<?> callback)
