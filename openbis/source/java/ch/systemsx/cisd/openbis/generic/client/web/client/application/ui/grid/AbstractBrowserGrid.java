@@ -716,7 +716,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return grid.getStore().getCount();
     }
 
-    private final class ListEntitiesCallback extends AbstractAsyncCallback<ResultSet<T>>
+    public final class ListEntitiesCallback extends AbstractAsyncCallback<ResultSet<T>>
     {
         private final AsyncCallback<PagingLoadResult<M>> delegate;
 
