@@ -40,55 +40,61 @@ public class RowLayoutManager
     private static interface IManipulator
     {
         double getFor(RowData rowData);
+
         void setFor(RowData rowData, double newValue);
+
         int getFrameSizeFor(ContentPanel panel);
     }
-    
+
     private static final class DynamicRowData
     {
         private RowData rowData;
+
         private double originalValue;
+
         private ContentPanel panel;
     }
-    
+
     private static final IManipulator HEIGHT_MANIPULATOR = new IManipulator()
-    {
-        public void setFor(RowData rowData, double newValue)
         {
-            rowData.setHeight(newValue);
-        }
+            public void setFor(RowData rowData, double newValue)
+            {
+                rowData.setHeight(newValue);
+            }
 
-        public double getFor(RowData rowData)
-        {
-            return rowData.getHeight();
-        }
+            public double getFor(RowData rowData)
+            {
+                return rowData.getHeight();
+            }
 
-        public int getFrameSizeFor(ContentPanel panel)
-        {
-            return panel.isRendered() ? panel.getFrameHeight() : 0;
-        }
-    };
-    
+            public int getFrameSizeFor(ContentPanel panel)
+            {
+                return panel.isRendered() ? panel.getFrameHeight() : 0;
+            }
+        };
+
     private static final IManipulator WIDTH_MANIPULATOR = new IManipulator()
-    {
-        public void setFor(RowData rowData, double newValue)
         {
-            rowData.setWidth(newValue);
-        }
+            public void setFor(RowData rowData, double newValue)
+            {
+                rowData.setWidth(newValue);
+            }
 
-        public double getFor(RowData rowData)
-        {
-            return rowData.getWidth();
-        }
+            public double getFor(RowData rowData)
+            {
+                return rowData.getWidth();
+            }
 
-        public int getFrameSizeFor(ContentPanel panel)
-        {
-            return panel.isRendered() ? panel.getFrameWidth() : 0;
-        }
-    };
-    
+            public int getFrameSizeFor(ContentPanel panel)
+            {
+                return panel.isRendered() ? panel.getFrameWidth() : 0;
+            }
+        };
+
     private final LayoutContainer container;
+
     private final IManipulator manipulator;
+
     private final List<DynamicRowData> dynamicRowDatas = new ArrayList<DynamicRowData>();
 
     /**
@@ -113,6 +119,7 @@ public class RowLayoutManager
      */
     public void addToContainer(ContentPanel contentPanel, RowData rowData)
     {
+        contentPanel.setAnimCollapse(false);
         container.add(contentPanel, rowData);
         double value = manipulator.getFor(rowData);
         if (value < 0 || value > 1)
@@ -152,8 +159,7 @@ public class RowLayoutManager
             if (data.panel.isCollapsed())
             {
                 value = manipulator.getFrameSizeFor(data.panel);
-            }
-            else
+            } else
             {
                 value = data.originalValue / sum;
             }
