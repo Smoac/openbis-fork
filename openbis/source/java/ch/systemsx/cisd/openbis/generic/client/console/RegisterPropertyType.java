@@ -20,14 +20,14 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class RegisterPropertyType implements ICommand
 {
 
     private static final String WITH_DATA_TYPE = " with data type ";
+
+    @SuppressWarnings("unused")
     private static final String LABEL = ", label = ";
 
     public void execute(ICommonServer server, String sessionToken, ScriptContext context,
@@ -40,11 +40,11 @@ public class RegisterPropertyType implements ICommand
             throw new IllegalArgumentException("'with data type' misspelled");
         }
         propertyType.setCode(argument.substring(0, indexOfWithDataType));
-        
-//        propertyType.setLabel(label);
-//        propertyType.setDescription(description);
-//        DataTypeCode dataType = DataTypeCode.valueOf(dataTypeCode);
-//        propertyType.setDataType(new DataType(dataType));
+
+        // propertyType.setLabel(label);
+        // propertyType.setDescription(description);
+        // DataTypeCode dataType = DataTypeCode.valueOf(dataTypeCode);
+        // propertyType.setDataType(new DataType(dataType));
         server.registerPropertyType(sessionToken, propertyType);
 
     }
