@@ -84,6 +84,10 @@ abstract class AbstractCommand implements ICommand
         IDssComponent component =
                 DssComponentFactory.tryCreate(arguments.getUsername(), arguments.getPassword(),
                         arguments.getServerBaseUrl());
+        if (null == component)
+        {
+            System.out.println("Username / password is invalid");
+        }
         return component;
     }
 

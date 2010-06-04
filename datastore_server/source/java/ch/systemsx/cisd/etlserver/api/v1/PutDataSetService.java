@@ -83,7 +83,7 @@ public class PutDataSetService
         this.dataStrategyStore = new DataStrategyStore(this.openBisService, mailClient);
     }
 
-    public void putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
+    public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         if (false == isInitialized)
@@ -93,7 +93,8 @@ public class PutDataSetService
 
         try
         {
-            new PutDataSetExecutor(this, plugin, sessionToken, newDataSet, inputStream).execute();
+            return new PutDataSetExecutor(this, plugin, sessionToken, newDataSet, inputStream)
+                    .execute();
         } catch (UserFailureException e)
         {
             throw new IllegalArgumentException(e);

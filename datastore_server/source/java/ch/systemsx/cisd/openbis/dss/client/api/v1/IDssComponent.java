@@ -69,12 +69,13 @@ public interface IDssComponent
      * Upload a new data set to the DSS.
      * 
      * @param newDataset The new data set that should be registered
-     * @param inputStream An input stream on the file or folder to register.
+     * @param inputStream An input stream on the file or folder to register
+     * @return A proxy to the newly added data set
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public void putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
             throws IllegalStateException, EnvironmentFailureException;
 
     /**

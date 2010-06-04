@@ -173,6 +173,10 @@ class CommandGet extends AbstractCommand
         }
 
         IDssComponent component = login(arguments);
+        if (null == component)
+        {
+            return 1;
+        }
         IDataSetDss dataSet = getDataSet(component, arguments);
         return new CommandGetExecutor(dataSet, arguments).execute();
     }

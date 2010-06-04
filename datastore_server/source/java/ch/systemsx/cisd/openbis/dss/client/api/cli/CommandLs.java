@@ -123,6 +123,10 @@ class CommandLs extends AbstractCommand
         try
         {
             component = login(arguments);
+            if (null == component)
+            {
+                return 1;
+            }
             IDataSetDss dataSet = getDataSet(component, arguments);
             return new CommandLsExecutor(dataSet, arguments).execute();
         } finally

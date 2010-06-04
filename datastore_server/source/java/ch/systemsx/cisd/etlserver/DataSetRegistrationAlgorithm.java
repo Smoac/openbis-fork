@@ -85,14 +85,17 @@ public abstract class DataSetRegistrationAlgorithm
         this.dataStoreStrategy =
                 getDataStrategyStore()
                         .getDataStoreStrategy(dataSetInformation, incomingDataSetFile);
-        this.dataSetType = extractDataSetType();
+        this.dataSetType = getTypeExtractor().getDataSetType(incomingDataSetFile);
         dataSetInformation.setDataSetType(dataSetType);
         this.storeRoot = getStorageProcessor().getStoreRootDirectory();
     }
 
-    protected DataSetType extractDataSetType()
+    /**
+     * Return the data set information.
+     */
+    public DataSetInformation getDataSetInformation()
     {
-        return getTypeExtractor().getDataSetType(incomingDataSetFile);
+        return dataSetInformation;
     }
 
     /**
@@ -431,7 +434,7 @@ public abstract class DataSetRegistrationAlgorithm
         final NewExternalData data = new NewExternalData();
         data.setExtractableData(dataSetInformation.getExtractableData());
         data.setLocatorType(getTypeExtractor().getLocatorType(incomingDataSetFile));
-        data.setDataSetType(extractDataSetType());
+        data.setDataSetType(getTypeExtractor().getDataSetType(incomingDataSetFile));
         data.setFileFormatType(getTypeExtractor().getFileFormatType(incomingDataSetFile));
         data.setMeasured(getTypeExtractor().isMeasuredData(incomingDataSetFile));
         data.setDataStoreCode(getDataStoreCode());

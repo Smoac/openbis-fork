@@ -40,9 +40,13 @@ class CommandFactory
             return new CommandHelp(this);
         }
 
-        Command command = Command.valueOf(name.toUpperCase());
-        if (null == command)
+        Command command;
+        try
         {
+            command = Command.valueOf(name.toUpperCase());
+        } catch (IllegalArgumentException e)
+        {
+
             return null;
         }
 

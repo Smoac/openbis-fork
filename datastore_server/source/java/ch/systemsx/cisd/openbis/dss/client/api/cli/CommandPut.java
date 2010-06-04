@@ -25,9 +25,11 @@ import java.util.List;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
+import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -44,24 +46,27 @@ class CommandPut extends AbstractCommand
 {
     private static class CommandPutArguments extends GlobalArguments
     {
+        @Option(name = "t", longName = "type", usage = "Set the data set type")
+        private String dataSetType;
+
         public String getDataSetType()
         {
-            return getArguments().get(0);
+            return dataSetType;
         }
 
         public DataSetOwnerType getOwnerType()
         {
-            return DataSetOwnerType.valueOf(getArguments().get(1).toString().toUpperCase());
+            return DataSetOwnerType.valueOf(getArguments().get(0).toString().toUpperCase());
         }
 
         public String getOwnerIdentifier()
         {
-            return getArguments().get(2);
+            return getArguments().get(1);
         }
 
         public String getFilePath()
         {
-            return getArguments().get(3);
+            return getArguments().get(1);
         }
 
         public File getFile()
@@ -125,7 +130,8 @@ class CommandPut extends AbstractCommand
                 ConcatenatedFileInputStream fileInputStream =
                         new ConcatenatedFileInputStream(true, getFilesForFileInfos(arguments
                                 .getFilePath(), newDataSet.getFileInfos()));
-                component.putDataSet(newDataSet, fileInputStream);
+                IDataSetDss dataSet = component.putDataSet(newDataSet, fileInputStream);
+                System.out.println("Registered new data set " + dataSet.getCode());
             } catch (IOException e)
             {
                 e.printStackTrace();
@@ -137,16 +143,24 @@ class CommandPut extends AbstractCommand
 
         private NewDataSetDTO getNewDataSet() throws IOException
         {
-            String dataSetType = arguments.getDataSetType();
+            // Get the owner
             // That the owner type is valid has already been checked by CmdPutArguments#isComplete
             DataSetOwnerType ownerType = arguments.getOwnerType();
             String ownerIdentifier = arguments.getOwnerIdentifier();
             DataSetOwner owner = new NewDataSetDTO.DataSetOwner(ownerType, ownerIdentifier);
+
+            // Get the file infos
             String filePath = arguments.getFilePath();
             File file = new File(filePath);
             ArrayList<FileInfoDssDTO> fileInfos = getFileInfosForPath(filePath, file);
+
+            // Get the parent
             String parentNameOrNull = (file.isDirectory()) ? file.getName() : null;
-            return new NewDataSetDTO(dataSetType, owner, parentNameOrNull, fileInfos);
+
+            NewDataSetDTO dataSet = new NewDataSetDTO(owner, parentNameOrNull, fileInfos);
+            // Set the data set type (may be null)
+            dataSet.setDataSetTypeOrNull(arguments.getDataSetType());
+            return dataSet;
         }
 
         private ArrayList<FileInfoDssDTO> getFileInfosForPath(String path, File file)
@@ -211,6 +225,10 @@ class CommandPut extends AbstractCommand
         }
 
         IDssComponent component = login(arguments);
+        if (null == component)
+        {
+            return 1;
+        }
         return new CommandPutExecutor(component, arguments).execute();
     }
 

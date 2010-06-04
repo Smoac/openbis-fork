@@ -50,6 +50,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -77,6 +79,8 @@ class PutDataSetExecutor
 
     private final File dataSetDir;
 
+    private final OverridingTypeExtractor overridingTypeExtractor;
+
     PutDataSetExecutor(PutDataSetService service, IETLServerPlugin plugin, String sessionToken,
             NewDataSetDTO newDataSet, InputStream inputStream)
     {
@@ -95,6 +99,8 @@ class PutDataSetExecutor
             throw new EnvironmentFailureException("Could not create directory for data set "
                     + newDataSet.getDataSetFolderName());
         }
+
+        overridingTypeExtractor = new OverridingTypeExtractor();
     }
 
     /**
@@ -103,7 +109,7 @@ class PutDataSetExecutor
      * 
      * @throws IOException
      */
-    public void execute() throws UserFailureException, IOException
+    public String execute() throws UserFailureException, IOException
     {
         // Check that the session owner has at least user access to the space the new data
         // set should belongs to
@@ -127,10 +133,12 @@ class PutDataSetExecutor
                 throw new UserFailureException("Could not find owner:\n\t"
                         + newDataSet.getDataSetOwner() + "\nfor data set:\n\t" + newDataSet);
             }
+            return helper.getDataSetInformation().getDataSetCode();
         } finally
         {
             deleteDataSetDir();
         }
+
     }
 
     private void writeDataSetToTempDirectory() throws IOException
@@ -245,12 +253,64 @@ class PutDataSetExecutor
         return service.getOperationLog();
     }
 
+    public OverridingTypeExtractor getOverridingTypeExtractor()
+    {
+        return overridingTypeExtractor;
+    }
+
     private static class CleanAfterwardsAction implements IDelegatedActionWithResult<Boolean>
     {
         public Boolean execute()
         {
             return true; // do nothing
         }
+    }
+
+    /**
+     * Implementation of ITypeExtractor that overrides the plugin's type extractor only if the
+     * caller has provided an override in the {@link NewDataSetDTO}.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    private class OverridingTypeExtractor implements ITypeExtractor
+    {
+        private final ITypeExtractor pluginTypeExtractor;
+
+        OverridingTypeExtractor()
+        {
+            pluginTypeExtractor = plugin.getTypeExtractor();
+        }
+
+        public DataSetType getDataSetType(File incomingDataSetPath)
+        {
+            String dataSetTypeString = newDataSet.tryDataSetType();
+            if (null != dataSetTypeString)
+            {
+                return new DataSetType(dataSetTypeString);
+            }
+            return pluginTypeExtractor.getDataSetType(incomingDataSetPath);
+        }
+
+        public FileFormatType getFileFormatType(File incomingDataSetPath)
+        {
+            return pluginTypeExtractor.getFileFormatType(incomingDataSetPath);
+        }
+
+        public LocatorType getLocatorType(File incomingDataSetPath)
+        {
+            return pluginTypeExtractor.getLocatorType(incomingDataSetPath);
+        }
+
+        public String getProcessorType(File incomingDataSetPath)
+        {
+            return pluginTypeExtractor.getProcessorType(incomingDataSetPath);
+        }
+
+        public boolean isMeasuredData(File incomingDataSetPath)
+        {
+            return pluginTypeExtractor.isMeasuredData(incomingDataSetPath);
+        }
+
     }
 
     /**
@@ -352,7 +412,7 @@ class PutDataSetExecutor
         @Override
         protected ITypeExtractor getTypeExtractor()
         {
-            return plugin.getTypeExtractor();
+            return getOverridingTypeExtractor();
         }
 
         @Override
@@ -407,12 +467,6 @@ class PutDataSetExecutor
             // TODO: When registering, set the registrator to the session owner; only an admin on
             // the space or an ETL server can override.
             return dataSetInfo;
-        }
-
-        @Override
-        protected DataSetType extractDataSetType()
-        {
-            return new DataSetType(newDataSet.getDataSetType());
         }
     }
 }

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
-import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-
 import java.io.InputStream;
 import java.util.Collection;
 
@@ -33,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -182,10 +181,10 @@ public class DssComponent implements IDssComponent
         state = new AuthenticatedState(openBisService, dssServiceFactory, state.getSessionToken());
     }
 
-    public void putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
             throws IllegalStateException, EnvironmentFailureException
     {
-        state.putDataSet(newDataset, inputStream);
+        return state.putDataSet(newDataset, inputStream);
     }
 }
 
@@ -216,7 +215,7 @@ abstract class AbstractDssComponentState implements IDssComponent
         throw new IllegalStateException("Please log in");
     }
 
-    public void putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
             throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
@@ -345,12 +344,13 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     @Override
-    public void putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
             throws IllegalStateException, EnvironmentFailureException
     {
         String url = service.getDefaultDataStoreBaseURL(sessionToken);
         IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
-        dssService.putDataSet(sessionToken, newDataset, inputStream);
+        String code = dssService.putDataSet(sessionToken, newDataset, inputStream);
+        return new DataSetDss(code, dssService, this);
     }
 
     /**
@@ -433,25 +433,9 @@ class AuthenticatedState extends AbstractDssComponentState
     /**
      * The data store only stores the download url, get the data store url
      */
-    // TODO 2010-06-02, CR, , -- Put this method in a better place
-    // Maybe on DataStore.
     private String getDataStoreUrlFromDataStore(DataStore dataStore)
     {
-        String datastoreUrl = dataStore.getDownloadUrl();
-        // The url objained form a DataStore object is the *download* url. Convert this to the
-        // datastore URL
-        if (datastoreUrl.endsWith(DATA_STORE_SERVER_WEB_APPLICATION_NAME))
-        {
-            datastoreUrl =
-                    datastoreUrl.substring(0, datastoreUrl.length()
-                            - DATA_STORE_SERVER_WEB_APPLICATION_NAME.length());
-        }
-        if (datastoreUrl.endsWith("/"))
-        {
-            datastoreUrl = datastoreUrl.substring(0, datastoreUrl.length() - 1);
-        }
-
-        return datastoreUrl;
+        return DataStoreApiUrlUtilities.getDataStoreUrlFromDataStore(dataStore);
     }
 
     @Override

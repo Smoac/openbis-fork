@@ -25,8 +25,12 @@ import org.apache.commons.lang.builder.ToStringStyle;
 /**
  * Represents a new data set that the DSS should register.
  * <p>
- * The information required to register a new data set are the path of the data set and the name of
- * the storage process that should handle registering it.
+ * The information required to register a new data set are the owner of the data set, the name of
+ * the container of the data set (folder or file name), and file info about the files in the data
+ * set.
+ * <p>
+ * Optionally, a data set type and properties may be specified. The type and properties will
+ * override those inferred by the server.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -86,13 +90,31 @@ public class NewDataSetDTO implements Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private final String dataSetType;
-
     private final DataSetOwner dataSetOwner;
 
     private final String dataSetFolderName;
 
     private final List<FileInfoDssDTO> fileInfos;
+
+    private String dataSetTypeOrNull;
+
+    /**
+     * Constructor
+     * 
+     * @param dataSetOwner The owner of the new data set
+     * @param dataSetFolderNameOrNull The name of the folder the data is stored in. If the data set
+     *            is just a single file and the folder name is null, a folder will be created.
+     * @param fileInfos FileInfoDssDTO objects for each of the files in the data set.
+     */
+    public NewDataSetDTO(DataSetOwner dataSetOwner, String dataSetFolderNameOrNull,
+            List<FileInfoDssDTO> fileInfos)
+    {
+        this.dataSetOwner = dataSetOwner;
+        this.dataSetFolderName =
+                (null == dataSetFolderNameOrNull) ? DEFAULT_DATA_SET_FOLDER_NAME
+                        : dataSetFolderNameOrNull;
+        this.fileInfos = fileInfos;
+    }
 
     /**
      * Constructor
@@ -106,7 +128,7 @@ public class NewDataSetDTO implements Serializable
     public NewDataSetDTO(String dataSetType, DataSetOwner dataSetOwner,
             String dataSetFolderNameOrNull, List<FileInfoDssDTO> fileInfos)
     {
-        this.dataSetType = dataSetType;
+        this.dataSetTypeOrNull = dataSetType;
         this.dataSetOwner = dataSetOwner;
         this.dataSetFolderName =
                 (null == dataSetFolderNameOrNull) ? DEFAULT_DATA_SET_FOLDER_NAME
@@ -115,36 +137,51 @@ public class NewDataSetDTO implements Serializable
     }
 
     /**
-     * The code for the type of the new data set
+     * The direct owner of the data set, either an experiment or a sample.
      */
-    public String getDataSetType()
+    public DataSetOwner getDataSetOwner()
     {
-        return dataSetType;
+        return dataSetOwner;
     }
 
     /**
-     * The name of the folder containing the files in the data set
+     * The name of the folder containing the files in the data set.
      */
     public String getDataSetFolderName()
     {
         return dataSetFolderName;
     }
 
+    /**
+     * {@link FileInfoDssDTO} objects describing the files within the data set.
+     */
     public List<FileInfoDssDTO> getFileInfos()
     {
         return fileInfos;
     }
 
-    public DataSetOwner getDataSetOwner()
+    /**
+     * The code for the type of the new data set. May be null.
+     */
+    public String tryDataSetType()
     {
-        return dataSetOwner;
+        return dataSetTypeOrNull;
+    }
+
+    public void setDataSetTypeOrNull(String dataSetTypeOrNull)
+    {
+        this.dataSetTypeOrNull = dataSetTypeOrNull;
     }
 
     @Override
     public String toString()
     {
         ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        sb.append(getDataSetType());
+        String myDataSetTypeOrNull = tryDataSetType();
+        if (null != myDataSetTypeOrNull)
+        {
+            sb.append(myDataSetTypeOrNull);
+        }
         sb.append(getDataSetOwner());
         sb.append(getFileInfos());
         return sb.toString();

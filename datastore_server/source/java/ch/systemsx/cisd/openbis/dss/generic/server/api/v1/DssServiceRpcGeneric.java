@@ -91,10 +91,10 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
         }
     }
 
-    public void putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
+    public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
-        putService.putDataSet(sessionToken, newDataSet, inputStream);
+        return putService.putDataSet(sessionToken, newDataSet, inputStream);
     }
 
     public int getMajorVersion()
@@ -139,7 +139,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
         return this.listFilesForDataSet(sessionToken, fileOrFolder.getDataSetCode(), fileOrFolder
                 .getPath(), fileOrFolder.isRecursive());
     }
-    
+
     @Override
     public void setStoreDirectory(File aFile)
     {
