@@ -35,17 +35,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  * <p>
  * Registered data sets will have one property of type {@code FILE_NAME} holding name of the file
  * stored for the data set. Registration will fail if this property type doesn't exist in openBIS DB
- * or is not attached to the data set type extracted by {@link PlasmidTypeExtractor}.
+ * or is not attached to the data set type extracted by type extractor.
  * 
  * @author Piotr Buczek
  */
-public class PlasmidDataSetInfoExtractor implements IDataSetInfoExtractor
+public class PlasmidDefaultDataSetInfoExtractor implements IDataSetInfoExtractor
 {
-    private final static String FILE_NAME_PROPERTY = "FILE_NAME";
-
     private final IDataSetInfoExtractor delegator;
 
-    public PlasmidDataSetInfoExtractor(final Properties globalProperties)
+    public PlasmidDefaultDataSetInfoExtractor(final Properties globalProperties)
     {
         this.delegator = new DefaultDataSetInfoExtractor(globalProperties);
     }
@@ -57,8 +55,9 @@ public class PlasmidDataSetInfoExtractor implements IDataSetInfoExtractor
         final DataSetInformation result =
                 delegator
                         .getDataSetInformation(incomingDataSetFile.getParentFile(), openbisService);
-        result.getDataSetProperties().add(
-                new NewProperty(FILE_NAME_PROPERTY, incomingDataSetFile.getName()));
+        final NewProperty fileNameProperty =
+                DataSetFileNamePropertyHelper.createProperty(incomingDataSetFile, false);
+        result.getDataSetProperties().add(fileNameProperty);
         return result;
     }
 }
