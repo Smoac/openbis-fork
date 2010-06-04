@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 public class DataSetTypeOracleTest extends AssertJUnit
 {
-    private static final String EXAMPLE_DIR = "resource/example/FRP_1/";
+    private static final String EXAMPLE_DIR = "resource/example/BOX_1:FRP_1/";
 
     @DataProvider(name = "files")
     protected Object[][] files()
