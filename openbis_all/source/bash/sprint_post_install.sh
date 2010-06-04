@@ -15,6 +15,7 @@ export SCU=openbis-scu
 export BASYSBIO=bs-dsvr10.ethz.ch
 export BASYSBIO_TEST=openbis-test
 export CINA=bs-openbis01.ethz.ch
+export PLASMIDS=bs-openbis02.ethz.ch
 
 function create_individual_greeting_message {
 # Creates an individual greeting message
@@ -114,7 +115,12 @@ case "$SERVER" in
 	$BIN/sprint_post_install_basysbio.sh
 	;;
 	$CINA)
-	echo DSU:$CINA;
+	echo CINA:$CINA;
+	restore_loginHeader
+	create_individual_greeting_message
+	;;
+	$PLASMIDS)
+	echo PLASMIDS:$PLASMIDS;
 	restore_loginHeader
 	create_individual_greeting_message
 	;;
