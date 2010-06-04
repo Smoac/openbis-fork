@@ -2070,9 +2070,10 @@ COPY data_set_relationships (data_id_parent, data_id_child) FROM stdin;
 --
 
 COPY data_set_type_property_types (id, dsty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, ordinal, section) FROM stdin;
-1	2	17	t	f	1	2010-05-30 12:56:12.273594+02	1	\N
-2	3	17	t	f	1	2010-05-30 12:56:22.039873+02	1	\N
-3	4	17	t	f	1	2010-05-30 12:56:29.902648+02	1	\N
+1	1	17	t	f	1	2010-05-30 12:56:12.273594+02	1	\N
+2	2	17	t	f	1	2010-05-30 12:56:22.039873+02	1	\N
+3	3	17	t	f	1	2010-05-30 12:56:29.902648+02	1	\N
+4	4	17	t	f	1	2010-05-30 12:56:29.902648+02	1	\N
 \.
 
 
@@ -2081,6 +2082,7 @@ COPY data_set_type_property_types (id, dsty_id, prty_id, is_mandatory, is_manage
 --
 
 COPY data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) FROM stdin;
+1	UNKNOWN	\N	1	2010-05-26 17:41:21.272491+02	\N	\N
 2	GB	\N	1	2010-05-26 17:41:21.272491+02	\N	\N
 3	SEQUENCING	\N	1	2010-05-26 17:41:58.696032+02	\N	\N
 4	VERIFICATION	\N	1	2010-05-26 17:42:07.328466+02	*.*	\N
