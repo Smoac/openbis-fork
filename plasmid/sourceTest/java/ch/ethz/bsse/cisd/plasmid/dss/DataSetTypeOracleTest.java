@@ -23,7 +23,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.bsse.cisd.plasmid.dss.DataSetTypeOracle.DataSetTypeInfo;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author Piotr Buczek
@@ -56,10 +55,11 @@ public class DataSetTypeOracleTest extends AssertJUnit
         assertEquals(info != DataSetTypeInfo.GB, info.isMeasured());
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
-    public void testDirectoryFails()
+    public void testDirectory()
     {
         File dir = new File(EXAMPLE_DIR);
         DataSetTypeOracle.extractDataSetTypeInfo(dir);
+        DataSetTypeInfo info = DataSetTypeOracle.extractDataSetTypeInfo(dir);
+        assertEquals(DataSetTypeInfo.UNKNOWN, info);
     }
 }

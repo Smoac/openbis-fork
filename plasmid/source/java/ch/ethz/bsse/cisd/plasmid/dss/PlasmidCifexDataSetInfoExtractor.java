@@ -21,17 +21,15 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.etlserver.DataSetInfoFileNameDecorator;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.cifex.CifexDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * {@link IDataSetInfoExtractor} implementation that delegates extraction of data to
- * {@link CifexDataSetInfoExtractor} and adds one property of type {@code FILE_NAME} holding name of
- * the file stored for the data set. Registration will fail if this property type doesn't exist in
- * openBIS DB or is not attached to the data set type extracted by type extractor.
+ * A cifex data set info extractor enriched with file name property extraction.
  * 
  * @author Piotr Buczek
  */
@@ -39,20 +37,23 @@ public class PlasmidCifexDataSetInfoExtractor implements IDataSetInfoExtractor
 {
     private final IDataSetInfoExtractor delegator;
 
+    private final DataSetInfoFileNameDecorator fileNameDecorator;
+
     public PlasmidCifexDataSetInfoExtractor(final Properties globalProperties)
     {
         this.delegator = new CifexDataSetInfoExtractor(globalProperties);
+        Properties localProps =
+                ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
+        this.fileNameDecorator = new DataSetInfoFileNameDecorator(localProps);
     }
 
-    public DataSetInformation getDataSetInformation(File incomingDataSetFile,
+    public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException
     {
         final DataSetInformation result =
-                delegator.getDataSetInformation(incomingDataSetFile, openbisService);
-        final NewProperty fileNameProperty =
-                DataSetFileNamePropertyHelper.createProperty(incomingDataSetFile, true);
-        result.getDataSetProperties().add(fileNameProperty);
+                delegator.getDataSetInformation(incomingDataSetPath, openbisService);
+        fileNameDecorator.enrich(result, incomingDataSetPath);
         return result;
     }
 }

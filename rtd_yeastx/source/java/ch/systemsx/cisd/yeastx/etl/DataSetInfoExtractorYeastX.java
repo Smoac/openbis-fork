@@ -22,6 +22,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.etlserver.DataSetInfoFileNameDecorator;
 import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;

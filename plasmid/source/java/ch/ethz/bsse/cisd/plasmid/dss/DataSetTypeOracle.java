@@ -38,8 +38,8 @@ class DataSetTypeOracle
      */
     static enum DataSetTypeInfo
     {
-        // only GB files are derived, SEQUENCING and VERIFICATION files are measured
-        GB("gb", false), SEQUENCING("ab1", true), VERIFICATION(null, true);
+        // only GB files are derived, other files are measured
+        GB("gb", false), SEQUENCING("ab1", true), VERIFICATION(null, true), UNKNOWN(null, true);
 
         private final String fileExtension;
 
@@ -87,9 +87,7 @@ class DataSetTypeOracle
     {
         if (incomingDataSetPath.isDirectory())
         {
-            throw UserFailureException.fromTemplate(
-                    "Failed to extract type from directory '%s'. Expected a normal file.",
-                    incomingDataSetPath);
+            return DataSetTypeInfo.UNKNOWN;
         }
 
         final String fileName = incomingDataSetPath.getName().toLowerCase();

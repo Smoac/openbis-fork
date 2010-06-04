@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
  * <li>GB -- for a file with {@code .gb} extension
  * <li>SEQUENCING -- for a file with {@code .ab1} extension
  * <li>VERIFICATION -- for all other files
+ * <li>UNKNOWN -- for directories
  * </ul>
  * 
  * @author Piotr Buczek

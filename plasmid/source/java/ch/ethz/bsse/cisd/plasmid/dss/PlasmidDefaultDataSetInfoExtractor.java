@@ -21,21 +21,18 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.etlserver.DataSetInfoFileNameDecorator;
 import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * CSB uses DSS to register data sets attached to an existing sample plasmid. This extractor will
  * receive a single file that is inside a directory from which {@link DefaultDataSetInfoExtractor}
  * will extract information about the sample. All properties will be passed to
- * {@link DefaultDataSetInfoExtractor}.
- * <p>
- * Registered data sets will have one property of type {@code FILE_NAME} holding name of the file
- * stored for the data set. Registration will fail if this property type doesn't exist in openBIS DB
- * or is not attached to the data set type extracted by type extractor.
+ * {@link DefaultDataSetInfoExtractor}. Additionally file name property extraction is performed.
  * 
  * @author Piotr Buczek
  */
@@ -43,9 +40,14 @@ public class PlasmidDefaultDataSetInfoExtractor implements IDataSetInfoExtractor
 {
     private final IDataSetInfoExtractor delegator;
 
+    private final DataSetInfoFileNameDecorator fileNameDecorator;
+
     public PlasmidDefaultDataSetInfoExtractor(final Properties globalProperties)
     {
         this.delegator = new DefaultDataSetInfoExtractor(globalProperties);
+        Properties localProps =
+                ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
+        this.fileNameDecorator = new DataSetInfoFileNameDecorator(localProps);
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetFile,
@@ -55,9 +57,7 @@ public class PlasmidDefaultDataSetInfoExtractor implements IDataSetInfoExtractor
         final DataSetInformation result =
                 delegator
                         .getDataSetInformation(incomingDataSetFile.getParentFile(), openbisService);
-        final NewProperty fileNameProperty =
-                DataSetFileNamePropertyHelper.createProperty(incomingDataSetFile, false);
-        result.getDataSetProperties().add(fileNameProperty);
+        fileNameDecorator.enrich(result, incomingDataSetFile);
         return result;
     }
 }
