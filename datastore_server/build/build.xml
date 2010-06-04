@@ -146,12 +146,11 @@
       <fileset dir="${classes}">
       	<include name="ch/systemsx/cisd/common/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/**/*.class" />
-        <include name="ch/systemsx/cisd/openbis/dss/component/**/*.class" />
-        <include name="ch/systemsx/cisd/openbis/dss/rpc/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/dss/client/**/*.class" />
         <include name="${build.info.filename}" />
       </fileset>
       <manifest>
-        <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.api.client.cli.DssClient" />
+        <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.client.api.cli.DssClient" />
         <attribute name="Class-Path"
                    value="cisd-base.jar cisd-args4j.jar stream-supporting-httpinvoker.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
  commons-codec.jar commons-httpclient.jar spring.jar" />
