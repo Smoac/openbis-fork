@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.utilities.SystemExit;
  * <ul>
  * <li>ls &mdash; list files in a data set</li>
  * <li>get &mdash; get files in a data set</li>
+ * <li>put &mdash; upload a new data set</li>
  * </ul>
  * 
  * @author Chandrasekhar Ramakrishnan
