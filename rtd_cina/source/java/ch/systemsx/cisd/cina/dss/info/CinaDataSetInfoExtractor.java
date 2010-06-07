@@ -23,16 +23,11 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 import java.util.Map.Entry;
 
 import ch.systemsx.cisd.cina.dss.info.FolderOracle.FolderMetadata;
 import ch.systemsx.cisd.cina.dss.info.FolderOracle.FolderType;
-import ch.systemsx.cisd.cina.shared.labview.Cluster;
-import ch.systemsx.cisd.cina.shared.labview.LVData;
-import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
-import ch.systemsx.cisd.cina.shared.labview.LVDataString;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
@@ -96,12 +91,10 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
             final DataSetInformation dataSetInformation, IEncapsulatedOpenBISService openbisService)
     {
         final File markerFile = folderMetadata.tryGetMarkerFile();
-        final File metadataXMLFileOrNull = folderMetadata.tryGetMetadataXMLFile();
         try
         {
             HashMap<String, String> metadata = new HashMap<String, String>();
             metadata = appendMarkerFileToMap(markerFile, metadata);
-            metadata = appendMetadataXMLFileToMap(metadataXMLFileOrNull, metadata);
             ExperimentRegistrationInformationExtractor extractor =
                     new ExperimentRegistrationInformationExtractor(dataSetInformation, metadata,
                             getEntityCodeSuffix(), openbisService);
@@ -175,36 +168,6 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
         for (Entry<Object, Object> entry : properties.entrySet())
         {
             map.put((String) entry.getKey(), (String) entry.getValue());
-        }
-        return map;
-    }
-
-    /**
-     * Parse the metadata xml file and append it to hashmap.
-     */
-    private HashMap<String, String> appendMetadataXMLFileToMap(File metadataXMLFileOrNull,
-            HashMap<String, String> map) throws IOException, FileNotFoundException
-    {
-        if (metadataXMLFileOrNull == null)
-            return map;
-
-        LVData data = LVDataParser.parse(metadataXMLFileOrNull);
-        // Look for the description in the LVData
-        List<Cluster> clusters = data.getClusters();
-        if (clusters == null || clusters.size() < 1)
-            return map;
-
-        for (Cluster cluster : clusters)
-        {
-            List<LVDataString> strings = cluster.getStrings();
-            if (strings == null || strings.size() < 1)
-                break;
-
-            for (LVDataString string : strings)
-            {
-                "Description".equals(string.getName());
-                map.put(DESCRIPTION_KEY, string.getValue());
-            }
         }
         return map;
     }
