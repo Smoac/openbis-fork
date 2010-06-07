@@ -16,23 +16,122 @@
 
 package ch.systemsx.cisd.cina.shared.metadata;
 
-//import java.io.File;
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Map;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import ch.systemsx.cisd.cina.shared.labview.LVData;
+import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
 public class ReplicaMetadataExtractor
 {
-    // private final List<Map<String, String>> metadata;
-    //
-    // private final File folder;
-    //
-    // public ReplicaMetadataExtractor()
-    // {
-    // metadata = new ArrayList<Map<String, String>>();
-    // folder = null;
-    // }
+    private final ArrayList<ImageMetadataExtractor> metadataExtractors;
+
+    private final File folder;
+
+    private final HashMap<String, String> metadataMap;
+
+    private LVData lvdata;
+
+    private static final String METADATA_FILE_NAME = "ReplicaMetadata.xml";
+
+    public ReplicaMetadataExtractor(File folder)
+    {
+        metadataExtractors = new ArrayList<ImageMetadataExtractor>();
+        this.folder = folder;
+        this.metadataMap = new HashMap<String, String>();
+    }
+
+    /**
+     * Read the files and fill the metadata map.
+     */
+    public void prepare()
+    {
+        if (null != lvdata)
+        {
+            // We've already parsed this
+            return;
+        }
+
+        // Firse parse the metadata for the replica
+        File metadataFile = new File(folder, METADATA_FILE_NAME);
+        lvdata = LVDataParser.parse(metadataFile);
+        if (null == lvdata)
+        {
+            throw new IllegalArgumentException("Could not parse metadata in file "
+                    + metadataFile.getAbsolutePath());
+        }
+
+        new LabViewXMLToHashMap(lvdata, metadataMap).appendIntoMap();
+
+        // Then get the image metadata
+        File[] replicaContents = folder.listFiles();
+        for (File replicaFile : replicaContents)
+        {
+            if (false == replicaFile.isDirectory())
+            {
+                continue;
+            }
+
+            // The folders containing the metadata are two levels down
+            File[] imageContents = replicaFile.listFiles();
+            for (File imageFolder : imageContents)
+            {
+                if (false == imageFolder.isDirectory())
+                {
+                    continue;
+                }
+
+                processDirectory(imageFolder);
+            }
+        }
+    }
+
+    /**
+     * Get the metadata extracted from the file in the form of a map. The method {@link #prepare}
+     * must be called before getting the metadata map.
+     */
+    public Map<String, String> getMetadataMap()
+    {
+        checkPrepared();
+        return metadataMap;
+    }
+
+    /**
+     * Get the metadata extractors for each of the image files for this replica. The method
+     * {@link #prepare} must be called before getting the metadata extractors.
+     */
+    public List<ImageMetadataExtractor> getMetadataExtractors()
+    {
+        checkPrepared();
+        return metadataExtractors;
+    }
+
+    private void checkPrepared()
+    {
+        assert lvdata != null;
+    }
+
+    private void processDirectory(File file)
+    {
+        if (false == file.isDirectory())
+        {
+            return;
+        }
+
+        if (false == ImageMetadataExtractor.doesFolderContainImageMetadata(file))
+        {
+            return;
+        }
+
+        ImageMetadataExtractor imageMetadataExtractor = new ImageMetadataExtractor(null, file);
+        imageMetadataExtractor.prepare();
+
+        metadataExtractors.add(imageMetadataExtractor);
+    }
 }

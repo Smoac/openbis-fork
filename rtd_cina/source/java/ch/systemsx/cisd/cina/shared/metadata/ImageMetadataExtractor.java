@@ -20,15 +20,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.cina.shared.labview.Cluster;
-import ch.systemsx.cisd.cina.shared.labview.DBL;
-import ch.systemsx.cisd.cina.shared.labview.EW;
 import ch.systemsx.cisd.cina.shared.labview.LVData;
-import ch.systemsx.cisd.cina.shared.labview.LVDataBoolean;
 import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
-import ch.systemsx.cisd.cina.shared.labview.LVDataString;
-import ch.systemsx.cisd.cina.shared.labview.U32;
-import ch.systemsx.cisd.cina.shared.labview.U8;
 
 /**
  * Class for extracting the metadata from a folder containing an image + metadata.
@@ -37,7 +30,7 @@ import ch.systemsx.cisd.cina.shared.labview.U8;
  */
 public class ImageMetadataExtractor
 {
-    private final Map<String, String> metadataMap;
+    private final HashMap<String, String> metadataMap;
 
     private final File folder;
 
@@ -53,33 +46,47 @@ public class ImageMetadataExtractor
         prefixMap.put("Image dimension (px)", "Dimension");
     }
 
+    public static boolean doesFolderContainImageMetadata(File folder)
+    {
+        File metadataFile = new File(folder, METADATA_FILE_NAME);
+        return metadataFile.exists();
+    }
+
     /**
      * Create an image metadata with a parent metadata.
      * 
-     * @param parentMetadata The inherited parent metadata
+     * @param parentMetadataOrNull The inherited parent metadata or null if there is none
      * @param folder The folder containing the metadata
      */
-    public ImageMetadataExtractor(Map<String, String> parentMetadata, File folder)
+    public ImageMetadataExtractor(Map<String, String> parentMetadataOrNull, File folder)
     {
-        this.metadataMap = new HashMap<String, String>(parentMetadata);
+
+        this.metadataMap =
+                (null != parentMetadataOrNull) ? new HashMap<String, String>(parentMetadataOrNull)
+                        : new HashMap<String, String>();
         this.folder = folder;
     }
 
     /**
-     * Get the metadata extracted from the file in the form of a hash map. Parse must be called
-     * before getting the metadata.
+     * Read the files and fill the metadata map.
+     * 
+     * @throws IllegalArgumentException If there is not metadata.xml file in the folder or if the
+     *             file is faulty.
      */
-    public Map<String, String> getMetadataMap()
+    public void prepare() throws IllegalArgumentException
     {
-        assert lvdata != null;
-        return metadataMap;
-    }
+        if (null != lvdata)
+        {
+            // We've already parsed this
+            return;
+        }
 
-    /**
-     * Parse the metadata file.
-     */
-    public void parse()
-    {
+        if (false == doesFolderContainImageMetadata(folder))
+        {
+            throw new IllegalArgumentException("Folder " + folder
+                    + " is not an image metadata file");
+        }
+
         File metadataFile = new File(folder, METADATA_FILE_NAME);
         lvdata = LVDataParser.parse(metadataFile);
         if (null == lvdata)
@@ -88,56 +95,21 @@ public class ImageMetadataExtractor
                     + metadataFile.getAbsolutePath());
         }
 
-        if (1 != lvdata.getClusters().size())
-        {
-            throw new IllegalArgumentException("Parser expects only one cluster in file "
-                    + metadataFile.getAbsolutePath() + "; Found " + lvdata.getClusters().size());
-        }
-
-        Cluster cluster = lvdata.getClusters().get(0);
-        parseCluster(cluster, "");
+        new LabViewXMLToHashMap(lvdata, metadataMap, prefixMap).appendIntoMap();
     }
 
-    private void parseCluster(Cluster cluster, String prefix)
+    /**
+     * Get the metadata extracted from the file in the form of a map. The method {@link #prepare}
+     * must be called before getting the metadata map.
+     */
+    public Map<String, String> getMetadataMap()
     {
-        for (LVDataString lvdataString : cluster.getStrings())
-        {
-            metadataMap.put(prefix + lvdataString.getName(), lvdataString.getValue());
-        }
+        checkPrepared();
+        return metadataMap;
+    }
 
-        for (U8 u8 : cluster.getU8s())
-        {
-            metadataMap.put(prefix + u8.getName(), u8.getValue().toString());
-        }
-
-        for (U32 u32 : cluster.getU32s())
-        {
-            metadataMap.put(prefix + u32.getName(), u32.getValue().toString());
-        }
-
-        for (DBL dbl : cluster.getDbls())
-        {
-            metadataMap.put(prefix + dbl.getName(), dbl.getValue().toString());
-        }
-
-        for (LVDataBoolean bool : cluster.getBooleans())
-        {
-            metadataMap.put(prefix + bool.getName(), bool.getValue().toString());
-        }
-
-        for (EW ew : cluster.getEws())
-        {
-            metadataMap.put(prefix + ew.getName(), ew.getChosenValue());
-        }
-
-        for (Cluster subcluster : cluster.getClusters())
-        {
-            String clusterPrefix = prefixMap.get(subcluster.getName());
-            if (null == clusterPrefix)
-            {
-                clusterPrefix = "";
-            }
-            parseCluster(subcluster, clusterPrefix);
-        }
+    private void checkPrepared()
+    {
+        assert lvdata != null;
     }
 }
