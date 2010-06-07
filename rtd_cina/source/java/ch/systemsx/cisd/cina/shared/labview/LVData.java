@@ -14,38 +14,43 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cina.dss.labview;
+package ch.systemsx.cisd.cina.shared.labview;
+
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Superclass for LVData elements -- most of them support a name tag.
- * 
  * @author Chandrasekhar Ramakrishnan
  */
-abstract class AbstractLVDataElement
+@XmlRootElement(name = "LVData", namespace = "http://www.ni.com/LVData")
+public class LVData
 {
+    private String version;
 
-    private String name;
+    private List<Cluster> clusters;
 
-    /**
-     *
-     *
-     */
-    public AbstractLVDataElement()
+    @XmlElement(name = "Version", namespace = "http://www.ni.com/LVData")
+    public String getVersion()
     {
-        super();
+        return version;
     }
 
-    @XmlElement(name = "Name", namespace = "http://www.ni.com/LVData")
-    public String getName()
+    public void setVersion(String version)
     {
-        return name;
+        this.version = version;
     }
 
-    public void setName(String name)
+    @XmlElement(name = "Cluster", namespace = "http://www.ni.com/LVData")
+    public List<Cluster> getClusters()
     {
-        this.name = name;
+        return clusters;
+    }
+
+    public void setClusters(List<Cluster> clusters)
+    {
+        this.clusters = clusters;
     }
 
 }

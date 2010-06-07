@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cina.dss.labview;
+package ch.systemsx.cisd.cina.shared.labview;
 
 import java.io.File;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.cina.shared.labview.Cluster;
+import ch.systemsx.cisd.cina.shared.labview.LVData;
+import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -35,7 +39,7 @@ public class LVDataTest extends AssertJUnit
     @Test
     public void testParseFile()
     {
-        LVData lvdata = parse("sourceTest/java/ch/systemsx/cisd/cina/dss/labview/lvdata.xml");
+        LVData lvdata = parse("sourceTest/java/ch/systemsx/cisd/cina/shared/labview/lvdata.xml");
         assertNotNull(lvdata);
 
         assertEquals("8.6.1", lvdata.getVersion());

@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cina.dss.labview;
+package ch.systemsx.cisd.cina.shared.labview;
 
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * 
- *
  * @author Chandrasekhar Ramakrishnan
  */
-public class DBL extends AbstractLVDataElement
+public class LVDataString extends AbstractLVDataElement
 {
-    private float value;
+    private String value;
 
     @XmlElement(name = "Val", namespace = "http://www.ni.com/LVData")
-    public void setValue(float value)
-    {
-        this.value = value;
-    }
-
-    public float getValue()
+    public String getValue()
     {
         return value;
+    }
+
+    void setValue(String value)
+    {
+        this.value = value;
     }
 }

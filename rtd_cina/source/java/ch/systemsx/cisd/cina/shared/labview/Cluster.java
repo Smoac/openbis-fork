@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cina.dss.labview;
+package ch.systemsx.cisd.cina.shared.labview;
 
 import java.util.List;
 
