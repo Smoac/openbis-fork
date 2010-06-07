@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
@@ -101,7 +102,14 @@ public class DataSetValidator implements IDataSetValidator
         IDataSetValidator validator = validators.get(dataSetType.getCode());
         if (validator != null)
         {
-            validator.assertValidDataSet(dataSetType, incomingDataSetFileOrFolder);
+            try
+            {
+                validator.assertValidDataSet(dataSetType, incomingDataSetFileOrFolder);
+            } catch (Exception ex)
+            {
+                throw new UserFailureException("Data set of type '" + dataSetType.getCode()
+                        + "' is invalid: " + ex.getMessage(), ex);
+            }
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Data set [" + incomingDataSetFileOrFolder + "] of type '"

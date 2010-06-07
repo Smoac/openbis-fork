@@ -22,9 +22,13 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -42,6 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
 {
+    private final static Logger operationLog =
+        LogFactory.getLogger(LogCategory.OPERATION, CifexDataSetInfoExtractor.class);
 
     @Private
     static final String DATA_SET_PROPERTIES_FILE_NAME_KEY =
@@ -62,6 +68,10 @@ public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
         assert incomingDataSetPath != null : "Incoming data set path can not be null.";
 
         DataSetUploadInfo info = CifexExtractorHelper.getDataSetUploadInfo(incomingDataSetPath);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Data set upload info: " + info);
+        }
         final DataSetInformation dataSetInformation = new DataSetInformation();
 
         // either sample is specified or experiment (with optional data set parents)

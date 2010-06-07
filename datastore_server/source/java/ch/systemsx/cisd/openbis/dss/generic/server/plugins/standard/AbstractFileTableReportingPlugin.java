@@ -56,6 +56,8 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
     private static final String SEPARATOR_PROPERTY_KEY = "separator";
 
     private static final String IGNORE_COMMENTS_PROPERTY_KEY = "ignore-comments";
+    
+    private static final String IGNORE_TRAILING_EMPTY_CELLS_PROPERTY_KEY = "ignore-trailing-empty-cells";
 
     // if the line starts with this character and comments should be ignored, the line is ignored
     private static final char COMMENT = '#';
@@ -63,6 +65,8 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
     private final char separator;
 
     private final boolean ignoreComments;
+
+    private final boolean ignoreTrailingEmptyCells;
 
     protected AbstractFileTableReportingPlugin(Properties properties, File storeRoot,
             char defaultSeparator)
@@ -72,6 +76,9 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
                 PropertyUtils.getChar(properties, SEPARATOR_PROPERTY_KEY, defaultSeparator);
         this.ignoreComments =
                 PropertyUtils.getBoolean(properties, IGNORE_COMMENTS_PROPERTY_KEY, true);
+        ignoreTrailingEmptyCells =
+                PropertyUtils.getBoolean(properties, IGNORE_TRAILING_EMPTY_CELLS_PROPERTY_KEY,
+                        false);
 
     }
 
@@ -143,10 +150,11 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
         return new DatasetFileLines(file, dataset, lines);
     }
 
-    protected static TableModel createTableModel(DatasetFileLines lines)
+    protected TableModel createTableModel(DatasetFileLines lines)
     {
         SimpleTableModelBuilder tableBuilder = new SimpleTableModelBuilder();
-        for (String title : lines.getHeaderTokens())
+        String[] headerTokens = lines.getHeaderTokens();
+        for (String title : headerTokens)
         {
             tableBuilder.addHeader(title);
         }
@@ -156,6 +164,18 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
             for (String token : line)
             {
                 row.add(TableCellUtil.createTableCell(token));
+            }
+            if (ignoreTrailingEmptyCells)
+            {
+                while (row.size() > headerTokens.length)
+                {
+                    ISerializableComparable cell = row.get(row.size() - 1);
+                    if (cell.toString().length() > 0)
+                    {
+                        break;
+                    }
+                    row.remove(row.size() - 1);
+                }
             }
             tableBuilder.addRow(row);
         }

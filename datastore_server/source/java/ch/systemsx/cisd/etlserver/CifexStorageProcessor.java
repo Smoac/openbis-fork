@@ -54,9 +54,12 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
             LogFactory.getLogger(LogCategory.NOTIFY, CifexStorageProcessor.class);
 
     public static final String KEEP_FILE_REGEX_KEY = "keep-file-regex";
+    public static final String MOVE_TO_ERROR_FOLDER_KEY = "move-to-error-folder";
 
     private final String keepFileRegex;
 
+    private final boolean moveToErrorFolder;
+    
     private File dirToRestore;
 
     private File fileToMove;
@@ -67,6 +70,7 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
     {
         super(properties);
         keepFileRegex = PropertyUtils.getProperty(properties, KEEP_FILE_REGEX_KEY);
+        moveToErrorFolder = PropertyUtils.getBoolean(properties, MOVE_TO_ERROR_FOLDER_KEY, false);
     }
 
     @Override
@@ -92,7 +96,7 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
                     dirToRestore);
         }
         super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
-        return UnstoreDataAction.DELETE;
+        return moveToErrorFolder ? UnstoreDataAction.MOVE_TO_ERROR : UnstoreDataAction.DELETE;
     }
 
     @Private
