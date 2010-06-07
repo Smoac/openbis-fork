@@ -29,10 +29,10 @@ import java.util.Map.Entry;
 
 import ch.systemsx.cisd.cina.dss.info.FolderOracle.FolderMetadata;
 import ch.systemsx.cisd.cina.dss.info.FolderOracle.FolderType;
-import ch.systemsx.cisd.cina.dss.labview.Cluster;
-import ch.systemsx.cisd.cina.dss.labview.LVData;
-import ch.systemsx.cisd.cina.dss.labview.LVDataParser;
-import ch.systemsx.cisd.cina.dss.labview.LVDataString;
+import ch.systemsx.cisd.cina.shared.labview.Cluster;
+import ch.systemsx.cisd.cina.shared.labview.LVData;
+import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
+import ch.systemsx.cisd.cina.shared.labview.LVDataString;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
