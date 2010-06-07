@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.util.Arrays;
+
 /**
  * @author Izabela Adamczyk
  */
@@ -99,6 +101,30 @@ public class DataSetUploadInfo
     {
         this.parents = parents;
     }
+    
+
+    @Override
+    public String toString()
+    {
+        // TODO Auto-generated method stub
+        StringBuilder builder = new StringBuilder();
+        if (sample != null)
+        {
+            builder.append("sample:").append(sample).append(", ");
+        }
+        if (experiment != null)
+        {
+            builder.append("experiment:").append(experiment).append(", ");
+        }
+        if (parents != null && parents.length > 0)
+        {
+            builder.append("parent data set:").append(Arrays.asList(parents)).append(", ");
+        }
+        builder.append("data set type:").append(dataSetType).append(", ");
+        builder.append("file type:").append(fileType);
+        return builder.toString();
+    }
+
 
     public static class DataSetUploadInfoHelper
     {
