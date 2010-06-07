@@ -70,6 +70,15 @@ public enum SampleTypeColDefKind implements IColumnDefinitionKind<SampleType>
             }
         }),
 
+    IS_SUBCODE_UNIQUE(new AbstractColumnDefinitionKind<SampleType>(Dict.SUBCODE_UNIQUE_LABEL, true)
+        {
+            @Override
+            public String tryGetValue(SampleType entity)
+            {
+                return SimpleYesNoRenderer.render(entity.isSubcodeUnique());
+            }
+        }),
+
     IS_AUTO_GENERATE_CODES(new AbstractColumnDefinitionKind<SampleType>(
             Dict.AUTO_GENERATE_CODES_LABEL, true)
         {

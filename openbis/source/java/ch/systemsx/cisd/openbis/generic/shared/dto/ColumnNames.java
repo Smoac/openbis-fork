@@ -226,6 +226,8 @@ public final class ColumnNames
 
     public static final String IS_AUTO_GENERATED_CODE = "is_auto_generated_code";
 
+    public static final String IS_SUBCODE_UNIQUE = "is_subcode_unique";
+
     public static final String GENERATED_CODE_PREFIX = "generated_code_prefix";
 
     public static final String MAIN_DS_PATH = "main_ds_path";

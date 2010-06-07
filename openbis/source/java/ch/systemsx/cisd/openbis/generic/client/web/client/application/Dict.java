@@ -289,6 +289,8 @@ public abstract class Dict
     // Sample Type Browser
     //
 
+    public static final String SUBCODE_UNIQUE_LABEL = "subcode_unique_label";
+
     public static final String AUTO_GENERATE_CODES_LABEL = "auto_generate_codes_label";
 
     public static final String GENERATED_CODE_PREFIX = "generated_code_prefix";
