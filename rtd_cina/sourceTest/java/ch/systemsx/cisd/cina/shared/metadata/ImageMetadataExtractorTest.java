@@ -36,9 +36,8 @@ public class ImageMetadataExtractorTest extends AssertJUnit
                 new File(
                         "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Annotations/Replica for MRC files/MRC for Thomas/test20090422_BacklashRef.mrc");
         ImageMetadataExtractor metadata = new ImageMetadataExtractor(parentMetadata, folder);
-        metadata.parse();
+        metadata.prepare();
         Map<String, String> metadataMap = metadata.getMetadataMap();
-        System.out.println(metadataMap);
         assertEquals(16, metadataMap.size());
 
         assertEquals("", metadataMap.get("Annotation"));
