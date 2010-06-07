@@ -1890,7 +1890,7 @@ CREATE TABLE sample_types (
     modification_timestamp time_stamp DEFAULT now(),
     is_auto_generated_code boolean_char DEFAULT false NOT NULL,
     generated_code_prefix code DEFAULT 'S'::character varying NOT NULL,
-    is_unique_code boolean_char DEFAULT false NOT NULL
+    is_subcode_unique boolean_char DEFAULT false NOT NULL
 );
 
 
@@ -2394,19 +2394,19 @@ COPY sample_properties (id, samp_id, stpt_id, value, cvte_id, mate_prop_id, pers
 --
 
 COPY sample_type_property_types (id, saty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, is_displayed, ordinal, section) FROM stdin;
-12	1	2	t	f	1	2010-05-26 19:13:10.256579+02	t	1	\N
-2	1	5	t	f	1	2010-05-26 18:39:38.450567+02	t	4	\N
-14	1	7	f	f	1	2010-05-26 19:15:29.812545+02	t	8	\N
-10	1	8	f	f	1	2010-05-26 19:10:09.014083+02	t	9	\N
-8	1	10	f	f	1	2010-05-26 19:09:07.086779+02	t	11	\N
-13	1	4	t	f	1	2010-05-26 19:14:56.30574+02	t	3	\N
-4	1	6	t	f	1	2010-05-26 19:06:55.50256+02	t	6	\N
-9	1	9	f	f	1	2010-05-26 19:10:01.329441+02	t	10	\N
-15	1	14	f	f	1	2010-05-26 21:46:21.937645+02	t	5	\N
-16	2	15	t	f	1	2010-05-26 21:55:14.652494+02	t	1	\N
-6	1	13	t	f	1	2010-05-26 19:08:07.246686+02	t	13	Storage Information
-17	1	16	t	f	1	2010-05-27 17:59:42.28433+02	t	12	Storage Information
-11	1	3	f	f	1	2010-05-26 19:11:49.533054+02	t	2	\N
+1	1	16	t	f	1	2010-05-27 17:59:42.28433+02	t	1	Storage Information
+2	1	13	t	f	1	2010-05-26 19:08:07.246686+02	t	2	Storage Information
+3	1	2	t	f	1	2010-05-26 19:13:10.256579+02	t	3	\N
+4	1	3	f	f	1	2010-05-26 19:11:49.533054+02	t	4	\N
+5	1	4	t	f	1	2010-05-26 19:14:56.30574+02	t	5	\N
+6	1	5	t	f	1	2010-05-26 18:39:38.450567+02	t	6	\N
+7	1	14	f	f	1	2010-05-26 21:46:21.937645+02	t	7	\N
+8	1	6	t	f	1	2010-05-26 19:06:55.50256+02	t	8	\N
+9	1	7	f	f	1	2010-05-26 19:15:29.812545+02	t	9	\N
+10	1	8	f	f	1	2010-05-26 19:10:09.014083+02	t	10	\N
+11	1	9	f	f	1	2010-05-26 19:10:01.329441+02	t	11	\N
+12	1	10	f	f	1	2010-05-26 19:09:07.086779+02	t	12	\N
+20	2	15	t	f	1	2010-05-26 21:55:14.652494+02	t	1	\N
 \.
 
 
@@ -2414,7 +2414,7 @@ COPY sample_type_property_types (id, saty_id, prty_id, is_mandatory, is_managed_
 -- Data for Name: sample_types; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY sample_types (id, code, description, dbin_id, is_listable, generated_from_depth, part_of_depth, modification_timestamp, is_auto_generated_code, generated_code_prefix, is_unique_code) FROM stdin;
+COPY sample_types (id, code, description, dbin_id, is_listable, generated_from_depth, part_of_depth, modification_timestamp, is_auto_generated_code, generated_code_prefix, is_subcode_unique) FROM stdin;
 1	PLASMID	\N	1	t	1	1	2010-05-26 13:43:50.663104+02	f	FRP_	t
 2	PLASMID_BOX	\N	1	t	0	0	2010-05-26 21:51:13.659151+02	f	BOX_	t
 \.
