@@ -16,12 +16,85 @@
 
 package ch.systemsx.cisd.cina.shared.metadata;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 
- *
  * @author Chandrasekhar Ramakrishnan
  */
 public class BundleMetadataExtractor
 {
-    
+    private static final String METADATA_FOLDER_NAME = "Annotations";
+
+    private final ArrayList<ReplicaMetadataExtractor> metadataExtractors;
+
+    private final File bundle;
+
+    /**
+     * Create a metadata extractor for the bundle located at bundle
+     * 
+     * @param bundle The bundle file
+     */
+    public BundleMetadataExtractor(File bundle)
+    {
+        this.bundle = bundle;
+        metadataExtractors = new ArrayList<ReplicaMetadataExtractor>();
+    }
+
+    /**
+     * Read the files
+     */
+    public void prepare()
+    {
+        if (false == metadataExtractors.isEmpty())
+        {
+            // we've already prepared
+            return;
+        }
+
+        File metadataFolder = new File(bundle, METADATA_FOLDER_NAME);
+
+        // Then get the image metadata
+        File[] replicaContents = metadataFolder.listFiles();
+        for (File replicaFile : replicaContents)
+        {
+            if (false == replicaFile.isDirectory())
+            {
+                continue;
+            }
+
+            processDirectory(replicaFile);
+        }
+    }
+
+    /**
+     * Get the metadata extractors for each of the replica files in this bundle. The method
+     * {@link #prepare} must be called before getting the metadata extractors.
+     */
+    public List<ReplicaMetadataExtractor> getMetadataExtractors()
+    {
+        return metadataExtractors;
+    }
+
+    private void processDirectory(File file)
+    {
+        if (false == file.isDirectory())
+        {
+            return;
+        }
+
+        System.out.println(file);
+
+        if (false == ReplicaMetadataExtractor.doesFolderContainReplicaMetadata(file))
+        {
+            return;
+        }
+
+        ReplicaMetadataExtractor replicaMetadataExtractor = new ReplicaMetadataExtractor(file);
+        replicaMetadataExtractor.prepare();
+
+        metadataExtractors.add(replicaMetadataExtractor);
+    }
+
 }

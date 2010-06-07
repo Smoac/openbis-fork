@@ -40,6 +40,12 @@ public class ReplicaMetadataExtractor
 
     private static final String METADATA_FILE_NAME = "ReplicaMetadata.xml";
 
+    public static boolean doesFolderContainReplicaMetadata(File folder)
+    {
+        File metadataFile = new File(folder, METADATA_FILE_NAME);
+        return metadataFile.exists();
+    }
+
     public ReplicaMetadataExtractor(File folder)
     {
         metadataExtractors = new ArrayList<ImageMetadataExtractor>();

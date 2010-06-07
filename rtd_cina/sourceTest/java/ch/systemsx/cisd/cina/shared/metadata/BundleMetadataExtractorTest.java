@@ -18,7 +18,6 @@ package ch.systemsx.cisd.cina.shared.metadata;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -26,26 +25,17 @@ import org.testng.annotations.Test;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReplicaMetadataExtractorTest extends AssertJUnit
+public class BundleMetadataExtractorTest extends AssertJUnit
 {
     @Test
     public void testMetadataExtraction()
     {
         File folder =
-                new File(
-                        "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/Replica for MRC files/");
-        ReplicaMetadataExtractor metadata = new ReplicaMetadataExtractor(folder);
+                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
+        BundleMetadataExtractor metadata = new BundleMetadataExtractor(folder);
         metadata.prepare();
 
-        Map<String, String> metadataMap = metadata.getMetadataMap();
-        assertEquals(3, metadataMap.size());
-
-        assertEquals("thomas.braun@unibas.ch", metadataMap.get("Creator name (e-mail)"));
-        assertEquals("This replica is a test for imported MRC files", metadataMap
-                .get("Description"));
-        assertEquals("24350628", metadataMap.get("ID nummer"));
-
-        List<ImageMetadataExtractor> extractors = metadata.getMetadataExtractors();
+        List<ReplicaMetadataExtractor> extractors = metadata.getMetadataExtractors();
         assertEquals(2, extractors.size());
     }
 }

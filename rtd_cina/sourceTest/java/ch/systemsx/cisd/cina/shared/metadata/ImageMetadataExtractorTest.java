@@ -34,7 +34,7 @@ public class ImageMetadataExtractorTest extends AssertJUnit
         HashMap<String, String> parentMetadata = new HashMap<String, String>();
         File folder =
                 new File(
-                        "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Annotations/Replica for MRC files/MRC for Thomas/test20090422_BacklashRef.mrc");
+                        "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/Replica for MRC files/MRC for Thomas/test20090422_BacklashRef.mrc");
         ImageMetadataExtractor metadata = new ImageMetadataExtractor(parentMetadata, folder);
         metadata.prepare();
         Map<String, String> metadataMap = metadata.getMetadataMap();
