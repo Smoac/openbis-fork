@@ -51,4 +51,8 @@ public interface IEntityProperty extends Serializable, IsSerializable, Comparabl
 
     public void setPropertyType(final PropertyType propertyType);
 
+    void setOrdinal(Long ordinal);
+
+    Long getOrdinal();
+
 }

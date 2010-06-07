@@ -32,6 +32,8 @@ public abstract class AbstractEntityProperty implements IEntityProperty
 
     private PropertyType propertyType;
 
+    private Long ordinal;
+
     public PropertyType getPropertyType()
     {
         return propertyType;
@@ -94,12 +96,28 @@ public abstract class AbstractEntityProperty implements IEntityProperty
     {
     }
 
+    public void setOrdinal(Long ordinal)
+    {
+        this.ordinal = ordinal;
+    }
+
+    public Long getOrdinal()
+    {
+        return ordinal;
+    }
+
     // 
     // Comparable
     // 
 
     public int compareTo(IEntityProperty o)
     {
+        Long thisOrdinal = this.getOrdinal();
+        Long otherOrdinal = o.getOrdinal();
+        if (thisOrdinal != null && otherOrdinal != null)
+        {
+            return thisOrdinal.compareTo(otherOrdinal);
+        }
         PropertyType thisPropertyType = this.getPropertyType();
         PropertyType otherPropertyType = o.getPropertyType();
         if (thisPropertyType.getLabel().equals(otherPropertyType.getLabel()))

@@ -48,6 +48,7 @@ public final class EntityPropertyTranslator
         final IEntityProperty result = PropertyTranslatorUtils.createEntityProperty(typeCode);
         result.setPropertyType(PropertyTypeTranslator.translate(propertyPE
                 .getEntityTypePropertyType().getPropertyType(), cacheOrNull));
+        result.setOrdinal(propertyPE.getEntityTypePropertyType().getOrdinal());
         switch (typeCode)
         {
             case CONTROLLEDVOCABULARY:
