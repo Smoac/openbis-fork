@@ -31,6 +31,8 @@ public class IndistinguishableProteinInfo extends AccessionNumberProvider
     
     private String description;
 
+    private double coverage;
+
     public final String getSequence()
     {
         return sequence;
@@ -49,5 +51,15 @@ public class IndistinguishableProteinInfo extends AccessionNumberProvider
     public final void setDescription(String description)
     {
         this.description = description;
+    }
+    
+    public void setCoverage(double coverage)
+    {
+        this.coverage = coverage;
+    }
+
+    public double getCoverage()
+    {
+        return coverage;
     }
 }

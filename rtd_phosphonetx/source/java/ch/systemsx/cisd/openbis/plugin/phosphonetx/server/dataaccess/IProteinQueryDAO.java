@@ -87,7 +87,7 @@ public interface IProteinQueryDAO extends BaseQuery
     public DataSet<Sequence> listProteinSequencesByProteinReference(long proteinReferenceID);
     
     @Select("select ds.id as data_set_id, ds.perm_id as data_set_perm_id, p.id as protein_id, "
-            + "probability, count(pe.id) as peptide_count, amino_acid_sequence, s.db_id, name_and_version "
+            + "probability, coverage, count(pe.id) as peptide_count, amino_acid_sequence, s.db_id, name_and_version "
             + "from data_sets as ds join experiments as e on ds.expe_id = e.id "
             + "                     join proteins as p on p.dase_id = ds.id "
             + "                     join identified_proteins as ip on ip.prot_id = p.id "
@@ -95,7 +95,7 @@ public interface IProteinQueryDAO extends BaseQuery
             + "                     join databases as db on s.db_id = db.id "
             + "                     left join peptides as pe on pe.prot_id = p.id "
             + "where s.prre_id = ?{2} and e.perm_id = ?{1} and ip.is_primary = 't' "
-            + "group by data_set_id, data_set_perm_id, protein_id, probability, "
+            + "group by data_set_id, data_set_perm_id, protein_id, probability, coverage, "
             + "         amino_acid_sequence, s.db_id, name_and_version order by data_set_perm_id")
     public DataSet<IdentifiedProtein> listProteinsByProteinReferenceAndExperiment(
             String experimentPermID, long proteinReferenceID);
@@ -103,7 +103,7 @@ public interface IProteinQueryDAO extends BaseQuery
     @Select("select * from peptides where prot_id = ?{1}")
     public DataSet<IdentifiedPeptide> listIdentifiedPeptidesByProtein(long proteinID);
     
-    @Select("select accession_number, description, amino_acid_sequence "
+    @Select("select accession_number, description, amino_acid_sequence, coverage "
             + "from identified_proteins as ip join sequences as s on ip.sequ_id = s.id "
             + "                               join protein_references as pr on s.prre_id = pr.id "
             + "where ip.prot_id = ?{1} and ip.is_primary = 'f'")

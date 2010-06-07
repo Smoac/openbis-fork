@@ -204,7 +204,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
             String accessionNumber = info.getAccessionNumber();
             TabItem item = new TabItem(accessionNumber);
             item.setLayout(new FitLayout());
-            PropertyGrid propertyGrid = new PropertyGrid(viewContext, 3);
+            PropertyGrid propertyGrid = new PropertyGrid(viewContext, 4);
             final Map<String, Object> properties = new LinkedHashMap<String, Object>();
             properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), info);
             propertyGrid.registerPropertyValueRenderer(IndistinguishableProteinInfo.class,
@@ -213,6 +213,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
                     .getDescription());
             String markedSequence = markPeptides(info.getSequence(), peptides);
             properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), markedSequence);
+            properties.put(viewContext.getMessage(Dict.COVERAGE), info.getCoverage());
             propertyGrid.setProperties(properties);
             ContentPanel contentPanel = new ContentPanel();
             contentPanel.setHeight("100%");
@@ -300,6 +301,8 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         String markedSequence =
                 markPeptides(proteinDetails.getSequence(), proteinDetails.getPeptides());
         properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), markedSequence);
+        
+        properties.put(viewContext.getMessage(Dict.COVERAGE), proteinDetails.getCoverage());
 
         propertyGrid.registerPropertyValueRenderer(Peptide.class, PropertyValueRenderers
                 .createPeptideRenderer(viewContext));

@@ -51,6 +51,9 @@ public class IdentifiedProtein extends AbstractDTOWithID
     @ResultColumn("probability")
     private double probability;
     
+    @ResultColumn("coverage")
+    private double coverage;
+    
     private double falseDiscoveryRate;
 
     public final String getDataSetPermID()
@@ -111,6 +114,16 @@ public class IdentifiedProtein extends AbstractDTOWithID
     public final void setProbability(double probability)
     {
         this.probability = probability;
+    }
+
+    public void setCoverage(double coverage)
+    {
+        this.coverage = coverage;
+    }
+
+    public double getCoverage()
+    {
+        return coverage;
     }
 
     public final double getFalseDiscoveryRate()

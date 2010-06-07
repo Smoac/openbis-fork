@@ -30,6 +30,9 @@ public class IndistinguishableProtein extends ProteinReference
     @ResultColumn("amino_acid_sequence")
     private String sequence;
 
+    @ResultColumn("coverage")
+    private double coverage;
+    
     public void setSequence(String sequence)
     {
         this.sequence = sequence;
@@ -40,4 +43,14 @@ public class IndistinguishableProtein extends ProteinReference
         return sequence;
     }
 
+    public void setCoverage(double coverage)
+    {
+        this.coverage = coverage;
+    }
+
+    public double getCoverage()
+    {
+        return coverage;
+    }
+    
 }

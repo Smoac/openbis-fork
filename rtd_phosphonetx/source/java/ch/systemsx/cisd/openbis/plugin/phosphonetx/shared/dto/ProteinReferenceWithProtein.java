@@ -81,5 +81,4 @@ public class ProteinReferenceWithProtein extends ProteinReference implements Ser
         return coverage;
     }
 
-
 }
