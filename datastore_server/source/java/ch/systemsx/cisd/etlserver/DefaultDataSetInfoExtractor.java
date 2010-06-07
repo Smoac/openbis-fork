@@ -323,7 +323,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         dataSetInformation.setExperimentIdentifier(experimentIdentifier);
         if (experimentIdentifier == null)
         {
-            dataSetInformation.setSampleCode(entitiesProvider.getEntity(indexOfSampleCode));
+            dataSetInformation.setSampleCode(extractSampleCode(entitiesProvider));
         }
         dataSetInformation.setParentDataSetCodes(getParentDataSetCodes(entitiesProvider));
         dataSetInformation.setProducerCode(tryGetDataProducerCode(entitiesProvider));
@@ -356,6 +356,14 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         }
         identifier.setSpaceCode(codes.length > 2 ? codes[codes.length - 3] : groupCode);
         return identifier;
+    }
+
+    private String extractSampleCode(final DataSetNameEntitiesProvider entitiesProvider)
+    {
+        // subEntitySeparator can be used instead of ':' for contained sample code
+        // (':' is not an allowed char some OS and it is not achievable in Mac OS Finder)
+        String sampleCode = entitiesProvider.getEntity(indexOfSampleCode);
+        return sampleCode.replace(subEntitySeparator, ':');
     }
 
     private List<String> getParentDataSetCodes(final DataSetNameEntitiesProvider entitiesProvider)

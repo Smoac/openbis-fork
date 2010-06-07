@@ -55,6 +55,24 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
     }
 
     @Test
+    public void testExtractContainedSampleIdentifier()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(asPropertyName(GROUP_CODE), "my-group");
+        final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
+
+        final DataSetInformation dsInfo1 =
+                extractor.getDataSetInformation(new File("BOX_1&S_1"), null);
+        final DataSetInformation dsInfo2 =
+                extractor.getDataSetInformation(new File("BOX_1:S_1"), null);
+
+        assertEquals("BOX_1:S_1", dsInfo1.getSampleIdentifier().getSampleCode());
+        assertEquals("S_1", dsInfo1.getSampleIdentifier().getSampleSubCode());
+        assertEquals("BOX_1:S_1", dsInfo2.getSampleIdentifier().getSampleCode());
+        assertEquals("S_1", dsInfo2.getSampleIdentifier().getSampleSubCode());
+    }
+
+    @Test
     public void testExtractExperimentIdentifierWithoutGroup()
     {
         Properties properties = new Properties();
@@ -70,32 +88,32 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         assertEquals("123", dsInfo.getExperimentIdentifier().getExperimentCode());
         assertEquals(null, dsInfo.getSampleIdentifier());
     }
-    
+
     @Test
     public void testExtractExperimentIdentifierWithGroup()
     {
         Properties properties = new Properties();
         properties.setProperty(INDEX_OF_EXPERIMENT_IDENTIFIER, "1");
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
-        
+
         final DataSetInformation dsInfo =
-            extractor.getDataSetInformation(new File("bla.abc&xy&123.bla"), null);
-        
+                extractor.getDataSetInformation(new File("bla.abc&xy&123.bla"), null);
+
         assertEquals("ABC", dsInfo.getExperimentIdentifier().getSpaceCode());
         assertEquals("XY", dsInfo.getExperimentIdentifier().getProjectCode());
         assertEquals("123", dsInfo.getExperimentIdentifier().getExperimentCode());
         assertEquals(null, dsInfo.getSampleIdentifier());
     }
-    
+
     @Test
     public void testHappyCaseWithDefaultProperties()
     {
         final String barcode = "XYZ123";
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(new Properties());
-        
+
         final DataSetInformation dsInfo =
-            extractor.getDataSetInformation(new File("bla.bla." + barcode), null);
-        
+                extractor.getDataSetInformation(new File("bla.bla." + barcode), null);
+
         assertNull(dsInfo.getExperimentIdentifier());
         assertEquals(barcode, dsInfo.getSampleIdentifier().getSampleCode());
         assertEquals(0, dsInfo.getParentDataSetCodes().size());
@@ -186,7 +204,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         final Properties properties = new Properties();
         final String separator = "=";
         properties.setProperty(ENTITY_SEPARATOR, separator);
-        String subSeparator = "%"; 
+        String subSeparator = "%";
         properties.setProperty(SUB_ENTITY_SEPARATOR, subSeparator);
         properties.setProperty(INDEX_OF_SAMPLE_CODE, "0");
         properties.setProperty(INDEX_OF_PARENT_DATA_SET_CODE, "1");
