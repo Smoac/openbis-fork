@@ -16,43 +16,44 @@
 
 package ch.systemsx.cisd.cina.shared.labview;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Root of the LabView XML storage format.
- * 
  * @author Chandrasekhar Ramakrishnan
  */
-@XmlRootElement(name = "LVData", namespace = "http://www.ni.com/LVData")
-public class LVData
+public class EW extends AbstractLVDataElement
 {
-    private String version;
+    private List<String> choices = new ArrayList<String>();
 
-    private List<Cluster> clusters;
+    private Integer value;
 
-    @XmlElement(name = "Version", namespace = "http://www.ni.com/LVData")
-    public String getVersion()
+    @XmlElement(name = "Choice", namespace = "http://www.ni.com/LVData")
+    public void setChoices(List<String> choices)
     {
-        return version;
+        this.choices = choices;
     }
 
-    public void setVersion(String version)
+    public List<String> getChoices()
     {
-        this.version = version;
+        return choices;
     }
 
-    @XmlElement(name = "Cluster", namespace = "http://www.ni.com/LVData")
-    public List<Cluster> getClusters()
+    @XmlElement(name = "Val", namespace = "http://www.ni.com/LVData")
+    public Integer getValue()
     {
-        return clusters;
+        return value;
     }
 
-    public void setClusters(List<Cluster> clusters)
+    void setValue(Integer value)
     {
-        this.clusters = clusters;
+        this.value = value;
     }
 
+    public String getChosenValue()
+    {
+        return choices.get(value);
+    }
 }

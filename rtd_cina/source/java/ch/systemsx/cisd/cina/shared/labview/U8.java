@@ -16,43 +16,25 @@
 
 package ch.systemsx.cisd.cina.shared.labview;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Root of the LabView XML storage format.
+ * LabView unsigned 8 bit number.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-@XmlRootElement(name = "LVData", namespace = "http://www.ni.com/LVData")
-public class LVData
+public class U8 extends AbstractLVDataElement
 {
-    private String version;
+    private Short value;
 
-    private List<Cluster> clusters;
-
-    @XmlElement(name = "Version", namespace = "http://www.ni.com/LVData")
-    public String getVersion()
+    @XmlElement(name = "Val", namespace = "http://www.ni.com/LVData")
+    public Short getValue()
     {
-        return version;
+        return value;
     }
 
-    public void setVersion(String version)
+    void setValue(Short value)
     {
-        this.version = version;
+        this.value = value;
     }
-
-    @XmlElement(name = "Cluster", namespace = "http://www.ni.com/LVData")
-    public List<Cluster> getClusters()
-    {
-        return clusters;
-    }
-
-    public void setClusters(List<Cluster> clusters)
-    {
-        this.clusters = clusters;
-    }
-
 }

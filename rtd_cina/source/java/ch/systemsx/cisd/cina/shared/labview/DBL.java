@@ -19,21 +19,19 @@ package ch.systemsx.cisd.cina.shared.labview;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * 
- *
  * @author Chandrasekhar Ramakrishnan
  */
 public class DBL extends AbstractLVDataElement
 {
-    private float value;
+    private Float value;
 
     @XmlElement(name = "Val", namespace = "http://www.ni.com/LVData")
-    public void setValue(float value)
+    public void setValue(Float value)
     {
         this.value = value;
     }
 
-    public float getValue()
+    public Float getValue()
     {
         return value;
     }
