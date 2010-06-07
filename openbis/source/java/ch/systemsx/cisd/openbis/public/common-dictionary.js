@@ -212,7 +212,7 @@ var common = {
   // Sample Type Browser
   //
   
-  unique_subcodes_label: "Unique Subcodes",
+  subcode_unique_label: "Unique Subcodes",
   auto_generate_codes_label: "Generate Codes Automatically",
   generated_code_prefix: "Generated Code Prefix",
   listable: "Listable",
