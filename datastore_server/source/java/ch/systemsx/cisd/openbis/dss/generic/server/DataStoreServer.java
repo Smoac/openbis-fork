@@ -200,9 +200,9 @@ public class DataStoreServer
     /**
      * Initialize RPC service interfaces
      */
-    // TODO: The registration process here needs to be made cleaner -- perhaps by using Spring and
-    // the dssApplicationContext.xml more effectively, or perhaps by using annotations and
-    // reflection.
+    // TODO 2010-06-01, CR : The registration process here needs to be made cleaner.
+    // Perhaps by using Spring and the dssApplicationContext.xml more effectively, or perhaps by
+    // using annotations and reflection.
     private static void initializeRpcServices(final Context context,
             final ApplicationContext applicationContext, final ConfigParameters configParameters)
     {
@@ -214,14 +214,24 @@ public class DataStoreServer
 
         // Export the spring bean to the world by wrapping it in an HttpInvokerServlet
         String rpcV1Suffix = "/rmi-dss-api-v1";
-        String rpcV1Path = rpcV1Suffix;
+        String rpcV1Path = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME + rpcV1Suffix;
         context.addServlet(new ServletHolder(new HttpInvokerServlet(v1ServiceExporter, rpcV1Path)),
                 rpcV1Path);
 
-        // Inform the name server about the services I export
-        // N.b. In the future, this could be done using spring instead of programmatically
         HttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getRpcNameServiceExporter();
+        String nameServerPath =
+                "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME
+                        + IRpcServiceNameServer.PREFFERED_URL_SUFFIX;
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(nameServiceExporter,
+                nameServerPath)), nameServerPath);
+
+        RpcServiceInterfaceVersionDTO nameServerVersion =
+                new RpcServiceInterfaceVersionDTO(IRpcServiceNameServer.PREFFERED_SERVICE_NAME,
+                        IRpcServiceNameServer.PREFFERED_URL_SUFFIX, 1, 0);
+
+        // Inform the name server about the services I export
+        // N.b. In the future, this could be done using spring instead of programmatically
         RpcServiceNameServer rpcNameServer =
                 (RpcServiceNameServer) nameServiceExporter.getService();
 
@@ -229,17 +239,7 @@ public class DataStoreServer
                 new RpcServiceInterfaceVersionDTO(DssServiceRpcGeneric.DSS_SERVICE_NAME,
                         rpcV1Suffix, 1, 0);
         rpcNameServer.addSupportedInterfaceVersion(v1Interface);
-
-        String nameServerPath = IRpcServiceNameServer.PREFFERED_URL_SUFFIX;
-        RpcServiceInterfaceVersionDTO nameServerVersion =
-                new RpcServiceInterfaceVersionDTO(IRpcServiceNameServer.PREFFERED_SERVICE_NAME,
-                        IRpcServiceNameServer.PREFFERED_URL_SUFFIX, 1, 0);
-
         rpcNameServer.addSupportedInterfaceVersion(nameServerVersion);
-
-        context.addServlet(new ServletHolder(new HttpInvokerServlet(nameServiceExporter,
-                nameServerPath)), nameServerPath);
-
     }
 
     private static void registerPluginServlets(Context context, List<PluginServlet> pluginServlets)

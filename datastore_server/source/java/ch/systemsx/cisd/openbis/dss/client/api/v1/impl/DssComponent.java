@@ -31,7 +31,6 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -435,7 +434,7 @@ class AuthenticatedState extends AbstractDssComponentState
      */
     private String getDataStoreUrlFromDataStore(DataStore dataStore)
     {
-        return DataStoreApiUrlUtilities.getDataStoreUrlFromDataStore(dataStore);
+        return dataStore.getDownloadUrl();
     }
 
     @Override
