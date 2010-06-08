@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters.PluginServle
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -214,15 +215,15 @@ public class DataStoreServer
 
         // Export the spring bean to the world by wrapping it in an HttpInvokerServlet
         String rpcV1Suffix = "/rmi-dss-api-v1";
-        String rpcV1Path = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME + rpcV1Suffix;
+        String rpcV1Path = DataStoreApiUrlUtilities.getUrlForRpcService(rpcV1Suffix);
         context.addServlet(new ServletHolder(new HttpInvokerServlet(v1ServiceExporter, rpcV1Path)),
                 rpcV1Path);
 
         HttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getRpcNameServiceExporter();
         String nameServerPath =
-                "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME
-                        + IRpcServiceNameServer.PREFFERED_URL_SUFFIX;
+                DataStoreApiUrlUtilities
+                        .getUrlForRpcService(IRpcServiceNameServer.PREFFERED_URL_SUFFIX);
         context.addServlet(new ServletHolder(new HttpInvokerServlet(nameServiceExporter,
                 nameServerPath)), nameServerPath);
 
