@@ -174,7 +174,7 @@
       <jvmarg value="-Xmx512M" />
       <arg value="-war" />
       <arg value="${targets.www}" />
-      <arg value="${module-test.module}Firefox" />
+      <arg value="${module-test.module}Safari" />
       <arg value="-draftCompile" />
       <arg value="-style" />
       <arg value="PRETTY" />
