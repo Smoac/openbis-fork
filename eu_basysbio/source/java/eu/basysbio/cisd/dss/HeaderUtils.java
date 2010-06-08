@@ -171,7 +171,7 @@ class HeaderUtils
             reader = new FileReader(tsvFile);
             String fileName = tsvFile.toString();
             TabSeparatedValueTable table =
-                    new TabSeparatedValueTable(reader, fileName, ignoreEmptyLines, true,
+                    new TabSeparatedValueTable(reader, fileName, ignoreEmptyLines, false,
                             ignoreHashedLines);
             List<Column> columns = table.getColumns();
             return extractDataColumnHeaders(columns);
