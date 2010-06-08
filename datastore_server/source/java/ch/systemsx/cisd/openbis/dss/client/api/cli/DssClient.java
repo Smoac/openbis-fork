@@ -45,11 +45,33 @@ import ch.systemsx.cisd.common.utilities.SystemExit;
  */
 public class DssClient
 {
+    private final static boolean ENABLE_LOGGING = false;
+
     static
     {
         // Disable any logging output.
+        if (ENABLE_LOGGING)
+            enableDebugLogging();
+        else
+            disableLogging();
+    }
+
+    private static void disableLogging()
+    {
         System.setProperty("org.apache.commons.logging.Log",
                 "org.apache.commons.logging.impl.NoOpLog");
+    }
+
+    private static void enableDebugLogging()
+    {
+        // Log protocol information -- for debugging only
+        System.setProperty("org.apache.commons.logging.Log",
+                "org.apache.commons.logging.impl.SimpleLog");
+        System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+        System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.header",
+                "debug");
+        System.setProperty(
+                "org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "debug");
     }
 
     private CommandFactory commandFactory;
