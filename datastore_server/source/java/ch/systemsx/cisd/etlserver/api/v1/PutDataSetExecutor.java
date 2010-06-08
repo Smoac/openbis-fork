@@ -147,10 +147,19 @@ class PutDataSetExecutor
                 new ConcatenatedFileOutputStreamWriter(inputStream);
         for (FileInfoDssDTO fileInfo : newDataSet.getFileInfos())
         {
-            OutputStream output = getOutputStream(fileInfo);
-            imagesWriter.writeNextBlock(output);
-            output.flush();
-            output.close();
+            if (fileInfo.isDirectory())
+            {
+                // Just make the directory
+                File file = new File(dataSetDir, fileInfo.getPathInDataSet());
+                file.mkdir();
+            } else
+            {
+                // Download the file -- the directory should have already been made
+                OutputStream output = getOutputStream(fileInfo);
+                imagesWriter.writeNextBlock(output);
+                output.flush();
+                output.close();
+            }
         }
     }
 

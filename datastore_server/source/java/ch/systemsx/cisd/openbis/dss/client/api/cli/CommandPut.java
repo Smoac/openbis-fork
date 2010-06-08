@@ -66,7 +66,7 @@ class CommandPut extends AbstractCommand
 
         public String getFilePath()
         {
-            return getArguments().get(1);
+            return getArguments().get(2);
         }
 
         public File getFile()
@@ -85,7 +85,7 @@ class CommandPut extends AbstractCommand
 
             try
             {
-                DataSetOwnerType.valueOf(getArguments().get(1).toString().toUpperCase());
+                getOwnerType();
             } catch (IllegalArgumentException e)
             {
                 return false;
@@ -191,7 +191,16 @@ class CommandPut extends AbstractCommand
 
             for (FileInfoDssDTO fileInfo : fileInfos)
             {
-                files.add(new File(parent, fileInfo.getPathInDataSet()));
+                File file = new File(parent, fileInfo.getPathInDataSet());
+                if (false == file.exists())
+                {
+                    throw new IllegalArgumentException("File does not exist " + file);
+                }
+                // Skip directories
+                if (false == file.isDirectory())
+                {
+                    files.add(file);
+                }
             }
 
             return files;
@@ -248,8 +257,8 @@ class CommandPut extends AbstractCommand
         parser.printUsage(out);
         out.println("  Examples : ");
         out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
-                + " HCS_IMAGE EXPERIMENT <experiment identifier> <path>");
+                + " EXPERIMENT <experiment identifier> <path>");
         out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
-                + " HCS_IMAGE SAMPLE <sample identifier> <path>");
+                + " SAMPLE <sample identifier> <path>");
     }
 }
