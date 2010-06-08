@@ -118,7 +118,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
             reader = new FileReader(tsvFile);
             String fileName = tsvFile.toString();
             TabSeparatedValueTable table =
-                    new TabSeparatedValueTable(reader, fileName, parameters.isIgnoreEmptyLines());
+                    new TabSeparatedValueTable(reader, fileName, parameters.isIgnoreEmptyLines(), true, false);
             List<Column> columns = table.getColumns();
             List<Column> commonColumns = new ArrayList<Column>();
             List<Column> dataColumns = new ArrayList<Column>();

@@ -82,7 +82,7 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
             reader = new FileReader(tsvFile);
             String fileName = tsvFile.toString();
             TabSeparatedValueTable table =
-                    new TabSeparatedValueTable(reader, fileName, parameters.isIgnoreEmptyLines(), true);
+                    new TabSeparatedValueTable(reader, fileName, parameters.isIgnoreEmptyLines(), true, true);
             List<Column> columns = table.getColumns();
             File timeSeriesDropBox = parameters.getTimeSeriesDropBox();
             List<String> timeValues = columns.get(0).getValues();
