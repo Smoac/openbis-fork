@@ -37,6 +37,7 @@ import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
+import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -350,11 +351,10 @@ public final class GWTUtils
      * 
      * @return something like <code>key1=value1&key2=value2</code>.
      */
-    public final static native String getParamString()
-    /*-{
-        var search = $wnd.location.search;
-        return search.indexOf("?") == 0 ? search.substring(1) : search;
-    }-*/;
+    public final static String getParamString()
+    {
+        return Location.getQueryString();
+    }
 
     /**
      * Tooltip template displayed when mouse is over drop down list.
