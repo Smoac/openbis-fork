@@ -60,6 +60,8 @@ class DataSetValidatorForTSV implements IDataSetValidator
     static final String EXCLUDE_PATH_PATTERNS_KEY = "exclude-path-patterns";
 
     static final String IGNORE_EMPTY_LINES_KEY = "ignore-empty-lines";
+    
+    static final String STRICT_ROW_SIZE_KEY = "strict-row-size";
 
     static final String COLUMNS_KEY = "columns";
 
@@ -73,10 +75,13 @@ class DataSetValidatorForTSV implements IDataSetValidator
 
     private final boolean ignoreEmptyLines;
 
+    private final boolean strictRowSize;
+
     DataSetValidatorForTSV(Properties properties)
     {
         fileScanners = new ArrayList<FileScanner>();
         ignoreEmptyLines = PropertyUtils.getBoolean(properties, IGNORE_EMPTY_LINES_KEY, true);
+        strictRowSize = PropertyUtils.getBoolean(properties, STRICT_ROW_SIZE_KEY, true);
         String pathPatterns = properties.getProperty(PATH_PATTERNS_KEY, "*");
         StringTokenizer tokenizer = new StringTokenizer(pathPatterns, ",");
         while (tokenizer.hasMoreTokens())
@@ -160,7 +165,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
         {
             reader = new FileReader(file);
             TabSeparatedValueTable table =
-                    new TabSeparatedValueTable(reader, file.toString(), ignoreEmptyLines);
+                    new TabSeparatedValueTable(reader, file.toString(), ignoreEmptyLines, strictRowSize, false);
             List<String> headers = table.getHeaders();
             assertUniqueHeaders(headers);
             ColumnDefinition[] definitions = findColumnDefinitions(headers);

@@ -22,6 +22,8 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
  * 
  *
@@ -121,8 +123,14 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     @Test
     public void testParsingIgnoringEmptyLinesAndHashedLines()
     {
-        StringReader source = new StringReader("alpha\tbeta\n\n# hello world\n11\t12\n\t22\n31\n\n");
-        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", true, true);
+        StringReader source = new StringReader("alpha\tbeta\n" +
+        		"\n" +
+        		"# hello world\n" +
+        		"11\t12\n" +
+        		"\t22\n" +
+        		"31\n" +
+        		"\n");
+        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", true, false, true);
         List<Column> columns = table.getColumns();
         
         assertEquals(2, columns.size());
@@ -132,6 +140,22 @@ public class TabSeparatedValueTableTest extends AssertJUnit
         assertEquals("[12, 22, ]", columns.get(1).getValues().toString());
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());
+    }
+    
+    @Test
+    public void testParsingStrictRowSize()
+    {
+        StringReader source = new StringReader("alpha\tbeta\n1\t2\t\n");
+        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", true, true, true);
+        
+        try
+        {
+            table.getColumns();
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("1. row has 3 instead of 2 cells.", ex.getMessage());
+        }
     }
     
     @Test

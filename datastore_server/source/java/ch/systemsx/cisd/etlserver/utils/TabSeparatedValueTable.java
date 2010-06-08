@@ -26,6 +26,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
  * Helper class for get table data out of a TSV file.
  *
@@ -40,6 +42,7 @@ public class TabSeparatedValueTable
         private final boolean ignoreHashedLines;
         
         private String currentLine;
+        private int currentLineNumber;
 
         RowLineIterator(LineIterator lineIterator, boolean ignoreEmptyLines, boolean ignoreHashedLines)
         {
@@ -72,6 +75,11 @@ public class TabSeparatedValueTable
             }
         }
 
+        public final int getCurrentLineNumber()
+        {
+            return currentLineNumber;
+        }
+        
         public void remove()
         {
             throw new UnsupportedOperationException();
@@ -86,9 +94,10 @@ public class TabSeparatedValueTable
                     return null;
                 }
                 String line = lineIterator.nextLine();
+                currentLineNumber++;
                 if ((ignoreEmptyLines == false || line == null || StringUtils.isNotBlank(line))
                         && (ignoreHashedLines == false || line == null || line.startsWith("#") == false))
-              {
+                {
                     return line;
                 }
             }
@@ -97,6 +106,7 @@ public class TabSeparatedValueTable
     
     private final RowLineIterator rowLineIterator;
     private final List<String> headers;
+    private final boolean strictRowSize;
 
     /**
      * Creates a new instance. Short cut for
@@ -105,7 +115,7 @@ public class TabSeparatedValueTable
     public TabSeparatedValueTable(Reader reader, String nameOfReadingSource,
             boolean ignoreEmptyLines)
     {
-        this(reader, nameOfReadingSource, ignoreEmptyLines, false);
+        this(reader, nameOfReadingSource, ignoreEmptyLines, false, false);
     }
     
     /**
@@ -116,11 +126,13 @@ public class TabSeparatedValueTable
      * @param nameOfReadingSource Source (usually file name) from which the table will be read. This
      *            is used for error messages only.
      * @param ignoreEmptyLines If <code>true</code> lines with only white spaces will be ignored.
+     * @param strictRowSize If <code>true</code> the number of row cells have to be equal the number of headers.
      * @param ignoreHashedLines If <code>true</code> lines starting with '#' will be ignored.
      */
     public TabSeparatedValueTable(Reader reader, String nameOfReadingSource,
-            boolean ignoreEmptyLines, boolean ignoreHashedLines)
+            boolean ignoreEmptyLines, boolean strictRowSize, boolean ignoreHashedLines)
     {
+        this.strictRowSize = strictRowSize;
         rowLineIterator = new RowLineIterator(IOUtils.lineIterator(reader), ignoreEmptyLines, ignoreHashedLines);
         if (rowLineIterator.hasNext() == false)
         {
@@ -175,6 +187,11 @@ public class TabSeparatedValueTable
             return null;
         }
         List<String> row = getRowCells(line);
+        if (strictRowSize && row.size() != headers.size())
+        {
+            throw new UserFailureException(rowLineIterator.getCurrentLineNumber() - 1
+                    + ". row has " + row.size() + " instead of " + headers.size() + " cells.");
+        }
         for (int i = row.size(); i < headers.size(); i++)
         {
             row.add("");
