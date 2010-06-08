@@ -19,7 +19,6 @@ package ch.systemsx.cisd.cina.dss;
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.cina.dss.info.EntityRegistrationSuccessEmail;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
@@ -35,18 +34,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class StorageProcessor extends AbstractDelegatingStorageProcessor
 {
-    private String defaultEmailAddress = "root@localhost";
-
-    private static final String DEFAULT_EMAIL_ADDRESS_KEY = "default-email";
-
     public StorageProcessor(Properties properties)
     {
         super(properties);
-
-        if (properties.containsKey(DEFAULT_EMAIL_ADDRESS_KEY))
-        {
-            defaultEmailAddress = properties.getProperty(DEFAULT_EMAIL_ADDRESS_KEY);
-        }
     }
 
     public StorageProcessor(IStorageProcessor delegatedProcessor)
@@ -59,24 +49,9 @@ public class StorageProcessor extends AbstractDelegatingStorageProcessor
             final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDir)
     {
-        // Create the email first because the email looks into the directory to determine its
-        // content.
-        EntityRegistrationSuccessEmail successEmail =
-                new EntityRegistrationSuccessEmail(dataSetInformation, incomingDataSetDirectory);
-
         File answer =
                 super.storeData(dataSetInformation, typeExtractor, mailClient,
                         incomingDataSetDirectory, rootDir);
-
-        String emailAddress = dataSetInformation.tryGetUploadingUserEmail();
-        if (emailAddress == null)
-        {
-            emailAddress = defaultEmailAddress;
-        }
-
-        mailClient.sendMessageWithAttachment(successEmail.getSubject(), successEmail
-                .getContentMimeText(), successEmail.getContentMimeAttachmentFileName(),
-                successEmail.getContentMimeAttachmentContent(), null, null, emailAddress);
 
         return answer;
     }

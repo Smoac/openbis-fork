@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.cina.shared.labview.LVData;
 import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
 
@@ -36,14 +37,14 @@ public class ImageMetadataExtractor
 
     private LVData lvdata;
 
-    private static final String METADATA_FILE_NAME = "metadata.xml";
+    private final static String METADATA_FILE_NAME = "metadata.xml";
 
-    private static final HashMap<String, String> prefixMap;
+    private final static HashMap<String, String> prefixMap;
     static
     {
         prefixMap = new HashMap<String, String>();
-        prefixMap.put("Pixelsize (nm)", "Size");
-        prefixMap.put("Image dimension (px)", "Dimension");
+        prefixMap.put("Pixelsize (nm)", CinaConstants.SIZE_PREFIX);
+        prefixMap.put("Image dimension (px)", CinaConstants.DIMENSION_PREFIX);
     }
 
     public static boolean doesFolderContainImageMetadata(File folder)
@@ -106,6 +107,11 @@ public class ImageMetadataExtractor
     {
         checkPrepared();
         return metadataMap;
+    }
+
+    public File getFolder()
+    {
+        return folder;
     }
 
     private void checkPrepared()

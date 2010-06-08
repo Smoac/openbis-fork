@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * CINA uses the data store server to register experiments and samples in addition to data sets. The
- * CinaDataSetInfoExtractor follows the conventions agreed to by the CINA project to determine if
+ * CinaBundleDataSetInfoExtractor follows the conventions agreed to by the CINA project to determine if
  * the file represents an experiment, sample, or data set and takes according action.
  * <p>
  * In the case of data representing experiments and samples, the extractor may need to register the

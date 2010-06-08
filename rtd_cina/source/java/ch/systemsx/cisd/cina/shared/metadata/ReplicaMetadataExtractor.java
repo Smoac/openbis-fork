@@ -118,6 +118,11 @@ public class ReplicaMetadataExtractor
         return metadataExtractors;
     }
 
+    public File getFolder()
+    {
+        return folder;
+    }
+
     private void checkPrepared()
     {
         assert lvdata != null;

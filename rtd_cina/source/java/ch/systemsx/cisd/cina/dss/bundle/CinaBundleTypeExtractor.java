@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.cina.dss.bundle;
 
 import java.io.File;
+import java.util.Properties;
 
+import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -26,13 +28,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class CinaTypeExtractor implements ITypeExtractor
+public class CinaBundleTypeExtractor implements ITypeExtractor
 {
-    private static final String BUNDLE_DATA_SET_TYPE = "BUNDLE";
+    public CinaBundleTypeExtractor(final Properties properties)
+    {
+
+    }
 
     public DataSetType getDataSetType(File incomingDataSetPath)
     {
-        return new DataSetType(BUNDLE_DATA_SET_TYPE);
+        return new DataSetType(CinaConstants.BUNDLE_DATA_SET_TYPE_CODE);
     }
 
     public FileFormatType getFileFormatType(File incomingDataSetPath)

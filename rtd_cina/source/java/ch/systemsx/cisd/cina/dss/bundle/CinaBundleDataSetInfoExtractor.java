@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cina.dss.bundle;
 
 import java.io.File;
+import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -29,14 +30,19 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
+public class CinaBundleDataSetInfoExtractor implements IDataSetInfoExtractor
 {
+    public CinaBundleDataSetInfoExtractor(final Properties globalProperties)
+    {
+
+    }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException
     {
-        return new DataSetInformation();
-    }
+        DataSetInformation result = new DataSetInformation();
 
+        return result;
+    }
 }
