@@ -280,6 +280,10 @@ CREATE TRIGGER sample_property_with_material_data_type_check
     BEFORE INSERT OR UPDATE ON sample_properties
     FOR EACH ROW
     EXECUTE PROCEDURE sample_property_with_material_data_type_check();
+CREATE TRIGGER sample_subcode_uniqueness_check
+    BEFORE INSERT OR UPDATE ON samples
+    FOR EACH ROW
+    EXECUTE PROCEDURE sample_subcode_uniqueness_check();
 ALTER TABLE ONLY authorization_groups
     ADD CONSTRAINT ag_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY authorization_groups

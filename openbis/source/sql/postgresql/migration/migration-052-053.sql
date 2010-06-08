@@ -1,13 +1,12 @@
 -- Migration from 052 to 053
 
 -- Change code uniqueness check for samples of specific type.
--- If sample_types.is_subcode_unique flag is set to 'true', codes of samples of the type will have to
--- be unique no matter if they are contained in a container or not. Otherwise standard uniqueness 
--- check is performed (taking container connection into consideration).
+-- If sample_types.is_subcode_unique flag is set to 'true', additional check is performed 
+-- on codes of samples of the type. Subcodes will have to be unique as well.
 
 ALTER TABLE sample_types ADD COLUMN is_subcode_unique boolean_char NOT NULL DEFAULT false;
 
-CREATE OR REPLACE FUNCTION SAMPLE_CODE_UNIQUENESS_CHECK() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION SAMPLE_SUBCODE_UNIQUENESS_CHECK() RETURNS trigger AS $$
 DECLARE
    counter  INTEGER;
    unique_subcode  BOOLEAN_CHAR;
@@ -30,7 +29,23 @@ BEGIN
 				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample of the same type with the same subcode already exists.', NEW.code;
 			END IF;
 		END IF;
-  ELSE 	
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER SAMPLE_SUBCODE_UNIQUENESS_CHECK BEFORE INSERT OR UPDATE ON SAMPLES
+    FOR EACH ROW EXECUTE PROCEDURE SAMPLE_SUBCODE_UNIQUENESS_CHECK();
+    
+-- Fixing error messages in old trigger
+
+CREATE OR REPLACE FUNCTION SAMPLE_CODE_UNIQUENESS_CHECK() RETURNS trigger AS $$
+DECLARE
+   counter  INTEGER;
+BEGIN
+  LOCK TABLE samples IN EXCLUSIVE MODE;
+  
 	  IF (NEW.samp_id_part_of is NULL) THEN
 		  IF (NEW.dbin_id is not NULL) THEN
 			  SELECT count(*) into counter FROM samples 
@@ -60,7 +75,6 @@ BEGIN
 			  END IF;
 		  END IF;
      END IF;   
-  END IF;
   
   RETURN NEW;
 END;

@@ -203,27 +203,9 @@ CREATE FUNCTION sample_code_uniqueness_check() RETURNS trigger
     AS $$
 DECLARE
    counter  INTEGER;
-   unique_subcode  BOOLEAN_CHAR;
 BEGIN
   LOCK TABLE samples IN EXCLUSIVE MODE;
   
-  SELECT is_subcode_unique into unique_subcode FROM sample_types WHERE id = NEW.saty_id;
-  
-  IF (unique_subcode) THEN
-    IF (NEW.dbin_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and dbin_id = NEW.dbin_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample of the same type with the same subcode already exists.', NEW.code;
-			END IF;
-		ELSIF (NEW.grou_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and grou_id = NEW.grou_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample of the same type with the same subcode already exists.', NEW.code;
-			END IF;
-		END IF;
-  ELSE 	
 	  IF (NEW.samp_id_part_of is NULL) THEN
 		  IF (NEW.dbin_id is not NULL) THEN
 			  SELECT count(*) into counter FROM samples 
@@ -253,7 +235,6 @@ BEGIN
 			  END IF;
 		  END IF;
      END IF;   
-  END IF;
   
   RETURN NEW;
 END;
@@ -283,6 +264,36 @@ BEGIN
 			end if;
    end if;
    RETURN NEW;
+END;
+$$;
+CREATE FUNCTION sample_subcode_uniqueness_check() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+   counter  INTEGER;
+   unique_subcode  BOOLEAN_CHAR;
+BEGIN
+  LOCK TABLE samples IN EXCLUSIVE MODE;
+  
+  SELECT is_subcode_unique into unique_subcode FROM sample_types WHERE id = NEW.saty_id;
+  
+  IF (unique_subcode) THEN
+    IF (NEW.dbin_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and dbin_id = NEW.dbin_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample of the same type with the same subcode already exists.', NEW.code;
+			END IF;
+		ELSIF (NEW.grou_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and grou_id = NEW.grou_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample of the same type with the same subcode already exists.', NEW.code;
+			END IF;
+		END IF;
+  END IF;
+  
+  RETURN NEW;
 END;
 $$;
 CREATE SEQUENCE attachment_content_id_seq

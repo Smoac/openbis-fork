@@ -161,6 +161,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         final Session currentSession = sessionFactory.getCurrentSession();
         currentSession.flush();
 
+        // subcode uniqueness should be checked
         try
         {
             final SamplePE well2_1 = createContainedSample(containedType, "well1", container2);
@@ -172,6 +173,32 @@ public final class SampleDAOTest extends AbstractDAOTest
             assertEquals("ERROR: Insert/Update of Sample (Code: WELL1) failed because "
                     + "database instance sample of the same type with the same subcode "
                     + "already exists.", e.getMessage());
+        }
+    }
+
+    @Test
+    public final void testSampleSubcodeUniquenessAcrossTypes()
+    {
+        final SampleTypePE type1 = getSampleType("DILUTION_PLATE");
+        final SampleTypePE type2 = getSampleType("CELL_PLATE");
+        type2.setSubcodeUnique(true);
+        final SamplePE sampleT1 = createSample(type1, "S_CODE");
+        save(sampleT1);
+
+        final Session currentSession = sessionFactory.getCurrentSession();
+        currentSession.flush();
+
+        // default uniqueness should still be checked across types
+        try
+        {
+            final SamplePE sampleT2 = createSample(type2, "S_CODE");
+            save(sampleT2);
+            currentSession.flush();
+            fail("DataIntegrityViolationException expected");
+        } catch (DataIntegrityViolationException e)
+        {
+            assertEquals("ERROR: Insert/Update of Sample (Code: S_CODE) failed because "
+                    + "database instance sample with the same code already exists.", e.getMessage());
         }
     }
 
