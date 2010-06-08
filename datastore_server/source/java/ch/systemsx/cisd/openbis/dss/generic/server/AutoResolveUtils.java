@@ -148,15 +148,23 @@ public class AutoResolveUtils
             return;
         } else
         {
-            for (File f : startingPoint.listFiles(filter))
+            File[] filteredFiles = startingPoint.listFiles(filter);
+            if (filteredFiles != null)
             {
-                result.add(f);
-            }
-            for (File d : startingPoint.listFiles())
-            {
-                if (d.isDirectory())
+                for (File f : filteredFiles)
                 {
-                    findFiles(d, filter, result);
+                    result.add(f);
+                }
+            }
+            File[] files = startingPoint.listFiles();
+            if (files != null)
+            {
+                for (File d : files)
+                {
+                    if (d.isDirectory())
+                    {
+                        findFiles(d, filter, result);
+                    }
                 }
             }
         }
