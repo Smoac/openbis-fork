@@ -359,7 +359,9 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
-    public SamplePE prepareBatchUpdate(SampleBatchUpdatesDTO updates)
+    public SamplePE prepareBatchUpdate(SampleBatchUpdatesDTO updates,
+            Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
+            Map<String, ExperimentPE> experimentCache)
     {
         // batch update doesn't use tech id, check version and update attributes
         SampleIdentifier identifier = updates.getOldSampleIdentifierOrNull();
@@ -375,8 +377,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
         if (details.isExperimentUpdateRequested())
         {
-            updateGroup(sample, updates.getSampleIdentifier());
-            updateExperiment(sample, updates.getExperimentIdentifierOrNull());
+            updateGroup(sample, updates.getSampleIdentifier(), sampleOwnerCache);
+            updateExperiment(sample, updates.getExperimentIdentifierOrNull(), experimentCache);
         }
         if (details.isParentUpdateRequested())
         {
@@ -410,9 +412,12 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             samples = new ArrayList<SamplePE>();
         }
+        final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
+                new HashMap<SampleOwnerIdentifier, SampleOwner>();
+        final Map<String, ExperimentPE> experimentCache = new HashMap<String, ExperimentPE>();
         for (SampleBatchUpdatesDTO sample : updates)
         {
-            samples.add(prepareBatchUpdate(sample));
+            samples.add(prepareBatchUpdate(sample, sampleOwnerCache, experimentCache));
         }
         dataChanged = true;
         setBatchUpdateMode(false);

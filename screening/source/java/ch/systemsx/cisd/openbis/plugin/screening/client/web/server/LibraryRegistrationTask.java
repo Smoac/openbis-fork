@@ -12,7 +12,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
- * Registers genes, oligos and plates. Sends an email to specified address upon error or completion.
+ * Saves genes, oligos and plates. Sends an email to specified address upon error or completion.
  * 
  * @author Izabela Adamczyk
  */
@@ -63,12 +63,12 @@ class LibraryRegistrationTask implements Runnable
             {
                 genericServer.registerOrUpdateMaterials(sessionToken,
                         ScreeningConstants.GENE_PLUGIN_TYPE_CODE, newGenesOrNull);
-                message.append("Successfuly registered or updated properties of "
-                        + newGenesOrNull.size() + " genes.\n");
+                message.append("Successfuly saved properties of " + newGenesOrNull.size()
+                        + " genes.\n");
             }
         } catch (Exception ex)
         {
-            message.append("ERROR: Genes could not be registered!\n");
+            message.append("ERROR: Genes could not be saved!\n");
             message.append(ex.getMessage());
             sendErrorEmail(message, startDate, email);
             return;
@@ -79,11 +79,11 @@ class LibraryRegistrationTask implements Runnable
             {
                 genericServer.registerOrUpdateMaterials(sessionToken,
                         ScreeningConstants.OLIGO_PLUGIN_TYPE_NAME, newOligosOrNull);
-                message.append("Successfuly registered " + newOligosOrNull.size() + " oligos.\n");
+                message.append("Successfuly saved " + newOligosOrNull.size() + " oligos.\n");
             }
         } catch (Exception ex)
         {
-            message.append("ERROR: Oligos could not be registered!\n");
+            message.append("ERROR: Oligos could not be saved!\n");
             message.append(ex.getMessage());
             sendErrorEmail(message, startDate, email);
             return;
@@ -93,12 +93,12 @@ class LibraryRegistrationTask implements Runnable
             genericServer.registerOrUpdateSamples(sessionToken, newSamplesWithType);
             for (NewSamplesWithTypes s : newSamplesWithType)
             {
-                message.append("Successfuly registered " + s.getNewSamples().size()
+                message.append("Successfuly saved " + s.getNewSamples().size()
                         + " samples of type " + s.getSampleType() + ".\n");
             }
         } catch (Exception ex)
         {
-            message.append("ERROR: Plates and wells could not be registered!\n");
+            message.append("ERROR: Plates and wells could not be saved!\n");
             message.append(ex.getMessage());
             sendErrorEmail(message, startDate, email);
             return;

@@ -300,24 +300,25 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         return (onlyNewSamples == false) && SampleUtils.hasDatasets(externalDataDAO, sample);
     }
 
-    protected void updateGroup(SamplePE sample, SampleOwnerIdentifier sampleOwnerIdentifier)
+    protected void updateGroup(SamplePE sample, SampleIdentifier sampleOwnerIdentifier,
+            Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCacheOrNull)
     {
         if (sampleOwnerIdentifier != null)
         {
             final SampleOwner sampleOwner =
-                    getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
+                    getSampleOwner(sampleOwnerCacheOrNull, sampleOwnerIdentifier);
             GroupPE group = sampleOwner.tryGetGroup();
             sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
             sample.setGroup(group);
         }
     }
 
-    protected void updateExperiment(SamplePE sample, ExperimentIdentifier expIdentifierOrNull)
+    protected void updateExperiment(SamplePE sample, ExperimentIdentifier expIdentifierOrNull,
+            Map<String, ExperimentPE> experimentCacheOrNull)
     {
         if (expIdentifierOrNull != null)
         {
-            fillGroupIdentifier(expIdentifierOrNull);
-            changeExperiment(sample, expIdentifierOrNull);
+            changeExperiment(sample, expIdentifierOrNull, experimentCacheOrNull);
         } else
         {
             removeFromExperiment(sample);
@@ -336,9 +337,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         sample.setExperiment(null);
     }
 
-    private void changeExperiment(SamplePE sample, ExperimentIdentifier identifier)
+    private void changeExperiment(SamplePE sample, ExperimentIdentifier identifier,
+            Map<String, ExperimentPE> experimentCacheOrNull)
     {
-        ExperimentPE newExperiment = findExperiment(identifier);
+        ExperimentPE newExperiment =
+                tryFindExperiment(experimentCacheOrNull, identifier.toString());
         if (isExperimentUnchanged(newExperiment, sample.getExperiment()))
         {
             return;
