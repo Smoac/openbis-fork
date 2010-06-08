@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleComponentsDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -230,4 +231,7 @@ public interface IEncapsulatedOpenBISService
     /** See {@link IETLLIMSService#listOrRegisterComponents(String, SampleComponentsDescription)} */
     public Map<String, String> listOrRegisterComponents(final String containerPermId,
             Set<String> codes, String sampleTypeCode) throws UserFailureException;
+
+    /** See {@link IETLLIMSService#tryGetSession(String)} */
+    public SessionContextDTO tryGetSession();
 }

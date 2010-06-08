@@ -704,6 +704,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public Map<String, String> listOrRegisterComponents(String containerPermId, Set<String> codes,
             String sampleTypeCode) throws UserFailureException
     {
-        return service.listOrRegisterComponents(sessionToken, new SampleComponentsDescription(containerPermId, codes, sampleTypeCode));
+        return service.listOrRegisterComponents(sessionToken, new SampleComponentsDescription(
+                containerPermId, codes, sampleTypeCode));
+    }
+
+    public SessionContextDTO tryGetSession()
+    {
+        return service.tryGetSession(sessionToken);
     }
 }
