@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -49,8 +50,10 @@ public class CinaBundleDataSetHandler implements IDataSetHandler
 
     public List<DataSetInformation> handleDataSet(File dataSet)
     {
+        SessionContextDTO sessionContext = openbisService.tryGetSession();
         BundleDataSetHelper helper =
-                new BundleDataSetHelper(bundleRegistrationGlobalState, null, dataSet);
+                new BundleDataSetHelper(bundleRegistrationGlobalState,
+                        sessionContext.getUserName(), dataSet);
         helper.process();
         return helper.getDataSetInformation();
     }

@@ -24,11 +24,13 @@ import ch.systemsx.cisd.cina.shared.metadata.BundleMetadataExtractor;
 import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
 import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
+import ch.systemsx.cisd.etlserver.IDataSetHandlerExtended;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -128,32 +130,67 @@ class BundleDataSetHelper
 
     private void handleDerivedDataSets(ReplicaMetadataExtractor replicaMetadata)
     {
-        SampleType replicaSampleType = globalState.getReplicaSampleType();
-        long sampleCodeSuffix = getOpenbisService().drawANewUniqueID();
-        String sampleCode =
-                String.format("%s%d", replicaSampleType.getGeneratedCodePrefix(), sampleCodeSuffix);
-        SampleIdentifier parentIdentifier = getBigDataSetInformation().getSampleIdentifier();
-
-        // Register a sample with this ID of type GRID_REPLICA, derived from the GRID_TEMPLATE
-        // registered by the client
-        SampleIdentifier identifier =
-                new SampleIdentifier(parentIdentifier.getSpaceLevel(), sampleCode);
-        NewSample sample =
-                new NewSample(identifier.toString(), replicaSampleType,
-                        parentIdentifier.toString(), "");
-        getOpenbisService().registerSample(sample, sessionOwnerUserId);
+        SampleIdentifier sampleId = registerReplicaSample();
 
         // Register all the data sets derived from this sample
         for (ImageMetadataExtractor imageMetadata : replicaMetadata.getMetadataExtractors())
         {
-            handleDerivedDataSet(identifier.toString(), imageMetadata);
+            handleDerivedDataSet(sampleId, imageMetadata);
         }
     }
 
-    private void handleDerivedDataSet(String sampleId, ImageMetadataExtractor imageMetadata)
+    /**
+     * Register a sample with this ID of type GRID_REPLICA, either derived from the GRID_TEMPLATE
+     * registered by the client or associated with the experiment.
+     */
+    private SampleIdentifier registerReplicaSample()
+    {
+        DataSetInformation bigDataSetInfo = getBigDataSetInformation();
+        SampleType replicaSampleType = globalState.getReplicaSampleType();
+        long sampleCodeSuffix = getOpenbisService().drawANewUniqueID();
+        String sampleCode =
+                String.format("%s%d", replicaSampleType.getGeneratedCodePrefix(), sampleCodeSuffix);
+        ExperimentIdentifier experimentIdOrNull = bigDataSetInfo.getExperimentIdentifier();
+        SampleIdentifier parentIdOrNull = bigDataSetInfo.getSampleIdentifier();
+
+        // Either the experimentId or the parentId must be non-null
+        assert experimentIdOrNull != null || parentIdOrNull != null;
+
+        SampleIdentifier sampleId;
+        NewSample sample;
+        if (parentIdOrNull != null)
+        {
+            sampleId = new SampleIdentifier(parentIdOrNull.getSpaceLevel(), sampleCode);
+            sample =
+                    new NewSample(sampleId.toString(), replicaSampleType,
+                            parentIdOrNull.toString(), "");
+        } else
+        {
+            sampleId = new SampleIdentifier(experimentIdOrNull, sampleCode);
+            sample = new NewSample(sampleId.toString(), replicaSampleType, "", "");
+        }
+
+        getOpenbisService().registerSample(sample, sessionOwnerUserId);
+        return sampleId;
+    }
+
+    private void handleDerivedDataSet(SampleIdentifier sampleId,
+            ImageMetadataExtractor imageMetadata)
     {
         // Register a data set for the image
-
+        File imageDataSet = imageMetadata.getFolder();
+        IDataSetHandler delegator = getDelegator();
+        if (delegator instanceof IDataSetHandlerExtended)
+        {
+            DataSetInformation template = new DataSetInformation();
+            template.setSampleCode(sampleId.getSampleCode());
+            template.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+            template.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
+            ((IDataSetHandlerExtended) delegator).handleDataSet(imageDataSet, template);
+        } else
+        {
+            delegator.handleDataSet(imageDataSet);
+        }
     }
 
     /**
