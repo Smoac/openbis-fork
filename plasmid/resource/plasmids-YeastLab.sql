@@ -23,7 +23,7 @@ SET search_path = public, pg_catalog;
 --
 
 CREATE DOMAIN archiving_status AS character varying(100)
-	CONSTRAINT archiving_status_check CHECK (((VALUE)::text = ANY ((ARRAY['LOCKED'::character varying, 'AVAILABLE'::character varying, 'ARCHIVED'::character varying, 'ARCHIVE_PENDING'::character varying, 'UNARCHIVE_PENDING'::character varying])::text[])));
+	CONSTRAINT archiving_status_check CHECK (((VALUE)::text = ANY (ARRAY[('LOCKED'::character varying)::text, ('AVAILABLE'::character varying)::text, ('ARCHIVED'::character varying)::text, ('ARCHIVE_PENDING'::character varying)::text, ('UNARCHIVE_PENDING'::character varying)::text])));
 
 
 --
@@ -31,7 +31,7 @@ CREATE DOMAIN archiving_status AS character varying(100)
 --
 
 CREATE DOMAIN authorization_role AS character varying(40)
-	CONSTRAINT authorization_role_check CHECK (((VALUE)::text = ANY ((ARRAY['ADMIN'::character varying, 'POWER_USER'::character varying, 'USER'::character varying, 'OBSERVER'::character varying, 'ETL_SERVER'::character varying])::text[])));
+	CONSTRAINT authorization_role_check CHECK (((VALUE)::text = ANY (ARRAY[('ADMIN'::character varying)::text, ('POWER_USER'::character varying)::text, ('USER'::character varying)::text, ('OBSERVER'::character varying)::text, ('ETL_SERVER'::character varying)::text])));
 
 
 --
@@ -68,7 +68,7 @@ CREATE DOMAIN column_label AS character varying(128);
 --
 
 CREATE DOMAIN data_store_service_kind AS character varying(40)
-	CONSTRAINT data_store_service_kind_check CHECK (((VALUE)::text = ANY ((ARRAY['PROCESSING'::character varying, 'QUERIES'::character varying])::text[])));
+	CONSTRAINT data_store_service_kind_check CHECK (((VALUE)::text = ANY (ARRAY[('PROCESSING'::character varying)::text, ('QUERIES'::character varying)::text])));
 
 
 --
@@ -83,7 +83,7 @@ CREATE DOMAIN description_2000 AS character varying(2000);
 --
 
 CREATE DOMAIN event_type AS character varying(40)
-	CONSTRAINT event_type_check CHECK (((VALUE)::text = ANY ((ARRAY['DELETION'::character varying, 'INVALIDATION'::character varying, 'MOVEMENT'::character varying])::text[])));
+	CONSTRAINT event_type_check CHECK (((VALUE)::text = ANY (ARRAY[('DELETION'::character varying)::text, ('INVALIDATION'::character varying)::text, ('MOVEMENT'::character varying)::text])));
 
 
 --
@@ -141,7 +141,7 @@ CREATE DOMAIN ordinal_int AS bigint
 --
 
 CREATE DOMAIN query_type AS character varying(40)
-	CONSTRAINT query_type_check CHECK (((VALUE)::text = ANY ((ARRAY['GENERIC'::character varying, 'EXPERIMENT'::character varying, 'SAMPLE'::character varying, 'DATA_SET'::character varying, 'MATERIAL'::character varying])::text[])));
+	CONSTRAINT query_type_check CHECK (((VALUE)::text = ANY (ARRAY[('GENERIC'::character varying)::text, ('EXPERIMENT'::character varying)::text, ('SAMPLE'::character varying)::text, ('DATA_SET'::character varying)::text, ('MATERIAL'::character varying)::text])));
 
 
 --
@@ -414,27 +414,9 @@ CREATE FUNCTION sample_code_uniqueness_check() RETURNS trigger
     AS $$
 DECLARE
    counter  INTEGER;
-   unique_subcode  BOOLEAN_CHAR;
 BEGIN
   LOCK TABLE samples IN EXCLUSIVE MODE;
   
-  SELECT is_subcode_unique into unique_subcode FROM sample_types WHERE id = NEW.saty_id;
-  
-  IF (unique_subcode) THEN
-    IF (NEW.dbin_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and dbin_id = NEW.dbin_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample of the same type with the same code already exists.', NEW.code;
-			END IF;
-		ELSIF (NEW.grou_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and grou_id = NEW.grou_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample of the same type with the same code already exists.', NEW.code;
-			END IF;
-		END IF;
-  ELSE 	
 	  IF (NEW.samp_id_part_of is NULL) THEN
 		  IF (NEW.dbin_id is not NULL) THEN
 			  SELECT count(*) into counter FROM samples 
@@ -464,7 +446,6 @@ BEGIN
 			  END IF;
 		  END IF;
      END IF;   
-  END IF;
   
   RETURN NEW;
 END;
@@ -500,6 +481,42 @@ BEGIN
 			end if;
    end if;
    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: sample_subcode_uniqueness_check(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION sample_subcode_uniqueness_check() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+   counter  INTEGER;
+   unique_subcode  BOOLEAN_CHAR;
+BEGIN
+  LOCK TABLE samples IN EXCLUSIVE MODE;
+  
+  SELECT is_subcode_unique into unique_subcode FROM sample_types WHERE id = NEW.saty_id;
+  
+  IF (unique_subcode) THEN
+    IF (NEW.dbin_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and dbin_id = NEW.dbin_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample of the same type with the same subcode already exists.', NEW.code;
+			END IF;
+		ELSIF (NEW.grou_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and grou_id = NEW.grou_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample of the same type with the same subcode already exists.', NEW.code;
+			END IF;
+		END IF;
+  END IF;
+  
+  RETURN NEW;
 END;
 $$;
 
@@ -1094,7 +1111,7 @@ CREATE TABLE events (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     entity_type character varying(80) NOT NULL,
     identifier character varying(250) NOT NULL,
-    CONSTRAINT evnt_et_enum_ck CHECK (((entity_type)::text = ANY ((ARRAY['ATTACHMENT'::character varying, 'DATASET'::character varying, 'EXPERIMENT'::character varying, 'GROUP'::character varying, 'MATERIAL'::character varying, 'PROJECT'::character varying, 'PROPERTY_TYPE'::character varying, 'SAMPLE'::character varying, 'VOCABULARY'::character varying, 'AUTHORIZATION_GROUP'::character varying])::text[])))
+    CONSTRAINT evnt_et_enum_ck CHECK (((entity_type)::text = ANY (ARRAY[('ATTACHMENT'::character varying)::text, ('DATASET'::character varying)::text, ('EXPERIMENT'::character varying)::text, ('GROUP'::character varying)::text, ('MATERIAL'::character varying)::text, ('PROJECT'::character varying)::text, ('PROPERTY_TYPE'::character varying)::text, ('SAMPLE'::character varying)::text, ('VOCABULARY'::character varying)::text, ('AUTHORIZATION_GROUP'::character varying)::text])))
 );
 
 
@@ -1969,6 +1986,7 @@ COPY authorization_group_persons (ag_id, pers_id) FROM stdin;
 2	12
 2	13
 \.
+
 
 --
 -- Data for Name: authorization_groups; Type: TABLE DATA; Schema: public; Owner: -
@@ -3777,6 +3795,16 @@ CREATE TRIGGER sample_property_with_material_data_type_check
     BEFORE INSERT OR UPDATE ON sample_properties
     FOR EACH ROW
     EXECUTE PROCEDURE sample_property_with_material_data_type_check();
+
+
+--
+-- Name: sample_subcode_uniqueness_check; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER sample_subcode_uniqueness_check
+    BEFORE INSERT OR UPDATE ON samples
+    FOR EACH ROW
+    EXECUTE PROCEDURE sample_subcode_uniqueness_check();
 
 
 --
