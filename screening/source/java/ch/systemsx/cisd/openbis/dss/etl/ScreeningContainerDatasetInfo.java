@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
  * 
  * @author Tomasz Pylak
  */
-class ScreeningContainerDatasetInfo
+public class ScreeningContainerDatasetInfo
 {
     private String experimentPermId;
 

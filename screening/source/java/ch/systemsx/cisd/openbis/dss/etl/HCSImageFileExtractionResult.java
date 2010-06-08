@@ -72,14 +72,14 @@ public final class HCSImageFileExtractionResult
 
         private final String description;
 
-        private final int wavelength;
+        private final Integer wavelength;
 
-        public Channel(String name, String description, int wavelength)
+        public Channel(String name, String descriptionOrNull, Integer wavelengthOrNull)
         {
             assert name != null : "name is null";
             this.name = name;
-            this.description = description;
-            this.wavelength = wavelength;
+            this.description = descriptionOrNull;
+            this.wavelength = wavelengthOrNull;
         }
 
         public String getName()
@@ -87,12 +87,12 @@ public final class HCSImageFileExtractionResult
             return name;
         }
 
-        public String getDescription()
+        public String tryGetDescription()
         {
             return description;
         }
 
-        public int getWavelength()
+        public Integer tryGetWavelength()
         {
             return wavelength;
         }

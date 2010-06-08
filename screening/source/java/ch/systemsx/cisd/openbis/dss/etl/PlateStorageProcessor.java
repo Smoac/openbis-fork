@@ -130,13 +130,13 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         this.currentTransaction = null;
     }
 
-    private static String[] extractChannelNames(Properties properties)
+    public static String[] extractChannelNames(Properties properties)
     {
         String names = PropertyUtils.getMandatoryProperty(properties, CHANNEL_NAMES);
         String[] channelNames = names.split(CHANNEL_SEPARATOR);
         for (int i = 0; i < channelNames.length; i++)
         {
-            channelNames[i] = channelNames[i].trim();
+            channelNames[i] = channelNames[i].trim().toLowerCase();
         }
         return channelNames;
     }

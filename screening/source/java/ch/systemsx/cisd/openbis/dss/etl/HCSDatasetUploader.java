@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 /**
  * @author Tomasz Pylak
  */
-class HCSDatasetUploader
+public class HCSDatasetUploader
 {
     public static void upload(IImagingUploadDAO dao, ScreeningContainerDatasetInfo info,
             List<AcquiredPlateImage> images, Set<HCSImageFileExtractionResult.Channel> channels)
@@ -132,17 +132,17 @@ class HCSDatasetUploader
             throw createInvalidNewChannelException(expId, existingChannels, channelName);
         }
         // a channel with a specified name already exists for an experiment, its description
-            // will be updated
+        // will be updated
         if (existingChannel.getWavelength().equals(channelDTO.getWavelength()) == false)
-            {
+        {
             throw UserFailureException.fromTemplate(
-                                "There are already datasets registered for the experiment "
-                                        + "which use the same channel name, but with a different wavelength! "
+                    "There are already datasets registered for the experiment "
+                            + "which use the same channel name, but with a different wavelength! "
                             + "Channel %s, old wavelength %d, new wavelength %d.", channelName,
                     existingChannel.getWavelength(), channelDTO.getWavelength());
-            }
-            channelDTO.setId(existingChannel.getId());
-            dao.updateChannel(channelDTO);
+        }
+        channelDTO.setId(existingChannel.getId());
+        dao.updateChannel(channelDTO);
         return channelDTO;
     }
 
@@ -158,18 +158,18 @@ class HCSDatasetUploader
     }
 
     private ImgChannelDTO createChannel(long expId, HCSImageFileExtractionResult.Channel channel)
-        {
+    {
         ImgChannelDTO channelDTO = makeChannelDTO(channel, expId);
-            long channelId = dao.addChannel(channelDTO);
-            channelDTO.setId(channelId);
+        long channelId = dao.addChannel(channelDTO);
+        channelDTO.setId(channelId);
         return channelDTO;
     }
 
     private static ImgChannelDTO makeChannelDTO(HCSImageFileExtractionResult.Channel channel,
             long expId)
     {
-        return ImgChannelDTO.createExperimentChannel(channel.getName(), channel.getDescription(),
-                channel.getWavelength(), expId);
+        return ImgChannelDTO.createExperimentChannel(channel.getName(), channel.tryGetDescription(),
+                channel.tryGetWavelength(), expId);
     }
 
     private static class AcquiredImageInStack
@@ -330,14 +330,14 @@ class HCSDatasetUploader
                 ScreeningConstants.OLIGO_WELL_TYPE_CODE);
     }
 
-    String createCoordinate(ImgSpotDTO spot)
+    private static String createCoordinate(ImgSpotDTO spot)
     {
         return Location.tryCreateMatrixCoordinateFromLocation(new Location(spot.getColumn(), spot
                 .getRow()));
     }
 
-    private static Boolean[][] extractNewSpots(int rows, int columns, List<AcquiredPlateImage> images,
-            List<ImgSpotDTO> existingSpots)
+    private static Boolean[][] extractNewSpots(int rows, int columns,
+            List<AcquiredPlateImage> images, List<ImgSpotDTO> existingSpots)
     {
         Boolean[][] spots = extractExistingSpots(rows, columns, images);
         unmarkSpots(existingSpots, spots);
