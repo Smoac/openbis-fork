@@ -23,6 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.io.FileUtils;
@@ -36,6 +38,8 @@ import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
+import ch.systemsx.cisd.etlserver.IDataSetHandler;
+import ch.systemsx.cisd.etlserver.IDataSetHandlerExtended;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
@@ -60,10 +64,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * A helper class for carrying out the put command for creating data sets.
+ * <p>
+ * It is a data set handler that allows overriding information obtained from the extractors.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class PutDataSetExecutor
+class PutDataSetExecutor implements IDataSetHandlerExtended
 {
     // General State
     private final PutDataSetService service;
@@ -80,6 +86,10 @@ class PutDataSetExecutor
     private final File dataSetDir;
 
     private final OverridingTypeExtractor overridingTypeExtractor;
+
+    private final IDataSetHandler handler;
+
+    private DataSetInformation override;
 
     PutDataSetExecutor(PutDataSetService service, IETLServerPlugin plugin, String sessionToken,
             NewDataSetDTO newDataSet, InputStream inputStream)
@@ -101,6 +111,7 @@ class PutDataSetExecutor
         }
 
         overridingTypeExtractor = new OverridingTypeExtractor();
+        handler = plugin.getDataSetHandler(this, service.getOpenBisService());
     }
 
     /**
@@ -117,28 +128,80 @@ class PutDataSetExecutor
         getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
 
         writeDataSetToTempDirectory();
+        createDefaultOverride();
 
         // Register the data set
         try
         {
-            DataSetRegistrationHelper helper =
-                    new DataSetRegistrationHelper(service, plugin, dataSetDir);
-            helper.prepare();
-            if (helper.hasDataSetBeenIdentified())
+            List<DataSetInformation> infos = handler.handleDataSet(dataSetDir);
+            if (infos.isEmpty())
             {
-                helper.registerDataSet();
+                return "";
             } else
             {
-                helper.dealWithUnidentifiedDataSet();
-                throw new UserFailureException("Could not find owner:\n\t"
-                        + newDataSet.getDataSetOwner() + "\nfor data set:\n\t" + newDataSet);
+                return infos.get(0).getDataSetCode();
             }
-            return helper.getDataSetInformation().getDataSetCode();
         } finally
         {
             deleteDataSetDir();
         }
 
+    }
+
+    public List<DataSetInformation> handleDataSet(File dataSet)
+    {
+        return handleDataSet(dataSet, null);
+    }
+
+    public List<DataSetInformation> handleDataSet(File dataSet, DataSetInformation newOverride)
+    {
+        // Remember the old override, replace it with the override for the execution, then restore
+        // it
+        DataSetInformation oldOverride = override;
+        if (newOverride != null)
+        {
+            override = newOverride;
+        }
+
+        RegistrationHelper helper = new RegistrationHelper(service, plugin, dataSetDir);
+        helper.prepare();
+        if (helper.hasDataSetBeenIdentified())
+        {
+            helper.registerDataSet();
+        } else
+        {
+            helper.dealWithUnidentifiedDataSet();
+            throw new UserFailureException("Could not find owner:\n\t"
+                    + newDataSet.getDataSetOwner() + "\nfor data set:\n\t" + newDataSet);
+        }
+
+        override = oldOverride;
+
+        return Collections.singletonList(helper.getDataSetInformation());
+    }
+
+    private void createDefaultOverride()
+    {
+        override = new DataSetInformation();
+        DataSetOwner owner = newDataSet.getDataSetOwner();
+        switch (owner.getType())
+        {
+            case EXPERIMENT:
+                override.setExperimentIdentifier(tryExperimentIdentifier());
+                break;
+            case SAMPLE:
+                SampleIdentifier sampleId = trySampleIdentifier();
+
+                override.setSampleCode(sampleId.getSampleCode());
+                override.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+                override.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
+                break;
+        }
+        String typeCode = newDataSet.tryDataSetType();
+        if (null != typeCode)
+        {
+            override.setDataSetType(new DataSetType(typeCode));
+        }
     }
 
     private void writeDataSetToTempDirectory() throws IOException
@@ -292,10 +355,10 @@ class PutDataSetExecutor
 
         public DataSetType getDataSetType(File incomingDataSetPath)
         {
-            String dataSetTypeString = newDataSet.tryDataSetType();
-            if (null != dataSetTypeString)
+            DataSetType dataSetType = override.getDataSetType();
+            if (null != dataSetType)
             {
-                return new DataSetType(dataSetTypeString);
+                return dataSetType;
             }
             return pluginTypeExtractor.getDataSetType(incomingDataSetPath);
         }
@@ -327,14 +390,14 @@ class PutDataSetExecutor
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    private class DataSetRegistrationHelper extends DataSetRegistrationAlgorithm
+    private class RegistrationHelper extends DataSetRegistrationAlgorithm
     {
         /**
          * @param service The provider of global state for the data set registration algorithm
          * @param plugin The provider of the storage processor
          * @param incomingDataSetFile The data set to register
          */
-        public DataSetRegistrationHelper(PutDataSetService service, IETLServerPlugin plugin,
+        public RegistrationHelper(PutDataSetService service, IETLServerPlugin plugin,
                 File incomingDataSetFile)
         {
             super(incomingDataSetFile, new CleanAfterwardsAction());
@@ -455,23 +518,26 @@ class PutDataSetExecutor
             {
                 return dataSetInfo;
             }
-            DataSetOwner owner = newDataSet.getDataSetOwner();
-            switch (owner.getType())
-            {
-                case EXPERIMENT:
-                    dataSetInfo.setExperimentIdentifier(tryExperimentIdentifier());
-                    break;
-                case SAMPLE:
-                    SampleIdentifier sampleId = trySampleIdentifier();
 
-                    dataSetInfo.setSampleCode(sampleId.getSampleCode());
-                    dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
-                    dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
-                    break;
+            // Override / extend information extracted with our override
+            dataSetInfo.setExperimentIdentifier(override.getExperimentIdentifier());
+            SampleIdentifier sampleIdOrNull = dataSetInfo.getSampleIdentifier();
+            if (sampleIdOrNull != null)
+            {
+                dataSetInfo.setSampleCode(sampleIdOrNull.getSampleCode());
+                dataSetInfo.setSpaceCode(sampleIdOrNull.getSpaceLevel().getSpaceCode());
+                dataSetInfo.setInstanceCode(sampleIdOrNull.getSpaceLevel()
+                        .getDatabaseInstanceCode());
             }
 
-            // TODO: Get the session owner's email address from OpenBIS
-            // dataSetInfo.setUploadingUserEmail()
+            // Override the properties if some have been specified
+            if (false == override.getDataSetProperties().isEmpty())
+            {
+                dataSetInfo.setDataSetProperties(override.getDataSetProperties());
+            }
+
+            dataSetInfo.setUploadingUserEmail(service.getOpenBisService().tryGetSession()
+                    .getUserEmail());
 
             // TODO: When registering, set the registrator to the session owner; only an admin on
             // the space or an ETL server can override.
