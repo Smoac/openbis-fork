@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 /**
  * Some public shared constants.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class GenericSharedConstants
 {
@@ -31,6 +31,8 @@ public final class GenericSharedConstants
 
     /** Part of the URL of the DSS server. */
     public static final String DATA_STORE_SERVER_WEB_APPLICATION_NAME = "datastore_server";
+
+    public static final String DATA_STORE_SERVER_APPLICATION_PATH = "data_store";
 
     /** Part of the URL of the DSS service. */
     public static final String DATA_STORE_SERVER_SERVICE_NAME =
