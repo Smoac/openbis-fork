@@ -85,55 +85,64 @@
 		</antcall>
 	</target>
 
+   <!-- This target has been separated to allow DSS extensions to modify jar files in the distribution
+    -->
+  <target name="prepare-dist-libs" depends="dss-jar, dist-client">
+    <copy file="${dss-jar.file}" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/cisd-args4j/cisd-args4j.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/cifex/cifex.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jetty/jetty.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jetty/jetty-util.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jetty/servlet-api-2.5.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/activation/activation.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/mail/mail.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/log4j/log4j.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/commons-dbcp/commons-dbcp.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/commons-pool/commons-pool.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/postgresql/postgresql.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/eodsql/eodsql.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/imagej/ij.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jaxb/jaxb-api.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jaxb/jaxb-impl.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jaxb/jsr173_1.0_api.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/spring/spring.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/csv/csv.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jfreechart/jcommon-1.0.16.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jfreechart/jfreechart-1.0.13.jar" todir="${dist.datastore_server.lib}" />
+  </target>
+
+  <!-- parameters: 
+          variant - will be used in the distribution file name  
+    -->
+  <target name="create-distribution">
+    <property name="dist.file"
+              value="${dist.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
+    <zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar">
+      <zipfileset dir="${dss.original.dist}" 
+            excludes="**/datastore_server.sh, **/dss_client.sh, **/service.properties, **/log.xml" 
+            prefix="${dss}" />
+      <zipfileset dir="dist" 
+            includes="**/service.properties, **/log.xml" 
+            prefix="${dss}" />
+      <zipfileset file="${dss.original.dist}/datastore_server.sh"
+                  filemode="755"
+                  prefix="${dss}" />
+    </zip>
+    <delete dir="${dist.datastore_server}" />
+  </target>
+    
 	<!-- parameters: 
 					variant - will be used in the distribution file name  
 		-->
-	<target name="make-dist" depends="dss-jar, dist-client">
-		<copy file="${dss-jar.file}" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/cisd-args4j/cisd-args4j.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/cifex/cifex.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/jetty/jetty.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/jetty/jetty-util.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/jetty/servlet-api-2.5.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/activation/activation.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/mail/mail.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/log4j/log4j.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/commons-io/commons-io.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/commons-dbcp/commons-dbcp.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/commons-pool/commons-pool.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/postgresql/postgresql.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/eodsql/eodsql.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/imagej/ij.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/jaxb/jaxb-api.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/jaxb/jaxb-impl.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/jaxb/jsr173_1.0_api.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/spring/spring.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.datastore_server.lib}" />
-		<copy file="${lib}/csv/csv.jar" todir="${dist.datastore_server.lib}" />
-    <copy file="${lib}/jfreechart/jcommon-1.0.16.jar" todir="${dist.datastore_server.lib}" />
-    <copy file="${lib}/jfreechart/jfreechart-1.0.13.jar" todir="${dist.datastore_server.lib}" />
-
-		<property name="dist.file"
-		          value="${dist.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
-		<zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar">
-			<zipfileset dir="${dss.original.dist}" 
-				    excludes="**/datastore_server.sh, **/dss_client.sh, **/service.properties, **/log.xml" 
-				    prefix="${dss}" />
-			<zipfileset dir="dist" 
-				    includes="**/service.properties, **/log.xml" 
-				    prefix="${dss}" />
-			<zipfileset file="${dss.original.dist}/datastore_server.sh"
-			            filemode="755"
-			            prefix="${dss}" />
-		</zip>
-		<delete dir="${dist.datastore_server}" />
-	</target>
+	<target name="make-dist" depends="prepare-dist-libs, create-distribution" />
   
   <!--  
     dss-client-jar is designed to be called from make-dist. Thus, it does not depend on compile, but

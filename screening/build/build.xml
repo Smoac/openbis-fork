@@ -25,8 +25,17 @@
         // Task for creating distributions
         -->
 	
-  <target name="dist" depends="openbis.make-dist, datastore_server.make-dist, screening-api" />
+  <target name="dist" depends="openbis.make-dist, make-dss-dist, screening-api" />
 
+  <target name="make-dss-dist" depends="datastore_server.prepare-dist-libs">
+    <jar update="true" destfile="${dss-jar.file}">
+      <fileset dir="source">
+        <include name="**/*.sql" />
+      </fileset>
+    </jar>
+     <antcall target="datastore_server.create-distribution" />
+  </target>
+  
   <!--
         // Task for continuous integration server.
         -->
