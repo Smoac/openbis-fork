@@ -33,6 +33,10 @@ public class MzScanDTO
     private int level;
 
     private int peaksCount;
+    
+    private String peakPositions;
+    
+    private String peakIntensities;
 
     private String polarity;
 
@@ -178,9 +182,46 @@ public class MzScanDTO
         return XmlUtils.tryAsSeconds(retentionTime);
     }
 
-    /** the array has mz on even positions and intensities on odd positions */
-    public float[] getPeaks()
+    public final String getPeakPositions()
     {
-        return XmlUtils.asFloats(peaks.getPeaks());
+        initPeaks();
+        return peakPositions;
+    }
+
+    public final String getPeakIntensities()
+    {
+        initPeaks();
+        return peakIntensities;
+    }
+    
+    private void initPeaks()
+    {
+        if (peakPositions == null)
+        {
+            float[] floats = XmlUtils.asFloats(peaks.getPeaks());
+            StringBuilder positions = new StringBuilder();
+            StringBuilder intensities = new StringBuilder();
+            for (int i = 0; i < floats.length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    addTo(positions, floats[i]);
+                } else
+                {
+                    addTo(intensities, floats[i]);
+                }
+            }
+            peakPositions = positions.toString();
+            peakIntensities = intensities.toString();
+        }
+    }
+    
+    private void addTo(StringBuilder builder, float value)
+    {
+        if (builder.length() > 0)
+        {
+            builder.append(", ");
+        }
+        builder.append(value);
     }
 }

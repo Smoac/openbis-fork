@@ -17,12 +17,8 @@
 package ch.systemsx.cisd.yeastx.mzxml;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.Test;
@@ -77,36 +73,6 @@ public class MzXml2DatabaseTest
                     will(returnValue(runId));
 
                     exactly(2).of(dao).addScan(runId, scan, precursor, precursor);
-                    long scanId = 333;
-                    will(returnValue(scanId));
-
-                    exactly(2).of(dao).addPeaks(with(scanId), with(createFloatIteratorMatcher(mz)),
-                            with(createFloatIteratorMatcher(intensity)));
-                }
-
-                // checks that iterator has exactly one value
-                private Matcher<Iterable<Float>> createFloatIteratorMatcher(final float value)
-                {
-                    return new BaseMatcher<Iterable<Float>>()
-                        {
-                            public boolean matches(Object item)
-                            {
-                                Iterator<Float> iterator = asIterator(item);
-                                Float number = iterator.next();
-                                return number.equals(value) && iterator.hasNext() == false;
-                            }
-
-                            @SuppressWarnings("unchecked")
-                            private Iterator<Float> asIterator(Object item)
-                            {
-                                return ((Iterable<Float>) item).iterator();
-                            }
-
-                            public void describeTo(Description description)
-                            {
-                                description.appendValue("iterator with one value '" + value + "'");
-                            }
-                        };
                 }
             });
 

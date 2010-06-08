@@ -40,23 +40,18 @@ public interface IMzXmlDAO extends IDMGenericDAO
             + "    returning ID")
     public long addRun(DMDataSetDTO dataSet, MzInstrumentDTO instrument);
 
-    @Select(sql = "insert into MZ_SCANS "
+    @Update(sql = "insert into MZ_SCANS "
             + "           ( MZ_MS_RUN_ID, NUMBER, LEVEL, PEAKS_COUNT, POLARITY, "
             + "             SCAN_TYPE, COLLISION_ENERGY, LOW_MZ, HIGH_MZ,       "
-            + "             RETENTION_TIME,                                     "
+            + "             MZ_PEAK_POSITIONS, MZ_PEAK_INTENSITIES, RETENTION_TIME,        "
             + "             PRECURSOR1_MZ, PRECURSOR1_INTENSITY, PRECURSOR1_CHARGE,        "
             + "             PRECURSOR2_MZ, PRECURSOR2_INTENSITY, PRECURSOR2_CHARGE )       "
             + "    values ( ?{1}, ?{2.number}, ?{2.level}, ?{2.peaksCount}, ?{2.polarity}, "
             + "             ?{2.scanType}, ?{2.collisionEnergy}, ?{2.lowMz}, ?{2.highMz},  "
-            + "             ?{2.retentionTimeInSeconds},                                   "
+            + "             ?{2.peakPositions}, ?{2.peakIntensities}, ?{2.retentionTimeInSeconds}, "
             + "             ?{3.mz}, ?{3.intensity}, ?{3.charge},                          "
-            + "             ?{4.mz}, ?{4.intensity}, ?{4.charge} )                         "
-            + "    returning ID")
-    public long addScan(long runId, MzScanDTO scan, MzPrecursorDTO precursor1,
+            + "             ?{4.mz}, ?{4.intensity}, ?{4.charge} )                         ")
+    public void addScan(long runId, MzScanDTO scan, MzPrecursorDTO precursor1,
             MzPrecursorDTO precursor2);
-
-    @Update(sql = "insert into MZ_PEAKS (MZ_SCAN_ID, MZ, INTENSITY) "
-            + "                  values (?{1}, ?{2}, ?{3})", batchUpdate = true)
-    public void addPeaks(long scanId, Iterable<Float> mzArray, Iterable<Float> intensityArray);
 
 }

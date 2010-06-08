@@ -18,13 +18,11 @@ package ch.systemsx.cisd.yeastx.mzxml;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
 import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
@@ -108,47 +106,7 @@ public class MzXml2Database extends AbstractDatasetLoader<IMzXmlDAO>
                                 scan.getNumber(), precursors.size());
             }
         }
-        long scanId = getDao().addScan(runId, scan, precursor1, precursor2);
-        uploadPeaks(scanId, scan.getPeaks());
+        getDao().addScan(runId, scan, precursor1, precursor2);
     }
 
-    private void uploadPeaks(long scanId, float[] peaks)
-    {
-        Iterable<Float> mzArray = createEverySecondIterator(peaks, 0);
-        Iterable<Float> intensityArray = createEverySecondIterator(peaks, 1);
-        getDao().addPeaks(scanId, mzArray, intensityArray);
-    }
-
-    // iterates on every second element of an array starting from the specified initial index
-    private static Iterable<Float> createEverySecondIterator(final float[] bytes,
-            final int initialIndex)
-    {
-        return new Iterable<Float>()
-            {
-                public Iterator<Float> iterator()
-                {
-                    return new Iterator<Float>()
-                        {
-                            private int nextIx = initialIndex;
-
-                            public boolean hasNext()
-                            {
-                                return nextIx < bytes.length;
-                            }
-
-                            public Float next()
-                            {
-                                int ix = nextIx;
-                                nextIx += 2;
-                                return bytes[ix];
-                            }
-
-                            public void remove()
-                            {
-                                throw new NotImplementedException();
-                            }
-                        };
-                }
-            };
-    }
 }

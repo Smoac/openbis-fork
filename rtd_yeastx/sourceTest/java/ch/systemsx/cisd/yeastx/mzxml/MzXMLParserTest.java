@@ -74,12 +74,16 @@ public class MzXMLParserTest extends AssertJUnit
         assertEquals(32333300.0, precursor.getIntensity());
         assertNull(precursor.getCharge());
 
-        float[] peakFloats = scan.getPeaks();
-        assertEquals(scan.getPeaksCount() * 2, peakFloats.length);
-
-        assertEquals(174.6F, peakFloats[0]);
-        assertEquals(16666.666F, peakFloats[1]);
-        assertEquals(695.88F, peakFloats[peakFloats.length - 2]);
-        assertEquals(16666.666F, peakFloats[peakFloats.length - 1]);
+        assertNumbers("174.6", "695.88", scan.getPeaksCount(), scan.getPeakPositions());
+        assertNumbers("16666.666", "16666.666", scan.getPeaksCount(), scan.getPeakIntensities());
     }
+    
+    private void assertNumbers(String firstNumber, String lastNumber, int count, String numbers)
+    {
+        String[] numberArray = numbers.split(",");
+        assertEquals(firstNumber, numberArray[0].trim());
+        assertEquals(lastNumber, numberArray[numberArray.length - 1].trim());
+        assertEquals(count, numberArray.length);
+    }
+    
 }

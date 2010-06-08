@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
 public class MetabolDatabaseVersionHolder implements IDatabaseVersionHolder
 {
     /** Current version of the database. */
-    static final String DATABASE_VERSION = "004";
+    static final String DATABASE_VERSION = "005";
 
     public String getDatabaseVersion()
     {
