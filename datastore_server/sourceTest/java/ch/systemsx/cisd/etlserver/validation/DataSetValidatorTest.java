@@ -145,6 +145,7 @@ public class DataSetValidatorTest extends AbstractFileSystemTestCase
         properties.setProperty(DataSetValidator.DATA_SET_VALIDATORS_KEY, "v");
         properties.setProperty("v." + DataSetValidator.DATA_SET_TYPE_KEY, dataSetType1.getCode());
         properties.setProperty("v." + DataSetValidatorForTSV.PATH_PATTERNS_KEY, "*.txt");
+        properties.setProperty("v." + DataSetValidatorForTSV.STRICT_ROW_SIZE_KEY, "false");
         properties.setProperty("v." + DataSetValidatorForTSV.COLUMNS_KEY, "c1,c2");
         properties.setProperty("v.c1." + DefaultValueValidatorFactory.VALUE_TYPE_KEY, "unique");
         properties.setProperty("v.c2." + DefaultValueValidatorFactory.VALUE_TYPE_KEY, "numeric");
