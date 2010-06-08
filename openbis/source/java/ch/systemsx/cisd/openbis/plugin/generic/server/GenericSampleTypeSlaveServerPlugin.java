@@ -16,27 +16,26 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.plugin.generic.server.batch.BatchOperationExecutor;
+import ch.systemsx.cisd.openbis.plugin.generic.server.batch.SampleBatchRegistration;
+import ch.systemsx.cisd.openbis.plugin.generic.server.batch.SampleBatchUpdate;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
@@ -47,10 +46,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 @Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
 public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlaveServerPlugin
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, GenericSampleTypeSlaveServerPlugin.class);
 
-    private static final int REGISTRATION_BATCH_SIZE = 10000;
+    private static final int BATCH_SIZE = 10000;
 
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
@@ -85,30 +82,16 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert session != null : "Unspecified session.";
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 
-        List<NewSample> batch = new ArrayList<NewSample>();
-        int counter = 0;
-        for (NewSample newSample : newSamples)
-        {
-            batch.add(newSample);
-            if (batch.size() >= REGISTRATION_BATCH_SIZE)
-            {
-                doRegisterSamples(session, batch);
-                counter += batch.size();
-                operationLog.info("Sample registration progress: " + counter + "/"
-                        + newSamples.size());
-                batch.clear();
-            }
-        }
-        if (batch.size() > 0)
-        {
-            doRegisterSamples(session, batch);
-        }
+        new BatchOperationExecutor<NewSample>().executeInBatches(new SampleBatchRegistration(
+                businessObjectFactory.createSampleTable(session), newSamples), BATCH_SIZE);
     }
 
-    private void doRegisterSamples(Session session, List<NewSample> newSamples)
+    public void updateSamples(Session session, List<SampleBatchUpdatesDTO> updateSamples)
     {
-        ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
-        sampleTable.add(newSamples);
-        sampleTable.save();
+        assert session != null : "Unspecified session.";
+        assert updateSamples != null && updateSamples.size() > 0 : "Unspecified sample or empty samples.";
+
+        new BatchOperationExecutor<SampleBatchUpdatesDTO>().executeInBatches(new SampleBatchUpdate(
+                businessObjectFactory.createSampleTable(session), updateSamples), BATCH_SIZE);
     }
 }

@@ -24,7 +24,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -32,25 +31,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -277,8 +270,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             throwModifiedEntityException("Sample");
         }
         updateProperties(updates.getProperties());
-        updateGroup(updates.getSampleIdentifier());
-        updateExperiment(updates.getExperimentIdentifierOrNull());
+        updateGroup(sample, updates.getSampleIdentifier());
+        updateExperiment(sample, updates.getExperimentIdentifierOrNull());
         setGeneratedFrom(updates.getSampleIdentifier(), sample, updates.getParentIdentifierOrNull());
         setContainer(updates.getSampleIdentifier(), sample, updates.getContainerIdentifierOrNull());
         for (NewAttachment attachment : updates.getAttachments())
@@ -288,121 +281,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         dataChanged = true;
     }
 
-    public void batchUpdate(SampleBatchUpdatesDTO updates)
-    {
-        // batch update doesn't use tech id, check version and update attributes
-        loadBySampleIdentifier(updates.getOldSampleIdentifierOrNull());
-
-        SampleBatchUpdateDetails details = updates.getDetails();
-
-        batchUpdateProperties(updates.getProperties(), details.getPropertiesToUpdate());
-
-        if (details.isExperimentUpdateRequested())
-        {
-            updateGroup(updates.getSampleIdentifier());
-            updateExperiment(updates.getExperimentIdentifierOrNull());
-        }
-        if (details.isParentUpdateRequested())
-        {
-            setGeneratedFrom(updates.getSampleIdentifier(), sample, updates
-                    .getParentIdentifierOrNull());
-        }
-        if (details.isContainerUpdateRequested())
-        {
-            setContainer(updates.getSampleIdentifier(), sample, updates
-                    .getContainerIdentifierOrNull());
-        }
-
-        dataChanged = true;
-    }
-
-    private void updateGroup(SampleOwnerIdentifier sampleOwnerIdentifier)
-    {
-        if (sampleOwnerIdentifier != null)
-        {
-            final SampleOwner sampleOwner =
-                    getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
-            GroupPE group = sampleOwner.tryGetGroup();
-            sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
-            sample.setGroup(group);
-        }
-    }
-
-    private void updateExperiment(ExperimentIdentifier expIdentifierOrNull)
-    {
-        if (expIdentifierOrNull != null)
-        {
-            fillGroupIdentifier(expIdentifierOrNull);
-            changeExperiment(expIdentifierOrNull);
-        } else
-        {
-            removeFromExperiment();
-        }
-    }
-
-    private void removeFromExperiment()
-    {
-        if (hasDatasets(getExternalDataDAO(), sample))
-        {
-            throw UserFailureException.fromTemplate(
-                    "Cannot detach the sample '%s' from the experiment "
-                            + "because there are already datasets attached to the sample.", sample
-                            .getIdentifier());
-        }
-        sample.setExperiment(null);
-    }
-
-    private void changeExperiment(ExperimentIdentifier identifier)
-    {
-        ExperimentPE newExperiment = findExperiment(identifier);
-        if (isExperimentUnchanged(newExperiment, sample.getExperiment()))
-        {
-            return;
-        }
-        ensureExperimentIsValid(identifier, newExperiment);
-        ensureSampleAttachableToExperiment();
-
-        changeDatasetsExperiment(sample.getDatasets(), newExperiment);
-        sample.setExperiment(newExperiment);
-    }
-
-    private void changeDatasetsExperiment(Set<DataPE> datasets, ExperimentPE experiment)
-    {
-        for (DataPE dataset : datasets)
-        {
-            dataset.setExperiment(experiment);
-        }
-    }
-
-    private void ensureSampleAttachableToExperiment()
-    {
-        if (sample.getGroup() == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "It is not allowed to connect a shared sample '%s' to the experiment.", sample
-                            .getIdentifier());
-        }
-    }
-
-    private void ensureExperimentIsValid(ExperimentIdentifier identOrNull,
-            ExperimentPE experimentOrNull)
-    {
-        if (experimentOrNull != null && experimentOrNull.getInvalidation() != null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "The sample '%s' cannot be assigned to the experiment '%s' "
-                            + "because the experiment has been invalidated.", sample
-                            .getSampleIdentifier(), identOrNull);
-        }
-    }
-
-    private boolean isExperimentUnchanged(ExperimentPE newExperimentOrNull,
-            ExperimentPE experimentOrNull)
-    {
-        return experimentOrNull == null ? newExperimentOrNull == null : experimentOrNull
-                .equals(newExperimentOrNull);
-    }
-
     private void updateProperties(List<IEntityProperty> properties)
     {
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();
@@ -410,16 +288,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         final PersonPE registrator = findRegistrator();
         sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
                 properties, registrator));
-    }
-
-    private void batchUpdateProperties(List<IEntityProperty> properties,
-            Set<String> propertiesToUpdate)
-    {
-        final Set<SamplePropertyPE> existingProperties = sample.getProperties();
-        final EntityTypePE type = sample.getSampleType();
-        final PersonPE registrator = findRegistrator();
-        sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator, propertiesToUpdate));
     }
 
     public void setGeneratedCode()

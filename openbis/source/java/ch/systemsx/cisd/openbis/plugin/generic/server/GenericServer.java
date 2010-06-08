@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -96,6 +97,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.plugin.generic.server.batch.BatchOperationExecutor;
+import ch.systemsx.cisd.openbis.plugin.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -268,38 +271,74 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 registerSamples(session, samples);
             } else
             {
-                registerOrUpdate(session, samples);
+                new BatchOperationExecutor<NewSample>().executeInBatches(
+                        new SampleBatchRegisterOrUpdate(businessObjectFactory
+                                .createSampleLister(session), samples.getNewSamples(), samples
+                                .getSampleType(), session), 1000);
             }
         }
     }
 
-    private void registerOrUpdate(final Session session, NewSamplesWithTypes samples)
+    private class SampleBatchRegisterOrUpdate implements IBatchOperation<NewSample>
     {
-        List<Sample> existingSamples = new ArrayList<Sample>();
-        List<String> extractCodes =
-                SampleRegisterOrUpdateUtil.extractCodes(samples.getNewSamples(), false);
-        List<Sample> list =
-                businessObjectFactory.createSampleLister(session).list(
-                        SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(extractCodes));
-        existingSamples.addAll(list);
-        List<String> codes = SampleRegisterOrUpdateUtil.extractCodes(samples.getNewSamples(), true);
-        ListOrSearchSampleCriteria criteria =
-                SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(codes);
-        List<Sample> existingContainers =
-                businessObjectFactory.createSampleLister(session).list(criteria);
-        for (Sample s : existingContainers)
+
+        private final List<NewSample> entities;
+
+        private final SampleType sampleType;
+
+        private final ISampleLister sampleLister;
+
+        private final Session session;
+
+        public SampleBatchRegisterOrUpdate(ISampleLister sampleLister, List<NewSample> entities,
+                SampleType sampleType, Session session)
         {
-            existingSamples.addAll(businessObjectFactory.createSampleLister(session).list(
-                    new ListOrSearchSampleCriteria(ListOrSearchSampleCriteria
-                            .createForContainer(new TechId(s.getId())))));
+            this.sampleLister = sampleLister;
+            this.entities = entities;
+            this.sampleType = sampleType;
+            this.session = session;
         }
-        List<NewSample> samplesToUpdate =
-                SampleRegisterOrUpdateUtil.getSamplesToUpdate(samples, existingSamples);
-        List<NewSample> samplesToRegister = new ArrayList<NewSample>(samples.getNewSamples());
-        samplesToRegister.removeAll(samplesToUpdate);
-        registerSamples(session,
-                new NewSamplesWithTypes(samples.getSampleType(), samplesToRegister));
-        updateSamples(session, new NewSamplesWithTypes(samples.getSampleType(), samplesToUpdate));
+
+        public void execute(List<NewSample> newSamples)
+        {
+            List<Sample> existingSamples = new ArrayList<Sample>();
+            List<String> extractCodes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, false);
+            List<Sample> list =
+                    sampleLister.list(SampleRegisterOrUpdateUtil
+                            .createListSamplesByCodeCriteria(extractCodes));
+            existingSamples.addAll(list);
+            List<String> codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, true);
+            ListOrSearchSampleCriteria criteria =
+                    SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(codes);
+            List<Sample> existingContainers = sampleLister.list(criteria);
+            for (Sample s : existingContainers)
+            {
+                existingSamples.addAll(sampleLister.list(new ListOrSearchSampleCriteria(
+                        ListOrSearchSampleCriteria.createForContainer(new TechId(s.getId())))));
+            }
+            List<NewSample> samplesToUpdate =
+                    SampleRegisterOrUpdateUtil.getSamplesToUpdate(newSamples, existingSamples);
+            List<NewSample> samplesToRegister = new ArrayList<NewSample>(newSamples);
+            samplesToRegister.removeAll(samplesToUpdate);
+            registerSamples(session, new NewSamplesWithTypes(sampleType, samplesToRegister));
+            updateSamples(session, new NewSamplesWithTypes(sampleType, samplesToUpdate));
+        }
+
+        public List<NewSample> getAllEntities()
+        {
+            return entities;
+        }
+
+        public String getEntityName()
+        {
+            return "sample";
+        }
+
+        public String getOperationName()
+        {
+            return "update/register preprocessing";
+        }
+
     }
 
     public final void registerSamples(final String sessionToken,
@@ -391,6 +430,14 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     sampleTypeCode);
         }
 
+        getSampleTypeSlaveServerPlugin(sampleTypePE).updateSamples(session,
+                convertSamples(updatedSamples));
+    }
+
+    private List<SampleBatchUpdatesDTO> convertSamples(final List<NewSample> updatedSamples)
+    {
+        List<SampleBatchUpdatesDTO> samples = new ArrayList<SampleBatchUpdatesDTO>();
+
         for (NewSample updatedSample : updatedSamples)
         {
             final SampleIdentifier oldSampleIdentifier =
@@ -419,10 +466,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final SampleBatchUpdateDetails batchUpdateDetails =
                     createBatchUpdateDetails(updatedSample);
 
-            batchUpdateSample(session, new SampleBatchUpdatesDTO(oldSampleIdentifier, properties,
+            samples.add(new SampleBatchUpdatesDTO(oldSampleIdentifier, properties,
                     experimentIdentifierOrNull, newSampleIdentifier, parentIdentifierOrNull,
                     containerIdentifierOrNull, batchUpdateDetails));
         }
+        return samples;
     }
 
     SampleBatchUpdateDetails createBatchUpdateDetails(NewSample sample)
@@ -638,13 +686,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         sampleBO.update(updates);
         sampleBO.save();
         return sampleBO.getSample().getModificationDate();
-    }
-
-    private void batchUpdateSample(Session session, SampleBatchUpdatesDTO updates)
-    {
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.batchUpdate(updates);
-        sampleBO.save();
     }
 
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)

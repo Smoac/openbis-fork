@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -83,12 +82,6 @@ public interface ISampleBO extends IEntityBusinessObject
      * Changes given sample.
      */
     void update(SampleUpdatesDTO updates);
-
-    /**
-     * Changes given sample as a result of batch update (some attributes/properties will remain
-     * unchanged).
-     */
-    void batchUpdate(SampleBatchUpdatesDTO updates);
 
     /**
      * Adds the specified experiment attachment to the sample.

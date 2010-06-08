@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -67,5 +68,7 @@ public interface ISampleTable
      * Writes changed are added data to the Data Access Layers.
      */
     public void save() throws UserFailureException;
+
+    void update(List<SampleBatchUpdatesDTO> updates);
 
 }

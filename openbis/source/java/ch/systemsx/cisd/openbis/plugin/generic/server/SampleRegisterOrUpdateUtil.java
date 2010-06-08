@@ -22,7 +22,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -41,11 +40,10 @@ public class SampleRegisterOrUpdateUtil
     /**
      * Returns a list of samples that already exist and should be updated.
      */
-    static List<NewSample> getSamplesToUpdate(NewSamplesWithTypes samples,
-            List<Sample> existingSamples)
+    static List<NewSample> getSamplesToUpdate(List<NewSample> samples, List<Sample> existingSamples)
     {
         List<NewSample> samplesToUpdate = new ArrayList<NewSample>();
-        for (NewSample ns : samples.getNewSamples())
+        for (NewSample ns : samples)
         {
             for (Sample es : existingSamples)
             {

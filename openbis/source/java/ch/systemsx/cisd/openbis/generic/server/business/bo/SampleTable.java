@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
@@ -29,20 +30,26 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -350,6 +357,65 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             HibernateUtils.initialize(generator);
             generatorHierarchyDepth--;
         }
+    }
+
+    public SamplePE prepareBatchUpdate(SampleBatchUpdatesDTO updates)
+    {
+        // batch update doesn't use tech id, check version and update attributes
+        SampleIdentifier identifier = updates.getOldSampleIdentifierOrNull();
+        SamplePE sample = tryToGetSampleByIdentifier(identifier);
+        if (sample == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No sample could be found with given identifier '%s'.", identifier);
+        }
+        SampleBatchUpdateDetails details = updates.getDetails();
+
+        batchUpdateProperties(sample, updates.getProperties(), details.getPropertiesToUpdate());
+
+        if (details.isExperimentUpdateRequested())
+        {
+            updateGroup(sample, updates.getSampleIdentifier());
+            updateExperiment(sample, updates.getExperimentIdentifierOrNull());
+        }
+        if (details.isParentUpdateRequested())
+        {
+            setGeneratedFrom(updates.getSampleIdentifier(), sample, updates
+                    .getParentIdentifierOrNull());
+        }
+        if (details.isContainerUpdateRequested())
+        {
+            setContainer(updates.getSampleIdentifier(), sample, updates
+                    .getContainerIdentifierOrNull());
+        }
+        return sample;
+    }
+
+    private void batchUpdateProperties(SamplePE sample, List<IEntityProperty> properties,
+            Set<String> propertiesToUpdate)
+    {
+        final Set<SamplePropertyPE> existingProperties = sample.getProperties();
+        final EntityTypePE type = sample.getSampleType();
+        final PersonPE registrator = findRegistrator();
+        sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
+                properties, registrator, propertiesToUpdate));
+    }
+
+    public void update(List<SampleBatchUpdatesDTO> updates)
+    {
+        setBatchUpdateMode(true);
+
+        assert updates != null : "Unspecified samples.";
+        if (samples == null)
+        {
+            samples = new ArrayList<SamplePE>();
+        }
+        for (SampleBatchUpdatesDTO sample : updates)
+        {
+            samples.add(prepareBatchUpdate(sample));
+        }
+        dataChanged = true;
+        setBatchUpdateMode(false);
     }
 
 }

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
@@ -26,9 +27,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -98,19 +101,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     {
         final SampleIdentifier sampleIdentifier =
                 SampleIdentifierFactory.parse(newSample.getIdentifier());
-        final SampleOwnerIdentifier sampleOwnerIdentifier =
-                sampleIdentifier.createSampleOwnerIdentifier();
-        SampleOwner sampleOwner =
-                (sampleOwnerCacheOrNull != null) ? sampleOwnerCacheOrNull
-                        .get(sampleOwnerIdentifier) : null;
-        if (sampleOwner == null)
-        {
-            sampleOwner = getSampleOwnerFinder().figureSampleOwner(sampleIdentifier);
-            if (sampleOwnerCacheOrNull != null)
-            {
-                sampleOwnerCacheOrNull.put(sampleOwnerIdentifier, sampleOwner);
-            }
-        }
+        SampleOwner sampleOwner = getSampleOwner(sampleOwnerCacheOrNull, sampleIdentifier);
         SampleTypePE sampleTypePE =
                 (sampleTypeCacheOrNull != null) ? sampleTypeCacheOrNull.get(newSample
                         .getSampleType().getCode()) : null;
@@ -138,6 +129,26 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         setContainer(sampleIdentifier, samplePE, containerIdentifier);
         samplePE.setPermId(getPermIdDAO().createPermId());
         return samplePE;
+    }
+
+    protected SampleOwner getSampleOwner(
+            Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCacheOrNull,
+            final SampleIdentifier sampleIdentifier)
+    {
+        final SampleOwnerIdentifier sampleOwnerIdentifier =
+                sampleIdentifier.createSampleOwnerIdentifier();
+        SampleOwner sampleOwner =
+                (sampleOwnerCacheOrNull != null) ? sampleOwnerCacheOrNull
+                        .get(sampleOwnerIdentifier) : null;
+        if (sampleOwner == null)
+        {
+            sampleOwner = getSampleOwnerFinder().figureSampleOwner(sampleIdentifier);
+            if (sampleOwnerCacheOrNull != null)
+            {
+                sampleOwnerCacheOrNull.put(sampleOwnerIdentifier, sampleOwner);
+            }
+        }
+        return sampleOwner;
     }
 
     private ExperimentPE tryFindExperiment(Map<String, ExperimentPE> experimentCacheOrNull,
@@ -287,5 +298,92 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         // If we just added new data sets in this BO, they won't have data sets, so no need to
         // check.
         return (onlyNewSamples == false) && SampleUtils.hasDatasets(externalDataDAO, sample);
+    }
+
+    protected void updateGroup(SamplePE sample, SampleOwnerIdentifier sampleOwnerIdentifier)
+    {
+        if (sampleOwnerIdentifier != null)
+        {
+            final SampleOwner sampleOwner =
+                    getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
+            GroupPE group = sampleOwner.tryGetGroup();
+            sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
+            sample.setGroup(group);
+        }
+    }
+
+    protected void updateExperiment(SamplePE sample, ExperimentIdentifier expIdentifierOrNull)
+    {
+        if (expIdentifierOrNull != null)
+        {
+            fillGroupIdentifier(expIdentifierOrNull);
+            changeExperiment(sample, expIdentifierOrNull);
+        } else
+        {
+            removeFromExperiment(sample);
+        }
+    }
+
+    private void removeFromExperiment(SamplePE sample)
+    {
+        if (hasDatasets(getExternalDataDAO(), sample))
+        {
+            throw UserFailureException.fromTemplate(
+                    "Cannot detach the sample '%s' from the experiment "
+                            + "because there are already datasets attached to the sample.", sample
+                            .getIdentifier());
+        }
+        sample.setExperiment(null);
+    }
+
+    private void changeExperiment(SamplePE sample, ExperimentIdentifier identifier)
+    {
+        ExperimentPE newExperiment = findExperiment(identifier);
+        if (isExperimentUnchanged(newExperiment, sample.getExperiment()))
+        {
+            return;
+        }
+        ensureExperimentIsValid(identifier, newExperiment, sample);
+        ensureSampleAttachableToExperiment(sample);
+
+        changeDatasetsExperiment(sample.getDatasets(), newExperiment);
+        sample.setExperiment(newExperiment);
+    }
+
+    private void changeDatasetsExperiment(Set<DataPE> datasets, ExperimentPE experiment)
+    {
+        for (DataPE dataset : datasets)
+        {
+            dataset.setExperiment(experiment);
+        }
+    }
+
+    private void ensureSampleAttachableToExperiment(SamplePE sample)
+    {
+        if (sample.getGroup() == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "It is not allowed to connect a shared sample '%s' to the experiment.", sample
+                            .getIdentifier());
+        }
+    }
+
+    private void ensureExperimentIsValid(ExperimentIdentifier identOrNull,
+            ExperimentPE experimentOrNull, SamplePE sample)
+    {
+        if (experimentOrNull != null && experimentOrNull.getInvalidation() != null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "The sample '%s' cannot be assigned to the experiment '%s' "
+                            + "because the experiment has been invalidated.", sample
+                            .getSampleIdentifier(), identOrNull);
+        }
+    }
+
+    private boolean isExperimentUnchanged(ExperimentPE newExperimentOrNull,
+            ExperimentPE experimentOrNull)
+    {
+        return experimentOrNull == null ? newExperimentOrNull == null : experimentOrNull
+                .equals(newExperimentOrNull);
     }
 }
