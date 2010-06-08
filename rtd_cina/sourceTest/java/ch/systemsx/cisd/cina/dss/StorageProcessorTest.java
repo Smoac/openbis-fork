@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.cina.dss.info.CinaDataSetInfoExtractor;
 import ch.systemsx.cisd.cina.dss.info.CinaTypeExtractor;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -127,38 +126,6 @@ public class StorageProcessorTest extends AbstractFileSystemTestCase
         // "store" the data set
         doStoreData(new File(
                 "sourceTest/java/ch/systemsx/cisd/cina/dss/info/experiment-data-folder"));
-
-        // Check the email
-        assert emailDir.exists();
-        assert emailDir.isDirectory();
-        File[] files = emailDir.listFiles();
-        assertEquals(1, files.length);
-        assertEquals("email", files[0].getName());
-        String fileContent = FileUtilities.loadToString(files[0]);
-
-        // Split the file into lines and check one line at a time
-        String[] lines = fileContent.split("\n+");
-        System.out.println(fileContent);
-        assertEquals(lines.length, 13);
-        int i = 0;
-        assertTrue(lines[i] + " should start with " + "Date:", lines[i++].startsWith("Date:"));
-        assertEquals("From: sender", lines[i++]);
-        assertEquals("To: no-one@nowhere.ch", lines[i++]);
-        assertTrue(lines[i] + " should start with "
-                + "Subject: [CINA] Registered Experiment /CINA/CINA1/EXP-", lines[i++]
-                .startsWith("Subject: [CINA] Registered Experiment /CINA/CINA1/EXP-"));
-        assertEquals("Content:", lines[i++]);
-        assertTrue(lines[i++].startsWith("------=_Part_0"));
-        assertEquals(
-                "Experiment was successfully registered. Use the attached metadata file to register Samples",
-                lines[i++]);
-
-        assertTrue(lines[i++].startsWith("------=_Part_0"));
-        assertEquals("Content-Disposition: attachment; filename=sample.properties", lines[i++]);
-        assertTrue(lines[i++].startsWith("experiment.identifier=/CINA/CINA1/EXP-"));
-        assertEquals("experiment.owner-email=no-one@nowhere.ch", lines[i++]);
-        assertEquals("sample.code-prefix=S", lines[i++]);
-        assertTrue(lines[i++].startsWith("------=_Part_0"));
     }
 
     private void doStoreData(File datasetFolder)
