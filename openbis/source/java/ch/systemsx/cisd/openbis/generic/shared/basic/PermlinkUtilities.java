@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -37,10 +37,32 @@ public class PermlinkUtilities
             final EntityKind entityKind, final String permId)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
-        ulrWithParameters.addParameter(Client.VIEW_MODE_KEY, Client.SIMPLE);
+        ulrWithParameters.addParameter(BasicConstant.VIEW_MODE_KEY, BasicConstant.VIEW_MODE_SIMPLE);
         ulrWithParameters.startHistoryToken();
         ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
         ulrWithParameters.addParameter(PERM_ID_PARAMETER_KEY, permId);
+        return ulrWithParameters.toString();
+    }
+
+    public static final String DOWNLOAD_ATTACHMENT_ACTION = "DOWNLOAD_ATTACHMENT";
+
+    public static final String FILE_NAME_KEY = "file";
+
+    public static final String VERSION_KEY = "version";
+
+    public final static String createAttachmentPermlinkURL(final String baseIndexURL,
+            final String fileName, final int version, final AttachmentHolderKind entityKind,
+            final String permId)
+    {
+        URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
+        ulrWithParameters.addParameter(BasicConstant.VIEW_MODE_KEY, BasicConstant.VIEW_MODE_SIMPLE);
+        ulrWithParameters.startHistoryToken();
+        ulrWithParameters.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER,
+                DOWNLOAD_ATTACHMENT_ACTION);
+        ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
+        ulrWithParameters.addParameter(PERM_ID_PARAMETER_KEY, permId);
+        ulrWithParameters.addParameter(FILE_NAME_KEY, fileName);
+        ulrWithParameters.addParameter(VERSION_KEY, version);
         return ulrWithParameters.toString();
     }
 

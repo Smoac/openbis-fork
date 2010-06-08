@@ -1175,7 +1175,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
             experimentBO.loadDataByTechId(experimentId);
             return AttachmentTranslator.translate(listHolderAttachments(session, experimentBO
-                    .getExperiment()));
+                    .getExperiment()), session.getBaseIndexURL());
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -1190,7 +1190,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
             sampleBO.loadDataByTechId(sampleId);
             return AttachmentTranslator.translate(listHolderAttachments(session, sampleBO
-                    .getSample()));
+                    .getSample()), session.getBaseIndexURL());
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -1205,7 +1205,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
             projectBO.loadDataByTechId(projectId);
             return AttachmentTranslator.translate(listHolderAttachments(session, projectBO
-                    .getProject()));
+                    .getProject()), null);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * GWT version of AttachmentPE
  * 
@@ -33,6 +32,8 @@ public class Attachment extends AbstractRegistrationHolder implements Comparable
     private String description;
 
     private int version;
+
+    private String permlink;
 
     public Attachment()
     {
@@ -82,6 +83,16 @@ public class Attachment extends AbstractRegistrationHolder implements Comparable
     public void setVersion(final int version)
     {
         this.version = version;
+    }
+
+    public String getPermlink()
+    {
+        return permlink;
+    }
+
+    public void setPermlink(String permlink)
+    {
+        this.permlink = permlink;
     }
 
 }

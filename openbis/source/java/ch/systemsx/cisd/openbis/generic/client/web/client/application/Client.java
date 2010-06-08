@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AttachmentDownloadLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.BrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 /**
  * The {@link EntryPoint} implementation.
@@ -59,10 +61,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public class Client implements EntryPoint, ValueChangeHandler<String>
 {
-    public static final String SIMPLE = "simple";
-
-    public static final String VIEW_MODE_KEY = "viewMode";
-
     /** name of the URL parameter which decides if looging is switched on or off */
     private static final String LOGGING_PARAM = "log";
 
@@ -113,8 +111,9 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
 
     private boolean isSimpleMode()
     {
-        String viewModeParameter = Window.Location.getParameter(VIEW_MODE_KEY);
-        return viewModeParameter != null && viewModeParameter.equals(SIMPLE);
+        String viewModeParameter = Window.Location.getParameter(BasicConstant.VIEW_MODE_KEY);
+        return viewModeParameter != null
+                && viewModeParameter.equals(BasicConstant.VIEW_MODE_SIMPLE);
     }
 
     private boolean isLoggingEnabled()
@@ -305,6 +304,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         // as it handles the same action in a more specific way.
         handlerRegistry.registerHandler(new MaterialLocatorResolver(context));
         handlerRegistry.registerHandler(new ProjectLocatorResolver(context));
+        handlerRegistry.registerHandler(new AttachmentDownloadLocatorResolver(context));
         handlerRegistry.registerHandler(new PermlinkLocatorResolver(context));
 
         handlerRegistry.registerHandler(new SearchLocatorResolver(context));

@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * Default implementation of the IViewLocatorHandler interface. Designed to be subclassed.
@@ -37,6 +38,25 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
         if (valueOrNull == null)
         {
             throw new UserFailureException("Missing URL parameter: " + parameter);
+        }
+    }
+
+    protected static final EntityKind getEntityKind(ViewLocator locator)
+    {
+        String entityKindValueOrNull = locator.tryGetEntity();
+        checkRequiredParameter(entityKindValueOrNull, ViewLocator.ENTITY_PARAMETER);
+        return getEntityKind(entityKindValueOrNull);
+    }
+
+    protected static final EntityKind getEntityKind(String entityKindValueOrNull)
+    {
+        try
+        {
+            return EntityKind.valueOf(entityKindValueOrNull);
+        } catch (IllegalArgumentException exception)
+        {
+            throw new UserFailureException("Invalid '" + ViewLocator.ENTITY_PARAMETER
+                    + "' URL parameter value.");
         }
     }
 }

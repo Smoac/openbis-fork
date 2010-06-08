@@ -829,6 +829,8 @@ public abstract class Dict
 
     public static final String BUTTON_FILTERS = "button_filters";
 
+    public static final String PERMLINK = "permlink_column_name";
+
     public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";
 
     public static final String SHOW_DETAILS_LINK_TEXT_VALUE = "show_details_link_text_value";

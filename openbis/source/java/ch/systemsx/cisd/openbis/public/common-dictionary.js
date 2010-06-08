@@ -29,6 +29,7 @@ var common = {
   load_in_progress: "Loading...",
   details_title: "{0} {1}",
   edit_title: "Edit {0} {1}",
+  permlink_column_name: "Permlink",
   show_details_link_column_name: "Show Details Link",
   show_details_link_text_value: "Permlink",
   table_operations: "Table:",

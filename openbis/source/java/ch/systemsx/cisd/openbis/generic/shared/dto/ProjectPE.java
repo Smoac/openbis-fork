@@ -61,6 +61,7 @@ import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -317,9 +318,16 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
 
     @Override
     @Transient
-    public String getHolderName()
+    public AttachmentHolderKind getAttachmentHolderKind()
     {
-        return "project";
+        return AttachmentHolderKind.PROJECT;
+    }
+
+    @Transient
+    public String getPermId()
+    {
+        // fake permId containing project identifier
+        return getIdentifier();
     }
 
     @Override

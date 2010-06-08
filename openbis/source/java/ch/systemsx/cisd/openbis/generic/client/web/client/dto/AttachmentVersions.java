@@ -59,6 +59,11 @@ public class AttachmentVersions implements Comparable<AttachmentVersions>, IsSer
         return versions;
     }
 
+    public String getPermlink()
+    {
+        return getCurrent().getPermlink();
+    }
+
     // serialization
 
     @SuppressWarnings("unused")

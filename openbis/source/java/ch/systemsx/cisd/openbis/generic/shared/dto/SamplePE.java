@@ -63,6 +63,7 @@ import org.hibernate.validator.Pattern;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -550,9 +551,9 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @Override
     @Transient
-    public String getHolderName()
+    public AttachmentHolderKind getAttachmentHolderKind()
     {
-        return "sample";
+        return AttachmentHolderKind.SAMPLE;
     }
 
     @Override

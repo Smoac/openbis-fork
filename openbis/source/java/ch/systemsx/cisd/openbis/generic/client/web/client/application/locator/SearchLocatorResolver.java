@@ -7,7 +7,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnectio
  */
 public class SearchLocatorResolver extends AbstractViewLocatorResolver
 {
-    public static final String SEARCH_ACTION = "SEARCH";
+    public static final String SEARCH_ACTION = SearchlinkUtilities.SEARCH_ACTION;
 
     protected static final String DEFAULT_SEARCH_STRING = "*";
 
@@ -49,12 +49,7 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
     {
         // Extract the search criteria from the ViewLocator and dispatch to a resolver that can
         // handle the entity type.
-        String searchEntityKindValueOrNull = locator.tryGetEntity();
-        if (null == searchEntityKindValueOrNull)
-            return;
-
-        // Find the specific resolver based on entity type
-        EntityKind entityKind = getEntityKind(searchEntityKindValueOrNull);
+        EntityKind entityKind = getEntityKind(locator);
 
         DetailedSearchCriteria searchCriteria =
                 new ViewLocatorToDetailedSearchCriteriaConverter(locator, entityKind)
@@ -72,18 +67,6 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
             throw new UserFailureException(
                     "URLs for searching openBIS only support SAMPLE and DATA_SET searches. Entity "
                             + entityKind + " is not supported.");
-        }
-    }
-
-    protected EntityKind getEntityKind(String entityKindValueOrNull)
-    {
-        try
-        {
-            return EntityKind.valueOf(entityKindValueOrNull);
-        } catch (IllegalArgumentException exception)
-        {
-            throw new UserFailureException("Invalid '"
-                    + PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY + "' URL parameter value.");
         }
     }
 

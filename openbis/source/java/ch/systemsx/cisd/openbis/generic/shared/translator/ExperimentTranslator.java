@@ -80,7 +80,7 @@ public final class ExperimentTranslator
                     break;
                 case ATTACHMENTS:
                     result.setAttachments(AttachmentTranslator.translate(experiment
-                            .getAttachments()));
+                            .getAttachments(), baseIndexURL));
                     break;
                 default:
                     break;

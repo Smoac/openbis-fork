@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 
 /**
@@ -41,9 +42,11 @@ public class ViewLocator
 
     private static final String PARAMETER_SEPARATOR = "&";
 
-    public static final String ACTION_PARAMETER = "ACTION";
+    public static final String ACTION_PARAMETER = BasicConstant.LOCATOR_ACTION_PARAMETER;
 
     public static final String ENTITY_PARAMETER = PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY;
+
+    public static final String PERM_ID_PARAMETER = PermlinkUtilities.PERM_ID_PARAMETER_KEY;
 
     public static final String PERMLINK_ACTION = "VIEW";
 
@@ -136,10 +139,13 @@ public class ViewLocator
             } else if (ENTITY_PARAMETER.equalsIgnoreCase(paramPair[0]))
             {
                 entityOrNull = paramPair[1];
-            } else if (PermlinkUtilities.PERM_ID_PARAMETER_KEY.equalsIgnoreCase(paramPair[0]))
+            } else if (PERM_ID_PARAMETER.equalsIgnoreCase(paramPair[0]))
             {
                 // Permlink URLs have an implied action
-                actionOrNull = PERMLINK_ACTION;
+                if (actionOrNull == null)
+                {
+                    actionOrNull = PERMLINK_ACTION;
+                }
                 parameters.put(paramPair[0], paramPair[1]);
             } else
             {

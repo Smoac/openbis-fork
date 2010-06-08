@@ -22,10 +22,12 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 
 /**
@@ -41,13 +43,21 @@ public final class AttachmentTranslator
         // Can not be instantiated.
     }
 
-    public final static Attachment translate(final AttachmentPE attachment)
+    private final static Attachment translate(final AttachmentPE attachment,
+            final String baseIndexURL)
     {
         if (attachment == null)
         {
             return null;
         }
         final Attachment result = new Attachment();
+        final AttachmentHolderPE holder = attachment.getParent();
+        if (baseIndexURL != null)
+        {
+            result.setPermlink(PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL,
+                    attachment.getFileName(), attachment.getVersion(), holder
+                            .getAttachmentHolderKind(), holder.getPermId()));
+        }
         result.setFileName(StringEscapeUtils.escapeHtml(attachment.getFileName()));
         result.setTitle(StringEscapeUtils.escapeHtml(attachment.getTitle()));
         result.setDescription(StringEscapeUtils.escapeHtml(attachment.getDescription()));
@@ -74,7 +84,8 @@ public final class AttachmentTranslator
         return result;
     }
 
-    public final static List<Attachment> translate(final Collection<AttachmentPE> attachments)
+    public final static List<Attachment> translate(final Collection<AttachmentPE> attachments,
+            String baseIndexURL)
     {
         if (attachments == null)
         {
@@ -83,7 +94,7 @@ public final class AttachmentTranslator
         final List<Attachment> result = new ArrayList<Attachment>();
         for (final AttachmentPE attachment : attachments)
         {
-            result.add(translate(attachment));
+            result.add(translate(attachment, baseIndexURL));
         }
         return result;
     }
@@ -95,7 +106,7 @@ public final class AttachmentTranslator
         content.setValue(attachment.getContent());
         return createAttachmentPE(attachment, fileName, content);
     }
-    
+
     private static String getFileName(String filePath)
     {
         int lastIndexOfSeparator = filePath.replace('\\', '/').lastIndexOf('/');

@@ -113,7 +113,7 @@ public class BasicProjectIdentifier implements IsSerializable, Serializable
     @Override
     public String toString()
     {
-        return instanceCode + "/" + spaceCode + "/" + projectCode;
+        return (instanceCode != null ? instanceCode : "") + "/" + spaceCode + "/" + projectCode;
     }
 
 }

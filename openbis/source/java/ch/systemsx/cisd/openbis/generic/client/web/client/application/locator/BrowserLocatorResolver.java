@@ -5,7 +5,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -73,18 +72,4 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
         DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getMaterialBrowser());
     }
 
-    private EntityKind getEntityKind(ViewLocator locator)
-    {
-        try
-        {
-            String entityKindValueOrNull = locator.tryGetEntity();
-            checkRequiredParameter(entityKindValueOrNull,
-                    PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
-            return EntityKind.valueOf(entityKindValueOrNull);
-        } catch (IllegalArgumentException exception)
-        {
-            throw new UserFailureException("Invalid '"
-                    + PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY + "' URL parameter value.");
-        }
-    }
 }

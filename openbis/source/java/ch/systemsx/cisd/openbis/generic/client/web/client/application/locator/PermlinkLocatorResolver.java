@@ -50,15 +50,4 @@ public class PermlinkLocatorResolver extends AbstractViewLocatorResolver
         OpenEntityDetailsTabHelper.open(viewContext, entityKind, permIdValue);
     }
 
-    private EntityKind getEntityKind(String entityKindValueOrNull)
-    {
-        try
-        {
-            return EntityKind.valueOf(entityKindValueOrNull);
-        } catch (IllegalArgumentException exception)
-        {
-            throw new UserFailureException("Invalid '"
-                    + PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY + "' URL parameter value.");
-        }
-    }
 }

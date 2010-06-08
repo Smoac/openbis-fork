@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AttachmentDownloadLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
@@ -272,6 +273,34 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
 
     @SuppressWarnings("unchecked")
     @Test
+    public void testResolveDownloadAttachmentLocator()
+    {
+        initializeLocatorHandlerRegistry(registry);
+        final String SAMPLE_PERM_ID = "20100104150239401-871";
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(viewContext).getService();
+                    will(returnValue(commonService));
+
+                    one(commonService).getEntityInformationHolder(with(EntityKind.SAMPLE),
+                            with(SAMPLE_PERM_ID),
+                            with(Expectations.any(AbstractAsyncCallback.class)));
+                }
+
+            });
+
+        ViewLocator locator =
+                new ViewLocator("action=DOWNLOAD_ATTACHMENT&entity=SAMPLE&permId=" + SAMPLE_PERM_ID
+                        + "&file=fileName.txt&version=1");
+        OpenViewAction action = new OpenViewAction(registry, locator);
+        action.execute();
+
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
     public void testResolveSearchLocator()
     {
         initializeLocatorHandlerRegistry(registry);
@@ -349,6 +378,7 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
     {
         handlerRegistry.registerHandler(new MaterialLocatorResolver(viewContext));
         handlerRegistry.registerHandler(new ProjectLocatorResolver(viewContext));
+        handlerRegistry.registerHandler(new AttachmentDownloadLocatorResolver(viewContext));
         handlerRegistry.registerHandler(new PermlinkLocatorResolver(viewContext));
         handlerRegistry.registerHandler(new SearchLocatorResolver(viewContext));
     }

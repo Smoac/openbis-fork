@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
@@ -69,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -79,7 +79,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -129,7 +128,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                             final String fileName = rowItem.getCurrent().getFileName();
                             final int version = rowItem.getCurrent().getVersion();
 
-                            downloadAttachment(fileName, version, attachmentHolder);
+                            AttachmentDownloadHelper.download(fileName, version, attachmentHolder);
                         }
                     });
         registerLinkClickListenerFor(AttachmentColDefKind.VERSION.id(),
@@ -145,6 +144,18 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                             showVersionsPanel(fileName, versions, keyPressed);
                         }
                     });
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<AttachmentVersions> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<AttachmentVersions> schema = super.createColumnsDefinition();
+        if (attachmentHolder.getAttachmentHolderKind() != AttachmentHolderKind.PROJECT)
+        {
+            schema.setGridCellRendererFor(AttachmentColDefKind.PERMLINK.id(), LinkRenderer
+                    .createExternalLinkRenderer(viewContext.getMessage(Dict.PERMLINK)));
+        }
+        return schema;
     }
 
     private static String createGridId(final IAttachmentHolder holder)
@@ -225,7 +236,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                     AttachmentVersions versions = selectedItem.getBaseObject();
                     final String fileName = versions.getCurrent().getFileName();
                     final int version = versions.getCurrent().getVersion();
-                    downloadAttachment(fileName, version, attachmentHolder);
+                    AttachmentDownloadHelper.download(fileName, version, attachmentHolder);
                 }
             };
     }
@@ -275,26 +286,6 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         final List<Attachment> versions = entity.getVersions();
 
         showVersionsPanel(fileName, versions, active);
-    }
-
-    private static void downloadAttachment(String fileName, int version, IAttachmentHolder holder)
-    {
-        WindowUtils.openWindow(createURL(version, fileName, holder));
-    }
-
-    private final static String createURL(final int version, final String fileName,
-            final IAttachmentHolder attachmentHolder)
-    {
-        URLMethodWithParameters methodWithParameters =
-                new URLMethodWithParameters(GenericConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME);
-        methodWithParameters.addParameter(GenericConstants.VERSION_PARAMETER, version);
-        methodWithParameters.addParameter(GenericConstants.FILE_NAME_PARAMETER, fileName);
-        methodWithParameters.addParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER,
-                attachmentHolder.getAttachmentHolderKind().name());
-        // NOTE: this exp.getId() could be null if exp is a proxy
-        methodWithParameters.addParameter(GenericConstants.TECH_ID_PARAMETER, attachmentHolder
-                .getId());
-        return methodWithParameters.toString();
     }
 
     private void showVersionsPanel(final String fileName, final List<Attachment> versions,
@@ -443,7 +434,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                                                 (Attachment) selectedItem
                                                         .get(ModelDataPropertyNames.OBJECT);
                                         int version = selectedAttachment.getVersion();
-                                        downloadAttachment(fileName, version, attachmentHolder);
+                                        AttachmentDownloadHelper.download(fileName, version,
+                                                attachmentHolder);
                                     }
                                     attachmentGrid.getSelectionModel().deselectAll();
                                 }

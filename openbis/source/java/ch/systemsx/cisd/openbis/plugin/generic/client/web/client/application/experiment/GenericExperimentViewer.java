@@ -69,7 +69,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
     protected final IIdAndCodeHolder experimentId;
 
     protected final BasicEntityType experimentType;
-    
+
     protected Experiment experiment;
 
     private ExperimentPropertiesPanel propertiesPanelOrNull;
@@ -204,8 +204,8 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
     private AttachmentVersionsSection createAttachmentsSection()
     {
-        final IAttachmentHolder newExperiment = asExperimentAttachmentHolder(experimentId);
-        return new AttachmentVersionsSection(viewContext.getCommonViewContext(), newExperiment);
+        final IAttachmentHolder attachmentHolder = asExperimentAttachmentHolder(experimentId);
+        return new AttachmentVersionsSection(viewContext.getCommonViewContext(), attachmentHolder);
     }
 
     private static IAttachmentHolder asExperimentAttachmentHolder(

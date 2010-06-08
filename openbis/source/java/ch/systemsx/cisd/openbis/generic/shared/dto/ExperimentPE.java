@@ -65,6 +65,7 @@ import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -514,9 +515,9 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
 
     @Override
     @Transient
-    public String getHolderName()
+    public AttachmentHolderKind getAttachmentHolderKind()
     {
-        return "experiment";
+        return AttachmentHolderKind.EXPERIMENT;
     }
 
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
