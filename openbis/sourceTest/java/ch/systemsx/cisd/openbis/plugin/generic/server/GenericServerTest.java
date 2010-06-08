@@ -233,6 +233,31 @@ public final class GenericServerTest extends AbstractServerTestCase
     }
 
     @Test
+    public final void testRegisterOrUpdateSamplesWithoutUpdate()
+    {
+        prepareGetSession();
+        final SampleTypePE sampleTypePE = CommonTestUtils.createSampleType();
+        final SampleType sampleType = new SampleType();
+        sampleType.setCode(sampleTypePE.getCode());
+        final List<NewSample> newSamples = new ArrayList<NewSample>();
+        newSamples.add(createNewSample("one"));
+        newSamples.add(createNewSample("two"));
+        List<NewSamplesWithTypes> samplesWithTypes = new ArrayList<NewSamplesWithTypes>();
+        samplesWithTypes.add(new NewSamplesWithTypes(sampleType, newSamples));
+        context.checking(new Expectations()
+            {
+                {
+                    one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
+                    will(returnValue(sampleTypePE));
+
+                    one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples);
+                }
+            });
+        createServer().registerOrUpdateSamples(SESSION_TOKEN, samplesWithTypes);
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public final void testRegisterSamples()
     {
         prepareGetSession();

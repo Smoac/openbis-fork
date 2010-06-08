@@ -17,9 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -35,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class SampleRegisterOrUpdateUtil
 {
+    private static final String CODE_SEPARATOR = ":";
+
     private static final String INSTANCE_SEPARATOR = "/";
 
     /**
@@ -60,13 +61,8 @@ public class SampleRegisterOrUpdateUtil
     /**
      * Creates {@link ListOrSearchSampleCriteria} narrowing listing result to samples given codes.
      */
-    static ListOrSearchSampleCriteria createListSamplesByCodeCriteria(List<NewSample> samples)
+    static ListOrSearchSampleCriteria createListSamplesByCodeCriteria(List<String> codes)
     {
-        List<String> codes = new ArrayList<String>();
-        for (NewSample s : samples)
-        {
-            codes.add(extractCodeForSampleListingCriteria(s));
-        }
         String[] codesAsArray = codes.toArray(new String[0]);
         ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(codesAsArray);
         return criteria;
@@ -100,11 +96,35 @@ public class SampleRegisterOrUpdateUtil
 
     }
 
-    private static String extractCodeForSampleListingCriteria(NewSample s)
+    private static String extractCode(String id)
     {
-        SampleIdentifier parsedIdentifier = SampleIdentifierFactory.parse(s.getIdentifier());
-        String subcode = parsedIdentifier.getSampleSubCode();
-        String code = parsedIdentifier.getSampleCode();
-        return StringUtils.isBlank(subcode) ? code : subcode;
+        assert id != null;
+        if (id.contains(CODE_SEPARATOR))
+        {
+            return id.substring(0, id.indexOf(CODE_SEPARATOR));
+        } else
+        {
+            return id;
+        }
+    }
+
+    /**
+     * If <var>withContainers</var> is true, containers codes are extracted, otherwise - sample
+     * codes.
+     */
+    public static List<String> extractCodes(List<NewSample> newSamples, boolean withContainers)
+    {
+        HashSet<String> set = new HashSet<String>();
+        for (NewSample s : newSamples)
+        {
+            String identifierWithoutInstance = dropDatabaseInstance(s.getIdentifier());
+            boolean hasContainer = identifierWithoutInstance.contains(CODE_SEPARATOR);
+            if (hasContainer == withContainers)
+            {
+                SampleIdentifier parsed = SampleIdentifierFactory.parse(s.getIdentifier());
+                set.add(extractCode(parsed.getSampleCode()));
+            }
+        }
+        return new ArrayList<String>(set);
     }
 }

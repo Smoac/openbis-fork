@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -274,10 +275,24 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     private void registerOrUpdate(final Session session, NewSamplesWithTypes samples)
     {
-        List<Sample> existingSamples =
+        List<Sample> existingSamples = new ArrayList<Sample>();
+        List<String> extractCodes =
+                SampleRegisterOrUpdateUtil.extractCodes(samples.getNewSamples(), false);
+        List<Sample> list =
                 businessObjectFactory.createSampleLister(session).list(
-                        SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(samples
-                                .getNewSamples()));
+                        SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(extractCodes));
+        existingSamples.addAll(list);
+        List<String> codes = SampleRegisterOrUpdateUtil.extractCodes(samples.getNewSamples(), true);
+        ListOrSearchSampleCriteria criteria =
+                SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(codes);
+        List<Sample> existingContainers =
+                businessObjectFactory.createSampleLister(session).list(criteria);
+        for (Sample s : existingContainers)
+        {
+            existingSamples.addAll(businessObjectFactory.createSampleLister(session).list(
+                    new ListOrSearchSampleCriteria(ListOrSearchSampleCriteria
+                            .createForContainer(new TechId(s.getId())))));
+        }
         List<NewSample> samplesToUpdate =
                 SampleRegisterOrUpdateUtil.getSamplesToUpdate(samples, existingSamples);
         List<NewSample> samplesToRegister = new ArrayList<NewSample>(samples.getNewSamples());
