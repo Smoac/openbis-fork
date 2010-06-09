@@ -148,9 +148,7 @@ function assert_correct_datasets_metabol_database {
     assert_equals "Wrong number of quant. component ids in the metablomics db" 3 $quantms_component_ids
 
 	  local mz_scans=`count_db_table_records $METABOL_DB mz_scans`
-    local mz_peaks=`count_db_table_records $METABOL_DB mz_peaks`
 	  assert_equals "Wrong number of mz scans in the metablomics db" 19 $mz_scans
-    assert_equals "Wrong number of mz peaks in the metablomics db" 13775 $mz_peaks
 }
 
 function assert_correct_incoming_contents {
