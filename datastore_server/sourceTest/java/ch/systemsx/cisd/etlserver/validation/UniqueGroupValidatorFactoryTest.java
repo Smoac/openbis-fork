@@ -93,7 +93,7 @@ public class UniqueGroupValidatorFactoryTest extends AssertJUnit
         } catch (ConfigurationFailureException ex)
         {
             exceptionThrown = true;
-            assertEquals("Property 'groups' is an empty string.", ex.getMessage());
+            assertEquals("Property 'groups' is not specified.", ex.getMessage());
         }
         assertTrue(exceptionThrown);
     }
