@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
@@ -62,7 +63,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
     private static final String DUMMY_SESSSION_TOKEN = "DummySessionToken";
 
-    private static final String DUMMY_DSS_URL = "http://localhost/datastore_server";
+    private static final String DUMMY_DSS_URL =
+            DataStoreApiUrlUtilities.getDataStoreUrlFromServerUrl("http://localhost/");
 
     public DssComponentTest()
     {
