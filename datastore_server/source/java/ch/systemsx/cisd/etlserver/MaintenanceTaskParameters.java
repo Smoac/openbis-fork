@@ -44,6 +44,10 @@ public class MaintenanceTaskParameters
 
     private static final String START_KEY = "start";
 
+    // If true the task will be executed exactly one, interval will be ignored. By default set to
+    // false.
+    private static final String ONE_TIME_EXECUTION_KEY = "execute-only-once";
+
     private final String pluginName;
 
     private final long interval;
@@ -54,6 +58,8 @@ public class MaintenanceTaskParameters
 
     private final Date startDate;
 
+    private final boolean executeOnlyOnce;
+
     public MaintenanceTaskParameters(Properties properties, String pluginName)
     {
         this.properties = properties;
@@ -61,6 +67,7 @@ public class MaintenanceTaskParameters
         interval = PropertyUtils.getLong(properties, INTERVAL_KEY, ONE_DAY_IN_SEC);
         className = PropertyUtils.getMandatoryProperty(properties, CLASS_KEY);
         startDate = extractStartDate(PropertyUtils.getProperty(properties, START_KEY));
+        executeOnlyOnce = PropertyUtils.getBoolean(properties, ONE_TIME_EXECUTION_KEY, false);
     }
 
     private static Date extractStartDate(String timeOrNull)
@@ -90,6 +97,11 @@ public class MaintenanceTaskParameters
                     "Start date <%s> does not match the required format <%s>", timeOrNull,
                     TIME_FORMAT));
         }
+    }
+
+    public boolean isExecuteOnlyOnce()
+    {
+        return executeOnlyOnce;
     }
 
     public long getIntervalSeconds()

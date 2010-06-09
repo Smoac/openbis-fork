@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.etlserver;
 
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -31,13 +32,21 @@ public class MaintenancePlugin
     {
         final String timerThreadName = parameters.getPluginName() + " - Maintenance Plugin";
         final Timer workerTimer = new Timer(timerThreadName);
-        workerTimer.schedule(new TimerTask()
+        TimerTask timerTask = new TimerTask()
             {
                 @Override
                 public void run()
                 {
                     task.execute();
                 }
-            }, parameters.getStartDate(), parameters.getIntervalSeconds() * 1000);
+            };
+        Date startDate = parameters.getStartDate();
+        if (parameters.isExecuteOnlyOnce())
+        {
+            workerTimer.schedule(timerTask, startDate);
+        } else
+        {
+            workerTimer.schedule(timerTask, startDate, parameters.getIntervalSeconds() * 1000);
+        }
     }
 }
