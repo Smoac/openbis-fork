@@ -38,12 +38,17 @@ import net.lemnik.eodsql.QueryTool;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.AcquiredPlateImage;
 import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetUploader;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult;
-import ch.systemsx.cisd.openbis.dss.etl.RelativeImagePath;
+import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor;
+import ch.systemsx.cisd.openbis.dss.etl.RelativeImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
@@ -54,16 +59,15 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
  */
 class BDSImagingDbUploader
 {
-    private static IImagingUploadDAO createQuery(Properties properties)
-    {
-        DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
-        return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
-    }
-
-    public static IBDSMigrator createImagingDbUploaderMigrator(Properties properties,
-            final String[] channelNames)
+    public static IBDSMigrator createImagingDbUploaderMigrator(Properties properties)
     {
         final IImagingUploadDAO dao = createQuery(properties);
+        final List<String> channelNames =
+                PropertyUtils.getMandatoryList(properties, PlateStorageProcessor.CHANNEL_NAMES);
+        final List<ColorComponent> channelColorComponentsOrNull =
+                AbstractHCSImageFileExtractor.tryGetChannelComponents(properties);
+        checkChannelsAndColorComponents(channelNames, channelColorComponentsOrNull);
+
         return new IBDSMigrator()
             {
                 public String getDescription()
@@ -73,20 +77,40 @@ class BDSImagingDbUploader
 
                 public boolean migrate(File dataset)
                 {
-                    return BDSImagingDbUploader.migrateDataset(dataset, dao, channelNames);
+                    return BDSImagingDbUploader.migrateDataset(dataset, dao, channelNames,
+                            channelColorComponentsOrNull);
                 }
             };
     }
 
-    private static boolean migrateDataset(File dataset, IImagingUploadDAO dao, String[] channelNames)
+    private static void checkChannelsAndColorComponents(List<String> channelNames,
+            List<ColorComponent> channelColorComponentsOrNull)
+    {
+        if (channelColorComponentsOrNull != null
+                && channelColorComponentsOrNull.size() != channelNames.size())
+        {
+            throw new ConfigurationFailureException(
+                    "There should be exactly one color component for each channel name."
+                            + " Correct the list of values for the components property.");
+        }
+    }
+
+    private static IImagingUploadDAO createQuery(Properties properties)
+    {
+        DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
+        return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
+    }
+
+    private static boolean migrateDataset(File dataset, IImagingUploadDAO dao,
+            List<String> channelNames, List<ColorComponent> channelColorComponentsOrNull)
     {
         String originalDatasetDirName = tryGetOriginalDatasetDirName(dataset);
         if (originalDatasetDirName == null)
         {
             return false;
         }
-        return new BDSImagingDbUploader(dataset, dao, originalDatasetDirName, channelNames)
-                .migrate();
+        return new BDSImagingDbUploader(dataset, dao, originalDatasetDirName, channelNames,
+                channelColorComponentsOrNull).migrate();
     }
 
     private final File dataset;
@@ -95,15 +119,20 @@ class BDSImagingDbUploader
 
     private final String originalDatasetDirName;
 
-    private final String[] channelNames;
+    private final List<String> channelNames;
+
+    private final List<ColorComponent> channelColorComponentsOrNull;
 
     private BDSImagingDbUploader(File dataset, IImagingUploadDAO dao,
-            String originalDatasetDirName, String[] channelNames)
+            String originalDatasetDirName, List<String> channelNames,
+            List<ColorComponent> channelColorComponentsOrNull)
     {
         this.dataset = dataset;
         this.dao = dao;
         this.originalDatasetDirName = originalDatasetDirName;
         this.channelNames = channelNames;
+        this.channelColorComponentsOrNull = channelColorComponentsOrNull;
+
     }
 
     private boolean migrate()
@@ -146,6 +175,7 @@ class BDSImagingDbUploader
             HCSDatasetUploader.upload(dao, info, images, channels);
         } catch (Exception ex)
         {
+            ex.printStackTrace();
             logError("Uploading to the imaging db failed: " + ex.getMessage());
             dao.rollback();
             return false;
@@ -164,6 +194,7 @@ class BDSImagingDbUploader
         File originalDir = tryGetOriginalDir(dataset);
         if (originalDir == null)
         {
+            BDSMigrationMaintananceTask.logError(dataset, "Original directory does not exist.");
             return null;
         }
         File[] files = originalDir.listFiles();
@@ -202,10 +233,10 @@ class BDSImagingDbUploader
         List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
         for (String line : lines)
         {
-            AcquiredPlateImage mapping = tryParseMapping(line);
+            List<AcquiredPlateImage> mapping = tryParseMapping(line);
             if (mapping != null)
             {
-                images.add(mapping);
+                images.addAll(mapping);
             } else
             {
                 return null;
@@ -214,7 +245,7 @@ class BDSImagingDbUploader
         return images;
     }
 
-    private AcquiredPlateImage tryParseMapping(String line)
+    private List<AcquiredPlateImage> tryParseMapping(String line)
     {
         String[] tokens = StringUtils.split(line);
         if (tokens.length != 3)
@@ -236,7 +267,7 @@ class BDSImagingDbUploader
     }
 
     // Example of standardPath: channel2/row1/column4/row2_column2.tiff
-    private AcquiredPlateImage tryParseMappingLine(String standardPath, String originalPath)
+    private List<AcquiredPlateImage> tryParseMappingLine(String standardPath, String originalPath)
             throws NumberFormatException
     {
         String[] pathTokens = standardPath.split("/");
@@ -248,6 +279,7 @@ class BDSImagingDbUploader
         int channelNum = asNum(pathTokens[0], "channel");
         int row = asNum(pathTokens[1], "row");
         int col = asNum(pathTokens[2], "column");
+        Location wellLocation = new Location(col, row);
 
         String[] tileTokens = tryParseTileToken(pathTokens[3]);
         if (tileTokens == null)
@@ -256,8 +288,9 @@ class BDSImagingDbUploader
         }
         int tileRow = asNum(tileTokens[0], "row");
         int tileCol = asNum(tileTokens[1], "column");
+        Location tileLocation = new Location(tileCol, tileRow);
 
-        RelativeImagePath relativeImagePath = tryGetRelativeImagePath(originalPath);
+        String relativeImagePath = tryGetRelativeImagePath(originalPath);
         if (relativeImagePath == null)
         {
             return null;
@@ -267,33 +300,61 @@ class BDSImagingDbUploader
         {
             return null;
         }
-        return new AcquiredPlateImage(new Location(col, row), new Location(tileCol, tileRow),
-                channelName, null, null, relativeImagePath);
+
+        return createImages(wellLocation, tileLocation, relativeImagePath, channelName);
+    }
+
+    private List<AcquiredPlateImage> createImages(Location wellLocation, Location tileLocation,
+            String relativeImagePath, String channelName)
+    {
+        List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
+        if (channelColorComponentsOrNull != null)
+        {
+            for (int i = 0; i < channelColorComponentsOrNull.size(); i++)
+            {
+                ColorComponent colorComponent = channelColorComponentsOrNull.get(i);
+                String channel = channelNames.get(i);
+                images.add(createImage(wellLocation, tileLocation, relativeImagePath, channel,
+                        colorComponent));
+            }
+        } else
+        {
+            images
+                    .add(createImage(wellLocation, tileLocation, relativeImagePath, channelName,
+                            null));
+        }
+        return images;
+    }
+
+    private static AcquiredPlateImage createImage(Location plateLocation, Location wellLocation,
+            String imageRelativePath, String channelName, ColorComponent colorComponent)
+    {
+        return new AcquiredPlateImage(plateLocation, wellLocation, channelName, null, null,
+                new RelativeImageReference(imageRelativePath, null, colorComponent));
     }
 
     // channelId - starts with 1
     private String tryGetChannelName(int channelId, String standardPath)
     {
-        if (channelNames.length < channelId)
+        if (channelNames.size() < channelId)
         {
             logError("Name of the channel with the id " + channelId
                     + " has not been configured but is referenced in the path: " + standardPath
                     + ".");
             return null;
         }
-        return channelNames[channelId - 1];
+        return channelNames.get(channelId - 1);
     }
 
-    private RelativeImagePath tryGetRelativeImagePath(String originalPath)
+    private String tryGetRelativeImagePath(String originalPath)
     {
-        if (originalPath.startsWith(originalDatasetDirName) == false)
+        String prefixPath = originalDatasetDirName + "/";
+        if (originalPath.startsWith(prefixPath) == false)
         {
-            logError("Original path " + originalPath + " should start with "
-                    + originalDatasetDirName);
+            logError("Original path " + originalPath + " should start with " + prefixPath);
             return null;
         }
-        String relativePath = originalPath.substring(originalPath.length());
-        return new RelativeImagePath(relativePath);
+        return originalPath.substring(prefixPath.length());
     }
 
     // tileFile - e.g. row2_column2.tiff

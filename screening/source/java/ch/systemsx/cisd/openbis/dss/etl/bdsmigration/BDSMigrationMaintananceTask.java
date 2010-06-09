@@ -29,8 +29,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IMaintenanceTask;
-import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor;
 
 /**
  * Maintenance task which migrates all the BDS datasets to the imaging database.
@@ -41,6 +41,8 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
 {
     static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, BDSMigrationMaintananceTask.class);
+
+    private static final int TOTAL_MIGRATION_STEPS = 3;
 
     static final String ANNOTATIONS_DIR = "annotations";
 
@@ -54,13 +56,18 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
 
     private static final String STORE_ROOT_PROPERTY = "storeRoot";
 
+    // counted from 0
+    private static final String FIRST_STEP_PROPERTY = "first-step";
+
+    private static final String LAST_STEP_PROPERTY = "last-step";
+
     static final String DIR_SEP = "/";
 
     private File storeRoot;
 
-    private String[] channelNames;
-
     private Properties properties;
+
+    private int firstStep, lastStep;
 
     public void setUp(String pluginName, Properties properties)
     {
@@ -75,20 +82,24 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
             throw new EnvironmentFailureException(storeRoot
                     + " does not exist or is not a directory.");
         }
-        this.channelNames = PlateStorageProcessor.extractChannelNames(properties);
         this.properties = properties;
+        this.firstStep = PropertyUtils.getInt(properties, FIRST_STEP_PROPERTY, 0);
+        this.lastStep =
+                PropertyUtils.getInt(properties, LAST_STEP_PROPERTY, TOTAL_MIGRATION_STEPS - 1);
+
     }
 
     public void execute()
     {
         IBDSMigrator imagingDbUploader =
-                BDSImagingDbUploader.createImagingDbUploaderMigrator(properties, channelNames);
+                BDSImagingDbUploader.createImagingDbUploaderMigrator(properties);
         IBDSMigrator[] migrators =
                 new IBDSMigrator[]
-                    { imagingDbUploader, new OriginalDataRelocatorMigrator(),
+                    { imagingDbUploader, new BDSOriginalDataRelocatorMigrator(),
                             new BDSDataRemoverMigrator() };
-        for (IBDSMigrator migrator : migrators)
+        for (int i = firstStep; i <= lastStep; i++)
         {
+            IBDSMigrator migrator = migrators[i];
             boolean ok = migrateStore(migrator);
             if (ok == false)
             {
@@ -104,7 +115,8 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
         for (File file : files)
         {
             String name = file.getName();
-            if (name.equals("error") == false && name.equals("unidentified") == false)
+            if (file.isDirectory() && name.equals("error") == false
+                    && name.equals("unidentified") == false)
             {
                 boolean ok = migrateDatabaseInstance(file, migrator);
                 if (ok == false)
@@ -127,13 +139,16 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
                 {
                     for (File dataset : l3.listFiles())
                     {
-                        boolean ok = migrateDataset(dataset, migrator);
-                        if (ok)
+                        if (isBDS(dataset))
                         {
-                            successCounter++;
-                        } else
-                        {
-                            failureCounter++;
+                            boolean ok = migrateBDSDataset(dataset, migrator);
+                            if (ok)
+                            {
+                                successCounter++;
+                            } else
+                            {
+                                failureCounter++;
+                            }
                         }
                     }
                 }
@@ -146,23 +161,27 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
     private void logMigrationStats(IBDSMigrator migrator, int successCounter, int failureCounter)
     {
         String desc = migrator.getDescription();
-        operationLog.info("Successful migration step '" + desc + "' of " + successCounter
-                + " datasets.");
-        operationLog.info("Unuccessful migration step '" + desc + "' of " + failureCounter
-                + " datasets.");
+        if (successCounter > 0)
+        {
+            operationLog.info("Successful migration step '" + desc + "' of " + successCounter
+                    + " datasets.");
+        }
+        if (failureCounter > 0)
+        {
+            operationLog.error("Unuccessful migration step '" + desc + "' of " + failureCounter
+                    + " datasets.");
+        }
+        if (successCounter + failureCounter == 0)
+        {
+            operationLog.info("There was nothing to migrate in the step '" + desc + "'.");
+        }
     }
 
-    private boolean migrateDataset(File dataset, IBDSMigrator migrator)
+    private boolean migrateBDSDataset(File dataset, IBDSMigrator migrator)
     {
-        if (isBDS(dataset))
-        {
-            boolean ok = migrator.migrate(dataset);
-            logMigrationFinished(ok, dataset, migrator.getDescription());
-            return ok;
-        } else
-        {
-            return true;
-        }
+        boolean ok = migrator.migrate(dataset);
+        logMigrationFinished(ok, dataset, migrator.getDescription());
+        return ok;
     }
 
     private static void logMigrationFinished(boolean ok, File dataset, String stepDescription)
@@ -173,7 +192,7 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
             operationLog.info(msg + "succeeded.");
         } else
         {
-            operationLog.info(msg + "failed.");
+            operationLog.error(msg + "failed.");
         }
     }
 
@@ -213,7 +232,6 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
         File orgDir = new File(dataset, DATA_DIR + DIR_SEP + ORIGINAL_DIR);
         if (orgDir.isDirectory() == false)
         {
-            logError(dataset, "Original directory does not exist: " + orgDir);
             return null;
         }
         return orgDir;

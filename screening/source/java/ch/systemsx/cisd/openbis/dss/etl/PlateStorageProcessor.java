@@ -78,16 +78,16 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PlateStorageProcessor.class);
 
+    // tiles geometry, e.g. 3x4 if the well is divided into 12 tiles (3 rows, 4 columns)
     private static final String SPOT_GEOMETRY_PROPERTY = "well_geometry";
 
     private static final String FILE_EXTRACTOR_PROPERTY = "file-extractor";
 
+    // a class of the old-style image extractor
     private static final String DEPRECATED_FILE_EXTRACTOR_PROPERTY = "deprecated-file-extractor";
 
     // comma separated list of channel names, order matters
-    private static final String CHANNEL_NAMES = "channel-names";
-
-    private static final String CHANNEL_SEPARATOR = ",";
+    public static final String CHANNEL_NAMES = "channel-names";
 
     // -----------
 
@@ -95,7 +95,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private final Geometry spotGeometry;
 
-    private final String[] channelNames;
+    private final List<String> channelNames;
 
     // one of the extractors is always null and one not null
     private final IHCSImageFileExtractor imageFileExtractor;
@@ -110,7 +110,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         String spotGeometryText = getMandatoryProperty(SPOT_GEOMETRY_PROPERTY);
         this.spotGeometry = Geometry.createFromString(spotGeometryText);
 
-        this.channelNames = extractChannelNames(properties);
+        this.channelNames = PropertyUtils.getMandatoryList(properties, CHANNEL_NAMES);
 
         String fileExtractorClass = PropertyUtils.getProperty(properties, FILE_EXTRACTOR_PROPERTY);
         if (fileExtractorClass != null)
@@ -128,17 +128,6 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         }
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         this.currentTransaction = null;
-    }
-
-    public static String[] extractChannelNames(Properties properties)
-    {
-        String names = PropertyUtils.getMandatoryProperty(properties, CHANNEL_NAMES);
-        String[] channelNames = names.split(CHANNEL_SEPARATOR);
-        for (int i = 0; i < channelNames.length; i++)
-        {
-            channelNames[i] = channelNames[i].trim().toLowerCase();
-        }
-        return channelNames;
     }
 
     private IImagingUploadDAO createQuery()
@@ -568,7 +557,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     // adapts old-style image extractor to the new one which is stateless
     private static IHCSImageFileExtractor adapt(
             final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor extractor,
-            final File imageFileRootDirectory, final String[] channelNames)
+            final File imageFileRootDirectory, final List<String> channelNames)
     {
         return new IHCSImageFileExtractor()
             {
@@ -612,15 +601,15 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
             };
     }
 
-    private static String getChannelName(final String[] channelNames, int channelId)
+    private static String getChannelName(final List<String> channelNames, int channelId)
     {
-        if (channelId > channelNames.length)
+        if (channelId > channelNames.size())
         {
             throw UserFailureException.fromTemplate(
                     "Too large channel number %d, configured channels: %s.", channelId,
                     CollectionUtils.abbreviate(channelNames, -1));
         }
-        return channelNames[channelId - 1];
+        return channelNames.get(channelId - 1);
     }
 
     private static final class HCSImageFileAccepter implements IHCSImageFileAccepter
@@ -629,9 +618,9 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
         private final File imageFileRootDirectory;
 
-        private final String[] channelNames;
+        private final List<String> channelNames;
 
-        public HCSImageFileAccepter(File imageFileRootDirectory, String[] channelNames)
+        public HCSImageFileAccepter(File imageFileRootDirectory, List<String> channelNames)
         {
             this.imageFileRootDirectory = imageFileRootDirectory;
             this.channelNames = channelNames;
@@ -647,7 +636,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
             String channelName = getChannelName(channelNames, channel);
             AcquiredPlateImage imageDesc =
                     new AcquiredPlateImage(wellLocation, tileLocation, channelName, null, null,
-                            new RelativeImagePath(imageRelativePath));
+                            new RelativeImageReference(imageRelativePath, null, null));
             images.add(imageDesc);
         }
 

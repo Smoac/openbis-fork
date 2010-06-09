@@ -35,10 +35,11 @@ public class AcquiredPlateImage extends AbstractHashable
     // can be null
     private final Float timePointOrNull, depthOrNull;
 
-    private final RelativeImagePath imageFilePath; // relative to the dataset directory
+    private final RelativeImageReference imageFilePath; // relative to the original dataset
+                                                        // directory
 
     public AcquiredPlateImage(Location wellLocation, Location tileLocation, String channelName,
-            Float timePointOrNull, Float depthOrNull, RelativeImagePath imageFilePath)
+            Float timePointOrNull, Float depthOrNull, RelativeImageReference imageFilePath)
     {
         this.wellLocation = wellLocation;
         this.tileLocation = tileLocation;
@@ -83,7 +84,7 @@ public class AcquiredPlateImage extends AbstractHashable
         return depthOrNull;
     }
 
-    public RelativeImagePath getImageFilePath()
+    public RelativeImageReference getImageReference()
     {
         return imageFilePath;
     }

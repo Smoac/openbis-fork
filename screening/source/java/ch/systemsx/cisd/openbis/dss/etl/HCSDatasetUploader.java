@@ -133,7 +133,7 @@ public class HCSDatasetUploader
         }
         // a channel with a specified name already exists for an experiment, its description
         // will be updated
-        if (existingChannel.getWavelength().equals(channelDTO.getWavelength()) == false)
+        if (equals(existingChannel.getWavelength(), channelDTO.getWavelength()) == false)
         {
             throw UserFailureException.fromTemplate(
                     "There are already datasets registered for the experiment "
@@ -144,6 +144,11 @@ public class HCSDatasetUploader
         channelDTO.setId(existingChannel.getId());
         dao.updateChannel(channelDTO);
         return channelDTO;
+    }
+
+    private static boolean equals(Integer i1OrNull, Integer i2OrNull)
+    {
+        return i1OrNull == null ? i2OrNull == null : i1OrNull.equals(i2OrNull);
     }
 
     private static UserFailureException createInvalidNewChannelException(long expId,
@@ -168,17 +173,17 @@ public class HCSDatasetUploader
     private static ImgChannelDTO makeChannelDTO(HCSImageFileExtractionResult.Channel channel,
             long expId)
     {
-        return ImgChannelDTO.createExperimentChannel(channel.getName(), channel.tryGetDescription(),
-                channel.tryGetWavelength(), expId);
+        return ImgChannelDTO.createExperimentChannel(channel.getName().toUpperCase(), channel
+                .tryGetDescription(), channel.tryGetWavelength(), expId);
     }
 
     private static class AcquiredImageInStack
     {
         private final String channelName;
 
-        private final RelativeImagePath imageFilePath;
+        private final RelativeImageReference imageFilePath;
 
-        public AcquiredImageInStack(String channelName, RelativeImagePath imageFilePath)
+        public AcquiredImageInStack(String channelName, RelativeImageReference imageFilePath)
         {
             this.channelName = channelName;
             this.imageFilePath = imageFilePath;
@@ -189,7 +194,7 @@ public class HCSDatasetUploader
             return channelName;
         }
 
-        public RelativeImagePath getImageFilePath()
+        public RelativeImageReference getImageFilePath()
         {
             return imageFilePath;
         }
@@ -225,7 +230,7 @@ public class HCSDatasetUploader
 
     private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredPlateImage image)
     {
-        return new AcquiredImageInStack(image.getChannelName(), image.getImageFilePath());
+        return new AcquiredImageInStack(image.getChannelName(), image.getImageReference());
     }
 
     private static ImgChannelStackDTO makeStackDTO(AcquiredPlateImage image, Long[][] spotIds,
@@ -261,13 +266,15 @@ public class HCSDatasetUploader
         for (AcquiredImageInStack image : images)
         {
             long channelTechId = channelsMap.get(image.getChannelName());
-            createImage(stackId, channelTechId, image);
+            createImage(stackId, channelTechId, image.getImageFilePath());
         }
     }
 
-    private void createImage(long stackId, long channelTechId, AcquiredImageInStack image)
+    private void createImage(long stackId, long channelTechId, RelativeImageReference imageReference)
     {
-        long imageId = dao.addImage(new ImgImageDTO(image.getImageFilePath().getImagePath()));
+        long imageId =
+                dao.addImage(new ImgImageDTO(imageReference.getRelativeImagePath(), imageReference
+                        .tryGetPage(), imageReference.tryGetColorComponent()));
         ImgAcquiredImageDTO acquiredImage =
                 new ImgAcquiredImageDTO(imageId, stackId, channelTechId);
         dao.addAcquiredImage(acquiredImage);

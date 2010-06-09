@@ -192,7 +192,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                         imageAccessor.tryGetImage(1, new Location(col, row), new Location(1, 1));
                 if (image != null)
                 {
-                    return new File(image.getImageAbsolutePath());
+                    return image.getAbsoluteImageFile();
                 }
             }
         }
@@ -236,8 +236,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 IHCSDatasetLoader imageAccessor =
                         imageLoadersMap.get(imageReference.getDatasetCode());
                 assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
-                File imageFile = tryGetImageFile(imageAccessor, imageReference);
-                imageFiles.add(imageFile);
+                AbsoluteImageReference image = tryGetImage(imageAccessor, imageReference);
+                if (image.tryGetColorComponent() != null || image.tryGetPage() != null)
+                {
+                    // TODO 2010-06-01, Tomasz Pylak: support paging/merged channels images in API
+                    imageFiles.add(null);
+                } else
+                {
+                    imageFiles.add(image.getAbsoluteImageFile());
+                }
             }
         } finally
         {
@@ -280,15 +287,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return imageDatasetsMap;
     }
 
-    private File tryGetImageFile(IHCSDatasetLoader imageAccessor, PlateImageReference imageRef)
+    private AbsoluteImageReference tryGetImage(IHCSDatasetLoader imageAccessor,
+            PlateImageReference imageRef)
     {
         Location wellLocation = asLocation(imageRef.getWellPosition());
         Location tileLocation =
                 getTileLocation(imageRef.getTile(), imageAccessor.getWellGeometry());
         try
         {
-            return ImageChannelsUtils.getImagePath(imageAccessor, wellLocation, tileLocation,
-                    imageRef.getChannel() + 1);
+            return ImageChannelsUtils.getImage(imageAccessor, wellLocation, tileLocation, imageRef
+                    .getChannel() + 1);
         } catch (EnvironmentFailureException e)
         {
             return null; // no image found

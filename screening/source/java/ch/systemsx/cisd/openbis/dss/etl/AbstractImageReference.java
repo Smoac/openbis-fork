@@ -16,28 +16,34 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import java.io.File;
-
+import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
 
 /**
- * Reference to the image with an absolute path.
+ * Superclass for image reference.
  * 
  * @author Tomasz Pylak
  */
-public class AbsoluteImageReference extends AbstractImageReference
+public class AbstractImageReference extends AbstractHashable
 {
-    private final File imageAbsolutePath;
+    private final Integer pageOrNull;
 
-    public AbsoluteImageReference(String imageAbsolutePath, Integer pageOrNull,
-            ColorComponent colorComponentOrNull)
+    private final ColorComponent colorComponentOrNull;
+
+    public AbstractImageReference(Integer pageOrNull, ColorComponent colorComponentOrNull)
     {
-        super(pageOrNull, colorComponentOrNull);
-        this.imageAbsolutePath = new File(imageAbsolutePath);
+        this.pageOrNull = pageOrNull;
+        this.colorComponentOrNull = colorComponentOrNull;
     }
 
-    public File getAbsoluteImageFile()
+    public Integer tryGetPage()
     {
-        return imageAbsolutePath;
+        return pageOrNull;
     }
+
+    public ColorComponent tryGetColorComponent()
+    {
+        return colorComponentOrNull;
+    }
+
 }

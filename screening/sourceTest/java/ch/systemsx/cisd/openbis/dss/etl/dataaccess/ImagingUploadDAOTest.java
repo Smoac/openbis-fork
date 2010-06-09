@@ -27,7 +27,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgImageDTO.ColorComponent;
 
 /**
  * Tests for {@link IImagingUploadDAO}.

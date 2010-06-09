@@ -39,10 +39,10 @@ public final class HCSImageCheckList
 
     private final Map<FullLocation, Check> imageMap;
 
-    public HCSImageCheckList(final String[] channelNames, final PlateDimension plateGeometry,
+    public HCSImageCheckList(final List<String> channelNames, final PlateDimension plateGeometry,
             final Geometry wellGeometry)
     {
-        if (channelNames.length < 1)
+        if (channelNames.size() < 1)
         {
             throw new IllegalArgumentException("Number of channels smaller than one.");
         }
@@ -72,7 +72,7 @@ public final class HCSImageCheckList
                 }
             }
         }
-        assert imageMap.size() == channelNames.length * plateGeometry.getColsNum()
+        assert imageMap.size() == channelNames.size() * plateGeometry.getColsNum()
                 * plateGeometry.getRowsNum() * wellGeometry.getColumns() * wellGeometry.getRows() : "Wrong map size";
     }
 

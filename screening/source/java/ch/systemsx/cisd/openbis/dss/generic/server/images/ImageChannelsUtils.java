@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
@@ -40,69 +41,127 @@ public class ImageChannelsUtils
 {
 
     /**
-     * Creates an images of the specified tile and with requested channels merged.<br>
-     * Assumes that originally all channels are merged on one image.
-     */
-    public static BufferedImage mergeImageChannels(TileImageReference params, File imageFile)
-    {
-        BufferedImage image = ImageUtil.loadImage(imageFile);
-        if (params.isMergeAllChannels() == false)
-        {
-            image = transformToChannel(image, params.getChannel());
-        }
-        image = asThumbnailIfRequested(params, image);
-        return image;
-    }
-
-    /**
      * @return file with the image for the chosen channel or images for all channels if they should
      *         be merged.
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
-    public static List<File> getImagePaths(File datasetRoot, String datasetCode,
+    public static List<AbsoluteImageReference> getImagePaths(File datasetRoot, String datasetCode,
             TileImageReference params)
     {
         IHCSDatasetLoader imageAccessor = HCSDatasetLoaderFactory.create(datasetRoot, datasetCode);
         Location wellLocation = params.getWellLocation();
         Location tileLocation = params.getTileLocation();
-        List<File> paths = new ArrayList<File>();
+        List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
 
         if (params.isMergeAllChannels())
         {
             for (int chosenChannel = 1; chosenChannel <= params.getChannel(); chosenChannel++)
             {
-                File path = getImagePath(imageAccessor, wellLocation, tileLocation, chosenChannel);
-                paths.add(path);
+                AbsoluteImageReference image =
+                        getImage(imageAccessor, wellLocation, tileLocation, chosenChannel);
+                images.add(image);
             }
         } else
         {
-            File path =
-                    getImagePath(imageAccessor, wellLocation, tileLocation, params.getChannel());
-            paths.add(path);
+            AbsoluteImageReference image =
+                    getImage(imageAccessor, wellLocation, tileLocation, params.getChannel());
+            images.add(image);
         }
         imageAccessor.close();
 
-        return paths;
+        return images;
     }
 
     /**
      * Creates an images of the specified tile and with requested channels merged.<br>
-     * Assumes that different channels are on separate images.
      */
-    public static BufferedImage mergeImageChannels(TileImageReference params, List<File> imageFiles)
+    public static BufferedImage mergeImageChannels(TileImageReference params,
+            List<AbsoluteImageReference> imageReferences)
     {
-        List<BufferedImage> images = loadImages(imageFiles);
-
         BufferedImage resultImage;
-        if (images.size() == 1)
+        if (params.isMergeAllChannels())
         {
-            resultImage = transformToChannel(images.get(0), params.getChannel());
+            resultImage = mergeAllChannels(imageReferences);
         } else
         {
-            resultImage = mergeChannels(images);
+            assert imageReferences.size() == 1 : "single channel image can be generated only form one file, "
+                    + "but more have been specified: " + imageReferences;
+            AbsoluteImageReference imageReference = imageReferences.get(0);
+
+            resultImage = selectSingleChannel(params, imageReference);
         }
         resultImage = asThumbnailIfRequested(params, resultImage);
         return resultImage;
+    }
+
+    private static BufferedImage selectSingleChannel(TileImageReference params,
+            AbsoluteImageReference imageReference)
+    {
+        BufferedImage image = ImageUtil.loadImage(imageReference.getAbsoluteImageFile());
+        ColorComponent colorComponent = imageReference.tryGetColorComponent();
+        if (colorComponent == null)
+        {
+            // We have to select a single channel from the (most possibly) grayscale image.
+            // This image contains only one channel, but can have R, G, and B components set.
+            // We select just one to make the image colorful.
+            colorComponent = channelToColorComponent(params.getChannel());
+        }
+        return transformToChannel(image, colorComponent);
+    }
+
+    private static BufferedImage mergeAllChannels(List<AbsoluteImageReference> imageReferences)
+    {
+        File mergedChannelsImage = tryAsOneImageWithAllChannels(imageReferences);
+        if (mergedChannelsImage != null)
+        {
+            // all channels are on an image in one file, no pixel-level operations needed
+            return ImageUtil.loadImage(mergedChannelsImage);
+        } else
+        {
+            List<File> plainImages = tryAsPlainImages(imageReferences);
+            if (plainImages == null)
+            {
+                throw EnvironmentFailureException.fromTemplate(
+                        "Merging channels in a list of different files is not supported:  %s",
+                        imageReferences);
+            }
+            List<BufferedImage> images = loadImages(plainImages);
+            return mergeChannels(images);
+        }
+    }
+
+    private static List<File> tryAsPlainImages(List<AbsoluteImageReference> images)
+    {
+        List<File> plainFiles = new ArrayList<File>();
+        for (AbsoluteImageReference image : images)
+        {
+            if (image.tryGetColorComponent() != null || image.tryGetPage() != null)
+            {
+                return null;
+            }
+            plainFiles.add(image.getAbsoluteImageFile());
+        }
+        return plainFiles;
+    }
+
+    private static File tryAsOneImageWithAllChannels(List<AbsoluteImageReference> imageReferences)
+    {
+        File mergedChannelsImage = null;
+        for (AbsoluteImageReference image : imageReferences)
+        {
+            File imageFile = image.getAbsoluteImageFile();
+            if (mergedChannelsImage == null)
+            {
+                mergedChannelsImage = imageFile;
+            } else
+            {
+                if (imageFile.equals(mergedChannelsImage) == false)
+                {
+                    return null;
+                }
+            }
+        }
+        return mergedChannelsImage;
     }
 
     private static BufferedImage mergeChannels(List<BufferedImage> images)
@@ -123,8 +182,7 @@ public class ImageChannelsUtils
     }
 
     // NOTE: we handle only 3 channels until we know that more channels can be used and
-    // what
-    // kind of color manipulation makes sense
+    // what kind of color manipulation makes sense
     private static int mergeRGBColor(List<BufferedImage> images, int x, int y)
     {
         int color[] = new int[]
@@ -155,16 +213,14 @@ public class ImageChannelsUtils
      * @param chosenChannel starts from 1
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
-    public static File getImagePath(IHCSDatasetLoader imageAccessor, Location wellLocation,
-            Location tileLocation, int chosenChannel)
+    public static AbsoluteImageReference getImage(IHCSDatasetLoader imageAccessor,
+            Location wellLocation, Location tileLocation, int chosenChannel)
     {
         AbsoluteImageReference image =
                 imageAccessor.tryGetImage(chosenChannel, wellLocation, tileLocation);
         if (image != null)
         {
-            // TODO 2010-05-31, Tomasz Pylak: add support for tiff paged images and channels
-            // splitting
-            return new File(image.getImageAbsolutePath());
+            return image;
         } else
         {
             throw EnvironmentFailureException.fromTemplate(
@@ -188,7 +244,8 @@ public class ImageChannelsUtils
         }
     }
 
-    private static BufferedImage transformToChannel(BufferedImage bufferedImage, int channelNumber)
+    private static BufferedImage transformToChannel(BufferedImage bufferedImage,
+            ColorComponent colorComponent)
     {
         BufferedImage newImage = createNewImage(bufferedImage);
         int width = bufferedImage.getWidth();
@@ -198,7 +255,7 @@ public class ImageChannelsUtils
             for (int y = 0; y < height; y++)
             {
                 int rgb = bufferedImage.getRGB(x, y);
-                int channelColor = getGrayscaleAsChannel(rgb, channelNumber);
+                int channelColor = getGrayscaleAsChannel(rgb, colorComponent);
                 newImage.setRGB(x, y, channelColor);
             }
         }
@@ -219,22 +276,26 @@ public class ImageChannelsUtils
         return 3 - channel;
     }
 
-    private static int getGrayscaleAsChannel(int rgb, int channelNumber)
+    // we assume that the color was in a grayscale
+    // we reset all ingredients besides the one which should be shown
+    private static int getGrayscaleAsChannel(int rgb, ColorComponent colorComponent)
     {
-        // NOTE: we handle only 3 channels until we know that more channels can be used and what
-        // kind of color manipulation makes sense
-        if (channelNumber <= 3)
+        return colorComponent.extractSingleComponent(rgb).getRGB();
+    }
+
+    private static ColorComponent channelToColorComponent(int channel)
+    {
+        int ix = (channel - 1) % 3;
+        switch (ix)
         {
-            // we assume that the color was in a grayscale
-            // we reset all ingredients besides the one which should be shown
-            int newColor[] = new int[]
-                { 0, 0, 0 };
-            newColor[getRGBColorIndex(channelNumber)] =
-                    extractChannelColorIngredient(rgb, channelNumber);
-            return asRGB(newColor);
-        } else
-        {
-            return rgb;
+            case 0:
+                return ColorComponent.BLUE;
+            case 1:
+                return ColorComponent.GREEN;
+            case 2:
+                return ColorComponent.RED;
+            default:
+                throw new IllegalStateException();
         }
     }
 

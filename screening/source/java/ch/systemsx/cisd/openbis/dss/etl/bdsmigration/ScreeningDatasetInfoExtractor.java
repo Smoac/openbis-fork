@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.bdsmigration;
 
+import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationMaintananceTask.DIR_SEP;
+import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationMaintananceTask.METADATA_DIR;
+
 import java.io.File;
 
 import ch.systemsx.cisd.common.filesystem.FileOperations;
@@ -105,17 +108,15 @@ class ScreeningDatasetInfoExtractor
     private static int extractGeometryDim(File dataset, String geometryName, String fieldName)
     {
         File parentDir =
-                new File(BDSMigrationMaintananceTask.METADATA_DIR, "parameters"
-                        + BDSMigrationMaintananceTask.DIR_SEP + geometryName);
+                new File(dataset, METADATA_DIR + DIR_SEP + "parameters" + DIR_SEP + geometryName);
         return contentAsNumber(new File(parentDir, fieldName));
     }
 
     private static String extractDatasetPermId(File dataset)
     {
         File file =
-                new File(dataset, BDSMigrationMaintananceTask.METADATA_DIR
-                        + BDSMigrationMaintananceTask.DIR_SEP + "data_set"
-                        + BDSMigrationMaintananceTask.DIR_SEP + "code");
+                new File(dataset, BDSMigrationMaintananceTask.METADATA_DIR + DIR_SEP + "data_set"
+                        + DIR_SEP + "code");
         return contentAsString(file);
     }
 
@@ -126,6 +127,6 @@ class ScreeningDatasetInfoExtractor
 
     private static String contentAsString(File file)
     {
-        return FileOperations.getInstance().getContentAsString(file);
+        return FileOperations.getInstance().getContentAsString(file).trim();
     }
 }

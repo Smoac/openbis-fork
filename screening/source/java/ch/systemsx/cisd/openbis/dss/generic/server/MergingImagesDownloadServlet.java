@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.TileImageReference;
 
@@ -44,9 +45,10 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet
     protected final ResponseContentStream createImageResponse(TileImageReference params,
             File datasetRoot, String datasetCode) throws IOException, EnvironmentFailureException
     {
-        List<File> imageFiles = ImageChannelsUtils.getImagePaths(datasetRoot, datasetCode, params);
-        BufferedImage image = ImageChannelsUtils.mergeImageChannels(params, imageFiles);
-        File singleFileOrNull = imageFiles.size() == 1 ? imageFiles.get(0) : null;
+        List<AbsoluteImageReference> images =
+                ImageChannelsUtils.getImagePaths(datasetRoot, datasetCode, params);
+        BufferedImage image = ImageChannelsUtils.mergeImageChannels(params, images);
+        File singleFileOrNull = images.size() == 1 ? images.get(0).getAbsoluteImageFile() : null;
         return createResponseContentStream(image, singleFileOrNull);
     }
 

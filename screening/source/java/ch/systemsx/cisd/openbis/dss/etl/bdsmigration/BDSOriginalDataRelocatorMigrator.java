@@ -23,7 +23,7 @@ import java.io.File;
  * 
  * @author Tomasz Pylak
  */
-class OriginalDataRelocatorMigrator implements IBDSMigrator
+class BDSOriginalDataRelocatorMigrator implements IBDSMigrator
 {
     public String getDescription()
     {

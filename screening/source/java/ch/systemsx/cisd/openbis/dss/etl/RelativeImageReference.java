@@ -16,22 +16,26 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
+
 /**
- * Image path relative to the incoming dataset directory.
+ * Reference to the image with a path relative to the folder with all the images.
  * 
  * @author Tomasz Pylak
  */
-public final class RelativeImagePath
+public class RelativeImageReference extends AbstractImageReference
 {
-    private final String imagePath;
+    private final String imageRelativePath;
 
-    public RelativeImagePath(String imagePath)
+    public RelativeImageReference(String relativePath, Integer pageOrNull,
+            ColorComponent colorComponentOrNull)
     {
-        this.imagePath = imagePath;
+        super(pageOrNull, colorComponentOrNull);
+        this.imageRelativePath = relativePath;
     }
 
-    public String getImagePath()
+    public String getRelativeImagePath()
     {
-        return imagePath;
+        return imageRelativePath;
     }
 }

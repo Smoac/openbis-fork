@@ -16,56 +16,57 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.lmc;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.bds.storage.IDirectory;
-import ch.systemsx.cisd.bds.storage.IFile;
-import ch.systemsx.cisd.etlserver.HCSImageFileExtractionResult;
-import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
-import ch.systemsx.cisd.etlserver.IHCSImageFileExtractor;
-import ch.systemsx.cisd.etlserver.plugins.AbstractHCSImageFileExtractor;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor;
+import ch.systemsx.cisd.openbis.dss.etl.AcquiredPlateImage;
+import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
 
 /**
  * A <code>IHCSImageFileExtractor</code> implementation suitable for <i>LMC</i>.
  * 
  * @author Tomasz Pylak
  */
-public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor implements
-        IHCSImageFileExtractor
+public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 {
     private static final String[] IMAGE_EXTENSIONS = new String[]
-        { "tif", "jpg" };
+        { "tif", "tiff", "jpg", "jpeg", "gif", "png" };
 
-    private static final String[] CHANNEL_NAMES = new String[]
-        { "dapi1", "gfp1" };
+    private final List<String> channelNames;
+
+    private final List<ColorComponent> channelColorComponentsOrNull;
+
+    private final Geometry wellGeometry;
 
     public HCSImageFileExtractor(final Properties properties)
     {
         super(properties);
+        this.channelNames = extractChannelNames(properties);
+        this.channelColorComponentsOrNull = tryGetChannelComponents(properties);
+        checkChannelsAndColorComponents();
+        this.wellGeometry = getWellGeometry(properties);
     }
 
-    @Private
-    HCSImageFileExtractor(Geometry wellGeometry)
+    private void checkChannelsAndColorComponents()
     {
-        super(wellGeometry);
-    }
-
-    @Override
-    protected final int getChannelWavelength(final String channel)
-    {
-        for (int channelIndex = 1; channelIndex <= CHANNEL_NAMES.length; channelIndex++)
+        if (channelColorComponentsOrNull != null
+                && channelColorComponentsOrNull.size() != channelNames.size())
         {
-            if (channel.equalsIgnoreCase(CHANNEL_NAMES[channelIndex - 1]))
-            {
-                return channelIndex;
-            }
+            throw ConfigurationFailureException.fromTemplate(
+                    "There should be exactly one color component for each channel name."
+                            + " Correct the list of values for '%s' property.",
+                    AbstractHCSImageFileExtractor.EXTRACT_SINGLE_IMAGE_CHANNELS_PROPERTY);
         }
-        return 0; // unknown channel name
     }
 
     /**
@@ -95,21 +96,51 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
         return null;
     }
 
-    //
-    // IHCSImageFileExtractor
-    //
-
-    public final HCSImageFileExtractionResult process(final IDirectory incomingDataSetDirectory,
-            final DataSetInformation dataSetInformation, final IHCSImageFileAccepter accepter)
+    @Override
+    protected final List<File> listImageFiles(final File directory)
     {
-        assert incomingDataSetDirectory != null;
-        final List<IFile> imageFiles = listImageFiles(incomingDataSetDirectory);
-        return process(imageFiles, dataSetInformation, accepter);
+        return FileOperations.getInstance().listFiles(directory, IMAGE_EXTENSIONS, true);
     }
 
-    private List<IFile> listImageFiles(final IDirectory directory)
+    @Override
+    protected final List<AcquiredPlateImage> getImages(String channelStr, Location plateLocation,
+            Location wellLocation, String imageRelativePath)
     {
-        return directory.listFiles(IMAGE_EXTENSIONS, false);
+        List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
+        checkChannelsAndColorComponents();
+
+        if (channelColorComponentsOrNull != null)
+        {
+            for (int i = 0; i < channelColorComponentsOrNull.size(); i++)
+            {
+                ColorComponent colorComponent = channelColorComponentsOrNull.get(i);
+                String channelName = channelNames.get(i);
+                images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelName,
+                        colorComponent));
+            }
+        } else
+        {
+            ensureChannelExist(channelStr);
+            images
+                    .add(createImage(plateLocation, wellLocation, imageRelativePath, channelStr,
+                            null));
+        }
+        return images;
     }
 
+    private void ensureChannelExist(String channelName)
+    {
+        if (channelNames.indexOf(channelName.toUpperCase()) == -1)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Channel '%s' is not one of: %s. Change the configuration.", channelName,
+                    channelNames);
+        }
+    }
+
+    @Override
+    protected Set<Channel> getAllChannels()
+    {
+        return createChannels(channelNames);
+    }
 }
