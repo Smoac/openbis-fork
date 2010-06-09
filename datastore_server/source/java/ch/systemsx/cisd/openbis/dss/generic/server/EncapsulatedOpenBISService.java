@@ -708,8 +708,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
                 containerPermId, codes, sampleTypeCode));
     }
 
-    public SessionContextDTO tryGetSession()
+    public SessionContextDTO tryGetSession(String sToken)
     {
-        return service.tryGetSession(sessionToken);
+        return service.tryGetSession(sToken);
     }
 }

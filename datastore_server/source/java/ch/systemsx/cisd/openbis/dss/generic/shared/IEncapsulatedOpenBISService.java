@@ -232,6 +232,7 @@ public interface IEncapsulatedOpenBISService
     public Map<String, String> listOrRegisterComponents(final String containerPermId,
             Set<String> codes, String sampleTypeCode) throws UserFailureException;
 
-    /** See {@link IETLLIMSService#tryGetSession(String)} */
-    public SessionContextDTO tryGetSession();
+    /** See {@link IETLLIMSService#tryGetSession(String)} 
+     * @param sessionToken */
+    public SessionContextDTO tryGetSession(String sessionToken);
 }

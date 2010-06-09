@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
-import ch.systemsx.cisd.etlserver.IDataSetHandlerExtended;
+import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -69,7 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class PutDataSetExecutor implements IDataSetHandlerExtended
+class PutDataSetExecutor implements IDataSetHandlerRpc
 {
     // General State
     private final PutDataSetService service;
@@ -178,6 +179,11 @@ class PutDataSetExecutor implements IDataSetHandlerExtended
         override = oldOverride;
 
         return Collections.singletonList(helper.getDataSetInformation());
+    }
+
+    public SessionContextDTO getSessionContext()
+    {
+        return getOpenBisService().tryGetSession(sessionToken);
     }
 
     private void createDefaultOverride()
@@ -536,12 +542,17 @@ class PutDataSetExecutor implements IDataSetHandlerExtended
                 dataSetInfo.setDataSetProperties(override.getDataSetProperties());
             }
 
-            dataSetInfo.setUploadingUserEmail(service.getOpenBisService().tryGetSession()
-                    .getUserEmail());
+            dataSetInfo.setUploadingUserEmail(service.getOpenBisService().tryGetSession(
+                    sessionToken).getUserEmail());
 
             // TODO: When registering, set the registrator to the session owner; only an admin on
             // the space or an ETL server can override.
             return dataSetInfo;
         }
+    }
+
+    public File getStoreFileForPath(String path)
+    {
+        return new File(service.getStoreRootDirectory(), path);
     }
 }

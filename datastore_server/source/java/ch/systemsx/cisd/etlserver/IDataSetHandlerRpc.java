@@ -20,11 +20,14 @@ import java.io.File;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
+ * The interface for data set handlers that are used in RPC situtations.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IDataSetHandlerExtended extends IDataSetHandler
+public interface IDataSetHandlerRpc extends IDataSetHandler
 {
     /**
      * Handles the data set using the template to get default information for the data sets to be
@@ -36,4 +39,14 @@ public interface IDataSetHandlerExtended extends IDataSetHandler
      */
     public List<DataSetInformation> handleDataSet(final File dataSet,
             final DataSetInformation template);
+
+    /**
+     * Returns the session context for the current user.
+     */
+    public SessionContextDTO getSessionContext();
+
+    /**
+     * Get the file for a path from the data store.
+     */
+    public File getStoreFileForPath(String path);
 }
