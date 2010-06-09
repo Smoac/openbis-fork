@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -44,7 +45,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 public final class PropertyUtils
 {
 
-    static final String EMPTY_STRING_FORMAT = "Property '%s' is an empty string.";
+    static final String EMPTY_STRING_FORMAT = "Property '%s' is not specified.";
 
     static final String NON_BOOLEAN_VALUE_FORMAT =
             "Invalid boolean '%s'. Default value '%s' will be used.";
@@ -66,6 +67,8 @@ public final class PropertyUtils
 
     static final String NOT_FOUND_PROPERTY_FORMAT = "Given key '%s' not found in properties '%s'";
 
+    private static final String LIST_SEPARATOR = ",";
+
     private PropertyUtils()
     {
         // This class can not be instantiated.
@@ -76,7 +79,7 @@ public final class PropertyUtils
         assert properties != null : "Given properties can not be null.";
         assert propertyKey != null : "Given property key can not be null.";
     }
-    
+
     /**
      * Searches for the property with the specified key in this property list.
      * 
@@ -114,15 +117,58 @@ public final class PropertyUtils
         String property = getProperty(properties, propertyKey);
         if (property == null)
         {
-            throw ConfigurationFailureException.fromTemplate(NOT_FOUND_PROPERTY_FORMAT,
-                    propertyKey, CollectionUtils.abbreviate(Collections.list(properties
-                            .propertyNames()), 10));
+            throw createPropertyNotFoundException(properties, propertyKey);
         }
         if (property.length() == 0)
         {
             throw ConfigurationFailureException.fromTemplate(EMPTY_STRING_FORMAT, propertyKey);
         }
         return property;
+    }
+
+    private static ConfigurationFailureException createPropertyNotFoundException(
+            final Properties properties, final String propertyKey)
+    {
+        return ConfigurationFailureException.fromTemplate(NOT_FOUND_PROPERTY_FORMAT, propertyKey,
+                CollectionUtils.abbreviate(Collections.list(properties.propertyNames()), 10));
+    }
+
+    /**
+     * @returns a list of comma separated values at the specified property key. Each item is trimmed
+     *          and in lower cases.
+     * @throws ConfigurationFailureException when a property is not specified or is empty
+     */
+    public final static List<String> getMandatoryList(Properties properties, String propertyKey)
+    {
+        List<String> list = tryGetList(properties, propertyKey);
+        if (list == null)
+        {
+            throw createPropertyNotFoundException(properties, propertyKey);
+        }
+        if (list.size() == 0)
+        {
+            throw ConfigurationFailureException.fromTemplate(EMPTY_STRING_FORMAT, propertyKey);
+        }
+        return list;
+    }
+
+    /**
+     * @returns a list of comma separated values at the specifie property key. Each item is trimmed
+     *          and in upper cases.
+     */
+    public final static List<String> tryGetList(Properties properties, String propertyKey)
+    {
+        String itemsList = PropertyUtils.getProperty(properties, propertyKey);
+        if (itemsList == null)
+        {
+            return null;
+        }
+        String[] items = itemsList.split(LIST_SEPARATOR);
+        for (int i = 0; i < items.length; i++)
+        {
+            items[i] = items[i].trim().toUpperCase();
+        }
+        return Arrays.asList(items);
     }
 
     /**
@@ -478,7 +524,7 @@ public final class PropertyUtils
      * There is no character escaping as in {@link Properties#load(InputStream)} because this can
      * lead to problems if this syntax isn't known by the creator of a properties file.
      */
-    public static Properties loadProperties(File propertiesFile) 
+    public static Properties loadProperties(File propertiesFile)
     {
         Properties properties = new Properties();
         List<String> lines = FileUtilities.loadToStringList(propertiesFile);
