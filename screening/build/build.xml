@@ -32,6 +32,18 @@
       <fileset dir="source">
         <include name="**/*.sql" />
       </fileset>
+    	<zipfileset src="${lib}/jhdf5/cisd-jhdf5-core.jar">
+    		<exclude name="META_INF/*"/>
+    	</zipfileset>
+    	<fileset dir="${lib}/hdf5">
+    		<include name="native/**/*"/>
+    	</fileset>
+    	<fileset dir="${lib}/nativedata">
+    		<include name="native/**/*"/>
+    	</fileset>
+    	<fileset dir="${lib}/unix">
+    		<include name="native/**/*"/>
+    	</fileset>
     </jar>
      <antcall target="datastore_server.create-distribution" />
   </target>
