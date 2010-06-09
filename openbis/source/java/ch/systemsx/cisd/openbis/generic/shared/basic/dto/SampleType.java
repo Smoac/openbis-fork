@@ -35,8 +35,6 @@ public final class SampleType extends EntityType implements IsSerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public static final String DEFINED_IN_FILE = "(multiple)";
-
     private Long id;
 
     private int generatedFromHierarchyDepth;
@@ -53,16 +51,6 @@ public final class SampleType extends EntityType implements IsSerializable
 
     private List<SampleTypePropertyType> sampleTypePropertyTypes =
             new ArrayList<SampleTypePropertyType>(0);
-
-    public final boolean isDefinedInFileSampleTypeCode()
-    {
-        return isDefinedInFileSampleTypeCode(getCode());
-    }
-
-    public static final boolean isDefinedInFileSampleTypeCode(String entityTypeCode)
-    {
-        return DEFINED_IN_FILE.equals(entityTypeCode);
-    }
 
     public final int getGeneratedFromHierarchyDepth()
     {

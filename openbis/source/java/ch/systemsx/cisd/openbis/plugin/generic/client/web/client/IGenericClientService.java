@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
@@ -145,4 +146,13 @@ public interface IGenericClientService extends IClientService
      * Updates data set.
      */
     public DataSetUpdateResult updateDataSet(DataSetUpdates updates) throws UserFailureException;
+
+    /**
+     * Updates data sets from files which have been previously uploaded.
+     * <p>
+     * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
+     * </p>
+     */
+    public List<BatchRegistrationResult> updateDataSets(final DataSetType dataSetType,
+            final String sessionKey) throws UserFailureException;
 }

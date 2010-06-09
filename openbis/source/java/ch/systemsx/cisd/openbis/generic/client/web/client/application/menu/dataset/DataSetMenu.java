@@ -45,6 +45,8 @@ public class DataSetMenu extends TopMenuItem
                 componentProvider.getDataSetSearch()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_TYPES, messageProvider,
                 componentProvider.getDataSetTypeBrowser()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_MASS_UPDATE,
+                messageProvider, componentProvider.getDataSetBatchUpdate()));
         boolean cifexConfigured =
                 StringUtils
                         .isBlank(viewContext.getModel().getApplicationInfo().getCifexRecipient()) == false
@@ -52,8 +54,8 @@ public class DataSetMenu extends TopMenuItem
                                 .getCIFEXURL()) == false;
         if (cifexConfigured)
         {
-            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD, messageProvider,
-                    componentProvider.getDataSetUploadTab()));
+            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD,
+                    messageProvider, componentProvider.getDataSetUploadTab()));
         }
         setMenu(submenu);
     }

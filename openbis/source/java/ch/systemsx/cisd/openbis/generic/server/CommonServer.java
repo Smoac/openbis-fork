@@ -127,6 +127,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
@@ -1433,7 +1434,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             boolean autoGenerate, boolean withExperiments, BatchOperationKind operationKind)
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
-        if (entityKind.equals(EntityKind.SAMPLE) && SampleType.isDefinedInFileSampleTypeCode(type))
+        if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET))
+                && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());
@@ -1482,6 +1484,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
                     columns.add(NewSample.EXPERIMENT);
                 for (SampleTypePropertyTypePE etpt : ((SampleTypePE) entityType)
                         .getSampleTypePropertyTypes())
+                {
+                    columns.add(etpt.getPropertyType().getCode());
+                }
+                break;
+            case DATA_SET:
+                columns.add(NewMaterial.CODE);// FIXME 2010-06-09, IA: use batch update dto
+                for (DataSetTypePropertyTypePE etpt : ((DataSetTypePE) entityType)
+                        .getDataSetTypePropertyTypes())
                 {
                     columns.add(etpt.getPropertyType().getCode());
                 }

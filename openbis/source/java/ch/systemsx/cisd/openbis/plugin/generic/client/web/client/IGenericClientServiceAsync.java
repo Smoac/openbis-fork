@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
@@ -140,5 +141,11 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      */
     public void updateDataSet(DataSetUpdates updates,
             final AsyncCallback<DataSetUpdateResult> asyncCallback) throws UserFailureException;
+
+    /**
+     * @see IGenericClientService#updateDataSets(DataSetType,String)
+     */
+    public void updateDataSets(DataSetType dataSetType, String sessionKey,
+            AsyncCallback<List<BatchRegistrationResult>> updateDataSetsCallback);
 
 }

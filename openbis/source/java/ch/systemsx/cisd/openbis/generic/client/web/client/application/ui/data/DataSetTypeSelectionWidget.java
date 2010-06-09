@@ -46,12 +46,15 @@ public final class DataSetTypeSelectionWidget extends DropDownList<DataSetTypeMo
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    private final boolean withTypesInFile;
+
     public DataSetTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String idSuffix)
+            final String idSuffix, boolean withTypesInFile)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.DATA_SET_TYPE, ModelDataPropertyNames.CODE,
                 "data set type", "data set types");
         this.viewContext = viewContext;
+        this.withTypesInFile = withTypesInFile;
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
                 ModelDataPropertyNames.TOOLTIP));
     }
@@ -69,7 +72,7 @@ public final class DataSetTypeSelectionWidget extends DropDownList<DataSetTypeMo
     @Override
     protected List<DataSetTypeModel> convertItems(List<DataSetType> result)
     {
-        return DataSetTypeModel.convert(result);
+        return DataSetTypeModel.convert(result, withTypesInFile);
     }
 
     @Override

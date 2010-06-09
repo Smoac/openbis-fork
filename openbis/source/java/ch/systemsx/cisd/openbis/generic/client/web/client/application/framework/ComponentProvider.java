@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Authori
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetBatchUpdatePanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetUploadForm;
@@ -368,6 +369,33 @@ public final class ComponentProvider
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.SAMPLE,
+                            HelpPageAction.BATCH_UPDATE);
+                }
+            };
+    }
+
+    public final AbstractTabItemFactory getDataSetBatchUpdate()
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    DatabaseModificationAwareComponent component =
+                            DataSetBatchUpdatePanel.create(viewContext);
+                    return createRegistrationTab(Dict.DATA_SET_BATCH_UPDATE, component);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return DataSetBatchUpdatePanel.ID;
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.DATA_SET,
                             HelpPageAction.BATCH_UPDATE);
                 }
             };

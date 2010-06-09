@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetBatchUpdateForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
@@ -429,6 +430,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                         return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.EDIT);
                     }
                 };
+        }
+
+        @Override
+        public final Widget createBatchUpdateForEntityType(final DataSetType dataSetType)
+        {
+            return new GenericDataSetBatchUpdateForm(getViewContext(), dataSetType);
         }
     }
 

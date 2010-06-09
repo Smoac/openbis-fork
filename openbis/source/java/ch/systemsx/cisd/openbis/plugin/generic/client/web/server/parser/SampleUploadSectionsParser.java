@@ -253,7 +253,7 @@ public class SampleUploadSectionsParser
         for (final NamedInputStream multipartFile : uploadedFiles)
         {
             List<FileSection> sampleSections = new ArrayList<FileSection>();
-            if (sampleType.isDefinedInFileSampleTypeCode())
+            if (sampleType.isDefinedInFileEntityTypeCode())
             {
                 sampleSections.addAll(extractSections(multipartFile.getInputStream()));
             } else

@@ -552,6 +552,8 @@ public abstract class Dict
 
     public static final String SAMPLE_BATCH_UPDATE = "sample_batch_update";
 
+    public static final String DATA_SET_BATCH_UPDATE = "data_set_batch_update";
+
     public static final String SAMPLE_REGISTRATION = "sample_registration";
 
     public static final String SAMPLE_BROWSER = "sample_broser";

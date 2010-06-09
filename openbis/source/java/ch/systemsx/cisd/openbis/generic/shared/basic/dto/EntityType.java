@@ -31,6 +31,8 @@ abstract public class EntityType extends BasicEntityType
 
     public static final String ALL_TYPES_CODE = "(all)";
 
+    public static final String DEFINED_IN_FILE = "(multiple)";
+
     abstract public List<? extends EntityTypePropertyType<?>> getAssignedPropertyTypes();
 
     public final boolean isAllTypesCode()
@@ -38,9 +40,19 @@ abstract public class EntityType extends BasicEntityType
         return isAllTypesCode(getCode());
     }
 
+    public static final boolean isDefinedInFileEntityTypeCode(String entityTypeCode)
+    {
+        return DEFINED_IN_FILE.equals(entityTypeCode);
+    }
+
     public static final boolean isAllTypesCode(String entityTypeCode)
     {
         return ALL_TYPES_CODE.equals(entityTypeCode);
+    }
+
+    public final boolean isDefinedInFileEntityTypeCode()
+    {
+        return isDefinedInFileEntityTypeCode(getCode());
     }
 
     public static <T extends EntityTypePropertyType<?>> List<T> sortedInternally(List<T> etpts)

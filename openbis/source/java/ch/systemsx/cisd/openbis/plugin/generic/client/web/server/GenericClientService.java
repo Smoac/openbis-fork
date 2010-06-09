@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
@@ -490,5 +491,17 @@ public class GenericClientService extends AbstractClientService implements IGene
                 : new ExperimentIdentifierFactory(experimentIdentifierOrNull).createIdentifier());
         updatesDTO.setFileFormatTypeCode(updates.getFileFormatTypeCode());
         return updatesDTO;
+    }
+
+    public List<BatchRegistrationResult> updateDataSets(DataSetType dataSetType, String sessionKey)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            throw new UserFailureException("");
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 }
