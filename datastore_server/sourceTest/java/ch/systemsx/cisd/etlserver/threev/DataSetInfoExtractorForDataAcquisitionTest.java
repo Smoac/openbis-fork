@@ -36,10 +36,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class DataSetInfoExtractorForDataAcquisitionTest extends CodeExtractortTestCase
 {
     private static final String INDICES_OF_DATA_SET_CODE_ENTITIES =
-            PREFIX + DataSetInfoExtractorForDataAcquisition.INDICES_OF_DATA_SET_CODE_ENTITIES;
+            DataSetInfoExtractorForDataAcquisition.INDICES_OF_DATA_SET_CODE_ENTITIES;
 
     private static final String DATA_SET_CODE_ENTITIES_GLUE =
-            PREFIX + AbstractDataSetInfoExtractorFor3V.DATA_SET_CODE_ENTITIES_GLUE;
+            AbstractDataSetInfoExtractorFor3V.DATA_SET_CODE_ENTITIES_GLUE;
 
     @Test
     public void testHappyCaseWithOnlyMandatoryPorperties()

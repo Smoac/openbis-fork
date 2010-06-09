@@ -21,33 +21,32 @@ package ch.systemsx.cisd.etlserver;
  */
 public abstract class CodeExtractortTestCase
 {
-    protected static final String PREFIX = IDataSetInfoExtractor.EXTRACTOR_KEY + ".";
 
     protected static final String ENTITY_SEPARATOR =
-            PREFIX + DefaultDataSetInfoExtractor.ENTITY_SEPARATOR_PROPERTY_NAME;
-    
+            DefaultDataSetInfoExtractor.ENTITY_SEPARATOR_PROPERTY_NAME;
+
     protected static final String SUB_ENTITY_SEPARATOR =
-            PREFIX + DefaultDataSetInfoExtractor.SUB_ENTITY_SEPARATOR_PROPERTY_NAME;
+            DefaultDataSetInfoExtractor.SUB_ENTITY_SEPARATOR_PROPERTY_NAME;
 
     protected static final String INDEX_OF_SAMPLE_CODE =
-            PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_SAMPLE_CODE;
+            DefaultDataSetInfoExtractor.INDEX_OF_SAMPLE_CODE;
 
     protected static final String INDEX_OF_EXPERIMENT_IDENTIFIER =
-        PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_EXPERIMENT_IDENTIFIER;
-    
+            DefaultDataSetInfoExtractor.INDEX_OF_EXPERIMENT_IDENTIFIER;
+
     protected static final String INDEX_OF_PARENT_DATA_SET_CODE =
-            PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_PARENT_DATA_SET_CODES;
+            DefaultDataSetInfoExtractor.INDEX_OF_PARENT_DATA_SET_CODES;
 
     protected static final String INDEX_OF_DATA_PRODUCER_CODE =
-            PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_DATA_PRODUCER_CODE;
+            DefaultDataSetInfoExtractor.INDEX_OF_DATA_PRODUCER_CODE;
 
     protected static final String INDEX_OF_DATA_PRODUCTION_DATE =
-            PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_DATA_PRODUCTION_DATE;
+            DefaultDataSetInfoExtractor.INDEX_OF_DATA_PRODUCTION_DATE;
 
     protected static final String DATA_PRODUCTION_DATE_FORMAT =
-            PREFIX + DefaultDataSetInfoExtractor.DATA_PRODUCTION_DATE_FORMAT;
+            DefaultDataSetInfoExtractor.DATA_PRODUCTION_DATE_FORMAT;
 
     protected static final String DATA_SET_PROPERTIES_FILE_NAME_KEY =
-            PREFIX + DefaultDataSetInfoExtractor.DATA_SET_PROPERTIES_FILE_NAME_KEY;
-    
+            DefaultDataSetInfoExtractor.DATA_SET_PROPERTIES_FILE_NAME_KEY;
+
 }

@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class DataSetInfoExtractorForImageAnalysisTest extends CodeExtractortTestCase
 {
     private static final String INDICES_OF_PARENT_DATA_SET_CODE_ENTITIES =
-            PREFIX + DataSetInfoExtractorForImageAnalysis.INDICES_OF_PARENT_DATA_SET_CODE_ENTITIES;
+            DataSetInfoExtractorForImageAnalysis.INDICES_OF_PARENT_DATA_SET_CODE_ENTITIES;
 
     @Test
     public void testHappyCaseWithOnlyMandatoryPorperties()

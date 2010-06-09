@@ -58,7 +58,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
     public void testExtractContainedSampleIdentifier()
     {
         Properties properties = new Properties();
-        properties.setProperty(asPropertyName(GROUP_CODE), "my-group");
+        properties.setProperty(GROUP_CODE, "my-group");
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
 
         final DataSetInformation dsInfo1 =
@@ -77,7 +77,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
     {
         Properties properties = new Properties();
         properties.setProperty(INDEX_OF_EXPERIMENT_IDENTIFIER, "1");
-        properties.setProperty(asPropertyName(GROUP_CODE), "my-group");
+        properties.setProperty(GROUP_CODE, "my-group");
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
 
         final DataSetInformation dsInfo =
@@ -147,18 +147,13 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
     public void testGroupCodeGlobal()
     {
         final Properties properties = new Properties();
-        properties.setProperty(asPropertyName(INDEX_OF_GROUP_CODE), "");
+        properties.setProperty(INDEX_OF_GROUP_CODE, "");
         String globalGroupCode = "g1";
-        properties.setProperty(asPropertyName(GROUP_CODE), globalGroupCode);
+        properties.setProperty(GROUP_CODE, globalGroupCode);
 
         final DataSetInformation dsInfo = extractDatasetInfo(properties, "sampleCode");
 
         assertEquals(globalGroupCode, dsInfo.getSpaceCode());
-    }
-
-    private static String asPropertyName(String propertyName)
-    {
-        return IDataSetInfoExtractor.EXTRACTOR_KEY + "." + propertyName;
     }
 
     @Test
@@ -166,10 +161,10 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
     public void testGroupCodeDatasetSpecific()
     {
         final Properties properties = new Properties();
-        properties.setProperty(asPropertyName(INDEX_OF_GROUP_CODE), "-2");
+        properties.setProperty(INDEX_OF_GROUP_CODE, "-2");
         String globalGroupCode = "globalGroup";
 
-        properties.setProperty(asPropertyName(GROUP_CODE), globalGroupCode);
+        properties.setProperty(GROUP_CODE, globalGroupCode);
 
         String localGroupCode = "localGroup";
         String fileName =
@@ -185,8 +180,8 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
     public void testGroupCodeDatasetSpecificMissingFails()
     {
         final Properties properties = new Properties();
-        properties.setProperty(asPropertyName(INDEX_OF_GROUP_CODE), "-2");
-        properties.setProperty(asPropertyName(GROUP_CODE), "any");
+        properties.setProperty(INDEX_OF_GROUP_CODE, "-2");
+        properties.setProperty(GROUP_CODE, "any");
 
         extractDatasetInfo(properties, "sampleCode");
     }
