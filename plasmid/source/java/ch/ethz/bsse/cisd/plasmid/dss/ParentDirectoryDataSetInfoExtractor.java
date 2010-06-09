@@ -21,43 +21,30 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.etlserver.DataSetInfoFileNameDecorator;
-import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
-import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
+import ch.systemsx.cisd.etlserver.AbstractDelegatingDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * CSB uses DSS to register data sets attached to an existing sample plasmid. This extractor will
- * receive a single file that is inside a directory from which {@link DefaultDataSetInfoExtractor}
- * will extract information about the sample. All properties will be passed to
- * {@link DefaultDataSetInfoExtractor}. Additionally file name property extraction is performed.
+ * receive a single file that is inside a directory from which delegate will extract information
+ * about the sample.
  * 
  * @author Piotr Buczek
  */
-public class PlasmidDefaultDataSetInfoExtractor implements IDataSetInfoExtractor
+public class ParentDirectoryDataSetInfoExtractor extends AbstractDelegatingDataSetInfoExtractor
 {
-    private final IDataSetInfoExtractor delegator;
 
-    private final DataSetInfoFileNameDecorator fileNameDecorator;
-
-    public PlasmidDefaultDataSetInfoExtractor(final Properties globalProperties)
+    public ParentDirectoryDataSetInfoExtractor(final Properties properties)
     {
-        this.delegator = new DefaultDataSetInfoExtractor(globalProperties);
-        Properties localProps =
-                ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
-        this.fileNameDecorator = new DataSetInfoFileNameDecorator(localProps);
+        super(properties);
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetFile,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException
     {
-        final DataSetInformation result =
-                delegator
-                        .getDataSetInformation(incomingDataSetFile.getParentFile(), openbisService);
-        fileNameDecorator.enrich(result, incomingDataSetFile);
-        return result;
+        return super.getDataSetInformation(incomingDataSetFile.getParentFile(), openbisService);
     }
 }

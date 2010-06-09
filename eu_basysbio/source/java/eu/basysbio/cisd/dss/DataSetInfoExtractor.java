@@ -40,27 +40,26 @@ public class DataSetInfoExtractor implements IDataSetInfoExtractor
     private final CifexDataSetInfoExtractor infoExtractor;
 
     private final CifexTypeExtractor typeExtractor;
-    
-    private final Properties properties;
-    
+
     private final Map<String, IDataSetPropertiesExtractor> propertiesExtractors =
             new HashMap<String, IDataSetPropertiesExtractor>();
 
     private IDataSetPropertiesExtractor defaultExtractor;
 
-    public DataSetInfoExtractor(Properties globalProperties)
+    public DataSetInfoExtractor(Properties properties)
     {
-        this.properties = globalProperties;
-        infoExtractor = new CifexDataSetInfoExtractor(globalProperties);
-        typeExtractor = new CifexTypeExtractor(globalProperties);
+        infoExtractor = new CifexDataSetInfoExtractor(properties);
+        typeExtractor = new CifexTypeExtractor(properties);
         defaultExtractor = new DataSetPropertiesExtractor(properties, true);
-        DataSetPropertiesExtractor timeSeriesExtractor = new DataSetPropertiesExtractor(properties, false);
+        DataSetPropertiesExtractor timeSeriesExtractor =
+                new DataSetPropertiesExtractor(properties, false);
         propertiesExtractors.put(DataSetHandler.TIME_SERIES, timeSeriesExtractor);
         propertiesExtractors.put(DataSetHandler.LCA_MTP_TIME_SERIES, timeSeriesExtractor);
         propertiesExtractors.put(DataSetHandler.LCA_MTP_PCAV_TIME_SERIES, timeSeriesExtractor);
         propertiesExtractors.put(DataSetHandler.LCA_MIC_TIME_SERIES, timeSeriesExtractor);
 
-        propertiesExtractors.put(DataSetHandler.LCA_MIC, new LcaMicDataSetPropertiesExtractor(properties));
+        propertiesExtractors.put(DataSetHandler.LCA_MIC, new LcaMicDataSetPropertiesExtractor(
+                properties));
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
@@ -81,7 +80,8 @@ public class DataSetInfoExtractor implements IDataSetInfoExtractor
         {
             extractor = defaultExtractor;
         }
-        List<NewProperty> headerProperties = extractor.extractDataSetProperties(incomingDataSetPath);
+        List<NewProperty> headerProperties =
+                extractor.extractDataSetProperties(incomingDataSetPath);
         info.getDataSetProperties().addAll(headerProperties);
         return info;
     }

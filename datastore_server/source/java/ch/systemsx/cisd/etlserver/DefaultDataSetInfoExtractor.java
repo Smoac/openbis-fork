@@ -271,9 +271,9 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 
     private final char subEntitySeparator;
 
-    public DefaultDataSetInfoExtractor(final Properties globalProperties)
+    public DefaultDataSetInfoExtractor(final Properties properties)
     {
-        super(globalProperties);
+        super(properties);
         subEntitySeparator =
                 PropertyUtils.getChar(properties, SUB_ENTITY_SEPARATOR_PROPERTY_NAME,
                         DEFAULT_SUB_ENTITY_SEPARATOR);

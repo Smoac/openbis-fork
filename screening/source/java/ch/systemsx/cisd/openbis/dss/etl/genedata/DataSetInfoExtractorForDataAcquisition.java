@@ -34,9 +34,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class DataSetInfoExtractorForDataAcquisition extends DefaultDataSetInfoExtractor
 {
 
-    public DataSetInfoExtractorForDataAcquisition(Properties globalProperties)
+    public DataSetInfoExtractorForDataAcquisition(Properties properties)
     {
-        super(globalProperties);
+        super(properties);
     }
 
     @Override

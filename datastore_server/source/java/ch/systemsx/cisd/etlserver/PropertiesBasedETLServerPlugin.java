@@ -141,7 +141,7 @@ public class PropertiesBasedETLServerPlugin extends ETLServerPlugin
     private final static IDataSetInfoExtractor createDataSetInfoExtractor(
             final Properties properties)
     {
-        return create(IDataSetInfoExtractor.class, properties, EXTRACTOR_KEY, false);
+        return create(IDataSetInfoExtractor.class, properties, EXTRACTOR_KEY, true);
     }
 
     @Override

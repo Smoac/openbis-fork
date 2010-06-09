@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.DataSetInfoFileNameDecorator;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -40,9 +39,9 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
 
     private final DataSetInfoFileNameDecorator fileNameDecorator;
 
-    public BatchDataSetInfoExtractor(final Properties globalProperties)
+    public BatchDataSetInfoExtractor(final Properties properties)
     {
-        this.properties = ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
+        this.properties = properties;
         this.fileNameDecorator = new DataSetInfoFileNameDecorator(properties);
     }
 

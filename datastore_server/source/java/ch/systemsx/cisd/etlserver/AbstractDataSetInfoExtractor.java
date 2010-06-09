@@ -30,7 +30,6 @@ import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.parser.TabFileLoader;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
@@ -62,10 +61,10 @@ public abstract class AbstractDataSetInfoExtractor implements IDataSetInfoExtrac
 
     protected final boolean stripExtension;
 
-    protected AbstractDataSetInfoExtractor(final Properties globalProperties)
+    protected AbstractDataSetInfoExtractor(final Properties properties)
     {
-        assert globalProperties != null : "Global properties can not be null.";
-        properties = ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
+        assert properties != null : "Properties can not be null.";
+        this.properties = properties;
         stripExtension = PropertyUtils.getBoolean(properties, STRIP_EXTENSION, false);
         entitySeparator =
                 PropertyUtils.getChar(properties, ENTITY_SEPARATOR_PROPERTY_NAME,

@@ -14,46 +14,46 @@
  * limitations under the License.
  */
 
-package ch.ethz.bsse.cisd.plasmid.dss;
+package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.etlserver.AbstractDelegatingDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.DataSetInfoFileNameDecorator;
-import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
-import ch.systemsx.cisd.etlserver.cifex.CifexDataSetInfoExtractor;
+import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * A cifex data set info extractor enriched with file name property extraction.
+ * {@link AbstractDelegatingDataSetInfoExtractor} performing additional file name property
+ * extraction. Registration will fail if this property type doesn't exist in openBIS DB or is not
+ * attached to the data set type extracted by {@link ITypeExtractor}.
  * 
  * @author Piotr Buczek
  */
-public class PlasmidCifexDataSetInfoExtractor implements IDataSetInfoExtractor
+public class DataSetInfoExtractorWithFileNameProperty extends
+        AbstractDelegatingDataSetInfoExtractor
 {
-    private final IDataSetInfoExtractor delegator;
-
     private final DataSetInfoFileNameDecorator fileNameDecorator;
 
-    public PlasmidCifexDataSetInfoExtractor(final Properties globalProperties)
+    public DataSetInfoExtractorWithFileNameProperty(Properties properties)
     {
-        this.delegator = new CifexDataSetInfoExtractor(globalProperties);
-        Properties localProps =
-                ExtendedProperties.getSubset(globalProperties, EXTRACTOR_KEY + '.', true);
-        this.fileNameDecorator = new DataSetInfoFileNameDecorator(localProps);
+        super(properties);
+        this.fileNameDecorator = new DataSetInfoFileNameDecorator(properties);
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException
     {
-        final DataSetInformation result =
-                delegator.getDataSetInformation(incomingDataSetPath, openbisService);
-        fileNameDecorator.enrich(result, incomingDataSetPath);
-        return result;
+        DataSetInformation dataSetInformation =
+                super.getDataSetInformation(incomingDataSetPath, openbisService);
+        fileNameDecorator.enrich(dataSetInformation, incomingDataSetPath);
+        return dataSetInformation;
     }
+
 }

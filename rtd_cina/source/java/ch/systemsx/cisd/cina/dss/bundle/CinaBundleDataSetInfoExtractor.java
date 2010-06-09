@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class CinaBundleDataSetInfoExtractor implements IDataSetInfoExtractor
 {
-    public CinaBundleDataSetInfoExtractor(final Properties globalProperties)
+    public CinaBundleDataSetInfoExtractor(final Properties properties)
     {
 
     }

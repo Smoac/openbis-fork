@@ -49,7 +49,7 @@ public class CinaDataSetInfoExtractor implements IDataSetInfoExtractor
     // Keys used in the metadata file
     static final String DESCRIPTION_KEY = "DESCRIPTION";
 
-    public CinaDataSetInfoExtractor(final Properties globalProperties)
+    public CinaDataSetInfoExtractor(final Properties properties)
     {
 
     }

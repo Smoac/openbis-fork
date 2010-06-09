@@ -41,9 +41,9 @@ public class QuantMLDataSetInfoExtractor implements IDataSetInfoExtractor
 {
     private final IDataSetInfoExtractor defaultExtractor;
 
-    public QuantMLDataSetInfoExtractor(final Properties globalProperties)
+    public QuantMLDataSetInfoExtractor(final Properties properties)
     {
-        this.defaultExtractor = new DefaultDataSetInfoExtractor(globalProperties);
+        this.defaultExtractor = new DefaultDataSetInfoExtractor(properties);
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,

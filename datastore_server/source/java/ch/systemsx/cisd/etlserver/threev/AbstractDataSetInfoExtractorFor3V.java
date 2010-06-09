@@ -52,11 +52,11 @@ abstract class AbstractDataSetInfoExtractorFor3V extends AbstractDataSetInfoExtr
 
     private final String dataSetCodeEntitiesGlue;
 
-    public AbstractDataSetInfoExtractorFor3V(final Properties globalProperties,
+    public AbstractDataSetInfoExtractorFor3V(final Properties properties,
             final String indicesPropertyName)
     {
-        super(globalProperties);
-        codeExtractor = new DefaultDataSetInfoExtractor(globalProperties);
+        super(properties);
+        codeExtractor = new DefaultDataSetInfoExtractor(properties);
         final String indicesAsString =
                 PropertyUtils.getMandatoryProperty(properties, indicesPropertyName);
         final String[] indicesAsStringArray = StringUtils.split(indicesAsString, ", ");

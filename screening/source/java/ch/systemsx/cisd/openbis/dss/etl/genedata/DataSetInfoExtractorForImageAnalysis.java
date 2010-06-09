@@ -38,9 +38,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 public class DataSetInfoExtractorForImageAnalysis extends DefaultDataSetInfoExtractor
 {
 
-    public DataSetInfoExtractorForImageAnalysis(Properties globalProperties)
+    public DataSetInfoExtractorForImageAnalysis(Properties properties)
     {
-        super(globalProperties);
+        super(properties);
     }
 
     @Override

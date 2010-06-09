@@ -47,18 +47,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
 {
     private final static Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, CifexDataSetInfoExtractor.class);
+            LogFactory.getLogger(LogCategory.OPERATION, CifexDataSetInfoExtractor.class);
 
     @Private
-    static final String DATA_SET_PROPERTIES_FILE_NAME_KEY =
-            "data-set-info-extractor.data-set-properties-file-name";
+    static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
 
     private final String dataSetPropertiesFileNameOrNull;
 
-    public CifexDataSetInfoExtractor(final Properties globalProperties)
+    public CifexDataSetInfoExtractor(final Properties properties)
     {
-        dataSetPropertiesFileNameOrNull =
-                globalProperties.getProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY);
+        dataSetPropertiesFileNameOrNull = properties.getProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY);
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
