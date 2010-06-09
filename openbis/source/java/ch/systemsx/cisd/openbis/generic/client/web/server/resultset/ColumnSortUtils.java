@@ -48,7 +48,7 @@ class ColumnSortUtils
 
     private static <T> boolean isAlphanum(final IColumnDefinition<T> field)
     {
-        return field.getIdentifier().equals("CODE");
+        return field.getIdentifier().contains("CODE");
     }
 
     @SuppressWarnings("unchecked")
