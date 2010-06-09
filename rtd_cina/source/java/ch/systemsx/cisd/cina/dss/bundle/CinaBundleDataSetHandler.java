@@ -23,11 +23,11 @@ import java.util.Properties;
 import ch.systemsx.cisd.cina.dss.bundle.BundleDataSetHelper.BundleRegistrationGlobalState;
 import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
+import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -50,10 +50,15 @@ public class CinaBundleDataSetHandler implements IDataSetHandler
 
     public List<DataSetInformation> handleDataSet(File dataSet)
     {
-        SessionContextDTO sessionContext = openbisService.tryGetSession();
-        BundleDataSetHelper helper =
-                new BundleDataSetHelper(bundleRegistrationGlobalState,
-                        sessionContext.getUserName(), dataSet);
+        BundleDataSetHelper helper;
+        if (delegator instanceof IDataSetHandlerRpc)
+        {
+            helper = new BundleDataSetHelperRpc(bundleRegistrationGlobalState, dataSet);
+        } else
+        {
+            helper = new BundleDataSetHelper(bundleRegistrationGlobalState, dataSet);
+        }
+
         helper.process();
         return helper.getDataSetInformation();
     }

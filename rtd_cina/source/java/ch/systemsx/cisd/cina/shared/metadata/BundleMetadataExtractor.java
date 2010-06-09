@@ -31,6 +31,8 @@ public class BundleMetadataExtractor
 
     private final File bundle;
 
+    private boolean hasBeenPrepared = false;
+
     /**
      * Create a metadata extractor for the bundle located at bundle
      * 
@@ -47,7 +49,7 @@ public class BundleMetadataExtractor
      */
     public void prepare()
     {
-        if (false == metadataExtractors.isEmpty())
+        if (hasBeenPrepared)
         {
             // we've already prepared
             return;
@@ -55,7 +57,7 @@ public class BundleMetadataExtractor
 
         File metadataFolder = new File(bundle, METADATA_FOLDER_NAME);
 
-        // Then get the image metadata
+        // Then get the replica metadata
         File[] replicaContents = metadataFolder.listFiles();
         for (File replicaFile : replicaContents)
         {
@@ -66,6 +68,8 @@ public class BundleMetadataExtractor
 
             processDirectory(replicaFile);
         }
+
+        hasBeenPrepared = true;
     }
 
     /**
@@ -74,6 +78,7 @@ public class BundleMetadataExtractor
      */
     public List<ReplicaMetadataExtractor> getMetadataExtractors()
     {
+        assert hasBeenPrepared;
         return metadataExtractors;
     }
 

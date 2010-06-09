@@ -20,26 +20,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.cina.shared.metadata.BundleMetadataExtractor;
-import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
-import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
-import ch.systemsx.cisd.etlserver.IDataSetHandlerExtended;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * Helper class for processing bundle data sets.
+ * Helper to help registering data sets.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 class BundleDataSetHelper
 {
+
     static class BundleRegistrationGlobalState
     {
         private final IDataSetHandler delegator;
@@ -81,42 +75,34 @@ class BundleDataSetHelper
         }
     }
 
-    private final BundleRegistrationGlobalState globalState;
+    protected final BundleRegistrationGlobalState globalState;
 
-    // Invocation-specific State
-    private final String sessionOwnerUserId;
+    protected final File dataSet;
 
-    private final File dataSet;
+    protected final ArrayList<DataSetInformation> dataSetInformation;
 
-    private final ArrayList<DataSetInformation> dataSetInformation;
-
-    BundleDataSetHelper(BundleRegistrationGlobalState globalState, String sessionOwnerUserId,
-            File dataSet)
+    BundleDataSetHelper(BundleRegistrationGlobalState globalState, File dataSet)
     {
         this.globalState = globalState;
-        this.sessionOwnerUserId = sessionOwnerUserId;
         this.dataSet = dataSet;
         this.dataSetInformation = new ArrayList<DataSetInformation>();
     }
 
-    /**
-     *
-     */
     public void process()
     {
         // Register the bundle as one data set
         List<DataSetInformation> bigDataSet = getDelegator().handleDataSet(dataSet);
         dataSetInformation.addAll(bigDataSet);
-        if (dataSetInformation.isEmpty())
-        {
-            return;
-        }
+    }
 
-        BundleMetadataExtractor bundleMetadata = new BundleMetadataExtractor(dataSet);
-        for (ReplicaMetadataExtractor replicaMetadata : bundleMetadata.getMetadataExtractors())
-        {
-            handleDerivedDataSets(replicaMetadata);
-        }
+    protected IDataSetHandler getDelegator()
+    {
+        return globalState.getDelegator();
+    }
+
+    protected IEncapsulatedOpenBISService getOpenbisService()
+    {
+        return globalState.getOpenbisService();
     }
 
     /**
@@ -128,87 +114,4 @@ class BundleDataSetHelper
         return dataSetInformation;
     }
 
-    private void handleDerivedDataSets(ReplicaMetadataExtractor replicaMetadata)
-    {
-        SampleIdentifier sampleId = registerReplicaSample();
-
-        // Register all the data sets derived from this sample
-        for (ImageMetadataExtractor imageMetadata : replicaMetadata.getMetadataExtractors())
-        {
-            handleDerivedDataSet(sampleId, imageMetadata);
-        }
-    }
-
-    /**
-     * Register a sample with this ID of type GRID_REPLICA, either derived from the GRID_TEMPLATE
-     * registered by the client or associated with the experiment.
-     */
-    private SampleIdentifier registerReplicaSample()
-    {
-        DataSetInformation bigDataSetInfo = getBigDataSetInformation();
-        SampleType replicaSampleType = globalState.getReplicaSampleType();
-        long sampleCodeSuffix = getOpenbisService().drawANewUniqueID();
-        String sampleCode =
-                String.format("%s%d", replicaSampleType.getGeneratedCodePrefix(), sampleCodeSuffix);
-        ExperimentIdentifier experimentIdOrNull = bigDataSetInfo.getExperimentIdentifier();
-        SampleIdentifier parentIdOrNull = bigDataSetInfo.getSampleIdentifier();
-
-        // Either the experimentId or the parentId must be non-null
-        assert experimentIdOrNull != null || parentIdOrNull != null;
-
-        SampleIdentifier sampleId;
-        NewSample sample;
-        if (parentIdOrNull != null)
-        {
-            sampleId = new SampleIdentifier(parentIdOrNull.getSpaceLevel(), sampleCode);
-            sample =
-                    new NewSample(sampleId.toString(), replicaSampleType,
-                            parentIdOrNull.toString(), "");
-        } else
-        {
-            sampleId = new SampleIdentifier(experimentIdOrNull, sampleCode);
-            sample = new NewSample(sampleId.toString(), replicaSampleType, "", "");
-        }
-
-        getOpenbisService().registerSample(sample, sessionOwnerUserId);
-        return sampleId;
-    }
-
-    private void handleDerivedDataSet(SampleIdentifier sampleId,
-            ImageMetadataExtractor imageMetadata)
-    {
-        // Register a data set for the image
-        File imageDataSet = imageMetadata.getFolder();
-        IDataSetHandler delegator = getDelegator();
-        if (delegator instanceof IDataSetHandlerExtended)
-        {
-            DataSetInformation template = new DataSetInformation();
-            template.setSampleCode(sampleId.getSampleCode());
-            template.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
-            template.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
-            ((IDataSetHandlerExtended) delegator).handleDataSet(imageDataSet, template);
-        } else
-        {
-            delegator.handleDataSet(imageDataSet);
-        }
-    }
-
-    /**
-     * Get the "big data set" -- the one that is the parent of all the derived data sets I register
-     */
-    private DataSetInformation getBigDataSetInformation()
-    {
-        // The big data set is the first one registered.
-        return dataSetInformation.get(0);
-    }
-
-    private IDataSetHandler getDelegator()
-    {
-        return globalState.getDelegator();
-    }
-
-    private IEncapsulatedOpenBISService getOpenbisService()
-    {
-        return globalState.getOpenbisService();
-    }
 }
