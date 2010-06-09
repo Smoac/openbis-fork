@@ -89,8 +89,6 @@ public class BundleMetadataExtractor
             return;
         }
 
-        System.out.println(file);
-
         if (false == ReplicaMetadataExtractor.doesFolderContainReplicaMetadata(file))
         {
             return;

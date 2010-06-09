@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cina.dss.bundle;
 
 import java.io.File;
+import java.util.Collections;
 
 import ch.systemsx.cisd.cina.shared.metadata.BundleMetadataExtractor;
 import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
@@ -81,7 +82,6 @@ class BundleDataSetHelperRpc extends BundleDataSetHelper
 
         BundleMetadataExtractor bundleMetadata = new BundleMetadataExtractor(bundle);
         bundleMetadata.prepare();
-        System.out.println(bundleMetadata.getMetadataExtractors());
         for (ReplicaMetadataExtractor replicaMetadata : bundleMetadata.getMetadataExtractors())
         {
             handleDerivedDataSets(replicaMetadata);
@@ -145,18 +145,27 @@ class BundleDataSetHelperRpc extends BundleDataSetHelper
     {
         // Register a data set for the image
         File imageDataSet = imageMetadata.getFolder();
-        IDataSetHandler delegator = getDelegator();
-        if (delegator instanceof IDataSetHandlerRpc)
-        {
-            DataSetInformation template = new DataSetInformation();
-            template.setSampleCode(sampleId.getSampleCode());
-            template.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
-            template.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
-            // ((IDataSetHandlerRpc) delegator).handleDataSet(imageDataSet, template);
-        } else
-        {
-            delegator.handleDataSet(imageDataSet);
-        }
+        DataSetInformation imageDataSetInfo = new DataSetInformation();
+        imageDataSetInfo.setSampleCode(sampleId.getSampleCode());
+        imageDataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+        imageDataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
+        imageDataSetInfo.setDataSetType(globalState.getImageDataSetType().getDataSetType());
+        imageDataSetInfo.setParentDataSetCodes(Collections.singletonList(getBigDataSetInformation()
+                .getDataSetCode()));
+
+        // NewExternalData data = new NewExternalData();
+        // data.setExtractableData(imageDataSetInfo.getExtractableData());
+        // data.setLocatorType(new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE));
+        // data.setDataSetType(imageDataSetInfo.getDataSetType());
+        // data.setFileFormatType(new FileFormatType(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE));
+        // data.setMeasured(true);
+        // data.setDataStoreCode(delegatorRpc.getDataStoreCode());
+        // data.setComplete(BooleanOrUnknown.T);
+        // data.setLocation(delegatorRpc.getStoreRelativePath(imageDataSet));
+        // data.setStorageFormat(StorageFormat.PROPRIETARY);
+
+        // getOpenbisService().registerDataSet(imageDataSetInfo, data);
+        delegatorRpc.linkAndHandleDataSet(imageDataSet, imageDataSetInfo);
     }
 
     /**

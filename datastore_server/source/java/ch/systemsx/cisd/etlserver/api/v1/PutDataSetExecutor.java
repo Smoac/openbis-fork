@@ -32,8 +32,10 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
@@ -92,6 +94,8 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     private final IDataSetHandler handler;
 
+    private final IImmutableCopier copier;
+
     private DataSetInformation override;
 
     PutDataSetExecutor(PutDataSetService service, IETLServerPlugin plugin, String sessionToken,
@@ -102,6 +106,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         this.sessionToken = sessionToken;
         this.newDataSet = newDataSet;
         this.inputStream = inputStream;
+        this.copier = FastRecursiveHardLinkMaker.tryCreate();
         this.dataSetDir = new File(service.getIncomingDir(), newDataSet.getDataSetFolderName());
         if (dataSetDir.exists())
         {
@@ -166,7 +171,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             override = newOverride;
         }
 
-        RegistrationHelper helper = new RegistrationHelper(service, plugin, dataSetDir);
+        RegistrationHelper helper = new RegistrationHelper(service, plugin, dataSet);
         helper.prepare();
         if (helper.hasDataSetBeenIdentified())
         {
@@ -183,9 +188,46 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         return Collections.singletonList(helper.getDataSetInformation());
     }
 
+    public List<DataSetInformation> linkAndHandleDataSet(File dataSetComponent,
+            DataSetInformation newOverride)
+    {
+        File incomingDir = service.getIncomingDir();
+        // Make a hard link to the file within the data set
+        boolean success;
+        success = copier.copyImmutably(dataSetComponent, incomingDir, null);
+        if (success == false)
+        {
+            throw new EnvironmentFailureException("Couldn't create a hard-link copy of '"
+                    + dataSetComponent.getAbsolutePath() + "' in folder '"
+                    + service.getIncomingDir().getAbsolutePath() + "'.");
+        }
+
+        File linkedFile = new File(incomingDir, dataSetComponent.getName());
+
+        // Register the component of the data set
+        try
+        {
+            return handleDataSet(linkedFile, newOverride);
+        } finally
+        {
+            deleteDir(linkedFile);
+        }
+    }
+
     public SessionContextDTO getSessionContext()
     {
         return getOpenBisService().tryGetSession(sessionToken);
+    }
+
+    public File getFileForExternalData(ExternalData externalData)
+    {
+        File dataSetFile = new File(service.getStoreRootDirectory(), externalData.getLocation());
+        return DefaultStorageProcessor.getOriginalDirectory(dataSetFile);
+    }
+
+    public String getDataStoreCode()
+    {
+        return service.getDataStoreCode();
     }
 
     private void createDefaultOverride()
@@ -252,9 +294,14 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     private void deleteDataSetDir()
     {
+        deleteDir(dataSetDir);
+    }
+
+    private void deleteDir(File dirToDelete)
+    {
         try
         {
-            FileUtils.deleteDirectory(dataSetDir);
+            FileUtils.deleteDirectory(dirToDelete);
         } catch (IOException ex)
         {
             getOperationLog().error("Could not delete data set directory " + dataSetDir, ex);
@@ -529,7 +576,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
             // Override / extend information extracted with our override
             dataSetInfo.setExperimentIdentifier(override.getExperimentIdentifier());
-            SampleIdentifier sampleIdOrNull = dataSetInfo.getSampleIdentifier();
+            SampleIdentifier sampleIdOrNull = override.getSampleIdentifier();
             if (sampleIdOrNull != null)
             {
                 dataSetInfo.setSampleCode(sampleIdOrNull.getSampleCode());
@@ -551,11 +598,5 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             // the space or an ETL server can override.
             return dataSetInfo;
         }
-    }
-
-    public File getFileForExternalData(ExternalData externalData)
-    {
-        File dataSetFile = new File(service.getStoreRootDirectory(), externalData.getLocation());
-        return DefaultStorageProcessor.getOriginalDirectory(dataSetFile);
     }
 }

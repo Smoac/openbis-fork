@@ -91,11 +91,11 @@ public class CinaBundleDataSetHandlerTest extends AbstractFileSystemTestCase
                 {
                     final DataSetInformation dataSetInformation = new DataSetInformation();
                     dataSetInformation.setDataSetCode("Derived");
-                    dataSetInformation.setSampleCode("2");
+                    dataSetInformation.setSampleCode("" + uniqueId++);
                     dataSetInformation.setSpaceCode("Space");
                     dataSetInformation.setInstanceCode("Test");
 
-                    allowing(delegator).handleDataSet(with(new File(path)),
+                    allowing(delegator).linkAndHandleDataSet(with(new File(path)),
                             with(any(DataSetInformation.class)));
                     will(returnValue(Collections.singletonList(dataSetInformation)));
                 }

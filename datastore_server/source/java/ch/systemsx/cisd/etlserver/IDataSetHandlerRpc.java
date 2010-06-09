@@ -42,6 +42,15 @@ public interface IDataSetHandlerRpc extends IDataSetHandler
             final DataSetInformation template);
 
     /**
+     * Create a (hard) link to an file or folder within an existing data set and handle that.
+     * 
+     * @param dataSetComponent A file within a data set
+     * @param template A template containing information for the data sets to register
+     */
+    public List<DataSetInformation> linkAndHandleDataSet(File dataSetComponent,
+            DataSetInformation template);
+
+    /**
      * Returns the session context for the current user.
      */
     public SessionContextDTO getSessionContext();
