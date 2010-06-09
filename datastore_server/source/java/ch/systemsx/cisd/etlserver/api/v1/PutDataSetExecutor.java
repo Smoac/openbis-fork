@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
+import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -551,8 +553,9 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         }
     }
 
-    public File getStoreFileForPath(String path)
+    public File getFileForExternalData(ExternalData externalData)
     {
-        return new File(service.getStoreRootDirectory(), path);
+        File dataSetFile = new File(service.getStoreRootDirectory(), externalData.getLocation());
+        return DefaultStorageProcessor.getOriginalDirectory(dataSetFile);
     }
 }

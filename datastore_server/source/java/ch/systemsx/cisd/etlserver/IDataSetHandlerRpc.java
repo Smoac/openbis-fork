@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -46,7 +47,7 @@ public interface IDataSetHandlerRpc extends IDataSetHandler
     public SessionContextDTO getSessionContext();
 
     /**
-     * Get the file for a path from the data store.
+     * Get the file for an external data from the data store.
      */
-    public File getStoreFileForPath(String path);
+    public File getFileForExternalData(ExternalData data);
 }
