@@ -35,27 +35,23 @@ public class MockDefaultStorageProcessor extends AbstractStorageProcessor
 
     public StorageFormat getStorageFormat()
     {
-        System.err.println("getStorageFormat");
         return StorageFormat.PROPRIETARY;
     }
 
     public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
             Throwable exception)
     {
-        System.err.println("rollback");
         return null;
     }
 
     public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
             IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
     {
-        System.err.println("storeData");
         return null;
     }
 
     public File tryGetProprietaryData(File storedDataDirectory)
     {
-        System.err.println("tryGetProprietaryData");
         return null;
     }
 
