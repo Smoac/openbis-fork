@@ -152,8 +152,6 @@ final class SampleListingWorker
 
     private int maxSampleParentResolutionDepth;
 
-    private int maxSampleContainerResolutionDepth;
-
     private final Long2ObjectMap<Sample> sampleMap = new Long2ObjectOpenHashMap<Sample>();
 
     private final Long2ObjectMap<Space> spaceMap = new Long2ObjectOpenHashMap<Space>();
@@ -286,9 +284,6 @@ final class SampleListingWorker
             sampleTypes.put(type.getId(), type);
             if (singleSampleTypeMode == false)
             {
-                maxSampleContainerResolutionDepth =
-                        Math.max(maxSampleContainerResolutionDepth, type
-                                .getContainerHierarchyDepth());
                 maxSampleParentResolutionDepth =
                         Math.max(maxSampleParentResolutionDepth, type
                                 .getGeneratedFromHierarchyDepth());
@@ -300,7 +295,6 @@ final class SampleListingWorker
         {
             assert sampleTypeOrNull != null;
             this.maxSampleParentResolutionDepth = sampleTypeOrNull.getGeneratedFromHierarchyDepth();
-            this.maxSampleContainerResolutionDepth = sampleTypeOrNull.getContainerHierarchyDepth();
         }
 
     }
@@ -562,20 +556,19 @@ final class SampleListingWorker
                 samplesAwaitingParentResolution.put(row.id, new RelatedSampleRecord(sample,
                         row.samp_id_generated_from));
             }
-            addToRequested(row.samp_id_generated_from, row.id, maxSampleParentResolutionDepth,
-                    primarySample);
+            addRelatedParentSampleToRequested(row.samp_id_generated_from, row.id,
+                    maxSampleParentResolutionDepth, primarySample);
         }
-        // even though maxSampleContainerResoutionDepth may be 0 we still need to load container
-        // for primary samples with container to create a 'full' code with container code part
-        if (row.samp_id_part_of != null & (primarySample || maxSampleContainerResolutionDepth > 0))
+        // even though sample container resolution depth may be 0 we still need to load container
+        // to create a 'full' code with container code part
+        if (row.samp_id_part_of != null)
         {
             if (samplesAwaitingContainerResolution.containsKey(row.id) == false)
             {
                 samplesAwaitingContainerResolution.put(row.id, new RelatedSampleRecord(sample,
                         row.samp_id_part_of));
             }
-            addToRequested(row.samp_id_part_of, row.id, maxSampleContainerResolutionDepth,
-                    primarySample);
+            addRelatedContainerSampleToRequested(row.samp_id_part_of);
         }
         return sample;
     }
@@ -596,19 +589,33 @@ final class SampleListingWorker
         sample.setIdentifier(new SampleIdentifier(dbId, sample.getCode()).toString());
     }
 
-    private void addToRequested(long newId, long oldId, int initialDepth, boolean primarySample)
+    private void addRelatedContainerSampleToRequested(long relatedSampleId)
+    {
+        // for containers we need to load only their codes - connected samples are not needed
+        addOrUpdateRequestedSample(relatedSampleId, 0);
+    }
+
+    private void addRelatedParentSampleToRequested(long relatedSampleId, long oldSampleId,
+            int initialDepth, boolean primarySample)
     {
         if (primarySample)
         {
-            requestedSamples.put(newId, initialDepth);
+            addOrUpdateRequestedSample(relatedSampleId, initialDepth);
         } else
         {
-            final int depthLeft = requestedSamples.get(oldId) - 1;
+            final int depthLeft = requestedSamples.get(oldSampleId) - 1;
             if (depthLeft > 0)
             {
-                requestedSamples.put(newId, depthLeft);
+                addOrUpdateRequestedSample(relatedSampleId, depthLeft);
             }
         }
+    }
+
+    private void addOrUpdateRequestedSample(long sampleId, int newDepth)
+    {
+        // if sample was already requested update depth to maximum of old and new depth
+        int oldDepth = requestedSamples.get(sampleId);
+        requestedSamples.put(sampleId, Math.max(oldDepth, newDepth));
     }
 
     private Experiment getOrCreateExperiment(SampleRecord row)
