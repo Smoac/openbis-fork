@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.cina.dss.bundle;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import ch.systemsx.cisd.cina.shared.metadata.BundleMetadataExtractor;
 import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
@@ -27,7 +29,9 @@ import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -40,6 +44,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 class BundleDataSetHelperRpc extends BundleDataSetHelper
 {
+    private static final String MISC_DATA_SET_PROPERTY_CODE = "MISC";
+
     // Invocation-specific State
     private final SessionContextDTO sessionContext;
 
@@ -143,8 +149,42 @@ class BundleDataSetHelperRpc extends BundleDataSetHelper
     private void handleDerivedDataSet(SampleIdentifier sampleId,
             ImageMetadataExtractor imageMetadata)
     {
-        // Register a data set for the image
+        // Create a DataSetInformation
+        DataSetInformation imageDataSetInfo = createDataSetInformation(sampleId);
+
+        // Import the metadata
+        ArrayList<NewProperty> properties = createDataSetProperties(imageMetadata);
+        imageDataSetInfo.setDataSetProperties(properties);
+
         File imageDataSet = imageMetadata.getFolder();
+
+        delegatorRpc.linkAndHandleDataSet(imageDataSet, imageDataSetInfo);
+    }
+
+    private ArrayList<NewProperty> createDataSetProperties(ImageMetadataExtractor imageMetadata)
+    {
+        List<PropertyTypeWithVocabulary> propertyTypes =
+                globalState.getImageDataSetType().getPropertyTypes();
+        ArrayList<NewProperty> properties = new ArrayList<NewProperty>();
+        for (PropertyTypeWithVocabulary propertyType : propertyTypes)
+        {
+            String value = imageMetadata.getMetadataMap().get(propertyType.getCode().toLowerCase());
+            if (null != value)
+            {
+                NewProperty prop;
+                prop = new NewProperty(propertyType.getCode(), value);
+                properties.add(prop);
+            }
+        }
+
+        // Add a property with everything
+        properties.add(new NewProperty(MISC_DATA_SET_PROPERTY_CODE, imageMetadata.getMetadataMap()
+                .toString()));
+        return properties;
+    }
+
+    private DataSetInformation createDataSetInformation(SampleIdentifier sampleId)
+    {
         DataSetInformation imageDataSetInfo = new DataSetInformation();
         imageDataSetInfo.setSampleCode(sampleId.getSampleCode());
         imageDataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
@@ -152,20 +192,7 @@ class BundleDataSetHelperRpc extends BundleDataSetHelper
         imageDataSetInfo.setDataSetType(globalState.getImageDataSetType().getDataSetType());
         imageDataSetInfo.setParentDataSetCodes(Collections.singletonList(getBigDataSetInformation()
                 .getDataSetCode()));
-
-        // NewExternalData data = new NewExternalData();
-        // data.setExtractableData(imageDataSetInfo.getExtractableData());
-        // data.setLocatorType(new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE));
-        // data.setDataSetType(imageDataSetInfo.getDataSetType());
-        // data.setFileFormatType(new FileFormatType(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE));
-        // data.setMeasured(true);
-        // data.setDataStoreCode(delegatorRpc.getDataStoreCode());
-        // data.setComplete(BooleanOrUnknown.T);
-        // data.setLocation(delegatorRpc.getStoreRelativePath(imageDataSet));
-        // data.setStorageFormat(StorageFormat.PROPRIETARY);
-
-        // getOpenbisService().registerDataSet(imageDataSetInfo, data);
-        delegatorRpc.linkAndHandleDataSet(imageDataSet, imageDataSetInfo);
+        return imageDataSetInfo;
     }
 
     /**

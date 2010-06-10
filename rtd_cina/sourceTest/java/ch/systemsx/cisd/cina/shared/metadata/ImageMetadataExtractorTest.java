@@ -40,24 +40,24 @@ public class ImageMetadataExtractorTest extends AssertJUnit
         Map<String, String> metadataMap = metadata.getMetadataMap();
         assertEquals(16, metadataMap.size());
 
-        assertEquals("", metadataMap.get("Annotation"));
-        assertEquals("CM10", metadataMap.get("Microscope"));
-        assertEquals("thomas.braun@unibas.ch", metadataMap.get("Operator"));
-        assertEquals("test20090422_BacklashRef.mrc", metadataMap.get("Filename"));
+        assertEquals("", metadataMap.get("annotation"));
+        assertEquals("CM10", metadataMap.get("microscope"));
+        assertEquals("thomas.braun@unibas.ch", metadataMap.get("operator"));
+        assertEquals("test20090422_BacklashRef.mrc", metadataMap.get("filename"));
 
-        assertEquals("1.7691349E-5", metadataMap.get("SizeX"));
-        assertEquals("1.7691349E-5", metadataMap.get("SizeY"));
-        assertEquals("0.0", metadataMap.get("SizeZ"));
+        assertEquals("1.7691349E-5", metadataMap.get("sizex"));
+        assertEquals("1.7691349E-5", metadataMap.get("sizey"));
+        assertEquals("0.0", metadataMap.get("sizez"));
 
-        assertEquals("2048", metadataMap.get("DimensionX"));
-        assertEquals("2048", metadataMap.get("DimensionY"));
-        assertEquals("1", metadataMap.get("DimensionZ"));
+        assertEquals("2048", metadataMap.get("dimensionx"));
+        assertEquals("2048", metadataMap.get("dimensiony"));
+        assertEquals("1", metadataMap.get("dimensionz"));
 
-        assertEquals("false", metadataMap.get("StackFlag"));
-        assertEquals("false", metadataMap.get("ColorFlag"));
-        assertEquals("16 bit SI", metadataMap.get("Data-type"));
-        assertEquals("-32417.0", metadataMap.get("Min"));
-        assertEquals("-29705.0", metadataMap.get("Max"));
-        assertEquals("2", metadataMap.get("Rating"));
+        assertEquals("false", metadataMap.get("stackflag"));
+        assertEquals("false", metadataMap.get("colorflag"));
+        assertEquals("16 bit SI", metadataMap.get("data-type"));
+        assertEquals("-32417.0", metadataMap.get("min"));
+        assertEquals("-29705.0", metadataMap.get("max"));
+        assertEquals("2", metadataMap.get("rating"));
     }
 }

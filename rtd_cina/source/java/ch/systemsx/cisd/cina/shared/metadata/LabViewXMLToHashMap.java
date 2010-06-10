@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cina.shared.metadata;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.cina.shared.labview.AbstractLVDataElement;
 import ch.systemsx.cisd.cina.shared.labview.Cluster;
 import ch.systemsx.cisd.cina.shared.labview.DBL;
 import ch.systemsx.cisd.cina.shared.labview.EW;
@@ -80,38 +81,43 @@ class LabViewXMLToHashMap
     {
         for (LVDataString lvdataString : cluster.getStrings())
         {
-            metadataMap.put(prefix + lvdataString.getName(), lvdataString.getValue());
+            putIntoMap(prefix, lvdataString, lvdataString.getValue());
         }
 
         for (U8 u8 : cluster.getU8s())
         {
-            metadataMap.put(prefix + u8.getName(), u8.getValue().toString());
+            putIntoMap(prefix, u8, u8.getValue().toString());
         }
 
         for (U32 u32 : cluster.getU32s())
         {
-            metadataMap.put(prefix + u32.getName(), u32.getValue().toString());
+            putIntoMap(prefix, u32, u32.getValue().toString());
         }
 
         for (DBL dbl : cluster.getDbls())
         {
-            metadataMap.put(prefix + dbl.getName(), dbl.getValue().toString());
+            putIntoMap(prefix, dbl, dbl.getValue().toString());
         }
 
         for (LVDataBoolean bool : cluster.getBooleans())
         {
-            metadataMap.put(prefix + bool.getName(), bool.getValue().toString());
+            putIntoMap(prefix, bool, bool.getValue().toString());
         }
 
         for (EW ew : cluster.getEws())
         {
-            metadataMap.put(prefix + ew.getName(), ew.getChosenValue());
+            putIntoMap(prefix, ew, ew.getChosenValue());
         }
 
         for (Cluster subcluster : cluster.getClusters())
         {
             parseCluster(subcluster, getClusterPrefix(subcluster));
         }
+    }
+
+    private void putIntoMap(String prefix, AbstractLVDataElement lvdataElement, String string)
+    {
+        metadataMap.put((prefix + lvdataElement.getName()).toLowerCase(), string);
     }
 
     private String getClusterPrefix(Cluster cluster)

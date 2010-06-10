@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlElement;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-abstract class AbstractLVDataElement
+public abstract class AbstractLVDataElement
 {
 
     private String name;
