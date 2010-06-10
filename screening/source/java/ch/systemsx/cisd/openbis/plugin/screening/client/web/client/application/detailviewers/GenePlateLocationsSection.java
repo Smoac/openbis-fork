@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  * @author Tomasz Pylak
  * @author Izabela Adamczyk
  */
-class PlateLocationsSection extends SingleSectionPanel
+class GenePlateLocationsSection extends SingleSectionPanel
 {
     private static final int IMAGE_WIDTH_PX = 100;
 
@@ -59,7 +59,7 @@ class PlateLocationsSection extends SingleSectionPanel
 
     private final DefaultChannelState channelState;
 
-    public PlateLocationsSection(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+    public GenePlateLocationsSection(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             final TechId materialId, ExperimentIdentifier experimentIdentifierOrNull)
     {
         super(

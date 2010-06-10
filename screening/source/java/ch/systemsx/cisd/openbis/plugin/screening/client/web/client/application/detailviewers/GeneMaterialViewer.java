@@ -78,7 +78,7 @@ public class GeneMaterialViewer extends GenericMaterialViewer
     {
 
         List<SingleSectionPanel> sections = new ArrayList<SingleSectionPanel>();
-        sections.add(new PlateLocationsSection(screeningViewContext, materialId,
+        sections.add(new GenePlateLocationsSection(screeningViewContext, materialId,
                 experimentIdentifierOrNull));
         return sections;
     }
