@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
+import java.io.InputStream;
+
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
 /**
@@ -75,7 +76,7 @@ public interface IDssComponent
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, InputStream inputStream)
             throws IllegalStateException, EnvironmentFailureException;
 
     /**

@@ -275,19 +275,19 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     /**
      * @param image is the content of the response
-     * @param fileOrNull specified if image was generated from one file
+     * @param fileNameOrNull specified if image was generated from one file
      */
     protected final static ResponseContentStream createResponseContentStream(BufferedImage image,
-            File fileOrNull) throws IOException
+            String fileNameOrNull) throws IOException
     {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ImageIO.write(image, "png", output);
 
         InputStream inputStream = new ByteArrayInputStream(output.toByteArray());
         String headerContentDisposition = "inline;";
-        if (fileOrNull != null)
+        if (fileNameOrNull != null)
         {
-            headerContentDisposition += " filename=" + fileOrNull.getName();
+            headerContentDisposition += " filename=" + fileNameOrNull;
         }
         return new ResponseContentStream(inputStream, output.size(), CONTENT_TYPE_PNG,
                 headerContentDisposition);

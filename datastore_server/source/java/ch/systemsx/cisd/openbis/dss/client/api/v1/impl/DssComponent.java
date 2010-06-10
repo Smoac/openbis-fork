@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
@@ -181,7 +180,7 @@ public class DssComponent implements IDssComponent
         state = new AuthenticatedState(openBisService, dssServiceFactory, state.getSessionToken());
     }
 
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, InputStream inputStream)
             throws IllegalStateException, EnvironmentFailureException
     {
         return state.putDataSet(newDataset, inputStream);
@@ -215,7 +214,7 @@ abstract class AbstractDssComponentState implements IDssComponent
         throw new IllegalStateException("Please log in");
     }
 
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, InputStream inputStream)
             throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
@@ -344,7 +343,7 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     @Override
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, ConcatenatedFileInputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, InputStream inputStream)
             throws IllegalStateException, EnvironmentFailureException
     {
         String url = service.getDefaultDataStoreBaseURL(sessionToken);

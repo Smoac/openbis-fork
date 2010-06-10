@@ -28,7 +28,9 @@ import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
+import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
+import ch.systemsx.cisd.common.io.FileBasedContent;
+import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
@@ -127,8 +129,8 @@ class CommandPut extends AbstractCommand
                     }
                     return -1;
                 }
-                ConcatenatedFileInputStream fileInputStream =
-                        new ConcatenatedFileInputStream(true, getFilesForFileInfos(arguments
+                ConcatenatedContentInputStream fileInputStream =
+                        new ConcatenatedContentInputStream(true, getFilesForFileInfos(arguments
                                 .getFilePath(), newDataSet.getFileInfos()));
                 IDataSetDss dataSet = component.putDataSet(newDataSet, fileInputStream);
                 System.out.println("Registered new data set " + dataSet.getCode());
@@ -180,13 +182,13 @@ class CommandPut extends AbstractCommand
             return fileInfos;
         }
 
-        private List<File> getFilesForFileInfos(String filePath, List<FileInfoDssDTO> fileInfos)
+        private List<IContent> getFilesForFileInfos(String filePath, List<FileInfoDssDTO> fileInfos)
         {
-            ArrayList<File> files = new ArrayList<File>();
+            List<IContent> files = new ArrayList<IContent>();
             File parent = new File(filePath);
             if (false == parent.isDirectory())
             {
-                return Collections.singletonList(parent);
+                return Collections.<IContent>singletonList(new FileBasedContent(parent));
             }
 
             for (FileInfoDssDTO fileInfo : fileInfos)
@@ -199,7 +201,7 @@ class CommandPut extends AbstractCommand
                 // Skip directories
                 if (false == file.isDirectory())
                 {
-                    files.add(file);
+                    files.add(new FileBasedContent(file));
                 }
             }
 
