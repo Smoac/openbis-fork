@@ -101,7 +101,7 @@ public class GenePlateLocationsLoader
             List<ExternalDataPE> datasets = plateToDatasetMap.get(wellContent.getPlate().getId());
             boolean imagesExist = false;
             // there can be more than one dataset with images for each well - in such a case we will
-            // have one well content duplicate for each dataset
+            // have one well content duplicated for each dataset
             if (datasets != null)
             {
                 for (ExternalDataPE dataset : datasets)
