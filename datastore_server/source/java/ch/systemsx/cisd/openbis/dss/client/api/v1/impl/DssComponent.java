@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
+import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
@@ -28,6 +32,9 @@ import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
+import ch.systemsx.cisd.common.io.FileBasedContent;
+import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
@@ -180,10 +187,10 @@ public class DssComponent implements IDssComponent
         state = new AuthenticatedState(openBisService, dssServiceFactory, state.getSessionToken());
     }
 
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, InputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
-        return state.putDataSet(newDataset, inputStream);
+        return state.putDataSet(newDataset, dataSetFile);
     }
 }
 
@@ -214,7 +221,7 @@ abstract class AbstractDssComponentState implements IDssComponent
         throw new IllegalStateException("Please log in");
     }
 
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, InputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
@@ -343,14 +350,43 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     @Override
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, InputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         String url = service.getDefaultDataStoreBaseURL(sessionToken);
         url = DataStoreApiUrlUtilities.getDataStoreUrlFromServerUrl(url);
         IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
-        String code = dssService.putDataSet(sessionToken, newDataset, inputStream);
+        ConcatenatedContentInputStream fileInputStream =
+                new ConcatenatedContentInputStream(true, getContentForFileInfos(dataSetFile
+                        .getPath(), newDataset.getFileInfos()));
+        String code = dssService.putDataSet(sessionToken, newDataset, fileInputStream);
         return new DataSetDss(code, dssService, this);
+    }
+
+    private List<IContent> getContentForFileInfos(String filePath, List<FileInfoDssDTO> fileInfos)
+    {
+        List<IContent> files = new ArrayList<IContent>();
+        File parent = new File(filePath);
+        if (false == parent.isDirectory())
+        {
+            return Collections.<IContent> singletonList(new FileBasedContent(parent));
+        }
+
+        for (FileInfoDssDTO fileInfo : fileInfos)
+        {
+            File file = new File(parent, fileInfo.getPathInDataSet());
+            if (false == file.exists())
+            {
+                throw new IllegalArgumentException("File does not exist " + file);
+            }
+            // Skip directories
+            if (false == file.isDirectory())
+            {
+                files.add(new FileBasedContent(file));
+            }
+        }
+
+        return files;
     }
 
     /**

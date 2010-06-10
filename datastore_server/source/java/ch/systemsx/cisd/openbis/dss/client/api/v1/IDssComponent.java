@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
-import java.io.InputStream;
+import java.io.File;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -70,13 +70,13 @@ public interface IDssComponent
      * Upload a new data set to the DSS.
      * 
      * @param newDataset The new data set that should be registered
-     * @param inputStream An input stream on the file or folder to register
+     * @param dataSetFile A file or folder containing the data
      * @return A proxy to the newly added data set
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, InputStream inputStream)
+    public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException;
 
     /**

@@ -20,17 +20,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
-import ch.systemsx.cisd.common.io.FileBasedContent;
-import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
@@ -129,10 +124,8 @@ class CommandPut extends AbstractCommand
                     }
                     return -1;
                 }
-                ConcatenatedContentInputStream fileInputStream =
-                        new ConcatenatedContentInputStream(true, getFilesForFileInfos(arguments
-                                .getFilePath(), newDataSet.getFileInfos()));
-                IDataSetDss dataSet = component.putDataSet(newDataSet, fileInputStream);
+                IDataSetDss dataSet =
+                        component.putDataSet(newDataSet, new File(arguments.getFilePath()));
                 System.out.println("Registered new data set " + dataSet.getCode());
             } catch (IOException e)
             {
@@ -180,32 +173,6 @@ class CommandPut extends AbstractCommand
             FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
             builder.appendFileInfosForFile(file, fileInfos, true);
             return fileInfos;
-        }
-
-        private List<IContent> getFilesForFileInfos(String filePath, List<FileInfoDssDTO> fileInfos)
-        {
-            List<IContent> files = new ArrayList<IContent>();
-            File parent = new File(filePath);
-            if (false == parent.isDirectory())
-            {
-                return Collections.<IContent>singletonList(new FileBasedContent(parent));
-            }
-
-            for (FileInfoDssDTO fileInfo : fileInfos)
-            {
-                File file = new File(parent, fileInfo.getPathInDataSet());
-                if (false == file.exists())
-                {
-                    throw new IllegalArgumentException("File does not exist " + file);
-                }
-                // Skip directories
-                if (false == file.isDirectory())
-                {
-                    files.add(new FileBasedContent(file));
-                }
-            }
-
-            return files;
         }
     }
 
@@ -255,7 +222,7 @@ class CommandPut extends AbstractCommand
     public void printUsage(PrintStream out)
     {
         out.println(getUsagePrefixString()
-                + " [options] <data set type> <owner type> <owner> <path>");
+                + " [options] <owner type> <owner> <path>");
         parser.printUsage(out);
         out.println("  Examples : ");
         out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
