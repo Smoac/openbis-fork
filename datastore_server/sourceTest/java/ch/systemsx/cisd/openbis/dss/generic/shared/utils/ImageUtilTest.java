@@ -58,7 +58,7 @@ public class ImageUtilTest extends AssertJUnit
     @BeforeMethod
     public void setUp()
     {
-        dir = new File("resource/test-data/ImageUtilTest");
+        dir = new File("../datastore_server/resource/test-data/ImageUtilTest");
     }
     
     @Test
