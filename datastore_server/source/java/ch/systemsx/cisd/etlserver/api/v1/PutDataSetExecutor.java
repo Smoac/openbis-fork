@@ -179,8 +179,8 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         } else
         {
             helper.dealWithUnidentifiedDataSet();
-            throw new UserFailureException("Could not find owner:\n\t"
-                    + newDataSet.getDataSetOwner() + "\nfor data set:\n\t" + newDataSet);
+            throw new UserFailureException("Could not find owner:\n\t" + newOverride
+                    + "\nfor data set:\n\t" + dataSet);
         }
 
         override = oldOverride;
