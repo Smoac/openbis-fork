@@ -57,19 +57,18 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
     private final IIndexedEntityFinder indexedEntityFinder;
 
     public FullTextIndexerRunnable(final SessionFactory sessionFactory,
-            final HibernateSearchContext context)
+            final HibernateSearchContext context, final IFullTextIndexUpdater fullTextIndexUpdater)
     {
         assert context != null : "Unspecified hibernate search context.";
         setSessionFactory(sessionFactory);
         this.context = context;
-        operationLog.debug(String.format("Hibernate search context: %s.", context));
-        fullTextIndexer = new DefaultFullTextIndexer(context.getBatchSize());
-        // TODO 2009-06-10, Piotr Buczek: use Spring injection
-        fullTextIndexUpdater = new FullTextIndexUpdater(sessionFactory, context);
+        this.fullTextIndexUpdater = fullTextIndexUpdater;
+        this.fullTextIndexer = new DefaultFullTextIndexer(context.getBatchSize());
         // TODO 2008-11-25, Tomasz Pylak: maybe we could get rid of hardcoding package path by
         // scanning Hibernate mapped entities?
-        indexedEntityFinder =
+        this.indexedEntityFinder =
                 new PackageBasedIndexedEntityFinder("ch.systemsx.cisd.openbis.generic.shared.dto");
+        operationLog.debug(String.format("Hibernate search context: %s.", context));
     }
 
     //

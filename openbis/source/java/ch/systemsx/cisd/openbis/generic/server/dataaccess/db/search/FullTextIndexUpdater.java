@@ -24,7 +24,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -38,8 +37,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         IFullTextIndexUpdater
 {
-    public final static String FULL_TEXT_INDEX_UPDATER_QUEUE_FILENAME =
-            Constants.MARKER_PREFIX + ".index_updater_queue";
+    public final static String FULL_TEXT_INDEX_UPDATER_QUEUE_FILENAME = ".index_updater_queue";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FullTextIndexUpdater.class);
@@ -60,7 +58,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         setSessionFactory(sessionFactory);
         this.context = context;
         operationLog.debug(String.format("Hibernate search context: %s.", context));
-        fullTextIndexer = new DefaultFullTextIndexer(2); // context.getBatchSize()); FIXME
+        fullTextIndexer = new DefaultFullTextIndexer(context.getBatchSize());
         File queueFile = getUpdaterQueueFile(context);
         operationLog.debug(String.format("Updater queue file: %s.", queueFile));
         updaterQueue =

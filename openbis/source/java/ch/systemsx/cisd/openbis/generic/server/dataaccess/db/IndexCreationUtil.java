@@ -35,8 +35,10 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.EntitiesToUpdate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdater;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 
 /**
@@ -85,10 +87,33 @@ public final class IndexCreationUtil
     private final static void performFullTextIndex() throws Exception
     {
         final BeanFactory factory = getBeanFactory();
+        final IFullTextIndexUpdater updater = createDummyUpdater();
         final FullTextIndexerRunnable fullTextIndexer =
                 new FullTextIndexerRunnable((SessionFactory) factory
-                        .getBean("hibernate-session-factory"), hibernateSearchContext);
+                        .getBean("hibernate-session-factory"), hibernateSearchContext, updater);
         fullTextIndexer.run();
+    }
+
+    /**
+     * Creates a dummy {@link IFullTextIndexUpdater} that does nothing.
+     */
+    private final static IFullTextIndexUpdater createDummyUpdater()
+    {
+        return new IFullTextIndexUpdater()
+            {
+
+                public void clear()
+                {
+                }
+
+                public void start()
+                {
+                }
+
+                public void scheduleUpdate(EntitiesToUpdate entities)
+                {
+                }
+            };
     }
 
     /**
