@@ -18,30 +18,27 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 
 /**
- * Tests for {@link ConcatenatedFileInputStream}
+ * Tests for {@link ConcatenatedContentInputStream}
  * 
  * @author Tomasz Pylak
  */
-public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
+public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCase
 {
     @Test
     public void testNoFiles() throws IOException
     {
-        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(false, new File[0]);
+        ConcatenatedContentInputStream stream = new ConcatenatedContentInputStream(false, new IContent[0]);
         AssertJUnit.assertEquals(-1, stream.read());
     }
 
@@ -49,8 +46,8 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
     public void testOneFile() throws IOException
     {
         String content = createLongString("1");
-        File file = createFile(content, "f1.txt");
-        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(false, file);
+        IContent file = createContent(content, "f1.txt");
+        ConcatenatedContentInputStream stream = new ConcatenatedContentInputStream(false, file);
         List<String> streamContent = readStrings(stream);
         assertEquals(1, streamContent.size());
         assertEquals(content, streamContent.get(0));
@@ -60,16 +57,16 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
     public void testManyFiles() throws IOException
     {
         String content1 = createLongString("1");
-        File file1 = createFile(content1, "f1.txt");
+        IContent file1 = createContent(content1, "f1.txt");
 
         String content2 = ""; // empty content
-        File file2 = createFile(content2, "f2.txt");
+        IContent file2 = createContent(content2, "f2.txt");
 
         String content3 = createLongString("3");
-        File file3 = createFile(content3, "f3.txt");
+        IContent file3 = createContent(content3, "f3.txt");
 
-        ConcatenatedFileInputStream stream =
-                new ConcatenatedFileInputStream(false, file1, file2, file3);
+        ConcatenatedContentInputStream stream =
+                new ConcatenatedContentInputStream(false, file1, file2, file3);
         List<String> streamContent = readStrings(stream);
         assertEquals(3, streamContent.size());
         assertEquals(content1, streamContent.get(0));
@@ -81,17 +78,17 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
     public void testExistingAndNonExistingFiles() throws IOException
     {
         String content1 = createLongString("1");
-        File file1 = createFile(content1, "f1.txt");
+        IContent file1 = createContent(content1, "f1.txt");
 
-        File unexistingFile = new File(workingDirectory, "unexisting.txt");
+        IContent unexistingFile = new FileBasedContent(new File(workingDirectory, "unexisting.txt"));
 
         String content3 = createLongString("3");
-        File file3 = createFile(content3, "f3.txt");
+        IContent file3 = createContent(content3, "f3.txt");
 
-        File fileNull = null;
+        IContent fileNull = null;
 
-        ConcatenatedFileInputStream stream =
-                new ConcatenatedFileInputStream(true, fileNull, file1, fileNull, unexistingFile,
+        ConcatenatedContentInputStream stream =
+                new ConcatenatedContentInputStream(true, fileNull, file1, fileNull, unexistingFile,
                         file3, fileNull);
         List<String> streamContent = readStrings(stream);
         assertEquals(6, streamContent.size());
@@ -105,25 +102,26 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testNonExistingFile()
+    public void testNonExistingFile() throws Exception
     {
         File file = new File(workingDirectory, "f.txt");
+        IContent content = new FileBasedContent(file);
 
-        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(false, file);
+        ConcatenatedContentInputStream stream = new ConcatenatedContentInputStream(false, content);
         try
         {
             readStrings(stream);
-            fail("IOException expected");
-        } catch (IOException ex)
+            fail("IOExceptionUnchecked expected");
+        } catch (IOExceptionUnchecked ex)
         {
-            assertEquals(file + " (No such file or directory)", ex.getMessage());
+            assertEquals(file + " (No such file or directory)", ex.getCause().getMessage());
         }
     }
 
     @Test
     public void testNullFile() throws IOException
     {
-        ConcatenatedFileInputStream stream = new ConcatenatedFileInputStream(false, new File[]
+        ConcatenatedContentInputStream stream = new ConcatenatedContentInputStream(false, new IContent[]
             { null });
         try
         {
@@ -136,7 +134,7 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
 
     // --------- helpers
 
-    private static List<String> readStrings(ConcatenatedFileInputStream stream) throws IOException
+    private static List<String> readStrings(ConcatenatedContentInputStream stream) throws IOException
     {
         ConcatenatedFileOutputStreamWriter reader = new ConcatenatedFileOutputStreamWriter(stream);
         List<String> result = new ArrayList<String>();
@@ -153,13 +151,9 @@ public class ConcatenatedFileInputStreamTest extends AbstractFileSystemTestCase
         return result;
     }
 
-    private File createFile(String content, String fileName) throws FileNotFoundException,
-            IOException
+    private IContent createContent(String content, String name)
     {
-        File file = new File(workingDirectory, fileName);
-
-        IOUtils.writeLines(Arrays.asList(content), "", new FileOutputStream(file));
-        return file;
+        return new ByteArrayBasedContent(content.getBytes(), name);
     }
 
     private static String createLongString(String text)
