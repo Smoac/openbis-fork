@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewDataSetsWithTypePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplesWithTypePredicate;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -260,4 +262,15 @@ public interface IGenericServer extends IServer
     public DataSetUpdateResult updateDataSet(
             String sessionToken,
             @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) DataSetUpdatesDTO updates);
+
+    /**
+     * Updates data sets of different types in batches.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void updateDataSets(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = NewDataSetsWithTypePredicate.class) final NewDataSetsWithTypes newSamplesWithType)
+            throws UserFailureException;
 }
