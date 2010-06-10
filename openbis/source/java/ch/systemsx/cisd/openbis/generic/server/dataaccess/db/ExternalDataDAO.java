@@ -449,4 +449,22 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         return list;
     }
 
+    public void updateDataSets(List<ExternalDataPE> externalData)
+    {
+        assert externalData != null : "Data sets not defined";
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        for (ExternalDataPE ed : externalData)
+        {
+            validatePE(ed);
+            ed.setCode(CodeConverter.tryToDatabase(ed.getCode()));
+            hibernateTemplate.saveOrUpdate(ed);
+        }
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("UPDATE: %d data sets.", externalData.size()));
+        }
+    }
+
 }

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -119,5 +120,9 @@ public interface IExternalDataTable
      * Loads data sets that belong to chosen data store.
      */
     public void loadByDataStore(DataStorePE dataStore);
+
+    void update(List<NewDataSet> updates);
+
+    void save();
 
 }

@@ -59,7 +59,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -71,18 +70,15 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 {
     private ExternalDataPE externalData;
 
-    protected final IEntityPropertiesConverter entityPropertiesConverter;
-
     public ExternalDataBO(IDAOFactory daoFactory, Session session)
     {
-        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.DATA_SET, daoFactory));
+        super(daoFactory, session);
     }
 
-    public ExternalDataBO(IDAOFactory daoFactory, Session session,
-            IEntityPropertiesConverter entityPropertiesConverter)
+    public ExternalDataBO(IDAOFactory daoFactory, Session exampleSession,
+            IEntityPropertiesConverter propertiesConverter)
     {
-        super(daoFactory, session);
-        this.entityPropertiesConverter = entityPropertiesConverter;
+        super(daoFactory, exampleSession, propertiesConverter);
     }
 
     public ExternalDataPE tryExternalData()
@@ -382,7 +378,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             externalData.setSample(null);
         }
         updateFileFormatType(updates.getFileFormatTypeCode());
-        updateProperties(updates.getProperties());
+        updateProperties(externalData, updates.getProperties());
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
                 externalData.getDataSetType());
         validateAndSave();
@@ -391,15 +387,6 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     private void validateAndSave()
     {
         getExternalDataDAO().validateAndSaveUpdatedEntity(externalData);
-    }
-
-    private void updateProperties(List<IEntityProperty> newProperties)
-    {
-        final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
-        final EntityTypePE type = externalData.getDataSetType();
-        final PersonPE registrator = findRegistrator();
-        externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
-                type, newProperties, registrator));
     }
 
     private void updateParents(String[] modifiedParentDatasetCodesOrNull)

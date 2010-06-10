@@ -110,7 +110,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
         updateFieldsVisibility();
 
         formPanel.add(dataSetTypeSelectionWidget =
-                new DataSetTypeSelectionWidget(viewContext, ID_SUFFIX, false));
+                new DataSetTypeSelectionWidget(viewContext, ID_SUFFIX));
         FieldUtil.markAsMandatory(dataSetTypeSelectionWidget);
         formPanel.add(fileTypeSelectionWidget =
                 new FileFormatTypeSelectionWidget(viewContext, ID_SUFFIX));

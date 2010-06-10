@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import org.hibernate.SessionFactory;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 /**
  * Data access object for {@link DataSetTypePE}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DataSetTypeDAO extends AbstractTypeDAO<DataSetTypePE> implements IDataSetTypeDAO
 {
@@ -37,6 +38,17 @@ public class DataSetTypeDAO extends AbstractTypeDAO<DataSetTypePE> implements ID
     public DataSetTypePE tryToFindDataSetTypeByCode(String code)
     {
         return tryFindTypeByCode(code);
+    }
+
+    public DataSetTypePE getDataSetTypeByCode(String code) throws UserFailureException
+    {
+        DataSetTypePE dataSetTypePE = tryToFindDataSetTypeByCode(code);
+        if (dataSetTypePE == null)
+        {
+            throw UserFailureException.fromTemplate("Data set type with code '%s' does not exist.",
+                    code);
+        }
+        return dataSetTypePE;
     }
 
 }

@@ -224,8 +224,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 if (dataSetTypeSelectionWidget == null)
                 {
                     dataSetTypeSelectionWidget =
-                            new DataSetTypeSelectionWidget(viewContext, DATA_SET_TYPE_ID_SUFFIX,
-                                    false);
+                            new DataSetTypeSelectionWidget(viewContext, DATA_SET_TYPE_ID_SUFFIX);
                     created = true;
                 }
                 result = dataSetTypeSelectionWidget;

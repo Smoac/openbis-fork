@@ -62,6 +62,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -73,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -363,6 +366,29 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
     }
 
+    public void updateDataSets(String sessionToken, NewDataSetsWithTypes dataSets)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        final Session session = getSession(sessionToken);
+        final List<NewDataSet> newDataSets = dataSets.getNewDataSets();
+        // Does nothing if samples list is empty.
+        if (newDataSets.size() == 0)
+        {
+            return;
+        }
+        prevalidate(newDataSets, "data set");
+        final DataSetTypePE dataSetType =
+                getDAOFactory().getDataSetTypeDAO().tryToFindDataSetTypeByCode(
+                        dataSets.getDataSetType().getCode());
+        if (dataSetType == null)
+        {
+            throw UserFailureException.fromTemplate("Data set type with code '%s' does not exist.",
+                    dataSets.getDataSetType());
+        }
+        getDataSetTypeSlaveServerPlugin(dataSetType).updateDataSets(session, newDataSets);
+    }
+
     private void registerSamples(final Session session, final NewSamplesWithTypes newSamplesWithType)
     {
         final SampleType sampleType = newSamplesWithType.getSampleType();
@@ -375,17 +401,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             return;
         }
-        // Check uniqueness of given list based on sample identifier.
-        final HashSet<NewSample> sampleSet = new HashSet<NewSample>(newSamples);
-        if (sampleSet.size() != newSamples.size())
-        {
-            for (NewSample s : sampleSet)
-            {
-                newSamples.remove(s);
-            }
-            throw UserFailureException.fromTemplate("Following samples '%s' are duplicated.",
-                    CollectionUtils.abbreviate(newSamples, 20));
-        }
+        prevalidate(newSamples, "sample");
         final String sampleTypeCode = sampleType.getCode();
         final SampleTypePE sampleTypePE =
                 getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
@@ -410,17 +426,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             return;
         }
-        // Check uniqueness of given list based on sample identifier.
-        final HashSet<NewSample> sampleSet = new HashSet<NewSample>(updatedSamples);
-        if (sampleSet.size() != updatedSamples.size())
-        {
-            for (NewSample s : sampleSet)
-            {
-                updatedSamples.remove(s);
-            }
-            throw UserFailureException.fromTemplate("Following samples '%s' are duplicated.",
-                    CollectionUtils.abbreviate(updatedSamples, 20));
-        }
+
+        prevalidate(updatedSamples, "sample");
         final String sampleTypeCode = sampleType.getCode();
         final SampleTypePE sampleTypePE =
                 getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
@@ -551,7 +558,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             return;
         }
-        prevalidate(materialTypeCode, newMaterials);
+        prevalidate(newMaterials, "material");
         MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
         final Session session = getSession(sessionToken);
 
@@ -583,15 +590,14 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         materialTable.save();
     }
 
-    private void prevalidate(String materialTypeCode, List<NewMaterial> newMaterials)
+    private <T> void prevalidate(List<T> entities, String entityName)
     {
-        // Check uniqueness of given list based on material code.
-        final HashSet<NewMaterial> materialSet = new HashSet<NewMaterial>(newMaterials);
-        if (materialSet.size() != newMaterials.size())
+        final HashSet<T> set = new HashSet<T>(entities);
+        if (set.size() != entities.size())
         {
-            newMaterials.removeAll(materialSet);
-            throw UserFailureException.fromTemplate("Following materials '%s' are duplicated.",
-                    CollectionUtils.abbreviate(newMaterials, 20));
+            entities.removeAll(set);
+            throw UserFailureException.fromTemplate("Following %s(s) '%s' are duplicated.",
+                    entityName, CollectionUtils.abbreviate(entities, 20));
         }
     }
 

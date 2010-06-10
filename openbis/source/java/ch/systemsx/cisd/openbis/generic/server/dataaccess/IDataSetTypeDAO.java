@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 /**
  * Interface to the data access layer for retrieving instances of {@link DataSetTypePE}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IDataSetTypeDAO extends IGenericDAO<DataSetTypePE>
 {

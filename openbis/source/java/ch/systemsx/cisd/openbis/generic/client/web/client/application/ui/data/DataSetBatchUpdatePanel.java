@@ -63,7 +63,7 @@ public final class DataSetBatchUpdatePanel extends LayoutContainer
         this.viewContext = viewContext;
         setId(ID);
         setScrollMode(Scroll.AUTO);
-        dataSetTypeSelection = new DataSetTypeSelectionWidget(viewContext, ID_SUFFIX, true);
+        dataSetTypeSelection = new DataSetTypeSelectionWidget(viewContext, ID_SUFFIX);
         final ToolBar toolBar = createToolBar();
         add(toolBar);
         dataSetTypeSelection

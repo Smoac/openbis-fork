@@ -108,6 +108,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -1489,7 +1490,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
                 }
                 break;
             case DATA_SET:
-                columns.add(NewMaterial.CODE);// FIXME 2010-06-09, IA: use batch update dto
+                columns.add(NewDataSet.CODE);
                 for (DataSetTypePropertyTypePE etpt : ((DataSetTypePE) entityType)
                         .getDataSetTypePropertyTypes())
                 {

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -26,6 +28,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -33,6 +36,8 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
@@ -43,11 +48,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -73,6 +81,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public final class ExternalDataTable extends AbstractExternalDataBusinessObject implements
         IExternalDataTable
 {
+
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, ExternalDataTable.class);
+
     @Private
     static final String UPLOAD_COMMENT_TEXT = "Uploaded zip file contains the following data sets:";
 
@@ -81,6 +93,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
 
     @Private
     static final String AND_MORE_TEMPLATE = "and %d more.";
+
+    private boolean dataChanged;
 
     @Private
     static String createUploadComment(List<ExternalDataPE> dataSets)
@@ -408,7 +422,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
         parameterBindings.put(Constants.USER_PARAMETER, session.tryGetPerson().getUserId());
-        service.processDatasets(sessionToken, datastoreServiceKey, locations, parameterBindings, 
+        service.processDatasets(sessionToken, datastoreServiceKey, locations, parameterBindings,
                 tryGetLoggedUserEmail());
     }
 
@@ -642,4 +656,61 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
     }
 
+    public void save()
+    {
+        assert dataChanged == true : "Data not changed";
+        assert externalData != null : "Undefined external data.";
+        try
+        {
+            IExternalDataDAO externalDataDAO = getExternalDataDAO();
+            externalDataDAO.updateDataSets(externalData);
+            checkMandatoryProperties();
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("One of data sets"));
+        }
+        dataChanged = false;
+        operationLog.info("State of external data saved.");
+    }
+
+    private void checkMandatoryProperties()
+    {
+        final Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache =
+                new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
+        for (ExternalDataPE s : externalData)
+        {
+            entityPropertiesConverter.checkMandatoryProperties(s.getProperties(), s
+                    .getDataSetType(), cache);
+        }
+    }
+
+    public void update(List<NewDataSet> updates)
+    {
+        assert updates != null : "Unspecified updates.";
+        setBatchUpdateMode(true);
+        if (externalData == null)
+        {
+            externalData = new ArrayList<ExternalDataPE>();
+        }
+        for (NewDataSet d : updates)
+        {
+            externalData.add(prepareBatchUpdate(d));
+        }
+        setBatchUpdateMode(false);
+        dataChanged = true;
+        operationLog.info("External data updated");
+    }
+
+    private ExternalDataPE prepareBatchUpdate(NewDataSet d)
+    {
+        ExternalDataPE dataSet =
+                getExternalDataDAO().tryToFindFullDataSetByCode(d.getCode(), true, true);
+        if (dataSet == null)
+        {
+            throw new UserFailureException(String.format("Data set with code '%s' does not exist.",
+                    d.getCode()));
+        }
+        updateBatchProperties(dataSet, Arrays.asList(d.getProperties()), d.getPropertiesToUpdate());
+        return dataSet;
+    }
 }

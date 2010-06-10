@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.plugin;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -28,9 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * The implementation will give access to {@link DAOFactory} and appropriate business object
  * factory. Each method specified here must start with {@link Session} parameter.
  * </p>
- *
+ * 
  * @author Christian Ribeaud
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IDataSetTypeSlaveServerPlugin
 {
@@ -38,5 +39,10 @@ public interface IDataSetTypeSlaveServerPlugin
      * Deletes the specified data sets for the specified reason.
      */
     public void deleteDataSets(Session session, List<ExternalDataPE> dataSets, String reason);
+
+    /**
+     * Updates properties of given data sets.
+     */
+    public void updateDataSets(Session session, List<NewDataSet> newDataSets);
 
 }

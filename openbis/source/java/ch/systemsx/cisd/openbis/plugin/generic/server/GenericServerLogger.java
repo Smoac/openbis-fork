@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -246,6 +247,13 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             sb.append(s.getSampleType().getCode() + ":" + s.getNewSamples().size());
         }
         logTracking(sessionToken, "register_or_update_samples", sb.toString());
+    }
+
+    public void updateDataSets(String sessionToken, NewDataSetsWithTypes dataSets)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "update_data_sets",
+                (dataSets.getDataSetType().getCode() + ":" + dataSets.getNewDataSets().size()));
     }
 
 }

@@ -405,9 +405,9 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
     public void update(List<SampleBatchUpdatesDTO> updates)
     {
+        assert updates != null : "Unspecified samples.";
         setBatchUpdateMode(true);
 
-        assert updates != null : "Unspecified samples.";
         if (samples == null)
         {
             samples = new ArrayList<SamplePE>();

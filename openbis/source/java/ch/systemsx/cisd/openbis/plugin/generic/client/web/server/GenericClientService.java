@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -496,12 +497,30 @@ public class GenericClientService extends AbstractClientService implements IGene
     public List<BatchRegistrationResult> updateDataSets(DataSetType dataSetType, String sessionKey)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
+
+        HttpSession session = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
         try
         {
-            throw new UserFailureException("");
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+            uploadedFiles = getUploadedFiles(sessionKey, session);
+            Collection<NamedInputStream> files =
+                    new ArrayList<NamedInputStream>(uploadedFiles.size());
+            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
+            {
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename(), f
+                        .getBytes()));
+            }
+            DataSetLoader loader = new DataSetLoader();
+            loader.load(files);
+            genericServer.updateDataSets(getSessionToken(), new NewDataSetsWithTypes(dataSetType,
+                    loader.getNewDataSets()));
+            return loader.getResults();
+        } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
+        } finally
+        {
+            cleanUploadedFiles(sessionKey, session, uploadedFiles);
         }
     }
 }

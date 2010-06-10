@@ -115,4 +115,6 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
 
     public List<ExternalDataPE> listByCode(Set<String> values);
 
+    public void updateDataSets(List<ExternalDataPE> externalData);
+
 }
