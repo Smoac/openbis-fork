@@ -34,8 +34,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -78,7 +80,6 @@ public class CinaBundleDataSetHandlerTest extends AbstractFileSystemTestCase
     @Test
     public void testHandling()
     {
-
         File dataSetFile =
                 new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
         setupDataSetHandlerExpectations(dataSetFile);
@@ -161,9 +162,15 @@ public class CinaBundleDataSetHandlerTest extends AbstractFileSystemTestCase
     {
         final DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(externalData.getCode());
-        dataSetInformation.setSampleCode("2");
+        dataSetInformation.setSampleCode("GRID-1");
         dataSetInformation.setSpaceCode("Space");
         dataSetInformation.setInstanceCode("Test");
+
+        final Sample sample = new Sample();
+        Experiment exp = new Experiment();
+        exp.setIdentifier("/Space/Exp-1");
+        sample.setExperiment(exp);
+        sample.setIdentifier(dataSetInformation.getSampleIdentifier().toString());
 
         final SessionContextDTO sessionContext = new SessionContextDTO();
         sessionContext.setSessionToken("session-token");
@@ -180,6 +187,9 @@ public class CinaBundleDataSetHandlerTest extends AbstractFileSystemTestCase
                     will(returnValue(sessionContext));
                     one(delegator).getFileForExternalData(externalData);
                     will(returnValue(dataSet.getParentFile()));
+                    allowing(openbisService).tryGetSampleWithExperiment(
+                            dataSetInformation.getSampleIdentifier());
+                    will(returnValue(sample));
                 }
             });
     }
