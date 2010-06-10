@@ -37,10 +37,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * A default {@link IFullTextIndexer} which knows how to perform an efficient full text index.
  * <p>
- * Taken from <i>Hibernate Search</i> documentation page.
+ * Partly taken from <i>Hibernate Search</i> documentation page.
  * </p>
  * 
  * @author Christian Ribeaud
+ * @author Piotr Buczek
  */
 final class DefaultFullTextIndexer implements IFullTextIndexer
 {
@@ -78,7 +79,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
 
         // we index entities in batches loading them in groups restricted by id:
         // [ ids[index], ids[min(index+batchSize, maxIndex))] )
-        final Transaction transaction = hibernateSession.beginTransaction();
+        final Transaction transaction = fullTextSession.beginTransaction();
         final List<Long> ids = getAllIds(fullTextSession, clazz);
         final int idsSize = ids.size();
         operationLog.info(String.format("... got %d '%s' ids...", idsSize, clazz.getSimpleName()));
@@ -98,17 +99,52 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                     createCriteriaWithRestrictedId(fullTextSession, clazz, minId, maxId).list();
             for (Object object : results)
             {
-                indexEntity(hibernateSession, fullTextSession, object);
+                indexEntity(fullTextSession, object);
                 index++;
             }
-            operationLog.info(String.format("%d '%s' have been indexed...", index, clazz
+            operationLog.info(String.format("%d %ss have been indexed...", index, clazz
                     .getSimpleName()));
             fullTextSession.flushToIndexes();
-            hibernateSession.clear();
+            fullTextSession.clear();
         }
         fullTextSession.getSearchFactory().optimize(clazz);
         transaction.commit();
         operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
+                clazz.getSimpleName(), index));
+    }
+
+    public <T> void doFullTextIndexUpdate(final Session hibernateSession, final Class<T> clazz,
+            final List<Long> ids) throws DataAccessException
+    {
+        operationLog.info(String.format("Reindexing %s %ss...", ids.size(), clazz.getSimpleName()));
+        final FullTextSession fullTextSession = Search.getFullTextSession(hibernateSession);
+        fullTextSession.setFlushMode(FlushMode.MANUAL);
+        fullTextSession.setCacheMode(CacheMode.IGNORE);
+
+        // we index entities in batches loading them in groups by id
+        final Transaction transaction = fullTextSession.beginTransaction();
+        final int maxIndex = ids.size();
+        int index = 0;
+        // need to increment last id because we use 'lt' condition
+        while (index < maxIndex)
+        {
+            final int nextIndex = getNextIndex(index, maxIndex);
+            List<Long> subList = ids.subList(index, nextIndex);
+            final List<?> results =
+                    createCriteriaWithRestrictedId(fullTextSession, clazz, subList).list();
+            for (Object object : results)
+            {
+                indexEntity(fullTextSession, object);
+                index++;
+            }
+            operationLog.info(String.format("%d %ss have been reindexed...", index, clazz
+                    .getSimpleName()));
+            fullTextSession.flushToIndexes();
+            fullTextSession.clear();
+        }
+        fullTextSession.getSearchFactory().optimize(clazz);
+        transaction.commit();
+        operationLog.info(String.format("'%s' index is updated. %d entities have been reindexed.",
                 clazz.getSimpleName(), index));
     }
 
@@ -142,13 +178,18 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                 .add(Restrictions.lt(ID_PROPERTY_NAME, maxId));
     }
 
+    private <T> Criteria createCriteriaWithRestrictedId(final FullTextSession fullTextSession,
+            final Class<T> clazz, final List<Long> ids)
+    {
+        return createCriteria(fullTextSession, clazz).add(Restrictions.in(ID_PROPERTY_NAME, ids));
+    }
+
     private <T> Criteria createCriteria(final FullTextSession fullTextSession, final Class<T> clazz)
     {
         return fullTextSession.createCriteria(clazz);
     }
 
-    private <T> void indexEntity(final Session hibernateSession,
-            final FullTextSession fullTextSession, T object)
+    private <T> void indexEntity(final FullTextSession fullTextSession, T object)
     {
         if (operationLog.isDebugEnabled())
         {

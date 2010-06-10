@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
+import java.util.List;
+
 import org.hibernate.Session;
 import org.springframework.dao.DataAccessException;
 
@@ -23,14 +25,22 @@ import org.springframework.dao.DataAccessException;
  * Each implementation is able to perform a <i>full-text</i> index.
  * 
  * @author Christian Ribeaud
+ * @author Piotr Buczek
  */
 public interface IFullTextIndexer
 {
 
     /**
-     * Performs a <i>full-text</i> index on given <var>clazz</var> using given <i>Hibernate</i>
-     * session.
+     * Performs a <i>full-text</i> index on entities of given <var>clazz</var> using given
+     * <i>Hibernate</i> session.
      */
     public <T> void doFullTextIndex(final Session hibernateSession, final Class<T> clazz)
             throws DataAccessException;
+
+    /**
+     * Performs a <i>full-text</i> index update on entities of given <var>clazz</var> with given
+     * <var>ids</var> using given <i>Hibernate</i> session.
+     */
+    public <T> void doFullTextIndexUpdate(final Session hibernateSession, final Class<T> clazz,
+            final List<Long> ids) throws DataAccessException;
 }
