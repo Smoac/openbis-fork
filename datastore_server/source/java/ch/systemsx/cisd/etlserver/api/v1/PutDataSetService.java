@@ -53,10 +53,10 @@ public class PutDataSetService
 
     private final Lock registrationLock;
 
-    private final DataStrategyStore dataStrategyStore;
-
     // These are all initialized only once, but it is not possible to initialize them at
     // construction time, since this causes a dependency loop that causes problems in Spring.
+    private DataStrategyStore dataStrategyStore;
+
     private File storeDirectory;
 
     private String dataStoreCode;
@@ -79,8 +79,6 @@ public class PutDataSetService
         this.operationLog = operationLog;
 
         this.registrationLock = new ReentrantLock();
-
-        this.dataStrategyStore = new DataStrategyStore(this.openBisService, mailClient);
     }
 
     public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
@@ -125,6 +123,7 @@ public class PutDataSetService
         plugin.getStorageProcessor().setStoreRootDirectory(storeDirectory);
 
         mailClient = new MailClient(initializer.getMailProperties());
+        dataStrategyStore = new DataStrategyStore(openBisService, mailClient);
 
         this.dataStoreCode = initializer.getDataStoreCode();
 
