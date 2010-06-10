@@ -39,7 +39,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class FullTextIndexerRunnable extends HibernateDaoSupport implements Runnable
 {
-    public final static String FULL_TEXT_INDEX_MARKER_FILENAME = Constants.MARKER_PREFIX + "full_index";
+    public final static String FULL_TEXT_INDEX_MARKER_FILENAME =
+            Constants.MARKER_PREFIX + "full_index";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FullTextIndexerRunnable.class);
@@ -51,6 +52,8 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
 
     private final IFullTextIndexer fullTextIndexer;
 
+    private final IFullTextIndexUpdater fullTextIndexUpdater;
+
     private final IIndexedEntityFinder indexedEntityFinder;
 
     public FullTextIndexerRunnable(final SessionFactory sessionFactory,
@@ -61,6 +64,8 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         this.context = context;
         operationLog.debug(String.format("Hibernate search context: %s.", context));
         fullTextIndexer = new DefaultFullTextIndexer(context.getBatchSize());
+        // TODO 2009-06-10, Piotr Buczek: use Spring injection
+        fullTextIndexUpdater = new FullTextIndexUpdater(sessionFactory, context);
         // TODO 2008-11-25, Tomasz Pylak: maybe we could get rid of hardcoding package path by
         // scanning Hibernate mapped entities?
         indexedEntityFinder =
@@ -76,6 +81,8 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         final IndexMode indexMode = context.getIndexMode();
         if (indexMode == IndexMode.NO_INDEX)
         {
+            operationLog.debug(String.format("Skipping indexing process as "
+                    + " '%s' mode was configured.", indexMode));
             return;
         }
         final Set<Class<?>> indexedEntities = indexedEntityFinder.getIndexedEntities();
@@ -103,6 +110,9 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
                         + "marker file '%s' already exists.", markerFile.getAbsolutePath()));
                 return;
             }
+            // full text index will be performed so updater queue can be cleared
+            fullTextIndexUpdater.clear();
+            //            
             final Session session = getSession();
             final StopWatch stopWatch = new StopWatch();
             for (final Class<?> indexedEntity : indexedEntities)
@@ -121,6 +131,10 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         {
             notificationLog.error(String.format(
                     "A problem has occurred while indexing entity '%s'.", currentEntity), th);
+        } finally
+        // when index creation is finished start index updater thread
+        {
+            fullTextIndexUpdater.start();
         }
     }
 }
