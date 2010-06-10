@@ -30,6 +30,17 @@ var screening = {
 	//
 	plate_locations: "Plate Locations",
   
+	//
+	// Plate Material Reviewer 
+	//    
+    SCREENING_MODULE_TITLE: "Screening",
+    
+    PLATE_MATERIAL_REVIEWER_TITLE: "Genes Reviewing Panel",
+    PLATE_MATERIAL_REVIEWER_HELP_INFO: "Specify a list of gene symbols and press the search button to find all the wells in this experiment where the specified genes have been suppressed.",
+    PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "List of gene symbols separated by commas (\",\") or one gene symbol per line.",
+
+    EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Genes Reviewing Panel",
+  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

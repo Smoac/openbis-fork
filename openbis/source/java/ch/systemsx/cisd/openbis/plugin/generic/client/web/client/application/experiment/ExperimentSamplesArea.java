@@ -19,10 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -52,18 +50,7 @@ final class ExperimentSamplesArea extends MultilineVarcharField
     // null if the area has not been modified, the list of all sample codes otherwise
     public final String[] tryGetSampleCodes()
     {
-        if (isDirty() == false)
-        {
-            return null;
-        }
-        String text = getValue();
-        if (StringUtils.isBlank(text) == false)
-        {
-            return text.split(GenericConstants.CODES_TEXTAREA_REGEX);
-        } else
-        {
-            return new String[0];
-        }
+        return tryParseItemList();
     }
 
     public final void setSamples(List<Sample> samples)

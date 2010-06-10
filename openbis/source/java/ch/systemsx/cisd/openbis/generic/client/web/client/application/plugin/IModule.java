@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 
 /**
@@ -56,6 +57,6 @@ public interface IModule
      * Returns a collection of {@link DisposableSectionPanel}s that will be added to entity details
      * view.
      */
-    Collection<? extends DisposableSectionPanel> getSections(
+    Collection<? extends SingleSectionPanel> getSections(
             IEntityInformationHolderWithIdentifier entity);
 }

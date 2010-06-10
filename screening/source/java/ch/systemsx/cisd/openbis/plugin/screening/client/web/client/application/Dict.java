@@ -32,6 +32,19 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String PLATE_LOCATIONS = "plate_locations";
 
+    public static final String EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION =
+            "EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION";
+
+    public static final String SCREENING_MODULE_TITLE = "SCREENING_MODULE_TITLE";
+
+    public static final String PLATE_MATERIAL_REVIEWER_TITLE = "PLATE_MATERIAL_REVIEWER_TITLE";
+
+    public static final String PLATE_MATERIAL_REVIEWER_HELP_INFO =
+            "PLATE_MATERIAL_REVIEWER_HELP_INFO";
+
+    public static final String PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS =
+            "PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS";
+
     private Dict()
     {
         // Can not be instantiated.

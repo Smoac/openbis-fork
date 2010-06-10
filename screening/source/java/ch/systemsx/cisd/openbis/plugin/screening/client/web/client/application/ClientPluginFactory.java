@@ -348,6 +348,6 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     @Override
     protected IModule maybeCreateModule()
     {
-        return null;
+        return new ScreeningModule(getViewContext());
     }
 }

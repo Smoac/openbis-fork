@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
@@ -77,9 +77,8 @@ public class ModulesSectionsManager
     {
         for (final IModule module : modules)
         {
-            final Collection<? extends DisposableSectionPanel> sections =
-                    module.getSections(entity);
-            for (final DisposableSectionPanel panel : sections)
+            final Collection<? extends SingleSectionPanel> sections = module.getSections(entity);
+            for (final SingleSectionPanel panel : sections)
             {
                 panel.setDisplayID(DisplayTypeIDGenerator.MODULE_SECTION, module.getName() + "-"
                         + displayIdSuffix);
