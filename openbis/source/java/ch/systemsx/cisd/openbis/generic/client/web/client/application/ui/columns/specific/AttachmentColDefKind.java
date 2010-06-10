@@ -35,7 +35,7 @@ public enum AttachmentColDefKind implements IColumnDefinitionKind<AttachmentVers
             }
         }),
 
-    PERMLINK(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.PERMLINK, true)
+    PERMLINK(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.PERMLINK)
         {
             @Override
             public String tryGetValue(AttachmentVersions entity)
