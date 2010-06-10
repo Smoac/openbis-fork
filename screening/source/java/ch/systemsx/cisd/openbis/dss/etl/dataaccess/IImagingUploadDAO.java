@@ -33,7 +33,9 @@ public interface IImagingUploadDAO extends TransactionQuery
 
     // select acquired_images.images.* from acquired_images
     @Select("select i.*, t.path as THUMBNAIL_PATH "
-            + "from IMAGES i, IMAGES t, ACQUIRED_IMAGES ai, CHANNEL_STACKS cs, SPOTS s "
+            + "from ACQUIRED_IMAGES ai join IMAGES i on ai.IMG_ID = i.ID "
+            + "                        left join IMAGES t on ai.THUMBNAIL_ID = t.ID "
+            + ", CHANNEL_STACKS cs, SPOTS s "
             + "where                                                                "
             // where acquired_images.channel.id = ?{channelId}
             // and acquired_images.channel_stack.dataset.id = ?{datasetId}
@@ -44,7 +46,6 @@ public interface IImagingUploadDAO extends TransactionQuery
             // and acquired_images.channel_stack.spot.y = wellY
             + "cs.x = ?{3.x} and cs.y = ?{3.y} and s.x = ?{4.x} and s.y = ?{4.y} and "
             // joins
-            + "ai.IMG_ID = i.ID and ai.THUMBNAIL_ID = t.ID and "
             + "ai.CHANNEL_STACK_ID = cs.ID and cs.SPOT_ID = s.ID")
     public ImgImageDTO tryGetImage(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
