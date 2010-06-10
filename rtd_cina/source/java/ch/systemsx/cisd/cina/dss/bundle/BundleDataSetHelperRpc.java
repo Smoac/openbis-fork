@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -126,10 +127,12 @@ class BundleDataSetHelperRpc extends BundleDataSetHelper
         NewSample sample = null;
         if (parentIdOrNull != null)
         {
+            Sample parentSample = getOpenbisService().tryGetSampleWithExperiment(parentIdOrNull);
             sampleId = new SampleIdentifier(parentIdOrNull.getSpaceLevel(), sampleCode);
             sample =
                     new NewSample(sampleId.toString(), replicaSampleType,
                             parentIdOrNull.toString(), null);
+            sample.setExperimentIdentifier(parentSample.getExperiment().getIdentifier());
         } else if (experimentIdOrNull != null)
         {
             // experimentIdOrNull cannot be null here, but the compiler doesn't realize it
