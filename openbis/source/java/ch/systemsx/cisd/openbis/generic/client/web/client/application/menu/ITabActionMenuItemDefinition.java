@@ -21,16 +21,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ITabActionMenuItemDefinition<S extends IClientServiceAsync>
 {
+    /**
+     * Used to create widget ids and dictionary messages. Following messages are expected to be
+     * defined in the dictionary: ${name}_menu_item, ${name}_tab_label
+     */
     public String getName();
-    
+
     public String getHelpPageTitle();
-    
+
     public DatabaseModificationAwareComponent createComponent(IViewContext<S> viewContext);
-    
+
 }
