@@ -232,8 +232,10 @@ public class ImagingUploadDAOTest extends AbstractDBTest
 
     private long addAcquiredImage(long imageId, long channelStackId, long channelId)
     {
-        final ImgAcquiredImageDTO acquiredImage =
-                new ImgAcquiredImageDTO(imageId, channelStackId, channelId);
+        final ImgAcquiredImageDTO acquiredImage = new ImgAcquiredImageDTO();
+        acquiredImage.setImageId(imageId);
+        acquiredImage.setChannelStackId(channelStackId);
+        acquiredImage.setChannelId(channelId);
         return dao.addAcquiredImage(acquiredImage);
     }
 

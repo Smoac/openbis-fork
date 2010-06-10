@@ -183,10 +183,14 @@ public class HCSDatasetUploader
 
         private final RelativeImageReference imageFilePath;
 
-        public AcquiredImageInStack(String channelName, RelativeImageReference imageFilePath)
+        private final RelativeImageReference thumbnailPathOrNull;
+
+        public AcquiredImageInStack(String channelName, RelativeImageReference imageFilePath,
+                RelativeImageReference thumbnailPathOrNull)
         {
             this.channelName = channelName;
             this.imageFilePath = imageFilePath;
+            this.thumbnailPathOrNull = thumbnailPathOrNull;
         }
 
         public String getChannelName()
@@ -197,6 +201,11 @@ public class HCSDatasetUploader
         public RelativeImageReference getImageFilePath()
         {
             return imageFilePath;
+        }
+
+        public final RelativeImageReference getThumbnailPathOrNull()
+        {
+            return thumbnailPathOrNull;
         }
     }
 
@@ -230,7 +239,7 @@ public class HCSDatasetUploader
 
     private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredPlateImage image)
     {
-        return new AcquiredImageInStack(image.getChannelName(), image.getImageReference());
+        return new AcquiredImageInStack(image.getChannelName(), image.getImageReference(), image.getThumbnailFilePathOrNull());
     }
 
     private static ImgChannelStackDTO makeStackDTO(AcquiredPlateImage image, Long[][] spotIds,
@@ -266,18 +275,31 @@ public class HCSDatasetUploader
         for (AcquiredImageInStack image : images)
         {
             long channelTechId = channelsMap.get(image.getChannelName());
-            createImage(stackId, channelTechId, image.getImageFilePath());
+            createImage(stackId, channelTechId, image);
         }
     }
 
-    private void createImage(long stackId, long channelTechId, RelativeImageReference imageReference)
+    private void createImage(long stackId, long channelTechId, AcquiredImageInStack image)
     {
-        long imageId =
-                dao.addImage(new ImgImageDTO(imageReference.getRelativeImagePath(), imageReference
-                        .tryGetPage(), imageReference.tryGetColorComponent()));
+        long imageId = addImage(image.getImageFilePath());
+        Long thumbnailId = addImage(image.getThumbnailPathOrNull());
         ImgAcquiredImageDTO acquiredImage =
-                new ImgAcquiredImageDTO(imageId, stackId, channelTechId);
+                new ImgAcquiredImageDTO();
+        acquiredImage.setImageId(imageId);
+        acquiredImage.setThumbnailId(thumbnailId);
+        acquiredImage.setChannelStackId(stackId);
+        acquiredImage.setChannelId(channelTechId);
         dao.addAcquiredImage(acquiredImage);
+    }
+    
+    private Long addImage(RelativeImageReference imageReferenceOrNull)
+    {
+        if (imageReferenceOrNull == null)
+        {
+            return null;
+        }
+        return dao.addImage(new ImgImageDTO(imageReferenceOrNull.getRelativeImagePath(),
+                imageReferenceOrNull.tryGetPage(), imageReferenceOrNull.tryGetColorComponent()));
     }
 
     private void createChannelStacks(Set<ImgChannelStackDTO> stacks)

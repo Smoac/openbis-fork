@@ -42,19 +42,6 @@ public class ImgAcquiredImageDTO extends AbstractHashable
     @ResultColumn("THUMBNAIL_ID")
     private Long thumbnailId;
 
-    @SuppressWarnings("unused")
-    private ImgAcquiredImageDTO()
-    {
-        // All Data-Object classes must have a default constructor.
-    }
-
-    public ImgAcquiredImageDTO(long imageId, long channelStackId, long channelId)
-    {
-        this.imageId = imageId;
-        this.channelStackId = channelStackId;
-        this.channelId = channelId;
-    }
-
     public long getId()
     {
         return id;

@@ -24,6 +24,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
@@ -97,7 +98,7 @@ public class ImageChannelsUtils
     private static BufferedImage selectSingleChannel(TileImageReference params,
             AbsoluteImageReference imageReference)
     {
-        BufferedImage image = ImageUtil.loadImage(imageReference.getAbsoluteImageFile());
+        BufferedImage image = ImageUtil.loadImage(imageReference.getAbsoluteImageFile().getInputStream());
         ColorComponent colorComponent = imageReference.tryGetColorComponent();
         if (colorComponent == null)
         {
@@ -111,14 +112,14 @@ public class ImageChannelsUtils
 
     private static BufferedImage mergeAllChannels(List<AbsoluteImageReference> imageReferences)
     {
-        File mergedChannelsImage = tryAsOneImageWithAllChannels(imageReferences);
+        IContent mergedChannelsImage = tryAsOneImageWithAllChannels(imageReferences);
         if (mergedChannelsImage != null)
         {
             // all channels are on an image in one file, no pixel-level operations needed
-            return ImageUtil.loadImage(mergedChannelsImage);
+            return ImageUtil.loadImage(mergedChannelsImage.getInputStream());
         } else
         {
-            List<File> plainImages = tryAsPlainImages(imageReferences);
+            List<IContent> plainImages = tryAsPlainImages(imageReferences);
             if (plainImages == null)
             {
                 throw EnvironmentFailureException.fromTemplate(
@@ -130,9 +131,9 @@ public class ImageChannelsUtils
         }
     }
 
-    private static List<File> tryAsPlainImages(List<AbsoluteImageReference> images)
+    private static List<IContent> tryAsPlainImages(List<AbsoluteImageReference> images)
     {
-        List<File> plainFiles = new ArrayList<File>();
+        List<IContent> plainFiles = new ArrayList<IContent>();
         for (AbsoluteImageReference image : images)
         {
             if (image.tryGetColorComponent() != null || image.tryGetPage() != null)
@@ -144,12 +145,12 @@ public class ImageChannelsUtils
         return plainFiles;
     }
 
-    private static File tryAsOneImageWithAllChannels(List<AbsoluteImageReference> imageReferences)
+    private static IContent tryAsOneImageWithAllChannels(List<AbsoluteImageReference> imageReferences)
     {
-        File mergedChannelsImage = null;
+        IContent mergedChannelsImage = null;
         for (AbsoluteImageReference image : imageReferences)
         {
-            File imageFile = image.getAbsoluteImageFile();
+            IContent imageFile = image.getAbsoluteImageFile();
             if (mergedChannelsImage == null)
             {
                 mergedChannelsImage = imageFile;
@@ -196,12 +197,12 @@ public class ImageChannelsUtils
         return mergedRGB;
     }
 
-    private static List<BufferedImage> loadImages(List<File> imageFiles)
+    private static List<BufferedImage> loadImages(List<IContent> imageFiles)
     {
         List<BufferedImage> images = new ArrayList<BufferedImage>();
-        for (File imageFile : imageFiles)
+        for (IContent imageFile : imageFiles)
         {
-            BufferedImage image = ImageUtil.loadImage(imageFile);
+            BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
             images.add(image);
         }
         return images;

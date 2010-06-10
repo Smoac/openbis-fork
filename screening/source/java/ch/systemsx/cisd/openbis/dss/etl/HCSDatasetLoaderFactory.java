@@ -24,6 +24,7 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -94,7 +95,7 @@ public class HCSDatasetLoaderFactory
                 {
                     String absPath =
                             loader.tryGetStandardNodeAt(chosenChannel, wellLocation, tileLocation);
-                    return new AbsoluteImageReference(absPath, null, null);
+                    return new AbsoluteImageReference(new FileBasedContent(new File(absPath)), null, null);
                 }
 
             };

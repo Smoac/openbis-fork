@@ -38,6 +38,8 @@ public class AcquiredPlateImage extends AbstractHashable
     private final RelativeImageReference imageFilePath; // relative to the original dataset
                                                         // directory
 
+    private RelativeImageReference thumbnailFilePathOrNull;
+    
     public AcquiredPlateImage(Location wellLocation, Location tileLocation, String channelName,
             Float timePointOrNull, Float depthOrNull, RelativeImageReference imageFilePath)
     {
@@ -87,6 +89,16 @@ public class AcquiredPlateImage extends AbstractHashable
     public RelativeImageReference getImageReference()
     {
         return imageFilePath;
+    }
+
+    public RelativeImageReference getThumbnailFilePathOrNull()
+    {
+        return thumbnailFilePathOrNull;
+    }
+
+    public final void setThumbnailFilePathOrNull(RelativeImageReference thumbnailFilePathOrNull)
+    {
+        this.thumbnailFilePathOrNull = thumbnailFilePathOrNull;
     }
 
 }

@@ -37,7 +37,8 @@ import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.io.ConcatenatedFileInputStream;
+import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
+import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
@@ -171,16 +172,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         IHCSDatasetLoader imageAccessor =
                 HCSDatasetLoaderFactory.create(datasetRoot, dataset.getDatasetCode());
-        File imageFile = getAnyImagePath(imageAccessor, dataset);
+        IContent imageFile = getAnyImagePath(imageAccessor, dataset);
         Geometry wellGeometry = imageAccessor.getWellGeometry();
         int channelsNumber = imageAccessor.getChannelCount();
         int tilesNumber = wellGeometry.getColumns() * wellGeometry.getRows();
-        BufferedImage image = ImageUtil.loadImage(imageFile);
+        BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
         return new ImageDatasetMetadata(dataset, channelsNumber, tilesNumber, image.getWidth(),
                 image.getHeight());
     }
 
-    private static File getAnyImagePath(IHCSDatasetLoader imageAccessor,
+    private static IContent getAnyImagePath(IHCSDatasetLoader imageAccessor,
             IImageDatasetIdentifier dataset)
     {
         Geometry plateGeometry = imageAccessor.getPlateGeometry();
@@ -228,7 +229,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         Map<String, IHCSDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
-        List<File> imageFiles = new ArrayList<File>();
+        List<IContent> imageFiles = new ArrayList<IContent>();
         try
         {
             for (PlateImageReference imageReference : imageReferences)
@@ -250,7 +251,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         {
             closeDatasetLoaders(imageLoadersMap.values());
         }
-        return new ConcatenatedFileInputStream(true, imageFiles);
+        return new ConcatenatedContentInputStream(true, imageFiles);
     }
 
     private static void closeDatasetLoaders(Collection<IHCSDatasetLoader> loaders)

@@ -20,6 +20,8 @@ import java.io.File;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.io.FileBasedContent;
+import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
 
@@ -120,17 +122,13 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
                                 wellLocation);
         if (imageDTO != null)
         {
-            return new AbsoluteImageReference(getAbsolutePath(imageDTO), imageDTO.getPage(),
+            File imgDir = new File(datasetRootDir, dataset.getImagesDirectoryPath());
+            IContent content = new FileBasedContent(new File(imgDir, imageDTO.getFilePath()));
+            return new AbsoluteImageReference(content, imageDTO.getPage(),
                     imageDTO.getColorComponent());
         } else
         {
             return null;
         }
-    }
-
-    private String getAbsolutePath(ImgImageDTO imageDTO)
-    {
-        File imgDir = new File(datasetRootDir, dataset.getImagesDirectoryPath());
-        return new File(imgDir, imageDTO.getFilePath()).getAbsolutePath();
     }
 }

@@ -48,8 +48,8 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet
         List<AbsoluteImageReference> images =
                 ImageChannelsUtils.getImagePaths(datasetRoot, datasetCode, params);
         BufferedImage image = ImageChannelsUtils.mergeImageChannels(params, images);
-        File singleFileOrNull = images.size() == 1 ? images.get(0).getAbsoluteImageFile() : null;
-        return createResponseContentStream(image, singleFileOrNull);
+        String singleFileNameOrNull = images.size() == 1 ? images.get(0).getAbsoluteImageFile().getName() : null;
+        return createResponseContentStream(image, singleFileNameOrNull);
     }
 
 }

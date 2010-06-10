@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
 import javax.sql.DataSource;
 
 import net.lemnik.eodsql.QueryTool;
@@ -32,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.bds.hcs.Channel;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
@@ -54,10 +58,14 @@ import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.PlateDimension;
 import ch.systemsx.cisd.etlserver.PlateDimensionParser;
+import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
+import ch.systemsx.cisd.hdf5.IHDF5Writer;
+import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageCheckList.FullLocation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -264,15 +272,44 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                 extractImages(dataSetInformation, incomingDataSetDirectory);
 
         validateImages(dataSetInformation, mailClient, incomingDataSetDirectory, extractionResult);
+        List<AcquiredPlateImage> plateImages = extractionResult.getImages();
 
         File imagesInStoreFolder = moveFileToDirectory(incomingDataSetDirectory, originalFolder);
+        File thumbnailsFile = new File(rootDirectory, Constants.HDF5_CONTAINER_FILE_NAME);
+        System.out.println(thumbnailsFile);
+        IHDF5Writer writer = HDF5FactoryProvider.get().open(thumbnailsFile);
         String relativeImagesDirectory =
-                getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder);
+            getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder);
+        String relativeThumbnailFilePath = getRelativeImagesDirectory(rootDirectory, thumbnailsFile);
+        
+        for (AcquiredPlateImage plateImage : plateImages)
+        {
+            RelativeImageReference imageReference = plateImage.getImageReference();
+            String imagePath = imageReference.getRelativeImagePath();
+            File img = new File(imagesInStoreFolder, imagePath);
+            BufferedImage image = ImageUtil.loadImage(img);
+            BufferedImage thumbnail = ImageUtil.createThumbnail(image, 100, 60);
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try
+            {
+                ImageIO.write(thumbnail, "png", output);
+                String path = relativeThumbnailFilePath + ":" + imagePath;
+                plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path,
+                        imageReference.tryGetPage(), imageReference.tryGetColorComponent()));
+                System.out.println(path);
+                writer.writeByteArray(path, output.toByteArray());
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+        writer.close();
+        
 
         storeInDatabase(experiment, dataSetInformation, extractionResult, relativeImagesDirectory);
         return rootDirectory;
     }
-
+    
     private String getRelativeImagesDirectory(File rootDirectory, File imagesInStoreFolder)
     {
         String root = rootDirectory.getAbsolutePath();
@@ -334,6 +371,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         }
         final HCSImageFileExtractionResult result =
                 extractor.extract(incomingDataSetDirectory, dataSetInformation);
+        
         if (operationLog.isInfoEnabled())
         {
             long duration = System.currentTimeMillis() - extractionStart;

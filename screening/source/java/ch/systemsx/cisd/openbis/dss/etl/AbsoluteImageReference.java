@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import java.io.File;
-
+import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
 
 /**
@@ -27,17 +26,17 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
  */
 public class AbsoluteImageReference extends AbstractImageReference
 {
-    private final File imageAbsolutePath;
+    private final IContent content;
 
-    public AbsoluteImageReference(String imageAbsolutePath, Integer pageOrNull,
+    public AbsoluteImageReference(IContent content, Integer pageOrNull,
             ColorComponent colorComponentOrNull)
     {
         super(pageOrNull, colorComponentOrNull);
-        this.imageAbsolutePath = new File(imageAbsolutePath);
+        this.content = content;
     }
 
-    public File getAbsoluteImageFile()
+    public IContent getAbsoluteImageFile()
     {
-        return imageAbsolutePath;
+        return content;
     }
 }
