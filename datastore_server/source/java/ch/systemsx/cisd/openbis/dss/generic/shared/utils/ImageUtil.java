@@ -21,11 +21,23 @@ import ij.io.Opener;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.IOUtils;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 
 /**
  * Utility function on images.
@@ -35,8 +47,51 @@ import java.util.Set;
 public class ImageUtil
 {
     private static final Set<String> FILE_TYPES =
-            Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("gif", "jpg", "jpeg",
+            Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("gif", "jpg", "jpeg", "png", 
                     "tif", "tiff")));
+    
+    private static interface ImageLoader
+    {
+        public BufferedImage load(InputStream inputStream);
+    }
+    
+    private static final class TiffImageLoader implements ImageLoader
+    {
+        static final ImageLoader INSTANCE = new TiffImageLoader();
+        
+        public BufferedImage load(InputStream inputStream)
+        {
+            return new Opener().openTiff(inputStream, "").getBufferedImage();
+        }
+    }
+    
+    private static final class JavaImageLoader implements ImageLoader
+    {
+        static final ImageLoader INSTANCE = new JavaImageLoader();
+
+        public BufferedImage load(InputStream inputStream)
+        {
+            try
+            {
+                return ImageIO.read(inputStream);
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+        
+    }
+    
+    private static final Map<String, ImageLoader> imageLoaders = new HashMap<String, ImageLoader>();
+    
+    static
+    {
+        imageLoaders.put("gif", JavaImageLoader.INSTANCE);
+        imageLoaders.put("jpg", JavaImageLoader.INSTANCE);
+        imageLoaders.put("png", JavaImageLoader.INSTANCE);
+        imageLoaders.put("tif", TiffImageLoader.INSTANCE);
+    }
+    
 
     /**
      * Returns <code>true</code> if the specified file is a supported image file. Supported formats
@@ -54,6 +109,41 @@ public class ImageUtil
         }
         String fileType = name.substring(lastIndexOfDot + 1).toLowerCase();
         return FILE_TYPES.contains(fileType);
+    }
+    
+    /**
+     * Loads an image from specified input stream. Supported images formats are GIF, JPG, PNG, and
+     * TIFF. The input stream will be closed after loading.
+     * 
+     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
+     *             identifying supported image format.
+     */
+    public static BufferedImage loadImage(InputStream inputStream)
+    {
+        try
+        {
+            InputStream markSupportingInputStream = inputStream;
+            if (inputStream.markSupported() == false)
+            {
+                markSupportingInputStream = new BufferedInputStream(inputStream);
+            }
+            String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(markSupportingInputStream);
+            if (fileType == null)
+            {
+                throw new IllegalArgumentException(
+                        "File type of an image input stream couldn't be figured out.");
+            }
+            ImageLoader imageLoader = imageLoaders.get(fileType);
+            if (imageLoader == null)
+            {
+                throw new IllegalArgumentException("Unable to load image of file type '" + fileType
+                        + "'.");
+            }
+            return imageLoader.load(markSupportingInputStream);
+        } finally
+        {
+            IOUtils.closeQuietly(inputStream);
+        }
     }
 
     /**
