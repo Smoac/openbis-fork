@@ -32,8 +32,10 @@
       <fileset dir="source">
         <include name="**/*.sql" />
       </fileset>
-    	<zipfileset src="${lib}/jhdf5/cisd-jhdf5-core.jar">
+    	<zipfileset src="${lib}/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar">
     		<exclude name="META_INF/*"/>
+    		<include name="ch/systemsx/cisd/hdf5/**/*"/>
+    		<include name="nsca/**/*"/>
     	</zipfileset>
     	<fileset dir="${lib}/hdf5">
     		<include name="native/**/*"/>
