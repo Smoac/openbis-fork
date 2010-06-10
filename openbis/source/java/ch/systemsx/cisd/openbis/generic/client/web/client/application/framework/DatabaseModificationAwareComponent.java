@@ -25,6 +25,15 @@ import com.extjs.gxt.ui.client.widget.Component;
  */
 public class DatabaseModificationAwareComponent extends DatabaseModificationAwareObject<Component>
 {
+    /**
+     * Creates a mock with a dummy database modification observer. Use this method if your component
+     * does not need to be refreshed when the database changes.
+     */
+    public static DatabaseModificationAwareComponent wrapUnaware(Component component)
+    {
+        return new DatabaseModificationAwareComponent(component, createDummyModificationObserver());
+    }
+
     public DatabaseModificationAwareComponent(Component holder,
             IDatabaseModificationObserver modificationObserver)
     {
