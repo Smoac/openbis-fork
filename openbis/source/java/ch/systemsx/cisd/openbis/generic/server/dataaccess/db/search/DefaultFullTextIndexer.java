@@ -73,9 +73,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             throws DataAccessException
     {
         operationLog.info(String.format("Indexing '%s'...", clazz.getSimpleName()));
-        final FullTextSession fullTextSession = Search.getFullTextSession(hibernateSession);
-        fullTextSession.setFlushMode(FlushMode.MANUAL);
-        fullTextSession.setCacheMode(CacheMode.IGNORE);
+        final FullTextSession fullTextSession = getFullTextSession(hibernateSession);
 
         // we index entities in batches loading them in groups restricted by id:
         // [ ids[index], ids[min(index+batchSize, maxIndex))] )
@@ -95,17 +93,9 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             final int nextIndex = getNextIndex(index, maxIndex);
             final long minId = ids.get(index);
             final long maxId = ids.get(nextIndex);
-            final List<?> results =
-                    createCriteriaWithRestrictedId(fullTextSession, clazz, minId, maxId).list();
-            for (Object object : results)
-            {
-                indexEntity(fullTextSession, object);
-                index++;
-            }
-            operationLog.info(String.format("%d %ss have been indexed...", index, clazz
-                    .getSimpleName()));
-            fullTextSession.flushToIndexes();
-            fullTextSession.clear();
+            final List<T> results =
+                    listEntitiesWithRestrictedId(fullTextSession, clazz, minId, maxId);
+            index = indexEntities(fullTextSession, results, clazz, index);
         }
         fullTextSession.getSearchFactory().optimize(clazz);
         transaction.commit();
@@ -117,9 +107,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             final List<Long> ids) throws DataAccessException
     {
         operationLog.info(String.format("Reindexing %s %ss...", ids.size(), clazz.getSimpleName()));
-        final FullTextSession fullTextSession = Search.getFullTextSession(hibernateSession);
-        fullTextSession.setFlushMode(FlushMode.MANUAL);
-        fullTextSession.setCacheMode(CacheMode.IGNORE);
+        final FullTextSession fullTextSession = getFullTextSession(hibernateSession);
 
         // we index entities in batches loading them in groups by id
         final Transaction transaction = fullTextSession.beginTransaction();
@@ -130,17 +118,8 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         {
             final int nextIndex = getNextIndex(index, maxIndex);
             List<Long> subList = ids.subList(index, nextIndex);
-            final List<?> results =
-                    createCriteriaWithRestrictedId(fullTextSession, clazz, subList).list();
-            for (Object object : results)
-            {
-                indexEntity(fullTextSession, object);
-                index++;
-            }
-            operationLog.info(String.format("%d %ss have been reindexed...", index, clazz
-                    .getSimpleName()));
-            fullTextSession.flushToIndexes();
-            fullTextSession.clear();
+            final List<T> results = listEntitiesWithRestrictedId(fullTextSession, clazz, subList);
+            index = indexEntities(fullTextSession, results, clazz, index);
         }
         fullTextSession.getSearchFactory().optimize(clazz);
         transaction.commit();
@@ -160,47 +139,85 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         }
     }
 
-    @SuppressWarnings(
-        { "cast", "unchecked" })
-    private <T> List<Long> getAllIds(final FullTextSession fullTextSession, final Class<T> clazz)
+    private static final FullTextSession getFullTextSession(final Session hibernateSession)
     {
-        List<Long> result =
-                (List<Long>) createCriteria(fullTextSession, clazz).setProjection(
+        final FullTextSession fullTextSession = Search.getFullTextSession(hibernateSession);
+        fullTextSession.setFlushMode(FlushMode.MANUAL);
+        fullTextSession.setCacheMode(CacheMode.IGNORE);
+        return fullTextSession;
+    }
+
+    private static final <T> int indexEntities(final FullTextSession fullTextSession,
+            final List<T> entities, final Class<T> clazz, final int oldCounter)
+    {
+        int counter = oldCounter;
+        for (T entity : entities)
+        {
+            indexEntity(fullTextSession, entity);
+            counter++;
+        }
+        operationLog.info(String.format("%d %ss have been indexed...", counter, clazz
+                .getSimpleName()));
+        fullTextSession.flushToIndexes();
+        fullTextSession.clear();
+        return counter;
+    }
+
+    private static final <T> List<Long> getAllIds(final FullTextSession fullTextSession,
+            final Class<T> clazz)
+    {
+        Criteria criteria =
+                createCriteria(fullTextSession, clazz).setProjection(
                         Projections.property(ID_PROPERTY_NAME)).addOrder(
-                        Order.asc(ID_PROPERTY_NAME)).list();
-        return result;
+                        Order.asc(ID_PROPERTY_NAME));
+        return list(criteria);
     }
 
-    private <T> Criteria createCriteriaWithRestrictedId(final FullTextSession fullTextSession,
-            final Class<T> clazz, final long minId, final long maxId)
+    private static final <T> List<T> listEntitiesWithRestrictedId(
+            final FullTextSession fullTextSession, final Class<T> clazz, final long minId,
+            final long maxId)
     {
-        return createCriteria(fullTextSession, clazz).add(Restrictions.ge(ID_PROPERTY_NAME, minId))
-                .add(Restrictions.lt(ID_PROPERTY_NAME, maxId));
+        Criteria criteria =
+                createCriteria(fullTextSession, clazz)
+                        .add(Restrictions.ge(ID_PROPERTY_NAME, minId)).add(
+                                Restrictions.lt(ID_PROPERTY_NAME, maxId));
+        return list(criteria);
+
     }
 
-    private <T> Criteria createCriteriaWithRestrictedId(final FullTextSession fullTextSession,
-            final Class<T> clazz, final List<Long> ids)
+    private static final <T> List<T> listEntitiesWithRestrictedId(
+            final FullTextSession fullTextSession, final Class<T> clazz, final List<Long> ids)
     {
-        return createCriteria(fullTextSession, clazz).add(Restrictions.in(ID_PROPERTY_NAME, ids));
+        Criteria criteria =
+                createCriteria(fullTextSession, clazz).add(Restrictions.in(ID_PROPERTY_NAME, ids));
+        return list(criteria);
+
     }
 
-    private <T> Criteria createCriteria(final FullTextSession fullTextSession, final Class<T> clazz)
+    private static final <T> Criteria createCriteria(final FullTextSession fullTextSession,
+            final Class<T> clazz)
     {
         return fullTextSession.createCriteria(clazz);
     }
 
-    private <T> void indexEntity(final FullTextSession fullTextSession, T object)
+    @SuppressWarnings("unchecked")
+    private static final <T> List<T> list(final Criteria criteria)
+    {
+        return criteria.list();
+    }
+
+    private static final <T> void indexEntity(final FullTextSession fullTextSession, T entity)
     {
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("Indexing entity '%s'.", object));
+            operationLog.debug(String.format("Indexing entity '%s'.", entity));
         }
         try
         {
-            fullTextSession.index(object);
+            fullTextSession.index(entity);
         } catch (Exception e)
         {
-            operationLog.error("Error while indexing the object " + object + ": " + e.getMessage()
+            operationLog.error("Error while indexing the entity " + entity + ": " + e.getMessage()
                     + ". Indexing will be continued.");
         }
     }
