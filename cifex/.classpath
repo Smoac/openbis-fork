@@ -45,5 +45,7 @@
 	<classpathentry kind="lib" path="/libraries/commons-httpclient/commons-httpclient.jar" sourcepath="/libraries/commons-httpclient/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/bouncycastle/bcpg.jar" sourcepath="/libraries/bouncycastle/bcpg_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/bouncycastle/bcprov.jar" sourcepath="/libraries/bouncycastle/bcprov_src.zip"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
