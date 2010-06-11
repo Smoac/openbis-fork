@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
@@ -46,6 +47,9 @@ class CommandPut extends AbstractCommand
         @Option(name = "t", longName = "type", usage = "Set the data set type")
         private String dataSetType;
 
+        @Option(longName = "props", usage = "Set properties of the data set (format: code=val[,code=val]*")
+        private String propertiesString;
+
         public String getDataSetType()
         {
             return dataSetType;
@@ -71,6 +75,25 @@ class CommandPut extends AbstractCommand
             return new File(getFilePath());
         }
 
+        public HashMap<String, String> getProperties()
+        {
+            HashMap<String, String> propsMap = new HashMap<String, String>();
+            String propsString = propertiesString;
+            if (propsString == null || propsString.length() == 0)
+            {
+                return propsMap;
+            }
+
+            String[] propsArray = propsString.split(",");
+            for (String propLine : propsArray)
+            {
+                String[] keyAndValue = propLine.split("=");
+                assert keyAndValue.length == 2;
+                propsMap.put(keyAndValue[0], keyAndValue[1]);
+            }
+            return propsMap;
+        }
+
         @Override
         public boolean isComplete()
         {
@@ -85,6 +108,15 @@ class CommandPut extends AbstractCommand
                 getOwnerType();
             } catch (IllegalArgumentException e)
             {
+                return false;
+            }
+
+            try
+            {
+                getProperties();
+            } catch (Exception e)
+            {
+                System.err.println("\nProprties must be specified using as code=value[,code=value]*\n");
                 return false;
             }
 
@@ -155,6 +187,10 @@ class CommandPut extends AbstractCommand
             NewDataSetDTO dataSet = new NewDataSetDTO(owner, parentNameOrNull, fileInfos);
             // Set the data set type (may be null)
             dataSet.setDataSetTypeOrNull(arguments.getDataSetType());
+
+            // Set the properties
+            dataSet.setProperties(arguments.getProperties());
+
             return dataSet;
         }
 
@@ -221,8 +257,7 @@ class CommandPut extends AbstractCommand
     @Override
     public void printUsage(PrintStream out)
     {
-        out.println(getUsagePrefixString()
-                + " [options] <owner type> <owner> <path>");
+        out.println(getUsagePrefixString() + " [options] <owner type> <owner> <path>");
         parser.printUsage(out);
         out.println("  Examples : ");
         out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
