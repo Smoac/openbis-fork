@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
@@ -29,6 +30,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.hibernate.validator.ClassValidator;
 import org.hibernate.validator.InvalidValue;
 import org.springframework.dao.DataAccessException;
@@ -36,7 +38,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import ch.rinn.restrictions.Private;
@@ -70,8 +76,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
      * Validates given <i>Persistence Entity</i> using an appropriate {@link ClassValidator}.
      */
     @SuppressWarnings("unchecked")
-    protected final static <E> void validatePE(final E pe)
-            throws DataIntegrityViolationException
+    protected final static <E> void validatePE(final E pe) throws DataIntegrityViolationException
     {
         validatePE(pe, new ClassValidator(pe.getClass()));
     }
@@ -264,6 +269,70 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     protected final long getNextSequenceId(String sequenceName)
     {
         return Hibernate3SequenceGenerator.nextval(sequenceName, getSession(true));
+    }
+
+    protected final Object executeStatelessAction(final StatelessHibernateCallback action)
+            throws DataAccessException
+    {
+        assert action != null;
+        return getHibernateTemplate().execute(new HibernateCallback()
+            {
+
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    StatelessSession sls = null;
+                    try
+                    {
+                        sls = this.getStatelessSession();
+                        return action.doInStatelessSession(sls);
+                    } catch (HibernateException ex)
+                    {
+                        throw convertHibernateAccessException(ex);
+                    } catch (RuntimeException ex)
+                    {
+                        // Callback code threw application exception...
+                        throw ex;
+                    } finally
+                    {
+                        if (sls != null)
+                        {
+                            releaseConnection(sls.connection());
+                            sls.close();
+                        }
+                    }
+
+                }
+
+                private StatelessSession getStatelessSession()
+                        throws CannotGetJdbcConnectionException
+                {
+                    return getSessionFactory().openStatelessSession(getThreadBoundConnection());
+                }
+
+                private Connection getThreadBoundConnection()
+                        throws CannotGetJdbcConnectionException
+                {
+                    return DataSourceUtils.getConnection(SessionFactoryUtils
+                            .getDataSource(getSessionFactory()));
+                }
+
+                private void releaseConnection(Connection connection)
+                {
+                    DataSourceUtils.releaseConnection(connection, SessionFactoryUtils
+                            .getDataSource(getSessionFactory()));
+                }
+            });
+    }
+
+    /**
+     * Callback interface for Hibernate code requiring a {@link org.hibernate.StatelessSession}. To
+     * be used with {@link HibernateTemplate}'s execution methods, often as anonymous classes within
+     * a method implementation.
+     */
+    protected interface StatelessHibernateCallback
+    {
+        Object doInStatelessSession(StatelessSession sls);
     }
 
 }

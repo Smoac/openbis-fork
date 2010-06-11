@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,16 +25,14 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -218,15 +215,10 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                         + "VALUES (nextval('%s'), :registratorId, :entityId, :etptId, :value)",
                         tableName, entityColumn, propertyTypeColumn, valueColumn, sequenceName);
 
-        getHibernateTemplate().execute(new HibernateCallback()
+        // inserts are performed using stateless session for better memory management
+        executeStatelessAction(new StatelessHibernateCallback()
             {
-
-                //
-                // HibernateCallback
-                //
-
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
+                public Object doInStatelessSession(StatelessSession session)
                 {
                     final SQLQuery sqlQuery = session.createSQLQuery(sql);
                     sqlQuery.setParameter("registratorId", registratorId);
@@ -243,17 +235,21 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                                     "Created property '%s' for %s with id %s", property, entityKind
                                             .getLabel(), entityId));
                         }
-                        if (operationLog.isInfoEnabled() && (++counter % 1000 == 0))
+                        if (++counter % 1000 == 0)
                         {
                             operationLog.info(String.format(
                                     "%d %s properties have been created...", counter, entityKind
                                             .getLabel()));
-
+                            if (operationLog.isDebugEnabled())
+                            {
+                                operationLog.info(getMemoryUsageMessage());
+                            }
                         }
                     }
                     return null;
                 }
             });
+
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Created %s %s properties : %s", entityIds.size(),
@@ -261,6 +257,16 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
         // index will not be updated automatically by Hibernate because we use native SQL queries
         scheduleFullTextIndexUpdate(entityIds);
+    }
+
+    private String getMemoryUsageMessage()
+    {
+        Runtime runtime = Runtime.getRuntime();
+        long mb = 1024l * 1024l;
+        long totalMemory = runtime.totalMemory() / mb;
+        long freeMemory = runtime.freeMemory() / mb;
+        long maxMemory = runtime.maxMemory() / mb;
+        return "MEMORY (in MB): free:" + freeMemory + " total:" + totalMemory + " max:" + maxMemory;
     }
 
     public List<IEntityPropertiesHolder> listEntitiesWithoutPropertyValue(
