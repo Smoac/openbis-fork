@@ -269,7 +269,6 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     @Override
     public final boolean equals(final Object obj)
     {
-        EqualsHashUtils.assertDefined(getEntity(), "entity");
         EqualsHashUtils.assertDefined(getEntityTypePropertyType(), "etpt");
         if (obj == this)
         {
