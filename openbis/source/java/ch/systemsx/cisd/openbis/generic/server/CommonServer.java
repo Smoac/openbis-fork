@@ -190,7 +190,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     public CommonServer(final IAuthenticationService authenticationService,
             final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final ICommonBusinessObjectFactory businessObjectFactory,
-            LastModificationState lastModificationState)
+            final LastModificationState lastModificationState)
     {
         super(authenticationService, sessionManager, daoFactory, businessObjectFactory);
         this.lastModificationState = lastModificationState;

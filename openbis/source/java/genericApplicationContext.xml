@@ -35,6 +35,7 @@
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory">
         <constructor-arg ref="db-configuration-context" />
         <constructor-arg ref="hibernate-session-factory" />
+        <constructor-arg ref="full-text-index-updater" />
     </bean>
     
     <bean id="dss-factory" class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServiceFactory"/>

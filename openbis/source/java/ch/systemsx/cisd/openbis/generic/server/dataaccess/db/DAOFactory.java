@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -45,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * {@link IDAOFactory} implementation working with {@link DatabaseConfigurationContext} and
  * {@link SessionFactory}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
 {
@@ -86,7 +87,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     private final IAuthorizationGroupDAO authorizationGroupDAO;
 
     public DAOFactory(final DatabaseConfigurationContext context,
-            final SessionFactory sessionFactory)
+            final SessionFactory sessionFactory,
+            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
     {
         super(context, sessionFactory);
         final DatabaseInstancePE databaseInstance = getHomeDatabaseInstance();
@@ -112,7 +114,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
                     new EntityTypeDAO(entityKind, sessionFactory, databaseInstance);
             entityTypeDAOs.put(entityKind, dao);
             entityPropertyTypeDAOs.put(entityKind, new EntityPropertyTypeDAO(entityKind,
-                    sessionFactory, databaseInstance));
+                    sessionFactory, databaseInstance, fullTextIndexUpdateScheduler));
         }
     }
 

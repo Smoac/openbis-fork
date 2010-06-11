@@ -129,7 +129,6 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                     try
                     {
                         session = getSession();
-                        // FIXME clear session?
                         fullTextIndexer.doFullTextIndexUpdate(getSession(), entities.getClazz(),
                                 entities.getIds());
                         stopWatch.stop();
@@ -145,7 +144,8 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                     }
                     if (operationLog.isInfoEnabled())
                     {
-                        operationLog.info("Finished updating " + entities + " after " + stopWatch);
+                        operationLog.info("Updating " + entities.getIds().size() + " "
+                                + entities.getClazz().getSimpleName() + "s took " + stopWatch);
                     }
                     updaterQueue.take();
                 }

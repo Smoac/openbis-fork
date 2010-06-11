@@ -41,11 +41,14 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.EntitiesToUpdate;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
@@ -69,12 +72,15 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
 
     private final EntityKind entityKind;
 
+    private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
+
     public EntityPropertyTypeDAO(final EntityKind entityKind, final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance)
+            final DatabaseInstancePE databaseInstance,
+            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
     {
         super(sessionFactory, databaseInstance);
         this.entityKind = entityKind;
-
+        this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
     }
 
     private final <T extends EntityTypePropertyTypePE> Class<T> getEntityTypePropertyTypeAssignmentClass()
@@ -226,6 +232,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                     sqlQuery.setParameter("registratorId", registratorId);
                     sqlQuery.setParameter("etptId", etptId);
                     sqlQuery.setParameter("value", valueObject);
+                    int counter = 0;
                     for (Long entityId : entityIds)
                     {
                         sqlQuery.setParameter("entityId", entityId);
@@ -236,6 +243,13 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                                     "Created property '%s' for %s with id %s", property, entityKind
                                             .getLabel(), entityId));
                         }
+                        if (operationLog.isInfoEnabled() && (++counter % 1000 == 0))
+                        {
+                            operationLog.info(String.format(
+                                    "%d %s properties have been created...", counter, entityKind
+                                            .getLabel()));
+
+                        }
                     }
                     return null;
                 }
@@ -245,6 +259,8 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
             operationLog.info(String.format("Created %s %s properties : %s", entityIds.size(),
                     entityKind.getLabel(), property));
         }
+        // index will not be updated automatically by Hibernate because we use native SQL queries
+        scheduleFullTextIndexUpdate(entityIds);
     }
 
     public List<IEntityPropertiesHolder> listEntitiesWithoutPropertyValue(
@@ -418,6 +434,23 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     }
 
     // helpers
+
+    private void scheduleFullTextIndexUpdate(List<Long> entityIds)
+    {
+        fullTextIndexUpdateScheduler.scheduleUpdate(new EntitiesToUpdate(
+                getIndexedEntityClass(entityKind), entityIds));
+    }
+
+    private static Class<?> getIndexedEntityClass(EntityKind entityKind)
+    {
+        switch (entityKind)
+        {
+            case DATA_SET:
+                return ExternalDataPE.class;
+            default:
+                return entityKind.getEntityClass();
+        }
+    }
 
     private static EntityKindPropertyTableNames getEntityKindPropertyTableNames(
             EntityKind entityKind)

@@ -78,10 +78,10 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         // we index entities in batches loading them in groups restricted by id:
         // [ ids[index], ids[min(index+batchSize, maxIndex))] )
         final Transaction transaction = fullTextSession.beginTransaction();
+        int index = 0;
         final List<Long> ids = getAllIds(fullTextSession, clazz);
         final int idsSize = ids.size();
         operationLog.info(String.format("... got %d '%s' ids...", idsSize, clazz.getSimpleName()));
-        int index = 0;
         final int maxIndex = idsSize - 1;
         // need to increment last id because we use 'lt' condition
         if (maxIndex > -1)
@@ -98,9 +98,9 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             index = indexEntities(fullTextSession, results, clazz, index);
         }
         fullTextSession.getSearchFactory().optimize(clazz);
-        transaction.commit();
         operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
                 clazz.getSimpleName(), index));
+        transaction.commit();
     }
 
     public <T> void doFullTextIndexUpdate(final Session hibernateSession, final Class<T> clazz,
@@ -113,7 +113,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         final Transaction transaction = fullTextSession.beginTransaction();
         final int maxIndex = ids.size();
         int index = 0;
-        // need to increment last id because we use 'lt' condition
+
         while (index < maxIndex)
         {
             final int nextIndex = getNextIndex(index, maxIndex);
