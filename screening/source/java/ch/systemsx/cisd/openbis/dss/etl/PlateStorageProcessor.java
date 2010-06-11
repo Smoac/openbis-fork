@@ -84,7 +84,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
             LogFactory.getLogger(LogCategory.OPERATION, PlateStorageProcessor.class);
 
     private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, PlateStorageProcessor.class);
+            LogFactory.getLogger(LogCategory.NOTIFY, PlateStorageProcessor.class);
 
     // tiles geometry, e.g. 3x4 if the well is divided into 12 tiles (3 rows, 4 columns)
     private static final String SPOT_GEOMETRY_PROPERTY = "well_geometry";
