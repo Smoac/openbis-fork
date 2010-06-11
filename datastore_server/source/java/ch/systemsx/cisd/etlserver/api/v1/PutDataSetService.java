@@ -55,6 +55,8 @@ public class PutDataSetService
 
     // These are all initialized only once, but it is not possible to initialize them at
     // construction time, since this causes a dependency loop that causes problems in Spring.
+    private DataSetTypeToPluginMapper pluginMap;
+
     private DataStrategyStore dataStrategyStore;
 
     private File storeDirectory;
@@ -64,8 +66,6 @@ public class PutDataSetService
     private boolean isInitialized = false;
 
     private MailClient mailClient;
-
-    private IETLServerPlugin plugin;
 
     private File incomingDir;
 
@@ -91,7 +91,9 @@ public class PutDataSetService
 
         try
         {
-            return new PutDataSetExecutor(this, plugin, sessionToken, newDataSet, inputStream)
+            String dataSetTypeOrNull = newDataSet.tryDataSetType();
+            IETLServerPlugin thePlugin = pluginMap.getPluginForType(dataSetTypeOrNull);
+            return new PutDataSetExecutor(this, thePlugin, sessionToken, newDataSet, inputStream)
                     .execute();
         } catch (UserFailureException e)
         {
@@ -119,8 +121,11 @@ public class PutDataSetService
         incomingDir = initializer.getIncomingDir();
         incomingDir.mkdir();
 
-        plugin = initializer.getPlugin();
-        plugin.getStorageProcessor().setStoreRootDirectory(storeDirectory);
+        pluginMap = initializer.getPluginMap();
+        pluginMap.initializeStoreRootDirectory(storeDirectory);
+
+        // plugin = initializer.getPlugin();
+        // plugin.getStorageProcessor().setStoreRootDirectory(storeDirectory);
 
         mailClient = new MailClient(initializer.getMailProperties());
         dataStrategyStore = new DataStrategyStore(openBisService, mailClient);
@@ -203,6 +208,11 @@ class PutDataSetServiceInitializer
     PutDataSetServiceInitializer()
     {
         params = Parameters.createParametersForApiUse();
+    }
+
+    public DataSetTypeToPluginMapper getPluginMap()
+    {
+        return new DataSetTypeToPluginMapper(params);
     }
 
     File getIncomingDir()

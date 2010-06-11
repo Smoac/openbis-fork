@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -96,6 +98,8 @@ public class NewDataSetDTO implements Serializable
 
     private final List<FileInfoDssDTO> fileInfos;
 
+    private final HashMap<String, String> properties;
+
     private String dataSetTypeOrNull;
 
     /**
@@ -114,6 +118,7 @@ public class NewDataSetDTO implements Serializable
                 (null == dataSetFolderNameOrNull) ? DEFAULT_DATA_SET_FOLDER_NAME
                         : dataSetFolderNameOrNull;
         this.fileInfos = fileInfos;
+        properties = new HashMap<String, String>();
     }
 
     /**
@@ -128,12 +133,8 @@ public class NewDataSetDTO implements Serializable
     public NewDataSetDTO(String dataSetType, DataSetOwner dataSetOwner,
             String dataSetFolderNameOrNull, List<FileInfoDssDTO> fileInfos)
     {
+        this(dataSetOwner, dataSetFolderNameOrNull, fileInfos);
         this.dataSetTypeOrNull = dataSetType;
-        this.dataSetOwner = dataSetOwner;
-        this.dataSetFolderName =
-                (null == dataSetFolderNameOrNull) ? DEFAULT_DATA_SET_FOLDER_NAME
-                        : dataSetFolderNameOrNull;
-        this.fileInfos = fileInfos;
     }
 
     /**
@@ -170,7 +171,24 @@ public class NewDataSetDTO implements Serializable
 
     public void setDataSetTypeOrNull(String dataSetTypeOrNull)
     {
-        this.dataSetTypeOrNull = dataSetTypeOrNull;
+        // Capitalize the data set type
+        this.dataSetTypeOrNull =
+                (null != dataSetTypeOrNull) ? dataSetTypeOrNull.toUpperCase() : dataSetTypeOrNull;
+    }
+
+    /**
+     * The properties for the new data set. Key is the property code, value is the value (as a
+     * string).
+     */
+    public Map<String, String> getProperties()
+    {
+        return properties;
+    }
+
+    public void setProperties(Map<String, String> props)
+    {
+        properties.clear();
+        properties.putAll(props);
     }
 
     @Override

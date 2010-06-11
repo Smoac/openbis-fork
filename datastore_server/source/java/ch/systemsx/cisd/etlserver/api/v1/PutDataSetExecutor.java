@@ -23,8 +23,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.io.FileUtils;
@@ -60,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -251,6 +254,17 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         if (null != typeCode)
         {
             override.setDataSetType(new DataSetType(typeCode));
+        }
+
+        Map<String, String> primitiveProps = newDataSet.getProperties();
+        if (false == primitiveProps.isEmpty())
+        {
+            ArrayList<NewProperty> properties = new ArrayList<NewProperty>();
+            for (String key : primitiveProps.keySet())
+            {
+                properties.add(new NewProperty(key, primitiveProps.get(key)));
+            }
+            override.setDataSetProperties(properties);
         }
     }
 
@@ -591,10 +605,12 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                 dataSetInfo.setDataSetProperties(override.getDataSetProperties());
             }
 
-            dataSetInfo.setUploadingUserEmail(service.getOpenBisService().tryGetSession(
-                    sessionToken).getUserEmail());
+            final SessionContextDTO session =
+                    service.getOpenBisService().tryGetSession(sessionToken);
+            dataSetInfo.setUploadingUserEmail(session.getUserEmail());
 
-            // TODO: When registering, set the registrator to the session owner; only an admin on
+            // TODO 2010-06-10, CR, LMS-1564: When registering, set the registrator to the session
+            // owner; only an admin on
             // the space or an ETL server can override.
             return dataSetInfo;
         }
