@@ -110,7 +110,6 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     public void createAssignment(String propertyTypeCode, String entityTypeCode,
             boolean isMandatory, String defaultValue, String section, Long previousETPTOrdinal)
     {
-        setBatchUpdateMode(true);
         EntityTypePE entityType = findEntityType(entityTypeCode);
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
         assignment =
@@ -131,14 +130,13 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             List<Long> entityIds = getAllEntityIds(entityType);
             addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entityIds, null);
         }
-        setBatchUpdateMode(false);
     }
 
     private List<Long> getAllEntityIds(EntityTypePE entityType)
     {
         return getEntityPropertyTypeDAO(entityKind).listEntityIds(entityType);
     }
-    
+
     private void slowAddPropertyWithDefaultValue(EntityTypePE entityType,
             PropertyTypePE propertyType, String defaultValue,
             List<IEntityPropertiesHolder> entities, String errorMsgTemplate)
@@ -180,7 +178,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             }
         }
     }
-    
+
     private void addPropertyWithDefaultValue(EntityTypePE entityType, PropertyTypePE propertyType,
             String defaultValue, List<Long> entityIds, String errorMsgTemplate)
     {

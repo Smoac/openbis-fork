@@ -18,19 +18,18 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -108,9 +107,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         final String validatedValue = "50.0";
         final String section = "section 1";
 
-        final ExperimentPE experiment = new ExperimentPE();
-        experiment.setCode("MAN");
-        experiment.setProject(new ProjectPE());
+        final List<Long> experimentIds = Arrays.asList(1L, 2L, 3L);
         final ExperimentPropertyPE property = new ExperimentPropertyPE();
         final ExperimentTypePE experimentType = createExperimentType();
         final PropertyTypePE propertyType = createPropertyType();
@@ -118,9 +115,6 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).setBatchUpdateMode(true);
-                    one(daoFactory).setBatchUpdateMode(false);
-                    
                     one(entityPropertyTypeDAO).tryFindAssignment(experimentType, propertyType);
                     will(returnValue(null));
 
@@ -130,11 +124,8 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                             with(any(ExperimentTypePropertyTypePE.class)));
                     property.setEntityTypePropertyType(new ExperimentTypePropertyTypePE());
 
-                    one(entityPropertyTypeDAO).listEntities(experimentType);
-                    final ArrayList<ExperimentPE> experimets = new ArrayList<ExperimentPE>();
-
-                    experimets.add(experiment);
-                    will(returnValue(experimets));
+                    one(entityPropertyTypeDAO).listEntityIds(experimentType);
+                    will(returnValue(experimentIds));
 
                     one(propertiesConverter).tryCreateValidatedPropertyValue(with(propertyType),
                             with(any(ExperimentTypePropertyTypePE.class)), with(defaultValue));
@@ -143,14 +134,13 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                             with(any(ExperimentTypePropertyTypePE.class)),
                             with(any(PersonPE.class)), with(validatedValue));
                     will(returnValue(property));
+
+                    one(entityPropertyTypeDAO).createProperties(property, experimentIds);
                 }
             });
         final EntityTypePropertyTypeBO bo = createEntityTypePropertyTypeBO(EntityKind.EXPERIMENT);
         bo.createAssignment(propertyType.getCode(), experimentType.getCode(), mandatory,
                 defaultValue, section, 1L);
-        assertTrue(experiment.getProperties().size() == 1);
-        assertEquals(property, experiment.getProperties().toArray()[0]);
-        assertEquals(experiment, property.getEntity());
 
         context.assertIsSatisfied();
     }

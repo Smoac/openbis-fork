@@ -134,6 +134,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    allowing(daoFactory).getSessionFactory();
                     allowing(daoFactory).getDatabaseInstanceDAO();
                     will(returnValue(databaseInstanceDAO));
                     allowing(daoFactory).getGroupDAO();
