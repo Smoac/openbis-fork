@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
  * 
  * @author Tomasz Pylak
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
 public interface IEntityPropertyTypeDAO
 {
@@ -65,6 +66,11 @@ public interface IEntityPropertyTypeDAO
      */
     public List<IEntityPropertiesHolder> listEntities(final EntityTypePE entityType)
             throws DataAccessException;
+
+    /**
+     * Returns a list of ids of all entities of given <var>entityType</var>.
+     */
+    public List<Long> listEntityIds(final EntityTypePE entityType) throws DataAccessException;
 
     /**
      * Returns a list of all entities of given <var>entityType</var> that don't have value with
@@ -108,5 +114,10 @@ public interface IEntityPropertyTypeDAO
     public void delete(EntityTypePropertyTypePE assignment);
 
     public void increaseOrdinals(EntityTypePE entityType, Long startOrdinal, int increment);
+
+    /**
+     * Creates properties based on given property for entities with specified ids.
+     */
+    public void createProperties(EntityPropertyPE property, List<Long> entityIds);
 
 }

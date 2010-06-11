@@ -50,6 +50,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.EntitiesToUpdate;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -279,6 +281,16 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public void setBatchUpdateMode(boolean batchMode)
     {
         daoFactory.setBatchUpdateMode(batchMode);
+    }
+
+    public IFullTextIndexUpdateScheduler getFullTextIndexUpdateScheduler()
+    {
+        return daoFactory.getFullTextIndexUpdateScheduler();
+    }
+
+    public void updateFullTextIndex(EntitiesToUpdate entities)
+    {
+        getFullTextIndexUpdateScheduler().scheduleUpdate(entities);
     }
 
     public IAuthorizationGroupDAO getAuthorizationGroupDAO()

@@ -49,6 +49,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, EntityTypePropertyTypeBO.class);
+
     private EntityKind entityKind;
 
     private IEntityPropertiesConverter propertiesConverter;
@@ -122,24 +123,25 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                     "Cannot create mandatory assignment. "
                             + "Please specify 'Initial Value', which will be used for %s %s%s "
                             + "of type '%s' already existing in the database.";
-            List<IEntityPropertiesHolder> entities = getAllEntities(entityType);
-            addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities,
+            List<Long> entityIds = getAllEntityIds(entityType);
+            addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entityIds,
                     errorMsgTemplate);
         } else if (StringUtils.isEmpty(defaultValue) == false)
         {
-            List<IEntityPropertiesHolder> entities = getAllEntities(entityType);
-            addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities, null);
+            List<Long> entityIds = getAllEntityIds(entityType);
+            addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entityIds, null);
         }
         setBatchUpdateMode(false);
     }
 
-    private List<IEntityPropertiesHolder> getAllEntities(EntityTypePE entityType)
+    private List<Long> getAllEntityIds(EntityTypePE entityType)
     {
-        return getEntityPropertyTypeDAO(entityKind).listEntities(entityType);
+        return getEntityPropertyTypeDAO(entityKind).listEntityIds(entityType);
     }
-
-    private void addPropertyWithDefaultValue(EntityTypePE entityType, PropertyTypePE propertyType,
-            String defaultValue, List<IEntityPropertiesHolder> entities, String errorMsgTemplate)
+    
+    private void slowAddPropertyWithDefaultValue(EntityTypePE entityType,
+            PropertyTypePE propertyType, String defaultValue,
+            List<IEntityPropertiesHolder> entities, String errorMsgTemplate)
     {
         final int size = entities.size();
         if (operationLog.isDebugEnabled())
@@ -179,6 +181,41 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         }
     }
     
+    private void addPropertyWithDefaultValue(EntityTypePE entityType, PropertyTypePE propertyType,
+            String defaultValue, List<Long> entityIds, String errorMsgTemplate)
+    {
+        IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
+        final int size = entityIds.size();
+        if (size > 0)
+        {
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(getMemoryUsageMessage());
+            }
+            if (StringUtils.isEmpty(defaultValue))
+            {
+                throw new UserFailureException(String.format(errorMsgTemplate, size, entityKind
+                        .getLabel(), createPlural(size), entityType.getCode()));
+            }
+            PersonPE registrator = findRegistrator();
+            String validatedValue =
+                    propertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
+                            defaultValue);
+            final EntityPropertyPE property =
+                    propertiesConverter.createValidatedProperty(propertyType, assignment,
+                            registrator, validatedValue);
+            getSessionFactory().getCurrentSession().flush();
+            getSessionFactory().getCurrentSession().clear();
+
+            entityPropertyTypeDAO.createProperties(property, entityIds);
+
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(getMemoryUsageMessage());
+            }
+        }
+    }
+
     private String getMemoryUsageMessage()
     {
         Runtime runtime = Runtime.getRuntime();
@@ -186,9 +223,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         long totalMemory = runtime.totalMemory() / mb;
         long freeMemory = runtime.freeMemory() / mb;
         long maxMemory = runtime.maxMemory() / mb;
-        return "MEMORY (in MB): free:" + freeMemory + " total:"+totalMemory+" max:"+maxMemory;
+        return "MEMORY (in MB): free:" + freeMemory + " total:" + totalMemory + " max:" + maxMemory;
     }
-
 
     public void updateLoadedAssignment(final boolean isMandatory, final String defaultValue,
             final String section, final Long previousETPTOrdinal)
@@ -214,7 +250,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                             + "Please specify 'Update Value', which will be used for %s %s%s "
                             + "of type '%s' already existing in the database "
                             + "without any value for this property.";
-            addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities,
+            // TODO 2009-07-01, Piotr Buczek: switch to addPropertyWithDefaultValue
+            slowAddPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities,
                     errorMsgTemplate);
         }
         assignment.setMandatory(isMandatory);

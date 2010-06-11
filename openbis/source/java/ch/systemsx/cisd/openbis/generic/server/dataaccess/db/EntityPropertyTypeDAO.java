@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,23 +26,30 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -154,6 +163,88 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         final List<IEntityPropertiesHolder> list =
                 cast(getHibernateTemplate().findByCriteria(criteria));
         return list;
+    }
+
+    public List<Long> listEntityIds(final EntityTypePE entityType) throws DataAccessException
+    {
+        assert entityType != null : "Unspecified entity type.";
+
+        final DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getEntityClass());
+        criteria.add(Restrictions.eq(entityKind.getEntityTypeFieldName(), entityType));
+        criteria.setProjection(Projections.id());
+        final List<Long> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        return list;
+    }
+
+    public void createProperties(final EntityPropertyPE property, final List<Long> entityIds)
+    {
+        assert property != null : "Given property data can not be null.";
+
+        final Long etptId = property.getEntityTypePropertyType().getId();
+        final Long registratorId = property.getRegistrator().getId();
+
+        final EntityKindPropertyTableNames propertyTableNames =
+                getEntityKindPropertyTableNames(entityKind);
+        final String tableName = propertyTableNames.getPropertiesTable();
+        final String sequenceName = propertyTableNames.getPropertiesSequence();
+        final String entityColumn = propertyTableNames.getEntityColumn();
+        final String propertyTypeColumn = propertyTableNames.getPropertyTypeColumn();
+
+        final String valueColumn;
+        final Serializable valueObject;
+        if (property.getVocabularyTerm() != null)
+        {
+            valueColumn = "cvte_id";
+            valueObject = property.getVocabularyTerm().getId();
+        } else if (property.getMaterialValue() != null)
+        {
+            valueColumn = "mate_prop_id";
+            valueObject = property.getMaterialValue().getId();
+        } else
+        {
+            assert property.getValue() != null;
+            valueColumn = "value";
+            valueObject = property.getValue();
+        }
+
+        final String sql =
+                String.format("INSERT INTO %s (id, pers_id_registerer, %s, %s, %s) "
+                        + "VALUES (nextval('%s'), :registratorId, :entityId, :etptId, :value)",
+                        tableName, entityColumn, propertyTypeColumn, valueColumn, sequenceName);
+
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+
+                //
+                // HibernateCallback
+                //
+
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    final SQLQuery sqlQuery = session.createSQLQuery(sql);
+                    sqlQuery.setParameter("registratorId", registratorId);
+                    sqlQuery.setParameter("etptId", etptId);
+                    sqlQuery.setParameter("value", valueObject);
+                    for (Long entityId : entityIds)
+                    {
+                        sqlQuery.setParameter("entityId", entityId);
+                        sqlQuery.executeUpdate();
+                        if (operationLog.isDebugEnabled())
+                        {
+                            operationLog.debug(String.format(
+                                    "Created property '%s' for %s with id %s", property, entityKind
+                                            .getLabel(), entityId));
+                        }
+                    }
+                    return null;
+                }
+            });
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("Created %s %s properties : %s", entityIds.size(),
+                    entityKind.getLabel(), property));
+        }
     }
 
     public List<IEntityPropertiesHolder> listEntitiesWithoutPropertyValue(
@@ -324,6 +415,76 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         {
             propertyValue.getEntity().removeProperty(propertyValue); // FIXME loads entities?
         }
+    }
+
+    // helpers
+
+    private static EntityKindPropertyTableNames getEntityKindPropertyTableNames(
+            EntityKind entityKind)
+    {
+        switch (entityKind)
+        {
+            case DATA_SET:
+                return new EntityKindPropertyTableNames(TableNames.DATA_SET_PROPERTIES_TABLE,
+                        SequenceNames.DATA_SET_PROPERTY_SEQUENCE,
+                        ColumnNames.DATA_SET_TYPE_PROPERTY_TYPE_COLUMN, ColumnNames.DATA_SET_COLUMN);
+            case EXPERIMENT:
+                return new EntityKindPropertyTableNames(TableNames.EXPERIMENT_PROPERTIES_TABLE,
+                        SequenceNames.EXPERIMENT_PROPERTY_SEQUENCE,
+                        ColumnNames.EXPERIMENT_TYPE_PROPERTY_TYPE_COLUMN,
+                        ColumnNames.EXPERIMENT_COLUMN);
+            case MATERIAL:
+                return new EntityKindPropertyTableNames(TableNames.MATERIAL_PROPERTIES_TABLE,
+                        SequenceNames.MATERIAL_PROPERTY_SEQUENCE,
+                        ColumnNames.MATERIAL_TYPE_PROPERTY_TYPE_COLUMN, ColumnNames.MATERIAL_COLUMN);
+            case SAMPLE:
+                return new EntityKindPropertyTableNames(TableNames.SAMPLE_PROPERTIES_TABLE,
+                        SequenceNames.SAMPLE_PROPERTY_SEQUENCE,
+                        ColumnNames.SAMPLE_TYPE_PROPERTY_TYPE_COLUMN, ColumnNames.SAMPLE_COLUMN);
+        }
+        return null; // can't happen
+    }
+
+    private static class EntityKindPropertyTableNames
+    {
+
+        private final String propertiesTable;
+
+        private final String propertiesSequence;
+
+        private final String propertyTypeColumn;
+
+        private final String entityColumn;
+
+        public EntityKindPropertyTableNames(String propertiesTable, String propertiesSequence,
+                String propertyTypeColumn, String entityColumn)
+        {
+            this.propertiesTable = propertiesTable;
+            this.propertiesSequence = propertiesSequence;
+            this.propertyTypeColumn = propertyTypeColumn;
+            this.entityColumn = entityColumn;
+        }
+
+        public String getPropertiesTable()
+        {
+            return propertiesTable;
+        }
+
+        public String getPropertiesSequence()
+        {
+            return propertiesSequence;
+        }
+
+        public String getPropertyTypeColumn()
+        {
+            return propertyTypeColumn;
+        }
+
+        public String getEntityColumn()
+        {
+            return entityColumn;
+        }
+
     }
 
 }

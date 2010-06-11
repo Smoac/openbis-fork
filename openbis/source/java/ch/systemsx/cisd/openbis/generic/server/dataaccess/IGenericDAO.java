@@ -67,10 +67,6 @@ public interface IGenericDAO<T extends IIdHolder>
 
     public void validate(T entity);
 
-    public void flush();
-
-    public void clearSession();
-
     //
 
     /**
