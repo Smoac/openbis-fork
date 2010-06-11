@@ -50,7 +50,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
 
     private interface IFileUploader
     {
-        boolean uploadFile(File file, String comment, Set<Long> fileIds,
+        boolean uploadFile(File file, String overrideNameOrNull, String comment, Set<Long> fileIds,
                 MonitoringProxy.IMonitorCommunicator communicator) throws IOException;
 
         void shareFiles(List<Long> fileIds, String recipientsOrNull);
@@ -81,10 +81,11 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         IFileUploader rawFileUploader = new IFileUploader()
             {
                 // This method can return false only if error occurred
-                public boolean uploadFile(File file, String comment, Set<Long> fileIds,
-                        MonitoringProxy.IMonitorCommunicator communicator) throws IOException
+                public boolean uploadFile(File file, String overrideNameOrNull, String comment,
+                        Set<Long> fileIds, MonitoringProxy.IMonitorCommunicator communicator)
+                        throws IOException
                 {
-                    doUploadFile(file, comment, fileIds, communicator);
+                    doUploadFile(file, overrideNameOrNull, comment, fileIds, communicator);
                     return true;
                 }
 
@@ -115,10 +116,11 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
      *            form <code>id:<i>user ID</i></code>. Can be an empty string.
      * @param comment Optional comment added to the outgoing e-mails. Can be an empty string.
      */
-    public void upload(List<File> files, String recipientsOrNull, String comment)
+    public void upload(List<FileWithOverrideName> filesWithOverrideName, String recipientsOrNull,
+            String comment)
     {
         resetCancel();
-        if (files.isEmpty())
+        if (filesWithOverrideName.isEmpty())
         {
             return;
         }
@@ -126,8 +128,9 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         {
             inProgress.set(true);
             Set<Long> fileIds = new HashSet<Long>();
-            for (File file : files)
+            for (FileWithOverrideName fileWithOverrideName : filesWithOverrideName)
             {
+                final File file = fileWithOverrideName.getFile();
                 if (isCancelled())
                 {
                     fireFinishedEvent(false);
@@ -135,13 +138,14 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                 }
                 fireStartedEvent(file, file.length(), null);
                 boolean ok =
-                        retryingFileUploader.uploadFile(file, comment, fileIds,
+                        retryingFileUploader.uploadFile(file, fileWithOverrideName
+                                .tryGetOverrideName(), comment, fileIds,
                                 MonitoringProxy.MONITOR_COMMUNICATOR);
                 if (ok == false)
                 {
                     // upload cancelled
                     fireFinishedEvent(false);
-                    return; 
+                    return;
                 }
             }
             if (recipientsOrNull != null && recipientsOrNull.trim().length() > 0)
@@ -160,12 +164,14 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     }
 
     // NOTE: this is a non-retrying version used by retryingFileUploader
-    private void doUploadFile(File file, String comment, Set<Long> fileIds,
-            final MonitoringProxy.IMonitorCommunicator communicator) throws IOException
+    private void doUploadFile(File file, String overrideNameOrNull, String comment,
+            Set<Long> fileIds, final MonitoringProxy.IMonitorCommunicator communicator)
+            throws IOException
     {
         final long fileSize = file.length();
-        final FilePreregistrationDTO fileSpecs =
-                new FilePreregistrationDTO(file.getCanonicalPath(), fileSize);
+        final String filePath =
+                (overrideNameOrNull == null) ? file.getCanonicalPath() : overrideNameOrNull;
+        final FilePreregistrationDTO fileSpecs = new FilePreregistrationDTO(filePath, fileSize);
         ResumingAndChecksummingInputStream contentStream = null;
         try
         {

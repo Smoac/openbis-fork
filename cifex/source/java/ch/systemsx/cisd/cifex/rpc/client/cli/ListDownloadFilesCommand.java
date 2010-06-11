@@ -49,6 +49,13 @@ public class ListDownloadFilesCommand extends AbstractCommandWithSessionToken
     }
 
     @Override
+    protected boolean isHelpRequest(final String[] args)
+    {
+        arguments = args;
+        return getParameters().isHelpRequest();
+    }
+
+    @Override
     protected int execute(String sessionToken, ICIFEXComponent cifex, String[] args)
             throws UserFailureException, EnvironmentFailureException
     {

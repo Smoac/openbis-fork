@@ -188,6 +188,8 @@ public class CIFEXClient
         registerCommand(map, FileUploadCommand.getInstance());
         registerCommand(map, FileDeletionCommand.getInstance());
         registerCommand(map, ComputeCRC32Checksum.getInstance());
+        registerCommand(map, EncryptCommand.getInstance());
+        registerCommand(map, DecryptCommand.getInstance());
         return map;
     }
 

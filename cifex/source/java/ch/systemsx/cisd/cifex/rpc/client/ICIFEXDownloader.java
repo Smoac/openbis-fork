@@ -36,7 +36,8 @@ public interface ICIFEXDownloader extends ICIFEXOperation
      *            if the file should be downloaded to the current working directory.
      * @param fileNameOrNull The file name to save the file to, or <code>null</code>, if the name
      *            stored in CIFEX should be used.
+     * @return The (local) file downloaded.
      */
-    public void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull);
+    public File download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull);
 
 }

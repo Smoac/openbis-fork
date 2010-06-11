@@ -20,9 +20,12 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
+import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryption;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -39,8 +42,8 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
     private static FileDownloadCommand instance;
 
     private Parameters parameters;
-    
-    private static final Pattern FILE_ID_LINK_PATTERN = Pattern.compile("fileId=([0-9]+)"); 
+
+    private static final Pattern FILE_ID_LINK_PATTERN = Pattern.compile("fileId=([0-9]+)");
 
     private static class Parameters extends MinimalParameters
     {
@@ -50,9 +53,15 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
 
         @Option(name = "n", longName = "name", metaVar = "FILE", usage = "File name to use for the downloaded file (instead of the one stored in CIFEX).")
         private String name;
-        
+
         @Option(name = "q", longName = "quiet", usage = "Suppress progress reporting.")
         private boolean quiet;
+
+        @Option(name = "D", longName = "decrypt", usage = "Decrypt file after downloading.")
+        private boolean decrypt;
+
+        @Option(name = "p", longName = "passphrase", metaVar = "STRING", usage = "The pass phrase to use for encryption.")
+        private String passphrase;
 
         private long fileID;
 
@@ -69,7 +78,7 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
                 fileID = Long.parseLong(fileIdStr);
             } catch (NumberFormatException ex)
             {
-                final Matcher fileIdLinkMatcher = FILE_ID_LINK_PATTERN.matcher(fileIdStr); 
+                final Matcher fileIdLinkMatcher = FILE_ID_LINK_PATTERN.matcher(fileIdStr);
                 if (fileIdLinkMatcher.find())
                 {
                     fileID = Long.parseLong(fileIdLinkMatcher.group(1));
@@ -87,6 +96,17 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
 
         public String getName()
         {
+            if (isDecrypt() && name != null)
+            {
+                return name + OpenPGPSymmetricKeyEncryption.PGP_FILE_EXTENSION;
+            } else
+            {
+                return name;
+            }
+        }
+
+        public String getClearName()
+        {
             return name;
         }
 
@@ -98,6 +118,16 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         public long getFileID()
         {
             return fileID;
+        }
+
+        public boolean isDecrypt()
+        {
+            return decrypt || passphrase != null;
+        }
+
+        public String getPassphrase()
+        {
+            return passphrase;
         }
 
     }
@@ -127,14 +157,48 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         return instance;
     }
 
+    private String getPassphraseOrExit()
+    {
+        System.out.println();
+        String passphrase = tryGetPassphrase(parameters.getPassphrase());
+        if (StringUtils.isBlank(passphrase))
+        {
+            System.err.println("No password has been specified.");
+            System.exit(1);
+        }
+        return passphrase;
+    }
+
+    @Override
+    protected boolean isHelpRequest(final String[] args)
+    {
+        arguments = args;
+        return getParameters().isHelpRequest();
+    }
+
     @Override
     protected int execute(String sessionToken, ICIFEXComponent cifex, String[] args)
             throws UserFailureException, EnvironmentFailureException
     {
         final ICIFEXDownloader downloader = cifex.createDownloader(sessionToken);
         addConsoleProgressListener(downloader, getParameters().beQuiet());
-        downloader.download(getParameters().getFileID(), getParameters().getDirectory(),
-                getParameters().getName());
+
+        final File file =
+                downloader.download(getParameters().getFileID(), getParameters().getDirectory(),
+                        getParameters().getName());
+
+        if (getParameters().isDecrypt())
+        {
+            final String passphrase = getPassphraseOrExit();
+            File clearTextFile =
+                    OpenPGPSymmetricKeyEncryption.decrypt(file, getParameters().getClearName(),
+                            passphrase);
+            if (getParameters().getName() == null)
+            {
+                System.out.println("Decrypted file is '" + clearTextFile + "'.");
+            }
+        }
+
         return 0;
     }
 

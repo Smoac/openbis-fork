@@ -23,9 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.zip.CRC32;
 
@@ -45,6 +47,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.client.CIFEXComponent;
+import ch.systemsx.cisd.cifex.rpc.client.FileWithOverrideName;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.rpc.io.CopyUtils;
@@ -251,7 +254,7 @@ public class UploadingIntegrationTest extends AssertJUnit
     @Test
     public void testNoFile() throws IOException
     {
-        uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", COMMENT);
+        uploader.upload(Arrays.<FileWithOverrideName> asList(), "Albert\nGalileo", COMMENT);
 
         context.assertIsSatisfied();
     }
@@ -298,7 +301,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                 }
             });
 
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+        uploader.upload(Arrays.asList(new FileWithOverrideName(fileOnClient, null)),
+                "Albert\nGalileo", COMMENT);
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
@@ -353,7 +357,7 @@ public class UploadingIntegrationTest extends AssertJUnit
             });
         addRegularProgressExpectations();
 
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+        uploader.upload(wrapFiles(Arrays.asList(fileOnClient)), "Albert\nGalileo", COMMENT);
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
@@ -405,10 +409,21 @@ public class UploadingIntegrationTest extends AssertJUnit
             });
         addRegularProgressExpectationsExceptFirstTwoBlocks();
 
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+        uploader.upload(wrapFiles(Arrays.asList(fileOnClient)), "Albert\nGalileo", COMMENT);
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
+    }
+
+    private List<FileWithOverrideName> wrapFiles(List<File> files)
+    {
+        final List<FileWithOverrideName> filesWithOverrideName =
+                new ArrayList<FileWithOverrideName>(files.size());
+        for (File file : files)
+        {
+            filesWithOverrideName.add(new FileWithOverrideName(file, null));
+        }
+        return filesWithOverrideName;
     }
 
     private void copyBlocks(File f1, File f2, int numberOfBlocks) throws IOException
@@ -499,7 +514,7 @@ public class UploadingIntegrationTest extends AssertJUnit
             });
         addRegularProgressExpectations();
 
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+        uploader.upload(wrapFiles(Arrays.asList(fileOnClient)), "Albert\nGalileo", COMMENT);
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
@@ -600,7 +615,8 @@ public class UploadingIntegrationTest extends AssertJUnit
             });
         addRegularProgressExpectations();
 
-        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo", COMMENT);
+        uploader.upload(wrapFiles(Arrays.asList(fileOnClient1, fileOnClient2)), "Albert\nGalileo",
+                COMMENT);
 
         assertEqualContent(fileOnClient1, fileInFileStore1);
         assertEqualContent(fileOnClient2, fileInFileStore2);
@@ -652,7 +668,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
         try
         {
-            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+            uploader.upload(wrapFiles(Arrays.asList(fileOnClient)), "Albert\nGalileo", COMMENT);
         } catch (UserFailureException e)
         {
             assertEquals("Some user identifiers are invalid: [id:unknown]", e.getMessage());
@@ -714,7 +730,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
         try
         {
-            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+            uploader.upload(wrapFiles(Arrays.asList(fileOnClient)), "Albert\nGalileo", COMMENT);
         } catch (RuntimeException ex)
         {
             assertEquals("Oops!", ex.getMessage());
@@ -786,7 +802,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                 }
             });
 
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+        uploader.upload(wrapFiles(Arrays.asList(fileOnClient)), "Albert\nGalileo", COMMENT);
 
         context.assertIsSatisfied();
     }
@@ -860,12 +876,13 @@ public class UploadingIntegrationTest extends AssertJUnit
                 }
             });
 
-        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo", COMMENT);
+        uploader.upload(wrapFiles(Arrays.asList(fileOnClient1, fileOnClient2)), "Albert\nGalileo",
+                COMMENT);
 
         assertEqualContent(fileOnClient1, fileInFileStore1);
         assertEquals(true, fileInFileStore2.exists());
 
-        uploader.upload(Arrays.asList(fileOnClient2), " ", "2. try");
+        uploader.upload(wrapFiles(Arrays.asList(fileOnClient2)), " ", "2. try");
 
         assertEqualContent(fileOnClient2, fileInFileStore2);
         context.assertIsSatisfied();

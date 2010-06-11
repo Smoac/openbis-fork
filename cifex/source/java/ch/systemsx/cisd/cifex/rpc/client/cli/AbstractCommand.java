@@ -107,6 +107,30 @@ abstract class AbstractCommand implements ICommand
     }
 
     /**
+     * Returns the passphrase, either the one provided in <var>passphraseOrNull</var> or by asking
+     * the user. If the user doesn't enter a passphrase, this method returns <code>null</code>.
+     */
+    protected final String tryGetPassphrase(final String passphraseOrNull)
+    {
+        String passphrase = passphraseOrNull;
+        if (StringUtils.isBlank(passphrase))
+        {
+            try
+            {
+                passphrase = getConsoleReader().readLine("Passphrase: ", Character.valueOf('*'));
+            } catch (IOException ex)
+            {
+                throw new EnvironmentFailureException("I/O Exception while getting passphrase.", ex);
+            }
+        }
+        if (StringUtils.isBlank(passphrase))
+        {
+            return null;
+        }
+        return passphrase;
+    }
+
+    /**
      * Returns the component interface for using CIFEX.
      */
     protected final ICIFEXComponent tryGetComponent()

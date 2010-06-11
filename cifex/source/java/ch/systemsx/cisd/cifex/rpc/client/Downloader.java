@@ -116,7 +116,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
      * @param fileNameOrNull The file name to save the file to, or <code>null</code>, if the name
      *            stored in CIFEX should be used.
      */
-    public void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull)
+    public File download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull)
     {
         resetCancel();
         try
@@ -124,7 +124,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             inProgress.set(true);
             final FileInfoDTO fileInfo = retryingFileDownloader.getFileInfo(fileID);
             final File directory =
-                    directoryToDownloadOrNull != null ? directoryToDownloadOrNull : new File(".");
+                    (directoryToDownloadOrNull != null) ? directoryToDownloadOrNull : new File(".");
             final String fileName = (fileNameOrNull != null) ? fileNameOrNull : fileInfo.getName();
             final File file = new File(directory, fileName);
             fireStartedEvent(file, fileInfo.getSize(), fileID);
@@ -132,6 +132,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                     retryingFileDownloader.download(fileInfo, file,
                             MonitoringProxy.MONITOR_COMMUNICATOR);
             fireFinishedEvent(ok);
+            return file;
         } catch (Exception ex)
         {
             fireFinishedEvent(false);

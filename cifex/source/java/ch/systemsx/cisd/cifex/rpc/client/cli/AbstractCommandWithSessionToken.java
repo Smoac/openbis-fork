@@ -35,13 +35,13 @@ public abstract class AbstractCommandWithSessionToken extends AbstractCommand
         {
             return FileUtilities.loadToString(SESSION_TOKEN_FILE).trim();
         }
-        System.err.println("You are not logged not. Please call '"
+        System.err.println("You are not logged in. Please call '"
                 + MinimalParameters.getCommandPrepender() + "login' to start a session.");
         return null;
     }
 
     private MinimalParameters parameters;
-    
+
     protected String[] arguments;
 
     AbstractCommandWithSessionToken(String name)
@@ -55,8 +55,13 @@ public abstract class AbstractCommandWithSessionToken extends AbstractCommand
      * @param sessionToken never <code>null</code>.
      */
     protected abstract int execute(final String sessionToken, final ICIFEXComponent cifexComponent,
-            final String[] args) throws UserFailureException,
-            EnvironmentFailureException;
+            final String[] args) throws UserFailureException, EnvironmentFailureException;
+
+    /**
+     * Should show the help and return <code>true</code> if the execution is a request for help (
+     * <code>--help</code>).
+     */
+    protected abstract boolean isHelpRequest(final String[] args);
 
     protected MinimalParameters getParameters()
     {
@@ -66,7 +71,7 @@ public abstract class AbstractCommandWithSessionToken extends AbstractCommand
         }
         return parameters;
     }
-    
+
     //
     // ICommand
     //
@@ -74,6 +79,10 @@ public abstract class AbstractCommandWithSessionToken extends AbstractCommand
     public final int execute(final String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
+        if (isHelpRequest(args))
+        {
+            return 0;
+        }
         this.arguments = args;
         final String sessionToken = tryCheckAndGetSessionToken();
         if (sessionToken == null)

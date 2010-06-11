@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.cifex.rpc.client;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -35,6 +34,6 @@ public interface ICIFEXUploader extends ICIFEXOperation
      *            will not be shared with any user.
      * @param comment Optional comment added to the outgoing e-mails. Can be an empty string.
      */
-    public void upload(List<File> files, String recipientsOrNull, String comment);
+    public void upload(List<FileWithOverrideName> files, String recipientsOrNull, String comment);
 
 }

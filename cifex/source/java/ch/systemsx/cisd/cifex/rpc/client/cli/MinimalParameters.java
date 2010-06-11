@@ -63,6 +63,8 @@ public class MinimalParameters
 
     private final String genericArgs;
 
+    private boolean helpRequest;
+    
     public MinimalParameters(final String[] args, final String commandName)
     {
         this(args, commandName, StringUtils.EMPTY);
@@ -100,10 +102,16 @@ public class MinimalParameters
         }
     }
 
+    public boolean isHelpRequest()
+    {
+        return helpRequest;
+    }
+
     @Option(name = "h", longName = "help", usage = "Show this help text", skipForExample = true)
     public void printHelp(final boolean exit)
     {
         parser.printHelp(programCall, "[option [...]]", genericArgs, ExampleMode.ALL);
+        helpRequest = true;
         if (exit)
         {
             exitHandler.exit(0);

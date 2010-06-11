@@ -29,6 +29,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Box;
@@ -50,6 +51,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
+import ch.systemsx.cisd.cifex.rpc.client.FileWithOverrideName;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -355,7 +357,8 @@ public class FileUploadClient extends AbstractSwingGUI
                         {
                             public void run()
                             {
-                                List<File> files = fileListModel.getFiles();
+                                List<FileWithOverrideName> files =
+                                        wrapFiles(fileListModel.getFiles());
                                 String recipients = recipientsTextArea.getText();
                                 String comment = commentTextArea.getText();
                                 uploader.upload(files, recipients, comment);
@@ -375,6 +378,17 @@ public class FileUploadClient extends AbstractSwingGUI
                 }
             });
         return button;
+    }
+
+    private List<FileWithOverrideName> wrapFiles(List<File> files)
+    {
+        final List<FileWithOverrideName> filesWithOverrideName =
+                new ArrayList<FileWithOverrideName>(files.size());
+        for (File file : files)
+        {
+            filesWithOverrideName.add(new FileWithOverrideName(file, null));
+        }
+        return filesWithOverrideName;
     }
 
     private JPopupMenu createPopupMenu(final JTable table)
