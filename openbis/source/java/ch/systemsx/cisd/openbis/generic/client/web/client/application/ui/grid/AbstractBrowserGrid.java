@@ -174,6 +174,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    protected final ICellListener<T> showEntityViewerLinkClickListener;
+
     // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
 
     private static final int PAGE_SIZE = 50;
@@ -259,18 +261,24 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(false);
         columnListener = new ColumnListener<T, M>(grid);
-        registerLinkClickListenerFor(Dict.CODE, new ICellListener<T>()
-            {
-                public void handle(T rowItem, boolean keyPressed)
-                {
-                    showEntityViewer(rowItem, false, keyPressed);
-                }
-            });
+        showEntityViewerLinkClickListener = createShowEntityViewerLinkClickListener();
+        registerLinkClickListenerFor(Dict.CODE, showEntityViewerLinkClickListener);
         setLayout(new FitLayout());
         add(contentPanel);
 
         addRefreshDisplaySettingsListener();
         configureLoggingBetweenEvents(logID);
+    }
+
+    private ICellListener<T> createShowEntityViewerLinkClickListener()
+    {
+        return new ICellListener<T>()
+            {
+                public void handle(T rowItem, boolean keyPressed)
+                {
+                    showEntityViewer(rowItem, false, keyPressed);
+                }
+            };
     }
 
     private void configureBottomToolbarSyncSize()

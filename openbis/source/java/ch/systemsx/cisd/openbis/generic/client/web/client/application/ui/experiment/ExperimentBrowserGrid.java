@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -140,6 +141,8 @@ public class ExperimentBrowserGrid extends
     {
         super(viewContext, GRID_ID, DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         this.criteriaProvider = criteriaProvider;
+        registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER.id(),
+                showEntityViewerLinkClickListener);
         registerLinkClickListenerFor(CommonSampleColDefKind.PROJECT.id(),
                 new ICellListener<Experiment>()
                     {
@@ -244,8 +247,10 @@ public class ExperimentBrowserGrid extends
                 getColumnsFactory().createColumnsSchema(viewContext, criteria.getExperimentType());
         schema.setGridCellRendererFor(CommonSampleColDefKind.SHOW_DETAILS_LINK.id(),
                 createShowDetailsLinkCellRenderer());
-        schema.setGridCellRendererFor(CommonSampleColDefKind.PROJECT.id(),
-                createInternalLinkCellRenderer());
+        GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();
+        schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER.id(),
+                linkCellRenderer);
+        schema.setGridCellRendererFor(CommonSampleColDefKind.PROJECT.id(), linkCellRenderer);
         return schema;
     }
 

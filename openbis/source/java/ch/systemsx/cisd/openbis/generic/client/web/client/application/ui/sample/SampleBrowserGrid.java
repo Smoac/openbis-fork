@@ -306,6 +306,10 @@ public class SampleBrowserGrid extends
         this.propertyTypesAndCriteriaProvider = criteriaProvider;
         this.previousPropertyTypes = null;
 
+        registerLinkClickListenerFor(CommonSampleColDefKind.SUBCODE.id(),
+                showEntityViewerLinkClickListener);
+        registerLinkClickListenerFor(CommonSampleColDefKind.SAMPLE_IDENTIFIER.id(),
+                showEntityViewerLinkClickListener);
         ICellListener<Sample> experimentClickListener = new OpenEntityDetailsTabCellClickListener()
             {
                 @Override
@@ -513,6 +517,9 @@ public class SampleBrowserGrid extends
                 createShowDetailsLinkCellRenderer());
 
         GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();
+        schema.setGridCellRendererFor(CommonSampleColDefKind.SUBCODE.id(), linkCellRenderer);
+        schema.setGridCellRendererFor(CommonSampleColDefKind.SAMPLE_IDENTIFIER.id(),
+                linkCellRenderer);
         schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT.id(), linkCellRenderer);
         schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER.id(),
                 linkCellRenderer);
