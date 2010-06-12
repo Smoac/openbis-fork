@@ -137,30 +137,19 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
 
     private String getPassphraseOrExit()
     {
-        String passphrase = tryGetPassphrase(parameters.getPassphrase());
+        String passphrase = tryGetPassphrase("Passphrase: ", parameters.getPassphrase());
         if (StringUtils.isBlank(passphrase))
         {
-            System.err.println("No password has been specified.");
+            System.err.println("No password has been specified, exiting.");
+            System.exit(1);
+        }
+        String passphraseRepeat = tryGetPassphrase("Passphrase (repeat): ", parameters.getPassphrase());
+        if (passphrase.equals(passphraseRepeat) == false)
+        {
+            System.err.println("The two passphrases do not match, exiting.");
             System.exit(1);
         }
         return passphrase;
-    }
-
-    private File getEncryptedFile(FileWithOverrideName clearFile)
-    {
-        final File encryptedFile;
-        if (clearFile.tryGetOverrideName() == null)
-        {
-            encryptedFile =
-                    new File(clearFile.getFile().getPath()
-                            + OpenPGPSymmetricKeyEncryption.PGP_FILE_EXTENSION);
-        } else
-        {
-            encryptedFile =
-                    new File(clearFile.getFile().getAbsoluteFile().getParent(), clearFile
-                            .tryGetOverrideName());
-        }
-        return encryptedFile;
     }
 
     @Override
@@ -180,11 +169,10 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
 
         if (getParameters().isEncrypt())
         {
-            File encryptedFile = getEncryptedFile(file);
             final String passphrase = getPassphraseOrExit();
-            encryptedFile =
-                    OpenPGPSymmetricKeyEncryption
-                            .encrypt(file.getFile(), encryptedFile, passphrase);
+            final File encryptedFile =
+                    OpenPGPSymmetricKeyEncryption.encrypt(file.getOriginalFile(), file.getEncryptedFile(),
+                            passphrase);
             file = new FileWithOverrideName(encryptedFile, file.tryGetOverrideName());
         }
 

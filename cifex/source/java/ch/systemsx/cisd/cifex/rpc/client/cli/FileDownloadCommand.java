@@ -157,10 +157,9 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         return instance;
     }
 
-    private String getPassphraseOrExit()
+    private String getPassphraseOrExit(String label)
     {
-        System.out.println();
-        String passphrase = tryGetPassphrase(parameters.getPassphrase());
+        String passphrase = tryGetPassphrase(label, parameters.getPassphrase());
         if (StringUtils.isBlank(passphrase))
         {
             System.err.println("No password has been specified.");
@@ -183,19 +182,26 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         final ICIFEXDownloader downloader = cifex.createDownloader(sessionToken);
         addConsoleProgressListener(downloader, getParameters().beQuiet());
 
+        final String passphrase;
+        if (getParameters().isDecrypt())
+        {
+            passphrase = getPassphraseOrExit("Passphrase: ");
+        } else
+        {
+            passphrase = null;
+        }
         final File file =
                 downloader.download(getParameters().getFileID(), getParameters().getDirectory(),
                         getParameters().getName());
 
         if (getParameters().isDecrypt())
         {
-            final String passphrase = getPassphraseOrExit();
             File clearTextFile =
                     OpenPGPSymmetricKeyEncryption.decrypt(file, getParameters().getClearName(),
                             passphrase);
             if (getParameters().getName() == null)
             {
-                System.out.println("Decrypted file is '" + clearTextFile + "'.");
+                System.out.println("\nDecrypted file is '" + clearTextFile + "'.");
             }
         }
 

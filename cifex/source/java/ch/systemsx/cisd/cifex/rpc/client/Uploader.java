@@ -130,7 +130,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
             Set<Long> fileIds = new HashSet<Long>();
             for (FileWithOverrideName fileWithOverrideName : filesWithOverrideName)
             {
-                final File file = fileWithOverrideName.getFile();
+                final File file = fileWithOverrideName.getOriginalFile();
                 if (isCancelled())
                 {
                     fireFinishedEvent(false);

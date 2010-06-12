@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.JFrame;
 import javax.swing.table.AbstractTableModel;
 
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
@@ -48,6 +49,8 @@ public class FileDownloadClientModel extends AbstractTableModel
             new NamingThreadPoolExecutor("File download", 1, 1, 0, TimeUnit.SECONDS,
                     new LinkedBlockingQueue<Runnable>()).daemonize();
 
+    private final JFrame mainWindow;
+
     private final ICIFEXComponent cifex;
 
     private final String sessionId;
@@ -61,6 +64,8 @@ public class FileDownloadClientModel extends AbstractTableModel
     private FileDownloadInfo currentlyDownloadingFile;
 
     private File downloadDirectory;
+
+    private char[] passphrase = new char[0];
 
     // Constants for column order
     static final int FILE_DETAILS_COLUMN = 0;
@@ -167,11 +172,13 @@ public class FileDownloadClientModel extends AbstractTableModel
         }
     }
 
-    FileDownloadClientModel(FileDownloadClient downloadClient, ITimeProvider timeProvider)
+    FileDownloadClientModel(FileDownloadClient downloadClient, JFrame mainWindow,
+            ITimeProvider timeProvider)
     {
         this.cifex = downloadClient.getCifex();
         this.sessionId = downloadClient.getSessionId();
         this.downloader = downloadClient.getDownloader();
+        this.mainWindow = mainWindow;
         this.timeProvider = timeProvider;
         this.downloadDirectory = new File(System.getProperty("user.home"));
 
@@ -188,6 +195,11 @@ public class FileDownloadClientModel extends AbstractTableModel
     public void setDownloadDirectory(File downloadDirectory)
     {
         this.downloadDirectory = downloadDirectory;
+    }
+
+    public void setPassphrase(char[] passphrase)
+    {
+        this.passphrase = passphrase;
     }
 
     public ICIFEXDownloader getDownloader()
@@ -355,13 +367,17 @@ public class FileDownloadClientModel extends AbstractTableModel
 
         FileDownloadInfo fileDownloadInfo = (FileDownloadInfo) value;
         if (null == fileDownloadInfo)
+        {
             return;
+        }
 
         // Only start downloading if the file hasn't been downloaded yet
         FileDownloadInfo.STATUS status = fileDownloadInfo.getStatus();
         if ((status != FileDownloadInfo.STATUS.TO_DOWNLOAD)
                 && (status != FileDownloadInfo.STATUS.FAILED))
+        {
             return;
+        }
 
         // update the status of the info and start the download
         queueDownloadOfFile(fileDownloadInfo);
@@ -392,8 +408,13 @@ public class FileDownloadClientModel extends AbstractTableModel
     {
         fileDownloadInfo.setStatus(STATUS.QUEUED);
         FileDownloadOperation op =
-                new FileDownloadOperation(this, fileDownloadInfo, downloadDirectory);
+                new FileDownloadOperation(this, fileDownloadInfo, downloadDirectory, passphrase);
         executor.submit(op);
+    }
+
+    public JFrame getMainWindow()
+    {
+        return mainWindow;
     }
 
 }

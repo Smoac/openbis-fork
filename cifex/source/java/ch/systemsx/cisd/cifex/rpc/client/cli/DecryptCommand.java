@@ -90,7 +90,7 @@ public class DecryptCommand extends AbstractCommand
 
     private String getPassphraseOrExit(final Parameters parameters)
     {
-        String passphrase = tryGetPassphrase(parameters.getPassphrase());
+        String passphrase = tryGetPassphrase("Passphrase: ", parameters.getPassphrase());
         if (StringUtils.isBlank(passphrase))
         {
             System.err.println("No passphrase has been specified, exiting.");
@@ -103,8 +103,13 @@ public class DecryptCommand extends AbstractCommand
     {
         final Parameters parameters = new Parameters(arguments);
         String passphrase = getPassphraseOrExit(parameters);
-        OpenPGPSymmetricKeyEncryption.decrypt(parameters.getInFile(), parameters.getOutFilename(),
-                passphrase);
+        final File clearTextFile =
+                OpenPGPSymmetricKeyEncryption.decrypt(parameters.getInFile(), parameters
+                        .getOutFilename(), passphrase);
+        if (parameters.getOutFilename() == null)
+        {
+            System.out.println("\nDecrypted file is '" + clearTextFile + "'.");
+        }
 
         return 0;
     }

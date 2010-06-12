@@ -97,16 +97,26 @@ of the <b>Share</b> view.</p>
 <h2><a name="FAQ-confidential-files"></a>I want to share confidential files, what do
 I need to consider?</h2>
 
-<p><em>For strictly confidential files, it is recommended that you apply strong 
+<p><strong>For confidential files, it is recommended that you apply strong 
 encryption to the files before uploading them to the CIFEX server! Make sure 
-only the valid recipient of the file knows the encryption key.</em></p>
+that you choose a <a href="http://www.queen.clara.net/pgp/pass.html">good passphrase</a> and that only 
+the valid recipients of the file know it.</strong></p>
 
-<p><u>Hint:</u> You may want to have a look at software like 
-<a href="http://gnupg.org/">GNU Privacy Guard</a> or 
-<a href="http://www.truecrypt.org/">TrueCrypt</a> for 
-this purpose.</p>
+<p>The CIFEX Java Web Start&#153; and command line clients have built-in support for strong encryption 
+using the <a href="http://en.wikipedia.org/wiki/Pretty_Good_Privacy">OpenPGP</a> standard using a 
+symmetric key and an AES-256 cipher algorithm. Whenever you enter a passphrase in one of the CIFEX 
+clients at upload, the files will be encrypted into an OpenPGP file (file extension <code>.pgp</code>). 
+Note that the server is not involved in encryption or decryption in any way and has no information 
+on whether or how a file is encrypted apart from the file extension. Using CIFEX built-in encryption 
+you get pretty much the same as if you had called <a href="http://gnupg.org/">GNU Privacy Guard</a> 
+(an OpenPGP compliant free software program) with
+<pre>$ gpg -c --cipher-alg=aes256 &lt;file&gt;</code></pre>
+prior to the upload.</p>
 
-<p>In general it should be noted that email addresses are not guaranteed to 
+<p><u>Hint:</u> Another useful software program for strong encryption is 
+<a href="http://www.truecrypt.org/">TrueCrypt</a>.</p>
+
+<p>As a second point it should be noted that email addresses are not guaranteed to 
 be unique in CIFEX, which means that in principle two or more CIFEX user 
 accounts could share the same email address. This usually doesn't make sense 
 but it can happen either by mistake or a malicious user of the system could 
@@ -180,10 +190,11 @@ the table of uploaded files.</p>
 <h2><a name="FAQ-command-line"></a>How to upload and download files from the
 command line?</h2>
 
-<p>Download the CIFEX command line client from <a href="/cifex_cli.zip">the server</a>. 
-This client supports uploading and downloading of files. It is particularly handy when 
-uploading files from a server or downloading them to a server that does not have a 
-window manager running.</p>
+<p>Download the <a href="/cifex_cli.zip">CIFEX command line client</a>. 
+This client supports listing, uploading, downloading and deleting of files. It is particularly handy 
+when uploading files from a server or downloading them to a server that does not have a 
+window manager running. The command line client supports also some auxiliary functions useful in 
+the context of CIFEX like computing a CRC32 checksum and encrypting or decrypting files.</p>
 
 <p><u>Hint:</u> You may want to have a look at a terminal multiplexer like 
 <a href="http://www.gnu.org/software/screen/">GNU Screen</a> when starting 

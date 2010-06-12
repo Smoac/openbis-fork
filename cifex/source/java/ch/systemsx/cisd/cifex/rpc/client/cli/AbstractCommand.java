@@ -110,14 +110,14 @@ abstract class AbstractCommand implements ICommand
      * Returns the passphrase, either the one provided in <var>passphraseOrNull</var> or by asking
      * the user. If the user doesn't enter a passphrase, this method returns <code>null</code>.
      */
-    protected final String tryGetPassphrase(final String passphraseOrNull)
+    protected final String tryGetPassphrase(final String label, final String passphraseOrNull)
     {
         String passphrase = passphraseOrNull;
         if (StringUtils.isBlank(passphrase))
         {
             try
             {
-                passphrase = getConsoleReader().readLine("Passphrase: ", Character.valueOf('*'));
+                passphrase = getConsoleReader().readLine(label, Character.valueOf('*'));
             } catch (IOException ex)
             {
                 throw new EnvironmentFailureException("I/O Exception while getting passphrase.", ex);
@@ -187,6 +187,7 @@ abstract class AbstractCommand implements ICommand
                 public void finished(boolean successful)
                 {
                     size = 0L;
+                    System.out.println();
                 }
 
                 public void warningOccured(String warningMessage)

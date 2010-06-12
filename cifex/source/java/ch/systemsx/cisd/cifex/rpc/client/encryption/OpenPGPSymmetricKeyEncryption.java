@@ -54,7 +54,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  * phase-phrase based encryption to and from an OpenPGP container using the AES-256 algorithm.
  * <p>
  * The file produced by {@link #encrypt(File, File, String)} is equivalent to calling "
- * <code>gpg -c --cipher-alg aes256 &lt;file&gt;</code>" and can be decrypted by any OpenPGP
+ * <code>gpg -c --cipher-alg=aes256 &lt;file&gt;</code>" and can be decrypted by any OpenPGP
  * compliant program.
  * <p>
  * <i>This class is inspired by the <code>PBEFileProcessor</code> utility from the Legion of the

@@ -25,10 +25,12 @@ import javax.net.ssl.SSLHandshakeException;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.openpgp.PGPDataValidationException;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -164,8 +166,15 @@ public class CIFEXClient
             exitHandler.exit(1);
         } catch (final Exception e)
         {
+            final Exception ex = CheckedExceptionTunnel.unwrapIfNecessary(e);
             System.err.println();
-            e.printStackTrace();
+            if (ex instanceof PGPDataValidationException)
+            {
+                System.err.println("Decryption failed (wrong passphrase).");
+            } else
+            {
+                ex.printStackTrace();
+            }
             exitHandler.exit(1);
         }
     }

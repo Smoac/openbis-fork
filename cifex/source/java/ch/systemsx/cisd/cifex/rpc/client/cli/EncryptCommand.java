@@ -90,10 +90,16 @@ public class EncryptCommand extends AbstractCommand
 
     private String getPassphraseOrExit(final Parameters parameters)
     {
-        String passphrase = tryGetPassphrase(parameters.getPassphrase());
+        String passphrase = tryGetPassphrase("Passphrase: ", parameters.getPassphrase());
         if (StringUtils.isBlank(passphrase))
         {
             System.err.println("No passphrase has been specified, exiting.");
+            System.exit(1);
+        }
+        String passphraseRepeat = tryGetPassphrase("Passphrase (repeat): ", parameters.getPassphrase());
+        if (passphrase.equals(passphraseRepeat) == false)
+        {
+            System.err.println("The two passphrases do not match, exiting.");
             System.exit(1);
         }
         return passphrase;

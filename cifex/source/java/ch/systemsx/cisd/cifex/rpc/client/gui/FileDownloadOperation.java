@@ -18,6 +18,13 @@ package ch.systemsx.cisd.cifex.rpc.client.gui;
 
 import java.io.File;
 
+import javax.swing.JOptionPane;
+
+import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.openpgp.PGPDataValidationException;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryption;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo;
 
 /**
@@ -35,18 +42,78 @@ final class FileDownloadOperation implements Runnable
 
     private final File downloadDirectory;
 
+    private final char[] passphrase;
+
     FileDownloadOperation(FileDownloadClientModel model, FileDownloadInfo info,
-            File downloadDirectory)
+            File downloadDirectory, char[] passphrase)
     {
-        super();
         this.tableModel = model;
         this.fileDownloadInfo = info;
         this.downloadDirectory = downloadDirectory;
+        this.passphrase = passphrase;
     }
 
     public void run()
     {
-        tableModel.getDownloader().download(fileDownloadInfo.getFileInfoDTO().getID(),
-                downloadDirectory, null);
+        String operationName = "Downloading";
+        try
+        {
+            final File file =
+                    tableModel.getDownloader().download(fileDownloadInfo.getFileInfoDTO().getID(),
+                            downloadDirectory, null);
+
+            if (passphrase.length > 0)
+            {
+                operationName = "Decrypting";
+                String passphraseStr = new String(passphrase);
+                boolean ok = false;
+                while (ok == false)
+                {
+                    try
+                    {
+                        final File clearTextFile =
+                                OpenPGPSymmetricKeyEncryption.decrypt(file, null, passphraseStr);
+                        JOptionPane.showMessageDialog(tableModel.getMainWindow(),
+                                "Encrypted file: " + file.getPath() + "\n" + "Decrypted file: "
+                                        + clearTextFile.getPath(), "File Decryption",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        ok = true;
+                    } catch (CheckedExceptionTunnel ex)
+                    {
+                        if (ex.getCause() instanceof PGPDataValidationException == false)
+                        {
+                            throw ex;
+                        }
+                        passphraseStr =
+                                PassphraseDialog
+                                        .tryGetPassphrase(tableModel.getMainWindow(),
+                                                "<div color='red'>Wrong passphrase, please try again:</div>");
+                        if (passphraseStr == null)
+                        {
+                            JOptionPane.showMessageDialog(tableModel.getMainWindow(),
+                                    "Decryption cancelled.");
+                            ok = true; // Cancel
+                        }
+                    }
+                }
+            }
+        } catch (Throwable th)
+        {
+            final Throwable th2 =
+                    (th instanceof Error) ? th : CheckedExceptionTunnel
+                            .unwrapIfNecessary((Exception) th);
+            final String msg;
+            if (StringUtils.isBlank(th2.getMessage()))
+            {
+                msg = th2.getClass().getSimpleName();
+            } else
+            {
+                msg = th2.getClass().getSimpleName() + ": " + th2.getMessage();
+            }
+            th2.printStackTrace();
+            JOptionPane.showMessageDialog(tableModel.getMainWindow(), operationName + " file '"
+                    + fileDownloadInfo.getFileInfoDTO().getName() + "' failed:\n" + msg, "Error "
+                    + operationName + " File", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

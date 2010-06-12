@@ -18,6 +18,8 @@ package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
 
+import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryption;
+
 /**
  * A file with an optional override name. The override name, if provided, is the name reported to
  * the server.
@@ -29,14 +31,14 @@ public class FileWithOverrideName
     private final File file;
 
     private final String overrideNameOrNull;
-    
+
     public FileWithOverrideName(File file, String overrideNameOrNull)
     {
         this.file = file;
         this.overrideNameOrNull = overrideNameOrNull;
     }
 
-    public File getFile()
+    public File getOriginalFile()
     {
         return file;
     }
@@ -44,6 +46,20 @@ public class FileWithOverrideName
     public String tryGetOverrideName()
     {
         return overrideNameOrNull;
+    }
+
+    public File getEncryptedFile()
+    {
+        final File encryptedFile;
+        if (overrideNameOrNull == null)
+        {
+            encryptedFile =
+                    new File(file.getPath() + OpenPGPSymmetricKeyEncryption.PGP_FILE_EXTENSION);
+        } else
+        {
+            encryptedFile = new File(file.getAbsoluteFile().getParent(), overrideNameOrNull);
+        }
+        return encryptedFile;
     }
 
 }

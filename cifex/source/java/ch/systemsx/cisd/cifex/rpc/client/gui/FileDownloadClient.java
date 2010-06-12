@@ -22,7 +22,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -33,9 +34,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SpringLayout;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
@@ -56,7 +59,15 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
  */
 public class FileDownloadClient extends AbstractSwingGUI
 {
-    private static final int LINE_HEIGHT = 30;
+    private static final int BUTTON_WIDTH = 510;
+
+    private static final int LABEL_WIDTH = 60;
+
+    private static final int FIELD_WIDTH = 130;
+
+    private static final int BUTTON_HEIGHT = 30;
+
+    private static final int FIELD_HEIGHT = 20;
 
     static
     {
@@ -104,7 +115,7 @@ public class FileDownloadClient extends AbstractSwingGUI
         super(commState);
         downloader = cifex.createDownloader(this.sessionId);
 
-        tableModel = new FileDownloadClientModel(this, timeProvider);
+        tableModel = new FileDownloadClientModel(this, getWindowFrame(), timeProvider);
 
         createGUI();
         addProgressListener();
@@ -134,7 +145,7 @@ public class FileDownloadClient extends AbstractSwingGUI
         final JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout(0, 5));
         panel.add(createFileListComponent(), BorderLayout.CENTER);
-        panel.add(createDirectoryPanel(), BorderLayout.SOUTH);
+        panel.add(createDirectoryAndPassphrasePanel(), BorderLayout.SOUTH);
         window.add(panel, BorderLayout.CENTER);
 
         // Add small gaps to the left and right of the frame, to give a bit of space
@@ -217,44 +228,66 @@ public class FileDownloadClient extends AbstractSwingGUI
         return scrollPane;
     }
 
-    private JComponent createDirectoryPanel()
+    private JComponent createDirectoryAndPassphrasePanel()
     {
-        final JPanel directoryPanel = new JPanel();
-        directoryPanel.setLayout(new BorderLayout());
-        final JLabel saveLabel = new JLabel("Save To:");
-        saveLabel.setPreferredSize(new Dimension(60, LINE_HEIGHT));
-        directoryPanel.add(saveLabel, BorderLayout.WEST);
+        final JPanel panel = new JPanel();
+        panel.setLayout(new SpringLayout());
 
+        // Download directory panel
+        JLabel label = new JLabel("Save To", JLabel.TRAILING);
+        label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
+        panel.add(label, BorderLayout.WEST);
         directoryButton = new JButton("");
-        directoryButton.setPreferredSize(new Dimension(510, LINE_HEIGHT));
-        directoryPanel.add(directoryButton, BorderLayout.CENTER);
+        directoryButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        panel.add(directoryButton, BorderLayout.CENTER);
         directoryButton
                 .setToolTipText("Click button to select a directory in which to save the downloaded files.");
         directoryButton.addActionListener(new ActionListener()
             {
-
                 public void actionPerformed(ActionEvent e)
                 {
-                    JFileChooser fileChooser = new JFileChooser(getDownloadDirectory());
+                    JFileChooser fileChooser = new JFileChooser(tableModel.getDownloadDirectory());
                     fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                     int returnVal = fileChooser.showOpenDialog(getWindowFrame());
                     if (returnVal == JFileChooser.APPROVE_OPTION)
                     {
-                        setDownloadDirectory(fileChooser.getSelectedFile());
+                        tableModel.setDownloadDirectory(fileChooser.getSelectedFile());
                         updateDirectoryLabel();
                     }
                 }
             });
         // set the text of the label to the current directory
         updateDirectoryLabel();
-        return directoryPanel;
+
+        // Passphrase panel
+        label = new JLabel("Passphrase", JLabel.TRAILING);
+        final JPasswordField passphraseField = new JPasswordField();
+        passphraseField.setPreferredSize(new Dimension(FIELD_WIDTH, FIELD_HEIGHT));
+        passphraseField.addFocusListener(new FocusListener()
+            {
+                public void focusLost(FocusEvent e)
+                {
+                    tableModel.setPassphrase(passphraseField.getPassword());
+                }
+                public void focusGained(FocusEvent e)
+                {
+                    // Not of interest.
+                }
+            });
+        label.setLabelFor(passphraseField);
+        panel.add(label);
+        panel.add(passphraseField);
+
+        SpringLayoutUtilities.makeCompactGrid(panel, 2, 2, 5, 5, 5, 5);
+
+        return panel;
     }
 
     private void updateDirectoryLabel()
     {
         try
         {
-            directoryButton.setText(getDownloadDirectory().getCanonicalPath());
+            directoryButton.setText(tableModel.getDownloadDirectory().getCanonicalPath());
         } catch (IOException ex)
         {
             directoryButton.setText(".");
@@ -281,7 +314,7 @@ public class FileDownloadClient extends AbstractSwingGUI
     protected final boolean cancel()
     {
 
-        if (!downloader.isInProgress())
+        if (downloader.isInProgress() == false)
         {
             return true;
         }
@@ -294,16 +327,6 @@ public class FileDownloadClient extends AbstractSwingGUI
             return true;
         }
         return false;
-    }
-
-    public void setDownloadDirectory(File downloadDirectory)
-    {
-        tableModel.setDownloadDirectory(downloadDirectory);
-    }
-
-    public File getDownloadDirectory()
-    {
-        return tableModel.getDownloadDirectory();
     }
 
     @Override
