@@ -67,7 +67,7 @@ public class CIFEXClient
         final String cmd = MinimalParameters.getCommandPrepender() + " <command>";
         System.err.println("Usage: " + cmd + " <options> ");
         System.err.println();
-        System.err.println("Possible commands are: ");
+        System.err.println("Available commands are: ");
         System.err.println();
         printCommands();
         System.err.println();
