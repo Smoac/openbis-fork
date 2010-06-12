@@ -65,55 +65,67 @@ final class FileDownloadOperation implements Runnable
             if (passphrase.length > 0)
             {
                 operationName = "Decrypting";
-                String passphraseStr = new String(passphrase);
-                boolean ok = false;
-                while (ok == false)
-                {
-                    try
-                    {
-                        final File clearTextFile =
-                                OpenPGPSymmetricKeyEncryption.decrypt(file, null, passphraseStr);
-                        JOptionPane.showMessageDialog(tableModel.getMainWindow(),
-                                "Encrypted file: " + file.getPath() + "\n" + "Decrypted file: "
-                                        + clearTextFile.getPath(), "File Decryption",
-                                JOptionPane.INFORMATION_MESSAGE);
-                        ok = true;
-                    } catch (CheckedExceptionTunnel ex)
-                    {
-                        if (ex.getCause() instanceof PGPDataValidationException == false)
-                        {
-                            throw ex;
-                        }
-                        passphraseStr =
-                                PassphraseDialog
-                                        .tryGetPassphrase(tableModel.getMainWindow(),
-                                                "<div color='red'>Wrong passphrase, please try again:</div>");
-                        if (passphraseStr == null)
-                        {
-                            JOptionPane.showMessageDialog(tableModel.getMainWindow(),
-                                    "Decryption cancelled.");
-                            ok = true; // Cancel
-                        }
-                    }
-                }
+                decrypt(file);
             }
         } catch (Throwable th)
         {
-            final Throwable th2 =
-                    (th instanceof Error) ? th : CheckedExceptionTunnel
-                            .unwrapIfNecessary((Exception) th);
-            final String msg;
-            if (StringUtils.isBlank(th2.getMessage()))
-            {
-                msg = th2.getClass().getSimpleName();
-            } else
-            {
-                msg = th2.getClass().getSimpleName() + ": " + th2.getMessage();
-            }
-            th2.printStackTrace();
-            JOptionPane.showMessageDialog(tableModel.getMainWindow(), operationName + " file '"
-                    + fileDownloadInfo.getFileInfoDTO().getName() + "' failed:\n" + msg, "Error "
-                    + operationName + " File", JOptionPane.ERROR_MESSAGE);
+            notifyUserOfException(operationName, th);
         }
     }
+
+    private void decrypt(final File file)
+    {
+        String passphraseStr = new String(passphrase);
+        boolean ok = false;
+        while (ok == false)
+        {
+            try
+            {
+                final File clearTextFile =
+                        OpenPGPSymmetricKeyEncryption.decrypt(file, null, passphraseStr);
+                JOptionPane.showMessageDialog(tableModel.getMainWindow(),
+                        "File on Server: " + fileDownloadInfo.getFileInfoDTO().getName()
+                                + "\n" + "Decrypted file: " + clearTextFile.getPath(),
+                        "File Decryption", JOptionPane.INFORMATION_MESSAGE);
+                ok = true;
+            } catch (CheckedExceptionTunnel ex)
+            {
+                if (ex.getCause() instanceof PGPDataValidationException == false)
+                {
+                    throw ex;
+                }
+                passphraseStr =
+                        PassphraseDialog.tryGetPassphrase(tableModel.getMainWindow(),
+                                "File: '" + fileDownloadInfo.getFileInfoDTO().getName()
+                                        + "'", "<div color='red'>Wrong passphrase, "
+                                        + "please try again.</div>");
+                if (passphraseStr == null)
+                {
+                    JOptionPane.showMessageDialog(tableModel.getMainWindow(),
+                            "Decryption cancelled.");
+                    ok = true; // Cancel
+                }
+            }
+        }
+    }
+
+    private void notifyUserOfException(String operationName, Throwable th)
+    {
+        final Throwable th2 =
+                (th instanceof Error) ? th : CheckedExceptionTunnel
+                        .unwrapIfNecessary((Exception) th);
+        final String msg;
+        if (StringUtils.isBlank(th2.getMessage()))
+        {
+            msg = th2.getClass().getSimpleName();
+        } else
+        {
+            msg = th2.getClass().getSimpleName() + ": " + th2.getMessage();
+        }
+        th2.printStackTrace();
+        JOptionPane.showMessageDialog(tableModel.getMainWindow(), operationName + " file '"
+                + fileDownloadInfo.getFileInfoDTO().getName() + "' failed:\n" + msg, "Error "
+                + operationName + " File", JOptionPane.ERROR_MESSAGE);
+    }
+
 }
