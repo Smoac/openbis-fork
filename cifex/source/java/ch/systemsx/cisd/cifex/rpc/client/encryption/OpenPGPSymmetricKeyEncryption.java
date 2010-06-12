@@ -35,6 +35,7 @@ import java.util.ListIterator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.io.output.NullOutputStream;
+import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPCompressedData;
 import org.bouncycastle.openpgp.PGPEncryptedData;
@@ -45,7 +46,6 @@ import org.bouncycastle.openpgp.PGPLiteralData;
 import org.bouncycastle.openpgp.PGPLiteralDataGenerator;
 import org.bouncycastle.openpgp.PGPObjectFactory;
 import org.bouncycastle.openpgp.PGPPBEEncryptedData;
-import org.bouncycastle.openpgp.PGPUtil;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
@@ -267,10 +267,20 @@ public class OpenPGPSymmetricKeyEncryption
     private static PGPPBEEncryptedData getPGPEncryptedData(File inFile)
             throws FileNotFoundException, IOException, PGPException
     {
-        final InputStream inStream = new FileInputStream(inFile);
         try
         {
-            final InputStream pgpIn = PGPUtil.getDecoderStream(inStream);
+            final InputStream pgpIn;
+            switch (getPGPMessageType(inFile))
+            {
+                case BINARY:
+                    pgpIn = new FileInputStream(inFile);
+                    break;
+                case ARMORED:
+                    pgpIn = new ArmoredInputStream(new FileInputStream(inFile));
+                    break;
+                default:
+                    throw new PGPException("No PGP file.");
+            }
             final PGPObjectFactory pgpFactory = new PGPObjectFactory(pgpIn);
             final PGPEncryptedDataList encryptedDataList;
 
@@ -291,4 +301,29 @@ public class OpenPGPSymmetricKeyEncryption
         }
     }
 
+    private static final String ARMORED_PGP_HEADER = "-----BEGIN PGP MESSAGE-----";
+
+    private enum PGP_MESSAGE_TYPE
+    {
+        BINARY, ARMORED, NONE;
+    }
+
+    private static PGP_MESSAGE_TYPE getPGPMessageType(File inFile) throws IOException
+    {
+        final InputStream in = new FileInputStream(inFile);
+        try
+        {
+            final byte[] buf = new byte[ARMORED_PGP_HEADER.length()];
+            in.read(buf, 0, buf.length);
+            if ((buf[0] & 0x80) != 0)
+            {
+                return PGP_MESSAGE_TYPE.BINARY;
+            }
+            return new String(buf).equals(ARMORED_PGP_HEADER) ? PGP_MESSAGE_TYPE.ARMORED
+                    : PGP_MESSAGE_TYPE.NONE;
+        } finally
+        {
+            IOUtils.closeQuietly(in);
+        }
+    }
 }
