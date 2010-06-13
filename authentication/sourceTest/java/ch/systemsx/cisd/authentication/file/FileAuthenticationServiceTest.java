@@ -43,12 +43,6 @@ public class FileAuthenticationServiceTest
     {
         context = new Mockery();
         userStore = context.mock(IUserStore.class);
-        context.checking(new Expectations()
-        {
-            {
-                one(userStore).check();
-            }
-        });
         authService = new FileAuthenticationService(userStore);
     }
 
