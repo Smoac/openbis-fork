@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import java.text.MessageFormat;
+import java.text.DateFormat;
 import java.util.Date;
+import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
@@ -31,9 +33,10 @@ import ch.systemsx.cisd.common.mail.IMailClient;
  */
 public class EMailBuilderForNewUser extends AbstractEMailBuilder
 {
-    private static final MessageFormat EXPIRATION_TEMPLATE =
-            new MessageFormat("\n\nThis login account expires " + DATE_TEMPLATE
-                    + ". Please access your account now!");
+    private static final String NEW_ACCOUNT_EMAIL_SUBJECT_LINE = "new-account-email-subject";
+
+    private static final String NEW_ACCOUNT_EMAIL_TEMPLATE_FILE_NAME =
+            "etc/new-account-email.template";
 
     private final UserDTO newUser;
 
@@ -52,43 +55,43 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
     protected String createContent()
     {
         assert password != null : "Missing password.";
-
-        StringBuilder builder = new StringBuilder();
-        addGreeting(builder);
-        builder.append(getLongRegistratorDescription());
-        builder.append(" has requested a ");
-        builder.append(createTypeAdjective());
-        builder.append(" account on our server for you.\n\n");
-        builder.append("------------------------------------------------------------\n");
-        builder.append("Information about the person who requested the account:\n");
-        addRegistratorDetails(builder);
-        builder.append("\n\n-------------------------------------------------\n");
-        builder.append("Here\'s how to login:\n");
-        builder.append("-------------------------------------------------\n");
-        builder.append("\nVisit:\t\t").append(url);
-        appendURLParam(builder, Constants.USERCODE_PARAMETER, newUser.getUserCode(), true);
-        builder.append("\nUser:\t").append(newUser.getUserCode());
-        builder.append("\nPassword:\t").append(password);
-        if (newUser.isAdmin() == false && newUser.isPermanent() == false)
-        {
-            Date expirationDate = newUser.getExpirationDate();
-            builder.append(EXPIRATION_TEMPLATE.format(new Object[]
-                { expirationDate }));
-        }
-        return builder.toString();
+        
+        return createContent(NEW_ACCOUNT_EMAIL_TEMPLATE_FILE_NAME);
     }
 
     @Override
     protected String createSubject()
     {
-        return getShortRegistratorDescription() + " has requested a " + createTypeAdjective()
-                + " account for you";
+        return StringUtils.capitalize(emailDict.get(NEW_ACCOUNT_EMAIL_SUBJECT_LINE));
     }
 
-    private String createTypeAdjective()
+    @Override
+    protected String getUserCode()
     {
-        return newUser.isAdmin() ? "administrative" : (newUser.isPermanent() ? "permanent"
-                : "temporary");
+        return newUser.getUserCode();
     }
 
+    @Override
+    protected Date tryGetExpirationDate()
+    {
+        return newUser.getExpirationDate();
+    }
+
+    @Override
+    protected void addToDict(Properties emailProps, DateFormat dateFormat)
+    {
+        if (newUser.isAdmin())
+        {
+            emailDict.put("account-type", emailProps.getProperty("account-type-admin"));
+            emailDict.put("account-type2", emailProps.getProperty("account-type-admin2"));
+        } else if (newUser.isPermanent())
+        {
+            emailDict.put("account-type", emailProps.getProperty("account-type-regular"));
+            emailDict.put("account-type2", emailProps.getProperty("account-type-regular2"));
+        } else
+        {
+            emailDict.put("account-type", emailProps.getProperty("account-type-temp"));
+            emailDict.put("account-type2", emailProps.getProperty("account-type-temp2"));
+        }
+    }
 }

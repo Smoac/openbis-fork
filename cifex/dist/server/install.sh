@@ -59,6 +59,8 @@ echo Unzipping Jetty...
 unzip -q "$installation_folder/jetty.zip" -d "$server_folder"
 test -f "$installation_folder"/jetty.xml && cp -p "$installation_folder"/jetty.xml "$jetty_folder"/etc
 test -f "$installation_folder"/keystore && cp -p "$installation_folder"/keystore "$jetty_folder"/etc
+cp -p "$installation_folder"/email.properties "$jetty_folder"/etc
+cp -p "$installation_folder"/*-email.template "$jetty_folder"/etc
 
 echo Preparing and installing web archive...
 war_classes=WEB-INF/classes

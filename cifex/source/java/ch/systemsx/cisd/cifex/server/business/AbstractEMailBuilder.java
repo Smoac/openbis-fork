@@ -16,14 +16,26 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.Template;
 
 /**
  * Abstract super class of all CIFEX e-mail builder.
@@ -32,12 +44,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
  */
 abstract class AbstractEMailBuilder
 {
-    private static final String FOOTER =
-            "\n\n--------------------------------------------------\n"
-                    + "CIFEX - CISD File EXchanger\n"
-                    + "Center for Information Sciences and Databases\n" + "ETH Zurich";
-
-    protected static final String DATE_TEMPLATE = "on {0,date,d-MMM-yyyy} at {0,time,HH:mm:ss}";
+    private static final String EMAIL_PROPERTIES_FILE_PATH = "etc/email.properties";
 
     protected final UserDTO registrator;
 
@@ -52,6 +59,8 @@ abstract class AbstractEMailBuilder
     private final String email;
 
     protected String password;
+
+    protected Map<String, String> emailDict = new HashMap<String, String>();
 
     protected AbstractEMailBuilder(final IMailClient mailClient, final UserDTO registrator,
             final String email)
@@ -115,29 +124,83 @@ abstract class AbstractEMailBuilder
     public void sendEMail()
     {
         assert url != null : "Missing URL.";
-        mailClient.sendMessage("[CIFEX] " + createSubject(), createContent() + FOOTER,
+        emailDict.clear();
+        populateDict();
+        mailClient.sendMessage("[CIFEX] " + createSubject(), createContent(),
                 getLongRegistratorDescription(), new From(getLongRegistratorDescription()), email);
     }
 
-    protected final void addGreeting(final StringBuilder builder)
+    /**
+     * Sub-classes should add their own key-value pairs to the {@link #emailDict} by implementing
+     * {@link #addToDict(Properties, DateFormat)}.
+     */
+    protected void populateDict()
     {
-        builder.append("Hello");
-        if (StringUtils.isNotBlank(fullName))
+        final Properties emailProps = PropertyUtils.loadProperties(EMAIL_PROPERTIES_FILE_PATH);
+        final DateFormat dateFormat = new SimpleDateFormat(emailProps.getProperty("date-format"));
+        emailDict.put("user-id", getUserCode());
+        emailDict.put("login-link", createURL(Constants.USERCODE_PARAMETER, getUserCode()));
+        if (password != null)
         {
-            builder.append(' ');
-            builder.append(fullName);
+            emailDict.put("password", password);
         }
-        builder.append(",\n\n");
-    }
-
-    protected final void addRegistratorDetails(final StringBuilder builder)
-    {
-        builder.append("------------------------------------------------------------\n");
-        builder.append("\nFrom:\t").append(getShortRegistratorDescription());
-        builder.append("\nEmail:\t").append(registrator.getEmail());
+        if (StringUtils.isBlank(fullName))
+        {
+            emailDict.put("user-name", getUserCode());
+        } else
+        {
+            emailDict.put("user-name", fullName);
+        }
+        emailDict.put("uploader-name", getShortRegistratorDescription());
+        emailDict.put("uploader-email", registrator.getEmail());
         if (comment != null)
         {
-            builder.append("\nComment:\t").append(comment);
+            emailDict.put("comment", comment);
+        }
+        if (tryGetExpirationDate() != null)
+        {
+            emailDict.put("expiration-date", dateFormat.format(tryGetExpirationDate()));
+        }
+        addToDict(emailProps, dateFormat);
+        addPropertiesToDict(emailProps);
+        // Optional properties: set to "-" if null
+        if (emailDict.containsKey("password") == false)
+        {
+            emailDict.put("password", "-");
+        }
+        if (emailDict.containsKey("comment") == false)
+        {
+            emailDict.put("comment", "-");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addPropertiesToDict(final Properties emailProps)
+    {
+        for (final Enumeration<String> enumeration =
+                (Enumeration<String>) emailProps.propertyNames(); enumeration.hasMoreElements(); /**/)
+        {
+            final String key = enumeration.nextElement();
+            if (key.endsWith("-EMPTY"))
+            {
+                continue;
+            }
+            final String value = emailProps.getProperty(key).replace("<br>", "\n");
+            final Template template = new Template(value);
+            for (String placeholder : template.getPlaceholderNames())
+            {
+                if (emailDict.containsKey(placeholder))
+                {
+                    template.bind(placeholder, emailDict.get(placeholder));
+                }
+            }
+            if (template.allVariablesAreBound())
+            {
+                emailDict.put(key, template.createText());
+            } else
+            {
+                emailDict.put(key, emailProps.getProperty(key + "-EMPTY", ""));
+            }
         }
     }
 
@@ -153,24 +216,81 @@ abstract class AbstractEMailBuilder
         return getShortRegistratorDescription() + " <" + registrator.getEmail() + ">";
     }
 
-    protected final StringBuilder appendURLParam(final StringBuilder builder, final String param,
-            final Object value, final boolean firstParam)
+    protected final StringBuilder addURL(final StringBuilder builder, final Object... paramValues)
     {
-        assert param != null : "Undefined URL parameter";
-        assert value != null : "Undefined URL parameter value";
-        if (firstParam)
+        assert paramValues.length % 2 == 0;
+
+        builder.append(url);
+        if (url.endsWith("/") == false)
         {
-            builder.append("?");
-        } else
-        {
-            builder.append("&");
+            builder.append('/');
         }
-        builder.append(param).append("=").append(encodeURLParam(value.toString()));
+        boolean firstParam = true;
+        for (int i = 0; i < paramValues.length / 2; ++i)
+        {
+            if (firstParam)
+            {
+                builder.append("?");
+            } else
+            {
+                builder.append("&");
+            }
+            builder.append(paramValues[2 * i].toString()).append("=").append(
+                    encodeURLParam(paramValues[2 * i + 1].toString()));
+            firstParam = false;
+        }
         return builder;
     }
 
+    protected final String createURL(final Object... paramValues)
+    {
+        return addURL(new StringBuilder(), paramValues).toString();
+    }
+
+    protected final String createContent(String templateFilename)
+    {
+        final Template template =
+                new Template(FileUtilities.loadExactToString(new File(templateFilename)));
+        for (String placeholder : template.getPlaceholderNames())
+        {
+            if (emailDict.containsKey(placeholder))
+            {
+                template.bind(placeholder, emailDict.get(placeholder));
+            } else
+            {
+                template.bind(placeholder, "?{" + placeholder + "}");
+            }
+        }
+        return template.createText();
+    }
+
+    /**
+     * Can add additional key-value pairs to the {@link #emailDict}.
+     */
+    protected void addToDict(Properties emailProps, DateFormat dateFormat)
+    {
+        // Override in sub-classes if you need to add additional key-value paris to emailDict.
+    }
+
+    /**
+     * Called by {@link #sendEMail()} to create the subject line.
+     */
     protected abstract String createSubject();
 
+    /**
+     * Called by {@link #sendEMail()} to create the email body.
+     */
     protected abstract String createContent();
+
+    /**
+     * Returns the user code of the user addressed.
+     */
+    protected abstract String getUserCode();
+
+    /**
+     * Returns the expiration date of either the user or the files or <code>null</code>, if it does
+     * not expire.
+     */
+    protected abstract Date tryGetExpirationDate();
 
 }

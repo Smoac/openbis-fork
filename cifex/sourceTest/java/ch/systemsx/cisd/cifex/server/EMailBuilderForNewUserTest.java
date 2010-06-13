@@ -49,25 +49,33 @@ public class EMailBuilderForNewUserTest
         builder.setComment("Hello new user!");
         builder.sendEMail();
 
-        assertEquals("[CIFEX] registrator has requested a administrative account for you",
+        assertEquals("[CIFEX] Registrator has requested an administrator account for you",
                 mailClient.subject);
         assertEquals(
-                "Hello,\n"
-                        + "\n"
-                        + "registrator <reg@r.rr> has requested a administrative account on our server for you.\n"
-                        + "\n" + "------------------------------------------------------------\n"
-                        + "Information about the person who requested the account:\n"
-                        + "------------------------------------------------------------\n" + "\n"
-                        + "From:\tregistrator\n" + "Email:\treg@r.rr\n"
-                        + "Comment:\tHello new user!\n" + "\n"
-                        + "-------------------------------------------------\n"
-                        + "Here's how to login:\n"
-                        + "-------------------------------------------------\n" + "\n"
-                        + "Visit:\t\thttp://localhost/cifex?user=a\n" + "User:\ta\n"
-                        + "Password:\ta1234\n" + "\n"
-                        + "--------------------------------------------------\n"
-                        + "CIFEX - CISD File EXchanger\n"
-                        + "Center for Information Sciences and Databases\n" + "ETH Zurich",
+                "Hello a,\n" + 
+                "\n" + 
+                "registrator <reg@r.rr> has requested an administrator account on our server for you.\n" + 
+                "\n" + 
+                "------------------------------------------------------------\n" + 
+                "Information about the person who requested the account:\n" + 
+                "------------------------------------------------------------\n" + 
+                "\n" + 
+                "From:     registrator\n" + 
+                "Email:    reg@r.rr\n" + 
+                "Comment:  Hello new user!\n" + 
+                "\n" + 
+                "-------------------------------------------------\n" + 
+                "Here's how to login:\n" + 
+                "-------------------------------------------------\n" + 
+                "\n" + 
+                "Visit:    http://localhost/cifex/?user=a\n" + 
+                "User:     a\n" + 
+                "Password: a1234\n" + 
+                "\n" + 
+                "--------------------------------------------------\n" + 
+                "CIFEX - CISD File EXchanger\n" + 
+                "Center for Information Sciences and Databases\n" + 
+                "ETH Zurich",
                 mailClient.content);
         assertEquals(1, mailClient.recipients.length);
         assertEquals("a@a.aa", mailClient.recipients[0]);
@@ -89,24 +97,32 @@ public class EMailBuilderForNewUserTest
         builder.setPassword("p1234");
         builder.sendEMail();
 
-        assertEquals("[CIFEX] registrator has requested a permanent account for you",
+        assertEquals("[CIFEX] Registrator has requested a regular account for you",
                 mailClient.subject);
         assertEquals(
-                "Hello,\n"
-                        + "\n"
-                        + "registrator <reg@r.rr> has requested a permanent account on our server for you.\n"
-                        + "\n" + "------------------------------------------------------------\n"
-                        + "Information about the person who requested the account:\n"
-                        + "------------------------------------------------------------\n" + "\n"
-                        + "From:\tregistrator\n" + "Email:\treg@r.rr\n" + "\n"
-                        + "-------------------------------------------------\n"
-                        + "Here's how to login:\n"
-                        + "-------------------------------------------------\n" + "\n"
-                        + "Visit:\t\thttp://localhost/cifex?user=p\n" + "User:\tp\n"
-                        + "Password:\tp1234\n" + "\n"
-                        + "--------------------------------------------------\n"
-                        + "CIFEX - CISD File EXchanger\n"
-                        + "Center for Information Sciences and Databases\n" + "ETH Zurich",
+                "Hello p,\n" + 
+                "\n" + 
+                "registrator <reg@r.rr> has requested a regular account on our server for you.\n" + 
+                "\n" + 
+                "------------------------------------------------------------\n" + 
+                "Information about the person who requested the account:\n" + 
+                "------------------------------------------------------------\n" + 
+                "\n" + 
+                "From:     registrator\n" + 
+                "Email:    reg@r.rr\n" + 
+                "\n" + 
+                "-------------------------------------------------\n" + 
+                "Here's how to login:\n" + 
+                "-------------------------------------------------\n" + 
+                "\n" + 
+                "Visit:    http://localhost/cifex/?user=p\n" + 
+                "User:     p\n" + 
+                "Password: p1234\n" + 
+                "\n" + 
+                "--------------------------------------------------\n" + 
+                "CIFEX - CISD File EXchanger\n" + 
+                "Center for Information Sciences and Databases\n" + 
+                "ETH Zurich",
                 mailClient.content);
         assertEquals(1, mailClient.recipients.length);
         assertEquals("p@p.pp", mailClient.recipients[0]);
@@ -129,32 +145,34 @@ public class EMailBuilderForNewUserTest
         builder.setPassword("t1234");
         builder.sendEMail();
 
-        assertEquals("[CIFEX] registrator has requested a temporary account for you",
+        assertEquals("[CIFEX] Registrator has requested a temporary account for you",
                 mailClient.subject);
         assertEquals(
-                "Hello,\n"
-                        + "\n"
-                        + "registrator <reg@r.rr> has requested a temporary account on our server for you.\n"
-                        + "\n"
-                        + "------------------------------------------------------------\n"
-                        + "Information about the person who requested the account:\n"
-                        + "------------------------------------------------------------\n"
-                        + "\n"
-                        + "From:\tregistrator\n"
-                        + "Email:\treg@r.rr\n"
-                        + "\n"
-                        + "-------------------------------------------------\n"
-                        + "Here's how to login:\n"
-                        + "-------------------------------------------------\n"
-                        + "\n"
-                        + "Visit:\t\thttp://localhost/cifex?user=t\n"
-                        + "User:\tt\n"
-                        + "Password:\tt1234\n"
-                        + "\n"
-                        + "This login account expires on 15-Jan-1970 at 07:56:07. Please access your account now!\n"
-                        + "\n" + "--------------------------------------------------\n"
-                        + "CIFEX - CISD File EXchanger\n"
-                        + "Center for Information Sciences and Databases\n" + "ETH Zurich",
+                "Hello t,\n" + 
+                "\n" + 
+                "registrator <reg@r.rr> has requested a temporary account on our server for you.\n" + 
+                "\n" + 
+                "------------------------------------------------------------\n" + 
+                "Information about the person who requested the account:\n" + 
+                "------------------------------------------------------------\n" + 
+                "\n" + 
+                "From:     registrator\n" + 
+                "Email:    reg@r.rr\n" + 
+                "\n" + 
+                "-------------------------------------------------\n" + 
+                "Here's how to login:\n" + 
+                "-------------------------------------------------\n" + 
+                "\n" + 
+                "Visit:    http://localhost/cifex/?user=t\n" + 
+                "User:     t\n" + 
+                "Password: t1234\n" + 
+                "\n" + 
+                "This login account expires on 1970-01-15 at 07:56:07.\n" + 
+                "\n" + 
+                "--------------------------------------------------\n" + 
+                "CIFEX - CISD File EXchanger\n" + 
+                "Center for Information Sciences and Databases\n" + 
+                "ETH Zurich",
                 mailClient.content);
         assertEquals(1, mailClient.recipients.length);
         assertEquals("t@t.tt", mailClient.recipients[0]);

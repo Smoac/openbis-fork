@@ -392,7 +392,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
-                                    + String.format("/index.html?fileId=%d&user=%s", fileId,
+                                    + String.format("/?fileId=%d&user=%s", fileId,
                                             receivingUserCode))),
                             with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
                             with(equal(new String[]
@@ -452,7 +452,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
-                                    + String.format("/index.html?fileId=%d&user=%s", fileId,
+                                    + String.format("/?fileId=%d&user=%s", fileId,
                                             receivingUserCode))),
                             with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
                             with(equal(new String[]
@@ -542,7 +542,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
-                                    + String.format("/index.html?fileId=%d&user=%s", fileId,
+                                    + String.format("/?fileId=%d&user=%s", fileId,
                                             firstReceivingUserCode))),
                             with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
                             with(equal(new String[]
@@ -551,7 +551,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
-                                    + String.format("/index.html?fileId=%d&user=%s", fileId,
+                                    + String.format("/?fileId=%d&user=%s", fileId,
                                             secondReceivingUserCode))),
                             with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
                             with(equal(new String[]
@@ -615,7 +615,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
-                                    + String.format("/index.html?fileId=%d&user=%s", fileId,
+                                    + String.format("/?fileId=%d&user=%s", fileId,
                                             receivingUserCode))), with(equal(replyTo)),
                             with(new FromMatcher(replyTo)), with(equal(new String[]
                                 { emailOfReceivingUserLowerCase })));

@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import java.text.MessageFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -36,8 +37,10 @@ import ch.systemsx.cisd.common.mail.IMailClient;
  */
 public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
 {
-    private static final MessageFormat EXPIRATION_TEMPLATE =
-            new MessageFormat("\nExpiration: Files will be removed  " + DATE_TEMPLATE);
+    private static final String FILE_FOR_DOWNLOAD_SUBJECT_LINE = "file-for-download-subject";
+
+    private static final String FILE_FOR_DOWNLOAD_EMAIL_TEMPLATE_FILE_NAME =
+            "etc/file-for-download-email.template";
 
     private final List<FileDTO> files = new ArrayList<FileDTO>();
 
@@ -74,60 +77,63 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
         assert files.size() > 0 : "No files to upload.";
         assert userCode != null : "Missing user code";
 
-        StringBuilder builder = new StringBuilder();
-        addGreeting(builder);
-        builder.append(getLongRegistratorDescription());
-        builder.append(" has stored ").append(createFileText());
-        builder.append(" on our server for you to download. File information appears below.\n\n");
-        addRegistratorDetails(builder);
-        builder.append("\n\n").append(StringUtils.capitalize(createFileText())).append(
-                " (click to download):\n\n");
+        return createContent(FILE_FOR_DOWNLOAD_EMAIL_TEMPLATE_FILE_NAME);
+    }
+
+    private StringBuilder addFileSection(StringBuilder builder)
+    {
+        for (final FileDTO file : files)
+        {
+            builder.append(file.getName()).append("  ");
+            addURL(builder, Constants.FILE_ID_PARAMETER, file.getID(),
+                    Constants.USERCODE_PARAMETER, userCode);
+            builder.append("\n");
+        }
+        return builder;
+    }
+
+    @Override
+    protected Date tryGetExpirationDate()
+    {
         Date minExpirationDate = new Date(Long.MAX_VALUE);
         for (final FileDTO file : files)
         {
-            builder.append(file.getName()).append(" ");
-            builder.append(url).append("/index.html");
-            appendURLParam(builder, Constants.FILE_ID_PARAMETER, file.getID(), true);
-            appendURLParam(builder, Constants.USERCODE_PARAMETER, userCode, false);
-            // Append line separator as String as not as Character. On MacOS with Entourage I got a
-            // not-so-correctly
-            // formatted email.
-            builder.append("\n");
             Date expirationDate = file.getExpirationDate();
             if (expirationDate.getTime() < minExpirationDate.getTime())
             {
                 minExpirationDate = expirationDate;
             }
         }
-        builder.append(EXPIRATION_TEMPLATE.format(new Object[]
-            { minExpirationDate }));
-        builder.append("\n");
-        if (password != null)
-        {
-            builder.append("\nFor downloading you have to enter the following password: ").append(
-                    password);
-            builder.append("\n");
-        }
-        builder.append("\nTo login to the system: ").append(url).append("/index.html");
-        appendURLParam(builder, Constants.USERCODE_PARAMETER, userCode, true);
-        builder.append("\n\n------------------------------------------------------------\n\n");
-        builder
-                .append("We recommend that you install the latest version of your antivirus software ");
-        builder.append("prior to downloading any files over the Internet.\n");
-        return builder.toString();
+        return minExpirationDate;
     }
 
     @Override
     protected String createSubject()
     {
         assert files.size() > 0 : "No files to upload.";
-        return StringUtils.capitalize(createFileText()) + " available for download from "
-                + getShortRegistratorDescription();
+        return StringUtils.capitalize(emailDict.get(FILE_FOR_DOWNLOAD_SUBJECT_LINE));
     }
 
-    private String createFileText()
+    @Override
+    protected String getUserCode()
     {
-        return files.size() == 1 ? "a file" : "files";
+        return userCode;
     }
 
+    @Override
+    protected void addToDict(Properties emailProps, DateFormat dateFormat)
+    {
+        if (files.size() == 1)
+        {
+            emailDict.put("one-or-more-files", emailProps.getProperty("one-file"));
+            emailDict.put("one-or-more-files2", emailProps.getProperty("one-file2"));
+            emailDict.put("one-or-more-files3", emailProps.getProperty("one-file3"));
+        } else
+        {
+            emailDict.put("one-or-more-files", emailProps.getProperty("multiple-files"));
+            emailDict.put("one-or-more-files2", emailProps.getProperty("multiple-files2"));
+            emailDict.put("one-or-more-files3", emailProps.getProperty("multiple-files3"));
+        }
+        emailDict.put("file-section", addFileSection(new StringBuilder()).toString());
+    }
 }

@@ -47,17 +47,17 @@ public class EMailBuilderForUpdateUserTest
         builder.setURL("http://localhost/cifex");
         builder.sendEMail();
 
-        assertEquals("[CIFEX] registrator has updated your administrative account",
+        assertEquals("[CIFEX] Registrator has updated your administrator account",
                 mailClient.subject);
         assertEquals(
-                "Hello,\n"
+                "Hello a,\n"
                         + "\n"
-                        + "registrator <reg@r.rr> has updated your administrative account on our server for you.\n"
+                        + "registrator <reg@r.rr> has updated your administrator account on our server for you.\n"
                         + "\n" + "-------------------------------------------------\n"
                         + "Here's how to login:\n"
                         + "-------------------------------------------------\n" + "\n"
-                        + "Visit:\t\thttp://localhost/cifex?user=a\n" + "User:\ta\n"
-                        + "The password has not changed, it is still the old one!\n" + "\n"
+                        + "Visit:    http://localhost/cifex/?user=a\n" + "User:     a\n"
+                        + "Your password has not changed.\n" + "\n"
                         + "--------------------------------------------------\n"
                         + "CIFEX - CISD File EXchanger\n"
                         + "Center for Information Sciences and Databases\n" + "ETH Zurich",
@@ -82,17 +82,16 @@ public class EMailBuilderForUpdateUserTest
         builder.setPassword("p1234");
         builder.sendEMail();
 
-        assertEquals("[CIFEX] registrator has updated your permanent account",
-                mailClient.subject);
+        assertEquals("[CIFEX] Registrator has updated your regular account", mailClient.subject);
         assertEquals(
-                "Hello,\n"
+                "Hello p,\n"
                         + "\n"
-                        + "registrator <reg@r.rr> has updated your permanent account on our server for you.\n"
-                        + "\n-------------------------------------------------\n"
+                        + "registrator <reg@r.rr> has updated your regular account on our server for you.\n"
+                        + "\n" + "-------------------------------------------------\n"
                         + "Here's how to login:\n"
                         + "-------------------------------------------------\n" + "\n"
-                        + "Visit:\t\thttp://localhost/cifex?user=p\n" + "User:\tp\n"
-                        + "Password:\tp1234\n" + "\n"
+                        + "Visit:    http://localhost/cifex/?user=p\n" + "User:     p\n"
+                        + "Password: p1234\n" + "\n"
                         + "--------------------------------------------------\n"
                         + "CIFEX - CISD File EXchanger\n"
                         + "Center for Information Sciences and Databases\n" + "ETH Zurich",
@@ -117,23 +116,18 @@ public class EMailBuilderForUpdateUserTest
         builder.setURL("http://localhost/cifex");
         builder.sendEMail();
 
-        assertEquals("[CIFEX] registrator has updated your temporary account",
-                mailClient.subject);
+        assertEquals("[CIFEX] Registrator has updated your temporary account", mailClient.subject);
         assertEquals(
-                "Hello,\n"
+                "Hello t,\n"
                         + "\n"
                         + "registrator <reg@r.rr> has updated your temporary account on our server for you.\n"
-                        + "\n"
-                        + "-------------------------------------------------\n"
+                        + "\n" + "-------------------------------------------------\n"
                         + "Here's how to login:\n"
-                        + "-------------------------------------------------\n"
-                        + "\n"
-                        + "Visit:\t\thttp://localhost/cifex?user=t\n"
-                        + "User:\tt\n"
-                        + "The password has not changed, it is still the old one!\n"
-                        + "\n"
-                        + "This login account expires on 15-Jan-1970 at 07:56:07. Please access your account now!\n"
-                        + "\n" + "--------------------------------------------------\n"
+                        + "-------------------------------------------------\n" + "\n"
+                        + "Visit:    http://localhost/cifex/?user=t\n" + "User:     t\n"
+                        + "Your password has not changed.\n" + "\n"
+                        + "This login account expires on 1970-01-15 at 07:56:07.\n" + "\n"
+                        + "--------------------------------------------------\n"
                         + "CIFEX - CISD File EXchanger\n"
                         + "Center for Information Sciences and Databases\n" + "ETH Zurich",
                 mailClient.content);

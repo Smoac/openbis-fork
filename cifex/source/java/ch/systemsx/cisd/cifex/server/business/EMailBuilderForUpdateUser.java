@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import java.text.MessageFormat;
+import java.text.DateFormat;
 import java.util.Date;
+import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
@@ -31,11 +33,13 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 public class EMailBuilderForUpdateUser extends AbstractEMailBuilder
 {
 
-    private final UserDTO updateUser;
+    private static final String UPDATED_ACCOUNT_EMAIL_SUBJECT_LINE =
+        "updated-account-email-subject";
 
-    private static final MessageFormat EXPIRATION_TEMPLATE =
-            new MessageFormat("\n\nThis login account expires " + DATE_TEMPLATE
-                    + ". Please access your account now!");
+    private static final String UPDATED_ACCOUNT_EMAIL_TEMPLATE_FILE_NAME =
+            "etc/updated-account-email.template";
+
+    private final UserDTO updateUser;
 
     /**
      * Creates an instance for the specified mail client, registrator is the one who edited the
@@ -51,45 +55,42 @@ public class EMailBuilderForUpdateUser extends AbstractEMailBuilder
     @Override
     protected String createContent()
     {
-        StringBuilder builder = new StringBuilder();
-        addGreeting(builder);
-        builder.append(getLongRegistratorDescription());
-        builder.append(" has updated your ");
-        builder.append(createTypeAdjective());
-        builder.append(" account on our server for you.\n\n");
-        builder.append("-------------------------------------------------\n");
-        builder.append("Here\'s how to login:\n");
-        builder.append("-------------------------------------------------\n");
-        builder.append("\nVisit:\t\t").append(url);
-        appendURLParam(builder, Constants.USERCODE_PARAMETER, updateUser.getUserCode(), true);
-        builder.append("\nUser:\t").append(updateUser.getUserCode());
-        if (password != null)
-        {
-            builder.append("\nPassword:\t").append(password);
-        } else
-        {
-            builder.append("\nThe password has not changed, it is still the old one!");
-        }
-        if (updateUser.isAdmin() == false && updateUser.isPermanent() == false)
-        {
-            Date expirationDate = updateUser.getExpirationDate();
-            builder.append(EXPIRATION_TEMPLATE.format(new Object[]
-                { expirationDate }));
-        }
-        return builder.toString();
+        return createContent(UPDATED_ACCOUNT_EMAIL_TEMPLATE_FILE_NAME);
     }
 
     @Override
     protected String createSubject()
     {
-        return getShortRegistratorDescription() + " has updated your " + createTypeAdjective()
-                + " account";
+        return StringUtils.capitalize(emailDict.get(UPDATED_ACCOUNT_EMAIL_SUBJECT_LINE));
     }
 
-    private String createTypeAdjective()
+    @Override
+    protected String getUserCode()
     {
-        return updateUser.isAdmin() ? "administrative" : (updateUser.isPermanent() ? "permanent"
-                : "temporary");
+        return updateUser.getUserCode();
     }
 
+    @Override
+    protected Date tryGetExpirationDate()
+    {
+        return updateUser.getExpirationDate();
+    }
+
+    @Override
+    protected void addToDict(Properties emailProps, DateFormat dateFormat)
+    {
+        if (updateUser.isAdmin())
+        {
+            emailDict.put("account-type", emailProps.getProperty("account-type-admin"));
+            emailDict.put("account-type2", emailProps.getProperty("account-type-admin2"));
+        } else if (updateUser.isPermanent())
+        {
+            emailDict.put("account-type", emailProps.getProperty("account-type-regular"));
+            emailDict.put("account-type2", emailProps.getProperty("account-type-regular2"));
+        } else
+        {
+            emailDict.put("account-type", emailProps.getProperty("account-type-temp"));
+            emailDict.put("account-type2", emailProps.getProperty("account-type-temp2"));
+        }
+    }
 }

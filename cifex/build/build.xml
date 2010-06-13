@@ -80,6 +80,12 @@
 				<include name="**/loginHeader.html" />
 			</fileset>
 		</copy>
+    <copy todir="${zipped.dir}" flatten="true">
+      <fileset dir="etc">
+        <include name="*-email.template" />
+        <include name="email.properties" />
+      </fileset>
+      </copy>
 		<!-- Copy all files but '*.sh'. -->
 		<copy todir="${zipped.dir}">
 			<fileset dir="${original.dist.server}">
@@ -443,7 +449,7 @@
 			//
 			// MODULE TEST
 			//
-			// Run the app with compiled javscript, but using the classes compiled by Eclipse 
+			// Run the app with compiled javascript, but using the classes compiled by Eclipse 
 			-->
 
 	<!--
