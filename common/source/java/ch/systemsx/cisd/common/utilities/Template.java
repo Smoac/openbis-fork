@@ -368,4 +368,19 @@ public class Template
             throw new IllegalStateException("The following variables are not bound: " + builder);
         }
     }
+    
+    /**
+     * Returns <code>true</code> if all variables are bound, <code>false</code> otherwise.
+     */
+    public boolean allVariablesAreBound()
+    {
+        for (VariableToken value : variableTokens.values())
+        {
+            if (value.isBound() == false)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 }
