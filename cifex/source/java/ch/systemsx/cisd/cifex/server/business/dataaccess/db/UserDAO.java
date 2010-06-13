@@ -379,16 +379,8 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                             .isExternallyAuthenticated(), user.isAdmin(), user.isActive(),
                     registratorIdOrNull, user.getQuotaGroupId(), user.getExpirationDate());
         }
-        final long quotaGroupId =
-                template.queryForInt("select quota_group_id from users where id = ?", id);
-        if (user.getMaxFileRetention() != null || user.getMaxUserRetention() != null)
-        {
-            template.update("update quota_groups set file_retention = ?, user_retention = ? "
-                    + "where id = ?", user.getMaxFileRetention(), user.getMaxUserRetention(),
-                    quotaGroupId);
-        }
         user.setID(id);
-        user.setQuotaGroupId(quotaGroupId);
+        updateCustomQuotaInformation(user, template);
     }
 
     private Long tryGetRegistratorId(final UserDTO user)
@@ -442,7 +434,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         template.update("update users set email = ?, user_code = ?, full_name = ?, "
                 + "is_externally_authenticated = ?, is_admin = ?, "
-                + "is_active = ?, quota_group_id = ?, " + "expiration_timestamp = ? where id = ?",
+                + "is_active = ?, quota_group_id = ?, expiration_timestamp = ? where id = ?",
                 user.getEmail(), user.getUserCode(), user.getUserFullName(), user
                         .isExternallyAuthenticated(), user.isAdmin(), user.isActive(), user
                         .getQuotaGroupId(), user.getExpirationDate(), user.getID());
@@ -458,6 +450,11 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                     .getRegistrator().getID(), user.getID());
 
         }
+        updateCustomQuotaInformation(user, template);
+    }
+
+    private void updateCustomQuotaInformation(final UserDTO user, final SimpleJdbcTemplate template)
+    {
         // Custom quota update
         Integer maxFileCountPerQuotaGroup = null;
         if (user.isCustomMaxFileCountPerQuotaGroup())

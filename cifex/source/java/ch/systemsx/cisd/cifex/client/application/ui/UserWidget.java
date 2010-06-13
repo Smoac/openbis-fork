@@ -204,14 +204,13 @@ public abstract class UserWidget extends LayoutContainer
             String text = fileRetentionField.getValue();
             if (StringUtils.isBlank(text))
             {
-                user.setMaxFileRetention(config.getFileRetention());
+                user.setMaxFileRetention(config.getMaxFileRetention());
                 user.setCustomMaxFileRetention(false);
             } else
             {
                 user.setMaxFileRetention(new Integer(text));
                 user.setCustomMaxFileRetention(true);
             }
-            user.setMaxFileRetention(StringUtils.isBlank(text) ? null : new Integer(text));
         }
         if (userRetentionField != null)
         {
