@@ -110,6 +110,8 @@ public enum MessageDictionary
     
     CREATE_USER_PASSWD_MISMATCH_MSG,
     
+    CREATE_USER_INVALID_DATA_MSG,
+    
     CREATE_USER_COMMENT_LABEL,
     
     CREATE_USER_PASSWD_LABEL,

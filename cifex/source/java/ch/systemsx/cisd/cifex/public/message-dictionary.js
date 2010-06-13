@@ -144,6 +144,8 @@ var message_dict = {
   
   CREATE_USER_PASSWD_MISMATCH_MSG: 'The two passwords do not match!',
   
+  CREATE_USER_INVALID_DATA_MSG: 'Form contains invalid data.',
+  
   CREATE_USER_COMMENT_LABEL: 'Comment',
   
   CREATE_USER_PASSWD_LABEL: 'Password',

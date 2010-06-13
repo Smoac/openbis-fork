@@ -63,9 +63,9 @@ public abstract class UserWidget extends LayoutContainer
 
     private static final int FIELD_WIDTH = 175;
 
-    public static final int TOTAL_WIDTH = 700;
+    public static final int TOTAL_WIDTH = 760;
 
-    public static final int COLUMN_WIDTH = 320;
+    public static final int COLUMN_WIDTH = 370;
 
     protected final ViewContext context;
 
@@ -251,7 +251,7 @@ public abstract class UserWidget extends LayoutContainer
         return true;
     }
 
-    private FormColumn createRigthColumn(FormData formData)
+    private FormColumn createRightColumn(FormData formData)
     {
         FormColumn right = new FormColumn(formData);
         right.setStyleAttribute("paddingRight", "20px");
@@ -349,7 +349,7 @@ public abstract class UserWidget extends LayoutContainer
         LayoutContainer main = new LayoutContainer();
         main.setLayout(new ColumnLayout());
         main.add(createLeftColumn(formData), new ColumnData(COLUMN_WIDTH));
-        main.add(createRigthColumn(formData), new ColumnData(COLUMN_WIDTH));
+        main.add(createRightColumn(formData), new ColumnData(COLUMN_WIDTH));
 
         formPanel.add(main);
 

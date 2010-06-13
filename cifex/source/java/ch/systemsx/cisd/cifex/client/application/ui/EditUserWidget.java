@@ -80,7 +80,7 @@ public class EditUserWidget extends UserWidget
             return true;
         } else
         {
-            MessageBox.alert("Error", "Invalid data", null);
+            MessageBox.alert(msg(MESSAGE_BOX_ERROR_TITLE), msg(CREATE_USER_INVALID_DATA_MSG), null);
             return false;
         }
     }

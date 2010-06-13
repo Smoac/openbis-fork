@@ -48,7 +48,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
  */
 public final class EditFileWidget extends LayoutContainer
 {
-    public static final int WIDTH = 400;
+    public static final int WIDTH = 600;
 
     public static final int LABEL_WIDTH = 100;
 
@@ -157,7 +157,7 @@ public final class EditFileWidget extends LayoutContainer
                     refreshCallback);
         } else
         {
-            MessageBox.alert("Error", "Invalid data", null);
+            MessageBox.alert(msg(MESSAGE_BOX_ERROR_TITLE), msg(CREATE_USER_INVALID_DATA_MSG), null);
         }
     }
 }
