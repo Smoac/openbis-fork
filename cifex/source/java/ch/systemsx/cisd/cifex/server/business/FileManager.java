@@ -727,7 +727,7 @@ final class FileManager extends AbstractManager implements IFileManager
             final List<String> invalidEmailAdresses, Set<UserDTO> users)
     {
         String password = null;
-        final String lowerCaseIdentifier = identifier.toLowerCase();
+        final String lowerCaseIdentifier = identifier.toLowerCase().trim();
         // If the Identifier start with "id:", it is not a email
         if (UserUtils.isUserCodeWithIdPrefix(lowerCaseIdentifier))
         {
