@@ -32,8 +32,9 @@ import ch.systemsx.cisd.base.utilities.OSUtilities;
  * Some useful utlities methods for {@link String}s.
  * <p>
  * If you are tempted to add new functionality to this class, ensure that the new functionality does
- * not yet exist in {@link StringUtils}, see <a
- * href="http://jakarta.apache.org/commons/lang/api-release/org/apache/commons/lang/StringUtils.html">javadoc</a>.
+ * not yet exist in {@link StringUtils}, see <a href=
+ * "http://jakarta.apache.org/commons/lang/api-release/org/apache/commons/lang/StringUtils.html"
+ * >javadoc</a>.
  * 
  * @author Bernd Rinn
  */
@@ -75,7 +76,7 @@ public final class StringUtilities
                         "debut", "creche", "pyrolysis", "homicidal", "sonnet", "gin", "science",
                         "magma", "metaphor", "cobble", "dyer", "narrate", "goody", "optometric" };
 
-    private final static Pattern pattern = Pattern.compile("([a-zA-Z]+)([0-9]+)");
+    private final static Pattern matrixSplitPattern = Pattern.compile("([a-zA-Z]+)([0-9]+)");
 
     private StringUtilities()
     {
@@ -174,7 +175,7 @@ public final class StringUtilities
     public final static String[] splitMatrixCoordinate(final String text)
     {
         assert text != null : "Given text can not be null.";
-        final Matcher matcher = pattern.matcher(text);
+        final Matcher matcher = matrixSplitPattern.matcher(text);
         if (matcher.matches())
         {
             return new String[]
@@ -225,7 +226,7 @@ public final class StringUtilities
             return s1OrNull.compareTo(s2OrNull);
         }
     }
-    
+
     /**
      * Returns a list of tokens of the specified string which are separated by at least one
      * whitespace character or comma symbol.
@@ -243,4 +244,94 @@ public final class StringUtilities
         }
         return list;
     }
+
+    /** A regular expression pattern matching one or more digits. */
+    private final static Pattern ONE_OR_MORE_DIGITS = Pattern.compile(".*(\\d+)$");
+
+    public interface IUniquenessChecker
+    {
+        /**
+         * Returns <code>true</code> if <var>str</var> is unique, <var>false</var> otherwise.
+         */
+        boolean isUnique(String str);
+    }
+
+    /**
+     * Creates the next numbered string if given <var>str</var> is not unique.
+     * <p>
+     * If the new suggested string already exists, then this method is called recursively.
+     */
+    public final static String createUniqueString(final String str, final IUniquenessChecker checker)
+    {
+        return createUniqueString(str, checker, null, null);
+    }
+
+    /**
+     * Creates the next numbered string if given <var>str</var> is not unique.
+     * <p>
+     * If the new suggested string already exists, then this method is called recursively.
+     * </p>
+     * 
+     * @param defaultStrOrNull the default value for the new string if the digit pattern could not
+     *            be found in <var>str</var>. If <code>null</code> then "1" will be appended to
+     *            <var>str</var>.
+     * @param regexOrNull pattern to find out the counter. If <code>null</code> then a default (
+     *            <code>(\\d+)</code>) will be used. The given <var>regex</var> must contain
+     *            <code>(\\d+)</code> or <code>([0-9]+)</code>.
+     */
+    public final static String createUniqueString(final String str,
+            final IUniquenessChecker checker, final Pattern regexOrNull,
+            final String defaultStrOrNull)
+    {
+        assert str != null;
+        assert checker != null;
+
+        if (checker.isUnique(str))
+        {
+            return str;
+        }
+        final Pattern pattern;
+        if (regexOrNull == null)
+        {
+            pattern = ONE_OR_MORE_DIGITS;
+        } else
+        {
+            assert regexOrNull.pattern().indexOf("(\\d+)") > -1
+                    || regexOrNull.pattern().indexOf("([0-9]+)") > -1;
+            pattern = regexOrNull;
+        }
+
+        final Matcher matcher = pattern.matcher(str);
+        boolean found = matcher.find();
+        if (found == false)
+        {
+            final String newStr;
+            if (StringUtils.isEmpty(defaultStrOrNull) == false)
+            {
+                newStr = defaultStrOrNull;
+            } else
+            {
+                newStr = str + "1";
+            }
+            return createUniqueString(newStr, checker, pattern, defaultStrOrNull);
+        }
+        final StringBuilder builder = new StringBuilder();
+        int nextStart = 0;
+        while (found)
+        {
+            final String group = matcher.group(1);
+            final int newNumber = Integer.parseInt(group) + 1;
+            builder.append(str.substring(nextStart, matcher.start(1))).append(newNumber);
+            nextStart = matcher.end(1);
+            found = matcher.find();
+        }
+        builder.append(str.substring(nextStart));
+        final String newStr = builder.toString();
+        if (checker.isUnique(newStr) == false)
+        {
+            return createUniqueString(newStr, checker, pattern, defaultStrOrNull);
+        }
+        return newStr;
+    }
+
 }

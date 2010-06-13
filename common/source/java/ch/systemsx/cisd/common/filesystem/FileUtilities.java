@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -60,6 +59,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
+import ch.systemsx.cisd.common.utilities.StringUtilities.IUniquenessChecker;
 
 /**
  * Some useful utility methods for files and directories.
@@ -702,7 +702,7 @@ public final class FileUtilities
         }
         return delete(path);
     }
-    
+
     /**
      * Deletes the <var>file</var>, setting it to read-write mode if necessary.
      */
@@ -1051,9 +1051,6 @@ public final class FileUtilities
         return new File(file.getParent(), name.substring(prefix.length()));
     }
 
-    /** A <i>Java</i> pattern matching one or more digits. */
-    private final static Pattern ONE_OR_MORE_DIGITS = Pattern.compile(".*(\\d+)$");
-
     public final static File createNextNumberedFile(final File path, final Pattern regex)
     {
         return createNextNumberedFile(path, regex, null);
@@ -1075,54 +1072,20 @@ public final class FileUtilities
             final String defaultFileNameOrNull)
     {
         assert path != null;
-        if (path.exists() == false)
-        {
-            return path;
-        }
-        final Pattern pattern;
-        if (regexOrNull == null)
-        {
-            pattern = ONE_OR_MORE_DIGITS;
-        } else
-        {
-            assert regexOrNull.pattern().indexOf("(\\d+)") > -1
-                    || regexOrNull.pattern().indexOf("([0-9]+)") > -1;
-            pattern = regexOrNull;
-        }
-
-        final String pathName = path.getName();
-        final Matcher matcher = pattern.matcher(pathName);
-        boolean found = matcher.find();
-        if (found == false)
-        {
-            final String fileName;
-            if (StringUtils.isEmpty(defaultFileNameOrNull) == false)
-            {
-                fileName = defaultFileNameOrNull;
-            } else
-            {
-                fileName = pathName + "1";
-            }
-            return createNextNumberedFile(new File(path.getParent(), fileName), pattern,
-                    defaultFileNameOrNull);
-        }
-        final StringBuilder builder = new StringBuilder();
-        int nextStart = 0;
-        while (found)
-        {
-            final String group = matcher.group(1);
-            final int newNumber = Integer.parseInt(group) + 1;
-            builder.append(pathName.substring(nextStart, matcher.start(1))).append(newNumber);
-            nextStart = matcher.end(1);
-            found = matcher.find();
-        }
-        builder.append(pathName.substring(nextStart));
-        final File newFile = new File(path.getParent(), builder.toString());
-        if (newFile.exists())
-        {
-            return createNextNumberedFile(newFile, pattern, defaultFileNameOrNull);
-        }
-        return newFile;
+        
+        final String filePath = path.getPath();
+        final String defaultPathNameOrNull =
+                (defaultFileNameOrNull == null) ? null : new File(path.getParentFile(),
+                        defaultFileNameOrNull).getPath();
+        final String uniqueFilePath =
+                StringUtilities.createUniqueString(filePath, new IUniquenessChecker()
+                    {
+                        public boolean isUnique(String str)
+                        {
+                            return new File(str).exists() == false;
+                        }
+                    }, regexOrNull, defaultPathNameOrNull);
+        return new File(uniqueFilePath);
     }
 
     /**
