@@ -89,7 +89,7 @@ public class BasicUserInfoDTO implements IsSerializable, Serializable
 
     public final void setEmail(final String email)
     {
-        this.email = email;
+        this.email = (email == null) ? null : email.toLowerCase().trim();
     }
 
     public final String getUserFullName()
