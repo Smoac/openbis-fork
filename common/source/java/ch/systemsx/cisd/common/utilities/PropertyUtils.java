@@ -479,9 +479,7 @@ public final class PropertyUtils
             return loadProperties(new FileInputStream(propertiesFilePath), propertiesFilePath);
         } catch (FileNotFoundException ex)
         {
-            final String msg =
-                    String.format("Could not load the properties from given resource '%s'.",
-                            propertiesFilePath);
+            final String msg = String.format("Properties file '%s' not found.", propertiesFilePath);
             throw new ConfigurationFailureException(msg, ex);
         }
     }
