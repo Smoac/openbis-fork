@@ -60,6 +60,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.FileShareUploadDialog;
 import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
+import ch.systemsx.cisd.cifex.client.application.UserUtils;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
@@ -297,9 +298,10 @@ public final class FileUploadWidget extends LayoutContainer
         context.getCifexService().findUserByEmail(email,
                 new AbstractAsyncCallback<List<UserInfoDTO>>(context)
                     {
-                        public void onSuccess(List<UserInfoDTO> result)
+                        public void onSuccess(List<UserInfoDTO> users)
                         {
-                            List<UserInfoDTO> users = result;
+                            final UserInfoDTO requestUser = context.getModel().getUser();
+                            UserUtils.removeUnsuitableUsersForSharing(requestUser, users);
                             if (users.size() > 0)
                             {
                                 for (int j = 0; j < users.size(); j++)

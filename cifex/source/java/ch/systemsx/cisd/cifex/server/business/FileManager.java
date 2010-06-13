@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -742,7 +743,9 @@ final class FileManager extends AbstractManager implements IFileManager
             }
         } else if (UserUtils.EMAIL_PATTERN.matcher(lowerCaseIdentifier).matches())
         {
-            final Set<UserDTO> existingUsersOrNull = existingUsers.tryGet(lowerCaseIdentifier);
+            final Set<UserDTO> existingUsersOrNull =
+                    removeUnsuitableUsersForSharing(requestUser, existingUsers
+                            .tryGet(lowerCaseIdentifier));
             if (existingUsersOrNull == null)
             {
                 password =
@@ -768,6 +771,31 @@ final class FileManager extends AbstractManager implements IFileManager
             invalidEmailAdresses.add(lowerCaseIdentifier);
         }
         return password;
+    }
+
+    /**
+     * Remove all users from <var>usersByEmail</var> that are <li>not permanent users and are <li>
+     * not owner by the <var>requestUser</var>. If no users are left after this procedure, return
+     * <code>null</code>, otherwise return <var>usersByEmail</var>.
+     * <p>
+     * This way, a new user will be created if all users with a given email are temporary users
+     * created by some other permanent user. The rationale is to avoid leakage of file shares with
+     * other regular users that by chance exchange files with the same user.
+     */
+    private static Set<UserDTO> removeUnsuitableUsersForSharing(UserDTO requestUser,
+            Set<UserDTO> usersByEmail)
+    {
+        final Iterator<UserDTO> it = usersByEmail.iterator();
+        while (it.hasNext())
+        {
+            final UserDTO user = it.next();
+            if (user.getExpirationDate() != null
+                    && requestUser.equals(user.getRegistrator()) == false)
+            {
+                it.remove();
+            }
+        }
+        return usersByEmail.isEmpty() ? null : usersByEmail;
     }
 
     private RuntimeException createLinksAndCallTriggersAndSendEmails(Set<UserDTO> users,

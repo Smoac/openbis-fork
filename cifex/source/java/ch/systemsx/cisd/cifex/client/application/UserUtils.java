@@ -1,0 +1,59 @@
+/*
+ * Copyright 2010 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.cifex.client.application;
+
+import java.util.Iterator;
+import java.util.List;
+
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+
+/**
+ * A class for utility methods regarding user handling.
+ * 
+ * @author Bernd Rinn
+ */
+public class UserUtils
+{
+
+    private UserUtils()
+    {
+        // Not to be instantiated
+    }
+
+    /**
+     * Remove all users from <var>usersByEmail</var> that are <li>not permanent users and are <li>
+     * not owner by the <var>requestUser</var>. This way, a new user will be created if all users
+     * with a given email are temporary users created by some other permanent user. The rationale is
+     * to avoid leakage of file shares with other regular users that by chance exchange files with
+     * the same user.
+     */
+    public static void removeUnsuitableUsersForSharing(UserInfoDTO requestUser,
+            List<UserInfoDTO> usersByEmail)
+    {
+        final Iterator<UserInfoDTO> it = usersByEmail.iterator();
+        while (it.hasNext())
+        {
+            final UserInfoDTO user = it.next();
+            if (user.getExpirationDate() != null
+                    && requestUser.equals(user.getRegistrator()) == false)
+            {
+                it.remove();
+            }
+        }
+    }
+
+}

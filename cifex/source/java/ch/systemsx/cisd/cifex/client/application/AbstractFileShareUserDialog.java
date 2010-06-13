@@ -258,9 +258,12 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                         viewContext.getCifexService().findUserByEmail(emailOrCode,
                                 new AbstractAsyncCallback<List<UserInfoDTO>>(viewContext)
                                     {
-                                        public void onSuccess(List<UserInfoDTO> result)
+                                        public void onSuccess(List<UserInfoDTO> users)
                                         {
-                                            List<UserInfoDTO> users = result;
+                                            final UserInfoDTO requestUser =
+                                                    viewContext.getModel().getUser();
+                                            UserUtils.removeUnsuitableUsersForSharing(requestUser,
+                                                    users);
                                             if (users.size() > 0)
                                             {
                                                 for (int i = 0; i < users.size(); i++)
@@ -274,8 +277,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                 }
                                                 existingUserGrid
                                                         .setDataAndRefresh(FileShareUserGridModel
-                                                                .convert(viewContext.getModel()
-                                                                        .getUser(), existingUsers,
+                                                                .convert(requestUser, existingUsers,
                                                                         existingUserGrid.getGrid()
                                                                                 .getStore()));
                                             } else
@@ -289,8 +291,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                 addUserToFileShare(user);
                                                 newUserGrid
                                                         .setDataAndRefresh(FileShareUserGridModel
-                                                                .convert(viewContext.getModel()
-                                                                        .getUser(), newUsers,
+                                                                .convert(requestUser, newUsers,
                                                                         newUserGrid.getGrid()
                                                                                 .getStore()));
                                             }
