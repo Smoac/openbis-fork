@@ -68,7 +68,6 @@ public class FileAuthenticationService implements IAuthenticationService
     public FileAuthenticationService(IUserStore userStore)
     {
         this.userStore = userStore;
-        userStore.check();
     }
 
     private String getToken()
