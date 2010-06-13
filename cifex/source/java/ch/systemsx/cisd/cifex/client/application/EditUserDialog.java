@@ -83,8 +83,10 @@ public final class EditUserDialog extends DefaultLayoutDialog
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    editUserWidget.submitForm();
-                    hide();
+                    if (editUserWidget.submitForm())
+                    {
+                        hide();
+                    }
                 }
             });
         addButton(button);

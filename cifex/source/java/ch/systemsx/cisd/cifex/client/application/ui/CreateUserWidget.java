@@ -46,11 +46,11 @@ public class CreateUserWidget extends UserWidget
     //
 
     @Override
-    final void submitForm()
+    final boolean submitForm()
     {
         if (arePasswordsEqual() == false)
         {
-            return;
+            return false;
         }
         if (isValid())
         {
@@ -67,6 +67,10 @@ public class CreateUserWidget extends UserWidget
             final ICIFEXServiceAsync cifexService = context.getCifexService();
             cifexService.createUser(user, StringUtils.nullIfBlank(passwordField.getValue()),
                     comment, new CreateUserAsyncCallBack());
+            return true;
+        } else
+        {
+            return false;
         }
     }
 

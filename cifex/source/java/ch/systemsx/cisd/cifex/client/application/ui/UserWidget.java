@@ -806,7 +806,11 @@ public abstract class UserWidget extends LayoutContainer
     /** Returns the label of the form submit button. */
     abstract String getSubmitButtonLabel();
 
-    /** Submits given form. */
-    abstract void submitForm();
+    /** 
+     * Submits given form.
+     * 
+     *  @return true if submission was successful
+     */
+    abstract boolean submitForm();
 
 }

@@ -59,13 +59,13 @@ public class EditUserWidget extends UserWidget
     //
 
     @Override
-    public final void submitForm()
+    public final boolean submitForm()
     {
 
         final ICIFEXServiceAsync cifexService = context.getCifexService();
         if (arePasswordsEqual() == false)
         {
-            return;
+            return false;
         }
         if (isValid())
         {
@@ -77,9 +77,11 @@ public class EditUserWidget extends UserWidget
             cifexService.updateUser(user, StringUtils.nullIfBlank(passwordField.getValue()),
                     (sendUpdateInformation != null && sendUpdateInformation.getValue()),
                     new UpdateUserAsyncCallBack());
+            return true;
         } else
         {
             MessageBox.alert("Error", "Invalid data", null);
+            return false;
         }
     }
 
