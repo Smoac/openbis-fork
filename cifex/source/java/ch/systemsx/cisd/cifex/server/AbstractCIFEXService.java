@@ -136,6 +136,8 @@ abstract public class AbstractCIFEXService
             try
             {
                 this.externalAuthenticationService.check();
+                operationLog.info("Configuration check of external authentication service "
+                        + externalAuthenticationService.getClass().getSimpleName() + " passed.");
             } catch (HighLevelException ex)
             {
                 if (externalAuthenticationService.isRemote()
