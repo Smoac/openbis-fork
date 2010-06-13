@@ -59,6 +59,7 @@ import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryptio
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
  * @author Franz-Josef Elmer
@@ -67,7 +68,11 @@ public class FileUploadClient extends AbstractSwingGUI
 {
     private static final int LINE_HEIGHT = 30;
 
-    private static final int INPUT_WIDTH = 130;
+    private static final int INPUT_WIDTH = 600;
+
+    private static final int GENERATED_MEMORABLE_PASSPHRASE_LENGTH = 10;
+
+    private static final int GENERATED_STRONG_PASSPHRASE_LENGTH = 60;
 
     static
     {
@@ -84,8 +89,6 @@ public class FileUploadClient extends AbstractSwingGUI
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
-        setLookAndFeelToMetal();
-
         try
         {
             CIFEXCommunicationState commState = new CIFEXCommunicationState(args);
@@ -105,11 +108,19 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private final FileDialog fileDialog;
 
+    private final PasswordGenerator passphraseGenerator;
+
     private JButton uploadButton;
 
     private JButton cancelButton;
 
     private JButton addButton;
+
+    private JButton createStrongPassphraseButton;
+
+    private JButton createMemorablePassphraseButton;
+
+    private JButton deletePassphraseButton;
 
     private JPopupMenu popupMenu;
 
@@ -128,6 +139,7 @@ public class FileUploadClient extends AbstractSwingGUI
         // save and create local state
         super(commState);
 
+        this.passphraseGenerator = new PasswordGenerator();
         this.uploader = cifex.createUploader(sessionId);
 
         tableModel = new UploadTableModel(uploader, timeProvider);
@@ -225,7 +237,8 @@ public class FileUploadClient extends AbstractSwingGUI
         spacer.setPreferredSize(new Dimension(600, 15));
         window.add(spacer, BorderLayout.NORTH);
 
-        window.setBounds(200, 200, 770, 300);
+        window.pack();
+        window.setLocationByPlatform(true);
         window.setVisible(true);
 
     }
@@ -260,7 +273,7 @@ public class FileUploadClient extends AbstractSwingGUI
         // Recipients label and input
         label = new JLabel("Recipients", JLabel.TRAILING);
         recipientsTextArea = new JTextArea();
-        recipientsTextArea.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT));
+        recipientsTextArea.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT * 3));
         label.setLabelFor(recipientsTextArea);
         panel.add(label);
         panel.add(new JScrollPane(recipientsTextArea));
@@ -268,7 +281,7 @@ public class FileUploadClient extends AbstractSwingGUI
         // Comment label and input
         label = new JLabel("Comment", JLabel.TRAILING);
         commentTextArea = new JTextArea();
-        commentTextArea.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT));
+        commentTextArea.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT * 3));
         label.setLabelFor(commentTextArea);
         panel.add(label);
         panel.add(new JScrollPane(commentTextArea));
@@ -331,6 +344,61 @@ public class FileUploadClient extends AbstractSwingGUI
         BoxLayout layout = new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS);
         buttonsPanel.setLayout(layout);
 
+        deletePassphraseButton = new JButton("Delete Passphrase");
+        deletePassphraseButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    passphraseField.setText(null);
+                    passphraseRepeatedField.setText(null);
+                }
+            });
+
+        createStrongPassphraseButton = new JButton("Generate Passphrase");
+        createStrongPassphraseButton.setToolTipText("Create a random (strong) phassphrase");
+        createStrongPassphraseButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    final String passphrase =
+                            passphraseGenerator.generatePassword(
+                                    GENERATED_STRONG_PASSPHRASE_LENGTH, false);
+                    passphraseField.setText(passphrase);
+                    passphraseRepeatedField.setText(passphrase);
+                    ClipboardUtils.copyToClipboard(passphrase);
+
+                    JOptionPane
+                            .showMessageDialog(
+                                    getWindowFrame(),
+                                    "<html><center>The created passphrase has been copied to the clipboard.<br><br>"
+                                            + "<em><font size=+1>Make sure you keep it safe!</font></em></center></html>",
+                                    "Your passphrase", JOptionPane.INFORMATION_MESSAGE);
+                }
+            });
+
+        createMemorablePassphraseButton = new JButton("Generate Password");
+        createMemorablePassphraseButton.setToolTipText("Create a memorable passphase / password");
+        createMemorablePassphraseButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    final String passphrase =
+                            passphraseGenerator.generatePassword(
+                                    GENERATED_MEMORABLE_PASSPHRASE_LENGTH, true);
+                    passphraseField.setText(passphrase);
+                    passphraseRepeatedField.setText(passphrase);
+                    ClipboardUtils.copyToClipboard(passphrase);
+
+                    JOptionPane
+                            .showMessageDialog(
+                                    getWindowFrame(),
+                                    "<html><center>The created password is:<br><br><code><font size=+2>"
+                                            + passphrase
+                                            + "</font></code><br><br>(It has been copied to the clipboard)</center></html>",
+                                    "Your password", JOptionPane.INFORMATION_MESSAGE);
+                }
+            });
+
         addButton = new JButton("Add File");
         addButton.addActionListener(new ActionListener()
             {
@@ -339,6 +407,11 @@ public class FileUploadClient extends AbstractSwingGUI
                     chooseAndAddFile();
                 }
             });
+        buttonsPanel.add(deletePassphraseButton);
+        buttonsPanel.add(Box.createHorizontalStrut(5));
+        buttonsPanel.add(createStrongPassphraseButton);
+        buttonsPanel.add(Box.createHorizontalStrut(5));
+        buttonsPanel.add(createMemorablePassphraseButton);
         buttonsPanel.add(Box.createHorizontalGlue());
         buttonsPanel.add(addButton);
 
@@ -347,8 +420,8 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private JPanel createActionButtonsPanel()
     {
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
         uploadButton = createUploadButton(tableModel);
         cancelButton = new JButton("Stop");
         cancelButton.setEnabled(false);
@@ -360,12 +433,12 @@ public class FileUploadClient extends AbstractSwingGUI
                 }
             });
 
-        buttonPanel.add(Box.createHorizontalGlue());
-        buttonPanel.add(cancelButton);
-        buttonPanel.add(Box.createHorizontalStrut(5));
-        buttonPanel.add(uploadButton);
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(cancelButton);
+        buttonsPanel.add(Box.createHorizontalStrut(5));
+        buttonsPanel.add(uploadButton);
 
-        return buttonPanel;
+        return buttonsPanel;
     }
 
     private JButton createUploadButton(final UploadTableModel fileListModel)
@@ -568,6 +641,18 @@ public class FileUploadClient extends AbstractSwingGUI
         if (addButton != null)
         {
             addButton.setEnabled(enable);
+        }
+        if (createStrongPassphraseButton != null)
+        {
+            createStrongPassphraseButton.setEnabled(enable);
+        }
+        if (createMemorablePassphraseButton != null)
+        {
+            createMemorablePassphraseButton.setEnabled(enable);
+        }
+        if (deletePassphraseButton != null)
+        {
+            deletePassphraseButton.setEnabled(enable);
         }
         if (uploadButton != null)
         {

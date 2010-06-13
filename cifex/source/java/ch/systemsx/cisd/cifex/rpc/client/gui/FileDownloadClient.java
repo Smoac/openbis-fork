@@ -27,6 +27,7 @@ import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -85,8 +86,6 @@ public class FileDownloadClient extends AbstractSwingGUI
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
-        setLookAndFeelToMetal();
-
         try
         {
             CIFEXCommunicationState commState = new CIFEXCommunicationState(args);
@@ -269,6 +268,7 @@ public class FileDownloadClient extends AbstractSwingGUI
                 {
                     tableModel.setPassphrase(passphraseField.getPassword());
                 }
+
                 public void focusGained(FocusEvent e)
                 {
                     // Not of interest.
@@ -278,7 +278,38 @@ public class FileDownloadClient extends AbstractSwingGUI
         panel.add(label);
         panel.add(passphraseField);
 
-        SpringLayoutUtilities.makeCompactGrid(panel, 2, 2, 5, 5, 5, 5);
+        final JButton passphrasePasteFromClipboardButton =
+                new JButton("Paste Passphrase from Clipboard");
+        passphrasePasteFromClipboardButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    try
+                    {
+                        final String passphraseOrNull = ClipboardUtils.tryPasteClipboard();
+                        if (passphraseOrNull == null)
+                        {
+                            JOptionPane.showMessageDialog(getWindowFrame(),
+                                    "No content in the clipboard.");
+                        } else
+                        {
+                            passphraseField.setText(passphraseOrNull);
+                            tableModel.setPassphrase(passphraseField.getPassword());
+                        }
+                    } catch (Exception ex)
+                    {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(getWindowFrame(),
+                                "Error accessing clipboard.",
+                                "", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
+
+        panel.add(Box.createHorizontalGlue());
+        panel.add(passphrasePasteFromClipboardButton);
+
+        SpringLayoutUtilities.makeCompactGrid(panel, 3, 2, 5, 5, 5, 5);
 
         return panel;
     }

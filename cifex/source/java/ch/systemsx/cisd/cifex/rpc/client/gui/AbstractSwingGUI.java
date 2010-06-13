@@ -26,7 +26,6 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import org.apache.commons.lang.WordUtils;
 import org.springframework.remoting.RemoteAccessException;
@@ -227,18 +226,6 @@ public abstract class AbstractSwingGUI
                 {
                 }
             };
-    }
-
-    protected static void setLookAndFeelToMetal()
-    {
-        // Set the look and feel to Metal, if possible
-        try
-        {
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (Exception ex)
-        {
-            // just ignore -- no big deal
-        }
     }
 
     // -------- errors reporting -----------------

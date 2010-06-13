@@ -25,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.KeyStroke;
@@ -45,7 +46,7 @@ public final class PassphraseDialog
     /**
      * @return The passphrase, or <code>null</code> if the user cancelled entering the passphrase.
      */
-    public static String tryGetPassphrase(Frame parentComponent, String title, String message)
+    public static String tryGetPassphrase(final Frame parentComponent, String title, String message)
     {
         final JDialog dialog = new JDialog(parentComponent, title, true);
         final JPanel panel = new JPanel(new SpringLayout());
@@ -60,11 +61,15 @@ public final class PassphraseDialog
         final JPanel buttonPanel = new JPanel();
         final JButton okButton = new JButton("OK");
         final JButton cancelButton = new JButton("Cancel");
+        final JButton passphrasePasteFromClipboardButton = new JButton("Paste");
+        passphrasePasteFromClipboardButton.setToolTipText("Paste Passphrase from Clipboard");
+        buttonPanel.add(passphrasePasteFromClipboardButton);
         buttonPanel.add(cancelButton);
         buttonPanel.add(okButton);
 
         passphrasePanel.add(passphraseLabel);
         passphrasePanel.add(passphraseField);
+
         // Make pressing Enter try decryption again.
         passphraseField.addActionListener(new ActionListener()
             {
@@ -124,6 +129,30 @@ public final class PassphraseDialog
         panel.add(passphrasePanel);
         panel.add(buttonPanel);
         SpringLayoutUtilities.makeCompactGrid(panel, 3, 1, 5, 5, 5, 5);
+
+        passphrasePasteFromClipboardButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    try
+                    {
+                        final String passphraseOrNull = ClipboardUtils.tryPasteClipboard();
+                        if (passphraseOrNull == null)
+                        {
+                            JOptionPane.showMessageDialog(parentComponent,
+                                    "No content in the clipboard.");
+                        } else
+                        {
+                            passphraseField.setText(passphraseOrNull);
+                        }
+                    } catch (Exception ex)
+                    {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(parentComponent,
+                                "Error accessing clipboard.", "", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
 
         // Make ESC cancel the dialog.
         dialog.getRootPane().registerKeyboardAction(new ActionListener()
