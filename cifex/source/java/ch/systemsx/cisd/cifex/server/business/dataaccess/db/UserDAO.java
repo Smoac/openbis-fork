@@ -300,6 +300,15 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
+    public boolean hasUserCode(final String code) throws DataAccessException
+    {
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        final int count =
+                template.queryForInt("select count(*) from users where user_code = ? limit 1",
+                        code);
+        return count > 0;
+    }
+
     public List<UserDTO> findUserByEmail(final String email) throws DataAccessException
     {
         assert StringUtils.isNotBlank(email) : "No email specified!";
@@ -434,10 +443,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         template.update("update users set email = ?, user_code = ?, full_name = ?, "
                 + "is_externally_authenticated = ?, is_admin = ?, "
-                + "is_active = ?, quota_group_id = ?, expiration_timestamp = ? where id = ?",
-                user.getEmail(), user.getUserCode(), user.getUserFullName(), user
-                        .isExternallyAuthenticated(), user.isAdmin(), user.isActive(), user
-                        .getQuotaGroupId(), user.getExpirationDate(), user.getID());
+                + "is_active = ?, quota_group_id = ?, expiration_timestamp = ? where id = ?", user
+                .getEmail(), user.getUserCode(), user.getUserFullName(), user
+                .isExternallyAuthenticated(), user.isAdmin(), user.isActive(), user
+                .getQuotaGroupId(), user.getExpirationDate(), user.getID());
         if (Password.isEmpty(user.getPassword()) == false)
         {
             template.update("update users set password_hash = ? where id = ?", user.getPassword()

@@ -65,6 +65,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
@@ -76,7 +77,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.StringUtilities;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.common.utilities.StringUtilities.IUniquenessChecker;
 
 /**
  * The only <code>IFileManager</code> implementation.
@@ -781,21 +784,34 @@ final class FileManager extends AbstractManager implements IFileManager
      * This way, a new user will be created if all users with a given email are temporary users
      * created by some other permanent user. The rationale is to avoid leakage of file shares with
      * other regular users that by chance exchange files with the same user.
+     * <p>
+     * This class encodes the same logic as the one in
+     * {@link ch.systemsx.cisd.cifex.client.application.UserUtils#removeUnsuitableUsersForSharing(UserInfoDTO, List)}
+     * , but for {@link UserDTO} instead of
+     * {@link ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO}.
      */
     private static Set<UserDTO> removeUnsuitableUsersForSharing(UserDTO requestUser,
-            Set<UserDTO> usersByEmail)
+            Set<UserDTO> usersByEmailOrNull)
     {
-        final Iterator<UserDTO> it = usersByEmail.iterator();
+        if (usersByEmailOrNull == null)
+        {
+            return null;
+        }
+        // For a permanent user, the accepted owner of users to share the file with is the request
+        // user itself, for a temporary user it is the registrator of the request user.
+        final UserDTO acceptedOwner =
+                (requestUser.isPermanent() ? requestUser : requestUser.getRegistrator());
+        final Iterator<UserDTO> it = usersByEmailOrNull.iterator();
         while (it.hasNext())
         {
             final UserDTO user = it.next();
             if (user.getExpirationDate() != null
-                    && requestUser.equals(user.getRegistrator()) == false)
+                    && acceptedOwner.equals(user.getRegistrator()) == false)
             {
                 it.remove();
             }
         }
-        return usersByEmail.isEmpty() ? null : usersByEmail;
+        return usersByEmailOrNull.isEmpty() ? null : usersByEmailOrNull;
     }
 
     private RuntimeException createLinksAndCallTriggersAndSendEmails(Set<UserDTO> users,
@@ -931,7 +947,14 @@ final class FileManager extends AbstractManager implements IFileManager
         if (requestUser.isPermanent())
         {
             final UserDTO user = new UserDTO();
-            user.setUserCode(email);
+            // Ensure we use a unique user code, based on the email address.
+            user.setUserCode(StringUtilities.createUniqueString(email, new IUniquenessChecker()
+            {
+                public boolean isUnique(String code)
+                {
+                    return daoFactory.getUserDAO().hasUserCode(code) == false;
+                }
+            }));
             user.setEmail(email);
             user.setPassword(new Password(password));
             user.setRegistrator(requestUser);

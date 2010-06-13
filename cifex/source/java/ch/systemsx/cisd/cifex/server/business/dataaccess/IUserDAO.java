@@ -59,6 +59,11 @@ public interface IUserDAO
     public String tryFindUserCodeById(long id) throws DataAccessException;
 
     /**
+     * Returns <code>true</code> if the database has a user with <var>code</var>. 
+     */
+    public boolean hasUserCode(final String code) throws DataAccessException;
+    
+    /**
      * Returns a list with all users, which have the given email address.
      */
     public List<UserDTO> findUserByEmail(final String email) throws DataAccessException;

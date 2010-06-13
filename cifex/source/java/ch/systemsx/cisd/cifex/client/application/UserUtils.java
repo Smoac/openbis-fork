@@ -43,22 +43,30 @@ public class UserUtils
      * with a given email are temporary users created by some other permanent user. The rationale is
      * to avoid leakage of file shares with other regular users that by chance exchange files with
      * the same user.
+     * <p>
+     * This class encodes the same logic as the one in
+     * <code>ch.systemsx.cisd.cifex.server.business.FileManager.removeUnsuitableUsersForSharing()</code>
+     * , but for {@link UserInfoDTO} instead of
+     * {@link ch.systemsx.cisd.cifex.server.business.dto.UserDTO}.
      */
     public static void removeUnsuitableUsersForSharing(UserInfoDTO requestUser,
             List<UserInfoDTO> usersByEmail)
     {
+        // For a permanent user, the accepted owner of users to share the file with is the request
+        // user itself, for a temporary user it is the registrator of the request user.
+        final UserInfoDTO acceptedOwner =
+                (requestUser.isPermanent() ? requestUser : requestUser.getRegistrator());
         final Iterator<UserInfoDTO> it = usersByEmail.iterator();
         while (it.hasNext())
         {
             final UserInfoDTO user = it.next();
-            if (user.getExpirationDate() != null
-                    && requestUser.equals(user.getRegistrator()) == false)
+            if (user.isPermanent() == false && acceptedOwner.equals(user.getRegistrator()) == false)
             {
                 it.remove();
             }
         }
     }
-    
+
     public static Date getDefaultUserExpirationDate(final ViewContext context)
     {
         final Date initialExpirationDate = new Date();
