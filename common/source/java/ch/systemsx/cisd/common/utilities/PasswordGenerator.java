@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 /**
@@ -25,6 +26,15 @@ import java.util.Random;
  */
 public class PasswordGenerator
 {
+    private final static char[] ALLOWED_CHARACTERS =
+            new char[]
+                { '!', '#', '$', '%', '&', '(', ')', '*', '+', '-', '/', '0', '1', '2', '3', '4',
+                        '5', '6', '7', '8', '9', ':', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D',
+                        'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+                        'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', ']', '^', 'a', 'b', 'c', 'd', 'e',
+                        'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+                        'u', 'v', 'w', 'x', 'y', 'z', '{', '}', '~' };
+
     private enum State
     {
         DIGIT()
@@ -88,36 +98,64 @@ public class PasswordGenerator
     }
 
     private final Random random;
+    
+    private final boolean generatePronouncablePasswords;
+
+    /**
+     * Creates an instance based on the default constructor of {@link SecureRandom}.
+     */
+    public PasswordGenerator()
+    {
+        this(false);
+    }
 
     /**
      * Creates an instance based on the default constructor of {@link Random}.
      */
-    public PasswordGenerator()
+    public PasswordGenerator(boolean generatePronouncablePasswords)
     {
-        this(new Random());
+        this(new SecureRandom(), generatePronouncablePasswords);
     }
 
     /**
      * Creates an instance which uses the specified random number generator.
      */
-    public PasswordGenerator(Random random)
+    public PasswordGenerator(Random random, boolean generatePronouncablePasswords)
     {
         assert random != null : "Unspecified random number generator.";
         this.random = random;
+        this.generatePronouncablePasswords = generatePronouncablePasswords;
     }
 
+    private char nextChar()
+    {
+        return ALLOWED_CHARACTERS[random.nextInt(ALLOWED_CHARACTERS.length)];
+    }
+    
     /**
      * Creates a password of specified length.
      */
     public String generatePassword(int length)
     {
-        State state = State.DIGIT;
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < length; i++)
+        final StringBuilder builder = new StringBuilder();
+        if (generatePronouncablePasswords)
         {
-            state = state.nextState(random);
-            state.appendCharacterTo(builder, random);
+            State state = State.DIGIT;
+            for (int i = 0; i < length; i++)
+            {
+                state = state.nextState(random);
+                state.appendCharacterTo(builder, random);
+            }
+            return builder.toString();
+        }
+        else
+        {
+            for (int i = 0; i < length; i++)
+            {
+                builder.append(nextChar());
+            }
         }
         return builder.toString();
     }
+
 }
