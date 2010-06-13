@@ -49,6 +49,8 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
  */
 class UserManager extends AbstractManager implements IUserManager
 {
+    static final int PASSWORD_LENGTH = 20;
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, UserManager.class);
 
@@ -108,9 +110,10 @@ class UserManager extends AbstractManager implements IUserManager
 
     public List<UserDTO> findUserByEmail(final String email)
     {
-        assert email != null : "Given Email Adress is null";
+        assert email != null : "Given Email Address is null";
 
-        final List<UserDTO> users = daoFactory.getUserDAO().findUserByEmail(email);
+        final List<UserDTO> users =
+                daoFactory.getUserDAO().findUserByEmail(email.toLowerCase().toLowerCase());
         for (UserDTO user : users)
         {
             fillInDefaultQuotaInformation(user);
@@ -196,7 +199,7 @@ class UserManager extends AbstractManager implements IUserManager
         if (StringUtils.isBlank(password))
         {
             final PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
-            return passwordGenerator.generatePassword(10);
+            return passwordGenerator.generatePassword(PASSWORD_LENGTH);
         } else
         {
             return password;
@@ -427,8 +430,8 @@ class UserManager extends AbstractManager implements IUserManager
         oldUserOrNull = userDAO.tryFindUserByCode(before);
         if (oldUserOrNull == null)
         {
-            throw new UserFailureException(String.format("User with code %s doesn't exist.",
-                    before));
+            throw new UserFailureException(String
+                    .format("User with code %s doesn't exist.", before));
         }
         if (oldUserOrNull.isExternallyAuthenticated())
         {
@@ -438,8 +441,8 @@ class UserManager extends AbstractManager implements IUserManager
         newUserOrNull = userDAO.tryFindUserByCode(after);
         if (newUserOrNull != null)
         {
-            throw new UserFailureException(String.format("User with code %s already exist.",
-                    before));
+            throw new UserFailureException(String
+                    .format("User with code %s already exist.", before));
         }
         userDAO.changeUserCode(before, after);
     }

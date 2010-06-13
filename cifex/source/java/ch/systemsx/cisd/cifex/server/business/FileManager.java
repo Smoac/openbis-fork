@@ -745,7 +745,9 @@ final class FileManager extends AbstractManager implements IFileManager
             final Set<UserDTO> existingUsersOrNull = existingUsers.tryGet(lowerCaseIdentifier);
             if (existingUsersOrNull == null)
             {
-                password = businessContext.getPasswordGenerator().generatePassword(10);
+                password =
+                        businessContext.getPasswordGenerator().generatePassword(
+                                UserManager.PASSWORD_LENGTH);
                 final UserDTO user = tryCreateUser(requestUser, lowerCaseIdentifier, password);
                 if (user != null)
                 {
