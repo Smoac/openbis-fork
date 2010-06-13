@@ -20,9 +20,11 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 /**
- * Generator for human pronounceable passwords
+ * Generator for secure passwords. The generator can create either completely random (stronger) or
+ * human pronounceable passwords (better memorable).
  * 
  * @author Franz-Josef Elmer
+ * @author Bernd Rinn
  */
 public class PasswordGenerator
 {
@@ -97,16 +99,20 @@ public class PasswordGenerator
         abstract String getCharacters();
     }
 
+    public final static int DEFAULT_LENGTH = 10;
+
     private final Random random;
-    
-    private final boolean generatePronouncablePasswords;
+
+    private final boolean generatePronouncablePasswordsDefault;
+
+    private final int lengthDefault;
 
     /**
      * Creates an instance based on the default constructor of {@link SecureRandom}.
      */
     public PasswordGenerator()
     {
-        this(false);
+        this(DEFAULT_LENGTH, false);
     }
 
     /**
@@ -114,28 +120,61 @@ public class PasswordGenerator
      */
     public PasswordGenerator(boolean generatePronouncablePasswords)
     {
-        this(new SecureRandom(), generatePronouncablePasswords);
+        this(new SecureRandom(), DEFAULT_LENGTH, generatePronouncablePasswords);
+    }
+
+    /**
+     * Creates an instance based on the default constructor of {@link Random}.
+     */
+    public PasswordGenerator(int length, boolean generatePronouncablePasswords)
+    {
+        this(new SecureRandom(), length, generatePronouncablePasswords);
     }
 
     /**
      * Creates an instance which uses the specified random number generator.
      */
-    public PasswordGenerator(Random random, boolean generatePronouncablePasswords)
+    public PasswordGenerator(Random random, int length, boolean generatePronouncablePasswords)
     {
         assert random != null : "Unspecified random number generator.";
         this.random = random;
-        this.generatePronouncablePasswords = generatePronouncablePasswords;
+        this.lengthDefault = length;
+        this.generatePronouncablePasswordsDefault = generatePronouncablePasswords;
     }
 
     private char nextChar()
     {
         return ALLOWED_CHARACTERS[random.nextInt(ALLOWED_CHARACTERS.length)];
     }
-    
+
     /**
-     * Creates a password of specified length.
+     * Creates a password.
+     */
+    public String generatePassword()
+    {
+        return generatePassword(lengthDefault, generatePronouncablePasswordsDefault);
+    }
+
+    /**
+     * Creates a password with the specified strength.
+     */
+    public String generatePassword(boolean generatePronouncablePasswords)
+    {
+        return generatePassword(lengthDefault, generatePronouncablePasswordsDefault);
+    }
+
+    /**
+     * Creates a password with the specified length and strength.
      */
     public String generatePassword(int length)
+    {
+        return generatePassword(length, generatePronouncablePasswordsDefault);
+    }
+
+    /**
+     * Creates a password with the specified length and strength.
+     */
+    public String generatePassword(int length, boolean generatePronouncablePasswords)
     {
         final StringBuilder builder = new StringBuilder();
         if (generatePronouncablePasswords)
@@ -147,8 +186,7 @@ public class PasswordGenerator
                 state.appendCharacterTo(builder, random);
             }
             return builder.toString();
-        }
-        else
+        } else
         {
             for (int i = 0; i < length; i++)
             {
