@@ -364,11 +364,14 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         assert sampleCode != null : "Unspecified sample code.";
         assert databaseInstance != null : "Unspecified database instance.";
 
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        Criteria criteria = createDatabaseInstanceCriteria(databaseInstance);
         addSampleCodeCriterion(criteria, sampleCode);
-        criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
-        criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
-        final SamplePE sample = (SamplePE) criteria.uniqueResult();
+        SamplePE sample = (SamplePE) criteria.uniqueResult();
+        if (sample == null && isFullCode(sampleCode) == false)
+        {
+            criteria = createDatabaseInstanceCriteria(databaseInstance);
+            sample = tryFindContainedSampleWithUniqueSubcode(criteria, sampleCode);
+        }
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String
@@ -384,11 +387,14 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         assert sampleCode != null : "Unspecified sample code.";
         assert group != null : "Unspecified space.";
 
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        Criteria criteria = createGroupCriteria(group);
         addSampleCodeCriterion(criteria, sampleCode);
-        criteria.add(Restrictions.eq("group", group));
-        criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
-        final SamplePE sample = (SamplePE) criteria.uniqueResult();
+        SamplePE sample = (SamplePE) criteria.uniqueResult();
+        if (sample == null && isFullCode(sampleCode) == false)
+        {
+            criteria = createGroupCriteria(group);
+            sample = tryFindContainedSampleWithUniqueSubcode(criteria, sampleCode);
+        }
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
@@ -396,6 +402,36 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
                     sampleCode, group));
         }
         return sample;
+    }
+
+    private boolean isFullCode(String sampleCode)
+    {
+        return sampleCode.contains(SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING);
+    }
+
+    private SamplePE tryFindContainedSampleWithUniqueSubcode(Criteria criteria, String sampleCode)
+    {
+        addContainedSampleCodeCriterion(criteria, sampleCode);
+        List<SamplePE> list = cast(criteria.list());
+        return list.size() == 1 ? list.get(0) : null;
+    }
+
+    private Criteria createFindCriteria(Criterion criterion)
+    {
+        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria.add(criterion);
+        return criteria;
+    }
+
+    private Criteria createDatabaseInstanceCriteria(final DatabaseInstancePE databaseInstance)
+    {
+        return createFindCriteria(Restrictions.eq("databaseInstance", databaseInstance));
+    }
+
+    private Criteria createGroupCriteria(final GroupPE group)
+    {
+        return createFindCriteria(Restrictions.eq("group", group));
     }
 
     private void addSampleCodeCriterion(Criteria criteria, String sampleCode)
@@ -414,7 +450,12 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
             criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
             criteria.add(Restrictions.isNull("container"));
         }
+    }
 
+    private void addContainedSampleCodeCriterion(Criteria criteria, String sampleCode)
+    {
+        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
+        criteria.add(Restrictions.isNotNull("container"));
     }
 
     public final void createSamples(final List<SamplePE> samples) throws DataAccessException
