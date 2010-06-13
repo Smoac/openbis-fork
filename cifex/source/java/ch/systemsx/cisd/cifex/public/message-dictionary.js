@@ -24,7 +24,7 @@ var message_dict = {
   
   HELP_DISCLAIMER_LABEL: 'Disclaimer',
   
-  HELP_DISCLAIMER_TITLE: 'Legal Disclaimer',
+  HELP_DISCLAIMER_TITLE: 'Disclaimer',
   
   HELP_FAQ_LABEL: 'FAQ',
   

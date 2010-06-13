@@ -33,7 +33,7 @@ public class DefaultLayoutDialog extends Dialog
 {
     public static final int DEFAULT_WIDTH = 500;
 
-    public static final int DEFAULT_HEIGHT = 300;
+    public static final int DEFAULT_HEIGHT = 320;
 
     public DefaultLayoutDialog(final String title)
     {
