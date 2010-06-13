@@ -118,11 +118,11 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private JButton addButton;
 
-    private JButton createStrongPassphraseButton;
+    private JButton generateStrongPassphraseButton;
 
-    private JButton createMemorablePassphraseButton;
+    private JButton generateMemorablePassphraseButton;
 
-    private JButton deletePassphraseButton;
+    private JButton clearPassphraseButton;
 
     private JPopupMenu popupMenu;
 
@@ -346,8 +346,8 @@ public class FileUploadClient extends AbstractSwingGUI
         BoxLayout layout = new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS);
         buttonsPanel.setLayout(layout);
 
-        deletePassphraseButton = new JButton("Delete Passphrase");
-        deletePassphraseButton.addActionListener(new ActionListener()
+        clearPassphraseButton = new JButton("Clear Passphrase");
+        clearPassphraseButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -356,9 +356,9 @@ public class FileUploadClient extends AbstractSwingGUI
                 }
             });
 
-        createStrongPassphraseButton = new JButton("Generate Passphrase");
-        createStrongPassphraseButton.setToolTipText("Create a random (strong) phassphrase");
-        createStrongPassphraseButton.addActionListener(new ActionListener()
+        generateStrongPassphraseButton = new JButton("Generate Passphrase");
+        generateStrongPassphraseButton.setToolTipText("Create a random (strong) phassphrase");
+        generateStrongPassphraseButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -372,15 +372,16 @@ public class FileUploadClient extends AbstractSwingGUI
                     JOptionPane
                             .showMessageDialog(
                                     getWindowFrame(),
-                                    "<html><center>The created passphrase has been copied to the clipboard.<br><br>"
-                                            + "<em><font size=+1>Make sure you keep it safe!</font></em></center></html>",
+                                    "<html><center>The generated passphrase has been copied to the clipboard.<br><br>"
+                                            + "<em>Make sure you keep it safe or you "
+                                            + "won't be able to decrypt the file!</em></center></html>",
                                     "Your passphrase", JOptionPane.INFORMATION_MESSAGE);
                 }
             });
 
-        createMemorablePassphraseButton = new JButton("Generate Password");
-        createMemorablePassphraseButton.setToolTipText("Create a memorable passphase / password");
-        createMemorablePassphraseButton.addActionListener(new ActionListener()
+        generateMemorablePassphraseButton = new JButton("Generate Password");
+        generateMemorablePassphraseButton.setToolTipText("Create a memorable passphase (aka \"password\")");
+        generateMemorablePassphraseButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -394,9 +395,9 @@ public class FileUploadClient extends AbstractSwingGUI
                     JOptionPane
                             .showMessageDialog(
                                     getWindowFrame(),
-                                    "<html><center>The created password is:<br><br><code><font size=+2>"
+                                    "<html><center>The generated password is:<br><br><code><font size=+3>"
                                             + passphrase
-                                            + "</font></code><br><br>(It has been copied to the clipboard)</center></html>",
+                                            + "</font></code><br><br>(It has been copied to the clipboard.)</center></html>",
                                     "Your password", JOptionPane.INFORMATION_MESSAGE);
                 }
             });
@@ -409,11 +410,11 @@ public class FileUploadClient extends AbstractSwingGUI
                     chooseAndAddFile();
                 }
             });
-        buttonsPanel.add(deletePassphraseButton);
+        buttonsPanel.add(clearPassphraseButton);
         buttonsPanel.add(Box.createHorizontalStrut(5));
-        buttonsPanel.add(createStrongPassphraseButton);
+        buttonsPanel.add(generateStrongPassphraseButton);
         buttonsPanel.add(Box.createHorizontalStrut(5));
-        buttonsPanel.add(createMemorablePassphraseButton);
+        buttonsPanel.add(generateMemorablePassphraseButton);
         buttonsPanel.add(Box.createHorizontalGlue());
         buttonsPanel.add(addButton);
 
@@ -644,17 +645,17 @@ public class FileUploadClient extends AbstractSwingGUI
         {
             addButton.setEnabled(enable);
         }
-        if (createStrongPassphraseButton != null)
+        if (generateStrongPassphraseButton != null)
         {
-            createStrongPassphraseButton.setEnabled(enable);
+            generateStrongPassphraseButton.setEnabled(enable);
         }
-        if (createMemorablePassphraseButton != null)
+        if (generateMemorablePassphraseButton != null)
         {
-            createMemorablePassphraseButton.setEnabled(enable);
+            generateMemorablePassphraseButton.setEnabled(enable);
         }
-        if (deletePassphraseButton != null)
+        if (clearPassphraseButton != null)
         {
-            deletePassphraseButton.setEnabled(enable);
+            clearPassphraseButton.setEnabled(enable);
         }
         if (uploadButton != null)
         {
