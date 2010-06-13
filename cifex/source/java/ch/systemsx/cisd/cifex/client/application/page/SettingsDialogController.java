@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
+import ch.systemsx.cisd.cifex.client.application.ui.UserWidget;
 
 /**
  * A pop-up dialog with a form for editing user settings.
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
  */
 public final class SettingsDialogController extends AbstractDialogController
 {
-    private static final int SETTINGS_DIALOG_WIDTH = 720;
+    private static final int SETTINGS_DIALOG_WIDTH = UserWidget.TOTAL_WIDTH + 20;
 
     private final EditUserWidget editUserWidget;
 

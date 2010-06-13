@@ -63,7 +63,7 @@ public abstract class UserWidget extends LayoutContainer
 
     private static final int FIELD_WIDTH = 175;
 
-    public static final int TOTAL_WIDTH = 760;
+    public static final int TOTAL_WIDTH = 800;
 
     public static final int COLUMN_WIDTH = 370;
 
