@@ -159,9 +159,10 @@ public class FileDownloadClient extends AbstractSwingGUI
 
         // Add a small gap at the bottom of the frame, to the GUI doesn't look too constrained
         spacer = new JLabel("");
-        spacer.setPreferredSize(new Dimension(600, 15));
+        spacer.setPreferredSize(new Dimension(1000, 15));
         window.add(spacer, BorderLayout.SOUTH);
-        window.setBounds(200, 200, 770, 300);
+        window.pack();
+        window.setLocationByPlatform(true);
         window.setVisible(true);
     }
 
@@ -200,14 +201,14 @@ public class FileDownloadClient extends AbstractSwingGUI
         // Configure the table columns
         TableColumn column;
         column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.FILE_DETAILS_COLUMN);
-        column.setPreferredWidth(150);
+        column.setPreferredWidth(320);
         column.setCellRenderer(new FileDetailsTableCellRenderer());
 
         column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.SENDER_COLUMN);
         column.setPreferredWidth(150);
 
         column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.COMMENT_COLUMN);
-        column.setPreferredWidth(150);
+        column.setPreferredWidth(200);
 
         column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.SENT_DATE_COLUMN);
         column.setPreferredWidth(100);
