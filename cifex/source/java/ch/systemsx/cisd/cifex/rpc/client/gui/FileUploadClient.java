@@ -89,6 +89,8 @@ public class FileUploadClient extends AbstractSwingGUI
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
+        setLookAndFeelToNative();
+
         try
         {
             CIFEXCommunicationState commState = new CIFEXCommunicationState(args);

@@ -26,6 +26,7 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.apache.commons.lang.WordUtils;
 import org.springframework.remoting.RemoteAccessException;
@@ -226,6 +227,18 @@ public abstract class AbstractSwingGUI
                 {
                 }
             };
+    }
+
+    protected static void setLookAndFeelToNative()
+    {
+        // Set the look and feel to the native system look and feel, if possible
+        try
+        {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ex)
+        {
+            // just ignore -- no big deal
+        }
     }
 
     // -------- errors reporting -----------------
