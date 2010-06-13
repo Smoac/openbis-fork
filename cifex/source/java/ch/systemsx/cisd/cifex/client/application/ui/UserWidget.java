@@ -498,7 +498,6 @@ public abstract class UserWidget extends LayoutContainer
         final TextField<String> textField = createTextField(msg(CREATE_USER_PASSWD_LABEL));
         textField.setPassword(true);
         textField.setAllowBlank(true);
-        textField.setValidateOnBlur(false);
         textField.setMinLength(4);
         return textField;
     }
@@ -508,7 +507,6 @@ public abstract class UserWidget extends LayoutContainer
         final TextField<String> textField = createTextField(msg(CREATE_USER_REPEAT_PASSWD_LABEL));
         textField.setPassword(true);
         textField.setAllowBlank(true);
-        textField.setValidateOnBlur(false);
         textField.setMinLength(4);
         return textField;
     }
