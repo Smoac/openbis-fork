@@ -313,6 +313,8 @@ public final class FileUploadWidget extends LayoutContainer
                             {
                                 final UserInfoDTO user = new UserInfoDTO();
                                 user.setEmail(email);
+                                user.setExpirationDate(UserUtils
+                                        .getDefaultUserExpirationDate(context));
                                 newUsers.add(user);
                                 dialog.refresh();
                             }

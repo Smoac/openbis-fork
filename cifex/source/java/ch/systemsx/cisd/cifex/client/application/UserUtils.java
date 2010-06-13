@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -54,6 +57,14 @@ public class UserUtils
                 it.remove();
             }
         }
+    }
+    
+    public static Date getDefaultUserExpirationDate(final ViewContext context)
+    {
+        final Date initialExpirationDate = new Date();
+        CalendarUtil.addDaysToDate(initialExpirationDate, context.getModel().getConfiguration()
+                .getUserRetention());
+        return initialExpirationDate;
     }
 
 }

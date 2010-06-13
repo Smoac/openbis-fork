@@ -46,6 +46,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
+import ch.systemsx.cisd.cifex.client.application.UserUtils;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -289,7 +290,7 @@ public abstract class UserWidget extends LayoutContainer
                 return expirationDateField.getValue();
             } else
             {
-                return getInitialExpirationDate();
+                return UserUtils.getDefaultUserExpirationDate(context);
             }
         } else
         {
@@ -773,7 +774,7 @@ public abstract class UserWidget extends LayoutContainer
                 dateField.setValue(editUser.getExpirationDate());
             } else
             {
-                dateField.setValue(getInitialExpirationDate());
+                dateField.setValue(UserUtils.getDefaultUserExpirationDate(context));
             }
         } else
         {
@@ -781,7 +782,7 @@ public abstract class UserWidget extends LayoutContainer
         }
         if (dateField.getValue() == null)
         {
-            dateField.setValue(getInitialExpirationDate());
+            dateField.setValue(UserUtils.getDefaultUserExpirationDate(context));
         }
         if (statusField != null)
         {
@@ -801,18 +802,6 @@ public abstract class UserWidget extends LayoutContainer
         }
         return dateField;
     }
-
-    private Date getInitialExpirationDate()
-    {
-        final Date initialExpirationDate = new Date();
-        CalendarUtil.addDaysToDate(initialExpirationDate, context.getModel().getConfiguration()
-                .getUserRetention());
-        return initialExpirationDate;
-    }
-
-    //
-    // Abstract methods
-    //
 
     /** Returns the label of the form submit button. */
     abstract String getSubmitButtonLabel();

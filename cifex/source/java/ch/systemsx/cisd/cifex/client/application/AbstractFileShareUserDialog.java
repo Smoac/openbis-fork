@@ -283,8 +283,10 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                             } else
                                             {
 
-                                                UserInfoDTO user = new UserInfoDTO();
+                                                final UserInfoDTO user = new UserInfoDTO();
                                                 user.setEmail(emailOrCode);
+                                                user.setExpirationDate(UserUtils
+                                                        .getDefaultUserExpirationDate(viewContext));
                                                 user.setRegistrator(viewContext.getModel()
                                                         .getUser());
                                                 newUsers.add(user);
