@@ -32,23 +32,23 @@ public class ByteArrayMapper implements TypeMapper<byte[]>
 {
     public byte[] get(ResultSet results, int column) throws SQLException
     {
-        return (byte[]) results.getArray(column).getArray();
+        return results.getBytes(column);
     }
 
     public void set(PreparedStatement statement, int column, byte[] obj) throws SQLException
     {
         if (obj != null)
         {
-            statement.setArray(column, new SimpleSQLByteArray(obj));
+            statement.setBytes(column, obj);
         } else
         {
-            statement.setNull(column, Types.ARRAY);
+            statement.setNull(column, Types.BINARY);
         }
     }
 
     public void set(ResultSet results, int column, byte[] obj) throws SQLException
     {
-        results.updateArray(column, new SimpleSQLByteArray(obj));
+        results.updateBytes(column, obj);
     }
 
 }
