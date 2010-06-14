@@ -104,46 +104,37 @@ the valid recipients of the file know it.</strong></p>
 
 <p>The CIFEX Java Web Start&#153; and command line clients have built-in support for strong encryption 
 using the <a href="http://en.wikipedia.org/wiki/Pretty_Good_Privacy">OpenPGP</a> standard using a 
-symmetric key and an AES-256 cipher algorithm. Whenever you enter a passphrase in one of the CIFEX 
-clients at upload, the files will be encrypted into an OpenPGP file (file extension <code>.pgp</code>). 
-Note that the server is not involved in encryption or decryption in any way and has no information 
-on whether or how a file is encrypted apart from the file extension. Using CIFEX built-in encryption 
-you get pretty much the same as if you had called <a href="http://gnupg.org/">GNU Privacy Guard</a> 
-(an OpenPGP compliant free software program) with
+symmetric key and an AES-128 cipher algorithm. Whenever you enter a passphrase in one of the CIFEX 
+clients at upload, the files will be encrypted into an OpenPGP file (file extension <code>.pgp</code>).
+The WebStart client can generate strong passphrases for you. It is important to keep these passphrases
+or else nobody will be able to decrypt the files again. Note that the server is not involved in 
+encryption or decryption in any way and has no information on whether or how a file is encrypted 
+apart from the file extension. Using CIFEX built-in encryption you get pretty much the same as if 
+you had called <a href="http://gnupg.org/">GNU Privacy Guard</a> (an OpenPGP compliant free 
+software program) with
 <pre>$ gpg -c --cipher-alg=aes256 &lt;file&gt;</code></pre>
 prior to the upload.</p>
 
 <p><u>Hint:</u> Another useful software program for strong encryption is 
 <a href="http://www.truecrypt.org/">TrueCrypt</a>.</p>
 
-<p>As a second point it should be noted that email addresses are not guaranteed to 
-be unique in CIFEX, which means that in principle two or more CIFEX user 
-accounts could share the same email address. This usually doesn't make sense 
-but it can happen either by mistake or a malicious user of the system could 
-change the email address of his CIFEX account to the email address of someone 
-you want to share a file with. If you use such a non-unique email address on
-file upload, all of the users sharing the email address would get access to 
-the file!</p>
-
-<p>If you want to share your file only with one of the users that
-has assigned the given email address, you can specify the user name in
-the share files form with the prefix 'id:'. So if you want to upload a
-file for user 'x' with the mail <tt>a@abc.com</tt>, you can specify 'id:x' in the
-Recipients field and thus you can be sure that only user 'x' will get
-access to the file.</p>
-
-<p>If you know just the email address but not the user name, you can
-add the email address to the Recipients field and click on 'Validate
-users' button. A window will appear and all the information about the
+<p>In the context of confidentiality it should be noted that email addresses are 
+not guaranteed to be unique in CIFEX, which means that two or more CIFEX user 
+accounts can share the same email address. In order to avoid sharing files with a user account you
+do not intend to share the file with, it is safest to specify the user id (use prefix <code>id:</code>) 
+instead of the email address as the user id is guaranteed to be unique. If you know just the email 
+address but not the user name, you can add the email address to the Recipients field and click 
+on 'Validate Users' button. A window will appear and all the information about the
 users connected to the email addresses you entered will be displayed.
-You can add more users or select only those you want to share the file
-with.</p>
+You can add more users or un-select some of the selected users that you do not want to share the 
+file with.</p>
 
 <p>Note that the user who created a temporary account is able to access
-all files uploaded by this account. Check if the creator is a person 
-you trust. Should this not be the case, you'd better create a new temporary 
-CIFEX account for your colleague yourself and use that new account to share 
-your files.</p>
+all files uploaded by that temporary account. For that reason, temporary accounts created by other 
+users than yourself are not considered when resolving emails to user ids. If you specify the user id
+of a temporary account, first check if the creator is a person you trust. Should this not be the 
+case, you'd better create a new temporary CIFEX account for your colleague yourself and use that 
+new account to share your files.</p>
 
 <br/>
 <h2><a name="FAQ-user-with-email-already-exists"></a>A user with this email address already
