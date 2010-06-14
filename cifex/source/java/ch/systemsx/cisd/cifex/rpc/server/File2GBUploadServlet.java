@@ -73,8 +73,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
             "    <jar href='commons-io.jar'/>\n" + 
             "    <jar href='commons-lang.jar'/>\n" + 
             "    <jar href='commons-logging.jar'/>\n" + 
-            "    <jar href='bcprov.jar'/>\n" +
-            "    <jar href='bcpg.jar'/>\n" +
+            "    <extension name='Bouncy Castle Crypto Provider' href='bouncycastle.jnlp'/>\n" +
             "  </resources>\n" + 
             "  <application-desc main-class='${main-class}'>\n" +
             "    <argument>${service-URL}</argument>\n" +

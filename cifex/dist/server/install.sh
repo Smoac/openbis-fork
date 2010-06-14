@@ -68,7 +68,7 @@ mkdir -p "$war_classes"/etc
 # Replace 'service.properties' and 'log.xml' files in war
 test -f "$properties_file" && cp -p "$properties_file" "$war_classes/"
 test -f "$logconf_file" && cp -p "$logconf_file" "$war_classes/etc/"
-zip "$installation_folder"/cifex.war "$war_classes"/service.properties "$war_classes"/etc/log.xml *.js *.html images/*
+zip "$installation_folder"/cifex.war "$war_classes"/service.properties "$war_classes"/etc/log.xml *.js *.html *.jnlp images/*
 cp -p "$installation_folder"/cifex.war "$jetty_folder"/webapps
 rm -rf WEB-INF
 
