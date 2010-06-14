@@ -17,11 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -121,18 +119,17 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         final EntityTypePropertyTypePE etpt = (EntityTypePropertyTypePE) criteria.uniqueResult();
         return etpt;
     }
-
-    public int countAssignmentValues(String entityTypeCode, String propertyTypeCode)
+    
+	public int countAssignmentValues(String entityTypeCode, String propertyTypeCode)
     {
         assert entityTypeCode != null : "Unspecified entity type.";
         assert propertyTypeCode != null : "Unspecified property type.";
 
         String query =
-                String.format("select count(pv) from %s pa join pa.propertyValues pv "
-                        + "where pa.propertyTypeInternal.simpleCode = ? "
-                        + "and pa.entityTypeInternal.code = ?", entityKind
-                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName(), entityKind
-                        .getEntityPropertyClass().getSimpleName());
+                String.format("SELECT count(pv) FROM %s pa join pa.propertyValues pv "
+                        + "WHERE pa.propertyTypeInternal.simpleCode = ? "
+                        + "AND pa.entityTypeInternal.code = ?", entityKind
+                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
         return ((Long) (getHibernateTemplate().find(query,
                 toArray(propertyTypeCode, entityTypeCode)).get(0))).intValue();
     }
@@ -176,6 +173,32 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         criteria.add(Restrictions.eq(entityKind.getEntityTypeFieldName(), entityType));
         criteria.setProjection(Projections.id());
         final List<Long> list = cast(getHibernateTemplate().findByCriteria(criteria));
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("LIST: found %s ids of entities of type '%s'.", list
+                    .size(), entityType));
+        }
+        return list;
+    }
+
+    private List<Long> listEntityIds(final EntityTypePropertyTypePE assignment)
+            throws DataAccessException
+    {
+        assert assignment != null : "Unspecified assignment.";
+
+        String query =
+                String.format(
+                        "SELECT pv.entity.id FROM %s pa join pa.propertyValues pv WHERE pa = ?",
+                        entityKind.getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+        final List<Long> list = cast(getHibernateTemplate().find(query, toArray(assignment)));
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format(
+                    "LIST: found %s ids of entities of type '%s' assigned to property '%s'.", list
+                            .size(), assignment.getEntityType(), assignment.getPropertyType()));
+        }
         return list;
     }
 
@@ -242,7 +265,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                                             .getLabel()));
                             if (operationLog.isDebugEnabled())
                             {
-                                operationLog.info(getMemoryUsageMessage());
+                                operationLog.debug(getMemoryUsageMessage());
                             }
                         }
                     }
@@ -418,24 +441,22 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     public void delete(EntityTypePropertyTypePE assignment)
     {
         HibernateTemplate template = getHibernateTemplate();
-        unassignFromEntity(assignment.getPropertyValues());
+
+        List<Long> entityIds = listEntityIds(assignment);
+        template.bulkUpdate(String.format("DELETE FROM %s WHERE entityTypePropertyType = ?",
+                entityKind.getEntityPropertyClass().getSimpleName()), assignment);
         template.delete(assignment);
         template.flush();
+
+        // index will not be updated automatically by Hibernate
+        // because we use bulk update and don't touch entities
+        scheduleFullTextIndexUpdate(entityIds);
+
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("DELETE: assignment between " + entityKind + " of type "
                     + assignment.getEntityType().getCode() + " and property type "
                     + assignment.getPropertyType().getCode());
-        }
-    }
-
-    // If we do not do this, we get inconsistent hibernate cache. The reason is that entities would
-    // still reference deleted property values.
-    private static void unassignFromEntity(Set<? extends EntityPropertyPE> propertyValues)
-    {
-        for (EntityPropertyPE propertyValue : propertyValues)
-        {
-            propertyValue.getEntity().removeProperty(propertyValue); // FIXME loads entities?
         }
     }
 
