@@ -37,6 +37,7 @@ import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -55,6 +56,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -268,6 +270,19 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         addRefreshDisplaySettingsListener();
         configureLoggingBetweenEvents(logID);
+        
+        grid.addListener(Events.HeaderContextMenu, new Listener<GridEvent<ModelData>>()
+        {
+            public void handleEvent(final GridEvent<ModelData> ge)
+            {
+                Menu menu = ge.getMenu();
+                int itemCount = menu.getItemCount();
+                for (int i = 2; i < itemCount; i++)
+                {
+                    menu.remove(menu.getItem(2));
+                }
+            }
+        });
     }
 
     private ICellListener<T> createShowEntityViewerLinkClickListener()
