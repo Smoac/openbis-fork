@@ -36,8 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 class ScreeningDatasetInfoExtractor
 {
-    public static ScreeningContainerDatasetInfo tryCreateInfo(File dataset,
-            String relativeImagesDirectory)
+    public static ScreeningContainerDatasetInfo tryCreateInfo(File dataset)
     {
         Sample sample = tryGetSampleWithExperiment(dataset);
         if (sample == null)
@@ -46,7 +45,7 @@ class ScreeningDatasetInfoExtractor
         }
         try
         {
-            return createInfo(dataset, sample, relativeImagesDirectory);
+            return createInfo(dataset, sample);
         } catch (Exception ex)
         {
             ex.printStackTrace();
@@ -82,8 +81,7 @@ class ScreeningDatasetInfoExtractor
         return new SampleIdentifier(spaceIdentifier, sampleCode);
     }
 
-    private static ScreeningContainerDatasetInfo createInfo(File dataset, Sample sample,
-            String relativeImagesDirectory)
+    private static ScreeningContainerDatasetInfo createInfo(File dataset, Sample sample)
     {
         int rows = extractGeometryDim(dataset, "plate_geometry", "rows");
         int columns = extractGeometryDim(dataset, "plate_geometry", "columns");
@@ -95,9 +93,6 @@ class ScreeningDatasetInfoExtractor
         info.setContainerColumns(columns);
         info.setTileRows(tileRows);
         info.setTileColumns(tileColumns);
-
-        info.setRelativeImagesDirectory(relativeImagesDirectory);
-
         info.setDatasetPermId(extractDatasetPermId(dataset));
         info.setContainerPermId(sample.getPermId());
         info.setExperimentPermId(sample.getExperiment().getPermId());

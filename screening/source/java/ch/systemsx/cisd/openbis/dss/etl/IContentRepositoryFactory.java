@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
+package ch.systemsx.cisd.openbis.dss.etl;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
+import java.io.File;
 
 /**
- * Stores current version of special purpose imaging database.
  * 
- * @author Tomasz Pylak
+ *
+ * @author Franz-Josef Elmer
  */
-public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
+public interface IContentRepositoryFactory
 {
-    /** Current version of the database. */
-    static final String DATABASE_VERSION = "002";
-
-    public String getDatabaseVersion()
-    {
-        return DATABASE_VERSION;
-    }
+    public IContentRepository createRepository(File rootDirectory, String archivePath);
 
 }

@@ -144,9 +144,12 @@ class BDSImagingDbUploader
         }
 
         String relativeImagesDirectory = getRelativeImagesDirectory();
+        for (AcquiredPlateImage acquiredPlateImage : images)
+        {
+            acquiredPlateImage.getImageReference().setRelativeImageFolder(relativeImagesDirectory);
+        }
 
-        ScreeningContainerDatasetInfo info =
-                ScreeningDatasetInfoExtractor.tryCreateInfo(dataset, relativeImagesDirectory);
+        ScreeningContainerDatasetInfo info = ScreeningDatasetInfoExtractor.tryCreateInfo(dataset);
         if (info == null)
         {
             return false;

@@ -23,6 +23,7 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
+import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
 
 /**
@@ -33,8 +34,6 @@ import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
  */
 public class HCSDatasetLoader implements IHCSDatasetLoader
 {
-    private final File datasetRootDir;
-
     private final IImagingUploadDAO query;
 
     private final ImgDatasetDTO dataset;
@@ -43,9 +42,11 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     private Integer channelCount;
 
-    public HCSDatasetLoader(IImagingUploadDAO query, String datasetPermId, File datasetRootDir)
+    private final IContentRepository contentRepository;
+
+    public HCSDatasetLoader(IImagingUploadDAO query, String datasetPermId, IContentRepository contentRepository)
     {
-        this.datasetRootDir = datasetRootDir;
+        this.contentRepository = contentRepository;
         this.query = query;
         this.dataset = query.tryGetDatasetByPermId(datasetPermId);
         if (dataset == null)
@@ -122,8 +123,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
                                 wellLocation);
         if (imageDTO != null)
         {
-            File imgDir = new File(datasetRootDir, dataset.getImagesDirectoryPath());
-            IContent content = new FileBasedContent(new File(imgDir, imageDTO.getFilePath()));
+            IContent content = contentRepository.getContent(imageDTO.getFilePath());
             return new AbsoluteImageReference(content, imageDTO.getPage(),
                     imageDTO.getColorComponent());
         } else

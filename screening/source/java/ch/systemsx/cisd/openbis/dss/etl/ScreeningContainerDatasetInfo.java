@@ -33,10 +33,6 @@ public class ScreeningContainerDatasetInfo
 
     private int tileRows, tileColumns;
 
-    // All images paths are relative to the IMAGES_DIRECTORY folder.
-    // The folder path itself is relative to the dataset root directory.
-    private String relativeImagesDirectory;
-
     public String getExperimentPermId()
     {
         return experimentPermId;
@@ -107,13 +103,4 @@ public class ScreeningContainerDatasetInfo
         this.tileColumns = tileColumns;
     }
 
-    public String getRelativeImagesDirectory()
-    {
-        return relativeImagesDirectory;
-    }
-
-    public void setRelativeImagesDirectory(String relativeImagesDirectory)
-    {
-        this.relativeImagesDirectory = relativeImagesDirectory;
-    }
 }

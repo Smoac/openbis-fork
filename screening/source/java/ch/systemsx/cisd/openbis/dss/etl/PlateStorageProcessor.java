@@ -165,7 +165,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     // ---------------------------------
 
     private ScreeningContainerDatasetInfo createScreeningDatasetInfo(Experiment experiment,
-            DataSetInformation dataSetInformation, String relativeImagesDirectory)
+            DataSetInformation dataSetInformation)
     {
         ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
         info.setExperimentPermId(experiment.getPermId());
@@ -183,8 +183,6 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
         info.setTileRows(spotGeometry.getRows());
         info.setTileColumns(spotGeometry.getColumns());
-
-        info.setRelativeImagesDirectory(relativeImagesDirectory);
 
         return info;
     }
@@ -286,6 +284,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         {
             RelativeImageReference imageReference = plateImage.getImageReference();
             String imagePath = imageReference.getRelativeImagePath();
+            imageReference.setRelativeImageFolder(relativeImagesDirectory);
             File img = new File(imagesInStoreFolder, imagePath);
             BufferedImage image = ImageUtil.loadImage(img);
             BufferedImage thumbnail = ImageUtil.createThumbnail(image, 100, 60);
@@ -306,7 +305,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         writer.close();
         
 
-        storeInDatabase(experiment, dataSetInformation, extractionResult, relativeImagesDirectory);
+        storeInDatabase(experiment, dataSetInformation, extractionResult);
         return rootDirectory;
     }
     
@@ -457,10 +456,10 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     }
 
     private void storeInDatabase(Experiment experiment, DataSetInformation dataSetInformation,
-            HCSImageFileExtractionResult extractionResult, String relativeImagesDirectory)
+            HCSImageFileExtractionResult extractionResult)
     {
         ScreeningContainerDatasetInfo info =
-                createScreeningDatasetInfo(experiment, dataSetInformation, relativeImagesDirectory);
+                createScreeningDatasetInfo(experiment, dataSetInformation);
 
         if (currentTransaction != null)
         {

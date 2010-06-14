@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
  */
 public class RelativeImageReference extends AbstractImageReference
 {
-    private final String imageRelativePath;
+    private String imageRelativePath;
 
     public RelativeImageReference(String relativePath, Integer pageOrNull,
             ColorComponent colorComponentOrNull)
@@ -37,5 +37,10 @@ public class RelativeImageReference extends AbstractImageReference
     public String getRelativeImagePath()
     {
         return imageRelativePath;
+    }
+
+    public final void setRelativeImageFolder(String folderPath)
+    {
+        this.imageRelativePath = folderPath + "/" + imageRelativePath;
     }
 }

@@ -116,7 +116,7 @@ public class HCSDatasetUploader
         Map<String, ImgChannelDTO> nameMap = new HashMap<String, ImgChannelDTO>();
         for (ImgChannelDTO channel : channels)
         {
-            nameMap.put(channel.getName(), channel);
+            nameMap.put(channel.getName().toUpperCase(), channel);
         }
         return nameMap;
     }
@@ -424,8 +424,8 @@ public class HCSDatasetUploader
     private long createDataset(long contId, ScreeningContainerDatasetInfo info)
     {
         ImgDatasetDTO dataset =
-                new ImgDatasetDTO(info.getDatasetPermId(), info.getRelativeImagesDirectory(), info
-                        .getTileRows(), info.getTileColumns(), contId);
+                new ImgDatasetDTO(info.getDatasetPermId(), info.getTileRows(), info
+                        .getTileColumns(), contId);
         return dao.addDataset(dataset);
     }
 

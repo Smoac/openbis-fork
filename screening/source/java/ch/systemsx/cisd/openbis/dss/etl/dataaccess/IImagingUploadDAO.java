@@ -97,8 +97,8 @@ public interface IImagingUploadDAO extends TransactionQuery
             + "(?{1.permId}, ?{1.numberOfColumns}, ?{1.numberOfRows}, ?{1.experimentId}) returning ID")
     public long addContainer(ImgContainerDTO container);
 
-    @Select("insert into DATA_SETS (PERM_ID, IMAGES_DIRECTORY, FIELDS_WIDTH, FIELDS_HEIGHT, CONT_ID) values "
-            + "(?{1.permId}, ?{1.imagesDirectoryPath}, ?{1.fieldNumberOfColumns}, "
+    @Select("insert into DATA_SETS (PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, CONT_ID) values "
+            + "(?{1.permId}, ?{1.fieldNumberOfColumns}, "
             + "?{1.fieldNumberOfRows}, ?{1.containerId}) returning ID")
     public long addDataset(ImgDatasetDTO dataset);
 

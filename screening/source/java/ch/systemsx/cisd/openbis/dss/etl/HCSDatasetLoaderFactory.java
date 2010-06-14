@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -35,6 +37,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class HCSDatasetLoaderFactory
 {
+    private static final Map<String, IContentRepositoryFactory> repositoryFactories = createFactories();
+    
     private static final IImagingUploadDAO query = createQuery();
 
     private static IImagingUploadDAO createQuery()
@@ -45,6 +49,14 @@ public class HCSDatasetLoaderFactory
         return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
     }
 
+    private static Map<String, IContentRepositoryFactory> createFactories()
+    {
+        Map<String, IContentRepositoryFactory> factories =
+                new HashMap<String, IContentRepositoryFactory>();
+        factories.put("h5", new Hdf5BasedContentRepositoryFactory());
+        return factories;
+    }
+
     public static final IHCSDatasetLoader create(File datasetRootDir, String datasetCode)
     {
         return createImageDBLoader(datasetRootDir, datasetCode);
@@ -53,7 +65,8 @@ public class HCSDatasetLoaderFactory
 
     private static HCSDatasetLoader createImageDBLoader(File datasetRootDir, String datasetCode)
     {
-        return new HCSDatasetLoader(query, datasetCode, datasetRootDir);
+        IContentRepository repository = new ContentRepository(datasetRootDir, repositoryFactories);
+        return new HCSDatasetLoader(query, datasetCode, repository);
     }
 
     // remove when not needed

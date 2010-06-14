@@ -217,11 +217,14 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
 
     private static boolean containsDir(File[] files, String dirName)
     {
-        for (File file : files)
+        if (files != null)
         {
-            if (file.getName().equalsIgnoreCase(dirName))
+            for (File file : files)
             {
-                return true;
+                if (file.getName().equalsIgnoreCase(dirName))
+                {
+                    return true;
+                }
             }
         }
         return false;

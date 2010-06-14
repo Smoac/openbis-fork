@@ -32,9 +32,6 @@ public class ImgDatasetDTO extends AbstractHashable
     @ResultColumn("PERM_ID")
     private String permId;
 
-    @ResultColumn("IMAGES_DIRECTORY")
-    private String imagesDirectoryPath;
-
     @ResultColumn("FIELDS_WIDTH")
     private Integer fieldNumberOfColumnsOrNull;
 
@@ -50,11 +47,10 @@ public class ImgDatasetDTO extends AbstractHashable
         // All Data-Object classes must have a default constructor.
     }
 
-    public ImgDatasetDTO(String permId, String imagesDirectoryPath,
-            Integer fieldNumberOfRowsOrNull, Integer fieldNumberOfColumnsOrNull, long containerId)
+    public ImgDatasetDTO(String permId, Integer fieldNumberOfRowsOrNull,
+            Integer fieldNumberOfColumnsOrNull, long containerId)
     {
         this.permId = permId;
-        this.imagesDirectoryPath = imagesDirectoryPath;
         this.fieldNumberOfColumnsOrNull = fieldNumberOfColumnsOrNull;
         this.fieldNumberOfRowsOrNull = fieldNumberOfRowsOrNull;
         this.containerId = containerId;
@@ -108,16 +104,6 @@ public class ImgDatasetDTO extends AbstractHashable
     public void setContainerId(long containerId)
     {
         this.containerId = containerId;
-    }
-
-    public String getImagesDirectoryPath()
-    {
-        return imagesDirectoryPath;
-    }
-
-    public void setImagesDirectoryPath(String imagesDirectoryPath)
-    {
-        this.imagesDirectoryPath = imagesDirectoryPath;
     }
 
 }
