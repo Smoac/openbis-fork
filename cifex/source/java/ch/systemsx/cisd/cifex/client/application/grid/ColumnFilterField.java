@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.client.application.grid;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
+import ch.systemsx.cisd.cifex.client.application.ui.IGridCellRendererNonPlainText;
 import ch.systemsx.cisd.cifex.client.application.utils.ObjectUtils;
 import ch.systemsx.cisd.common.shared.basic.AlternativesStringFilter;
 
@@ -38,7 +39,15 @@ public class ColumnFilterField<M extends ModelData> extends AbstractFilterField<
             GridCellRenderer<ModelData> rendererOrNull)
     {
         super(filterPropertyKey, title);
-        this.rendererOrNull = rendererOrNull;
+        if (rendererOrNull instanceof IGridCellRendererNonPlainText<?>)
+        {
+            this.rendererOrNull =
+                    ((IGridCellRendererNonPlainText<ModelData>) rendererOrNull)
+                            .getPlainTextRenderer();
+        } else
+        {
+            this.rendererOrNull = rendererOrNull;
+        }
         this.filter = new AlternativesStringFilter();
     }
 
