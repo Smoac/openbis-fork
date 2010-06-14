@@ -148,15 +148,73 @@ public final class MailClient extends Authenticator implements IMailClient
         return session;
     }
 
-    private final static InternetAddress createInternetAddress(String internetAddress)
+    private final static InternetAddress createInternetAddress(From internetAddressOrNull)
     {
+        if (internetAddressOrNull == null)
+        {
+            return null;
+        }
+        return createInternetAddress(internetAddressOrNull.getValue());
+    }
+    
+    private final static InternetAddress createInternetAddress(String internetAddressOrNull)
+    {
+        if (internetAddressOrNull == null)
+        {
+            return null;
+        }
         try
         {
-            return new InternetAddress(internetAddress);
+            return new InternetAddress(internetAddressOrNull);
         } catch (AddressException e)
         {
-            operationLog.error("Could not parse address [" + internetAddress + "].", e);
+            operationLog.error("Could not parse address [" + internetAddressOrNull + "].", e);
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
+    }
+
+    private final static InternetAddress[] createInternetAddresses(EMailAddress[] addressesOrNull)
+    {
+        if (addressesOrNull == null)
+        {
             return null;
+        }
+        final InternetAddress[] addresses = new InternetAddress[addressesOrNull.length];
+        for (int i = 0; i < addresses.length; ++i)
+        {
+            addresses[i] = createInternetAddress(addressesOrNull[i]);
+        }
+        return addresses;
+    }
+    
+    private final static InternetAddress[] createInternetAddresses(String[] addressesOrNull)
+    {
+        if (addressesOrNull == null)
+        {
+            return null;
+        }
+        final InternetAddress[] addresses = new InternetAddress[addressesOrNull.length];
+        for (int i = 0; i < addresses.length; ++i)
+        {
+            addresses[i] = createInternetAddress(addressesOrNull[i]);
+        }
+        return addresses;
+    }
+    
+    private final static InternetAddress createInternetAddress(EMailAddress addressOrNull)
+    {
+        if (addressOrNull == null || addressOrNull.tryGetEmailAddress() == null)
+        {
+            return null;
+        }
+        try
+        {
+            return new InternetAddress(addressOrNull.tryGetEmailAddress(), addressOrNull
+                    .tryGetPersonalName());
+        } catch (Exception e)
+        {
+            operationLog.error("Could not parse address [" + addressOrNull + "].", e);
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
     }
 
@@ -166,8 +224,9 @@ public final class MailClient extends Authenticator implements IMailClient
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
-    public final void sendMessage(final String subject, final String content, final String replyTo,
-            final From fromOrNull, final String... recipients) throws EnvironmentFailureException
+    public final void sendMessage(final String subject, final String content,
+            final String replyToOrNull, final From fromOrNull, final String... recipients)
+            throws EnvironmentFailureException
     {
         IMessagePreparer messagePreparer = new IMessagePreparer()
             {
@@ -176,7 +235,23 @@ public final class MailClient extends Authenticator implements IMailClient
                     msg.setText(content);
                 }
             };
-        privateSendMessage(messagePreparer, subject, content, replyTo, fromOrNull, recipients);
+        privateSendMessage(messagePreparer, subject, content, createInternetAddress(replyToOrNull),
+                createInternetAddress(fromOrNull), createInternetAddresses(recipients));
+    }
+
+    public void sendEmailMessage(final String subject, final String content,
+            final EMailAddress replyToOrNull, final EMailAddress fromOrNull,
+            EMailAddress... recipients) throws EnvironmentFailureException
+    {
+        IMessagePreparer messagePreparer = new IMessagePreparer()
+            {
+                public void prepareMessage(MimeMessage msg) throws MessagingException
+                {
+                    msg.setText(content);
+                }
+            };
+        privateSendMessage(messagePreparer, subject, content, createInternetAddress(replyToOrNull),
+                createInternetAddress(fromOrNull), createInternetAddresses(recipients));
     }
 
     /**
@@ -211,7 +286,39 @@ public final class MailClient extends Authenticator implements IMailClient
                     msg.setContent(multipart);
                 }
             };
-        privateSendMessage(messagePreparer, subject, content, replyTo, fromOrNull, recipients);
+        privateSendMessage(messagePreparer, subject, content, createInternetAddress(replyTo),
+                createInternetAddress(fromOrNull), createInternetAddresses(recipients));
+    }
+
+    public void sendEmailMessageWithAttachment(final String subject, final String content,
+            final String filename, final DataHandler attachmentContent,
+            final EMailAddress replyToOrNull, final EMailAddress fromOrNull,
+            final EMailAddress... recipients) throws EnvironmentFailureException
+    {
+        IMessagePreparer messagePreparer = new IMessagePreparer()
+            {
+
+                public void prepareMessage(MimeMessage msg) throws MessagingException
+                {
+                    // Create a MIME message with 2 parts: text + attachments
+                    Multipart multipart = new MimeMultipart();
+
+                    // Create the text
+                    MimeBodyPart messageText = new MimeBodyPart();
+                    messageText.setText(content);
+                    multipart.addBodyPart(messageText);
+
+                    // Create the attachment
+                    MimeBodyPart messageAttachment = new MimeBodyPart();
+                    messageAttachment.setDataHandler(attachmentContent);
+                    messageAttachment.setFileName(filename);
+                    multipart.addBodyPart(messageAttachment);
+
+                    msg.setContent(multipart);
+                }
+            };
+        privateSendMessage(messagePreparer, subject, content, createInternetAddress(replyToOrNull),
+                createInternetAddress(fromOrNull), createInternetAddresses(recipients));
     }
 
     /**
@@ -221,32 +328,27 @@ public final class MailClient extends Authenticator implements IMailClient
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
     private final void privateSendMessage(IMessagePreparer messagePreparerOrNull, String subject,
-            String content, String replyTo, From fromOrNull, String[] recipients)
-            throws EnvironmentFailureException
+            String content, InternetAddress replyTo, InternetAddress fromOrNull,
+            InternetAddress[] recipients) throws EnvironmentFailureException
     {
-        String fromPerMail = fromOrNull != null ? fromOrNull.getValue() : from;
+        final InternetAddress fromPerMail =
+                (fromOrNull != null) ? fromOrNull : createInternetAddress(from);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Sending message from '" + fromPerMail + "' to recipients '"
                     + Arrays.asList(recipients) + "'");
         }
-        int len = recipients.length;
-        InternetAddress[] internetAddresses = new InternetAddress[len];
-        for (int i = 0; i < len; i++)
-        {
-            internetAddresses[i] = createInternetAddress(recipients[i]);
-        }
         MimeMessage msg = new MimeMessage(createSession());
         try
         {
-            msg.setFrom(createInternetAddress(fromPerMail));
+            msg.setFrom(fromPerMail);
             if (replyTo != null)
             {
                 InternetAddress[] replyToAddress =
-                    { createInternetAddress(replyTo) };
+                    { replyTo };
                 msg.setReplyTo(replyToAddress);
             }
-            msg.addRecipients(Message.RecipientType.TO, internetAddresses);
+            msg.addRecipients(Message.RecipientType.TO, recipients);
             msg.setSubject(subject, UNICODE_CHARSET);
             if (null != messagePreparerOrNull)
             {
@@ -363,4 +465,5 @@ public final class MailClient extends Authenticator implements IMailClient
     {
         void prepareMessage(MimeMessage msg) throws MessagingException;
     }
+
 }

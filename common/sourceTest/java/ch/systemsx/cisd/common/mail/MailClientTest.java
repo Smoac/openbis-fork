@@ -93,6 +93,34 @@ public final class MailClientTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public final void testEscapeReplyTo()
+    {
+        String path = workingDirectory.getPath() + "/emails";
+        File emailFolder = new File(path);
+        assert emailFolder.exists() == false;
+
+        MailClient mailClient = new MailClient("sender", "file://" + path);
+        // first mail
+        mailClient.sendEmailMessage("some message", "Hello world\nHow are you today?",
+                new EMailAddress("user@reply.com", "User, Special"), null,
+                new EMailAddress("a@b.c"), new EMailAddress("d@e.f"));
+        File[] files = emailFolder.listFiles();
+        assertEquals(1, files.length);
+        assertEquals("email", files[0].getName());
+        List<String> lines = FileUtilities.loadToStringList(files[0]);
+        assertEquals("Reply-To: \"User, Special\" <user@reply.com>", lines.get(2));
+
+        // second mail
+        mailClient.sendEmailMessage("some message", "Hello world\nHow are you today?",
+                new EMailAddress("user@reply.com", "User;\" Special"), null, new EMailAddress(
+                        "a@b.c"), new EMailAddress("d@e.f"));
+        files = emailFolder.listFiles();
+        Arrays.sort(files);
+        lines = FileUtilities.loadToStringList(files[1]);
+        assertEquals("Reply-To: \"User;\\\" Special\" <user@reply.com>", lines.get(2));
+    }
+
+    @Test
     public final void testAttachments()
     {
         String path = workingDirectory.getPath() + "/emails";
