@@ -48,15 +48,15 @@ class ChannelChooser
 
     public static LayoutContainer createViewerWithChannelChooser(
             final IChanneledViewerFactory viewerFactory, final DefaultChannelState channelState,
-            int channelsNum)
+            List<String> channelsNames)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
 
         int initialChannel = channelState.getDefaultChannel();
-        if (channelsNum > 1)
+        if (channelsNames.size() > 1)
         {
-            final List<String> channelNames = createChannelsDescriptions(channelsNum);
+            final List<String> channelNames = createChannelsDescriptions(channelsNames);
             ComboBox<SimpleComboValue<String>> channelChooser =
                     createChannelChooser(channelNames, initialChannel);
             channelChooser
@@ -94,27 +94,14 @@ class ChannelChooser
         return combo;
     }
 
-    private static List<String> createChannelsDescriptions(int channelsNum)
+    private static List<String> createChannelsDescriptions(List<String> realChannelsNames)
     {
-        assert channelsNum > 0 : "there has to be at least one channel";
+        assert realChannelsNames.size() > 0 : "there has to be at least one channel";
 
-        final List<String> channelNames = new ArrayList<String>();
-        for (int i = 0; i <= channelsNum; i++)
-        {
-            channelNames.add(createChannelName(i));
-        }
-        return channelNames;
-    }
-
-    private static String createChannelName(int channel)
-    {
-        if (channel == 0)
-        {
-            return "Merged Channels";
-        } else
-        {
-            return "Channel " + channel;
-        }
+        final List<String> allChannelsNames = new ArrayList<String>();
+        allChannelsNames.add("Merged Channels");
+        allChannelsNames.addAll(realChannelsNames);
+        return allChannelsNames;
     }
 
     /**

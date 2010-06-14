@@ -190,7 +190,7 @@ public class WellContentDialog extends Dialog
                 }
             };
         return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
-                .getChannelsNum());
+                .getChannelsNames());
     }
 
     /** @param channel Channel numbers start with 1. Channel 0 consists of all other channels merged. */
@@ -227,7 +227,7 @@ public class WellContentDialog extends Dialog
         methodWithParameters.addParameter("dataset", images.getDatasetCode());
         if (channel == 0)
         {
-            methodWithParameters.addParameter("channel", images.getChannelsNum());
+            methodWithParameters.addParameter("channel", images.getChannelsNames().size());
             methodWithParameters.addParameter("mergeChannels", "true");
         } else
         {

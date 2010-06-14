@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -38,8 +40,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class HCSDatasetLoaderFactory
 {
-    private static final Map<String, IContentRepositoryFactory> repositoryFactories = createFactories();
-    
+    private static final Map<String, IContentRepositoryFactory> repositoryFactories =
+            createFactories();
+
     private static final IImagingUploadDAO query = createQuery();
 
     private static IImagingUploadDAO createQuery()
@@ -113,7 +116,18 @@ public class HCSDatasetLoaderFactory
                     }
                     String absPath =
                             loader.tryGetStandardNodeAt(chosenChannel, wellLocation, tileLocation);
-                    return new AbsoluteImageReference(new FileBasedContent(new File(absPath)), null, null);
+                    return new AbsoluteImageReference(new FileBasedContent(new File(absPath)),
+                            null, null);
+                }
+
+                public List<String> getChannelsNames()
+                {
+                    List<String> names = new ArrayList<String>();
+                    for (int i = 0; i < getChannelCount(); i++)
+                    {
+                        names.add("Channel " + (i + 1));
+                    }
+                    return names;
                 }
 
             };

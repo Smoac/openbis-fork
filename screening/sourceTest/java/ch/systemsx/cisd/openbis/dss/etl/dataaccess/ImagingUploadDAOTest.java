@@ -127,6 +127,10 @@ public class ImagingUploadDAOTest extends AbstractDBTest
     {
         // test countChannelByDatasetIdOrExperimentId
         assertEquals(2, dao.countChannelByDatasetIdOrExperimentId(datasetId, experimentId));
+        String[] channelNames =
+                dao.getChannelNamesByDatasetIdOrExperimentId(datasetId, experimentId);
+        assertEquals("dsChannel", channelNames[0]);
+        assertEquals("expChannel", channelNames[1]);
 
         // test getChannelIdsByDatasetIdOrExperimentId
         long[] channels = dao.getChannelIdsByDatasetIdOrExperimentId(datasetId, experimentId);

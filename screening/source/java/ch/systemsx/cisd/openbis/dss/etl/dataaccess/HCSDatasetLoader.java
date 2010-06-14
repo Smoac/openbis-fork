@@ -21,6 +21,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -52,7 +55,10 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     private final IContentRepository contentRepository;
 
-    public HCSDatasetLoader(IImagingUploadDAO query, String datasetPermId, IContentRepository contentRepository)
+    private List<String> channelNames;
+
+    public HCSDatasetLoader(IImagingUploadDAO query, String datasetPermId,
+            IContentRepository contentRepository)
     {
         this.contentRepository = contentRepository;
         this.query = query;
@@ -135,8 +141,8 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
             if (imageDTO == null)
             {
                 imageDTO =
-                    query.tryGetImage(chosenChannelId, getDataset().getId(), tileLocation,
-                            wellLocation);
+                        query.tryGetImage(chosenChannelId, getDataset().getId(), tileLocation,
+                                wellLocation);
                 content =
                         new ThumbnailContent(contentRepository.getContent(imageDTO.getFilePath()),
                                 thumbnailSizeOrNull);
@@ -163,10 +169,11 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
             return null;
         }
     }
-    
+
     private static final class ThumbnailContent implements IContent
     {
         private final IContent content;
+
         private final byte[] thumbnailBytes;
 
         ThumbnailContent(IContent content, Size size)
@@ -174,7 +181,8 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
             this.content = content;
             InputStream inputStream = content.getInputStream();
             BufferedImage image = ImageUtil.loadImage(inputStream);
-            BufferedImage thumbnail = ImageUtil.createThumbnail(image, size.getWidth(), size.getHeight());
+            BufferedImage thumbnail =
+                    ImageUtil.createThumbnail(image, size.getWidth(), size.getHeight());
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             try
             {
@@ -205,6 +213,18 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         {
             return 0;
         }
-        
+
+    }
+
+    public List<String> getChannelsNames()
+    {
+        if (channelNames == null)
+        {
+            String[] namesAsArray =
+                    query.getChannelNamesByDatasetIdOrExperimentId(getDataset().getId(),
+                            getContainer().getExperimentId());
+            channelNames = new ArrayList<String>(Arrays.asList(namesAsArray));
+        }
+        return channelNames;
     }
 }

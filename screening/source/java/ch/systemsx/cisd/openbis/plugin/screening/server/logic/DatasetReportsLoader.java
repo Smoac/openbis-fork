@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
@@ -69,7 +71,14 @@ public class DatasetReportsLoader
         params.setColsNum(asNum(values.get(2)));
         params.setTileRowsNum(asNum(values.get(3)));
         params.setTileColsNum(asNum(values.get(4)));
-        params.setChannelsNum(asNum(values.get(5)));
+        String channelsNamesCsv = asText(values.get(5));
+        String[] splittedChannelsNames = channelsNamesCsv.split(",");
+        List<String> channelNames = new ArrayList<String>();
+        for (String val : splittedChannelsNames)
+        {
+            channelNames.add(StringEscapeUtils.escapeCsv(val));
+        }
+        params.setChannelsNames(channelNames);
         return params;
     }
 

@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
@@ -54,7 +56,7 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
 
     private static final String TILE_COLS_NUM = "Tile columns";
 
-    private static final String CHANNELS_NUM = "Number of channels";
+    private static final String CHANNELS_NAMES = "Names of channels";
 
     // ----------
 
@@ -88,7 +90,7 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
         builder.addHeader(COLUMNS);
         builder.addHeader(TILE_ROWS_NUM);
         builder.addHeader(TILE_COLS_NUM);
-        builder.addHeader(CHANNELS_NUM);
+        builder.addHeader(CHANNELS_NAMES);
     }
 
     private void addReportRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
@@ -96,12 +98,21 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
     {
         Geometry plateGeometry = imageAccessor.getPlateGeometry();
         Geometry wellGeometry = imageAccessor.getWellGeometry();
-        int channels = imageAccessor.getChannelCount();
+        List<String> channelsNames = imageAccessor.getChannelsNames();
+        StringBuilder sb = new StringBuilder();
+        for (String val : channelsNames)
+        {
+            if (sb.length() != 0)
+            {
+                sb.append(",");
+            }
+            sb.append(StringEscapeUtils.escapeCsv(val));
+        }
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(asText(dataset.getDatasetCode()),
                         asNum(plateGeometry.getRows()), asNum(plateGeometry.getColumns()),
-                        asNum(wellGeometry.getRows()), asNum(wellGeometry.getColumns()),
-                        asNum(channels));
+                        asNum(wellGeometry.getRows()), asNum(wellGeometry.getColumns()), asText(sb
+                                .toString()));
         builder.addRow(row);
     }
 

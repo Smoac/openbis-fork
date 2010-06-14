@@ -30,30 +30,30 @@ import ch.systemsx.cisd.bds.hcs.Location;
 public interface IImagingUploadDAO extends TransactionQuery
 {
     public static final int FETCH_SIZE = 1000;
-    public static final String SQL_IMAGE = ", CHANNEL_STACKS cs, SPOTS s "
-        + "where                                                                "
-        // where acquired_images.channel.id = ?{channelId}
-        // and acquired_images.channel_stack.dataset.id = ?{datasetId}
-        + "ai.CHANNEL_ID = ?{1} and cs.DS_ID = ?{2} and "
-        // and acquired_images.channel_stack.x = tileX
-        // and acquired_images.channel_stack.y = tileY
-        // and acquired_images.channel_stack.spot.x = wellX
-        // and acquired_images.channel_stack.spot.y = wellY
-        + "cs.x = ?{3.x} and cs.y = ?{3.y} and s.x = ?{4.x} and s.y = ?{4.y} and "
-        // joins
-        + "ai.CHANNEL_STACK_ID = cs.ID and cs.SPOT_ID = s.ID";
+
+    public static final String SQL_IMAGE =
+            ", CHANNEL_STACKS cs, SPOTS s "
+                    + "where                                                                "
+                    // where acquired_images.channel.id = ?{channelId}
+                    // and acquired_images.channel_stack.dataset.id = ?{datasetId}
+                    + "ai.CHANNEL_ID = ?{1} and cs.DS_ID = ?{2} and "
+                    // and acquired_images.channel_stack.x = tileX
+                    // and acquired_images.channel_stack.y = tileY
+                    // and acquired_images.channel_stack.spot.x = wellX
+                    // and acquired_images.channel_stack.spot.y = wellY
+                    + "cs.x = ?{3.x} and cs.y = ?{3.y} and s.x = ?{4.x} and s.y = ?{4.y} and "
+                    // joins
+                    + "ai.CHANNEL_STACK_ID = cs.ID and cs.SPOT_ID = s.ID";
 
     // select acquired_images.images.* from acquired_images
-    @Select("select i.* "
-            + "from ACQUIRED_IMAGES as ai join IMAGES as i on ai.IMG_ID = i.ID "
+    @Select("select i.* " + "from ACQUIRED_IMAGES as ai join IMAGES as i on ai.IMG_ID = i.ID "
             + SQL_IMAGE)
     public ImgImageDTO tryGetImage(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
-    
+
     // select acquired_images.thumbnail.* from acquired_images
     @Select("select i.* "
-            + "from ACQUIRED_IMAGES as ai join IMAGES as i on ai.THUMBNAIL_ID = i.ID "
-            + SQL_IMAGE)
+            + "from ACQUIRED_IMAGES as ai join IMAGES as i on ai.THUMBNAIL_ID = i.ID " + SQL_IMAGE)
     public ImgImageDTO tryGetThumbnail(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
 
@@ -73,6 +73,9 @@ public interface IImagingUploadDAO extends TransactionQuery
 
     @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
     public int countChannelByDatasetIdOrExperimentId(long datasetId, long experimentId);
+
+    @Select("select name from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by name")
+    public String[] getChannelNamesByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
     @Select(sql = "select id from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by name", fetchSize = FETCH_SIZE)
     public long[] getChannelIdsByDatasetIdOrExperimentId(long datasetId, long experimentId);

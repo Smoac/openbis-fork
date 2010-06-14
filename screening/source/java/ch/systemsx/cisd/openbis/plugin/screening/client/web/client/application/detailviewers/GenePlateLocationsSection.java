@@ -2,6 +2,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils.withLabel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -59,7 +60,8 @@ class GenePlateLocationsSection extends SingleSectionPanel
 
     private final DefaultChannelState channelState;
 
-    public GenePlateLocationsSection(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+    public GenePlateLocationsSection(
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             final TechId materialId, ExperimentIdentifier experimentIdentifierOrNull)
     {
         super(
@@ -142,7 +144,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
             return new Text(
                     "This gene has not been suppressed in any plate measured in the chosen experiment.");
         }
-        int totalChannels = findMaxChannelNumber(wellLocations);
+        List<String> totalChannels = findMaxChannelCollection(wellLocations);
         return ChannelChooser.createViewerWithChannelChooser(new IChanneledViewerFactory()
             {
                 public Widget create(int channel)
@@ -152,18 +154,24 @@ class GenePlateLocationsSection extends SingleSectionPanel
             }, channelState, totalChannels);
     }
 
-    private static int findMaxChannelNumber(List<WellContent> wells)
-    {
-        int max = 0;
+    private static List<String> findMaxChannelCollection(List<WellContent> wells)
+    {// FIXME 2010-06-14, IA: channel number-name may not work!!!!
+        List<String> channels = new ArrayList<String>();
         for (WellContent well : wells)
         {
             DatasetImagesReference images = well.tryGetImages();
             if (images != null)
             {
-                max = Math.max(max, images.getImageParameters().getChannelsNum());
+                for (String val : images.getImageParameters().getChannelsNames())
+                {
+                    if (channels.contains(val) == false)
+                    {
+                        channels.add(val);
+                    }
+                }
             }
         }
-        return max;
+        return channels;
     }
 
     private Widget createGeneLocationPanel(List<WellContent> wellLocations, int channel)
@@ -212,7 +220,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
         {
             return new Text("Incorrect well code.");
         }
-        if (channel > images.getImageParameters().getChannelsNum())
+        if (channel > images.getImageParameters().getChannelsNames().size())
         {
             return new Text("No images available for this channel.");
         }

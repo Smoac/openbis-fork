@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import java.util.List;
+
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
@@ -34,6 +36,8 @@ public interface IHCSDatasetLoader
     Geometry getWellGeometry();
 
     int getChannelCount();
+
+    List<String> getChannelsNames();
 
     /**
      * @param chosenChannel start from 1

@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -31,7 +33,7 @@ public class WellImages
 
     private final int tileColsNum;
 
-    private final int channelsNum;
+    private final List<String> channelsNames;
 
     private final String datasetCode;
 
@@ -43,7 +45,7 @@ public class WellImages
     {
         this.tileRowsNum = imageParams.getTileRowsNum();
         this.tileColsNum = imageParams.getTileColsNum();
-        this.channelsNum = imageParams.getChannelsNum();
+        this.channelsNames = imageParams.getChannelsNames();
         this.datasetCode = imageParams.getDatasetCode();
         this.downloadUrl = downloadUrl;
         this.location = location;
@@ -64,9 +66,9 @@ public class WellImages
         return tileColsNum;
     }
 
-    public int getChannelsNum()
+    public List<String> getChannelsNames()
     {
-        return channelsNum;
+        return channelsNames;
     }
 
     public String getDownloadUrl()

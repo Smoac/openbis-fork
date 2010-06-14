@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -36,7 +38,7 @@ public class PlateImageParameters implements IsSerializable
 
     private int tileColsNum;
 
-    private int channelsNum;
+    private List<String> channelsNames;
 
     public int getRowsNum()
     {
@@ -78,16 +80,6 @@ public class PlateImageParameters implements IsSerializable
         this.tileColsNum = tileColsNum;
     }
 
-    public int getChannelsNum()
-    {
-        return channelsNum;
-    }
-
-    public void setChannelsNum(int channelsNum)
-    {
-        this.channelsNum = channelsNum;
-    }
-
     public String getDatasetCode()
     {
         return datasetCode;
@@ -97,4 +89,15 @@ public class PlateImageParameters implements IsSerializable
     {
         this.datasetCode = datasetCode;
     }
+
+    public void setChannelsNames(List<String> channelsNames)
+    {
+        this.channelsNames = channelsNames;
+    }
+
+    public List<String> getChannelsNames()
+    {
+        return channelsNames;
+    }
+
 }
