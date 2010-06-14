@@ -190,10 +190,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             for (int col = 1; col <= plateGeometry.getColumns(); col++)
             {
                 AbsoluteImageReference image =
-                        imageAccessor.tryGetImage(1, new Location(col, row), new Location(1, 1));
+                        imageAccessor.tryGetImage(1, new Location(col, row), new Location(1, 1), null);
                 if (image != null)
                 {
-                    return image.getAbsoluteImageFile();
+                    return image.getContent();
                 }
             }
         }
@@ -244,7 +244,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                     imageFiles.add(null);
                 } else
                 {
-                    imageFiles.add(image.getAbsoluteImageFile());
+                    imageFiles.add(image.getContent());
                 }
             }
         } finally
@@ -297,7 +297,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         try
         {
             return ImageChannelsUtils.getImage(imageAccessor, wellLocation, tileLocation, imageRef
-                    .getChannel() + 1);
+                    .getChannel() + 1, null);
         } catch (EnvironmentFailureException e)
         {
             return null; // no image found

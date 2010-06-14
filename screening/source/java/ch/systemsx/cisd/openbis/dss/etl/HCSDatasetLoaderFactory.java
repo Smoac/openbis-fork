@@ -29,6 +29,7 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
+import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -104,8 +105,12 @@ public class HCSDatasetLoaderFactory
                 }
 
                 public AbsoluteImageReference tryGetImage(int chosenChannel, Location wellLocation,
-                        Location tileLocation)
+                        Location tileLocation, Size thumbnailSizeOrNull)
                 {
+                    if (thumbnailSizeOrNull != null)
+                    {
+                        return null;
+                    }
                     String absPath =
                             loader.tryGetStandardNodeAt(chosenChannel, wellLocation, tileLocation);
                     return new AbsoluteImageReference(new FileBasedContent(new File(absPath)), null, null);

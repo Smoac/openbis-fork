@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 
 /**
  * @author Tomasz Pylak
@@ -39,5 +40,5 @@ public interface IHCSDatasetLoader
      * @return image (with absolute path, page and color)
      */
     AbsoluteImageReference tryGetImage(int chosenChannel, Location wellLocation,
-            Location tileLocation);
+            Location tileLocation, Size thumbnailSizeOrNull);
 }

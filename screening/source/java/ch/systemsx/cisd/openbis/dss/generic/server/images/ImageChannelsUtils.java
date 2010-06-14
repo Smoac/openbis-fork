@@ -54,18 +54,19 @@ public class ImageChannelsUtils
         Location tileLocation = params.getTileLocation();
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
 
+        Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
         if (params.isMergeAllChannels())
         {
             for (int chosenChannel = 1; chosenChannel <= params.getChannel(); chosenChannel++)
             {
                 AbsoluteImageReference image =
-                        getImage(imageAccessor, wellLocation, tileLocation, chosenChannel);
+                        getImage(imageAccessor, wellLocation, tileLocation, chosenChannel, thumbnailSizeOrNull);
                 images.add(image);
             }
         } else
         {
             AbsoluteImageReference image =
-                    getImage(imageAccessor, wellLocation, tileLocation, params.getChannel());
+                    getImage(imageAccessor, wellLocation, tileLocation, params.getChannel(), thumbnailSizeOrNull);
             images.add(image);
         }
         imageAccessor.close();
@@ -91,14 +92,13 @@ public class ImageChannelsUtils
 
             resultImage = selectSingleChannel(params, imageReference);
         }
-        resultImage = asThumbnailIfRequested(params, resultImage);
         return resultImage;
     }
 
     private static BufferedImage selectSingleChannel(TileImageReference params,
             AbsoluteImageReference imageReference)
     {
-        BufferedImage image = ImageUtil.loadImage(imageReference.getAbsoluteImageFile().getInputStream());
+        BufferedImage image = ImageUtil.loadImage(imageReference.getContent().getInputStream());
         ColorComponent colorComponent = imageReference.tryGetColorComponent();
         if (colorComponent == null)
         {
@@ -140,7 +140,7 @@ public class ImageChannelsUtils
             {
                 return null;
             }
-            plainFiles.add(image.getAbsoluteImageFile());
+            plainFiles.add(image.getContent());
         }
         return plainFiles;
     }
@@ -150,7 +150,7 @@ public class ImageChannelsUtils
         IContent mergedChannelsImage = null;
         for (AbsoluteImageReference image : imageReferences)
         {
-            IContent imageFile = image.getAbsoluteImageFile();
+            IContent imageFile = image.getContent();
             if (mergedChannelsImage == null)
             {
                 mergedChannelsImage = imageFile;
@@ -215,33 +215,19 @@ public class ImageChannelsUtils
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
     public static AbsoluteImageReference getImage(IHCSDatasetLoader imageAccessor,
-            Location wellLocation, Location tileLocation, int chosenChannel)
+            Location wellLocation, Location tileLocation, int chosenChannel, Size thumbnailSizeOrNull)
     {
         AbsoluteImageReference image =
-                imageAccessor.tryGetImage(chosenChannel, wellLocation, tileLocation);
+                imageAccessor.tryGetImage(chosenChannel, wellLocation, tileLocation, thumbnailSizeOrNull);
         if (image != null)
         {
             return image;
         } else
         {
-            throw EnvironmentFailureException.fromTemplate(
-                    "No image found for well %s, tile %s and channel %d", wellLocation,
-                    tileLocation, chosenChannel);
-        }
-    }
-
-    private static BufferedImage asThumbnailIfRequested(TileImageReference params,
-            BufferedImage image)
-    {
-        Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
-        if (thumbnailSizeOrNull != null)
-        {
-            int width = thumbnailSizeOrNull.getWidth();
-            int height = thumbnailSizeOrNull.getHeight();
-            return ImageUtil.createThumbnail(image, width, height);
-        } else
-        {
-            return image;
+            throw EnvironmentFailureException.fromTemplate("No "
+                    + (thumbnailSizeOrNull != null ? "thumbnail" : "image")
+                    + " found for well %s, tile %s and channel %d", wellLocation, tileLocation,
+                    chosenChannel);
         }
     }
 

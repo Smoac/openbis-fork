@@ -77,6 +77,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  */
 public final class PlateStorageProcessor extends AbstractStorageProcessor
 {
+
+
     /** The directory where <i>original</i> data could be found. */
     private static final String DIR_ORIGINAL = "original";
 
@@ -88,7 +90,13 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     // tiles geometry, e.g. 3x4 if the well is divided into 12 tiles (3 rows, 4 columns)
     private static final String SPOT_GEOMETRY_PROPERTY = "well_geometry";
+    
+    private static final String THUMBNAIL_MAX_WIDTH_PROPERTY = "thumbnail-max-width";
+    private static final int DEFAULT_THUMBNAIL_MAX_WIDTH = 200;
 
+    private static final String THUMBNAIL_MAX_HEIGHT_PROPERTY = "thumbnail-max-height";
+    private static final int DEFAULT_THUMBNAIL_MAX_HEIGHT = 160;
+    
     private static final String FILE_EXTRACTOR_PROPERTY = "file-extractor";
 
     // a class of the old-style image extractor
@@ -105,6 +113,10 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private final List<String> channelNames;
 
+    private final int thumbnailMaxWidth;
+    
+    private final int thumbnailMaxHeight;
+    
     // one of the extractors is always null and one not null
     private final IHCSImageFileExtractor imageFileExtractor;
 
@@ -119,6 +131,12 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         this.spotGeometry = Geometry.createFromString(spotGeometryText);
 
         this.channelNames = PropertyUtils.getMandatoryList(properties, CHANNEL_NAMES);
+        thumbnailMaxWidth =
+                PropertyUtils.getInt(properties, THUMBNAIL_MAX_WIDTH_PROPERTY,
+                        DEFAULT_THUMBNAIL_MAX_WIDTH);
+        thumbnailMaxHeight =
+                PropertyUtils.getInt(properties, THUMBNAIL_MAX_HEIGHT_PROPERTY,
+                        DEFAULT_THUMBNAIL_MAX_HEIGHT);
 
         String fileExtractorClass = PropertyUtils.getProperty(properties, FILE_EXTRACTOR_PROPERTY);
         if (fileExtractorClass != null)
@@ -273,8 +291,18 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         List<AcquiredPlateImage> plateImages = extractionResult.getImages();
 
         File imagesInStoreFolder = moveFileToDirectory(incomingDataSetDirectory, originalFolder);
+        
+        createThumbnails(rootDirectory, imagesInStoreFolder, plateImages);
+        
+
+        storeInDatabase(experiment, dataSetInformation, extractionResult);
+        return rootDirectory;
+    }
+
+    private void createThumbnails(final File rootDirectory, File imagesInStoreFolder,
+            List<AcquiredPlateImage> plateImages)
+    {
         File thumbnailsFile = new File(rootDirectory, Constants.HDF5_CONTAINER_FILE_NAME);
-        System.out.println(thumbnailsFile);
         IHDF5Writer writer = HDF5FactoryProvider.get().open(thumbnailsFile);
         String relativeImagesDirectory =
             getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder);
@@ -287,26 +315,27 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
             imageReference.setRelativeImageFolder(relativeImagesDirectory);
             File img = new File(imagesInStoreFolder, imagePath);
             BufferedImage image = ImageUtil.loadImage(img);
-            BufferedImage thumbnail = ImageUtil.createThumbnail(image, 100, 60);
+            BufferedImage thumbnail = ImageUtil.createThumbnail(image, thumbnailMaxWidth, thumbnailMaxHeight);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             try
             {
                 ImageIO.write(thumbnail, "png", output);
+                int lastIndex = imagePath.lastIndexOf('.');
+                if (lastIndex > 0)
+                {
+                    imagePath = imagePath.substring(0, lastIndex);
+                }
+                imagePath += ".png";
                 String path = relativeThumbnailFilePath + ":" + imagePath;
                 plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path,
                         imageReference.tryGetPage(), imageReference.tryGetColorComponent()));
-                System.out.println(path);
-                writer.writeByteArray(path, output.toByteArray());
+                writer.writeByteArray(imagePath, output.toByteArray());
             } catch (IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
         writer.close();
-        
-
-        storeInDatabase(experiment, dataSetInformation, extractionResult);
-        return rootDirectory;
     }
     
     private String getRelativeImagesDirectory(File rootDirectory, File imagesInStoreFolder)

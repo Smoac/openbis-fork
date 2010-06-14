@@ -33,9 +33,6 @@ public class ImgImageDTO extends AbstractHashable
     @ResultColumn("PATH")
     private String filePath;
 
-    @ResultColumn("THUMBNAIL_PATH")
-    private String fileThumbnailPath;
-    
     @ResultColumn("PAGE")
     private Integer pageOrNull;
 
@@ -74,16 +71,6 @@ public class ImgImageDTO extends AbstractHashable
     public void setFilePath(String filePath)
     {
         this.filePath = filePath;
-    }
-
-    public final String getFileThumbnailPath()
-    {
-        return fileThumbnailPath;
-    }
-
-    public final void setFileThumbnailPath(String fileThumbnailPath)
-    {
-        this.fileThumbnailPath = fileThumbnailPath;
     }
 
     public Integer getPage()

@@ -35,7 +35,7 @@ public class AbsoluteImageReference extends AbstractImageReference
         this.content = content;
     }
 
-    public IContent getAbsoluteImageFile()
+    public IContent getContent()
     {
         return content;
     }
