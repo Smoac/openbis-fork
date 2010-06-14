@@ -37,7 +37,7 @@ class ColumnSortUtils
     static <T> Comparator<GridRowModel<T>> createComparator(final SortDir sortDir,
             final IColumnDefinition<T> sortField)
     {
-        // compare code column with a special alphanum comparator
+        // compare code and identifier columns with a special alphanum comparator
         final Comparator<GridRowModel<T>> comparator =
                 isAlphanum(sortField) ? createAlphanumComparator(sortField)
                         : createDefaiultComparator(sortField);
@@ -48,7 +48,8 @@ class ColumnSortUtils
 
     private static <T> boolean isAlphanum(final IColumnDefinition<T> field)
     {
-        return field.getIdentifier().contains("CODE");
+        return field.getIdentifier().contains("CODE")
+                || field.getIdentifier().contains("IDENTIFIER");
     }
 
     @SuppressWarnings("unchecked")
