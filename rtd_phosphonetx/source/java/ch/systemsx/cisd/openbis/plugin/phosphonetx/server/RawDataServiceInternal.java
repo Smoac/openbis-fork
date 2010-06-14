@@ -101,13 +101,17 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
 
         List<MsInjectionSample> samples = loadAllRawDataSamples(session);
         Set<Long> sampleIDs = new HashSet<Long>();
+        for (long id : rawDataSampleIDs)
+        {
+            sampleIDs.add(id);
+        }
         List<String> dataSetCodes = new ArrayList<String>();
         Map<String, String> parameterBindings = new HashMap<String, String>();
         for (MsInjectionSample sample : samples)
         {
-            if (RAW_DATA_SAMPLE_VALIDATOR.isValid(person, sample))
+            if (RAW_DATA_SAMPLE_VALIDATOR.isValid(person, sample)
+                    && sampleIDs.contains(sample.getSample().getId()))
             {
-                sampleIDs.add(sample.getSample().getId());
                 Map<String, ExternalData> latestDataSets = sample.getLatestDataSets();
                 ExternalData latestDataSet = latestDataSets.get(dataSetType);
                 if (latestDataSet != null)

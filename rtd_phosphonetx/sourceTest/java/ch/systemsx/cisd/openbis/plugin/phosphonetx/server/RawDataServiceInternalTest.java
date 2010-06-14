@@ -92,7 +92,7 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
         prepareGetSession();
         prepareListRawDataSamples(1L, 2L, 3L, 42L);
         final long[] ids = new long[]
-            { 2, 3 };
+            { 2};
         context.checking(new Expectations()
             {
                 {
@@ -106,10 +106,9 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
                     one(boFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
 
-                    List<String> dataSetCodes = Arrays.asList("ds-2", "ds-42");
+                    List<String> dataSetCodes = Arrays.asList("ds-2");
                     HashMap<String, String> parameterBindings = new HashMap<String, String>();
                     parameterBindings.put("ds-2", "s-2");
-                    parameterBindings.put("ds-42", "s-42");
                     one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2", dataSetCodes,
                             parameterBindings);
                 }
