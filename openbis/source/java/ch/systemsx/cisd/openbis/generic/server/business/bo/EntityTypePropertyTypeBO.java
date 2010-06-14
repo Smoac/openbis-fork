@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 
@@ -32,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -93,8 +91,6 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     public void loadAssignment(String propertyTypeCode, String entityTypeCode)
     {
-        StopWatch watch = new StopWatch();
-        watch.start();
         EntityTypePE entityType = findEntityType(entityTypeCode);
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
         IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
@@ -137,48 +133,6 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         return getEntityPropertyTypeDAO(entityKind).listEntityIds(entityType);
     }
 
-    private void slowAddPropertyWithDefaultValue(EntityTypePE entityType,
-            PropertyTypePE propertyType, String defaultValue,
-            List<IEntityPropertiesHolder> entities, String errorMsgTemplate)
-    {
-        final int size = entities.size();
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(getMemoryUsageMessage());
-        }
-        if (size > 0)
-        {
-            if (StringUtils.isEmpty(defaultValue))
-            {
-                throw new UserFailureException(String.format(errorMsgTemplate, size, entityKind
-                        .getLabel(), createPlural(size), entityType.getCode()));
-            }
-            PersonPE registrator = findRegistrator();
-            String validatedValue =
-                    propertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
-                            defaultValue);
-            for (int i = 0; i < entities.size(); i++)
-            {
-                if (i > 0 && i % 1000 == 0)
-                {
-                    if (operationLog.isDebugEnabled())
-                    {
-                        operationLog.info("entity " + i + ", " + getMemoryUsageMessage());
-                    }
-                    getSessionFactory().getCurrentSession().flush();
-                }
-                IEntityPropertiesHolder entity = entities.get(i);
-                final EntityPropertyPE property =
-                        propertiesConverter.createValidatedProperty(propertyType, assignment,
-                                registrator, validatedValue);
-                if (property != null)
-                {
-                    entity.addProperty(property);
-                }
-            }
-        }
-    }
-
     private void addPropertyWithDefaultValue(EntityTypePE entityType, PropertyTypePE propertyType,
             String defaultValue, List<Long> entityIds, String errorMsgTemplate)
     {
@@ -202,8 +156,6 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             final EntityPropertyPE property =
                     propertiesConverter.createValidatedProperty(propertyType, assignment,
                             registrator, validatedValue);
-            getSessionFactory().getCurrentSession().flush();
-            getSessionFactory().getCurrentSession().clear();
 
             entityPropertyTypeDAO.createProperties(property, entityIds);
 
@@ -240,16 +192,15 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         {
             final EntityTypePE entityType = assignment.getEntityType();
             final PropertyTypePE propertyType = assignment.getPropertyType();
-            List<IEntityPropertiesHolder> entities =
-                    getEntityPropertyTypeDAO(entityKind).listEntitiesWithoutPropertyValue(
-                            entityType, propertyType);
             String errorMsgTemplate =
                     "Cannot change assignment to mandatory. "
                             + "Please specify 'Update Value', which will be used for %s %s%s "
                             + "of type '%s' already existing in the database "
                             + "without any value for this property.";
-            // TODO 2009-07-01, Piotr Buczek: switch to addPropertyWithDefaultValue
-            slowAddPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities,
+            List<Long> entityIds =
+                    getEntityPropertyTypeDAO(entityKind).listIdsOfEntitiesWithoutPropertyValue(
+                            assignment);
+            addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entityIds,
                     errorMsgTemplate);
         }
         assignment.setMandatory(isMandatory);

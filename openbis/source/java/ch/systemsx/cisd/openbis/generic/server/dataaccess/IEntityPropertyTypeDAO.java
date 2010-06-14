@@ -73,12 +73,11 @@ public interface IEntityPropertyTypeDAO
     public List<Long> listEntityIds(final EntityTypePE entityType) throws DataAccessException;
 
     /**
-     * Returns a list of all entities of given <var>entityType</var> that don't have value with
-     * given <var>propertyType</var>.
+     * Returns a list of ids of all entities of type from specified assignment with that don't have
+     * any value for property assigned with the assignment.
      */
-    public List<IEntityPropertiesHolder> listEntitiesWithoutPropertyValue(
-            final EntityTypePE entityType, final PropertyTypePE propertyType)
-            throws DataAccessException;
+    public List<Long> listIdsOfEntitiesWithoutPropertyValue(
+            final EntityTypePropertyTypePE assignment) throws DataAccessException;
 
     /**
      * Fills term usage statistics for the entity kind represented by this class.

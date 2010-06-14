@@ -119,20 +119,6 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         final EntityTypePropertyTypePE etpt = (EntityTypePropertyTypePE) criteria.uniqueResult();
         return etpt;
     }
-    
-	public int countAssignmentValues(String entityTypeCode, String propertyTypeCode)
-    {
-        assert entityTypeCode != null : "Unspecified entity type.";
-        assert propertyTypeCode != null : "Unspecified property type.";
-
-        String query =
-                String.format("SELECT count(pv) FROM %s pa join pa.propertyValues pv "
-                        + "WHERE pa.propertyTypeInternal.simpleCode = ? "
-                        + "AND pa.entityTypeInternal.code = ?", entityKind
-                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
-        return ((Long) (getHibernateTemplate().find(query,
-                toArray(propertyTypeCode, entityTypeCode)).get(0))).intValue();
-    }
 
     public final void createEntityPropertyTypeAssignment(
             final EntityTypePropertyTypePE entityPropertyTypeAssignement)
@@ -192,6 +178,30 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                         "SELECT pv.entity.id FROM %s pa join pa.propertyValues pv WHERE pa = ?",
                         entityKind.getEntityTypePropertyTypeAssignmentClass().getSimpleName());
         final List<Long> list = cast(getHibernateTemplate().find(query, toArray(assignment)));
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format(
+                    "LIST: found %s ids of entities of type '%s' assigned to property '%s'.", list
+                            .size(), assignment.getEntityType(), assignment.getPropertyType()));
+        }
+        return list;
+    }
+
+    public List<Long> listIdsOfEntitiesWithoutPropertyValue(
+            final EntityTypePropertyTypePE assignment) throws DataAccessException
+    {
+        assert assignment != null : "Unspecified assignment.";
+
+        String query =
+                String
+                        .format(
+                                "SELECT s.id FROM %s s WHERE s.sampleType = ? AND s not in (SELECT sp.entity FROM %s sp WHERE sp.entityTypePropertyType = ?)",
+                                entityKind.getEntityClass().getSimpleName(), entityKind
+                                        .getEntityPropertyClass().getSimpleName());
+        final List<Long> list =
+                cast(getHibernateTemplate().find(query,
+                        toArray(assignment.getEntityType(), assignment)));
 
         if (operationLog.isInfoEnabled())
         {
@@ -290,50 +300,6 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         long freeMemory = runtime.freeMemory() / mb;
         long maxMemory = runtime.maxMemory() / mb;
         return "MEMORY (in MB): free:" + freeMemory + " total:" + totalMemory + " max:" + maxMemory;
-    }
-
-    public List<IEntityPropertiesHolder> listEntitiesWithoutPropertyValue(
-            final EntityTypePE entityType, final PropertyTypePE propertyType)
-            throws DataAccessException
-    {
-        assert entityType != null : "Unspecified entity type.";
-        assert propertyType != null : "Unspecified property type.";
-
-        final DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getEntityClass());
-        criteria.add(Restrictions.eq(entityKind.getEntityTypeFieldName(), entityType));
-        //
-        final List<IEntityPropertiesHolder> list =
-                cast(getHibernateTemplate().findByCriteria(criteria));
-
-        // TODO 2009-07-01, Piotr Buczek: filter results with criteria
-        // final DetachedCriteria propertyTypesCriteria =
-        // DetachedCriteria.forClass(entityKind.getEntityPropertyClass());
-        // propertyTypesCriteria.add(Restrictions.eq("entityTypePropertyType", propertyType));
-        // criteria.add(Subqueries.notExists(propertyTypesCriteria.setProjection(Projections
-        // .property(...))));
-        final List<IEntityPropertiesHolder> result =
-                new ArrayList<IEntityPropertiesHolder>(list.size());
-        for (IEntityPropertiesHolder entity : list)
-        {
-            if (isEntityWithoutPropertyValue(entity, propertyType))
-            {
-                result.add(entity);
-            }
-        }
-        return result;
-    }
-
-    private final boolean isEntityWithoutPropertyValue(final IEntityPropertiesHolder entity,
-            final PropertyTypePE propertyType)
-    {
-        for (EntityPropertyPE property : entity.getProperties())
-        {
-            if (propertyType.equals(property.getEntityTypePropertyType()))
-            {
-                return false;
-            }
-        }
-        return true;
     }
 
     public void fillTermUsageStatistics(List<VocabularyTermWithStats> termsWithStats,
@@ -436,6 +402,20 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
 
         validatePE(entity);
         getHibernateTemplate().flush();
+    }
+
+    public int countAssignmentValues(String entityTypeCode, String propertyTypeCode)
+    {
+        assert entityTypeCode != null : "Unspecified entity type.";
+        assert propertyTypeCode != null : "Unspecified property type.";
+
+        String query =
+                String.format("SELECT count(pv) FROM %s pa join pa.propertyValues pv "
+                        + "WHERE pa.propertyTypeInternal.simpleCode = ? "
+                        + "AND pa.entityTypeInternal.code = ?", entityKind
+                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+        return ((Long) (getHibernateTemplate().find(query,
+                toArray(propertyTypeCode, entityTypeCode)).get(0))).intValue();
     }
 
     public void delete(EntityTypePropertyTypePE assignment)
