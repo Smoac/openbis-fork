@@ -29,8 +29,8 @@ import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.application.ui.PageControllerHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.GWTUtils;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * Entry point of <i>GWT</i> <i>CIFEX</i>.
@@ -72,18 +72,19 @@ public final class CIFEXEntryPoint implements EntryPoint
     // EntryPoint
     //
 
+    // WORKAROUND
+    // There is some weird dependency that requires that the class
+    // com.extjs.gxt.ui.client.widget.Layout be loaded before the LoginPage is instantiated.
+    // Otherwise, there is a strange crash deep in the VM that occurs when Layout is
+    // loaded.
+    // Class.forName does not work as an alternative, so we need to explicitly reference the
+    // class.
+    // This seems to be as good a place as any for this.
+    @SuppressWarnings("unused")
+    private final Layout junk = new AnchorLayout();
+
     public final void onModuleLoad()
     {
-        // WORKAROUND
-        // There is some weird dependency that requires that the class
-        // com.extjs.gxt.ui.client.widget.Layout be loaded before the LoginPage is instantiated.
-        // Otherwise, there is a strange crash deep in the VM that occurs when Layout is
-        // loaded.
-        // Class.forName does not work as an alternative, so we need to explicitly reference the
-        // class.
-        // This seems to be as good a place as any for this.
-        @SuppressWarnings("unused")
-        Layout junk = new AnchorLayout();
 
         final ICIFEXServiceAsync cifexService = createCIFEXService();
         final ViewContext viewContext = createViewContext(cifexService);

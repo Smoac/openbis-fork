@@ -30,7 +30,7 @@ import ch.systemsx.cisd.cifex.client.application.page.MainPage;
 import ch.systemsx.cisd.cifex.client.application.ui.LoginPanelAutofill;
 import ch.systemsx.cisd.cifex.client.application.ui.LoginWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**

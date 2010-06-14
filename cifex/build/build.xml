@@ -11,11 +11,13 @@
 	<property name="gwt.dev.lib" value="${gwt.lib}/gwt-dev.jar" />
 	<property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
 	<property name="gxt.lib" value="${lib}/gxt2.1/gxt.jar" />
-
+	
 	<property name="cifex.server.resource" value="../${ant.project.name}/${server-resource}" />
 
 	<property name="cifex.client.jarfiles"
 	          value="cifex.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcprov.jar bcpg.jar" />
+
+	<property name="cisd-common-basic.lib" value="${lib}/cisd-common-basic/cisd-common-basic.jar" />
 
 	<property name="webapp.dist" value="${dist}/webapp" />
 	<property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
@@ -45,8 +47,8 @@
 	// Makes a distribution file.
 	-->
 	<target name="dist" description="Makes a distribution file." depends="clean, war">
-		<property name="dist.file.name.zip"
-		          value="${ant.project.name}-${version.number}-r${revision.number}.zip" />
+    <property name="dist.file.name.zip"
+              value="${ant.project.name}-${version.number}-r${revision.number}.zip" />
 		<property name="jetty.path" value="${lib}/jetty7" />
 		<property name="zipped.dir" value="${dist}/${ant.project.name}" />
 
@@ -120,9 +122,9 @@
 		<property name="cifex.gwt.path" value="ch.systemsx.cisd.cifex.Cifex" />
 
 		<delete dir="${webapp.dist}" />
-		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${gxt.lib}:${sources}"
+		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${gxt.lib}:${cisd-common-basic.lib}:${sources}"
 		      classname="com.google.gwt.dev.Compiler"
-		      fork="true">
+		      fork="true" >
 			<jvmarg value="-Xmx512M" />
 			<arg value="-war" />
 			<arg value="${webapp.dist}" />
@@ -158,11 +160,11 @@
 	// Creates 'cifex.jar'. Note that this will not contain any '*.sql' resp. '*.csv' file.
 	-->
 	<target name="jar" depends="compile, build-info" description="Creates project jar file.">
-		<property name="dist.file.name"
-		          value="${ant.project.name}-${version.number}-r${revision.number}" />
-		<property name="jars.to.be.signed" value="${dist.file.name}_jars_to_be_signed" />
-		<property name="jars.to.be.signed.dir" value="${targets}/${jars.to.be.signed}" />
-		<property name="jars.to.be.signed.zip" value="${dist}/${jars.to.be.signed}.zip" />
+	  <property name="dist.file.name"
+	            value="${ant.project.name}-${version.number}-r${revision.number}" />
+	  <property name="jars.to.be.signed" value="${dist.file.name}_jars_to_be_signed" />
+	  <property name="jars.to.be.signed.dir" value="${targets}/${jars.to.be.signed}" />
+	  <property name="jars.to.be.signed.zip" value="${dist}/${jars.to.be.signed}.zip" />
 		<delete file="${jar.file}" />
 		<!--
 		// 'applicationContext.xml' and imported files.
@@ -288,7 +290,7 @@
 		<zip destfile="${jars.to.be.signed.zip}"
 		     basedir="${targets}"
 		     includes="${jars.to.be.signed}/**" />
-		<delete dir="${jars.to.be.signed.dir}" failonerror="true" />
+    <delete dir="${jars.to.be.signed.dir}" failonerror="true" />
 	</target>
 
 	<target name="copy-and-sign-jar">
@@ -442,6 +444,7 @@
 		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/gxt2.1/gxt.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/cisd-common-basic/cisd-common-basic.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/cglib/cglib-nodep.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/hibernate-search/jms.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${gwt.lib}/gwt-dev.jar" todir="${gwt.war.web-inf.lib}" />
@@ -532,6 +535,13 @@
 	        description="Prepare, compile, and run the module test mode">
 	</target>
 
+    <target name="module-test-no-run" description="Compile module test mode">
+    	<antcall target="compile-module-test">
+			<param name="module-test.path" value="cifex-test" />
+			<param name="module-test.module" value="ch.systemsx.cisd.cifex.Cifex" />
+		</antcall>
+	</target>
+	
 	<target name="module-test" description="Compile and run the module test mode">
 		<antcall target="compile-module-test">
 			<param name="module-test.path" value="cifex-test" />

@@ -20,18 +20,18 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.cifex.client.application.utils.ObjectUtils;
+import ch.systemsx.cisd.common.shared.basic.AlternativesStringFilter;
 
 /**
  * A field to filter grid rows by the value of one specified column.
  * 
  * @see AlternativesStringFilter
- * 
  * @author Tomasz Pylak
  */
 public class ColumnFilterField<M extends ModelData> extends AbstractFilterField<M>
 {
     private final AlternativesStringFilter filter;
-    
+
     private final GridCellRenderer<ModelData> rendererOrNull;
 
     public ColumnFilterField(String filterPropertyKey, String title,
@@ -64,8 +64,8 @@ public class ColumnFilterField<M extends ModelData> extends AbstractFilterField<
         } else
         {
             renderedText =
-                    ((String) rendererOrNull.render(record, getProperty(), null, 0, 0, null,
-                            null)).toLowerCase();
+                    ((String) rendererOrNull.render(record, getProperty(), null, 0, 0, null, null))
+                            .toLowerCase();
         }
         return renderedText;
     }

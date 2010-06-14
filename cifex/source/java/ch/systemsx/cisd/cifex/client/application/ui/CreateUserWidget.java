@@ -21,7 +21,7 @@ import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**

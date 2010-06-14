@@ -16,12 +16,17 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_RECIPIENT_FIELD_INVALID_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.VALIDATION_EMAIL_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.VALIDATION_REQUIRED_BLANK_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.VALIDATION_WRONG_USERCODE_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * @author Basil Neff

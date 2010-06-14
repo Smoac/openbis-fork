@@ -24,7 +24,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A {@link RequestCallback} that shows a popup window.

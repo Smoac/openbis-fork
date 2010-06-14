@@ -49,7 +49,7 @@ import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.application.UserUtils;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 

@@ -36,7 +36,7 @@ import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 

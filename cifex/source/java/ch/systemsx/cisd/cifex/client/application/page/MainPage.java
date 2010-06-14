@@ -47,7 +47,7 @@ import ch.systemsx.cisd.cifex.client.application.WidgetFactory;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
