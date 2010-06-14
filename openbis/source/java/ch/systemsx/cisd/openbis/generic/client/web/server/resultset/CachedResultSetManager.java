@@ -29,13 +29,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.text.StrMatcher;
-import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.shared.basic.AlternativesStringFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
@@ -377,26 +376,18 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         private final IColumnDefinition<T> filteredField;
 
-        // empty array matches values which are empty or null
-        private final String[] filterExpressionAlternatives;
+        // FIXME lost functionality
+        // // empty array matches values which are empty or null
+        // private final String[] filterExpressionAlternatives;
+
+        private final AlternativesStringFilter filter;
 
         private FilterInfo(GridColumnFilterInfo<T> gridFilterInfo)
         {
             this.filteredField = gridFilterInfo.getFilteredField();
-
-            String pattern = gridFilterInfo.tryGetFilterPattern().toLowerCase();
-            if (pattern.length() == 0)
-            {
-                this.filterExpressionAlternatives = new String[] {};
-            } else
-            {
-                // - each token is used as an alternative
-                // - tokens are separated with whitespace
-                // - quotes (both double and single quote) wrap data into tokens
-                StrTokenizer tokenizer = new StrTokenizer(pattern);
-                tokenizer.setQuoteMatcher(StrMatcher.quoteMatcher());
-                this.filterExpressionAlternatives = tokenizer.getTokenArray();
-            }
+            this.filter = new AlternativesStringFilter();
+            final String pattern = gridFilterInfo.tryGetFilterPattern().toLowerCase();
+            filter.setFilterValue(pattern);
         }
 
         static <T> FilterInfo<T> tryCreate(GridColumnFilterInfo<T> filterInfo)
@@ -415,9 +406,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             return filteredField;
         }
 
-        final String[] getFilterExpressionAlternatives()
+        public AlternativesStringFilter getFilter()
         {
-            return filterExpressionAlternatives;
+            return filter;
         }
     }
 
@@ -492,23 +483,12 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         IColumnDefinition<T> filteredField = filterInfo.getFilteredField();
         String value = filteredField.getValue(row).toLowerCase();
-        return isMatching(value, filterInfo.getFilterExpressionAlternatives());
+        return isMatching(value, filterInfo.getFilter());
     }
 
-    private static boolean isMatching(String value, String[] filterPatternAlternatives)
+    private static boolean isMatching(String value, AlternativesStringFilter filter)
     {
-        if (filterPatternAlternatives.length == 0)
-        {
-            return value.length() == 0;
-        }
-        for (String pattern : filterPatternAlternatives)
-        {
-            if (value.contains(pattern))
-            {
-                return true;
-            }
-        }
-        return false;
+        return filter.passes(value);
     }
 
     private final <T> void sortData(final GridRowModels<T> data, final SortInfo<T> sortInfo)

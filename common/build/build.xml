@@ -8,10 +8,12 @@
     <project-classpath name="ecp" classes="${classes}" />
     <property name="mainfolder" value="common" />
     <property name="jar.file" value="${dist}/common.jar" />
+    <property name="basic-jar.file" value="${dist}/cisd-common-basic.jar" />
     <property name="nativesrc" value="${lib}/unix/native" />
     <property name="nativeroot" value="${targets}/ant" />
     <property name="native" value="${nativeroot}/native" />
-
+		<property name="basic.path" value="ch/systemsx/cisd/common/shared/basic" />
+	
     <property name="dist.common" value="${dist}/${mainfolder}" />
     <property name="dist.common.lib" value="${dist.common}/lib" />
 
@@ -47,6 +49,26 @@
             </manifest>
         </recursive-jar>
     </target>
+	
+		<target name="jar-basic" depends="compile"> 
+			<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+	        <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+	        <recursive-jar destfile="${basic-jar.file}">
+		        <fileset dir="${classes}">
+              <include name="${basic.path}/**/*.class" />
+							<include name="**/CISD.gwt.xml" />
+              <include name="${build.info.filename}" />
+            </fileset>
+     				<fileset dir="${sources}">
+		        	<include name="${basic.path}/**/*.java" />
+     				</fileset>
+	        	<manifest>
+	            <attribute name="Version" value="${version.number}" />
+	            <attribute name="Build-Number"
+	                      value="${version.number} (r${revision.number},${clean.flag})" />
+	          </manifest>
+	        </recursive-jar>
+	    </target>
 
     <!--
 	  // Runs the test suite 'tests.xml'.
