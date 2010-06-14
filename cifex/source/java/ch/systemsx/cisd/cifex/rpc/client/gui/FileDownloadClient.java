@@ -19,6 +19,8 @@ package ch.systemsx.cisd.cifex.rpc.client.gui;
 import static ch.systemsx.cisd.common.utilities.SystemTimeProvider.SYSTEM_TIME_PROVIDER;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,8 +42,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpringLayout;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
@@ -168,7 +172,21 @@ public class FileDownloadClient extends AbstractSwingGUI
 
     private JComponent createFileListComponent()
     {
-        final JTable fileTable = new JTable(tableModel);
+        final JTable fileTable = new JTable(tableModel)
+            {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+                {
+                    final Component c = super.prepareRenderer(renderer, row, column);
+                    final JComponent jc = (JComponent) c;
+                    jc.setBorder(new MatteBorder(0, 0, 1, 1, Color.LIGHT_GRAY));
+
+                    return c;
+                }
+
+            };
         fileTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
             {
 
@@ -303,8 +321,7 @@ public class FileDownloadClient extends AbstractSwingGUI
                     {
                         ex.printStackTrace();
                         JOptionPane.showMessageDialog(getWindowFrame(),
-                                "Error accessing clipboard.",
-                                "", JOptionPane.ERROR_MESSAGE);
+                                "Error accessing clipboard.", "", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
