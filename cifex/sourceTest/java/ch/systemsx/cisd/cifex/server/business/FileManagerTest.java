@@ -51,7 +51,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.mail.From;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.DateTimeUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -389,13 +389,12 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                             }
                         });
                     String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
-                    one(mailClient).sendMessage(
+                    one(mailClient).sendEmailMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/?fileId=%d&user=%s", fileId,
-                                            receivingUserCode))),
-                            with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
-                            with(equal(new String[]
+                                            receivingUserCode))), with(containsEmail(replyTo)),
+                            with(matchesEmail(replyTo)), with(matchesEmail(new String[]
                                 { emailOfUserToShareWith })));
                 }
             });
@@ -449,13 +448,12 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                             }
                         });
                     String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
-                    one(mailClient).sendMessage(
+                    one(mailClient).sendEmailMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/?fileId=%d&user=%s", fileId,
-                                            receivingUserCode))),
-                            with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
-                            with(equal(new String[]
+                                            receivingUserCode))), with(containsEmail(replyTo)),
+                            with(matchesEmail(replyTo)), with(containsEmail(new String[]
                                 { emailOfUserToShareWith })));
                 }
             });
@@ -467,26 +465,132 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    class FromMatcher extends BaseMatcher<From>
+    class EmailAddressMatcher extends BaseMatcher<EMailAddress>
     {
 
-        private final String from;
+        private final String emailAddress;
 
-        public FromMatcher(String from)
+        private final boolean exact;
+
+        public EmailAddressMatcher(String mailAddress, boolean exact)
         {
-            this.from = from;
+            this.emailAddress = mailAddress;
+            this.exact = exact;
         }
 
         public boolean matches(Object item)
         {
-            From fromItem = (From) item;
-            return from.equals(fromItem.getValue());
+            final EMailAddress email = (EMailAddress) item;
+            String name = email.tryGetPersonalName();
+            String emailStr;
+            if (name == null)
+            {
+                emailStr = email.tryGetEmailAddress();
+            } else
+            {
+                boolean needsQuoting =
+                        name.contains(",") || name.contains(";") || name.contains("\"");
+                if (needsQuoting)
+                {
+                    name = "\"" + name.replace("\"", "\\\"") + "\"";
+                }
+                emailStr = name + " <" + email.tryGetEmailAddress() + ">";
+            }
+            if (exact)
+            {
+                return emailStr.equals(emailAddress);
+            } else
+            {
+                return emailStr.contains(emailAddress);
+            }
         }
 
         public void describeTo(Description description)
         {
-            description.appendText(from);
+            description.appendText(exact ? "the email '" + emailAddress + "'"
+                    : "an email containing '" + emailAddress + "'");
         }
+
+    }
+
+    class EmailAddressArrayMatcher extends BaseMatcher<EMailAddress[]>
+    {
+
+        private final String[] emailAddresses;
+
+        private final boolean exact;
+
+        public EmailAddressArrayMatcher(String[] mailAddresses, boolean exact)
+        {
+            this.emailAddresses = mailAddresses;
+            this.exact = exact;
+        }
+
+        public boolean matches(Object item)
+        {
+            final EMailAddress[] emails = (EMailAddress[]) item;
+            int i = 0;
+            for (EMailAddress email : emails)
+            {
+                String name = email.tryGetPersonalName();
+                String emailStr;
+                if (name == null)
+                {
+                    emailStr = email.tryGetEmailAddress();
+                } else
+                {
+                    boolean needsQuoting =
+                            name.contains(",") || name.contains(";") || name.contains("\"");
+                    if (needsQuoting)
+                    {
+                        name = "\"" + name.replace("\"", "\\\"") + "\"";
+                    }
+                    emailStr = name + " <" + email.tryGetEmailAddress() + ">";
+                }
+                if (exact)
+                {
+                    if (emailStr.equals(emailAddresses[i]) == false)
+                    {
+                        return false;
+                    }
+                } else
+                {
+                    if (emailStr.contains(emailAddresses[i]) == false)
+                    {
+                        return false;
+                    }
+                }
+                ++i;
+            }
+            return true;
+        }
+
+        public void describeTo(Description description)
+        {
+            description.appendText(exact ? "emails '" + Arrays.toString(emailAddresses) + "'"
+                    : "emails containing '" + Arrays.toString(emailAddresses) + "'");
+        }
+
+    }
+
+    EmailAddressMatcher matchesEmail(String mailAddress)
+    {
+        return new EmailAddressMatcher(mailAddress, true);
+    }
+
+    EmailAddressMatcher containsEmail(String mailAddress)
+    {
+        return new EmailAddressMatcher(mailAddress, false);
+    }
+
+    EmailAddressArrayMatcher matchesEmail(String[] mailAddress)
+    {
+        return new EmailAddressArrayMatcher(mailAddress, true);
+    }
+
+    EmailAddressArrayMatcher containsEmail(String[] mailAddress)
+    {
+        return new EmailAddressArrayMatcher(mailAddress, false);
     }
 
     @Test
@@ -539,22 +643,22 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                                 will(returnValue(false));
                             }
                         });
-                    one(mailClient).sendMessage(
+                    one(mailClient).sendEmailMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/?fileId=%d&user=%s", fileId,
                                             firstReceivingUserCode))),
-                            with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
-                            with(equal(new String[]
+                            with(containsEmail(replyTo)), with(matchesEmail(replyTo)),
+                            with(matchesEmail(new String[]
                                 { emailOfFirstUserToShareWith })));
                     one(fileDAO).createSharingLink(fileId, secondReceivingUserId);
-                    one(mailClient).sendMessage(
+                    one(mailClient).sendEmailMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/?fileId=%d&user=%s", fileId,
                                             secondReceivingUserCode))),
-                            with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
-                            with(equal(new String[]
+                            with(containsEmail(replyTo)), with(matchesEmail(replyTo)),
+                            with(matchesEmail(new String[]
                                 { emailOfSecondUserToShareWith })));
                 }
             });
@@ -612,12 +716,12 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                                 will(returnValue(false));
                             }
                         });
-                    one(mailClient).sendMessage(
+                    one(mailClient).sendEmailMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/?fileId=%d&user=%s", fileId,
-                                            receivingUserCode))), with(equal(replyTo)),
-                            with(new FromMatcher(replyTo)), with(equal(new String[]
+                                            receivingUserCode))), with(matchesEmail(replyTo)),
+                            with(matchesEmail(replyTo)), with(matchesEmail(new String[]
                                 { emailOfReceivingUserLowerCase })));
                 }
             });

@@ -84,7 +84,7 @@ public class EMailBuilderForUploadedFilesTest
                 "ETH Zurich\n",
                 mailClient.content);
         assertEquals(1, mailClient.recipients.length);
-        assertEquals("a@a.aa", mailClient.recipients[0]);
+        assertEquals("a@a.aa", mailClient.recipients[0].tryGetEmailAddress());
     }
 
     @Test
@@ -139,7 +139,7 @@ public class EMailBuilderForUploadedFilesTest
                         + "Center for Information Sciences and Databases\n" + "ETH Zurich\n",
                 mailClient.content);
         assertEquals(1, mailClient.recipients.length);
-        assertEquals("a@a.aa", mailClient.recipients[0]);
+        assertEquals("a@a.aa", mailClient.recipients[0].tryGetEmailAddress());
     }
 
 }

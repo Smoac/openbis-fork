@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.IFileImmutableCopier;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 
 /**
  * {@link ITrigger} implementation moving the uploaded file to the data store incoming directory.
@@ -97,9 +98,10 @@ public class DataStoreTrigger implements ITrigger
             }
         } catch (Exception ex)
         {
-            console.sendMessage("Data set upload failed", String.format(
+            console.sendEmailMessage("Data set upload failed", String.format(
                     "Upload of data set (file: '%s', comment: '%s') failed. ('%s')", sourceFile,
-                    request.getComment(), ex.getMessage()), null, null, request.getUploadingUserEmail());
+                    request.getComment(), ex.getMessage()), null, null, new EMailAddress(request
+                    .getUploadingUserEmail()));
         }
     }
 

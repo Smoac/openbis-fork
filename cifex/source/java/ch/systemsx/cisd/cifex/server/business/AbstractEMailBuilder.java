@@ -32,7 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.mail.From;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.Template;
@@ -126,8 +126,10 @@ abstract class AbstractEMailBuilder
         assert url != null : "Missing URL.";
         emailDict.clear();
         populateDict();
-        mailClient.sendMessage("[CIFEX] " + createSubject(), createContent(),
-                getLongRegistratorDescription(), new From(getLongRegistratorDescription()), email);
+        final EMailAddress from =
+                new EMailAddress(registrator.getEmail(), getShortRegistratorDescription());
+        mailClient.sendEmailMessage("[CIFEX] " + createSubject(), createContent(), from, from,
+                new EMailAddress(email));
     }
 
     /**

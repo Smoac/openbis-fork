@@ -63,7 +63,7 @@ public class EMailBuilderForUpdateUserTest
                         + "Center for Information Sciences and Databases\n" + "ETH Zurich",
                 mailClient.content);
         assertEquals(1, mailClient.recipients.length);
-        assertEquals("a@a.aa", mailClient.recipients[0]);
+        assertEquals("a@a.aa", mailClient.recipients[0].tryGetEmailAddress());
     }
 
     @Test
@@ -97,7 +97,7 @@ public class EMailBuilderForUpdateUserTest
                         + "Center for Information Sciences and Databases\n" + "ETH Zurich",
                 mailClient.content);
         assertEquals(1, mailClient.recipients.length);
-        assertEquals("p@p.pp", mailClient.recipients[0]);
+        assertEquals("p@p.pp", mailClient.recipients[0].tryGetEmailAddress());
     }
 
     @Test
@@ -132,6 +132,6 @@ public class EMailBuilderForUpdateUserTest
                         + "Center for Information Sciences and Databases\n" + "ETH Zurich",
                 mailClient.content);
         assertEquals(1, mailClient.recipients.length);
-        assertEquals("t@t.tt", mailClient.recipients[0]);
+        assertEquals("t@t.tt", mailClient.recipients[0].tryGetEmailAddress());
     }
 }

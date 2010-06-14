@@ -56,6 +56,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
@@ -161,12 +162,14 @@ class TriggerManager implements ITriggerManager
                     comment, mimeType, uploadedFile, crc32Value, recipients, url, userActionLog);
         }
 
+        @SuppressWarnings("deprecation")
         public void sendMessage(String subject, String content, String replyTo, From fromOrNull,
                 String... recipients) throws EnvironmentFailureException
         {
             mailClient.sendMessage(subject, content, replyTo, null, recipients);
         }
 
+        @SuppressWarnings("deprecation")
         public void sendMessageWithAttachment(final String subject, final String content,
                 final String filename, final DataHandler attachmentContent,
                 final String replyToOrNull, final From fromOrNull, final String... recipients)
@@ -174,6 +177,21 @@ class TriggerManager implements ITriggerManager
         {
             mailClient.sendMessageWithAttachment(subject, content, filename, attachmentContent,
                     replyToOrNull, fromOrNull, recipients);
+        }
+
+        public void sendEmailMessage(String subject, String content, EMailAddress replyToOrNull,
+                EMailAddress fromOrNull, EMailAddress... recipients)
+                throws EnvironmentFailureException
+        {
+            mailClient.sendEmailMessage(subject, content, replyToOrNull, fromOrNull, recipients);
+        }
+
+        public void sendEmailMessageWithAttachment(String subject, String content, String filename,
+                DataHandler attachmentContent, EMailAddress replyToOrNull, EMailAddress fromOrNull,
+                EMailAddress... recipients) throws EnvironmentFailureException
+        {
+            mailClient.sendEmailMessageWithAttachment(subject, content, filename,
+                    attachmentContent, replyToOrNull, fromOrNull, recipients);
         }
 
         void deleteDismissables()
@@ -450,7 +468,7 @@ class TriggerManager implements ITriggerManager
     private final IMailClient mailClient;
 
     private final String url;
-    
+
     private final IUserActionLog userActionLog;
 
     TriggerManager(BusinessContext context)
@@ -566,8 +584,9 @@ class TriggerManager implements ITriggerManager
                                             + triggerUser.getUserCode() + "' failed:\n"
                                             + th.getClass().getSimpleName() + ": "
                                             + th.getMessage();
-                            mailClient.sendMessage("Your request '" + request.getFileName() + "'",
-                                    msg, null, null, request.getUploadingUserEmail());
+                            mailClient.sendEmailMessage("Your request '" + request.getFileName()
+                                    + "'", msg, null, null, new EMailAddress(request
+                                    .getUploadingUserEmail()));
                             throw CheckedExceptionTunnel.wrapIfNecessary(th);
                         } finally
                         {

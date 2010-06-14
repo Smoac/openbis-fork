@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server;
 import javax.activation.DataHandler;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
@@ -28,19 +29,32 @@ final class MockMailClient implements IMailClient
 
     String content;
 
-    String[] recipients;
+    EMailAddress[] recipients;
 
     public void sendMessage(String subj, String contentText, String replyTo, From fromOrNull,
             String... emails) throws EnvironmentFailureException
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public void sendMessageWithAttachment(final String subj, final String contentText,
+            final String filename, final DataHandler attachmentContent, final String replyToOrNull,
+            final From fromOrNull, final String... emails) throws EnvironmentFailureException
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public void sendEmailMessage(String subj, String contentText, EMailAddress replyToOrNull,
+            EMailAddress fromOrNull, EMailAddress... emails) throws EnvironmentFailureException
     {
         this.subject = subj;
         this.content = contentText;
         this.recipients = emails;
     }
 
-    public void sendMessageWithAttachment(final String subj, final String contentText,
-            final String filename, final DataHandler attachmentContent, final String replyToOrNull,
-            final From fromOrNull, final String... emails) throws EnvironmentFailureException
+    public void sendEmailMessageWithAttachment(String subj, String contentText, String filename,
+            DataHandler attachmentContent, EMailAddress replyToOrNull, EMailAddress fromOrNull,
+            EMailAddress... emails) throws EnvironmentFailureException
     {
         this.subject = subj;
         this.content = contentText;

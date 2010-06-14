@@ -74,6 +74,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -920,8 +921,8 @@ final class FileManager extends AbstractManager implements IFileManager
                     notified = true;
                 }
                 // Inform request user about failure
-                mailClient.sendMessage("CIFEX was unable to send an email to your recipient", ex
-                        .getMessage(), null, null, requestUser.getEmail());
+                mailClient.sendEmailMessage("CIFEX was unable to send an email to your recipient",
+                        ex.getMessage(), null, null, new EMailAddress(requestUser.getEmail()));
             }
         }
         return firstExceptionOrNull;
@@ -949,12 +950,12 @@ final class FileManager extends AbstractManager implements IFileManager
             final UserDTO user = new UserDTO();
             // Ensure we use a unique user code, based on the email address.
             user.setUserCode(StringUtilities.createUniqueString(email, new IUniquenessChecker()
-            {
-                public boolean isUnique(String code)
                 {
-                    return daoFactory.getUserDAO().hasUserCode(code) == false;
-                }
-            }));
+                    public boolean isUnique(String code)
+                    {
+                        return daoFactory.getUserDAO().hasUserCode(code) == false;
+                    }
+                }));
             user.setEmail(email);
             user.setPassword(new Password(password));
             user.setRegistrator(requestUser);
