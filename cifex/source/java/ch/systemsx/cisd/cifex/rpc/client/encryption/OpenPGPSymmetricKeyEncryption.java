@@ -118,7 +118,7 @@ public class OpenPGPSymmetricKeyEncryption
             FileNotFoundException
     {
         final PGPEncryptedDataGenerator encryptedDataGenerator =
-                new PGPEncryptedDataGenerator(PGPEncryptedData.AES_256, true, new SecureRandom(),
+                new PGPEncryptedDataGenerator(PGPEncryptedData.AES_128, true, new SecureRandom(),
                         "BC");
         encryptedDataGenerator.addMethod(passPhrase.toCharArray());
 
