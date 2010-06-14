@@ -42,7 +42,7 @@ public class LinkRenderer
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {// TODO 2010-05-18, IA: almost the same as
-             // InternalLinkCellRenderer#createLinkRenderer()
+                // InternalLinkCellRenderer#createLinkRenderer()
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
@@ -147,6 +147,28 @@ public class LinkRenderer
         return getLinkWidget(text, listener, historyHref, false);
     }
 
+    public static Widget getLinkWidgetWithHtml(final ClickHandler listener,
+            final String historyHref, String html)
+    {
+        Anchor link = new Anchor();
+        link.setHTML(html);
+        link.setStyleName(LINK_STYLE);
+        setHrefOrListener(listener, historyHref, link);
+        return link;
+    }
+
+    private static void setHrefOrListener(final ClickHandler listener, final String historyHref,
+            Anchor link)
+    {
+        if (historyHref != null && ClientStaticState.isSimpleMode())
+        {
+            link.setHref("#" + historyHref);
+        } else if (listener != null)
+        {
+            link.addClickHandler(listener);
+        }
+    }
+
     /**
      * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>.
      *         If <var>historyHref</var> is not null and simple view mode is active
@@ -162,13 +184,7 @@ public class LinkRenderer
         Anchor link = new Anchor();
         link.setText(text);
         link.setStyleName(LINK_STYLE);
-        if (historyHref != null && ClientStaticState.isSimpleMode())
-        {
-            link.setHref("#" + historyHref);
-        } else if (listener != null)
-        {
-            link.addClickHandler(listener);
-        }
+        setHrefOrListener(listener, historyHref, link);
         if (invalidate)
         {
             link.addStyleName("invalid");

@@ -217,6 +217,13 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                             }
                         };
                     String href = LinkExtractor.tryExtract(project);
+                    // FIXME 2010-06-14, IA: try to adjust the size and use the info icon
+                    // AbstractImagePrototype infoIcon =
+                    // AbstractImagePrototype.create(viewContext.getImageBundle()
+                    // .getInfoIcon());
+                    //
+                    // final Widget detailsLink =
+                    // LinkRenderer.getLinkWidgetWithHtml(listener, href, infoIcon.getHTML());
                     final Widget detailsLink =
                             LinkRenderer.getLinkWidget(viewContext
                                     .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_LABEL),
