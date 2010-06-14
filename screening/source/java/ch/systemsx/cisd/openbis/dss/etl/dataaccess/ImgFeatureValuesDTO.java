@@ -43,23 +43,17 @@ public class ImgFeatureValuesDTO extends AbstractHashable
     @ResultColumn("FD_ID")
     private long featureDefId;
 
-    @ResultColumn("DS_ID")
-    private long dataSetId;
-
-    @SuppressWarnings("unused")
-    private ImgFeatureValuesDTO()
+    public ImgFeatureValuesDTO()
     {
         // All Data-Object classes must have a default constructor.
     }
 
-    public ImgFeatureValuesDTO(Double zInM, Double tInSec, byte[] values, long featureDefId,
-            long dataSetId)
+    public ImgFeatureValuesDTO(Double zInM, Double tInSec, byte[] values, long featureDefId)
     {
         this.z = zInM;
         this.t = tInSec;
         this.values = values;
         this.featureDefId = featureDefId;
-        this.dataSetId = dataSetId;
     }
 
     public long getId()
@@ -103,16 +97,6 @@ public class ImgFeatureValuesDTO extends AbstractHashable
     public void setFeatureDefId(Integer featureDefId)
     {
         this.featureDefId = featureDefId;
-    }
-
-    public long getDataSetId()
-    {
-        return dataSetId;
-    }
-
-    public void setDataSetId(long dataSetId)
-    {
-        this.dataSetId = dataSetId;
     }
 
     /**

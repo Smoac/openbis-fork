@@ -24,6 +24,9 @@ import java.util.List;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.convert.NativeTaggedArray;
+import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
+
 /**
  * Tests for {@link IFeatureVectorDAO}.
  * 
@@ -42,6 +45,8 @@ public class FeatureVectorDAOTest extends AbstractDBTest
     private static final String CONTAINER_PERM_ID = "cFvId";
 
     private static final String DS_PERM_ID = "dsFvId";
+
+    private static final String TEST_FEATURE_NAME = "test";
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
@@ -94,12 +99,56 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         List<ImgFeatureDefDTO> featureDefs = dao.listFeatureDefsByDataSetId(dataset.getId());
         assertEquals(1, featureDefs.size());
 
+        ImgFeatureDefDTO featureDef = featureDefs.get(0);
+        assertEquals(TEST_FEATURE_NAME, featureDef.getName());
+
+        createFeatureValues(featureDef);
+        List<ImgFeatureValuesDTO> featureValuesList = dao.getFeatureValues(featureDef);
+        assertEquals(1, featureValuesList.size());
+
+        ImgFeatureValuesDTO featureValues = featureValuesList.get(0);
+        assertEquals(0.0, featureValues.getT());
+        assertEquals(0.0, featureValues.getZ());
+
+        MDDoubleArray spreadsheet = NativeTaggedArray.tryToDoubleArray(featureValues.getValues());
+        int[] dims =
+            { 2, 3 };
+        assertEquals(spreadsheet.dimensions().length, dims.length);
+        assertEquals(spreadsheet.dimensions()[0], dims[0]);
+        assertEquals(spreadsheet.dimensions()[1], dims[1]);
+
+        for (int i = 0; i < 2; ++i)
+        {
+            for (int j = 0; j < 3; ++j)
+            {
+                assertEquals((double) (i + j), spreadsheet.get(i, j));
+            }
+        }
+    }
+
+    private long createFeatureValues(ImgFeatureDefDTO featureDef)
+    {
+        int[] dims =
+            { 2, 3 };
+        MDDoubleArray array = new MDDoubleArray(dims);
+        for (int i = 0; i < 2; ++i)
+        {
+            for (int j = 0; j < 3; ++j)
+            {
+                array.set(i + j, i, j);
+            }
+        }
+        byte[] values = NativeTaggedArray.toByteArray(array);
+        ImgFeatureValuesDTO featureValues =
+                new ImgFeatureValuesDTO(0.0, 0.0, values, featureDef.getId());
+        return dao.addFeatureValues(featureValues);
     }
 
     private long createFeatureDef(ImgDatasetDTO dataSet)
     {
         // Attach a feature def to it
-        ImgFeatureDefDTO featureDef = new ImgFeatureDefDTO("test", "Test", dataSet.getId());
+        ImgFeatureDefDTO featureDef =
+                new ImgFeatureDefDTO(TEST_FEATURE_NAME, "Test", dataSet.getId());
         return dao.addFeatureDef(featureDef);
     }
 }
