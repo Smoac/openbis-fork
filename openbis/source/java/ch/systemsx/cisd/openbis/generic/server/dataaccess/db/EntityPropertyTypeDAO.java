@@ -425,8 +425,9 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         List<Long> entityIds = listEntityIds(assignment);
         template.bulkUpdate(String.format("DELETE FROM %s WHERE entityTypePropertyType = ?",
                 entityKind.getEntityPropertyClass().getSimpleName()), assignment);
-        template.delete(assignment);
         template.flush();
+        template.clear();
+        template.delete(assignment);
 
         // index will not be updated automatically by Hibernate
         // because we use bulk update and don't touch entities

@@ -176,9 +176,14 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         ExperimentPropertyPE propertyValue =
                 (ExperimentPropertyPE) (assignment.getPropertyValues().iterator().next());
         ExperimentPE experiment = propertyValue.getEntity();
+        long id = experiment.getId();
         int totalProps = experiment.getProperties().size();
 
         daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT).delete(assignment);
+
+        // load the experiment once again - it was cleared from session
+        experiment = new ExperimentPE();
+        daoFactory.getSessionFactory().getCurrentSession().load(experiment, id);
         assertEquals(totalProps - 1, experiment.getProperties().size());
     }
 
