@@ -93,6 +93,18 @@ public final class Location
     }
 
     /**
+     * Do the matrix coordinate conversion for coordinates that are specified this way, but in two
+     * columns
+     * 
+     * @return <code>null</code> if given <var>coordinate</var> is not a matrix coordinate.
+     */
+    public static final Location tryCreateLocationFromSplitMatrixCoordinate(
+            final String columnCoord, final String rowCoord)
+    {
+        return tryCreateLocationFromMatrixCoordinate(columnCoord + rowCoord);
+    }
+
+    /**
      * For given location returns corresponding matrix coordinate.
      */
     public static final String tryCreateMatrixCoordinateFromLocation(final Location location)
