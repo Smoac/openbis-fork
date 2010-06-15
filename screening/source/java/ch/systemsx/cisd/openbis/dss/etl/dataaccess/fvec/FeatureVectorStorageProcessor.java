@@ -132,7 +132,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         }
     }
 
-    private static final String ORIGINAL_DIR = "original/";
+    private static final String ORIGINAL_DIR = "original";
 
     private final FeatureVectorStorageProcessorConfiguration configuration;
 
@@ -159,7 +159,8 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
                 super.storeData(dataSetInformation, typeExtractor, mailClient,
                         incomingDataSetDirectory, rootDir);
         // Import into the data base
-        File dataSets = new File(answer, ORIGINAL_DIR);
+        File parent = new File(answer, ORIGINAL_DIR);
+        File dataSets = new File(parent, incomingDataSetDirectory.getName());
         for (File dataSet : dataSets.listFiles())
         {
             try
