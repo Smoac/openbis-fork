@@ -162,7 +162,6 @@ class TriggerManager implements ITriggerManager
                     comment, mimeType, uploadedFile, crc32Value, recipients, url, userActionLog);
         }
 
-        @SuppressWarnings("deprecation")
         public void sendMessage(String subject, String content, String replyTo, From fromOrNull,
                 String... recipients) throws EnvironmentFailureException
         {
