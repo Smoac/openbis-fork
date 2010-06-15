@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import com.extjs.gxt.ui.client.widget.Component;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+
 /**
  * Component which is aware of database modifications.
  * 
@@ -25,6 +27,16 @@ import com.extjs.gxt.ui.client.widget.Component;
  */
 public class DatabaseModificationAwareComponent extends DatabaseModificationAwareObject<Component>
 {
+    /**
+     * Creates an instance by conversion from a disposable component, these two classes have the
+     * same functionality.
+     */
+    public static DatabaseModificationAwareComponent create(IDisposableComponent disposableComponent)
+    {
+        return new DatabaseModificationAwareComponent(disposableComponent.getComponent(),
+                disposableComponent);
+    }
+
     /**
      * Creates a mock with a dummy database modification observer. Use this method if your component
      * does not need to be refreshed when the database changes.
