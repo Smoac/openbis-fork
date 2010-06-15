@@ -60,6 +60,7 @@ public final class OpenEntityEditorTabClickListener implements ClickHandler
     {
         assert entity != null : "entity is not provided";
         final AbstractTabItemFactory tabView;
+        // NOTE: most plugins require a specific type class here!
         BasicEntityType entityType = entity.getEntityType();
         EntityKind entityKind = entity.getEntityKind();
         final IClientPluginFactory clientPluginFactory =
