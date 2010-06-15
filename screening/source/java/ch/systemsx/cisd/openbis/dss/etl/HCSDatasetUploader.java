@@ -130,8 +130,13 @@ public class HCSDatasetUploader
             throw createInvalidNewChannelException(expId, existingChannels, channelName);
         }
         // a channel with a specified name already exists for an experiment, its description
-        // will be updated
-        if (equals(existingChannel.getWavelength(), channelDTO.getWavelength()) == false)
+        // will be updated. Wavelength will be updated only if it was null before.
+        if (channelDTO.getWavelength() == null)
+        {
+            channelDTO.setWavelength(existingChannel.getWavelength());
+        }
+        if (existingChannel.getWavelength() != null
+                && existingChannel.getWavelength().equals(channelDTO.getWavelength()) == false)
         {
             throw UserFailureException.fromTemplate(
                     "There are already datasets registered for the experiment "
@@ -142,11 +147,6 @@ public class HCSDatasetUploader
         channelDTO.setId(existingChannel.getId());
         dao.updateChannel(channelDTO);
         return channelDTO;
-    }
-
-    private static boolean equals(Integer i1OrNull, Integer i2OrNull)
-    {
-        return i1OrNull == null ? i2OrNull == null : i1OrNull.equals(i2OrNull);
     }
 
     private static UserFailureException createInvalidNewChannelException(long expId,
