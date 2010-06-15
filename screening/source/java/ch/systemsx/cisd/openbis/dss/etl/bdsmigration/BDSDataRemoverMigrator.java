@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.bdsmigration;
 
 import java.io.File;
+import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -26,15 +27,24 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  * 
  * @author Tomasz Pylak
  */
-class BDSDataRemoverMigrator implements IBDSMigrator
+public class BDSDataRemoverMigrator extends AbstractBDSMigrator
 {
+    public BDSDataRemoverMigrator()
+    {
+    }
+    
+    // Every IMigrator needs the following constructor.
+    public BDSDataRemoverMigrator(Properties properties)
+    {
+    }
 
     public String getDescription()
     {
         return "removing unnecessary BDS data";
     }
 
-    public boolean migrate(File dataset)
+    @Override
+    protected boolean doMigration(File dataset)
     {
         if (BDSMigrationMaintananceTask.tryGetOriginalDir(dataset) != null)
         {
@@ -43,10 +53,10 @@ class BDSDataRemoverMigrator implements IBDSMigrator
         }
         try
         {
-            removeDir(dataset, BDSMigrationMaintananceTask.METADATA_DIR);
-            removeDir(dataset, BDSMigrationMaintananceTask.VERSION_DIR);
-            removeDir(dataset, BDSMigrationMaintananceTask.ANNOTATIONS_DIR);
-            removeDir(dataset, BDSMigrationMaintananceTask.DATA_DIR);
+            removeDir(dataset, METADATA_DIR);
+            removeDir(dataset, VERSION_DIR);
+            removeDir(dataset, ANNOTATIONS_DIR);
+            removeDir(dataset, DATA_DIR);
         } catch (EnvironmentFailureException ex)
         {
             return false;

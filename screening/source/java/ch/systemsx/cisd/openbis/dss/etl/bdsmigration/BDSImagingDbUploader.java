@@ -40,6 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.plugins.IMigrator;
 import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.AcquiredPlateImage;
 import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetUploader;
@@ -59,7 +60,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
  */
 class BDSImagingDbUploader
 {
-    public static IBDSMigrator createImagingDbUploaderMigrator(Properties properties)
+    public static IMigrator createImagingDbUploaderMigrator(Properties properties)
     {
         final IImagingUploadDAO dao = createQuery(properties);
         final List<String> channelNames =
@@ -68,7 +69,7 @@ class BDSImagingDbUploader
                 AbstractHCSImageFileExtractor.tryGetChannelComponents(properties);
         checkChannelsAndColorComponents(channelNames, channelColorComponentsOrNull);
 
-        return new IBDSMigrator()
+        return new IMigrator()
             {
                 public String getDescription()
                 {
@@ -123,7 +124,7 @@ class BDSImagingDbUploader
 
     private final List<ColorComponent> channelColorComponentsOrNull;
 
-    private BDSImagingDbUploader(File dataset, IImagingUploadDAO dao,
+    BDSImagingDbUploader(File dataset, IImagingUploadDAO dao,
             String originalDatasetDirName, List<String> channelNames,
             List<ColorComponent> channelColorComponentsOrNull)
     {
@@ -135,7 +136,7 @@ class BDSImagingDbUploader
 
     }
 
-    private boolean migrate()
+    boolean migrate()
     {
         List<AcquiredPlateImage> images = tryExtractMappings();
         if (images == null)

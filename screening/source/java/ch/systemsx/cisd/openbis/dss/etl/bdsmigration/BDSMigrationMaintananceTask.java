@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IMaintenanceTask;
+import ch.systemsx.cisd.etlserver.plugins.IMigrator;
 
 /**
  * Maintenance task which migrates all the BDS datasets to the imaging database.
@@ -91,15 +92,15 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
 
     public void execute()
     {
-        IBDSMigrator imagingDbUploader =
+        IMigrator imagingDbUploader =
                 BDSImagingDbUploader.createImagingDbUploaderMigrator(properties);
-        IBDSMigrator[] migrators =
-                new IBDSMigrator[]
+        IMigrator[] migrators =
+                new IMigrator[]
                     { imagingDbUploader, new BDSOriginalDataRelocatorMigrator(),
                             new BDSDataRemoverMigrator() };
         for (int i = firstStep; i <= lastStep; i++)
         {
-            IBDSMigrator migrator = migrators[i];
+            IMigrator migrator = migrators[i];
             boolean ok = migrateStore(migrator);
             if (ok == false)
             {
@@ -109,7 +110,7 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
         }
     }
 
-    private boolean migrateStore(IBDSMigrator migrator)
+    private boolean migrateStore(IMigrator migrator)
     {
         File[] files = storeRoot.listFiles();
         for (File file : files)
@@ -128,7 +129,7 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
         return true;
     }
 
-    private boolean migrateDatabaseInstance(File dbInstanceDir, IBDSMigrator migrator)
+    private boolean migrateDatabaseInstance(File dbInstanceDir, IMigrator migrator)
     {
         int successCounter = 0, failureCounter = 0;
         for (File l1 : dbInstanceDir.listFiles())
@@ -158,7 +159,7 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
         return failureCounter == 0;
     }
 
-    private void logMigrationStats(IBDSMigrator migrator, int successCounter, int failureCounter)
+    private void logMigrationStats(IMigrator migrator, int successCounter, int failureCounter)
     {
         String desc = migrator.getDescription();
         if (successCounter > 0)
@@ -177,7 +178,7 @@ public class BDSMigrationMaintananceTask implements IMaintenanceTask
         }
     }
 
-    private boolean migrateBDSDataset(File dataset, IBDSMigrator migrator)
+    private boolean migrateBDSDataset(File dataset, IMigrator migrator)
     {
         boolean ok = migrator.migrate(dataset);
         logMigrationFinished(ok, dataset, migrator.getDescription());

@@ -17,20 +17,32 @@
 package ch.systemsx.cisd.openbis.dss.etl.bdsmigration;
 
 import java.io.File;
+import java.util.Properties;
 
 /**
  * Second step of BDS migration, moves data from data/original to original.
  * 
  * @author Tomasz Pylak
  */
-class BDSOriginalDataRelocatorMigrator implements IBDSMigrator
+public class BDSOriginalDataRelocatorMigrator extends AbstractBDSMigrator
 {
+    
+    BDSOriginalDataRelocatorMigrator()
+    {
+    }
+
+    // Every IMigrator needs the following constructor.
+    public BDSOriginalDataRelocatorMigrator(Properties properties)
+    {
+    }
+    
     public String getDescription()
     {
         return "moving data from data/original to original/";
     }
 
-    public boolean migrate(File dataset)
+    @Override
+    protected boolean doMigration(File dataset)
     {
         File originalDir = BDSMigrationMaintananceTask.tryGetOriginalDir(dataset);
         if (originalDir == null)
