@@ -189,8 +189,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
             return new GenericSampleBatchUpdateForm(getViewContext(), sampleType);
         }
 
-        public AbstractTabItemFactory createEntityEditor(final SampleType sampleType,
-                final IIdAndCodeHolder identifiable)
+        public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {
@@ -260,8 +259,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
 
         @Override
-        public AbstractTabItemFactory createEntityEditor(final MaterialType materialType,
-                final IIdAndCodeHolder identifiable)
+        public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {
@@ -339,8 +337,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
 
         @Override
-        public AbstractTabItemFactory createEntityEditor(final ExperimentType entityType,
-                final IIdAndCodeHolder identifiable)
+        public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {
@@ -404,8 +401,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
 
         @Override
-        public AbstractTabItemFactory createEntityEditor(final DataSetType dataSetType,
-                final IIdAndCodeHolder identifiable)
+        public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {

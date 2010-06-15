@@ -143,8 +143,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
         }
 
         @Override
-        public AbstractTabItemFactory createEntityEditor(final ExperimentType experimentType,
-                final IIdAndCodeHolder identifiable)
+        public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {

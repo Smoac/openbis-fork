@@ -333,10 +333,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             return delegator.createBatchUpdateForEntityType(entityType);
         }
 
-        public AbstractTabItemFactory createEntityEditor(final T entityType,
-                final IIdAndCodeHolder identifiable)
+        public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
         {
-            return delegator.createEntityEditor(entityType, identifiable);
+            return delegator.createEntityEditor(identifiable);
         }
 
         public DatabaseModificationAwareWidget createRegistrationForEntityType(T entityType)

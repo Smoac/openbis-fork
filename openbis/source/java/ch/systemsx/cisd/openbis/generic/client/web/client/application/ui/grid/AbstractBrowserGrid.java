@@ -359,7 +359,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 clientPluginFactory.createClientPlugin(entityKind);
         if (editMode)
         {
-            tabView = createClientPlugin.createEntityEditor(entityType, entity);
+            tabView = createClientPlugin.createEntityEditor(entity);
         } else
         {
             tabView = createClientPlugin.createEntityViewer(entityType, entity);

@@ -160,8 +160,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
             return new DummyComponent();
         }
 
-        public AbstractTabItemFactory createEntityEditor(final SampleType sampleType,
-                final IIdAndCodeHolder identifiable)
+        public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
                 {

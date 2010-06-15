@@ -47,8 +47,7 @@ public class ClientPluginAdapter<E extends BasicEntityType, I extends IIdAndCode
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
-    public AbstractTabItemFactory createEntityViewer(final BasicEntityType entityType,
-            final IIdAndCodeHolder identifiable)
+    public AbstractTabItemFactory createEntityViewer(final BasicEntityType entityType, final IIdAndCodeHolder identifiable)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
@@ -58,7 +57,7 @@ public class ClientPluginAdapter<E extends BasicEntityType, I extends IIdAndCode
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
-    public AbstractTabItemFactory createEntityEditor(final E entityType, I identifiable)
+    public AbstractTabItemFactory createEntityEditor(I identifiable)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }

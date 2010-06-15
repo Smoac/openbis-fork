@@ -67,7 +67,7 @@ public final class OpenEntityEditorTabClickListener implements ClickHandler
                         entityType);
         final IClientPlugin<BasicEntityType, IIdAndCodeHolder> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
-        tabView = createClientPlugin.createEntityEditor(entityType, entity);
+        tabView = createClientPlugin.createEntityEditor(entity);
         tabView.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }

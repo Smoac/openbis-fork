@@ -62,5 +62,5 @@ public interface IClientPlugin<T extends BasicEntityType, I extends IIdAndCodeHo
     /**
      * Shows a editor of the specified entity.
      */
-    public AbstractTabItemFactory createEntityEditor(final T entityType, final I identifiable);
+    public AbstractTabItemFactory createEntityEditor(final I identifiable);
 }
