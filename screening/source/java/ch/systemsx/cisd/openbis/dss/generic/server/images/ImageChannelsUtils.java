@@ -160,7 +160,7 @@ public class ImageChannelsUtils
                 mergedChannelsImage = imageFile;
             } else
             {
-                if (imageFile.equals(mergedChannelsImage) == false)
+                if (imageFile.getUniqueId().equals(mergedChannelsImage.getUniqueId()) == false)
                 {
                     return null;
                 }
