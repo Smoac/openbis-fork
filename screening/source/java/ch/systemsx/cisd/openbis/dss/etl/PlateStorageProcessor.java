@@ -88,13 +88,15 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     // tiles geometry, e.g. 3x4 if the well is divided into 12 tiles (3 rows, 4 columns)
     private static final String SPOT_GEOMETRY_PROPERTY = "well_geometry";
 
+    private static final String GENERATE_THUMBNAILS_PROPERTY = "generate-thumbnails";
+    
     private static final String THUMBNAIL_MAX_WIDTH_PROPERTY = "thumbnail-max-width";
 
     private static final int DEFAULT_THUMBNAIL_MAX_WIDTH = 200;
 
     private static final String THUMBNAIL_MAX_HEIGHT_PROPERTY = "thumbnail-max-height";
 
-    private static final int DEFAULT_THUMBNAIL_MAX_HEIGHT = 160;
+    private static final int DEFAULT_THUMBNAIL_MAX_HEIGHT = 120;
 
     private static final String FILE_EXTRACTOR_PROPERTY = "file-extractor";
 
@@ -116,6 +118,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private final int thumbnailMaxHeight;
 
+    private final boolean generateThumbnails;
+    
     // one of the extractors is always null and one not null
     private final IHCSImageFileExtractor imageFileExtractor;
 
@@ -136,6 +140,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         thumbnailMaxHeight =
                 PropertyUtils.getInt(properties, THUMBNAIL_MAX_HEIGHT_PROPERTY,
                         DEFAULT_THUMBNAIL_MAX_HEIGHT);
+        generateThumbnails = PropertyUtils.getBoolean(properties, GENERATE_THUMBNAILS_PROPERTY, false);
 
         String fileExtractorClass = PropertyUtils.getProperty(properties, FILE_EXTRACTOR_PROPERTY);
         if (fileExtractorClass != null)
@@ -280,6 +285,10 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private void createThumbnails(final File rootDirectory, File imagesInStoreFolder,
             List<AcquiredPlateImage> plateImages)
     {
+        if (generateThumbnails == false)
+        {
+            return;
+        }
         File thumbnailsFile = new File(rootDirectory, Constants.HDF5_CONTAINER_FILE_NAME);
         IHDF5Writer writer = HDF5FactoryProvider.get().open(thumbnailsFile);
         String relativeImagesDirectory =
@@ -309,7 +318,12 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                 String path = relativeThumbnailFilePath + ":" + imagePath;
                 plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path,
                         imageReference.tryGetPage(), imageReference.tryGetColorComponent()));
-                writer.writeByteArray(imagePath, output.toByteArray());
+                byte[] byteArray = output.toByteArray();
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug("thumbnail " + imagePath + " (" + byteArray.length + " bytes)");
+                }
+                writer.writeByteArray(imagePath, byteArray);
             } catch (IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
