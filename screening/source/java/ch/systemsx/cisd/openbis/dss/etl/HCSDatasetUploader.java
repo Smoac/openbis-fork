@@ -31,8 +31,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgAcquiredImageDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgChannelStackDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgImageDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgSpotDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -239,7 +237,8 @@ public class HCSDatasetUploader
 
     private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredPlateImage image)
     {
-        return new AcquiredImageInStack(image.getChannelName(), image.getImageReference(), image.getThumbnailFilePathOrNull());
+        return new AcquiredImageInStack(image.getChannelName(), image.getImageReference(), image
+                .getThumbnailFilePathOrNull());
     }
 
     private static ImgChannelStackDTO makeStackDTO(AcquiredPlateImage image, Long[][] spotIds,
@@ -283,15 +282,14 @@ public class HCSDatasetUploader
     {
         long imageId = addImage(image.getImageFilePath());
         Long thumbnailId = addImage(image.getThumbnailPathOrNull());
-        ImgAcquiredImageDTO acquiredImage =
-                new ImgAcquiredImageDTO();
+        ImgAcquiredImageDTO acquiredImage = new ImgAcquiredImageDTO();
         acquiredImage.setImageId(imageId);
         acquiredImage.setThumbnailId(thumbnailId);
         acquiredImage.setChannelStackId(stackId);
         acquiredImage.setChannelId(channelTechId);
         dao.addAcquiredImage(acquiredImage);
     }
-    
+
     private Long addImage(RelativeImageReference imageReferenceOrNull)
     {
         if (imageReferenceOrNull == null)
@@ -423,38 +421,16 @@ public class HCSDatasetUploader
 
     private long createDataset(long contId, ScreeningContainerDatasetInfo info)
     {
-        ImgDatasetDTO dataset =
-                new ImgDatasetDTO(info.getDatasetPermId(), info.getTileRows(), info
-                        .getTileColumns(), contId);
-        return dao.addDataset(dataset);
+        return ScreeningContainerDatasetInfoHelper.createDataset(dao, info, contId);
     }
 
     private long getOrCreateContainer(long expId, ScreeningContainerDatasetInfo info)
     {
-        String containerPermId = info.getContainerPermId();
-        Long containerId = dao.tryGetContainerIdPermId(containerPermId);
-        if (containerId != null)
-        {
-            return containerId;
-        } else
-        {
-            ImgContainerDTO container =
-                    new ImgContainerDTO(containerPermId, info.getContainerRows(), info
-                            .getContainerColumns(), expId);
-            return dao.addContainer(container);
-        }
+        return ScreeningContainerDatasetInfoHelper.getOrCreateContainer(dao, info, expId);
     }
 
     private long getOrCreateExperiment(ScreeningContainerDatasetInfo info)
     {
-        String experimentPermId = info.getExperimentPermId();
-        Long expId = dao.tryGetExperimentIdByPermId(experimentPermId);
-        if (expId != null)
-        {
-            return expId;
-        } else
-        {
-            return dao.addExperiment(experimentPermId);
-        }
+        return ScreeningContainerDatasetInfoHelper.getOrCreateExperiment(dao, info);
     }
 }
