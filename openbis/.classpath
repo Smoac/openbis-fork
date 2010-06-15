@@ -55,6 +55,5 @@
 	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-dbcp/commons-dbcp.jar" sourcepath="/libraries/commons-dbcp/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/cisd-common-basic/cisd-common-basic.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

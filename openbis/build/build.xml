@@ -6,8 +6,6 @@
 
   <property name="mainfolder" value="openbis" />
 
-  <property name="cisd-common-basic.lib" value="${lib}/cisd-common-basic/cisd-common-basic.jar" />
-	
   <property name="gwt.lib" value="${lib}/gwt2.0" />
   <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
 
@@ -251,8 +249,8 @@
   -->
   <target name="compile-gwt-module">
     <delete dir="${webapp.dist}" />
-    <java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:${cisd-common-basic.lib}:../openbis/${sources}:${sources}" classname="com.google.gwt.dev.Compiler"
-      fork="true">
+    <java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../common/${sources}:../openbis/${sources}:${sources}" 
+    	classname="com.google.gwt.dev.Compiler" fork="true">
       <jvmarg value="-Xmx1024M" />
       <arg value="-war" />
       <arg value="${webapp.dist}" />
@@ -406,9 +404,11 @@
       <fileset dir="${lib}/jython">
         <include name="jython.jar" />
       </fileset>
-      <fileset dir="${lib}/cisd-common-basic">
-        <include name="cisd-common-basic.jar" />
-      </fileset>
+    </copy>
+  	<copy todir="${targets.www.web-inf}/classes">
+    	<fileset dir="../common/${sources}">
+    		<include name="ch/systemsx/cisd/common/shared/basic/**/*.java" />
+    	</fileset>
     </copy>
   </target>
   <!--
@@ -693,7 +693,7 @@
   -->
   <target name="compile-module-test" description="Compile the module test mode">
     <delete dir="${targets.www}/${module-test.path}" />
-    <java classpath="${ecp}:${ecp.gwt}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
+    <java classpath="${ecp}:${ecp.gwt}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../common/${sources}:../openbis/${sources}:${sources}"
       classname="com.google.gwt.dev.Compiler" fork="true">
       <jvmarg value="-Xmx512M" />
       <arg value="-war" />
