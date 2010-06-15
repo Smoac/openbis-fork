@@ -94,7 +94,7 @@ public class ImgFeatureValuesDTO extends AbstractHashable
         return featureDefId;
     }
 
-    public void setFeatureDefId(Integer featureDefId)
+    public void setFeatureDefId(long featureDefId)
     {
         this.featureDefId = featureDefId;
     }

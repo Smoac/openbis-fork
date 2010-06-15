@@ -23,6 +23,7 @@ import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.Update;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ByteArrayMapper;
 
 /**
  * @author Tomasz Pylak
@@ -86,6 +87,12 @@ public interface IImagingUploadDAO extends TransactionQuery
     @Select("select * from SPOTS where cont_id = ?{1}")
     public List<ImgSpotDTO> listSpots(long contId);
 
+    @Select("SELECT * from FEATURE_DEFS where DS_ID = ?{1}")
+    public List<ImgFeatureDefDTO> listFeatureDefsByDataSetId(long dataSetId);
+
+    @Select(value = "SELECT * from FEATURE_VALUES where FD_ID = ?{1.id}", resultSetBinding = FeatureVectorDataObjectBinding.class)
+    public List<ImgFeatureValuesDTO> getFeatureValues(ImgFeatureDefDTO featureDef);
+
     // inserts
 
     @Select("insert into EXPERIMENTS (PERM_ID) values (?{1}) returning ID")
@@ -119,6 +126,15 @@ public interface IImagingUploadDAO extends TransactionQuery
     @Select("insert into SPOTS (X, Y, CONT_ID, PERM_ID) values "
             + "(?{1.column}, ?{1.row}, ?{1.containerId}, ?{1.permId}) returning ID")
     public long addSpot(ImgSpotDTO spot);
+
+    @Select("INSERT into FEATURE_DEFS (NAME, DESCRIPTION, DS_ID) values "
+            + "(?{1.name}, ?{1.description}, ?{1.dataSetId}) RETURNING ID")
+    public long addFeatureDef(ImgFeatureDefDTO featureDef);
+
+    @Select(value = "INSERT into FEATURE_VALUES (VALUES, Z_in_M, T_in_SEC, FD_ID) values "
+            + "(?{1.values}, ?{1.z}, ?{1.t}, ?{1.featureDefId}) RETURNING ID", parameterBindings =
+        { ByteArrayMapper.class })
+    public long addFeatureValues(ImgFeatureValuesDTO featureValues);
 
     // updates
 

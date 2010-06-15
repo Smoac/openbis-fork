@@ -22,7 +22,8 @@ import net.lemnik.eodsql.ResultColumn;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
 /**
- * Corresponds to a row in the FEATURE_DEFS table.
+ * Corresponds to a row in the FEATURE_DEFS table. Name and description should be filled out, but if
+ * the object has not yet been persisted, id and dataSetId may be invalid.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
