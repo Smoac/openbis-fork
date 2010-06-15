@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSect
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 
 /**
  * Adds module sections the viewer after both {@link SectionsPanel} and {@link IModule}s are
@@ -36,7 +36,7 @@ public class ModulesSectionsManager
 
     private SectionsPanel container;
 
-    private IEntityInformationHolderWithPermId entity;
+    private IEntityInformationHolderWithIdentifier entity;
 
     private String displayIdSuffix;
 
@@ -48,7 +48,7 @@ public class ModulesSectionsManager
      */
     @SuppressWarnings("hiding")
     public void initialize(final SectionsPanel container, final String displayIdSuffix,
-            final IEntityInformationHolderWithPermId entity)
+            final IEntityInformationHolderWithIdentifier entity)
     {
         this.container = container;
         this.displayIdSuffix = displayIdSuffix;
@@ -61,7 +61,7 @@ public class ModulesSectionsManager
 
     /**
      * Sets the values of chosen fields. Adds module sections to given container if called after
-     * {@link #initialize(SectionsPanel, String, IEntityInformationHolderWithPermId)}.
+     * {@link #initialize(SectionsPanel, String, IEntityInformationHolderWithIdentifier)}.
      */
     @SuppressWarnings("hiding")
     public void initialize(final List<IModule> modules)

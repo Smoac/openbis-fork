@@ -31,13 +31,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.PlateMaterialReviewerColDefKind;
@@ -63,18 +66,19 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
 
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
-            IEntityInformationHolderWithPermId experiment, String[] materialItemList)
+            IEntityInformationHolderWithIdentifier experiment, String[] materialItemList)
     {
         PlateMaterialsSearchCriteria materialCriteria =
                 new PlateMaterialsSearchCriteria(experiment.getId(), materialItemList);
-        return create(viewContext, materialCriteria);
+        return create(viewContext, materialCriteria, experiment);
     }
 
     private static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
-            PlateMaterialsSearchCriteria materialCriteria)
+            PlateMaterialsSearchCriteria materialCriteria,
+            IEntityInformationHolderWithIdentifier experiment)
     {
-        return new PlateMaterialReviewer(viewContext, materialCriteria)
+        return new PlateMaterialReviewer(viewContext, materialCriteria, experiment)
                 .asDisposableWithoutToolbar();
     }
 
@@ -82,16 +86,20 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
 
     private final PlateMaterialsSearchCriteria materialCriteria;
 
+    private final ExperimentIdentifier experiment;
+
     private final DefaultChannelState channelState;
 
     private PlateMaterialReviewer(IViewContext<IScreeningClientServiceAsync> viewContext,
-            PlateMaterialsSearchCriteria materialCriteria)
+            PlateMaterialsSearchCriteria materialCriteria,
+            IEntityInformationHolderWithIdentifier experiment)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID,
                 DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
         this.viewContext = viewContext;
         this.materialCriteria = materialCriteria;
         this.channelState = new DefaultChannelState();
+        this.experiment = new ExperimentIdentifier(experiment.getIdentifier());
         registerClickListeners();
     }
 
@@ -102,13 +110,10 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                     {
                         public void handle(WellContent wellContent, boolean specialKeyPressed)
                         {
-                            // EntityReference nestedMaterial =
-                            // wellContent.tryGetNestedMaterialContent();
-                            // ClientPluginFactory.openGeneMaterialViewer(nestedMaterial,
-                            // experiment,
-                            // viewContext);
-                            showEntityViewer(wellContent.tryGetNestedMaterialContent(),
-                                    specialKeyPressed);
+                            EntityReference nestedMaterial =
+                                    wellContent.tryGetNestedMaterialContent();
+                            ClientPluginFactory.openGeneMaterialViewer(nestedMaterial, experiment,
+                                    viewContext);
                         }
                     });
         registerLinkClickListenerFor(PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL.id(),

@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 
@@ -39,13 +39,13 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    private final IEntityInformationHolderWithPermId experiment;
+    private final IEntityInformationHolderWithIdentifier experiment;
 
     private final MultilineVarcharField materialListField;
 
     public ExperimentPlateLocationsSection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            IEntityInformationHolderWithPermId experiment)
+            IEntityInformationHolderWithIdentifier experiment)
     {
         super(screeningViewContext.getMessage(Dict.EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION),
                 screeningViewContext);
