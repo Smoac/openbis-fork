@@ -285,17 +285,22 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private void createThumbnails(final File rootDirectory, File imagesInStoreFolder,
             List<AcquiredPlateImage> plateImages)
     {
-        if (generateThumbnails == false)
-        {
-            return;
-        }
         File thumbnailsFile = new File(rootDirectory, Constants.HDF5_CONTAINER_FILE_NAME);
-        IHDF5Writer writer = HDF5FactoryProvider.get().open(thumbnailsFile);
         String relativeImagesDirectory =
                 getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder);
         String relativeThumbnailFilePath =
                 getRelativeImagesDirectory(rootDirectory, thumbnailsFile);
+        if (generateThumbnails == false)
+        {
+            for (AcquiredPlateImage plateImage : plateImages)
+            {
+                RelativeImageReference imageReference = plateImage.getImageReference();
+                imageReference.setRelativeImageFolder(relativeImagesDirectory);
+            }
+            return;
+        }
 
+        IHDF5Writer writer = HDF5FactoryProvider.get().open(thumbnailsFile);
         for (AcquiredPlateImage plateImage : plateImages)
         {
             RelativeImageReference imageReference = plateImage.getImageReference();
