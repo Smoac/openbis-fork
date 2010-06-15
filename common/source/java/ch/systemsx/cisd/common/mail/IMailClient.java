@@ -29,6 +29,10 @@ public interface IMailClient
 {
 
     /**
+     * Warning: deprecated, use
+     * {@link #sendEmailMessage(String, String, EMailAddress, EMailAddress, EMailAddress...)}
+     * instead. They do proper escaping of personal names with comas and semi-colons.<br>
+     * <br>
      * Sends a mail with given <var>subject</var> and <var>content</var> to given
      * <var>recipients</var>.
      * 
@@ -36,11 +40,8 @@ public interface IMailClient
      * @param fromOrNull from part of the email header. Can be <code>null</code>. If specified -
      *            will overwrite the 'from' value specified for the client.
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
-     * @deprecated use
-     *             {@link #sendEmailMessage(String, String, EMailAddress, EMailAddress, EMailAddress...)}
-     *             instead. They do proper escaping of personal names with comas and semi-colons.
      */
-    @Deprecated
+    // TODO 2010-06-15, Tomasz Pylak: @deprecated, use the new method
     public void sendMessage(String subject, String content, String replyToOrNull, From fromOrNull,
             String... recipients) throws EnvironmentFailureException;
 
