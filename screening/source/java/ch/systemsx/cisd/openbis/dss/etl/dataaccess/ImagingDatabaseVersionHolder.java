@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
 public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
 {
     /** Current version of the database. */
-    static final String DATABASE_VERSION = "003"; //S83
+    static final String DATABASE_VERSION = "003"; // S83
 
     public String getDatabaseVersion()
     {

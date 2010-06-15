@@ -107,17 +107,23 @@ public class HCSDatasetLoaderFactory
                     return loader.getWellGeometry();
                 }
 
-                public AbsoluteImageReference tryGetImage(int chosenChannel, Location wellLocation,
-                        Location tileLocation, Size thumbnailSizeOrNull)
+                public AbsoluteImageReference tryGetImage(String chosenChannel,
+                        Location wellLocation, Location tileLocation, Size thumbnailSizeOrNull)
                 {
                     if (thumbnailSizeOrNull != null)
                     {
                         return null;
                     }
                     String absPath =
-                            loader.tryGetStandardNodeAt(chosenChannel, wellLocation, tileLocation);
+                            loader.tryGetStandardNodeAt(convertToNumber(chosenChannel),
+                                    wellLocation, tileLocation);
                     return new AbsoluteImageReference(new FileBasedContent(new File(absPath)),
                             null, null);
+                }
+
+                private int convertToNumber(String chosenChannel)
+                {
+                    return Integer.parseInt(chosenChannel) - 1;
                 }
 
                 public List<String> getChannelsNames()
@@ -125,9 +131,14 @@ public class HCSDatasetLoaderFactory
                     List<String> names = new ArrayList<String>();
                     for (int i = 0; i < getChannelCount(); i++)
                     {
-                        names.add("Channel " + (i + 1));
+                        names.add(convertToName(i));
                     }
                     return names;
+                }
+
+                private String convertToName(int i)
+                {
+                    return (i + 1) + "";
                 }
 
             };

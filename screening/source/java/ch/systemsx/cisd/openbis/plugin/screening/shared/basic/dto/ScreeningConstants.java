@@ -74,4 +74,6 @@ public class ScreeningConstants
     /** path to the datastore screening servlet able to display images in different channels */
     public static final String DATASTORE_SCREENING_SERVLET_URL = "datastore_server_screening";
 
+    public static final String MERGED_CHANNELS = "Merged Channels";
+
 }

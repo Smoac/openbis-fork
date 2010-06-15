@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * Handles displaying images in different channels.
@@ -43,7 +44,7 @@ class ChannelChooser
 {
     public static interface IChanneledViewerFactory
     {
-        Widget create(int channel);
+        Widget create(String value);
     }
 
     public static LayoutContainer createViewerWithChannelChooser(
@@ -52,8 +53,7 @@ class ChannelChooser
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
-
-        int initialChannel = channelState.getDefaultChannel();
+        String initialChannel = channelState.getDefaultChannel(channelsNames);
         if (channelsNames.size() > 1)
         {
             final List<String> channelNames = createChannelsDescriptions(channelsNames);
@@ -67,9 +67,8 @@ class ChannelChooser
                                     SelectionChangedEvent<SimpleComboValue<String>> se)
                             {
                                 String value = se.getSelectedItem().getValue();
-                                int channel = channelNames.indexOf(value);
-                                Widget viewerWidget = viewerFactory.create(channel);
-                                channelState.setDefaultChannel(channel);
+                                Widget viewerWidget = viewerFactory.create(value);
+                                channelState.setDefaultChannel(value);
                                 GuiUtils.replaceLastItem(container, viewerWidget);
                             }
                         });
@@ -83,14 +82,16 @@ class ChannelChooser
     }
 
     private static ComboBox<SimpleComboValue<String>> createChannelChooser(
-            List<String> channelNames, int initialChannel)
+            List<String> channelNames, String initialChannelOrNull)
     {
         SimpleComboBox<String> combo = new SimpleComboBox<String>();
         combo.setTriggerAction(TriggerAction.ALL);
         combo.add(channelNames);
         combo.setAllowBlank(false);
         combo.setEditable(false);
-        combo.setSimpleValue(channelNames.get(initialChannel));
+        String initialChannelName =
+                initialChannelOrNull != null ? initialChannelOrNull : channelNames.get(0);
+        combo.setSimpleValue(initialChannelName);
         return combo;
     }
 
@@ -99,7 +100,7 @@ class ChannelChooser
         assert realChannelsNames.size() > 0 : "there has to be at least one channel";
 
         final List<String> allChannelsNames = new ArrayList<String>();
-        allChannelsNames.add("Merged Channels");
+        allChannelsNames.add(ScreeningConstants.MERGED_CHANNELS);
         allChannelsNames.addAll(realChannelsNames);
         return allChannelsNames;
     }
@@ -110,21 +111,25 @@ class ChannelChooser
      */
     public static class DefaultChannelState
     {
-        private int defaultChannel = 1;
+        private String defaultChannel = null;
 
         public DefaultChannelState()
         {
 
         }
 
-        public int getDefaultChannel()
+        public String getDefaultChannel(List<String> channelsNames)
         {
+            if (defaultChannel == null)
+            {
+                defaultChannel = channelsNames.get(0);
+            }
             return defaultChannel;
         }
 
-        public void setDefaultChannel(int defaultChannel)
+        public void setDefaultChannel(String value)
         {
-            this.defaultChannel = defaultChannel;
+            this.defaultChannel = value;
         }
     }
 }

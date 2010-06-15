@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.images;
 
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * DTO to point to a screening image or its thumbnail, optionally with all channels merged.
@@ -39,8 +40,8 @@ public class TileImageReference
 
     protected boolean mergeAllChannels;
 
-    // contains the channel number or the number of all channels if all of them should be merged
-    protected int channel;
+    /** contains the channel name or {@link ScreeningConstants#MERGED_CHANNELS} */
+    protected String channel;
 
     public String getSessionId()
     {
@@ -62,7 +63,7 @@ public class TileImageReference
         return mergeAllChannels;
     }
 
-    public int getChannel()
+    public String getChannel()
     {
         return channel;
     }

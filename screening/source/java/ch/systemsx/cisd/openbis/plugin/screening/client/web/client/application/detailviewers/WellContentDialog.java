@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 public class WellContentDialog extends Dialog
 {
+
     public static void showContentDialog(final WellData wellData, DefaultChannelState channelState,
             final ScreeningViewContext viewContext)
     {
@@ -190,7 +191,7 @@ public class WellContentDialog extends Dialog
     {
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
-                public LayoutContainer create(int channel)
+                public LayoutContainer create(String channel)
                 {
                     String sessionId = getSessionId(viewContext);
                     return createTilesGrid(images, channel, sessionId, imageWidth, imageHeight);
@@ -207,10 +208,10 @@ public class WellContentDialog extends Dialog
     {
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
-                public Widget create(int channel)
+                public Widget create(String channel)
                 {
-                    return createImageViewer(viewContext, wellContent, imageWidthPx, imageHeightPx,
-                            channel);
+                    return createImageViewerForChannel(viewContext, wellContent, imageWidthPx,
+                            imageHeightPx, channel);
                 }
             };
         DatasetImagesReference imageDataset = wellContent.tryGetImages();
@@ -228,8 +229,8 @@ public class WellContentDialog extends Dialog
      * 
      * @param channel Channel numbers start with 1. Channel 0 consists of all other channels merged.
      */
-    public static Widget createImageViewer(IViewContext<?> viewContext, WellContent wellContent,
-            int imageWidthPx, int imageHeightPx, int channel)
+    public static Widget createImageViewerForChannel(IViewContext<?> viewContext,
+            WellContent wellContent, int imageWidthPx, int imageHeightPx, String channel)
     {
         DatasetImagesReference images = wellContent.tryGetImages();
         if (images == null)
@@ -241,7 +242,7 @@ public class WellContentDialog extends Dialog
         {
             return new Text("Incorrect well code.");
         }
-        if (channel > images.getImageParameters().getChannelsNumber())
+        if (images.getImageParameters().getChannelsNames().contains(channel) == false)
         {
             return new Text("No images available for this channel.");
         }
@@ -251,7 +252,7 @@ public class WellContentDialog extends Dialog
                 imageHeightPx);
     }
 
-    private static LayoutContainer createTilesGrid(WellImages images, int channel,
+    private static LayoutContainer createTilesGrid(WellImages images, String channel,
             String sessionId, int imageWidth, int imageHeight)
     {
         LayoutContainer container = new LayoutContainer(new TableLayout(images.getTileColsNum()));
@@ -273,7 +274,7 @@ public class WellContentDialog extends Dialog
     }
 
     /** generates URL of an image on Data Store server */
-    private static String createDatastoreImageUrl(WellImages images, int channel, int tileRow,
+    private static String createDatastoreImageUrl(WellImages images, String channel, int tileRow,
             int tileCol, int width, int height, String sessionID)
     {
         URLMethodWithParameters methodWithParameters =
@@ -281,13 +282,10 @@ public class WellContentDialog extends Dialog
                         + ScreeningConstants.DATASTORE_SCREENING_SERVLET_URL);
         methodWithParameters.addParameter("sessionID", sessionID);
         methodWithParameters.addParameter("dataset", images.getDatasetCode());
-        if (channel == 0)
+        methodWithParameters.addParameter("channel", channel);
+        if (channel.equals(ScreeningConstants.MERGED_CHANNELS))
         {
-            methodWithParameters.addParameter("channel", images.getChannelsNames().size());
             methodWithParameters.addParameter("mergeChannels", "true");
-        } else
-        {
-            methodWithParameters.addParameter("channel", channel);
         }
         methodWithParameters.addParameter("wellRow", images.getWellLocation().getRow());
         methodWithParameters.addParameter("wellCol", images.getWellLocation().getColumn());

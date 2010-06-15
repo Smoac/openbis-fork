@@ -27,6 +27,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
@@ -113,21 +115,18 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
      * @param chosenChannel start from 1
      * @return image (with absolute path, page and color)
      */
-    public AbsoluteImageReference tryGetImage(int chosenChannel, Location wellLocation,
+    public AbsoluteImageReference tryGetImage(String chosenChannel, Location wellLocation,
             Location tileLocation, Size thumbnailSizeOrNull)
     {
-        assert chosenChannel > 0;
+        assert StringUtils.isBlank(chosenChannel) == false;
         assert tileLocation.getX() <= getDataset().getFieldNumberOfColumns();
         assert tileLocation.getY() <= getDataset().getFieldNumberOfRows();
         assert wellLocation.getX() <= getContainer().getNumberOfColumns();
         assert wellLocation.getY() <= getContainer().getNumberOfRows();
 
-        long[] channelIds =
-                query.getChannelIdsByDatasetIdOrExperimentId(getDataset().getId(), getContainer()
-                        .getExperimentId());
-        assert chosenChannel <= channelIds.length;
-
-        long chosenChannelId = channelIds[chosenChannel - 1];
+        long chosenChannelId = // FIXME Jun 15, 2010, IA: tests
+                query.getChannelIdByChannelNameDatasetIdOrExperimentId(getDataset().getId(),
+                        getContainer().getExperimentId(), chosenChannel);
 
         ImgImageDTO imageDTO;
         IContent content = null;

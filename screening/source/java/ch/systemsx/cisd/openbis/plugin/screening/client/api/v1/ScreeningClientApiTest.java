@@ -54,8 +54,7 @@ public class ScreeningClientApiTest
         if (args.length != 3)
         {
             System.err.println("Usage: <user> <password> <openbis-server-url>");
-            System.err
-                    .println("Example parameters: test-user my-password http://localhost:8888");
+            System.err.println("Example parameters: test-user my-password http://localhost:8888");
             return;
         }
         configureLogging();
@@ -130,7 +129,7 @@ public class ScreeningClientApiTest
                     {
 
                         PlateImageReference imageRef =
-                                new PlateImageReference(wellRow, wellCol, tile, channel,
+                                new PlateImageReference(wellRow, wellCol, tile, channel + "",
                                         datasetIdentifier);
                         imageRefs.add(imageRef);
                         imageFiles.add(new File(dir, createImageFileName(imageRef)));

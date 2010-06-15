@@ -15,14 +15,14 @@ public class PlateImageReference extends DatasetIdentifier implements Serializab
 
     private final int tile;
 
-    private final int channel;
+    private final String channel;
 
     /**
      * @param dataset if image dataset is specified, image will be fetched from it. If a feature
      *            vector dataset is specified, a connected image dataset will be found and image
      *            will be fetched from it.
      */
-    public PlateImageReference(int wellRow, int wellColumn, int tile, int channel,
+    public PlateImageReference(int wellRow, int wellColumn, int tile, String channel,
             IDatasetIdentifier dataset)
     {
         super(dataset.getDatasetCode(), dataset.getDatastoreServerUrl());
@@ -43,8 +43,10 @@ public class PlateImageReference extends DatasetIdentifier implements Serializab
         return tile;
     }
 
-    /** index of a channel in which an image has been taken, starts from 0 */
-    public int getChannel()
+    /**
+     * channel name
+     */
+    public String getChannel()
     {
         return channel;
     }
@@ -62,7 +64,7 @@ public class PlateImageReference extends DatasetIdentifier implements Serializab
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + super.hashCode();
-        result = prime * result + channel;
+        result = prime * result + channel.hashCode();
         result = prime * result + tile;
         result = prime * result + wellPosition.hashCode();
         return result;

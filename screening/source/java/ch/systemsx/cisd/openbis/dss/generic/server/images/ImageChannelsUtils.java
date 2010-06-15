@@ -57,7 +57,7 @@ public class ImageChannelsUtils
         Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
         if (params.isMergeAllChannels())
         {
-            for (int chosenChannel = 1; chosenChannel <= params.getChannel(); chosenChannel++)
+            for (String chosenChannel : imageAccessor.getChannelsNames())
             {
                 AbsoluteImageReference image =
                         getImage(imageAccessor, wellLocation, tileLocation, chosenChannel,
@@ -104,10 +104,11 @@ public class ImageChannelsUtils
         ColorComponent colorComponent = imageReference.tryGetColorComponent();
         if (colorComponent == null)
         {
-            // We have to select a single channel from the (most possibly) grayscale image.
+            // TODO 2010-06-15 Izabela Adamczyk: We have to select a single channel from the (most
+            // possibly) grayscale image.
             // This image contains only one channel, but can have R, G, and B components set.
             // We select just one to make the image colorful.
-            colorComponent = channelToColorComponent(params.getChannel());
+            return image;
         }
         return transformToChannel(image, colorComponent);
     }
@@ -159,7 +160,7 @@ public class ImageChannelsUtils
                 mergedChannelsImage = imageFile;
             } else
             {
-                if (imageFile.getUniqueId().equals(mergedChannelsImage.getUniqueId()) == false)
+                if (imageFile.equals(mergedChannelsImage) == false)
                 {
                     return null;
                 }
@@ -218,7 +219,7 @@ public class ImageChannelsUtils
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
     public static AbsoluteImageReference getImage(IHCSDatasetLoader imageAccessor,
-            Location wellLocation, Location tileLocation, int chosenChannel,
+            Location wellLocation, Location tileLocation, String chosenChannel,
             Size thumbnailSizeOrNull)
     {
         AbsoluteImageReference image =
@@ -273,22 +274,6 @@ public class ImageChannelsUtils
     private static int getGrayscaleAsChannel(int rgb, ColorComponent colorComponent)
     {
         return colorComponent.extractSingleComponent(rgb).getRGB();
-    }
-
-    private static ColorComponent channelToColorComponent(int channel)
-    {
-        int ix = (channel - 1) % 3;
-        switch (ix)
-        {
-            case 0:
-                return ColorComponent.BLUE;
-            case 1:
-                return ColorComponent.GREEN;
-            case 2:
-                return ColorComponent.RED;
-            default:
-                throw new IllegalStateException();
-        }
     }
 
     // returns the ingredient for the specified channel

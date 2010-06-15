@@ -27,10 +27,22 @@ public class PlateImageReferenceTest extends AssertJUnit
     @Test
     public void testEquality()
     {
-        PlateImageReference plate1 = new PlateImageReference(1, 2, 3, 4, getDatasetIdentifier());
-        PlateImageReference plate2 = new PlateImageReference(1, 2, 3, 4, getDatasetIdentifier());
+        PlateImageReference plate1 =
+                new PlateImageReference(1, 2, 3, "channel1", getDatasetIdentifier());
+        PlateImageReference plate2 =
+                new PlateImageReference(1, 2, 3, "channel1", getDatasetIdentifier());
         assertEquals(plate1, plate2);
         assertEquals(plate1.hashCode(), plate2.hashCode());
+    }
+
+    @Test
+    public void testNonEquality()
+    {
+        PlateImageReference plate1 =
+                new PlateImageReference(1, 2, 3, "channel1", getDatasetIdentifier());
+        PlateImageReference plate2 =
+                new PlateImageReference(1, 2, 3, "channel2", getDatasetIdentifier());
+        assertFalse(plate1.equals(plate2));
     }
 
     private IDatasetIdentifier getDatasetIdentifier()

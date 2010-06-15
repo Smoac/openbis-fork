@@ -146,7 +146,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
         List<String> totalChannels = findMaxChannelCollection(wellLocations);
         return ChannelChooser.createViewerWithChannelChooser(new IChanneledViewerFactory()
             {
-                public Widget create(int channel)
+                public Widget create(String channel)
                 {
                     return createGeneLocationPanel(wellLocations, channel);
                 }
@@ -154,7 +154,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
     }
 
     private static List<String> findMaxChannelCollection(List<WellContent> wells)
-    {// FIXME 2010-06-14, IA: channel number-name may not work!!!!
+    {
         List<String> channels = new ArrayList<String>();
         for (WellContent well : wells)
         {
@@ -173,7 +173,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
         return channels;
     }
 
-    private Widget createGeneLocationPanel(List<WellContent> wellLocations, int channel)
+    private Widget createGeneLocationPanel(List<WellContent> wellLocations, String channel)
     {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new TableLayout(3));
@@ -186,7 +186,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
         return container;
     }
 
-    private LayoutContainer createLocationDescription(WellContent wellContent, int channel)
+    private LayoutContainer createLocationDescription(WellContent wellContent, String channel)
     {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
@@ -211,10 +211,10 @@ class GenePlateLocationsSection extends SingleSectionPanel
         return container;
     }
 
-    private Widget createImageViewer(WellContent wellContent, int channel)
+    private Widget createImageViewer(WellContent wellContent, String channel)
     {
-        return WellContentDialog.createImageViewer(screeningViewContext, wellContent, channel,
-                IMAGE_WIDTH_PX, IMAGE_HEIGHT_PX);
+        return WellContentDialog.createImageViewerForChannel(screeningViewContext, wellContent,
+                IMAGE_WIDTH_PX, IMAGE_HEIGHT_PX, channel);
     }
 
     private Widget createLabel(IEntityInformationHolder entityInformationHolder)

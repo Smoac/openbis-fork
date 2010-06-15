@@ -87,7 +87,7 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
             this.wellLocation = new Location(wellCol, wellRow);
             this.tileLocation = new Location(tileCol, tileRow);
 
-            this.channel = getIntParam(request, CHANNEL_PARAM);
+            this.channel = getParam(request, CHANNEL_PARAM);
             String mergeChannelsText = request.getParameter(MERGE_CHANNELS_PARAM);
             this.mergeAllChannels =
                     (mergeChannelsText == null) ? false : mergeChannelsText

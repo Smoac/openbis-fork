@@ -43,6 +43,6 @@ public interface IHCSDatasetLoader
      * @param chosenChannel start from 1
      * @return image (with absolute path, page and color)
      */
-    AbsoluteImageReference tryGetImage(int chosenChannel, Location wellLocation,
+    AbsoluteImageReference tryGetImage(String chosenChannel, Location wellLocation,
             Location tileLocation, Size thumbnailSizeOrNull);
 }
