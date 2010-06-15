@@ -28,7 +28,7 @@ import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 
 /**
- * Tests for {@link IFeatureVectorDAO}.
+ * Tests for {@link IImagingUploadDAO} methods that deal with feature vectors.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
     { "db", "screening" })
 public class FeatureVectorDAOTest extends AbstractDBTest
 {
-    private IFeatureVectorDAO dao;
+    private IImagingUploadDAO dao;
 
     private ImgDatasetDTO dataset;
 
@@ -51,12 +51,12 @@ public class FeatureVectorDAOTest extends AbstractDBTest
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        dao = DBUtils.getQuery(datasource, IFeatureVectorDAO.class);
+        dao = DBUtils.getQuery(datasource, IImagingUploadDAO.class);
     }
 
     private ImgDatasetDTO createDataSet()
     {
-        IImagingUploadDAO imagingDao = DBUtils.getQuery(datasource, IImagingUploadDAO.class);
+        IImagingUploadDAO imagingDao = dao;
 
         // Create an Experiment
         final long experimentId = imagingDao.addExperiment(EXP_PERM_ID);
@@ -73,9 +73,6 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         final ImgDatasetDTO ds =
                 new ImgDatasetDTO(DS_PERM_ID, fieldsHeight, fieldsWidth, containerId);
         final long datasetId = imagingDao.addDataset(ds);
-
-        imagingDao.commit();
-        imagingDao.close();
 
         ds.setId(datasetId);
         return ds;
