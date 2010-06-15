@@ -57,7 +57,6 @@ import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.PlateDimension;
-import ch.systemsx.cisd.etlserver.PlateDimensionParser;
 import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 import ch.systemsx.cisd.openbis.dss.Constants;
@@ -67,7 +66,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -77,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  */
 public final class PlateStorageProcessor extends AbstractStorageProcessor
 {
-
 
     /** The directory where <i>original</i> data could be found. */
     private static final String DIR_ORIGINAL = "original";
@@ -90,13 +87,15 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     // tiles geometry, e.g. 3x4 if the well is divided into 12 tiles (3 rows, 4 columns)
     private static final String SPOT_GEOMETRY_PROPERTY = "well_geometry";
-    
+
     private static final String THUMBNAIL_MAX_WIDTH_PROPERTY = "thumbnail-max-width";
+
     private static final int DEFAULT_THUMBNAIL_MAX_WIDTH = 200;
 
     private static final String THUMBNAIL_MAX_HEIGHT_PROPERTY = "thumbnail-max-height";
+
     private static final int DEFAULT_THUMBNAIL_MAX_HEIGHT = 160;
-    
+
     private static final String FILE_EXTRACTOR_PROPERTY = "file-extractor";
 
     // a class of the old-style image extractor
@@ -114,9 +113,9 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private final List<String> channelNames;
 
     private final int thumbnailMaxWidth;
-    
+
     private final int thumbnailMaxHeight;
-    
+
     // one of the extractors is always null and one not null
     private final IHCSImageFileExtractor imageFileExtractor;
 
@@ -185,19 +184,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private ScreeningContainerDatasetInfo createScreeningDatasetInfo(Experiment experiment,
             DataSetInformation dataSetInformation)
     {
-        ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
-        info.setExperimentPermId(experiment.getPermId());
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
-                dataSetInformation.tryToGetSample();
-        assert sample != null : "no sample connected to a dataset";
-        info.setContainerPermId(sample.getPermId());
-        info.setDatasetPermId(dataSetInformation.getDataSetCode());
-
-        PlateDimension plateGeometry = getPlateGeometry(dataSetInformation);
-        int plateRows = plateGeometry.getRowsNum();
-        int plateCols = plateGeometry.getColsNum();
-        info.setContainerRows(plateRows);
-        info.setContainerColumns(plateCols);
+        ScreeningContainerDatasetInfo info =
+                ScreeningContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);
 
         info.setTileRows(spotGeometry.getRows());
         info.setTileColumns(spotGeometry.getColumns());
@@ -207,16 +195,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
     {
-        final IEntityProperty[] sampleProperties = dataSetInformation.getProperties();
-        final PlateDimension plateDimension =
-                PlateDimensionParser.tryToGetPlateDimension(sampleProperties);
-        if (plateDimension == null)
-        {
-            throw new EnvironmentFailureException(
-                    "Missing plate geometry for the plate registered for sample identifier '"
-                            + dataSetInformation.getSampleIdentifier() + "'.");
-        }
-        return plateDimension;
+        return ScreeningContainerDatasetInfo.getPlateGeometry(dataSetInformation);
     }
 
     // ---------------------------------
@@ -291,9 +270,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         List<AcquiredPlateImage> plateImages = extractionResult.getImages();
 
         File imagesInStoreFolder = moveFileToDirectory(incomingDataSetDirectory, originalFolder);
-        
+
         createThumbnails(rootDirectory, imagesInStoreFolder, plateImages);
-        
 
         storeInDatabase(experiment, dataSetInformation, extractionResult);
         return rootDirectory;
@@ -305,9 +283,10 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         File thumbnailsFile = new File(rootDirectory, Constants.HDF5_CONTAINER_FILE_NAME);
         IHDF5Writer writer = HDF5FactoryProvider.get().open(thumbnailsFile);
         String relativeImagesDirectory =
-            getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder);
-        String relativeThumbnailFilePath = getRelativeImagesDirectory(rootDirectory, thumbnailsFile);
-        
+                getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder);
+        String relativeThumbnailFilePath =
+                getRelativeImagesDirectory(rootDirectory, thumbnailsFile);
+
         for (AcquiredPlateImage plateImage : plateImages)
         {
             RelativeImageReference imageReference = plateImage.getImageReference();
@@ -315,7 +294,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
             imageReference.setRelativeImageFolder(relativeImagesDirectory);
             File img = new File(imagesInStoreFolder, imagePath);
             BufferedImage image = ImageUtil.loadImage(img);
-            BufferedImage thumbnail = ImageUtil.createThumbnail(image, thumbnailMaxWidth, thumbnailMaxHeight);
+            BufferedImage thumbnail =
+                    ImageUtil.createThumbnail(image, thumbnailMaxWidth, thumbnailMaxHeight);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             try
             {
@@ -337,7 +317,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         }
         writer.close();
     }
-    
+
     private String getRelativeImagesDirectory(File rootDirectory, File imagesInStoreFolder)
     {
         String root = rootDirectory.getAbsolutePath();
@@ -399,7 +379,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         }
         final HCSImageFileExtractionResult result =
                 extractor.extract(incomingDataSetDirectory, dataSetInformation);
-        
+
         if (operationLog.isInfoEnabled())
         {
             long duration = System.currentTimeMillis() - extractionStart;

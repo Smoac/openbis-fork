@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.etlserver.PlateDimension;
+import ch.systemsx.cisd.etlserver.PlateDimensionParser;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+
 /**
  * Describes one dataset container (e.g. plate) with images.
  * 
@@ -101,6 +108,41 @@ public class ScreeningContainerDatasetInfo
     public void setTileColumns(int tileColumns)
     {
         this.tileColumns = tileColumns;
+    }
+
+    public static ScreeningContainerDatasetInfo createScreeningDatasetInfo(
+            DataSetInformation dataSetInformation)
+    {
+        Experiment experiment = dataSetInformation.tryToGetExperiment();
+        ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
+        info.setExperimentPermId(experiment.getPermId());
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                dataSetInformation.tryToGetSample();
+        assert sample != null : "no sample connected to a dataset";
+        info.setContainerPermId(sample.getPermId());
+        info.setDatasetPermId(dataSetInformation.getDataSetCode());
+
+        PlateDimension plateGeometry = getPlateGeometry(dataSetInformation);
+        int plateRows = plateGeometry.getRowsNum();
+        int plateCols = plateGeometry.getColsNum();
+        info.setContainerRows(plateRows);
+        info.setContainerColumns(plateCols);
+
+        return info;
+    }
+
+    static PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
+    {
+        final IEntityProperty[] sampleProperties = dataSetInformation.getProperties();
+        final PlateDimension plateDimension =
+                PlateDimensionParser.tryToGetPlateDimension(sampleProperties);
+        if (plateDimension == null)
+        {
+            throw new EnvironmentFailureException(
+                    "Missing plate geometry for the plate registered for sample identifier '"
+                            + dataSetInformation.getSampleIdentifier() + "'.");
+        }
+        return plateDimension;
     }
 
 }
