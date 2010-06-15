@@ -131,6 +131,7 @@ public abstract class AbstractColumnDefinitionKind<T>
         return SimpleYesNoRenderer.render(invalidationProvider.getInvalidation() != null);
     }
 
+    /** to be overriden by subclasses */
     public String tryGetLink(T entity)
     {
         return null;
