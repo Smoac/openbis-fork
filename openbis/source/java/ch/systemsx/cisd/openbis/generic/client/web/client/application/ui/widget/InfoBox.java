@@ -21,7 +21,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A {@link Html} extension that should be used as information panel.

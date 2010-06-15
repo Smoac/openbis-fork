@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;

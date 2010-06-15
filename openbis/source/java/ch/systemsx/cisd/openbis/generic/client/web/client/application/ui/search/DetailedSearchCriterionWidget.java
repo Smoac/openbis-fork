@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DetailedSearchFieldComboModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;

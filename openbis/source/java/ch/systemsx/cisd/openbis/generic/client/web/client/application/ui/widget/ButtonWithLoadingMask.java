@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import com.google.gwt.user.client.ui.Image;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A nice button which has a loading mask.

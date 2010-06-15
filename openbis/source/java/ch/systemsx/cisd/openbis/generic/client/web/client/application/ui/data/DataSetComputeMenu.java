@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Dialo
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;

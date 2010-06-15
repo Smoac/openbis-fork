@@ -26,11 +26,11 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 

@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 
 /**

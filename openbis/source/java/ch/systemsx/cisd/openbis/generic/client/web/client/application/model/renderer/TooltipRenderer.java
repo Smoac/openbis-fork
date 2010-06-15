@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A helper used to render tooltips for entities chosen from combo-boxes.

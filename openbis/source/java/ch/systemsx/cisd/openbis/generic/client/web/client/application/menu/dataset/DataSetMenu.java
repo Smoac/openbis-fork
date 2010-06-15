@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.Actio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * Data Set top menu.

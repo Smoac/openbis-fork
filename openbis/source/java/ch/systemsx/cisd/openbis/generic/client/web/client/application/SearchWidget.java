@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithLoadingMask;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 
 /**

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**

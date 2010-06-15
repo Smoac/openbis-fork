@@ -21,7 +21,7 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 

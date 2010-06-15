@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 

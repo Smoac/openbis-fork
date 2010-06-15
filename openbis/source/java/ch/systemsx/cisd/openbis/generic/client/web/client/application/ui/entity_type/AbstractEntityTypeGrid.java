@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
