@@ -112,7 +112,7 @@ encryption or decryption in any way and has no information on whether or how a f
 apart from the file extension. Using CIFEX built-in encryption you get pretty much the same as if 
 you had called <a href="http://gnupg.org/">GNU Privacy Guard</a> (an OpenPGP compliant free 
 software program) with
-<pre>$ gpg -c --cipher-alg=aes128 &lt;file&gt;</code></pre>
+<pre>$ gpg -c --cipher-alg=aes &lt;file&gt;</code></pre>
 prior to the upload.</p>
 
 <p><u>Hint:</u> Another useful software program for strong encryption is 
@@ -123,7 +123,7 @@ not guaranteed to be unique in CIFEX, which means that two or more CIFEX user
 accounts can share the same email address. In order to avoid sharing files with a user account you
 do not intend to share the file with, it is safest to specify the user id (use prefix <code>id:</code>) 
 instead of the email address as the user id is guaranteed to be unique. If you know just the email 
-address but not the user name, you can add the email address to the Recipients field and click 
+address but not the user id, you can add the email address to the Recipients field and click 
 on 'Validate Users' button. A window will appear and all the information about the
 users connected to the email addresses you entered will be displayed.
 You can add more users or un-select some of the selected users that you do not want to share the 
@@ -144,7 +144,7 @@ exists, but it is not the one I want to share the file with!</h2>
 that already exists in CIFEX but does not belong to the user you want to
 share the file with, you should create a new temporary user account with
 this email address. Thanks to the fact that the mail addresses are not
-unique, this is possible. Now you can specify the user name in the
+unique, this is possible. Now you can specify the user id in the
 upload field with the prefix 'id:' or just enter the email address and
 do 'Validate Users' and only select the temporary user you created.</p>
 
