@@ -124,7 +124,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         assert wellLocation.getX() <= getContainer().getNumberOfColumns();
         assert wellLocation.getY() <= getContainer().getNumberOfRows();
 
-        long chosenChannelId = // FIXME Jun 15, 2010, IA: tests
+        long chosenChannelId =
                 query.getChannelIdByChannelNameDatasetIdOrExperimentId(getDataset().getId(),
                         getContainer().getExperimentId(), chosenChannel);
 
@@ -143,8 +143,8 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
                 if (imageDTO != null)
                 {
                     content =
-                        new ThumbnailContent(contentRepository.getContent(imageDTO.getFilePath()),
-                                thumbnailSizeOrNull);
+                            new ThumbnailContent(contentRepository.getContent(imageDTO
+                                    .getFilePath()), thumbnailSizeOrNull);
                 }
             } else
             {
