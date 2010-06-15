@@ -282,6 +282,12 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(originalFlowLane1, "hello flow lane 1");
         File originalFlowLane2 = new File(srfFolder, "2.srf");
         FileUtilities.writeToFile(originalFlowLane2, "hello flow lane 2");
+        File srf_info_file = new File(srfFolder, "srf_info.txt");
+        FileUtilities.writeToFile(srf_info_file, "Reading archive ETHZ_BSSE_100602_61VVHAAXX_1.srf.\n" + 
+        		"Reading srf null index block\n" + 
+        		"Reads: GOOD : 20712959\n" + 
+        		"Reads: BAD : 7270034\n" + 
+        		"Reads: TOTAL : 27982993");
         prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
 
         Sample fl1 = createFlowLaneSample(1);
@@ -321,6 +327,12 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(originalFlowLane1, "hello flow lane 1");
         File originalFlowLane2 = new File(srfFolder, "2.srf");
         FileUtilities.writeToFile(originalFlowLane2, "hello flow lane 2");
+        File srf_info_file = new File(srfFolder, "srf_info.txt");
+        FileUtilities.writeToFile(srf_info_file, "Reading archive ETHZ_BSSE_100602_61VVHAAXX_1.srf.\n" + 
+                "Reading srf null index block\n" + 
+                "Reads: GOOD : 20712959\n" + 
+                "Reads: BAD : 7270034\n" + 
+                "Reads: TOTAL : 27982993");
         prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
 
         Sample fl1 = createFlowLaneSample(1);
