@@ -273,7 +273,8 @@ public class WellContentDialog extends Dialog
         {
             return new Text("Incorrect well code.");
         }
-        if (images.getImageParameters().getChannelsNames().contains(channel) == false)
+        if (images.getImageParameters().getChannelsNames().contains(channel) == false
+                && channel.equals(ScreeningConstants.MERGED_CHANNELS) == false)
         {
             return new Text("No images available for this channel.");
         }
