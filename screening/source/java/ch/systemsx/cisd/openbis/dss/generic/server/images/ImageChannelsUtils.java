@@ -232,7 +232,7 @@ public class ImageChannelsUtils
         {
             throw EnvironmentFailureException.fromTemplate("No "
                     + (thumbnailSizeOrNull != null ? "thumbnail" : "image")
-                    + " found for well %s, tile %s and channel %d", wellLocation, tileLocation,
+                    + " found for well %s, tile %s and channel %s", wellLocation, tileLocation,
                     chosenChannel);
         }
     }
