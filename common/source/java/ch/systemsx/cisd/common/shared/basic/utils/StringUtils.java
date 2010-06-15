@@ -46,6 +46,55 @@ public final class StringUtils
         return value == null || value.trim().length() == 0;
     }
 
+    /**
+     * Joins the elements using comma as a separator. <br>
+     * Example: "a", "b", "c" -> "a, b, c"
+     */
+    public final static String joinList(final List<String> list)
+    {
+        if (list == null)
+        {
+            return null;
+        }
+        return join(list.toArray(new String[0]), ",");
+    }
+
+    /**
+     * Joins the elements of the provided array into a single <code>String</code> containing the
+     * provided list of elements.
+     */
+    public final static String join(final Object[] array, final String separator)
+    {
+        if (array == null)
+        {
+            return null;
+        }
+        final String sep = separator == null ? EMPTY_STRING : separator;
+        final StringBuilder builder = new StringBuilder();
+        boolean start = true;
+        for (final Object element : array)
+        {
+            if (start == false)
+            {
+                builder.append(sep);
+            }
+            builder.append(element);
+            start = false;
+        }
+        return builder.toString();
+    }
+
+    public final static String capitalize(String word)
+    {
+        if (isBlank(word))
+        {
+            return word;
+        } else
+        {
+            return word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
+        }
+    }
+
     public static final String abbreviate(final String value, final int maxLength)
     {
         assert maxLength > 4;
@@ -56,6 +105,16 @@ public final class StringUtils
         {
             return value;
         }
+    }
+
+    /**
+     * Trims given <var>value</var> to <code>null</code>.
+     * 
+     * @return <code>null</code> if given <var>value</var> is blank.
+     */
+    public final static String trimToNull(final String value)
+    {
+        return isBlank(value) ? null : value.trim();
     }
 
     /**
@@ -79,6 +138,28 @@ public final class StringUtils
     public static final String defaultIfBlank(String str, String defaultStr)
     {
         return isBlank(str) ? defaultStr : str;
+    }
+
+    /**
+     * Escapes <var>escapedChars</var> characters in specified <var>text</var>.
+     */
+    public final static String escape(String text, char... escapedChars)
+    {
+        final char escapeChar = '\\';
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < text.length(); i++)
+        {
+            char ch = text.charAt(i);
+            for (char escapedChar : escapedChars)
+            {
+                if (ch == escapedChar)
+                {
+                    sb.append(escapeChar);
+                }
+            }
+            sb.append(ch);
+        }
+        return sb.toString();
     }
 
     /**
