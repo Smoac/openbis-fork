@@ -156,6 +156,7 @@
       	<include name="ch/systemsx/cisd/common/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/dss/client/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class" />
         <include name="${build.info.filename}" />
       </fileset>
       <manifest>
