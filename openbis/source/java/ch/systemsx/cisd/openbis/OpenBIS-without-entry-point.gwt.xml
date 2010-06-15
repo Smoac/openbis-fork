@@ -1,4 +1,10 @@
 <module>
+
+  <!-- 
+    // Inherit the basic CISD stuff (shared client-server).
+  -->
+  <inherits name='ch.systemsx.cisd.common.shared.CISD-basic' />
+  
   <!--
     // Inherit the core Web Toolkit stuff.
   -->
