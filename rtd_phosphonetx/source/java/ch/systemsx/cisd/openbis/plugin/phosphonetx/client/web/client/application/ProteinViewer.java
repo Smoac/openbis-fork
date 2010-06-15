@@ -34,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -49,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RowLayoutManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -175,7 +175,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
             add(centerPanel, createBorderLayoutData(LayoutRegion.CENTER));
             rowDataManager.addToContainer(propertyPanel, new RowData(1, 0.5f));
             List<IndistinguishableProteinInfo> indistinguishableProteins =
-                details.getIndistinguishableProteinInfos();
+                    details.getIndistinguishableProteinInfos();
             if (indistinguishableProteins.isEmpty() == false)
             {
                 List<Peptide> peptides = details.getPeptides();
@@ -189,7 +189,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
             layout();
         }
     }
-    
+
     private ContentPanel createIndistinguishableProteinsSection(
             List<IndistinguishableProteinInfo> indistinguishableProteins, List<Peptide> peptides)
     {
@@ -209,8 +209,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
             properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), info);
             propertyGrid.registerPropertyValueRenderer(IndistinguishableProteinInfo.class,
                     PropertyValueRenderers.createProteinIdentLinkRenderer(viewContext));
-            properties.put(viewContext.getMessage(Dict.PROTEIN_DESCRIPTION), info
-                    .getDescription());
+            properties.put(viewContext.getMessage(Dict.PROTEIN_DESCRIPTION), info.getDescription());
             String markedSequence = markPeptides(info.getSequence(), peptides);
             properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), markedSequence);
             properties.put(viewContext.getMessage(Dict.COVERAGE), info.getCoverage());
@@ -225,7 +224,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         panel.add(tabPanel, new RowData(1, 1));
         return panel;
     }
-    
+
     private void recreateUIWithDatasetTable(ProteinByExperiment protein, ContentPanel propertyPanel)
     {
         BorderLayoutData layoutData = createBorderLayoutData(LayoutRegion.WEST);
@@ -301,7 +300,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         String markedSequence =
                 markPeptides(proteinDetails.getSequence(), proteinDetails.getPeptides());
         properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), markedSequence);
-        
+
         properties.put(viewContext.getMessage(Dict.COVERAGE), proteinDetails.getCoverage());
 
         propertyGrid.registerPropertyValueRenderer(Peptide.class, PropertyValueRenderers
