@@ -38,19 +38,15 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLine
 public class CSVToCanonicalFeatureVectorTest extends AssertJUnit
 {
     @Test
-    public void testConversion()
+    public void testConversion() throws IOException
     {
-        try
-        {
-            CSVToCanonicalFeatureVectorConfiguration config =
-                    new CSVToCanonicalFeatureVectorConfiguration("WellName", "WellName", true);
-            CSVToCanonicalFeatureVector convertor =
-                    new CSVToCanonicalFeatureVector(getDatasetFileLines(), config);
-            convertor.convert();
-        } catch (IOException ex)
-        {
-            fail(ex.getMessage());
-        }
+        CSVToCanonicalFeatureVectorConfiguration config =
+                new CSVToCanonicalFeatureVectorConfiguration("WellName", "WellName", true);
+        CSVToCanonicalFeatureVector convertor =
+                new CSVToCanonicalFeatureVector(getDatasetFileLines(), config);
+        ArrayList<CanonicalFeatureVector> fvs = convertor.convert();
+        // Not all the the columns contain numerical data
+        assertEquals(16, fvs.size());
     }
 
     /**

@@ -116,6 +116,10 @@ public class CSVToCanonicalFeatureVector
         ArrayList<CanonicalFeatureVector> result = new ArrayList<CanonicalFeatureVector>();
         for (FeatureColumn column : columns)
         {
+            if ((true == column.isWellName) || (false == column.isNumeric))
+            {
+                continue;
+            }
             CanonicalFeatureVector featureVector = convertColumnToFeatureVector(dims, column);
             result.add(featureVector);
         }

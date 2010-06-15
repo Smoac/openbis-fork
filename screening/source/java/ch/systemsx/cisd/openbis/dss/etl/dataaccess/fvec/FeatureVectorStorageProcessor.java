@@ -17,27 +17,137 @@
 package ch.systemsx.cisd.openbis.dss.etl.dataaccess.fvec;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
+import net.lemnik.eodsql.QueryTool;
+
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
+import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.fvec.CSVToCanonicalFeatureVector.CSVToCanonicalFeatureVectorConfiguration;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.utils.CsvFileReaderHelper;
+import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
 public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProcessor
 {
+    private static class FeatureVectorStorageProcessorConfiguration implements
+            ICsvFileReaderConfiguration
+    {
+        private static final String SEPARATOR_PROPERTY_KEY = "separator";
+
+        private static final String IGNORE_COMMENTS_PROPERTY_KEY = "ignore-comments";
+
+        private static final String WELL_NAME_ROW_PROPERTY_KEY = "well-name-row";
+
+        private static final String WELL_NAME_COL_PROPERTY_KEY = "well-name-col";
+
+        private static final String WELL_NAME_COL_ALPHA_NUM_PROPERTY_KEY =
+                "well-name-col-is-alphanum";
+
+        private static final char DEFAULT_DELIMITER = ';';
+
+        private static final String DEFAULT_WELL_ROW = "WellName";
+
+        private static final String DEFAULT_WELL_COL = "WellName";
+
+        private static final boolean DEFAULT_WELL_ROW_ALPHANUM = true;
+
+        private final char columnDelimiter;
+
+        private final boolean ignoreComments;
+
+        private final char comment;
+
+        private final String wellRow;
+
+        private final String wellColumn;
+
+        private final boolean isWellColAlphanumeric;
+
+        private FeatureVectorStorageProcessorConfiguration(Properties properties)
+        {
+            comment = '#';
+
+            this.columnDelimiter =
+                    PropertyUtils.getChar(properties, SEPARATOR_PROPERTY_KEY, DEFAULT_DELIMITER);
+            this.ignoreComments =
+                    PropertyUtils.getBoolean(properties, IGNORE_COMMENTS_PROPERTY_KEY, true);
+
+            this.wellRow = properties.getProperty(WELL_NAME_ROW_PROPERTY_KEY, DEFAULT_WELL_ROW);
+
+            this.wellColumn = properties.getProperty(WELL_NAME_COL_PROPERTY_KEY, DEFAULT_WELL_COL);
+
+            this.isWellColAlphanumeric =
+                    PropertyUtils.getBoolean(properties, WELL_NAME_COL_ALPHA_NUM_PROPERTY_KEY,
+                            DEFAULT_WELL_ROW_ALPHANUM);
+        }
+
+        public char getColumnDelimiter()
+        {
+            return columnDelimiter;
+        }
+
+        public char getCommentDelimiter()
+        {
+            return comment;
+        }
+
+        public boolean isIgnoreComments()
+        {
+            return ignoreComments;
+        }
+
+        public boolean isSkipEmptyRecords()
+        {
+            return true;
+        }
+
+        public String getWellRow()
+        {
+            return wellRow;
+        }
+
+        public String getWellColumn()
+        {
+            return wellColumn;
+        }
+
+        public boolean isWellColAlphanumeric()
+        {
+            return isWellColAlphanumeric;
+        }
+    }
+
+    private static final String ORIGINAL_DIR = "original/";
+
+    private final FeatureVectorStorageProcessorConfiguration configuration;
+
+    private final CSVToCanonicalFeatureVectorConfiguration convertorConfig;
+
+    private final DataSource dataSource;
+
     public FeatureVectorStorageProcessor(Properties properties)
     {
         super(properties);
-    }
-
-    public FeatureVectorStorageProcessor(IStorageProcessor delegatedProcessor)
-    {
-        super(delegatedProcessor);
+        this.configuration = new FeatureVectorStorageProcessorConfiguration(properties);
+        convertorConfig =
+                new CSVToCanonicalFeatureVectorConfiguration(configuration.getWellRow(),
+                        configuration.getWellColumn(), configuration.isWellColAlphanumeric());
+        this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
     }
 
     @Override
@@ -49,8 +159,41 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
                 super.storeData(dataSetInformation, typeExtractor, mailClient,
                         incomingDataSetDirectory, rootDir);
         // Import into the data base
+        File dataSets = new File(answer, ORIGINAL_DIR);
+        for (File dataSet : dataSets.listFiles())
+        {
+            try
+            {
+                loadDataSetIntoDatabase(dataSet, dataSetInformation);
+            } catch (IOException ex)
+            {
+                throw new IOExceptionUnchecked(ex);
+            }
 
+        }
         return answer;
+    }
+
+    private void loadDataSetIntoDatabase(File dataSet, DataSetInformation dataSetInformation)
+            throws IOException
+    {
+        DatasetFileLines fileLines = getDatasetFileLines(dataSet);
+        CSVToCanonicalFeatureVector convertor =
+                new CSVToCanonicalFeatureVector(fileLines, convertorConfig);
+        ArrayList<CanonicalFeatureVector> fvecs = convertor.convert();
+
+        IImagingUploadDAO dao = createDAO();
+        FeatureVectorUploader uploader =
+                new FeatureVectorUploader(dao, ScreeningContainerDatasetInfo
+                        .createScreeningDatasetInfo(dataSetInformation));
+        uploader.uploadFeatureVectors(fvecs);
+        dao.commit();
+        dao.close();
+    }
+
+    private IImagingUploadDAO createDAO()
+    {
+        return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
     }
 
     @Override
@@ -60,6 +203,14 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         // Delete the data from the database
 
         return super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
+    }
+
+    /**
+     * Return the tabular data as a DatasetFileLines.
+     */
+    private DatasetFileLines getDatasetFileLines(File file) throws IOException
+    {
+        return CsvFileReaderHelper.getDatasetFileLines(file, configuration);
     }
 
 }
