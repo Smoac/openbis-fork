@@ -278,7 +278,7 @@ public final class GenericDataSetEditForm extends
     @Override
     protected void initializeFormFields()
     {
-        boolean connectedWithSample = StringUtils.isEmpty(sampleChooser.getValue()) == false;
+        boolean connectedWithSample = StringUtils.isBlank(sampleChooser.getValue()) == false;
         connectedWithSampleCheckbox.setValue(connectedWithSample);
         updateFieldsVisibility();
 

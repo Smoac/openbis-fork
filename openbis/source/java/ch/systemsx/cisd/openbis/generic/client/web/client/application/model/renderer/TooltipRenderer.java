@@ -39,7 +39,7 @@ public class TooltipRenderer
         assert code != null;
         final StringBuilder sb = new StringBuilder();
         sb.append(START_B + code + END_B);
-        if (StringUtils.isEmpty(descriptionOrNull) == false)
+        if (StringUtils.isBlank(descriptionOrNull) == false)
         {
             sb.append(BR + descriptionOrNull.replace(NEW_LINE, BR));
         }

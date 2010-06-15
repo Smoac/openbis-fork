@@ -33,14 +33,6 @@ public final class StringUtils
     }
 
     /**
-     * Whether given <var>value</var> is empty or not.
-     */
-    public static boolean isEmpty(String value)
-    {
-        return value == null || value.length() == 0;
-    }
-
-    /**
      * Whether given <var>value</var> is blank or not.
      */
     public final static boolean isBlank(final String value)
