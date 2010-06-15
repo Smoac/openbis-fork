@@ -65,6 +65,8 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
 
     private boolean disableApply = false;
 
+    private boolean comboBoxValueSelected = false;
+
     public ListColumnFilterWidget(IColumnDefinition<T> filteredField,
             final IDelegatedAction onFilterAction, List<String> distinctValues)
     {
@@ -80,6 +82,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
                 {
                     if (disableApply == false)
                     {
+                        comboBoxValueSelected = true;
                         onFilterAction.execute();
                     }
                 }
@@ -112,6 +115,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
     // if the user stops typing for some time a filter should be applied
     protected void onKeyUp(FieldEvent fe)
     {
+        comboBoxValueSelected = false;
         // WORKAROUND
         // We do not call super.onKeyUp(). In this way we switch off showing only those
         // combobox entries, which matches the user query.
@@ -197,7 +201,12 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
             pattern = null;
         } else if (pattern.equals(EMPTY_VALUE))
         {
-            pattern = "";
+            // when EMPTY_VALUE is selected match only empty strings
+            pattern = "^&";
+        } else if (comboBoxValueSelected)
+        {
+            // otherwise when combo box value is selected match exact text
+            pattern = "'^" + pattern + "$'";
         }
         return pattern;
     }
@@ -218,6 +227,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         // 'super.reset()' causes automatic filter application,
         // but we want to reload data only once after all filters are cleared
         disableApply = true;
+        comboBoxValueSelected = false;
         super.reset();
         disableApply = false;
     }

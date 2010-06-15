@@ -376,18 +376,21 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         private final IColumnDefinition<T> filteredField;
 
-        // FIXME lost functionality
-        // // empty array matches values which are empty or null
-        // private final String[] filterExpressionAlternatives;
-
         private final AlternativesStringFilter filter;
 
         private FilterInfo(GridColumnFilterInfo<T> gridFilterInfo)
         {
             this.filteredField = gridFilterInfo.getFilteredField();
-            this.filter = new AlternativesStringFilter();
+            this.filter = createAlternativesFilter(gridFilterInfo);
+        }
+
+        private AlternativesStringFilter createAlternativesFilter(
+                GridColumnFilterInfo<T> gridFilterInfo)
+        {
+            final AlternativesStringFilter result = new AlternativesStringFilter();
             final String pattern = gridFilterInfo.tryGetFilterPattern().toLowerCase();
-            filter.setFilterValue(pattern);
+            result.setFilterValue(pattern);
+            return result;
         }
 
         static <T> FilterInfo<T> tryCreate(GridColumnFilterInfo<T> filterInfo)
@@ -401,14 +404,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             }
         }
 
-        final IColumnDefinition<T> getFilteredField()
+        public boolean isMatching(final GridRowModel<T> row)
         {
-            return filteredField;
-        }
-
-        public AlternativesStringFilter getFilter()
-        {
-            return filter;
+            final String value = filteredField.getValue(row).toLowerCase();
+            return filter.passes(value);
         }
     }
 
@@ -470,25 +469,12 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         for (FilterInfo<T> filter : serverFilterInfos)
         {
-            if (isMatching(row, filter) == false)
+            if (filter.isMatching(row) == false)
             {
                 return false;
             }
         }
         return true;
-    }
-
-    private static final <T> boolean isMatching(final GridRowModel<T> row,
-            final FilterInfo<T> filterInfo)
-    {
-        IColumnDefinition<T> filteredField = filterInfo.getFilteredField();
-        String value = filteredField.getValue(row).toLowerCase();
-        return isMatching(value, filterInfo.getFilter());
-    }
-
-    private static boolean isMatching(String value, AlternativesStringFilter filter)
-    {
-        return filter.passes(value);
     }
 
     private final <T> void sortData(final GridRowModels<T> data, final SortInfo<T> sortInfo)
