@@ -141,9 +141,12 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
                 imageDTO =
                         query.tryGetImage(chosenChannelId, getDataset().getId(), tileLocation,
                                 wellLocation);
-                content =
+                if (imageDTO != null)
+                {
+                    content =
                         new ThumbnailContent(contentRepository.getContent(imageDTO.getFilePath()),
                                 thumbnailSizeOrNull);
+                }
             } else
             {
                 content = contentRepository.getContent(imageDTO.getFilePath());
