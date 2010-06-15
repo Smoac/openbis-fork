@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -53,9 +52,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
  */
 public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent>
 {
-    private static final int IMAGE_WIDTH_PX = 100;
+    private static final int IMAGE_WIDTH_PX = 200;
 
-    private static final int IMAGE_HEIGHT_PX = 60;
+    private static final int IMAGE_HEIGHT_PX = 120;
 
     public static final String BROWSER_ID =
             GenericConstants.ID_PREFIX + "PlateMaterialReviewerGrid";
@@ -103,6 +102,11 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                     {
                         public void handle(WellContent wellContent, boolean specialKeyPressed)
                         {
+                            // EntityReference nestedMaterial =
+                            // wellContent.tryGetNestedMaterialContent();
+                            // ClientPluginFactory.openGeneMaterialViewer(nestedMaterial,
+                            // experiment,
+                            // viewContext);
                             showEntityViewer(wellContent.tryGetNestedMaterialContent(),
                                     specialKeyPressed);
                         }
@@ -149,16 +153,8 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                     {
                         public void handle(WellContent wellContent, boolean specialKeyPressed)
                         {
-                            WellContentDialog.createImageViewer(wellContent, channelState,
+                            WellContentDialog.showContentDialog(wellContent, channelState,
                                     viewContext, IMAGE_WIDTH_PX, IMAGE_HEIGHT_PX);
-                        }
-                    });
-        registerLinkClickListenerFor(PlateMaterialReviewerColDefKind.EDIT.id(),
-                new ICellListener<WellContent>()
-                    {
-                        public void handle(WellContent wellContent, boolean specialKeyPressed)
-                        {
-                            showEntityEditor(wellContent.getWell(), specialKeyPressed);
                         }
                     });
     }
@@ -171,21 +167,18 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
         }
     }
 
-    private void showEntityEditor(IEntityInformationHolder entity, boolean specialKeyPressed)
-    {
-        OpenEntityEditorTabClickListener.showEntityEditor(viewContext, entity, specialKeyPressed);
-    }
-
     @Override
     protected ColumnDefsAndConfigs<WellContent> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<WellContent> schema = super.createColumnsDefinition();
-        setLinksRenderer(schema, new PlateMaterialReviewerColDefKind[]
-            { PlateMaterialReviewerColDefKind.WELL_NESTED_MATERIAL,
-                    PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
-                    PlateMaterialReviewerColDefKind.PLATE, PlateMaterialReviewerColDefKind.WELL,
-                    PlateMaterialReviewerColDefKind.DATASET, PlateMaterialReviewerColDefKind.IMAGE,
-                    PlateMaterialReviewerColDefKind.EDIT });
+        setLinksRenderer(schema,
+                new PlateMaterialReviewerColDefKind[]
+                    { PlateMaterialReviewerColDefKind.WELL_NESTED_MATERIAL,
+                            PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
+                            PlateMaterialReviewerColDefKind.PLATE,
+                            PlateMaterialReviewerColDefKind.WELL,
+                            PlateMaterialReviewerColDefKind.DATASET,
+                            PlateMaterialReviewerColDefKind.IMAGE });
         return schema;
     }
 

@@ -49,8 +49,10 @@ public class ScreeningUtils
     public static DatasetReference createDatasetReference(ExternalDataPE dataset)
     {
         DataStorePE dataStore = dataset.getDataStore();
-        return new DatasetReference(dataset.getId(), dataset.getCode(), dataset.getDataSetType()
-                .getCode(), dataStore.getCode(), dataStore.getDownloadUrl());
+        String dataTypeCode = dataset.getDataSetType().getCode();
+        String fileTypeCode = dataset.getFileFormatType().getCode();
+        return new DatasetReference(dataset.getId(), dataset.getCode(), dataTypeCode, fileTypeCode,
+                dataStore.getCode(), dataStore.getDownloadUrl());
     }
 
     public static List<ExternalDataPE> filterImageAnalysisDatasets(List<ExternalDataPE> datasets)

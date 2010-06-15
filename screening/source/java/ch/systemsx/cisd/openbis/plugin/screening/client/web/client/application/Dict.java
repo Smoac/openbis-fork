@@ -38,6 +38,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String WELL = "WELL";
 
+    public static final String WELL_IMAGES = "WELL_IMAGES";
+
     public static final String IMPORT_SCHEDULED_MESSAGE = "import_scheduled";
 
     public static final String REGISTER = "register";

@@ -40,12 +40,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -83,15 +85,15 @@ public class WellContentDialog extends Dialog
                     createImageViewer(images, channelState, viewContext, imgW, imgH);
             container.add(imageViewer);
 
-            dialogWidth = imgW * Math.max(2, images.getTileColsNum());
-            dialogHeight = imgH * images.getTileRowsNum() + 200;
+            dialogWidth = imgW * Math.max(2, images.getTileColsNum()) + 100;
+            dialogHeight = imgH * images.getTileRowsNum() + 300;
         } else
         {
             dialogWidth = 300;
             dialogHeight = 160;
         }
         String title = "Well Content: " + wellData.getWellContentDescription();
-        contentDialog.setupContentAndShow(container, dialogWidth, dialogHeight, title);
+        setupContentAndShow(contentDialog, container, dialogWidth, dialogHeight, title);
     }
 
     // ----------------
@@ -110,16 +112,17 @@ public class WellContentDialog extends Dialog
         this.viewContext = viewContext;
     }
 
-    private void setupContentAndShow(LayoutContainer container, int width, int height, String title)
+    private static void setupContentAndShow(Dialog dialog, Widget content, int width, int height,
+            String title)
     {
-        setHeading(title);
-        setLayout(new FitLayout());
-        setScrollMode(Scroll.AUTO);
-        setHideOnButtonClick(true);
-        add(container);
-        setWidth(width);
-        setHeight(height);
-        show();
+        dialog.setHeading(title);
+        dialog.setLayout(new FitLayout());
+        dialog.setScrollMode(Scroll.AUTO);
+        dialog.setHideOnButtonClick(true);
+        dialog.add(content);
+        dialog.setWidth(width);
+        dialog.setHeight(height);
+        dialog.show();
     }
 
     private LayoutContainer createContentDescription()
@@ -202,7 +205,7 @@ public class WellContentDialog extends Dialog
     }
 
     /** view with channel chooser, no metadata are displayed */
-    public static LayoutContainer createImageViewer(final WellContent wellContent,
+    public static void showContentDialog(final WellContent wellContent,
             DefaultChannelState channelState, final IViewContext<?> viewContext,
             final int imageWidthPx, final int imageHeightPx)
     {
@@ -215,13 +218,41 @@ public class WellContentDialog extends Dialog
                 }
             };
         DatasetImagesReference imageDataset = wellContent.tryGetImages();
+
+        int dialogWidth;
+        int dialogHeight;
         List<String> channelsNames = new ArrayList<String>();
         if (imageDataset != null)
         {
-            channelsNames = imageDataset.getImageParameters().getChannelsNames();
+            PlateImageParameters imageParameters = imageDataset.getImageParameters();
+            channelsNames = imageParameters.getChannelsNames();
+            dialogWidth = imageWidthPx * Math.max(2, imageParameters.getTileColsNum()) + 100;
+            dialogHeight = imageHeightPx * imageParameters.getTileRowsNum() + 300;
+        } else
+        {
+            dialogWidth = 300;
+            dialogHeight = 160;
         }
-        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
-                channelsNames);
+        Widget content =
+                ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
+                        channelsNames);
+        setupContentAndShow(new Dialog(), content, dialogWidth, dialogHeight,
+                createDialogTitle(wellContent));
+    }
+
+    private static String createDialogTitle(WellContent wellContent)
+    {
+        String content;
+        EntityReference nestedMaterial = wellContent.tryGetNestedMaterialContent();
+        if (nestedMaterial != null)
+        {
+            content = nestedMaterial.getCode();
+        } else
+        {
+            content = wellContent.getMaterialContent().getCode();
+        }
+        return "Plate: " + wellContent.getPlate().getCode() + ", well: "
+                + wellContent.getWell().getCode() + ", content: " + content;
     }
 
     /**

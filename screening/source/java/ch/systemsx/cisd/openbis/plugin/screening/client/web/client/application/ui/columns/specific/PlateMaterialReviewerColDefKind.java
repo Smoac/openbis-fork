@@ -137,22 +137,23 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             }
         }),
 
-    IMAGE(new AbstractColumnDefinitionKind<WellContent>(Dict.BUTTON_SHOW)
+    DATASET_FILE_TYPE(new AbstractColumnDefinitionKind<WellContent>(Dict.FILE_FORMAT_TYPE)
         {
             @Override
             public String tryGetValue(WellContent entity)
             {
                 DatasetImagesReference imageDataset = entity.tryGetImages();
-                return imageDataset != null ? imageDataset.getDatasetReference().getCode() : null;
+                return imageDataset != null ? imageDataset.getDatasetReference().getFileTypeCode()
+                        : null;
             }
         }),
 
-    EDIT(new AbstractColumnDefinitionKind<WellContent>(Dict.BUTTON_EDIT)
+    IMAGE(new AbstractColumnDefinitionKind<WellContent>(Dict.WELL_IMAGES)
         {
             @Override
             public String tryGetValue(WellContent entity)
             {
-                return "Annotate";
+                return "Show";
             }
         }),
 

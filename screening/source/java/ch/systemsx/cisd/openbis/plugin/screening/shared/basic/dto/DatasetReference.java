@@ -41,6 +41,8 @@ public class DatasetReference implements Serializable, IsSerializable,
 
     private String typeCode;
 
+    private String fileTypeCode;
+
     private String datastoreCode;
 
     private String downloadUrl;
@@ -51,12 +53,13 @@ public class DatasetReference implements Serializable, IsSerializable,
     {
     }
 
-    public DatasetReference(long id, String code, String typeCode, String datastoreCode,
-            String downloadUrl)
+    public DatasetReference(long id, String code, String typeCode, String fileTypeCode,
+            String datastoreCode, String downloadUrl)
     {
         this.id = id;
         this.datasetCode = code;
         this.typeCode = typeCode;
+        this.fileTypeCode = fileTypeCode;
         this.datastoreCode = datastoreCode;
         this.downloadUrl = downloadUrl;
     }
@@ -98,4 +101,8 @@ public class DatasetReference implements Serializable, IsSerializable,
         return datasetCode;
     }
 
+    public String getFileTypeCode()
+    {
+        return fileTypeCode;
+    }
 }

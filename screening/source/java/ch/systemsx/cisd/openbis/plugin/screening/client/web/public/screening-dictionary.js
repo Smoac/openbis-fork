@@ -12,7 +12,7 @@ var screening = {
   WELL_ROW: "Well Row",
   WELL_COLUMN: "Well Column",
   WELL: "Well",
-  
+  WELL_IMAGES: "Well Images",
   
   //
   // Sample Viewer

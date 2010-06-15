@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -109,15 +112,17 @@ public class GenePlateLocationsLoader
     private List<WellContent> enrichPlateLocationsWithImages(List<WellContent> locations,
             List<ExternalDataPE> imageDatasets)
     {
-        Map<String, PlateImageParameters> imageParams = loadImagesReport(imageDatasets);
-        return enrichWithImages(locations, imageDatasets, imageParams);
+        Map<Long/* plate id */, List<ExternalDataPE>> plateToDatasetMap =
+                createPlateToDatasetMap(imageDatasets);
+        List<ExternalDataPE> usedDatasets = extractUsedDatasets(locations, plateToDatasetMap);
+        Map<String, PlateImageParameters> imageParams = loadImagesReport(usedDatasets);
+        return enrichWithImages(locations, plateToDatasetMap, imageParams);
     }
 
     private static List<WellContent> enrichWithImages(List<WellContent> wellContents,
-            List<ExternalDataPE> imageDatasets, Map<String, PlateImageParameters> imageParams)
+            Map<Long/* plate id */, List<ExternalDataPE>> plateToDatasetMap,
+            Map<String, PlateImageParameters> imageParams)
     {
-        Map<Long/* plate id */, List<ExternalDataPE>> plateToDatasetMap =
-                createPlateToDatasetMap(imageDatasets);
         List<WellContent> wellsWithImages = new ArrayList<WellContent>();
         for (WellContent wellContent : wellContents)
         {
@@ -151,39 +156,65 @@ public class GenePlateLocationsLoader
         return wellsWithImages;
     }
 
+    private static List<ExternalDataPE> extractUsedDatasets(List<WellContent> wellContents,
+            Map<Long/* plate id */, List<ExternalDataPE>> plateToDatasetMap)
+    {
+        List<ExternalDataPE> datasets = new ArrayList<ExternalDataPE>();
+        for (WellContent wellContent : wellContents)
+        {
+            datasets.addAll(plateToDatasetMap.get(wellContent.getPlate().getId()));
+        }
+        return datasets;
+    }
+
     private static Map<Long/* sample id */, List<ExternalDataPE>> createPlateToDatasetMap(
             List<ExternalDataPE> datasets)
     {
         Map<Long, List<ExternalDataPE>> map = new HashMap<Long, List<ExternalDataPE>>();
         for (ExternalDataPE dataset : datasets)
         {
-            Long sampleId = HibernateUtils.getId(dataset.tryGetSample());
-
-            List<ExternalDataPE> plateDatasets = map.get(sampleId);
-            if (plateDatasets == null)
+            SamplePE sample = dataset.tryGetSample();
+            if (sample != null)
             {
-                plateDatasets = new ArrayList<ExternalDataPE>();
-                map.put(sampleId, plateDatasets);
+                Long sampleId = HibernateUtils.getId(sample);
+
+                List<ExternalDataPE> plateDatasets = map.get(sampleId);
+                if (plateDatasets == null)
+                {
+                    plateDatasets = new ArrayList<ExternalDataPE>();
+                    map.put(sampleId, plateDatasets);
+                }
+                plateDatasets.add(dataset);
             }
-            plateDatasets.add(dataset);
         }
         return map;
     }
 
     private Map<String/* dataset code */, PlateImageParameters> loadImagesReport(
-            List<ExternalDataPE> imageDatasets)
+            List<ExternalDataPE> usedDatasets)
     {
-        if (imageDatasets.size() == 0)
+        List<String> datasetCodes = extractDatasetCodes(usedDatasets);
+        if (datasetCodes.size() == 0)
         {
             return new HashMap<String, PlateImageParameters>();
         }
-        List<String> datasetCodes = asCodes(imageDatasets);
+
         // NOTE: assumes that all datasets are from the same datastore
-        String datastoreCode = imageDatasets.get(0).getDataStore().getCode();
+        String datastoreCode = usedDatasets.get(0).getDataStore().getCode();
         List<PlateImageParameters> imageParameters =
                 DatasetReportsLoader.loadPlateImageParameters(datasetCodes, datastoreCode,
                         externalDataTable);
         return asDatasetToParamsMap(imageParameters);
+    }
+
+    private static List<String> extractDatasetCodes(List<ExternalDataPE> usedDatasets)
+    {
+        Set<String> codes = new HashSet<String>();
+        for (ExternalDataPE dataset : usedDatasets)
+        {
+            codes.add(dataset.getCode());
+        }
+        return new ArrayList<String>(codes);
     }
 
     private static Map<String/* dataset code */, PlateImageParameters> asDatasetToParamsMap(
@@ -195,16 +226,6 @@ public class GenePlateLocationsLoader
             map.put(params.getDatasetCode(), params);
         }
         return map;
-    }
-
-    private static List<String> asCodes(List<ExternalDataPE> datasets)
-    {
-        List<String> codes = new ArrayList<String>();
-        for (ExternalDataPE dataset : datasets)
-        {
-            codes.add(dataset.getCode());
-        }
-        return codes;
     }
 
     private static List<ExternalDataPE> loadImageDatasets(List<WellContent> locations,
@@ -286,7 +307,26 @@ public class GenePlateLocationsLoader
         {
             wellLocations.add(convert(location));
         }
+        sortByMaterialName(wellLocations);
         return wellLocations;
+    }
+
+    private static void sortByMaterialName(List<WellContent> wellLocations)
+    {
+        Collections.sort(wellLocations, new Comparator<WellContent>()
+            {
+                public int compare(WellContent o1, WellContent o2)
+                {
+                    EntityReference m1 = o1.tryGetNestedMaterialContent();
+                    EntityReference m2 = o2.tryGetNestedMaterialContent();
+                    if (m1 == null || m2 == null)
+                    {
+                        m1 = o1.getMaterialContent();
+                        m2 = o2.getMaterialContent();
+                    }
+                    return m1.getCode().compareTo(m2.getCode());
+                }
+            });
     }
 
     private static WellContent convert(
