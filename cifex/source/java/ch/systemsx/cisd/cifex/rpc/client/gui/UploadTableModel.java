@@ -55,8 +55,11 @@ final class UploadTableModel extends AbstractTableModel
                 {
                     if (percentage == 100)
                     {
-                        setNumberOfBytes(currentFileToBeUploaded.getLength());
-                        currentFileToBeUploaded.setStatus(FileItemStatus.FINISHED);
+                        if (currentFileToBeUploaded != null)
+                        {
+                            setNumberOfBytes(currentFileToBeUploaded.getLength());
+                            currentFileToBeUploaded.setStatus(FileItemStatus.FINISHED);
+                        }
                     } else
                     {
                         setNumberOfBytes(numberOfBytes);
