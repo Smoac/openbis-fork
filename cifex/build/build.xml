@@ -17,8 +17,6 @@
 	<property name="cifex.client.jarfiles"
 	          value="cifex.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcprov.jar bcpg.jar" />
 
-	<property name="cisd-common-basic.lib" value="${lib}/cisd-common-basic/cisd-common-basic.jar" />
-
 	<property name="webapp.dist" value="${dist}/webapp" />
 	<property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
 
@@ -122,7 +120,7 @@
 		<property name="cifex.gwt.path" value="ch.systemsx.cisd.cifex.Cifex" />
 
 		<delete dir="${webapp.dist}" />
-		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${gxt.lib}:${cisd-common-basic.lib}:${sources}"
+		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${gxt.lib}:../common/${sources}:${sources}"
 		      classname="com.google.gwt.dev.Compiler"
 		      fork="true" >
 			<jvmarg value="-Xmx512M" />
@@ -444,11 +442,15 @@
 		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/gxt2.1/gxt.jar" todir="${gwt.war.web-inf.lib}" />
-		<copy file="${lib}/cisd-common-basic/cisd-common-basic.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/cglib/cglib-nodep.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/hibernate-search/jms.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${gwt.lib}/gwt-dev.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${dist}/${jar.file.name}" todir="${gwt.war.web-inf.lib}" />
+		<copy todir="${gwt.war.web-inf.classes}">
+			<fileset dir="../common/${sources}">
+    		<include name="ch/systemsx/cisd/common/shared/basic/**/*.java" />
+    	</fileset>
+		</copy>
 		<delete failonerror="true" dir="../${ant.project.name}/.gwt-cache" />
 		<delete file="${gwt.war.web-inf}/gwt.xml" />
 	</target>
