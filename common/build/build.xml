@@ -56,7 +56,7 @@
 	        <recursive-jar destfile="${basic-jar.file}">
 		        <fileset dir="${classes}">
               <include name="${basic.path}/**/*.class" />
-							<include name="**/CISD.gwt.xml" />
+							<include name="**/CISD-basic.gwt.xml" />
               <include name="${build.info.filename}" />
             </fileset>
      				<fileset dir="${sources}">
