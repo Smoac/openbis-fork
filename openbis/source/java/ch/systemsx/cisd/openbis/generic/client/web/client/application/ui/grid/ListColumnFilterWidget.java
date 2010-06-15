@@ -202,7 +202,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         } else if (pattern.equals(EMPTY_VALUE))
         {
             // when EMPTY_VALUE is selected match only empty strings
-            pattern = "^&";
+            pattern = "^$";
         } else if (comboBoxValueSelected)
         {
             // otherwise when combo box value is selected match exact text
