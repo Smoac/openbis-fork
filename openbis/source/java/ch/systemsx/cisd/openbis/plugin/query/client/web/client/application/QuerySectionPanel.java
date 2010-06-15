@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Disposable
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
@@ -49,10 +49,10 @@ final class QuerySectionPanel extends DisposableSectionPanel
 
     private final IViewContext<IQueryClientServiceAsync> queryModuleContext;
 
-    private final IEntityInformationHolderWithIdentifier entity;
+    private final IEntityInformationHolderWithPermId entity;
 
     public QuerySectionPanel(IViewContext<IQueryClientServiceAsync> queryModuleContext,
-            final IEntityInformationHolderWithIdentifier entity)
+            final IEntityInformationHolderWithPermId entity)
     {
         super(
                 queryModuleContext
@@ -104,7 +104,7 @@ final class QuerySectionPanel extends DisposableSectionPanel
      * </ul>
      */
     private static HashMap<String, QueryParameterValue> extractFixedQueryParameters(
-            final IEntityInformationHolderWithIdentifier entity)
+            final IEntityInformationHolderWithPermId entity)
     {
         HashMap<String, QueryParameterValue> parameters =
                 new HashMap<String, QueryParameterValue>();

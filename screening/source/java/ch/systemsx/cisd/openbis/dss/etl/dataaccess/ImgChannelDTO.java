@@ -105,6 +105,7 @@ public class ImgChannelDTO extends AbstractHashable
         this.descriptionOrNull = description;
     }
 
+    /** can be null */
     public Integer getWavelength()
     {
         return wavelengthOrNull;

@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 
 /**
  * Reference to an entity with minimal information to uniquely identify it in the database and to
@@ -28,7 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
  * 
  * @author Tomasz Pylak
  */
-public class EntityReference implements Serializable, IsSerializable, IEntityInformationHolder
+public class EntityReference implements Serializable, IsSerializable,
+        IEntityInformationHolderWithPermId
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -40,17 +41,22 @@ public class EntityReference implements Serializable, IsSerializable, IEntityInf
 
     private EntityKind kind;
 
+    private String permIdOrNull;
+
     // GWT only
     protected EntityReference()
     {
     }
 
-    public EntityReference(long id, String code, String typeCode, EntityKind kind)
+    public EntityReference(long id, String code, String typeCode, EntityKind kind,
+            String permIdOrNull)
     {
+        assert permIdOrNull != null || kind == EntityKind.MATERIAL : "perm id can be null only for a material";
         this.id = id;
         this.code = code;
         this.typeCode = typeCode;
         this.kind = kind;
+        this.permIdOrNull = permIdOrNull;
     }
 
     public EntityKind getEntityKind()
@@ -73,6 +79,17 @@ public class EntityReference implements Serializable, IsSerializable, IEntityInf
     public String getCode()
     {
         return code;
+    }
+
+    @Override
+    public String toString()
+    {
+        return kind + " " + code + " (" + typeCode + ")";
+    }
+
+    public String getPermId()
+    {
+        return permIdOrNull;
     }
 
 }

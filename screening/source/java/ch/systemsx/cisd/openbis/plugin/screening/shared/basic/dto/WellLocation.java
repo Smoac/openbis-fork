@@ -53,4 +53,10 @@ public class WellLocation implements IsSerializable
         return column;
     }
 
+    @Override
+    public String toString()
+    {
+        return "(" + row + "," + column + ")";
+    }
+
 }

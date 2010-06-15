@@ -21,9 +21,11 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -33,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -63,6 +66,20 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      */
     public void getPlateLocations(TechId geneMaterialId, ExperimentIdentifier experimentIdentifier,
             AsyncCallback<List<WellContent>> callback);
+
+    /**
+     * @see IScreeningClientService#listPlateLocations(DefaultResultSetConfig,
+     *      PlateMaterialsSearchCriteria)
+     */
+    public void listPlateLocations(DefaultResultSetConfig<String, WellContent> gridCriteria,
+            PlateMaterialsSearchCriteria materialCriteria,
+            AsyncCallback<ResultSet<WellContent>> callback);
+
+    /**
+     * @see IScreeningClientService#prepareExportPlateLocations(TableExportCriteria)
+     */
+    public void prepareExportPlateLocations(TableExportCriteria<WellContent> criteria,
+            AsyncCallback<String> callback);
 
     /**
      * @see IScreeningClientService#listPlateMetadata(IResultSetConfig, TechId)

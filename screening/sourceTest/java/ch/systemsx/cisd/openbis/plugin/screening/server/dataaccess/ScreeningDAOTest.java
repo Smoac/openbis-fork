@@ -67,10 +67,21 @@ public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
     }
 
     @Test
-    public void testGetPlateLocations()
+    public void testGetPlateLocationsForOneMaterial()
     {
         // it just tests if the sql is correct
-        List<WellContent> locations = EntityListingTestUtils.asList(query.getPlateLocations(1, 1));
+        List<WellContent> locations = EntityListingTestUtils.asList(query.getPlateLocationsForNestedMaterialId(1, 1));
         AssertJUnit.assertEquals(0, locations.size());
     }
+
+    @Test
+    public void testGetPlateLocationsForManyMaterials()
+    {
+        // it just tests if the sql is correct
+        List<WellContent> locations =
+                EntityListingTestUtils.asList(query.getPlateLocationsForNestedMaterialCodes(1, new String[]
+                    { "grs", "abc" }));
+        AssertJUnit.assertEquals(0, locations.size());
+    }
+
 }

@@ -49,11 +49,11 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     private final ImgDatasetDTO dataset;
 
+    private final IContentRepository contentRepository;
+
     private ImgContainerDTO container;
 
     private Integer channelCount;
-
-    private final IContentRepository contentRepository;
 
     private List<String> channelNames;
 
@@ -104,9 +104,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
     {
         if (channelCount == null)
         {
-            channelCount =
-                    query.countChannelByDatasetIdOrExperimentId(getDataset().getId(),
-                            getContainer().getExperimentId());
+            channelCount = getChannelsNames().size();
         }
         return channelCount;
     }
@@ -214,6 +212,10 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
             return 0;
         }
 
+        public String getUniqueId()
+        {
+            return content.getUniqueId();
+        }
     }
 
     public List<String> getChannelsNames()

@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -88,6 +89,13 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     {
         logAccess(sessionToken, "getPlateLocations", "geneMaterialId(%s) experimentIdentifier(%s)",
                 geneMaterialId.getId(), experimentIdentifier);
+        return null;
+    }
+
+    public List<WellContent> listPlateLocations(String sessionToken,
+            PlateMaterialsSearchCriteria materialCriteria)
+    {
+        logAccess(sessionToken, "getPlateLocations", "criteria(%s)", materialCriteria);
         return null;
     }
 

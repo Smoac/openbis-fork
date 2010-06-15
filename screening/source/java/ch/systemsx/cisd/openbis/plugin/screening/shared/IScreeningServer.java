@@ -36,8 +36,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.PlateMaterialsSearchCriteriaPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -71,6 +73,12 @@ public interface IScreeningServer extends IServer
             String sessionToken,
             TechId geneMaterialId,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier);
+
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<WellContent> listPlateLocations(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = PlateMaterialsSearchCriteriaPredicate.class) PlateMaterialsSearchCriteria materialCriteria);
 
     /**
      * Loads all analysis results from all existing image-analysis datasets connected with the
@@ -117,5 +125,4 @@ public interface IScreeningServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException;
-
 }

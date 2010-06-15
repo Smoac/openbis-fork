@@ -27,7 +27,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.Dict;
 
@@ -69,7 +69,7 @@ public class DemoModule implements IModule
     }
 
     public Collection<? extends DisposableSectionPanel> getSections(
-            IEntityInformationHolderWithIdentifier entity)
+            IEntityInformationHolderWithPermId entity)
     {
         return new ArrayList<DisposableSectionPanel>();
     }

@@ -20,7 +20,7 @@ import java.io.InputStream;
 
 /**
  * Abstract of streamable binary content with name and known size.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IContent
@@ -29,17 +29,23 @@ public interface IContent
      * Returns name of the content.
      */
     public String getName();
-    
+
+    /**
+     * Returns id of the content which uniquely identifies the source of it and distinguishes from
+     * other sources. Example: for a file-system-based content the absolute path is the correct id.
+     */
+    public String getUniqueId();
+
     /**
      * Returns number of bytes of the content.
      */
     public long getSize();
-    
+
     /**
      * Returns <code>true</code> if the content exists.
      */
     public boolean exists();
-    
+
     /**
      * Returns a new instance of an input stream over the complete content.
      */

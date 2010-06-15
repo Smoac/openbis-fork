@@ -36,21 +36,15 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModuleInitializationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -161,23 +155,12 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     protected void showEntityEditor(boolean inBackground)
     {
         assert originalData != null : "data is not yet set";
-        showEntityEditor(originalData.getEntityKind(), originalData.getEntityType(), originalData,
-                inBackground);
+        showEntityEditor(originalData, inBackground);
     }
 
-    private final void showEntityEditor(EntityKind entityKind, BasicEntityType type,
-            IIdAndCodeHolder identifiable, boolean inBackground)
+    private final void showEntityEditor(IEntityInformationHolder entity, boolean inBackground)
     {
-        assert type != null : "entity type is not provided";
-        final AbstractTabItemFactory tabView;
-        final IClientPluginFactory clientPluginFactory =
-                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        type);
-        final IClientPlugin<BasicEntityType, IIdAndCodeHolder> createClientPlugin =
-                clientPluginFactory.createClientPlugin(entityKind);
-        tabView = createClientPlugin.createEntityEditor(type, identifiable);
-        tabView.setInBackground(inBackground);
-        DispatcherHelper.dispatchNaviEvent(tabView);
+        OpenEntityEditorTabClickListener.showEntityEditor(viewContext, entity, inBackground);
     }
 
     public static String getTitle(final IMessageProvider messageProvider,

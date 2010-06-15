@@ -38,7 +38,8 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
     @Test
     public void testNoFiles() throws IOException
     {
-        ConcatenatedContentInputStream stream = new ConcatenatedContentInputStream(false, new IContent[0]);
+        ConcatenatedContentInputStream stream =
+                new ConcatenatedContentInputStream(false, new IContent[0]);
         AssertJUnit.assertEquals(-1, stream.read());
     }
 
@@ -80,7 +81,8 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
         String content1 = createLongString("1");
         IContent file1 = createContent(content1, "f1.txt");
 
-        IContent unexistingFile = new FileBasedContent(new File(workingDirectory, "unexisting.txt"));
+        IContent unexistingFile =
+                new FileBasedContent(new File(workingDirectory, "unexisting.txt"));
 
         String content3 = createLongString("3");
         IContent file3 = createContent(content3, "f3.txt");
@@ -121,8 +123,9 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
     @Test
     public void testNullFile() throws IOException
     {
-        ConcatenatedContentInputStream stream = new ConcatenatedContentInputStream(false, new IContent[]
-            { null });
+        ConcatenatedContentInputStream stream =
+                new ConcatenatedContentInputStream(false, new IContent[]
+                    { null });
         try
         {
             readStrings(stream);
@@ -134,7 +137,8 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
 
     // --------- helpers
 
-    private static List<String> readStrings(ConcatenatedContentInputStream stream) throws IOException
+    private static List<String> readStrings(ConcatenatedContentInputStream stream)
+            throws IOException
     {
         ConcatenatedFileOutputStreamWriter reader = new ConcatenatedFileOutputStreamWriter(stream);
         List<String> result = new ArrayList<String>();
@@ -153,7 +157,7 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
 
     private IContent createContent(String content, String name)
     {
-        return new ByteArrayBasedContent(content.getBytes(), name);
+        return new ByteArrayBasedContent(content.getBytes(), name, name);
     }
 
     private static String createLongString(String text)

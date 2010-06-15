@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -59,6 +61,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
@@ -175,6 +178,31 @@ public final class ScreeningClientService extends AbstractClientService implemen
         }
     }
 
+    public ResultSet<WellContent> listPlateLocations(
+            DefaultResultSetConfig<String, WellContent> gridCriteria,
+            final PlateMaterialsSearchCriteria materialCriteria)
+    {
+        try
+        {
+            return listEntities(gridCriteria, new IOriginalDataProvider<WellContent>()
+                {
+                    public List<WellContent> getOriginalData() throws UserFailureException
+                    {
+                        return server.listPlateLocations(getSessionToken(), materialCriteria);
+                    }
+                });
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
     private static ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier parseExperimentIdentifier(
             ExperimentIdentifier experimentIdentifier)
     {
@@ -205,19 +233,28 @@ public final class ScreeningClientService extends AbstractClientService implemen
             IResultSetConfig<String, GenericTableRow> criteria, PlateMetadataProvider dataProvider)
     {
         Set<IColumnDefinition<GenericTableRow>> columns = criteria.getAvailableColumns();
-        Set<String> identifiers = new HashSet<String>();
-        for (IColumnDefinition<GenericTableRow> colDef : columns)
-        {
-            identifiers.add(colDef.getIdentifier());
-        }
+        Set<String> availableColumnIdentifiers = extractColumnIdentifiers(columns);
 
         List<GenericTableColumnHeader> headers = dataProvider.getHeaders();
         for (GenericTableColumnHeader header : headers)
         {
             // the header's code is the same as the definition's identifier
-            if (!identifiers.contains(header.getCode()))
+            if (!availableColumnIdentifiers.contains(header.getCode()))
+            {
                 columns.add(new GenericTableRowColumnDefinition(header, header.getTitle()));
+            }
         }
+    }
+
+    private static Set<String> extractColumnIdentifiers(
+            Set<IColumnDefinition<GenericTableRow>> columns)
+    {
+        Set<String> availableColumnIdentifiers = new HashSet<String>();
+        for (IColumnDefinition<GenericTableRow> colDef : columns)
+        {
+            availableColumnIdentifiers.add(colDef.getIdentifier());
+        }
+        return availableColumnIdentifiers;
     }
 
     public String prepareExportPlateMetadata(TableExportCriteria<GenericTableRow> criteria)
@@ -264,5 +301,4 @@ public final class ScreeningClientService extends AbstractClientService implemen
         final String sessionToken = getSessionToken();
         return server.getVocabulary(sessionToken, ScreeningConstants.PLATE_GEOMETRY);
     }
-
 }

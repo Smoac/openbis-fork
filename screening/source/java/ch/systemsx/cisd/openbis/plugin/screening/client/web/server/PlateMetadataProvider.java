@@ -46,12 +46,10 @@ class PlateMetadataProvider implements IOriginalDataProvider<GenericTableRow>
 
     private final List<WellMetadata> wells;
 
-    private final PlateContent plateContent;
-
     public PlateMetadataProvider(IScreeningServer server, String sessionToken, TechId plateId)
     {
-        plateContent = server.getPlateContent(sessionToken, plateId);
-        wells = plateContent.getPlateImages().getWells();
+        PlateContent plateContent = server.getPlateContent(sessionToken, plateId);
+        this.wells = plateContent.getPlateImages().getWells();
     }
 
     public List<GenericTableRow> getOriginalData() throws UserFailureException
@@ -91,37 +89,37 @@ class PlateMetadataProvider implements IOriginalDataProvider<GenericTableRow>
         Column codeColumn =
                 new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
                         PlateMetadataStaticColumns.WELL.ordinal(), PlateMetadataStaticColumns.WELL
-                                .colId()));
+                                .getColumnId()));
         columns.add(codeColumn);
 
         Column typeColumn =
                 new Column(GenericTableColumnHeader.untitledStringHeader(
                         PlateMetadataStaticColumns.TYPE.ordinal(), PlateMetadataStaticColumns.TYPE
-                                .colId()));
+                                .getColumnId()));
         columns.add(typeColumn);
 
         Column contentColumn =
                 new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
                         PlateMetadataStaticColumns.CONTENT.ordinal(),
-                        PlateMetadataStaticColumns.CONTENT.colId()));
+                        PlateMetadataStaticColumns.CONTENT.getColumnId()));
         columns.add(contentColumn);
 
         Column contentTypeColumn =
                 new Column(GenericTableColumnHeader.untitledStringHeader(
                         PlateMetadataStaticColumns.CONTENT_TYPE.ordinal(),
-                        PlateMetadataStaticColumns.CONTENT_TYPE.colId()));
+                        PlateMetadataStaticColumns.CONTENT_TYPE.getColumnId()));
         columns.add(contentTypeColumn);
 
         Column geneCodeColumn =
                 new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
                         PlateMetadataStaticColumns.INHIBITED_GENE.ordinal(),
-                        PlateMetadataStaticColumns.INHIBITED_GENE.colId()));
+                        PlateMetadataStaticColumns.INHIBITED_GENE.getColumnId()));
         columns.add(geneCodeColumn);
 
         Column showGeneColumn =
                 new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
                         PlateMetadataStaticColumns.GENE_DETAILS.ordinal(),
-                        PlateMetadataStaticColumns.GENE_DETAILS.colId()));
+                        PlateMetadataStaticColumns.GENE_DETAILS.getColumnId()));
         columns.add(showGeneColumn);
         int fixedColumns = columns.size();
         PropertyColumns contentPropertyColumns = new PropertyColumns();
@@ -158,7 +156,7 @@ class PlateMetadataProvider implements IOriginalDataProvider<GenericTableRow>
         return columns;
     }
 
-    private void addPropertyTypes(PropertyColumns columns, int index,
+    private static void addPropertyTypes(PropertyColumns columns, int index,
             IEntityPropertiesHolder propertiesHolder)
     {
         for (IEntityProperty property : propertiesHolder.getProperties())

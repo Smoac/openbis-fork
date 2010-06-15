@@ -26,6 +26,18 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 {
     public static final String GENE_LIBRARY_URL = "GENE_LIBRARY_URL";
 
+    public static final String WELL_ROW = "WELL_ROW";
+
+    public static final String WELL_COLUMN = "WELL_COLUMN";
+
+    public static final String WELL_CONTENT_MATERIAL = "WELL_CONTENT_MATERIAL";
+
+    public static final String WELL_NESTED_MATERIAL = "WELL_NESTED_MATERIAL";
+
+    public static final String PLATE = "PLATE";
+
+    public static final String WELL = "WELL";
+
     public static final String IMPORT_SCHEDULED_MESSAGE = "import_scheduled";
 
     public static final String REGISTER = "register";

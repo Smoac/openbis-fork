@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
  * File content. Wraps an instance of {@link File}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class FileBasedContent implements IContent
@@ -55,7 +55,7 @@ public class FileBasedContent implements IContent
     {
         return file.length();
     }
-    
+
     /**
      * Returns <code>true</code> if the wrapped file exists.
      */
@@ -77,5 +77,10 @@ public class FileBasedContent implements IContent
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
+    public String getUniqueId()
+    {
+        return file.getAbsolutePath();
+    }
+
 }

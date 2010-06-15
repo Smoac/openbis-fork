@@ -27,12 +27,13 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentPlateLocationsSection;
 
 /**
- * Screening extensions: reviewing panel section for the experiment (batch search for gene locations)
+ * Screening extensions: reviewing panel section for the experiment (batch search for gene
+ * locations)
  * 
  * @author Tomasz Pylak
  */
@@ -63,7 +64,7 @@ public class ScreeningModule implements IModule
     }
 
     public Collection<? extends SingleSectionPanel> getSections(
-            IEntityInformationHolderWithIdentifier entity)
+            IEntityInformationHolderWithPermId entity)
     {
         ArrayList<SingleSectionPanel> sections = new ArrayList<SingleSectionPanel>();
         if (entity.getEntityKind() == EntityKind.EXPERIMENT)

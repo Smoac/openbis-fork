@@ -15,14 +15,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 
@@ -39,13 +39,13 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    private final IEntityInformationHolderWithIdentifier experiment;
+    private final IEntityInformationHolderWithPermId experiment;
 
     private final MultilineVarcharField materialListField;
 
     public ExperimentPlateLocationsSection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            IEntityInformationHolderWithIdentifier experiment)
+            IEntityInformationHolderWithPermId experiment)
     {
         super(screeningViewContext.getMessage(Dict.EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION),
                 screeningViewContext);
@@ -78,41 +78,7 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    final DatabaseModificationAwareComponent reviewer =
-                            tryCreatePlateMaterialReviewer();
-                    if (reviewer == null)
-                    {
-                        return;
-                    }
-                    final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
-                        {
-
-                            @Override
-                            public ITabItem create()
-                            {
-                                String tabItemText =
-                                        viewContext.getMessage(Dict.PLATE_MATERIAL_REVIEWER_TITLE);
-                                return DefaultTabItem.create(tabItemText, reviewer, viewContext,
-                                        false);
-                            }
-
-                            @Override
-                            public HelpPageIdentifier getHelpPageIdentifier()
-                            {
-                                return HelpPageIdentifier.createSpecific("Plate Material Reviewer");
-                            }
-
-                            @Override
-                            public String getId()
-                            {
-                                final String reportDate =
-                                        DateTimeFormat.getMediumTimeFormat().format(new Date());
-                                return GenericConstants.ID_PREFIX + "-PlateMaterialReviewer-"
-                                        + reportDate;
-                            }
-
-                        };
-                    DispatcherHelper.dispatchNaviEvent(tabFactory);
+                    showPlateMaterialReviewer();
                 }
             });
 
@@ -122,7 +88,40 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
         add(container, new MarginData(10));
     }
 
-    private DatabaseModificationAwareComponent tryCreatePlateMaterialReviewer()
+    private void showPlateMaterialReviewer()
+    {
+        final IDisposableComponent reviewer = tryCreatePlateMaterialReviewer();
+        if (reviewer == null)
+        {
+            return;
+        }
+        final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    String tabItemText = viewContext.getMessage(Dict.PLATE_MATERIAL_REVIEWER_TITLE);
+                    return DefaultTabItem.create(tabItemText, reviewer, viewContext);
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return HelpPageIdentifier.createSpecific("Plate Material Reviewer");
+                }
+
+                @Override
+                public String getId()
+                {
+                    final String reportDate =
+                            DateTimeFormat.getMediumTimeFormat().format(new Date());
+                    return GenericConstants.ID_PREFIX + "-PlateMaterialReviewer-" + reportDate;
+                }
+            };
+        DispatcherHelper.dispatchNaviEvent(tabFactory);
+    }
+
+    private IDisposableComponent tryCreatePlateMaterialReviewer()
     {
         String[] materialItemList = materialListField.tryParseItemList();
         if (materialItemList == null || materialItemList.length == 0)

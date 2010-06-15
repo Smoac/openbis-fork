@@ -18,11 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
@@ -34,15 +34,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 public class LinkExtractor
 {
 
-    public static String tryExtract(IEntityInformationHolderWithIdentifier e)
+    public static String tryExtract(IEntityInformationHolderWithPermId entityOrNull)
     {
-        if (e == null)
+        if (entityOrNull == null)
         {
             return null;
         }
         URLMethodWithParameters url = new URLMethodWithParameters("");
-        url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, e.getEntityKind().name());
-        url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, e.getPermId());
+        url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, entityOrNull.getEntityKind().name());
+        url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, entityOrNull.getPermId());
         return print(url);
     }
 
@@ -60,13 +60,13 @@ public class LinkExtractor
         return print(url);
     }
 
-    public static final String tryExtract(Material material)
+    public static final String tryExtractMaterial(IEntityInformationHolder material)
     {
         if (material == null)
         {
             return null;
         }
-        return tryCreateMaterialLink(material.getCode(), material.getMaterialType().getCode());
+        return tryCreateMaterialLink(material.getCode(), material.getEntityType().getCode());
     }
 
     public static final String tryExtract(MaterialIdentifier identifier)

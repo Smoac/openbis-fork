@@ -60,13 +60,15 @@ public class ImageChannelsUtils
             for (int chosenChannel = 1; chosenChannel <= params.getChannel(); chosenChannel++)
             {
                 AbsoluteImageReference image =
-                        getImage(imageAccessor, wellLocation, tileLocation, chosenChannel, thumbnailSizeOrNull);
+                        getImage(imageAccessor, wellLocation, tileLocation, chosenChannel,
+                                thumbnailSizeOrNull);
                 images.add(image);
             }
         } else
         {
             AbsoluteImageReference image =
-                    getImage(imageAccessor, wellLocation, tileLocation, params.getChannel(), thumbnailSizeOrNull);
+                    getImage(imageAccessor, wellLocation, tileLocation, params.getChannel(),
+                            thumbnailSizeOrNull);
             images.add(image);
         }
         imageAccessor.close();
@@ -145,7 +147,8 @@ public class ImageChannelsUtils
         return plainFiles;
     }
 
-    private static IContent tryAsOneImageWithAllChannels(List<AbsoluteImageReference> imageReferences)
+    private static IContent tryAsOneImageWithAllChannels(
+            List<AbsoluteImageReference> imageReferences)
     {
         IContent mergedChannelsImage = null;
         for (AbsoluteImageReference image : imageReferences)
@@ -156,7 +159,7 @@ public class ImageChannelsUtils
                 mergedChannelsImage = imageFile;
             } else
             {
-                if (imageFile.equals(mergedChannelsImage) == false)
+                if (imageFile.getUniqueId().equals(mergedChannelsImage.getUniqueId()) == false)
                 {
                     return null;
                 }
@@ -215,10 +218,12 @@ public class ImageChannelsUtils
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
     public static AbsoluteImageReference getImage(IHCSDatasetLoader imageAccessor,
-            Location wellLocation, Location tileLocation, int chosenChannel, Size thumbnailSizeOrNull)
+            Location wellLocation, Location tileLocation, int chosenChannel,
+            Size thumbnailSizeOrNull)
     {
         AbsoluteImageReference image =
-                imageAccessor.tryGetImage(chosenChannel, wellLocation, tileLocation, thumbnailSizeOrNull);
+                imageAccessor.tryGetImage(chosenChannel, wellLocation, tileLocation,
+                        thumbnailSizeOrNull);
         if (image != null)
         {
             return image;

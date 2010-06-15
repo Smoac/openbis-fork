@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Section panel presenting wells from selected experiment with given gene inhibited.
@@ -207,25 +206,14 @@ class GenePlateLocationsSection extends SingleSectionPanel
         {
             Widget datasetLink = createEntityLink(images.getDatasetReference(), "show all images");
             container.add(withLabel(datasetLink, "Dataset: ", margin));
-
-            container.add(createImageViewer(images, wellContent.tryGetLocation(), channel));
         }
+        container.add(createImageViewer(wellContent, channel));
         return container;
     }
 
-    private Widget createImageViewer(DatasetImagesReference images, WellLocation locationOrNull,
-            int channel)
+    private Widget createImageViewer(WellContent wellContent, int channel)
     {
-        if (locationOrNull == null)
-        {
-            return new Text("Incorrect well code.");
-        }
-        if (channel > images.getImageParameters().getChannelsNames().size())
-        {
-            return new Text("No images available for this channel.");
-        }
-        WellImages wellImages = new WellImages(images, locationOrNull);
-        return WellContentDialog.createTilesGrid(wellImages, channel, screeningViewContext,
+        return WellContentDialog.createImageViewer(screeningViewContext, wellContent, channel,
                 IMAGE_WIDTH_PX, IMAGE_HEIGHT_PX);
     }
 

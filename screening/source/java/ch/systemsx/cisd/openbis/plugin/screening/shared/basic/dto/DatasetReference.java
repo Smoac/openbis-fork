@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -30,7 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
-public class DatasetReference implements Serializable, IsSerializable, IEntityInformationHolder
+public class DatasetReference implements Serializable, IsSerializable,
+        IEntityInformationHolderWithPermId
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -90,6 +91,11 @@ public class DatasetReference implements Serializable, IsSerializable, IEntityIn
     public Long getId()
     {
         return id;
+    }
+
+    public String getPermId()
+    {
+        return datasetCode;
     }
 
 }

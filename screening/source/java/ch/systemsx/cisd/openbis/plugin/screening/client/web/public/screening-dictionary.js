@@ -2,6 +2,17 @@
 var screening = {
 
   GENE_LIBRARY_URL: "http://www.genecards.org/cgi-bin/carddisp.pl?gene={0}",
+ 
+  // 
+  // General
+  // 
+  WELL_NESTED_MATERIAL: "Gene",
+  WELL_CONTENT_MATERIAL: "Well Content",
+  PLATE: "Plate",
+  WELL_ROW: "Well Row",
+  WELL_COLUMN: "Well Column",
+  WELL: "Well",
+  
   
   //
   // Sample Viewer

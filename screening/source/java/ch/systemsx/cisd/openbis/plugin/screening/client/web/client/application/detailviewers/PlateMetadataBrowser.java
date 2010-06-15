@@ -55,8 +55,7 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
     public static IDisposableComponent create(
             final IViewContext<IScreeningClientServiceAsync> viewContext, TechId sampleId)
     {
-        PlateMetadataBrowser grid = new PlateMetadataBrowser(viewContext, sampleId);
-        return grid.asDisposableWithoutToolbar();
+        return new PlateMetadataBrowser(viewContext, sampleId).asDisposableWithoutToolbar();
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
@@ -69,9 +68,16 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
 
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, true,
                 ScreeningDisplayTypeIDGenerator.PLATE_METADATA_GRID);
-        screeningViewContext = viewContext;
+        this.screeningViewContext = viewContext;
         this.sampleId = sampleId;
-        registerLinkClickListenerFor(PlateMetadataStaticColumns.WELL.colId(),
+        registerLinkClickListeners();
+
+        allowMultipleSelection();
+    }
+
+    private void registerLinkClickListeners()
+    {
+        registerLinkClickListenerFor(PlateMetadataStaticColumns.WELL.getColumnId(),
                 new ICellListener<GenericTableRow>()
                     {
                         public void handle(GenericTableRow rowItem, boolean keyPressed)
@@ -79,7 +85,7 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
                             showEntityViewer(rowItem, false, keyPressed);
                         }
                     });
-        registerLinkClickListenerFor(PlateMetadataStaticColumns.CONTENT.colId(),
+        registerLinkClickListenerFor(PlateMetadataStaticColumns.CONTENT.getColumnId(),
                 new ICellListener<GenericTableRow>()
                     {
                         public void handle(GenericTableRow rowItem, boolean keyPressed)
@@ -87,7 +93,7 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
                             showMaterialViewer(rowItem, false, keyPressed);
                         }
                     });
-        registerLinkClickListenerFor(PlateMetadataStaticColumns.INHIBITED_GENE.colId(),
+        registerLinkClickListenerFor(PlateMetadataStaticColumns.INHIBITED_GENE.getColumnId(),
                 new ICellListener<GenericTableRow>()
                     {
                         public void handle(GenericTableRow rowItem, boolean keyPressed)
@@ -95,16 +101,15 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
                             showGeneViewer(rowItem, false, keyPressed);
                         }
                     });
-        registerLinkClickListenerFor(PlateMetadataStaticColumns.GENE_DETAILS.colId(),
+        registerLinkClickListenerFor(PlateMetadataStaticColumns.GENE_DETAILS.getColumnId(),
                 new ICellListener<GenericTableRow>()
                     {
 
                         public void handle(GenericTableRow rowItem, boolean keyPressed)
                         {
-                            ISerializableComparable gene =
-                                    rowItem.tryToGetValue(PlateMetadataStaticColumns.INHIBITED_GENE
-                                            .ordinal());
-                            String geneCode = gene.toString();
+                            String geneCode =
+                                    getColumnAsString(rowItem,
+                                            PlateMetadataStaticColumns.INHIBITED_GENE);
                             // NOTE: If we want to include the gene library url in
                             // exported data we must configure it outside the dictionary
                             // (PlateMetadataProvider).
@@ -112,8 +117,6 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
                                     Dict.GENE_LIBRARY_URL, geneCode));
                         }
                     });
-
-        allowMultipleSelection();
     }
 
     @Override
@@ -136,100 +139,83 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
         return new DatabaseModificationKind[] {};
     }
 
+    private void showEntityInformationHolderViewer(final GenericTableRow entity,
+            final PlateMetadataStaticColumns column, final String typeCode,
+            final EntityKind entityKind, boolean editMode, boolean active)
+    {
+        showEntityInformationHolderViewer(createEntityInformationHolder(entity, column, typeCode,
+                entityKind), editMode, active);
+    }
+
     @Override
     protected void showEntityViewer(final GenericTableRow entity, boolean editMode, boolean active)
     {
-        showEntityInformationHolderViewer(new IEntityInformationHolder()
-            {
-
-                public String getCode()
-                {
-                    return entity.tryToGetValue(PlateMetadataStaticColumns.WELL.ordinal())
-                            .toString();
-                }
-
-                public Long getId()
-                {
-                    return ((SerializableComparableIDDecorator) entity
-                            .tryToGetValue(PlateMetadataStaticColumns.WELL.ordinal())).getID();
-                }
-
-                public BasicEntityType getEntityType()
-                {
-                    BasicEntityType type = new BasicEntityType();
-                    type.setCode("UNDEFINED");
-                    return type;
-                }
-
-                public EntityKind getEntityKind()
-                {
-                    return EntityKind.SAMPLE;
-                }
-            }, editMode, active);
+        showEntityInformationHolderViewer(entity, PlateMetadataStaticColumns.WELL, "UNDEFINED",
+                EntityKind.SAMPLE, editMode, active);
     }
 
     protected void showMaterialViewer(final GenericTableRow entity, boolean editMode, boolean active)
     {
-        showEntityInformationHolderViewer(new IEntityInformationHolder()
-            {
-
-                public String getCode()
-                {
-                    return entity.tryToGetValue(PlateMetadataStaticColumns.CONTENT.ordinal())
-                            .toString();
-                }
-
-                public Long getId()
-                {
-                    return ((SerializableComparableIDDecorator) entity
-                            .tryToGetValue(PlateMetadataStaticColumns.CONTENT.ordinal())).getID();
-                }
-
-                public BasicEntityType getEntityType()
-                {
-                    BasicEntityType type = new BasicEntityType();
-                    type.setCode("UNDEFINED");
-                    return type;
-                }
-
-                public EntityKind getEntityKind()
-                {
-                    return EntityKind.MATERIAL;
-                }
-            }, editMode, active);
+        showEntityInformationHolderViewer(entity, PlateMetadataStaticColumns.CONTENT, "UNDEFINED",
+                EntityKind.MATERIAL, editMode, active);
     }
 
     protected void showGeneViewer(final GenericTableRow entity, boolean editMode, boolean active)
     {
-        showEntityInformationHolderViewer(new IEntityInformationHolder()
-            {
+        showEntityInformationHolderViewer(entity, PlateMetadataStaticColumns.INHIBITED_GENE,
+                "GENE", EntityKind.MATERIAL, editMode, active);
+    }
 
+    private static ISerializableComparable getColumn(final GenericTableRow entity,
+            PlateMetadataStaticColumns column)
+    {
+        return entity.tryToGetValue(column.ordinal());
+    }
+
+    private static String getColumnAsString(GenericTableRow entity,
+            PlateMetadataStaticColumns column)
+    {
+        return getColumn(entity, column).toString();
+    }
+
+    private static Long extractTechIdFromColumn(final GenericTableRow entity,
+            PlateMetadataStaticColumns column)
+    {
+        return ((SerializableComparableIDDecorator) getColumn(entity, column)).getID();
+    }
+
+    private static BasicEntityType createEntityType(String typeCode)
+    {
+        BasicEntityType type = new BasicEntityType();
+        type.setCode(typeCode);
+        return type;
+    }
+
+    private static IEntityInformationHolder createEntityInformationHolder(
+            final GenericTableRow entity, final PlateMetadataStaticColumns column,
+            final String typeCode, final EntityKind entityKind)
+    {
+        return new IEntityInformationHolder()
+            {
                 public String getCode()
                 {
-                    return entity
-                            .tryToGetValue(PlateMetadataStaticColumns.INHIBITED_GENE.ordinal())
-                            .toString();
+                    return getColumnAsString(entity, column);
                 }
 
                 public Long getId()
                 {
-                    return ((SerializableComparableIDDecorator) entity
-                            .tryToGetValue(PlateMetadataStaticColumns.INHIBITED_GENE.ordinal()))
-                            .getID();
+                    return extractTechIdFromColumn(entity, column);
                 }
 
                 public BasicEntityType getEntityType()
                 {
-                    BasicEntityType type = new BasicEntityType();
-                    type.setCode("GENE");
-                    return type;
+                    return createEntityType(typeCode);
                 }
 
                 public EntityKind getEntityKind()
                 {
-                    return EntityKind.MATERIAL;
+                    return entityKind;
                 }
-            }, editMode, active);
+            };
     }
-
 }

@@ -24,7 +24,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 
 /**
  * Plugin that does not depend on entity kind and type. All methods except
@@ -57,6 +57,5 @@ public interface IModule
      * Returns a collection of {@link DisposableSectionPanel}s that will be added to entity details
      * view.
      */
-    Collection<? extends SingleSectionPanel> getSections(
-            IEntityInformationHolderWithIdentifier entity);
+    Collection<? extends SingleSectionPanel> getSections(IEntityInformationHolderWithPermId entity);
 }

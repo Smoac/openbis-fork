@@ -20,9 +20,11 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -33,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -77,6 +80,20 @@ public interface IScreeningClientService extends IClientService
      */
     public List<WellContent> getPlateLocations(TechId geneMaterialId,
             ExperimentIdentifier experimentIdentifier) throws UserFailureException;
+
+    /**
+     * Similar to {@link #getPlateLocations(TechId, ExperimentIdentifier)}, but allows to specify a
+     * list of materials for which locations should be found.
+     */
+    public ResultSet<WellContent> listPlateLocations(
+            DefaultResultSetConfig<String, WellContent> gridCriteria,
+            PlateMaterialsSearchCriteria materialCriteria);
+
+    /**
+     * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for
+     * WellContent.
+     */
+    public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria);
 
     /**
      * Returns {@link GenericTableResultSet} containing plate metadata.

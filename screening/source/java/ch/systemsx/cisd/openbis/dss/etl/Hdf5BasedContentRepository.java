@@ -24,13 +24,12 @@ import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Hdf5BasedContentRepository implements IContentRepository
 {
     private final File hdf5Container;
+
     private IHDF5Reader reader;
 
     public Hdf5BasedContentRepository(File hdf5Container)
@@ -51,12 +50,13 @@ public class Hdf5BasedContentRepository implements IContentRepository
         }
         byte[] content = reader.readAsByteArray(path);
         int index = path.lastIndexOf('/');
-        return new ByteArrayBasedContent(content, index < 0 ? path : path.substring(index + 1));
+        return new ByteArrayBasedContent(content, index < 0 ? path : path.substring(index + 1),
+                path);
     }
 
     public void close()
     {
         reader.close();
     }
-    
+
 }

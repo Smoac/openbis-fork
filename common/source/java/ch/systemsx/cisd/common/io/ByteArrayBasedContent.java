@@ -23,20 +23,23 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Content based on an array of bytes.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ByteArrayBasedContent implements IContent
 {
     private final byte[] byteArray;
+
     private final String name;
+
+    private final String id;
 
     /**
      * Creates an instance for the specified byte array.
-     *
+     * 
      * @param name Name of the content. Must be a non-blank string.
      */
-    public ByteArrayBasedContent(byte[] byteArray, String name)
+    public ByteArrayBasedContent(byte[] byteArray, String name, String id)
     {
         if (StringUtils.isBlank(name))
         {
@@ -44,6 +47,7 @@ public class ByteArrayBasedContent implements IContent
         }
         this.byteArray = byteArray;
         this.name = name;
+        this.id = id;
     }
 
     public String getName()
@@ -58,7 +62,7 @@ public class ByteArrayBasedContent implements IContent
     {
         return byteArray.length;
     }
-    
+
     /**
      * Returns always <code>true</code>.
      */
@@ -73,6 +77,11 @@ public class ByteArrayBasedContent implements IContent
     public InputStream getInputStream()
     {
         return new ByteArrayInputStream(byteArray);
+    }
+
+    public String getUniqueId()
+    {
+        return id;
     }
 
 }

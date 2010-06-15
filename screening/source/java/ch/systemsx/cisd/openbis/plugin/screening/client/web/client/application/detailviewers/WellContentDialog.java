@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -42,7 +45,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -186,16 +192,67 @@ public class WellContentDialog extends Dialog
             {
                 public LayoutContainer create(int channel)
                 {
-                    return createTilesGrid(images, channel, viewContext, imageWidth, imageHeight);
+                    String sessionId = getSessionId(viewContext);
+                    return createTilesGrid(images, channel, sessionId, imageWidth, imageHeight);
                 }
             };
         return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
                 .getChannelsNames());
     }
 
-    /** @param channel Channel numbers start with 1. Channel 0 consists of all other channels merged. */
-    public static LayoutContainer createTilesGrid(WellImages images, int channel,
-            IViewContext<?> viewContext, int imageWidth, int imageHeight)
+    /** view with channel chooser, no metadata are displayed */
+    public static LayoutContainer createImageViewer(final WellContent wellContent,
+            DefaultChannelState channelState, final IViewContext<?> viewContext,
+            final int imageWidthPx, final int imageHeightPx)
+    {
+        final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
+            {
+                public Widget create(int channel)
+                {
+                    return createImageViewer(viewContext, wellContent, imageWidthPx, imageHeightPx,
+                            channel);
+                }
+            };
+        DatasetImagesReference imageDataset = wellContent.tryGetImages();
+        List<String> channelsNames = new ArrayList<String>();
+        if (imageDataset != null)
+        {
+            channelsNames = imageDataset.getImageParameters().getChannelsNames();
+        }
+        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
+                channelsNames);
+    }
+
+    /**
+     * Creates a view for the specified channel.
+     * 
+     * @param channel Channel numbers start with 1. Channel 0 consists of all other channels merged.
+     */
+    public static Widget createImageViewer(IViewContext<?> viewContext, WellContent wellContent,
+            int imageWidthPx, int imageHeightPx, int channel)
+    {
+        DatasetImagesReference images = wellContent.tryGetImages();
+        if (images == null)
+        {
+            return new Text("Images not acquired.");
+        }
+        WellLocation locationOrNull = wellContent.tryGetLocation();
+        if (locationOrNull == null)
+        {
+            return new Text("Incorrect well code.");
+        }
+        if (channel > images.getImageParameters().getChannelsNumber())
+        {
+            return new Text("No images available for this channel.");
+        }
+        WellImages wellImages = new WellImages(images, locationOrNull);
+        String sessionId = getSessionId(viewContext);
+        return WellContentDialog.createTilesGrid(wellImages, channel, sessionId, imageWidthPx,
+                imageHeightPx);
+    }
+
+    private static LayoutContainer createTilesGrid(WellImages images, int channel,
+            String sessionId, int imageWidth, int imageHeight)
     {
         LayoutContainer container = new LayoutContainer(new TableLayout(images.getTileColsNum()));
         for (int row = 1; row <= images.getTileRowsNum(); row++)
@@ -203,7 +260,6 @@ public class WellContentDialog extends Dialog
             for (int col = 1; col <= images.getTileColsNum(); col++)
             {
                 Component tileContent;
-                String sessionId = getSessionId(viewContext);
                 String imageURL =
                         createDatastoreImageUrl(images, channel, row, col, imageWidth, imageHeight,
                                 sessionId);

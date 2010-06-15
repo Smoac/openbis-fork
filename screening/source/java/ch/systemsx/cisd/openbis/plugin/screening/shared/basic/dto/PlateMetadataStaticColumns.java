@@ -44,7 +44,7 @@ public enum PlateMetadataStaticColumns
         this.id = id;
     }
 
-    public String colId()
+    public String getColumnId()
     {
         return id;
     }

@@ -100,4 +100,9 @@ public class PlateImageParameters implements IsSerializable
         return channelsNames;
     }
 
+    public int getChannelsNumber()
+    {
+        return channelsNames.size();
+    }
+
 }
