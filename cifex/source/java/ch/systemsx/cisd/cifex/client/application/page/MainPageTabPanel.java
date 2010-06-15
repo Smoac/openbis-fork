@@ -32,11 +32,16 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.ADMIN_VIEW_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.INBOX_VIEW_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.INVITE_VIEW_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.SHARE_VIEW_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
@@ -92,6 +97,7 @@ public final class MainPageTabPanel extends TabPanel
         inboxTab = new InboxTabController(this.context, fileGridWidgets);
 
         shareTabItem = createTabItem(msg(SHARE_VIEW_LABEL), shareTab);
+        shareTabItem.setHideMode(HideMode.OFFSETS);
         inboxTabItem = createTabItem(msg(INBOX_VIEW_LABEL), inboxTab);
 
         // Only create the invite tab if the user is permanent and not an administrator
