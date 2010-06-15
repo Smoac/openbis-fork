@@ -46,12 +46,17 @@ public class DataStoreApiUrlUtilities
     public static String getDataStoreUrlFromServerUrl(String dataStoreServerUrl)
     {
         String datastoreUrl = dataStoreServerUrl;
-
+        
         // The url objained form a DataStore object is the *download* url. Convert this to the
         // datastore URL
         if (datastoreUrl.endsWith("/"))
         {
             datastoreUrl = datastoreUrl.substring(0, datastoreUrl.length() - 1);
+        }
+
+        if (false == datastoreUrl.endsWith(DATA_STORE_SERVER_WEB_APPLICATION_NAME))
+        {
+            datastoreUrl = datastoreUrl + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
         }
 
         return datastoreUrl;
