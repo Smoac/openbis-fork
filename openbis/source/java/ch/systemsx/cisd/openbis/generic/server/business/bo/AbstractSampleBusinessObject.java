@@ -178,7 +178,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     protected void setContainer(final SampleIdentifier sampleIdentifier, final SamplePE samplePE,
             String containerIdentifier)
     {
-        final SamplePE containerPE = tryGetValidSample(containerIdentifier, sampleIdentifier);
+        final SamplePE containerPE =
+                tryGetValidNotContainedSample(containerIdentifier, sampleIdentifier);
         samplePE.setContainer(containerPE);
     }
 
@@ -213,6 +214,19 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                     sampleIdentifier, parentIdentifierOrNull);
         }
         return parentPE;
+    }
+
+    private SamplePE tryGetValidNotContainedSample(final String parentIdentifierOrNull,
+            final SampleIdentifier sampleIdentifier)
+    {
+        SamplePE sample = tryGetValidSample(parentIdentifierOrNull, sampleIdentifier);
+        if (sample.getContainer() != null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Cannot register sample '%s': parent '%s' is part of another sample.",
+                    sampleIdentifier, parentIdentifierOrNull);
+        }
+        return sample;
     }
 
     final SampleTypePE getSampleType(final String code) throws UserFailureException
