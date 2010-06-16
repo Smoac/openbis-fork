@@ -29,7 +29,9 @@ import org.testng.annotations.Test;
 import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.fvec.CSVToCanonicalFeatureVector.CSVToCanonicalFeatureVectorConfiguration;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CSVToCanonicalFeatureVector;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CSVToCanonicalFeatureVector.CSVToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 
 /**

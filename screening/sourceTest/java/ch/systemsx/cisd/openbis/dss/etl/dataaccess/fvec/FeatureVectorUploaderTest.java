@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.DBUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorUploader;
 
 /**
  * @author Chandrasekhar Ramakrishnan
