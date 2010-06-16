@@ -40,6 +40,8 @@ import ch.systemsx.cisd.utils.CsvFileReaderHelper;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 
 /**
+ * Extract features from the file and store them in the database.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProcessor
@@ -140,6 +142,9 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
 
     private final DataSource dataSource;
 
+    // Execution state of this object -- set to null after an execution is finished.
+    private IImagingUploadDAO dataAccessObject = null;
+
     public FeatureVectorStorageProcessor(Properties properties)
     {
         super(properties);
@@ -160,18 +165,16 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
                         incomingDataSetDirectory, rootDir);
         // Import into the data base
         File parent = new File(answer, ORIGINAL_DIR);
-        File dataSets = new File(parent, incomingDataSetDirectory.getName());
-        for (File dataSet : dataSets.listFiles())
-        {
-            try
-            {
-                loadDataSetIntoDatabase(dataSet, dataSetInformation);
-            } catch (IOException ex)
-            {
-                throw new IOExceptionUnchecked(ex);
-            }
+        File dataSet = new File(parent, incomingDataSetDirectory.getName());
 
+        try
+        {
+            loadDataSetIntoDatabase(dataSet, dataSetInformation);
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
         }
+
         return answer;
     }
 
@@ -183,13 +186,11 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
                 new CSVToCanonicalFeatureVector(fileLines, convertorConfig);
         ArrayList<CanonicalFeatureVector> fvecs = convertor.convert();
 
-        IImagingUploadDAO dao = createDAO();
+        dataAccessObject = createDAO();
         FeatureVectorUploader uploader =
-                new FeatureVectorUploader(dao, ScreeningContainerDatasetInfo
+                new FeatureVectorUploader(dataAccessObject, ScreeningContainerDatasetInfo
                         .createScreeningDatasetInfo(dataSetInformation));
         uploader.uploadFeatureVectors(fvecs);
-        dao.commit();
-        dao.close();
     }
 
     private IImagingUploadDAO createDAO()
@@ -198,10 +199,38 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     }
 
     @Override
+    public void commit()
+    {
+        super.commit();
+
+        if (null == dataAccessObject)
+        {
+            return;
+        }
+
+        dataAccessObject.commit();
+        closeDataAccessObject();
+    }
+
+    /**
+     * Close the DAO and set it to null to make clear that it is not initialized.
+     */
+    private void closeDataAccessObject()
+    {
+        dataAccessObject.close();
+        dataAccessObject = null;
+    }
+
+    @Override
     public UnstoreDataAction rollback(final File incomingDataSetDirectory,
             final File storedDataDirectory, Throwable exception)
     {
         // Delete the data from the database
+        if (null != dataAccessObject)
+        {
+            dataAccessObject.rollback();
+            closeDataAccessObject();
+        }
 
         return super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
     }
