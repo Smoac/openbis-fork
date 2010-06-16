@@ -46,10 +46,16 @@ public class EncryptCommand extends AbstractCommand
         @Option(name = "p", longName = "passphrase", metaVar = "STRING", usage = "The pass phrase to use for encryption.")
         private String passphrase;
 
+        @Option(name = "g", longName = "generate-passphrase", metaVar = "FLAG", usage = "Automatically generate a passphrase (incompatible with -p).", skipForExample=true)
+        private boolean generatePassphrase;
+
+        @Option(name = "s", longName = "short-passphrase", metaVar = "FLAG", usage = "Create a short and quite memorizable password (implies -g).", skipForExample=true)
+        private boolean shortPassphrase;
+
         public Parameters(String[] args)
         {
             super(args, NAME, "<file>");
-            if (getArgs().size() != 1)
+            if (getArgs().size() != 1 || (getPassphrase() != null && isGeneratePassphrase()))
             {
                 printHelp(true);
             }
@@ -71,6 +77,16 @@ public class EncryptCommand extends AbstractCommand
         {
             return passphrase;
         }
+
+        public boolean isGeneratePassphrase()
+        {
+            return generatePassphrase || shortPassphrase;
+        }
+
+        public boolean isShortPassphrase()
+        {
+            return shortPassphrase;
+        }
     }
 
     /** Returns the unique instance of this class. */
@@ -90,6 +106,17 @@ public class EncryptCommand extends AbstractCommand
 
     private String getPassphraseOrExit(final Parameters parameters)
     {
+        if (parameters.isShortPassphrase())
+        {
+            final String passphrase = generatePassphrase(true);
+            System.out.println("Password is: " + passphrase);
+            return passphrase;
+        } else if (parameters.isGeneratePassphrase())
+        {
+            final String passphrase = generatePassphrase(false);
+            System.out.println("Passphrase is: " + passphrase);
+            return passphrase;
+        }
         String passphrase = tryGetPassphrase("Passphrase: ", parameters.getPassphrase());
         if (StringUtils.isBlank(passphrase))
         {

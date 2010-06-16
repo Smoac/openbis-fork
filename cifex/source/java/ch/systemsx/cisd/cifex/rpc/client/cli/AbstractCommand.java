@@ -33,6 +33,7 @@ import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
  * Abstract super class of all commands.
@@ -44,9 +45,15 @@ abstract class AbstractCommand implements ICommand
 
     private static final String APPLICATION_NAME = "cifex";
 
+    private static final int GENERATED_MEMORABLE_PASSPHRASE_LENGTH = 10;
+
+    private static final int GENERATED_STRONG_PASSPHRASE_LENGTH = 60;
+
     private static final File HOME_DIRECTORY = SystemUtils.getUserHome();
 
     private static final String SESSION_TOKEN_FILE_NAME = "." + APPLICATION_NAME + "-session-token";
+
+    private static final PasswordGenerator passwordGenerator = new PasswordGenerator();
 
     protected static final File SESSION_TOKEN_FILE =
             new File(HOME_DIRECTORY, SESSION_TOKEN_FILE_NAME);
@@ -77,6 +84,17 @@ abstract class AbstractCommand implements ICommand
     {
         final File baseURLFile = new File(RPCServiceFactory.getCIFEXConfigDir(), "server");
         return baseURLFile;
+    }
+
+    static String generatePassphrase(boolean shortPassphrase)
+    {
+        if (shortPassphrase)
+        {
+            return passwordGenerator.generatePassword(GENERATED_MEMORABLE_PASSPHRASE_LENGTH, true);
+        } else
+        {
+            return passwordGenerator.generatePassword(GENERATED_STRONG_PASSPHRASE_LENGTH, false);
+        }
     }
 
     private final String name;

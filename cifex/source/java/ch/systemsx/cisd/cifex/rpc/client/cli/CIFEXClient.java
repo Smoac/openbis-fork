@@ -199,6 +199,7 @@ public class CIFEXClient
         registerCommand(map, ComputeCRC32Checksum.getInstance());
         registerCommand(map, EncryptCommand.getInstance());
         registerCommand(map, DecryptCommand.getInstance());
+        registerCommand(map, GeneratePassphraseCommand.getInstance());
         return map;
     }
 
