@@ -144,7 +144,7 @@ public interface IImagingUploadDAO extends TransactionQuery
     public void updateChannel(ImgChannelDTO channel);
 
     @Select("select ID from CHANNELS where (DS_ID = ?{1} or EXP_ID = ?{2}) and NAME = ?{3}")
-    public long getChannelIdByChannelNameDatasetIdOrExperimentId(long id, long experimentId,
+    public Long tryGetChannelIdByChannelNameDatasetIdOrExperimentId(long id, long experimentId,
             String chosenChannel);
 
 }

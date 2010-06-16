@@ -129,7 +129,7 @@ public class ScreeningClientApiTest
                     {
 
                         PlateImageReference imageRef =
-                                new PlateImageReference(wellRow, wellCol, tile, channel + "",
+                                new PlateImageReference(wellRow, wellCol, tile, "dapi",
                                         datasetIdentifier);
                         imageRefs.add(imageRef);
                         imageFiles.add(new File(dir, createImageFileName(imageRef)));

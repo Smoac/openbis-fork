@@ -243,7 +243,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                         imageLoadersMap.get(imageReference.getDatasetCode());
                 assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
                 AbsoluteImageReference image = tryGetImage(imageAccessor, imageReference);
-                if (image.tryGetColorComponent() != null || image.tryGetPage() != null)
+                if (image == null
+                        || (image.tryGetColorComponent() != null || image.tryGetPage() != null))
                 {
                     // TODO 2010-06-01, Tomasz Pylak: support paging/merged channels images in API
                     imageFiles.add(null);

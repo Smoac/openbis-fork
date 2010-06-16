@@ -139,8 +139,8 @@ public class ImagingUploadDAOTest extends AbstractDBTest
                 || channels[1] == channelId1 && channels[0] == channelId2);
 
         // test get id of first channel
-        assertEquals(channels[0], dao.getChannelIdByChannelNameDatasetIdOrExperimentId(datasetId,
-                experimentId, "dsChannel"));
+        assertEquals(channels[0], dao.tryGetChannelIdByChannelNameDatasetIdOrExperimentId(datasetId,
+                experimentId, "dsChannel").intValue());
 
         List<ImgChannelDTO> experimentChannels = dao.getChannelsByExperimentId(experimentId);
         assertEquals(1, experimentChannels.size());

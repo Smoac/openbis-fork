@@ -124,9 +124,13 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         assert wellLocation.getX() <= getContainer().getNumberOfColumns();
         assert wellLocation.getY() <= getContainer().getNumberOfRows();
 
-        long chosenChannelId =
-                query.getChannelIdByChannelNameDatasetIdOrExperimentId(getDataset().getId(),
+        Long chosenChannelId =
+                query.tryGetChannelIdByChannelNameDatasetIdOrExperimentId(getDataset().getId(),
                         getContainer().getExperimentId(), chosenChannel);
+        if (chosenChannelId == null)
+        {
+            return null;
+        }
 
         ImgImageDTO imageDTO;
         IContent content = null;
