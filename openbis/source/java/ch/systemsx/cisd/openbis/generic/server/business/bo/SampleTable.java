@@ -306,8 +306,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
         try
         {
-            getSampleDAO().createSamples(samples);
             checkBusinessRules();
+            getSampleDAO().createSamples(samples);
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of samples"));
