@@ -274,10 +274,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 registerSamples(session, samples);
             } else
             {
-                new BatchOperationExecutor<NewSample>().executeInBatches(
-                        new SampleBatchRegisterOrUpdate(businessObjectFactory
+                new BatchOperationExecutor<NewSample>()
+                        .executeInBatches(new SampleBatchRegisterOrUpdate(businessObjectFactory
                                 .createSampleLister(session), samples.getNewSamples(), samples
-                                .getSampleType(), session), 1000);
+                                .getSampleType(), session));
             }
         }
     }

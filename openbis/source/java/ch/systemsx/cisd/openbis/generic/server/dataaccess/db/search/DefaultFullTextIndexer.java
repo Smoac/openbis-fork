@@ -129,14 +129,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
 
     private int getNextIndex(int index, int maxIndex)
     {
-        int result = index + batchSize;
-        if (result < maxIndex)
-        {
-            return result;
-        } else
-        {
-            return maxIndex;
-        }
+        return Math.min(index + batchSize, maxIndex);
     }
 
     private static final FullTextSession getFullTextSession(final Session hibernateSession)

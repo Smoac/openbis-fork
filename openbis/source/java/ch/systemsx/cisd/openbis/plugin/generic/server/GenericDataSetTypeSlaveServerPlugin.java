@@ -39,8 +39,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 @Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_DATA_SET_TYPE_SLAVE_SERVER_PLUGIN)
 public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveServerPlugin
 {
-    private static final int BATCH_SIZE = 1000;
-
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
 
@@ -62,7 +60,7 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
         assert newDataSets != null && newDataSets.size() > 0 : "Unspecified data set or empty data sets.";
 
         new BatchOperationExecutor<NewDataSet>().executeInBatches(new DataSetBatchUpdate(
-                businessObjectFactory.createExternalDataTable(session), newDataSets), BATCH_SIZE);
+                businessObjectFactory.createExternalDataTable(session), newDataSets));
     }
 
 }

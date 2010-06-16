@@ -46,9 +46,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 @Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
 public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlaveServerPlugin
 {
-
-    private static final int BATCH_SIZE = 10000;
-
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
 
@@ -83,7 +80,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 
         new BatchOperationExecutor<NewSample>().executeInBatches(new SampleBatchRegistration(
-                businessObjectFactory.createSampleTable(session), newSamples), BATCH_SIZE);
+                businessObjectFactory.createSampleTable(session), newSamples));
     }
 
     public void updateSamples(Session session, List<SampleBatchUpdatesDTO> updateSamples)
@@ -92,6 +89,6 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert updateSamples != null && updateSamples.size() > 0 : "Unspecified sample or empty samples.";
 
         new BatchOperationExecutor<SampleBatchUpdatesDTO>().executeInBatches(new SampleBatchUpdate(
-                businessObjectFactory.createSampleTable(session), updateSamples), BATCH_SIZE);
+                businessObjectFactory.createSampleTable(session), updateSamples));
     }
 }
