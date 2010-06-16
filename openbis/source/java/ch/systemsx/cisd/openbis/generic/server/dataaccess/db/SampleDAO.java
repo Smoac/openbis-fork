@@ -178,23 +178,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
         internalCreateSample(sample, hibernateTemplate,
                 new ClassValidator<SamplePE>(SamplePE.class), true);
-        try
-        {
-            hibernateTemplate.flush();
-        } catch (UncategorizedSQLException e)
-        {
-            // need to deal with exception thrown by trigger checking code uniqueness
-            final SQLException sqlExceptionOrNull =
-                    ExceptionUtils.tryGetThrowableOfClass(e, SQLException.class);
-            if (sqlExceptionOrNull != null && sqlExceptionOrNull.getNextException() != null)
-            {
-                throw new DataIntegrityViolationException(sqlExceptionOrNull.getNextException()
-                        .getMessage());
-            } else
-            {
-                throw e;
-            }
-        }
+
+        flushWithSqlExceptionHandling(hibernateTemplate);
     }
 
     public List<SamplePE> listSamplesWithPropertiesByExperiment(final ExperimentPE experiment)
@@ -474,7 +459,9 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         {
             operationLog.info(String.format("ADD: %d samples.", samples.size()));
         }
-        hibernateTemplate.flush();
+
+        // TODO 2010-06-16, Piotr Buczek: is memory usage increasing without clear of session?
+        flushWithSqlExceptionHandling(getHibernateTemplate());
     }
 
     public final void updateSample(final SamplePE sample) throws DataAccessException
@@ -482,9 +469,9 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         assert sample != null : "Unspecified sample";
         validatePE(sample);
 
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        getHibernateTemplate().flush();
+        flushWithSqlExceptionHandling(getHibernateTemplate());
 
-        hibernateTemplate.flush();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("UPDATE: sample '" + sample + "'.");
@@ -505,6 +492,28 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
             operationLog.debug(String.format("%d sample(s) have been found.", list.size()));
         }
         return list;
+    }
+
+    private static void flushWithSqlExceptionHandling(HibernateTemplate hibernateTemplate)
+            throws DataAccessException
+    {
+        try
+        {
+            hibernateTemplate.flush();
+        } catch (UncategorizedSQLException e)
+        {
+            // need to deal with exception thrown by trigger checking code uniqueness
+            final SQLException sqlExceptionOrNull =
+                    ExceptionUtils.tryGetThrowableOfClass(e, SQLException.class);
+            if (sqlExceptionOrNull != null && sqlExceptionOrNull.getNextException() != null)
+            {
+                throw new DataIntegrityViolationException(sqlExceptionOrNull.getNextException()
+                        .getMessage());
+            } else
+            {
+                throw e;
+            }
+        }
     }
 
 }
