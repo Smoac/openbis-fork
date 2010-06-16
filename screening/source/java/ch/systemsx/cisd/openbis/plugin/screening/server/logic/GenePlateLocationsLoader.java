@@ -97,7 +97,8 @@ public class GenePlateLocationsLoader
     {
         List<WellContent> locations = loadLocations(materialCriteria);
         externalDataTable.loadByExperimentTechId(materialCriteria.getExperimentId());
-        List<ExternalDataPE> imageDatasets = externalDataTable.getExternalData();
+        List<ExternalDataPE> datasets = externalDataTable.getExternalData();
+        List<ExternalDataPE> imageDatasets = filterImageDatasets(datasets);
         return enrichPlateLocationsWithImages(locations, imageDatasets);
     }
 
