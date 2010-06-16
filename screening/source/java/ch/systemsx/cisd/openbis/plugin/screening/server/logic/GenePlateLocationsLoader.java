@@ -163,7 +163,12 @@ public class GenePlateLocationsLoader
         List<ExternalDataPE> datasets = new ArrayList<ExternalDataPE>();
         for (WellContent wellContent : wellContents)
         {
-            datasets.addAll(plateToDatasetMap.get(wellContent.getPlate().getId()));
+            List<ExternalDataPE> plateDatasets =
+                    plateToDatasetMap.get(wellContent.getPlate().getId());
+            if (plateDatasets != null)
+            {
+                datasets.addAll(plateDatasets);
+            }
         }
         return datasets;
     }
