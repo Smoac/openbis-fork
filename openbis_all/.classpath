@@ -16,5 +16,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/screening"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/rtd_cina"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/plasmid"/>
+	<classpathentry kind="lib" path="/libraries/hdf5"/>
+	<classpathentry kind="lib" path="/libraries/nativedata"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
