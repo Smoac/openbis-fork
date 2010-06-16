@@ -231,7 +231,6 @@ class PlateDatasetLoader
     protected String getDataStoreUrlFromDataStore(DataStore dataStore)
     {
         String datastoreUrl = dataStore.getDownloadUrl();
-        System.out.println("Data store url : " + datastoreUrl);
         // The url objained form a DataStore object is the *download* url. Convert this to the
         // datastore URL
         if (datastoreUrl.endsWith(DATA_STORE_SERVER_WEB_APPLICATION_NAME))
