@@ -34,8 +34,6 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileUploadClient;
-import ch.systemsx.cisd.cifex.rpc.server.File2GBUploadServlet;
-import ch.systemsx.cisd.cifex.rpc.server.IExtendedCIFEXRPCService;
 import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -62,8 +60,6 @@ public class File2GBUploadServletTest extends AssertJUnit
 
     private static final UserDTO USER = createUser("Einstein");
     
-    private static final UserDTO USER_WITH_MAX_UPLOAD_SIZE = createUser("Einstein");
-
     private static final class MockServletOutputStream extends ServletOutputStream
     {
         private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -156,38 +152,14 @@ public class File2GBUploadServletTest extends AssertJUnit
         template.bind("base-URL", BASE_URL + "/");
         template.bind("main-class", FileUploadClient.class.getName());
         template.bind("service-URL", BASE_URL + "/cifex/rpc-service");
-        template.bind("upload-session-id", UPLOAD_SESSION_ID);
+        template.bind("session-id", UPLOAD_SESSION_ID);
+        template.bind("title", "CIFEX File Uploader");
+        template.bind("description", "CIFEX File Uploader");
         assertEquals(template.createText(false), outputStream.toString());
 
         context.assertIsSatisfied();
     }
 
-    
-    @Test
-    public void testJNLPFileUsingUsersMaxUploadSize() throws Exception
-    {
-        prepareRequest(USER_WITH_MAX_UPLOAD_SIZE);
-        prepareResponse();
-        context.checking(new Expectations()
-            {
-                {
-                    one(uploadService).createSession(USER_WITH_MAX_UPLOAD_SIZE, BASE_URL);
-                    will(returnValue(UPLOAD_SESSION_ID));
-                }
-            });
-
-        createServlet().doGet(request, response);
-        
-        Template template = File2GBUploadServlet.JNLP_TEMPLATE.createFreshCopy();
-        template.bind("base-URL", BASE_URL + "/");
-        template.bind("main-class", FileUploadClient.class.getName());
-        template.bind("service-URL", BASE_URL + "/cifex/rpc-service");
-        template.bind("upload-session-id", UPLOAD_SESSION_ID);
-        template.attemptToBind("maxUploadSizeInMB", "4711");
-        assertEquals(template.createText(false), outputStream.toString());
-        
-        context.assertIsSatisfied();
-    }
     
     private void prepareRequest(final UserDTO user)
     {

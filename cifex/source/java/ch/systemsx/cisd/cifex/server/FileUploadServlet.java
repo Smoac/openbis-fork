@@ -52,7 +52,7 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  * 
  * @author Franz-Josef Elmer
  */
-public final class FileUploadServlet extends AbstractFileUploadServlet
+public final class FileUploadServlet extends AbstractFileUploadDownloadServlet
 {
     /*
      * Keep in mind that this constant is used by <code>FileUploadWidget</code> to check if upload
@@ -62,6 +62,14 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
     private static final long serialVersionUID = 1L;
 
     private static final String UPLOAD_FINISHED = "Upload finished.\n";
+
+    @Override
+    // @Protected
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException, InvalidSessionException
+    {
+        // Do nothing. This servlet uses POST
+    }
 
     @Override
     protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
@@ -326,4 +334,26 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
         }
 
     }
+
+    @Override
+    protected String getMainClassName()
+    {
+        // Doesn't apply
+        return null;
+    }
+
+    @Override
+    protected String getOperationName()
+    {
+        // Doesn't apply
+        return null;
+    }
+
+    @Override
+    protected String getTitle()
+    {
+        // Doesn't apply
+        return null;
+    }
+
 }

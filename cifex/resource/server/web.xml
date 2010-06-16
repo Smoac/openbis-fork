@@ -61,4 +61,10 @@
         <servlet-class>ch.systemsx.cisd.cifex.rpc.server.File2GBDownloadServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
+
+    <servlet>
+        <servlet-name>bouncycastle</servlet-name>
+        <servlet-class>ch.systemsx.cisd.cifex.rpc.server.CryptoDownloadServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 </web-app>

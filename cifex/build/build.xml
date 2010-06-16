@@ -78,7 +78,6 @@
 				<include name="**/faq.html" />
 				<include name="**/disclaimer.html" />
 				<include name="**/loginHeader.html" />
-				<include name="**/bouncycastle.jnlp" />
 			</fileset>
 		</copy>
     <copy todir="${zipped.dir}" flatten="true">

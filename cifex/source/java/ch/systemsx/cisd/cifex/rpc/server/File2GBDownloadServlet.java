@@ -16,146 +16,46 @@
 
 package ch.systemsx.cisd.cifex.rpc.server;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClient;
-import ch.systemsx.cisd.cifex.server.AbstractFileDownloadServlet;
-import ch.systemsx.cisd.cifex.server.HttpUtils;
+import ch.systemsx.cisd.cifex.server.AbstractFileUploadDownloadServlet;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
-import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.utilities.Template;
 
 /**
  * A servlet for delivering the WebStart download client.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class File2GBDownloadServlet extends AbstractFileDownloadServlet
+public class File2GBDownloadServlet extends AbstractFileUploadDownloadServlet
 {
     private static final long serialVersionUID = 1L;
-
-    // TODO 2009-12-01, CR: There is much commonality between this class and the
-    // File2GBUploadServlet, refactoring needed
-
-    @Private
-    static final Template JNLP_TEMPLATE =
-            new Template("<?xml version='1.0' encoding='utf-8'?>\n"
-                    + "<jnlp spec='1.0+' codebase='${base-URL}'>\n" 
-                    + "  <information>\n"
-                    + "    <title>${title}</title>\n"
-                    + "    <vendor>Center for Information Science and Databases</vendor>\n"
-                    + "    <description>${description}</description>\n" 
-                    + "  </information>\n"
-                    + "  <security>\n" 
-                    + "    <all-permissions/>\n" + "  </security>\n"
-                    + "  <resources>\n" 
-                    + "    <j2se version='1.5+'/>\n"
-                    + "    <jar href='cifex.jar'/>\n" 
-                    + "    <jar href='cisd-base.jar'/>\n"
-                    + "    <jar href='spring-web.jar'/>\n"
-                    + "    <jar href='spring-context.jar'/>\n"
-                    + "    <jar href='spring-beans.jar'/>\n" 
-                    + "    <jar href='spring-aop.jar'/>\n"
-                    + "    <jar href='spring-core.jar'/>\n" 
-                    + "    <jar href='aopalliance.jar'/>\n"
-                    + "    <jar href='stream-supporting-httpinvoker.jar'/>\n"
-                    + "    <jar href='commons-codec.jar'/>\n"
-                    + "    <jar href='commons-httpclient.jar'/>\n"
-                    + "    <jar href='commons-io.jar'/>\n" 
-                    + "    <jar href='commons-lang.jar'/>\n"
-                    + "    <jar href='commons-logging.jar'/>\n" 
-                    + "    <extension name='Bouncy Castle Crypto Provider' href='bouncycastle.jnlp'/>\n"
-                    + "  </resources>\n"
-                    + "  <application-desc main-class='${main-class}'>\n"
-                    + "    <argument>${service-URL}</argument>\n"
-                    + "    <argument>${session-id}</argument>\n" 
-                    + "  </application-desc>\n"
-                    + "</jnlp>\n");
-
-    private IExtendedCIFEXRPCService downloadService;
 
     public File2GBDownloadServlet()
     {
     }
 
     @Private
-    File2GBDownloadServlet(IExtendedCIFEXRPCService downloadService, IDomainModel domainModel)
+    File2GBDownloadServlet(IExtendedCIFEXRPCService service, IDomainModel domainModel)
     {
-        this.downloadService = downloadService;
-        this.domainModel = domainModel;
+        super(service, domainModel);
     }
 
     @Override
-    public void init() throws ServletException
+    protected String getOperationName()
     {
-        super.init();
-        try
-        {
-            ServletContext servletContext = getServletContext();
-            final BeanFactory context =
-                    WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-            downloadService = (IExtendedCIFEXRPCService) context.getBean("rpc-service");
-        } catch (final Exception ex)
-        {
-            notificationLog.fatal("Failure during file upload service servlet initialization.", ex);
-            throw new ServletException(ex);
-        }
+        return "download";
     }
 
     @Override
-    protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
-            throws ServletException, IOException, InvalidSessionException
+    protected String getTitle()
     {
-        UserDTO user = getUserDTO(request); // Throws exception if session is invalid
-        String url = getURLForEmail(request);
-        String uploadSessionID = downloadService.createSession(user, url);
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Start file upload session with ID " + uploadSessionID);
-        }
-
-        response.setContentType("application/x-java-jnlp-file");
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(response.getOutputStream()));
-        Template template = JNLP_TEMPLATE.createFreshCopy();
-        template.attemptToBind("title", "CIFEX File Downloader");
-        template.attemptToBind("description", "CIFEX File Downloader");
-        template.attemptToBind("base-URL", createBaseURL(request));
-        template.attemptToBind("main-class", FileDownloadClient.class.getName());
-        template.attemptToBind("service-URL", createServiceURL(request));
-        template.attemptToBind("session-id", uploadSessionID);
-        writer.print(template.createText());
-        writer.close();
+        return "CIFEX File Downloader";
     }
 
-    private String createBaseURL(final HttpServletRequest request)
+    @Override
+    protected String getMainClassName()
     {
-        String url = HttpUtils.getBasicURL(request);
-        if (url.indexOf("localhost:8888") > 0)
-        {
-            url = url + "/ch.systemsx.cisd.cifex.Cifex/";
-        } else
-        {
-            url = url + "/";
-        }
-        return url;
-    }
-
-    private String createServiceURL(final HttpServletRequest request)
-    {
-        String baseURL = HttpUtils.getBasicURL(request);
-        return baseURL + "/cifex/rpc-service";
+        return FileDownloadClient.class.getName();
     }
 
 }

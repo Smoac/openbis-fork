@@ -15,6 +15,7 @@
                 file-upload=url-servlet-forwarding-controller
                 file2GB-upload=url-servlet-forwarding-controller
                 file2GB-download=url-servlet-forwarding-controller
+                bouncycastle=url-servlet-forwarding-controller
                 rpc-service=rpc-service-exporter
             </value>
         </property>
