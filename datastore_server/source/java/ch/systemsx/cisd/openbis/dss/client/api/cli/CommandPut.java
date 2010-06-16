@@ -116,7 +116,8 @@ class CommandPut extends AbstractCommand
                 getProperties();
             } catch (Exception e)
             {
-                System.err.println("\nProprties must be specified using as code=value[,code=value]*\n");
+                System.err
+                        .println("\nProprties must be specified using as code=value[,code=value]*\n");
                 return false;
             }
 
@@ -156,8 +157,7 @@ class CommandPut extends AbstractCommand
                     }
                     return -1;
                 }
-                IDataSetDss dataSet =
-                        component.putDataSet(newDataSet, new File(arguments.getFilePath()));
+                IDataSetDss dataSet = component.putDataSet(newDataSet, arguments.getFile());
                 System.out.println("Registered new data set " + dataSet.getCode());
             } catch (IOException e)
             {
@@ -178,11 +178,15 @@ class CommandPut extends AbstractCommand
 
             // Get the file infos
             String filePath = arguments.getFilePath();
-            File file = new File(filePath);
+            File file = arguments.getFile();
             ArrayList<FileInfoDssDTO> fileInfos = getFileInfosForPath(filePath, file);
 
             // Get the parent
-            String parentNameOrNull = (file.isDirectory()) ? file.getName() : null;
+            String parentNameOrNull = null;
+            if (file.isDirectory())
+            {
+                parentNameOrNull = file.getName();
+            }
 
             NewDataSetDTO dataSet = new NewDataSetDTO(owner, parentNameOrNull, fileInfos);
             // Set the data set type (may be null)
@@ -206,7 +210,14 @@ class CommandPut extends AbstractCommand
             {
                 return fileInfos;
             }
-            FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
+            // Strip terminal separators for the file info builder
+            String pathToUse = path;
+            String separator = "" + File.separatorChar;
+            if (pathToUse.endsWith(separator))
+            {
+                pathToUse = pathToUse.substring(0, pathToUse.length() - 1);
+            }
+            FileInfoDssBuilder builder = new FileInfoDssBuilder(pathToUse, pathToUse);
             builder.appendFileInfosForFile(file, fileInfos, true);
             return fileInfos;
         }
