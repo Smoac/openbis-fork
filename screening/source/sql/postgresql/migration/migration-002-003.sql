@@ -12,7 +12,7 @@ CREATE TABLE EVENTS (
 
 CREATE OR REPLACE FUNCTION DELETE_UNUSED_IMAGES() RETURNS trigger AS $$
 BEGIN
-   delete from images where id not in (select i.id from acquired_images ai, images i where (i.id=ai.img_id or ai.thumbnail_id = i.id));
+   delete from images where id = OLD.img_id or id = OLD.thumbnail_id;
    RETURN NEW;
 END;
 $$ LANGUAGE 'plpgsql';
