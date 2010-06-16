@@ -220,7 +220,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             final SampleIdentifier sampleIdentifier)
     {
         SamplePE sample = tryGetValidSample(parentIdentifierOrNull, sampleIdentifier);
-        if (sample.getContainer() != null)
+        if (sample != null && sample.getContainer() != null)
         {
             throw UserFailureException.fromTemplate(
                     "Cannot register sample '%s': parent '%s' is part of another sample.",
