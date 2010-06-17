@@ -97,7 +97,7 @@ public final class DataSetBatchUpdatePanel extends LayoutContainer
     private final ToolBar createToolBar()
     {
         final ToolBar toolBar = new ToolBar();
-        toolBar.add(new LabelToolItem(viewContext.getMessage(Dict.SAMPLE_TYPE)
+        toolBar.add(new LabelToolItem(viewContext.getMessage(Dict.DATA_SET_TYPE)
                 + GenericConstants.LABEL_SEPARATOR));
         toolBar.add(dataSetTypeSelection);
         return toolBar;
