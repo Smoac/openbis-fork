@@ -18,9 +18,6 @@
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/openbis"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/server-common"/>
-	<classpathentry kind="lib" path="/libraries/jetty/jetty.jar" sourcepath="/libraries/jetty/src/jetty.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty/jetty-util.jar" sourcepath="/libraries/jetty/src/jetty-util.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty/servlet-api-2.5.jar" sourcepath="/libraries/jetty/src/servlet-api-2.5.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/cifex/cifex.jar" sourcepath="/cifex/source/java"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
@@ -41,5 +38,12 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/jfreechart/jfreechart-1.0.13-javadocs.zip!/jfreechart-1.0.13-javadocs"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar"/>
+    <classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar"/>
+    <classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-util.jar"/>
+    <classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-security.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

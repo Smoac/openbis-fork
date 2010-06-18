@@ -24,17 +24,18 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.util.StringUtils;
@@ -184,7 +185,8 @@ public class DataStoreServer
     private static void initializeContext(final ApplicationContext applicationContext,
             final ConfigParameters configParameters, final Server thisServer)
     {
-        final Context context = new Context(thisServer, "/", Context.SESSIONS);
+        final ServletContextHandler context =
+                new ServletContextHandler(thisServer, "/", ServletContextHandler.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
         context.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
                 ServiceProvider.APPLICATION_CONTEXT);
@@ -204,7 +206,7 @@ public class DataStoreServer
     // TODO 2010-06-01, CR : The registration process here needs to be made cleaner.
     // Perhaps by using Spring and the dssApplicationContext.xml more effectively, or perhaps by
     // using annotations and reflection.
-    private static void initializeRpcServices(final Context context,
+    private static void initializeRpcServices(final ServletContextHandler context,
             final ApplicationContext applicationContext, final ConfigParameters configParameters)
     {
         // Get the spring bean and do some additional configuration
@@ -243,19 +245,28 @@ public class DataStoreServer
         rpcNameServer.addSupportedInterfaceVersion(nameServerVersion);
     }
 
-    private static void registerPluginServlets(Context context, List<PluginServlet> pluginServlets)
+    @SuppressWarnings("unchecked")
+    private static void registerPluginServlets(ServletContextHandler context,
+            List<PluginServlet> pluginServlets)
     {
         for (PluginServlet pluginServlet : pluginServlets)
         {
-            Class<?> classInstance;
+            Class<? extends Servlet> classInstance;
             try
             {
-                classInstance = Class.forName(pluginServlet.getServletClass());
+                classInstance =
+                        (Class<? extends Servlet>) Class.forName(pluginServlet.getServletClass());
             } catch (ClassNotFoundException ex)
             {
                 throw EnvironmentFailureException.fromTemplate(
                         "Error while loading servlet plugin class '%s': %s", pluginServlet
                                 .getClass(), ex.getMessage());
+            } catch (ClassCastException ex)
+            {
+                throw EnvironmentFailureException.fromTemplate(
+                        "Error while loading servlet plugin class '%s': %s. "
+                                + "Servlet implementation expected.", pluginServlet.getClass(), ex
+                                .getMessage());
             }
             ServletHolder holder =
                     context.addServlet(classInstance, pluginServlet.getServletPath());
