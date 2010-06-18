@@ -473,7 +473,7 @@
 			-->
 	<target name="compile-module-test" description="Compile the module test mode">
 		<delete dir="${targets.www}/${module-test.path}" />
-		<java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../cifex/${sources}:${sources}"
+		<java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../common/${sources}:../cifex/${sources}:${sources}"
 		      classname="com.google.gwt.dev.Compiler"
 		      fork="true">
 			<jvmarg value="-Xmx512M" />
