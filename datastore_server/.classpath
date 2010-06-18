@@ -39,11 +39,12 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar"/>
-    <classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar"/>
-    <classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-util.jar"/>
-    <classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-util.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-security.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-continuation.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
