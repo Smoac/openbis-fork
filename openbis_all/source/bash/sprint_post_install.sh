@@ -26,7 +26,7 @@ function create_individual_greeting_message {
 	fi
 }
 
-function restore_loginHeader {
+function restore_common {
   if [ -f ~openbis/config/loginHeader.html ]; then
     echo restoring loginHeader.html...
     cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
@@ -36,9 +36,12 @@ function restore_loginHeader {
   if [ -f ~openbis/config/index.html ]; then
   	cp ~openbis/config/index.html  ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
   fi  
+  if  [ -f ~openbis/config/server.xml ]; then
+  	cp ~openbis/config/server.xml ~openbis/sprint/openBIS_server/apache-tomcat/conf/
+  fi
   if  [ -f ~openbis/config/datastore_log.xml ]; then
   	cp ~openbis/config/datastore_log.xml ~openbis/sprint/datastore_server/etc/log.xml
-  fi
+  fi  
 }
 
 function add_yeastx_plugin {
@@ -54,74 +57,74 @@ case "$SERVER" in
 
 	$SPRINT)
 	echo SPRINT:$SPRINT;
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	
 	$BIN/sprint_post_install_sprint.sh
 	;;
 	$DEMO)
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	echo DEMO:$DEMO;
 	$BIN/sprint_post_install_demo.sh
 	;;
 	$YEASTX)
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	echo YEASTX:$YEASTX;
 	$BIN/sprint_post_install_yeastx.sh
 	;;
 	$PHOSPHONETX)
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	echo PHOSPHONETX:$PHOSPHONETX;
 	;;
 	$LIVERX)
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	echo LIVERX:$LIVERX;
 	;;
 	$AGRONOMICS)
 	echo AGRONOMICS:$AGRONOMICS;
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	add_yeastx_plugin
 	$BIN/sprint_post_install_agronomics.sh
 	;;
 	$DSU)
 	echo DSU:$DSU;
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	DSU_SERVER_HOME=~openbis/sprint/openBIS-server/apache-tomcat-5.5.26/webapps/openbis
     cp ~openbis/config/openBIS_for_DSU.pdf $DSU_SERVER_HOME
 	;;
 	$SCU)
 	echo SCU:$SCU;
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	;;
 	$BASYSBIO)
 	echo BASYSBIO:$BASYSBIO;
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	add_yeastx_plugin
 	$BIN/sprint_post_install_basysbio.sh
 	;;
 	$BASYSBIO_TEST)
 	echo BASYSBIO_TEST:$BASYSBIO_TEST;
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	add_yeastx_plugin
 	$BIN/sprint_post_install_basysbio.sh
 	;;
 	$CINA)
 	echo CINA:$CINA;
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	;;
 	$PLASMIDS)
 	echo PLASMIDS:$PLASMIDS;
-	restore_loginHeader
+	restore_common
 	create_individual_greeting_message
 	;;
 	*)
