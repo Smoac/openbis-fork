@@ -21,7 +21,7 @@ export ZIPS_PHOSPHONETX="*phosphonetx*.zip"
 export ZIPS_DSU="openBIS-server-S*.zip datastore_server-dsu*.zip openbis-tracking-client*.zip"
 export ZIPS_BASYSBIO="*basysbio*.zip openBIS-server-S*.zip"
 export ZIPS_CINA="openBIS-server-S*.zip datastore_server-cina-*.zip"
-export ZIPS_PLASMIDS="*plasmid*"
+export ZIPS_PLASMIDS="*plasmid* openBIS-server-S*.zip"
 
 # Special plugin
 export DATASTORE_PLUGIN="datastore_server_plugin*.zip"
@@ -33,7 +33,7 @@ for i in $ZIPS; do
          echo $LIVERX; scp -p $i $LIVERX:~openbis
          echo $AGRONOMICS; scp -p $i $AGRONOMICS:~openbis
          echo $SCU; scp -p $i $SCU:~openbis
-         echo $PLASMIDS; scp -p $i $PLASMIDS:~openbis
+ 
 done
 
 echo -e "\nCopying to $PHOSPHONETX...\n"
