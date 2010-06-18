@@ -25,12 +25,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
- * The extractor that expects a single file and recognizes following data set types:
+ * The extractor that recognizes following data set types:
  * <ul>
- * <li>GB -- for a file with {@code .gb} extension
- * <li>SEQUENCING -- for a file with {@code .ab1} extension
- * <li>VERIFICATION -- for all other files
- * <li>UNKNOWN -- for directories
+ * <li>GB -- for a single file with <b>.gb</b> extension
+ * <li>SEQUENCING -- for a single file with <b>.ab1</b> extension
+ * <li>VERIFICATION -- for all other single files
+ * <li>UNKNOWN -- for directories (they can contain files with arbitrary data)
  * </ul>
  * 
  * @author Piotr Buczek

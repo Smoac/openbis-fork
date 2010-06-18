@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * CSB uses DSS to register data sets attached to an existing sample plasmid. This extractor will
- * receive a single file that is inside a directory from which delegate will extract information
- * about the sample.
+ * receive a file that is inside a directory from which delegate will extract information about the
+ * sample.
  * 
  * @author Piotr Buczek
  */
