@@ -65,7 +65,7 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     private File downloadDirectory;
 
-    private char[] passphrase = new char[0];
+    private String passphrase = "";
 
     // Constants for column order
     static final int FILE_DETAILS_COLUMN = 0;
@@ -197,7 +197,7 @@ public class FileDownloadClientModel extends AbstractTableModel
         this.downloadDirectory = downloadDirectory;
     }
 
-    public void setPassphrase(char[] passphrase)
+    public void setPassphrase(String passphrase)
     {
         this.passphrase = passphrase;
     }

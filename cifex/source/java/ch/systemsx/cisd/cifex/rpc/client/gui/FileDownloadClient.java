@@ -24,24 +24,22 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SpringLayout;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -68,11 +66,7 @@ public class FileDownloadClient extends AbstractSwingGUI
 
     private static final int LABEL_WIDTH = 60;
 
-    private static final int FIELD_WIDTH = 130;
-
     private static final int BUTTON_HEIGHT = 30;
-
-    private static final int FIELD_HEIGHT = 20;
 
     static
     {
@@ -112,7 +106,11 @@ public class FileDownloadClient extends AbstractSwingGUI
 
     private final FileDownloadClientModel tableModel;
 
+    private JButton decryptButton;
+
     private JButton directoryButton;
+
+    private String passphrase = "";
 
     FileDownloadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
     {
@@ -251,15 +249,34 @@ public class FileDownloadClient extends AbstractSwingGUI
     private JComponent createDirectoryAndPassphrasePanel()
     {
         final JPanel panel = new JPanel();
-        panel.setLayout(new SpringLayout());
+        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+
+        final JCheckBox willDecrypt = new JCheckBox("Will decrypt");
+        willDecrypt.setEnabled(false);
+        decryptButton = new JButton("Decrypt\u2026");
+        decryptButton.setToolTipText("Decrypt files after downloading");
+        decryptButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    final String newPassphraseOrNull =
+                            PassphraseDialog.tryGetPassphraseForDecrypt(getWindowFrame(),
+                                    passphrase, "Decrypt Files", "Enter Passphrase");
+                    if (newPassphraseOrNull != null)
+                    {
+                        passphrase = newPassphraseOrNull;
+                        tableModel.setPassphrase(passphrase);
+                        willDecrypt.setSelected(passphrase.length() > 0);
+                    }
+                }
+            });
+
 
         // Download directory panel
         JLabel label = new JLabel("Save To", JLabel.TRAILING);
         label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
-        panel.add(label, BorderLayout.WEST);
         directoryButton = new JButton("");
         directoryButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        panel.add(directoryButton, BorderLayout.CENTER);
         directoryButton
                 .setToolTipText("Click button to select a directory in which to save the downloaded files.");
         directoryButton.addActionListener(new ActionListener()
@@ -279,57 +296,11 @@ public class FileDownloadClient extends AbstractSwingGUI
         // set the text of the label to the current directory
         updateDirectoryLabel();
 
-        // Passphrase panel
-        label = new JLabel("Passphrase", JLabel.TRAILING);
-        final JPasswordField passphraseField = new JPasswordField();
-        passphraseField.setPreferredSize(new Dimension(FIELD_WIDTH, FIELD_HEIGHT));
-        passphraseField.addFocusListener(new FocusListener()
-            {
-                public void focusLost(FocusEvent e)
-                {
-                    tableModel.setPassphrase(passphraseField.getPassword());
-                }
-
-                public void focusGained(FocusEvent e)
-                {
-                    // Not of interest.
-                }
-            });
-        label.setLabelFor(passphraseField);
-        panel.add(label);
-        panel.add(passphraseField);
-
-        final JButton passphrasePasteFromClipboardButton =
-                new JButton("Paste Passphrase from Clipboard");
-        passphrasePasteFromClipboardButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    try
-                    {
-                        final String passphraseOrNull = ClipboardUtils.tryPasteClipboard();
-                        if (passphraseOrNull == null)
-                        {
-                            JOptionPane.showMessageDialog(getWindowFrame(),
-                                    "No content in the clipboard.");
-                        } else
-                        {
-                            passphraseField.setText(passphraseOrNull);
-                            tableModel.setPassphrase(passphraseField.getPassword());
-                        }
-                    } catch (Exception ex)
-                    {
-                        ex.printStackTrace();
-                        JOptionPane.showMessageDialog(getWindowFrame(),
-                                "Error accessing clipboard.", "", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            });
-
+        panel.add(willDecrypt);
+        panel.add(decryptButton);
         panel.add(Box.createHorizontalGlue());
-        panel.add(passphrasePasteFromClipboardButton);
-
-        SpringLayoutUtilities.makeCompactGrid(panel, 3, 2, 5, 5, 5, 5);
+        panel.add(label);
+        panel.add(directoryButton);
 
         return panel;
     }

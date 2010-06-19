@@ -42,10 +42,10 @@ final class FileDownloadOperation implements Runnable
 
     private final File downloadDirectory;
 
-    private final char[] passphrase;
+    private String passphrase;
 
     FileDownloadOperation(FileDownloadClientModel model, FileDownloadInfo info,
-            File downloadDirectory, char[] passphrase)
+            File downloadDirectory, String passphrase)
     {
         this.tableModel = model;
         this.fileDownloadInfo = info;
@@ -62,7 +62,7 @@ final class FileDownloadOperation implements Runnable
                     tableModel.getDownloader().download(fileDownloadInfo.getFileInfoDTO().getID(),
                             downloadDirectory, null);
 
-            if (passphrase.length > 0)
+            if (passphrase.length() > 0)
             {
                 operationName = "Decrypting";
                 decrypt(file);
@@ -75,18 +75,17 @@ final class FileDownloadOperation implements Runnable
 
     private void decrypt(final File file)
     {
-        String passphraseStr = new String(passphrase);
         boolean ok = false;
         while (ok == false)
         {
             try
             {
                 final File clearTextFile =
-                        OpenPGPSymmetricKeyEncryption.decrypt(file, null, passphraseStr);
-                JOptionPane.showMessageDialog(tableModel.getMainWindow(),
-                        "File on Server: " + fileDownloadInfo.getFileInfoDTO().getName()
-                                + "\n" + "Decrypted file: " + clearTextFile.getPath(),
-                        "File Decryption", JOptionPane.INFORMATION_MESSAGE);
+                        OpenPGPSymmetricKeyEncryption.decrypt(file, null, passphrase);
+                JOptionPane.showMessageDialog(tableModel.getMainWindow(), "File on Server: "
+                        + fileDownloadInfo.getFileInfoDTO().getName() + "\n" + "Decrypted file: "
+                        + clearTextFile.getPath(), "File Decryption",
+                        JOptionPane.INFORMATION_MESSAGE);
                 ok = true;
             } catch (CheckedExceptionTunnel ex)
             {
@@ -94,12 +93,12 @@ final class FileDownloadOperation implements Runnable
                 {
                     throw ex;
                 }
-                passphraseStr =
-                        PassphraseDialog.tryGetPassphrase(tableModel.getMainWindow(),
-                                "File: '" + fileDownloadInfo.getFileInfoDTO().getName()
-                                        + "'", "<div color='red'>Wrong passphrase, "
-                                        + "please try again.</div>");
-                if (passphraseStr == null)
+                passphrase =
+                        PassphraseDialog.tryGetPassphraseForDecryptRetry(
+                                tableModel.getMainWindow(), "File: '"
+                                        + fileDownloadInfo.getFileInfoDTO().getName() + "'",
+                                "<div color='red'>Wrong passphrase, " + "please try again.</div>");
+                if (StringUtils.isEmpty(passphrase))
                 {
                     JOptionPane.showMessageDialog(tableModel.getMainWindow(),
                             "Decryption cancelled.");

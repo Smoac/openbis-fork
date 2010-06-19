@@ -28,18 +28,17 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -69,10 +68,6 @@ public class FileUploadClient extends AbstractSwingGUI
     private static final int LINE_HEIGHT = 30;
 
     private static final int INPUT_WIDTH = 600;
-
-    private static final int GENERATED_MEMORABLE_PASSPHRASE_LENGTH = 10;
-
-    private static final int GENERATED_STRONG_PASSPHRASE_LENGTH = 60;
 
     static
     {
@@ -118,11 +113,7 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private JButton addButton;
 
-    private JButton generateStrongPassphraseButton;
-
-    private JButton generateMemorablePassphraseButton;
-
-    private JButton clearPassphraseButton;
+    private JButton encryptButton;
 
     private JPopupMenu popupMenu;
 
@@ -132,9 +123,7 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private JTextArea commentTextArea;
 
-    private JPasswordField passphraseField;
-
-    private JPasswordField passphraseRepeatedField;
+    private String passphrase = "";
 
     FileUploadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
     {
@@ -288,22 +277,6 @@ public class FileUploadClient extends AbstractSwingGUI
         panel.add(label);
         panel.add(new JScrollPane(commentTextArea));
 
-        // Passphrase label and input
-        label = new JLabel("Passphrase", JLabel.TRAILING);
-        passphraseField = new JPasswordField();
-        passphraseField.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT));
-        label.setLabelFor(passphraseField);
-        panel.add(label);
-        panel.add(passphraseField);
-
-        // Passphrase (repeated) label and input
-        label = new JLabel("Passphrase (repeat)", JLabel.TRAILING);
-        passphraseRepeatedField = new JPasswordField();
-        passphraseRepeatedField.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT));
-        label.setLabelFor(passphraseRepeatedField);
-        panel.add(label);
-        panel.add(passphraseRepeatedField);
-
         // Files label and table
         label = new JLabel("Files", JLabel.TRAILING);
         final JTable table = new JTable(tableModel)
@@ -329,7 +302,7 @@ public class FileUploadClient extends AbstractSwingGUI
         panel.add(label);
         panel.add(filesPane);
 
-        SpringLayoutUtilities.makeCompactGrid(panel, 5, 2, 5, 5, 5, 5);
+        SpringLayoutUtilities.makeCompactGrid(panel, 3, 2, 5, 5, 5, 5);
 
         JPanel fileListPanel = new JPanel();
         fileListPanel.setLayout(new BorderLayout());
@@ -346,63 +319,27 @@ public class FileUploadClient extends AbstractSwingGUI
         BoxLayout layout = new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS);
         buttonsPanel.setLayout(layout);
 
-        clearPassphraseButton = new JButton("Clear Passphrase");
-        clearPassphraseButton.addActionListener(new ActionListener()
+        final JCheckBox willEncrypt = new JCheckBox("Will encrypt");
+        willEncrypt.setEnabled(false);
+        encryptButton = new JButton("Encrypt\u2026");
+        encryptButton.setToolTipText("Encrypt files before uploading");
+        encryptButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    passphraseField.setText(null);
-                    passphraseRepeatedField.setText(null);
+                    final String newPassphraseOrNull =
+                            PassphraseDialog.tryGetPassphraseForEncrypt(getWindowFrame(),
+                                    passphrase, passphraseGenerator, "Encrypt Files",
+                                    "Enter Passphrase");
+                    if (newPassphraseOrNull != null)
+                    {
+                        passphrase = newPassphraseOrNull;
+                        willEncrypt.setSelected(passphrase.length() > 0);
+                    }
                 }
             });
 
-        generateStrongPassphraseButton = new JButton("Generate Passphrase");
-        generateStrongPassphraseButton.setToolTipText("Create a random (strong) phassphrase");
-        generateStrongPassphraseButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    final String passphrase =
-                            passphraseGenerator.generatePassword(
-                                    GENERATED_STRONG_PASSPHRASE_LENGTH, false);
-                    passphraseField.setText(passphrase);
-                    passphraseRepeatedField.setText(passphrase);
-                    ClipboardUtils.copyToClipboard(passphrase);
-
-                    JOptionPane
-                            .showMessageDialog(
-                                    getWindowFrame(),
-                                    "<html><center>The generated passphrase has been copied to the clipboard.<br><br>"
-                                            + "<em>Make sure you keep it safe or you "
-                                            + "won't be able to decrypt the file!</em></center></html>",
-                                    "Your passphrase", JOptionPane.INFORMATION_MESSAGE);
-                }
-            });
-
-        generateMemorablePassphraseButton = new JButton("Generate Password");
-        generateMemorablePassphraseButton.setToolTipText("Create a memorable passphase (aka \"password\")");
-        generateMemorablePassphraseButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    final String passphrase =
-                            passphraseGenerator.generatePassword(
-                                    GENERATED_MEMORABLE_PASSPHRASE_LENGTH, true);
-                    passphraseField.setText(passphrase);
-                    passphraseRepeatedField.setText(passphrase);
-                    ClipboardUtils.copyToClipboard(passphrase);
-
-                    JOptionPane
-                            .showMessageDialog(
-                                    getWindowFrame(),
-                                    "<html><center>The generated password is:<br><br><code><font size=+3>"
-                                            + passphrase
-                                            + "</font></code><br><br>(It has been copied to the clipboard.)</center></html>",
-                                    "Your password", JOptionPane.INFORMATION_MESSAGE);
-                }
-            });
-
-        addButton = new JButton("Add File");
+        addButton = new JButton("Add File\u2026");
         addButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -410,12 +347,11 @@ public class FileUploadClient extends AbstractSwingGUI
                     chooseAndAddFile();
                 }
             });
-        buttonsPanel.add(clearPassphraseButton);
-        buttonsPanel.add(Box.createHorizontalStrut(5));
-        buttonsPanel.add(generateStrongPassphraseButton);
-        buttonsPanel.add(Box.createHorizontalStrut(5));
-        buttonsPanel.add(generateMemorablePassphraseButton);
         buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(willEncrypt);
+        buttonsPanel.add(Box.createHorizontalStrut(10));
+        buttonsPanel.add(encryptButton);
+        buttonsPanel.add(Box.createHorizontalStrut(10));
         buttonsPanel.add(addButton);
 
         return buttonsPanel;
@@ -463,24 +399,12 @@ public class FileUploadClient extends AbstractSwingGUI
                                             wrapFiles(fileListModel.getFiles());
                                     final String recipients = recipientsTextArea.getText();
                                     final String comment = commentTextArea.getText();
-                                    final char[] passphrase = passphraseField.getPassword();
-                                    final char[] passphraseRepeat =
-                                            passphraseRepeatedField.getPassword();
                                     List<FileWithOverrideName> actualFiles = files;
-                                    if (passphrase.length != 0)
+                                    if (passphrase.length() > 0)
                                     {
                                         operationName = "Encryption";
                                         actualFiles =
                                                 new ArrayList<FileWithOverrideName>(files.size());
-                                        if (Arrays.equals(passphrase, passphraseRepeat) == false)
-                                        {
-                                            JOptionPane.showMessageDialog(getWindowFrame(),
-                                                    "Passphrases do not match.",
-                                                    "Cannot upload files",
-                                                    JOptionPane.ERROR_MESSAGE);
-                                            setEnableStateOfButtons(true);
-                                            return;
-                                        }
                                         for (FileWithOverrideName file : files)
                                         {
                                             final File encryptedFile =
@@ -645,17 +569,9 @@ public class FileUploadClient extends AbstractSwingGUI
         {
             addButton.setEnabled(enable);
         }
-        if (generateStrongPassphraseButton != null)
+        if (encryptButton != null)
         {
-            generateStrongPassphraseButton.setEnabled(enable);
-        }
-        if (generateMemorablePassphraseButton != null)
-        {
-            generateMemorablePassphraseButton.setEnabled(enable);
-        }
-        if (clearPassphraseButton != null)
-        {
-            clearPassphraseButton.setEnabled(enable);
+            encryptButton.setEnabled(enable);
         }
         if (uploadButton != null)
         {
