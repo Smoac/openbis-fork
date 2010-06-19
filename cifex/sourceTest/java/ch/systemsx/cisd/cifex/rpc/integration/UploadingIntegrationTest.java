@@ -169,14 +169,16 @@ public class UploadingIntegrationTest extends AssertJUnit
         userManager = context.mock(IUserManager.class);
         domainModel = context.mock(IDomainModel.class);
         businessContext = context.mock(IBusinessContext.class);
+        userActionLog = context.mock(IUserActionLog.class);
         context.checking(new Expectations()
             {
                 {
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
+                    allowing(userActionLog).getUserHostSessionDescription();
+                    will(returnValue("userHostSessionDescr"));
                 }
             });
-        userActionLog = context.mock(IUserActionLog.class);
         requestContextProvider = context.mock(IRequestContextProvider.class);
         uploadService =
                 new CIFEXRPCService(fileManager, domainModel, requestContextProvider,
