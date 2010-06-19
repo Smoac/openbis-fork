@@ -44,11 +44,11 @@ final class UploadTableModel extends AbstractTableModel
         this.timeProvider = timeProvider;
         uploader.addProgressListener(new IProgressListener()
             {
-                public void start(File file, long fileSize, Long fileIdOrNull)
+                public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
                 {
                     currentFileToBeUploaded = tryToFind(file);
                     setNumberOfBytes(0);
-                    fireChanged();
+                    fireChanged(null);
                 }
 
                 public void reportProgress(int percentage, long numberOfBytes)
@@ -64,7 +64,7 @@ final class UploadTableModel extends AbstractTableModel
                     {
                         setNumberOfBytes(numberOfBytes);
                     }
-                    fireChanged();
+                    fireChanged(null);
                 }
 
                 public void finished(boolean successful)
@@ -74,37 +74,22 @@ final class UploadTableModel extends AbstractTableModel
                         if (successful)
                         {
                             setNumberOfBytes(currentFileToBeUploaded.getLength());
-                            currentFileToBeUploaded.setStatus(FileItemStatus.FINISHED);
+                            fireChanged(FileItemStatus.FINISHED);
                         } else
                         {
-                            currentFileToBeUploaded.setStatus(FileItemStatus.ABORTED);
+                            fireChanged(FileItemStatus.ABORTED);
                         }
-                        fireChanged();
                     }
                 }
 
                 public void exceptionOccured(Throwable throwable)
                 {
-                    currentFileToBeUploaded.setStatus(FileItemStatus.STALLED);
-                    fireChanged();
+                    fireChanged(FileItemStatus.STALLED);
                 }
 
                 public void warningOccured(String warningMessage)
                 {
-                    currentFileToBeUploaded.setStatus(FileItemStatus.STALLED);
-                    fireChanged();
-                }
-
-                private FileItem tryToFind(File file)
-                {
-                    for (FileItem fileItem : fileItems)
-                    {
-                        if (fileItem.getFile().equals(file))
-                        {
-                            return fileItem;
-                        }
-                    }
-                    return null;
+                    fireChanged(FileItemStatus.STALLED);
                 }
 
                 private void setNumberOfBytes(long numberOfBytes)
@@ -112,15 +97,6 @@ final class UploadTableModel extends AbstractTableModel
                     if (currentFileToBeUploaded != null)
                     {
                         currentFileToBeUploaded.setNumberOfBytesUploaded(numberOfBytes);
-                    }
-                }
-
-                private void fireChanged()
-                {
-                    if (currentFileToBeUploaded != null)
-                    {
-                        int index = fileItems.indexOf(currentFileToBeUploaded);
-                        fireTableRowsUpdated(index, index);
                     }
                 }
 
@@ -161,6 +137,42 @@ final class UploadTableModel extends AbstractTableModel
         return false;
     }
 
+    public FileItem tryToFind(File file)
+    {
+        for (FileItem fileItem : fileItems)
+        {
+            if (fileItem.getUploadedFile().equals(file))
+            {
+                return fileItem;
+            }
+        }
+        return null;
+    }
+
+    private void fireChanged(FileItemStatus statusOrNull)
+    {
+        if (currentFileToBeUploaded != null)
+        {
+            if (statusOrNull != null)
+            {
+                currentFileToBeUploaded.setStatus(statusOrNull);
+            }
+            int index = fileItems.indexOf(currentFileToBeUploaded);
+            fireTableRowsUpdated(index, index);
+        }
+    }
+    
+    public FileItem fireChanged(File file, FileItemStatus statusOrNull)
+    {
+        currentFileToBeUploaded = tryToFind(file);
+        fireChanged(statusOrNull);
+        return currentFileToBeUploaded;
+    }
+
+    //
+    // TableModel
+    //
+    
     public int getRowCount()
     {
         return fileItems.size();

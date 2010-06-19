@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc.client.gui;
 
+import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -31,6 +32,7 @@ import javax.swing.UIManager;
 import org.apache.commons.lang.WordUtils;
 import org.springframework.remoting.RemoteAccessException;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -167,37 +169,60 @@ public abstract class AbstractSwingGUI
     protected abstract boolean cancel();
 
     /**
+     * Notifies the user uf the given <var>throwable</var>, if the error message is different from
+     * <var>lastExceptionMessageOrNull</var>.
+     */
+    static String notifyUserOfThrowable(final Frame parentFrame, final String fileName,
+            final String operationName, final Throwable throwable,
+            final String lastExceptionMessageOrNull)
+    {
+        final String message;
+        final Throwable th =
+                (throwable instanceof Error) ? throwable : CheckedExceptionTunnel
+                        .unwrapIfNecessary((Exception) throwable);
+        if (th instanceof UserFailureException)
+        {
+            message = th.getMessage();
+        } else
+        {
+            message =
+                    operationName + " file '" + fileName + "' failed:\n"
+                            + th.getClass().getSimpleName() + ": " + th.getMessage();
+        }
+        if (message.equals(lastExceptionMessageOrNull) == false)
+        {
+            SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        JOptionPane.showMessageDialog(parentFrame, WordUtils.wrap(message,
+                                MESSAGE_WRAP_MAX_CHAR), "Error " + operationName + " File",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+            th.printStackTrace();
+        }
+        return message;
+    }
+
+    /**
      * Creates a error log listener who doesn't block when logging warnings and exceptions.
      */
     protected IProgressListener createErrorLogListener()
     {
         return new IProgressListener()
             {
+                private File currentFile;
+
+                private String currentOperationName;
+
                 private String lastExceptionMessage;
 
                 public void exceptionOccured(Throwable throwable)
                 {
-                    final String message;
-                    if (throwable instanceof UserFailureException)
-                    {
-                        message = throwable.getMessage();
-                    } else
-                    {
-                        message = "ERROR: " + throwable;
-                    }
-                    if (message.equals(lastExceptionMessage) == false)
-                    {
-                        lastExceptionMessage = message;
-                        SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    JOptionPane.showMessageDialog(getWindowFrame(), WordUtils.wrap(
-                                            message, MESSAGE_WRAP_MAX_CHAR), "Error",
-                                            JOptionPane.ERROR_MESSAGE);
-                                }
-                            });
-                    }
+                    lastExceptionMessage =
+                            notifyUserOfThrowable(getWindowFrame(), currentFile.getName(),
+                                    currentOperationName, throwable, lastExceptionMessage);
                 }
 
                 private String lastWarningMessage;
@@ -229,8 +254,10 @@ public abstract class AbstractSwingGUI
                     lastExceptionMessage = null;
                 }
 
-                public void start(File file, long fileSize, Long fileIdOrNull)
+                public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
                 {
+                    currentFile = file;
+                    currentOperationName = operationName;
                 }
             };
     }

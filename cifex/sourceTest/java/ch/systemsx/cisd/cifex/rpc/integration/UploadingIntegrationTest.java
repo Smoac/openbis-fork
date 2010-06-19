@@ -280,7 +280,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
                     one(userActionLog).logUploadFile(SMALL_FILE, true);
-                    one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient, "Uploading", SMALL_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(SMALL_FILE)),
                             with(equal(COMMENT)), with(any(String.class)),
@@ -339,7 +339,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
                     will(returnValue(fileDTOPartial));
-                    one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient, "Uploading", LARGE_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(LARGE_FILE)),
                             with(equal(COMMENT)), with(equal("application/octet-stream")),
@@ -392,7 +392,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                             fileInFileStore)));
                     one(fileManager).isControlling(user, fileDTOPartial);
                     will(returnValue(true));
-                    one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient, "Uploading", LARGE_FILE_SIZE * 1024L, null);
                     one(fileManager).resumeSaveFile(with(equal(user)), with(equal(fileDTOPartial)),
                             with(equal(fileInFileStore)), with(equal(COMMENT)),
                             with(equal(2L * BLOCK_SIZE)), with(any(InputStream.class)));
@@ -496,7 +496,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
                     one(userActionLog).logUploadFile(LARGE_FILE, true);
-                    one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient, "Uploading", LARGE_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(LARGE_FILE)),
                             with(equal(COMMENT)), with(any(String.class)),
@@ -581,7 +581,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(userActionLog).logUploadFile(LARGE_FILE, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
-                    one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient1, "Uploading", SMALL_FILE_SIZE * 1024L, null);
                     one(fileManager).saveFile(with(equal(user)), with(equal(SMALL_FILE)),
                             with(equal(COMMENT)), with(any(String.class)),
                             with(equal(SMALL_FILE_SIZE * 1024L)), with(any(InputStream.class)));
@@ -592,7 +592,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
                             SMALL_FILE_SIZE * 1024L);
-                    one(listener).start(fileOnClient2, LARGE_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient2, "Uploading", LARGE_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(LARGE_FILE)),
                             with(equal(COMMENT)), with(any(String.class)),
@@ -644,7 +644,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
                     atMost(1).of(userActionLog).logUploadFile(SMALL_FILE, true);
-                    one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient, "Uploading", SMALL_FILE_SIZE * 1024L, null);
                     one(listener).reportProgress(0, 0L);
                     one(listener).reportProgress(100, SMALL_FILE_SIZE * 1024L);
 
@@ -705,7 +705,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     atMost(1).of(userActionLog).logUploadFile(SMALL_FILE, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
                             SMALL_FILE_SIZE * 1024L);
-                    one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient, "Uploading", SMALL_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(SMALL_FILE)),
                             with(equal(COMMENT)), with(any(String.class)),
@@ -758,7 +758,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(userManager).refreshQuotaInformation(user);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
-                    one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient, "Uploading", LARGE_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(LARGE_FILE)),
                             with(equal(COMMENT)), with(any(String.class)),
@@ -835,7 +835,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(userActionLog).logUploadFile(LARGE_FILE, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
                             SMALL_FILE_SIZE * 1024L);
-                    one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient1, "Uploading", SMALL_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(SMALL_FILE)),
                             with(equal(COMMENT)), with(any(String.class)),
@@ -847,7 +847,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
-                    one(listener).start(fileOnClient2, LARGE_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient2, "Uploading", LARGE_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(LARGE_FILE)),
                             with(equal(COMMENT)), with(any(String.class)),
@@ -867,7 +867,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
-                    one(listener).start(fileOnClient2, LARGE_FILE_SIZE * 1024L, null);
+                    one(listener).start(fileOnClient2, "Uploading", LARGE_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(LARGE_FILE)),
                             with(equal("2. try")), with(any(String.class)),

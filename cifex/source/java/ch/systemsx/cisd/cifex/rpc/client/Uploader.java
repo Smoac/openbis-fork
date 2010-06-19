@@ -136,7 +136,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                     fireFinishedEvent(false);
                     return;
                 }
-                fireStartedEvent(file, file.length(), null);
+                fireStartedEvent(file, "Uploading", file.length(), null);
                 boolean ok =
                         retryingFileUploader.uploadFile(file, fileWithOverrideName
                                 .tryGetOverrideName(), comment, fileIds,

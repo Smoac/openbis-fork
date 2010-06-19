@@ -47,6 +47,8 @@ final class UploadTableCellRenderer implements TableCellRenderer
             {
                 case NOT_STARTED:
                     return renderText("");
+                case ENCRYPTING:
+                    return renderText("Encrypting\u2026");
                 case UPLOADING:
                     return renderProgressBar(fileItem, false);
                 case FINISHED:

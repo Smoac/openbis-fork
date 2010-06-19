@@ -188,7 +188,7 @@ abstract class AbstractCommand implements ICommand
 
                 long size;
 
-                public void start(File file, long fileSize, Long fileIdOrNull)
+                public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
                 {
                     size = fileSize;
                 }

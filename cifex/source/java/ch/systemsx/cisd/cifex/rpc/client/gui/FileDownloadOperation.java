@@ -26,6 +26,7 @@ import org.bouncycastle.openpgp.PGPDataValidationException;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryption;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo;
+import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo.Status;
 
 /**
  * FileDownloadOperation represents a request to download a file from the CIFEX server. The download
@@ -55,21 +56,20 @@ final class FileDownloadOperation implements Runnable
 
     public void run()
     {
-        String operationName = "Downloading";
-        try
-        {
-            final File file =
-                    tableModel.getDownloader().download(fileDownloadInfo.getFileInfoDTO().getID(),
-                            downloadDirectory, null);
+        final File file =
+                tableModel.getDownloader().download(fileDownloadInfo.getFileInfoDTO().getID(),
+                        downloadDirectory, null);
 
-            if (passphrase.length() > 0)
-            {
-                operationName = "Decrypting";
-                decrypt(file);
-            }
-        } catch (Throwable th)
+        if (passphrase.length() > 0)
         {
-            notifyUserOfException(operationName, th);
+            try
+            {
+                decrypt(file);
+            } catch (Throwable th)
+            {
+                FileDownloadClient.notifyUserOfThrowable(tableModel.getMainWindow(),
+                        fileDownloadInfo.getFileInfoDTO().getName(), "Decrypting", th, null);
+            }
         }
     }
 
@@ -82,6 +82,7 @@ final class FileDownloadOperation implements Runnable
             {
                 final File clearTextFile =
                         OpenPGPSymmetricKeyEncryption.decrypt(file, null, passphrase);
+                tableModel.fireChanged(Status.COMPLETED);
                 JOptionPane.showMessageDialog(tableModel.getMainWindow(), "File on Server: "
                         + fileDownloadInfo.getFileInfoDTO().getName() + "\n" + "Decrypted file: "
                         + clearTextFile.getPath(), "File Decryption",
@@ -100,31 +101,13 @@ final class FileDownloadOperation implements Runnable
                                 "<div color='red'>Wrong passphrase, " + "please try again.</div>");
                 if (StringUtils.isEmpty(passphrase))
                 {
+                    tableModel.fireChanged(Status.COMPLETED_DECRYPTION_CANCELLED);
                     JOptionPane.showMessageDialog(tableModel.getMainWindow(),
                             "Decryption cancelled.");
                     ok = true; // Cancel
                 }
             }
         }
-    }
-
-    private void notifyUserOfException(String operationName, Throwable th)
-    {
-        final Throwable th2 =
-                (th instanceof Error) ? th : CheckedExceptionTunnel
-                        .unwrapIfNecessary((Exception) th);
-        final String msg;
-        if (StringUtils.isBlank(th2.getMessage()))
-        {
-            msg = th2.getClass().getSimpleName();
-        } else
-        {
-            msg = th2.getClass().getSimpleName() + ": " + th2.getMessage();
-        }
-        th2.printStackTrace();
-        JOptionPane.showMessageDialog(tableModel.getMainWindow(), operationName + " file '"
-                + fileDownloadInfo.getFileInfoDTO().getName() + "' failed:\n" + msg, "Error "
-                + operationName + " File", JOptionPane.ERROR_MESSAGE);
     }
 
 }

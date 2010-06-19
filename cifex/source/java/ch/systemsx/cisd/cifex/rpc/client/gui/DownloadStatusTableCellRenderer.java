@@ -48,6 +48,10 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
 
     private final JPanel progressPanel = new JPanel();
 
+    private final JLabel decryptingLabel = new JLabel("Decrypting\u2026");
+
+    private final JPanel decryptingPanel = new JPanel();
+
     private final JButton retryButton = new JButton("Retry");
 
     private final JLabel retryLabel = new JLabel("Could not download. Please retry.");
@@ -58,13 +62,20 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
 
     private final JPanel completedPanel = new JPanel();
 
+    private final JLabel completedDecryptionCancelledLabel =
+            new JLabel("<html><center>Finished.<br><i>(Decryption Cancelled)</i></center></html>");
+
+    private final JPanel completedDecryptionCancelledPanel = new JPanel();
+
     public DownloadStatusTableCellRenderer(FileDownloadClientModel tableModel)
     {
         super();
         createDownloadPanel();
         createProgressPanel();
         createRetryPanel();
+        createDecryptingPanel();
         createCompletedPanel();
+        createCompletedDecryptionCancelledPanel();
     }
 
     private void createCompletedPanel()
@@ -73,6 +84,22 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
         completedLabel.setFont(completedLabel.getFont().deriveFont(Font.PLAIN));
         completedPanel.add(completedLabel);
         completedPanel.setOpaque(true);
+    }
+
+    private void createCompletedDecryptionCancelledPanel()
+    {
+        completedDecryptionCancelledPanel.setLayout(new GridLayout(1, 0));
+        completedDecryptionCancelledLabel.setFont(completedLabel.getFont().deriveFont(Font.PLAIN));
+        completedDecryptionCancelledPanel.add(completedDecryptionCancelledLabel);
+        completedDecryptionCancelledPanel.setOpaque(true);
+    }
+
+    private void createDecryptingPanel()
+    {
+        decryptingPanel.setLayout(new GridLayout(1, 0));
+        decryptingPanel.setFont(decryptingLabel.getFont().deriveFont(Font.PLAIN));
+        decryptingPanel.add(decryptingLabel);
+        decryptingPanel.setOpaque(true);
     }
 
     private void createRetryPanel()
@@ -116,8 +143,14 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
             case TO_DOWNLOAD:
                 panel = downloadPanel;
                 break;
+            case DECRYPTING:
+                panel = decryptingPanel;
+                break;
             case COMPLETED:
                 panel = completedPanel;
+                break;
+            case COMPLETED_DECRYPTION_CANCELLED:
+                panel = completedDecryptionCancelledPanel;
                 break;
             // Queued and Downloading have the same logic
             case QUEUED:

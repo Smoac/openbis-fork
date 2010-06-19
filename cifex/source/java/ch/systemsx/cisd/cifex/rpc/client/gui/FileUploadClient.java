@@ -52,6 +52,8 @@ import javax.swing.table.TableColumn;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.cifex.rpc.client.FileItem;
+import ch.systemsx.cisd.cifex.rpc.client.FileItemStatus;
 import ch.systemsx.cisd.cifex.rpc.client.FileWithOverrideName;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryption;
@@ -177,7 +179,7 @@ public class FileUploadClient extends AbstractSwingGUI
                     }
                 }
 
-                public void start(File file, long fileSize, Long fileIdOrNull)
+                public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
                 {
                 }
 
@@ -407,11 +409,18 @@ public class FileUploadClient extends AbstractSwingGUI
                                                 new ArrayList<FileWithOverrideName>(files.size());
                                         for (FileWithOverrideName file : files)
                                         {
+                                            final FileItem fileItemOrNull =
+                                                    tableModel.fireChanged(file.getOriginalFile(),
+                                                            FileItemStatus.ENCRYPTING);
                                             final File encryptedFile =
                                                     OpenPGPSymmetricKeyEncryption.encrypt(file
                                                             .getOriginalFile(), file
                                                             .getEncryptedFile(), new String(
                                                             passphrase));
+                                            if (fileItemOrNull != null)
+                                            {
+                                                fileItemOrNull.setUploadedFile(encryptedFile);
+                                            }
                                             actualFiles.add(new FileWithOverrideName(encryptedFile,
                                                     file.tryGetOverrideName()));
                                         }

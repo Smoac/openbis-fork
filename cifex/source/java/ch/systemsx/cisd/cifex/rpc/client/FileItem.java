@@ -27,7 +27,9 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
  */
 public final class FileItem
 {
-    private final File file;
+    private final File originalFile;
+    
+    private File uploadedFile;
 
     private final long length;
 
@@ -39,7 +41,8 @@ public final class FileItem
 
     public FileItem(File file, ITimeProvider timeProvider)
     {
-        this.file = file;
+        this.originalFile = file;
+        this.uploadedFile = file;
         transmissionSpeedCalculator = new TransmissionSpeedCalculator(timeProvider);
         length = file.length();
         status = FileItemStatus.NOT_STARTED;
@@ -47,7 +50,17 @@ public final class FileItem
 
     public File getFile()
     {
-        return file;
+        return originalFile;
+    }
+
+    public File getUploadedFile()
+    {
+        return uploadedFile;
+    }
+
+    public void setUploadedFile(File uploadedFile)
+    {
+        this.uploadedFile = uploadedFile;
     }
 
     public long getLength()
@@ -94,6 +107,6 @@ public final class FileItem
     @Override
     public String toString()
     {
-        return file.getName();
+        return originalFile.getName();
     }
 }

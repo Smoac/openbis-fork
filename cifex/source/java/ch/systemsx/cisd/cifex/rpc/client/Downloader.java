@@ -127,7 +127,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                     (directoryToDownloadOrNull != null) ? directoryToDownloadOrNull : new File(".");
             final String fileName = (fileNameOrNull != null) ? fileNameOrNull : fileInfo.getName();
             final File file = new File(directory, fileName);
-            fireStartedEvent(file, fileInfo.getSize(), fileID);
+            fireStartedEvent(file, "Downloading", fileInfo.getSize(), fileID);
             final boolean ok =
                     retryingFileDownloader.download(fileInfo, file,
                             MonitoringProxy.MONITOR_COMMUNICATOR);
