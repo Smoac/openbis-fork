@@ -40,7 +40,6 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.cifex.client.application.AsyncCallbackAdapter;
 import ch.systemsx.cisd.cifex.client.application.HTMLRequestCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.WidgetFactory;
@@ -191,9 +190,7 @@ public final class MainPage extends Viewport
             {
                 public void onClick(ClickEvent event)
                 {
-                    context.getCifexService().logout(AsyncCallbackAdapter.EMPTY_ASYNC_CALLBACK);
-                    context.getModel().getUrlParams().clear();
-                    context.getPageController().showLoginPage();
+                    context.logoutAndShowLoginPage();
                 }
             });
         return html;

@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -28,14 +31,18 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
  */
 public final class PageControllerHelper
 {
+    /** Number of milli-seconds in a minute.. */
+    private static final int MILLIS_PER_MIN = 60 * 1000;
 
-    private PageControllerHelper()
-    {
-        // Can not be instantiated.
-    }
+    /** Keep-alive period in milli-seconds. */
+    private static final int KEEPALIVE_TIMER_PERIOD_MILLIS = 1 * MILLIS_PER_MIN;
+
+    /** The minimal number of keep-alive pings per timeout period. */
+    private static final int MIN_KEEPALIVE_PINGS_PER_TIMEOUT_PERIOD = 4;
 
     /**
-     * Activates:
+     * private static final int MIN_KEEPALIVE_PINGS_PER_TIMEOUT_PERIOD = 4; private
+     * PageControllerHelper() { // Can not be instantiated. } /** Activates:
      * <ul>
      * <li>Login page if user is not logged in,
      * <li>'Inbox' tab if file download was triggered or there are files in the Inbox and user
@@ -50,6 +57,7 @@ public final class PageControllerHelper
         {
             final Model model = context.getModel();
             model.setUser(currentUser);
+            keepSessionAlive(context);
             if (FileDownloadHelper.startFileDownload(model)
                     || (currentUser.hasFilesForDownload() && false == isUploadTriggered(model)))
             {
@@ -71,5 +79,45 @@ public final class PageControllerHelper
     private static boolean isUploadTriggered(final Model model)
     {
         return model.getUrlParams().containsKey(Constants.RECIPIENTS_PARAMETER);
+    }
+
+    /**
+     * Tries to keep session alive until user logs out or closes browser
+     */
+    private static void keepSessionAlive(final ViewContext context)
+    {
+        final Timer t = new Timer()
+            {
+                @Override
+                public void run()
+                {
+                    // Callback will cancel keeping session alive if something went wrong
+                    // or user logged out.
+                    final AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>()
+                        {
+
+                            public void onSuccess(Boolean result)
+                            {
+                                if (result == false)
+                                {
+                                    cancel();
+                                }
+                            }
+
+                            public void onFailure(Throwable caught)
+                            {
+                                cancel();
+                            }
+                        };
+                    context.getCifexService().keepSessionAlive(callback);
+                }
+            };
+        context.setKeepAliveTimerOrNull(t);
+        final int sessionTimeoutMillis =
+                context.getModel().getConfiguration().getSessionTimeoutMin() * MILLIS_PER_MIN;
+        final int keepAliveTimerPeriod =
+                Math.min(KEEPALIVE_TIMER_PERIOD_MILLIS, sessionTimeoutMillis
+                        / MIN_KEEPALIVE_PINGS_PER_TIMEOUT_PERIOD);
+        t.scheduleRepeating(keepAliveTimerPeriod);
     }
 }

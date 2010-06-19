@@ -36,6 +36,12 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 public interface ICIFEXServiceAsync
 {
     /**
+     * Sends a keep-alive ping and returns back whether it was successful, i.e. whether the session
+     * is still alive.
+     */
+    public void keepSessionAlive(final AsyncCallback<Boolean> callback);
+
+    /**
      * Authenticates given <code>user</code> with given <code>password</code>.
      */
     public void tryLogin(final String userCode, final String password,

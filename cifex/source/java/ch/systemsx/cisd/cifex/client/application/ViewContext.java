@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.user.client.Timer;
+
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 
 /**
@@ -32,6 +34,8 @@ public class ViewContext
     private final ICIFEXServiceAsync cifexService;
 
     private final Model model;
+    
+    private Timer keepAliveTimerOrNull;
 
     ViewContext(final IPageController pageController, final IHistoryController historyController,
             final ICIFEXServiceAsync cifexService, final Model model)
@@ -61,4 +65,26 @@ public class ViewContext
     {
         return historyController;
     }
+
+    public void setKeepAliveTimerOrNull(Timer keepAliveTimerOrNull)
+    {
+        this.keepAliveTimerOrNull = keepAliveTimerOrNull;
+    }
+    
+    public void logoutAndShowLoginPage()
+    {
+        getCifexService().logout(AsyncCallbackAdapter.EMPTY_ASYNC_CALLBACK);
+        getModel().getUrlParams().clear();
+        cancelKeepAliveTimer();
+        getPageController().showLoginPage();
+    }
+
+    private void cancelKeepAliveTimer()
+    {
+        if (keepAliveTimerOrNull != null)
+        {
+            keepAliveTimerOrNull.cancel();
+        }
+    }
+
 }

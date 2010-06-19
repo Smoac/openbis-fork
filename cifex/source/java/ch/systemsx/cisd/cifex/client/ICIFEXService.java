@@ -38,6 +38,12 @@ public interface ICIFEXService extends RemoteService
 {
 
     /**
+     * Sends a keep-alive ping and returns back whether it was successful, i.e. whether the session
+     * is still alive.
+     */
+    public Boolean keepSessionAlive();
+
+    /**
      * Authenticates given <code>user</code> with given <code>password</code>.
      * <p>
      * If <code>requestAdmin==true</code>, then request an admin login.

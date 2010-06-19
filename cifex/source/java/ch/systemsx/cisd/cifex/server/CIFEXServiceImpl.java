@@ -146,6 +146,22 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     // ICifexService
     //
 
+    public Boolean keepSessionAlive()
+    {
+        try
+        {
+            privGetCurrentUser();
+            operationLog
+                    .info(userActionLog.getUserHostSessionDescription() + "Keep alive ping: OK");
+            return true;
+        } catch (InvalidSessionException ex)
+        {
+            operationLog.info(userActionLog.getUserHostSessionDescription()
+                    + "Keep alive ping: FAILED");
+            return false;
+        }
+    }
+
     public final CurrentUserInfoDTO tryLogin(final String userCode, final String plainPassword)
             throws EnvironmentFailureException
     {

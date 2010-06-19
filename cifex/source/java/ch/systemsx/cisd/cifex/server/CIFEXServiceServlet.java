@@ -94,6 +94,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.refreshQuotaInformationOfCurrentUser();
     }
 
+    public Boolean keepSessionAlive()
+    {
+        return cifexServiceDelegate.keepSessionAlive();
+    }
+
     public final UserInfoDTO tryLogin(final String user, final String password)
             throws UserFailureException, EnvironmentFailureException
     {
