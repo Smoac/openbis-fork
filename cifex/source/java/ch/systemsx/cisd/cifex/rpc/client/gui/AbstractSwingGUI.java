@@ -78,7 +78,13 @@ public abstract class AbstractSwingGUI
                 @Override
                 public void run()
                 {
-                    cifex.logout(sessionId);
+                    try
+                    {
+                        cifex.logout(sessionId);
+                    } catch (InvalidSessionException ex)
+                    {
+                        // Silence this exception.
+                    }
                 }
             };
         addShutdownHook();
