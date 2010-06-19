@@ -90,7 +90,9 @@ final class PageController implements IPageController, IHistoryController
 
         // lazy initialize the login page
         if (null == loginPage)
+        {
             loginPage = new LoginPage(viewContext);
+        }
         setCurrentPage(Page.LOGIN_PAGE);
         RootPanel.get().add(loginPage);
     }
