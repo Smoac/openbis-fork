@@ -38,6 +38,11 @@ public interface IUserActionLog extends IActionLog
     //
 
     /**
+     * Returns a short description which contains user code, client host, and session id.
+     */
+    public String getUserHostSessionDescription();
+
+    /**
      * Logs a logout.
      * 
      * @param session Session object that is terminated.
