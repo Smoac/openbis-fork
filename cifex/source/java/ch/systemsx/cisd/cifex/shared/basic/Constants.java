@@ -103,7 +103,7 @@ public final class Constants
         return "File [id=" + fileId + "] not found in CIFEX database.";
     }
 
-    public static final int GRID_HEIGHT = 200;
+    public static final int GRID_HEIGHT = 250;
 
     private Constants()
     {
