@@ -53,6 +53,7 @@
         <constructor-arg ref="user-session-holder" />
         <constructor-arg value="${mail.url.override}" />
         <constructor-arg ref="${external-authentication-service}" />
+        <property name="sessionTimeoutMin" value="${session-timeout}" />
         <property name="fileStorePath" value="${file-store}" />
         <property name="fileRetention" value="${file-retention}" />
         <property name="userRetention" value="${user-retention}" />

@@ -30,6 +30,11 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 public interface IBusinessContext
 {
     /**
+     * Returns the session timeout (in minutes).
+     */
+    public int getSessionTimeoutMin();
+    
+    /**
      * Returns the directory which contains all uploaded files.
      */
     public File getFileStore();

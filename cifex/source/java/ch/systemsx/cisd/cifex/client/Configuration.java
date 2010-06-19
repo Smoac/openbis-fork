@@ -28,6 +28,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Configuration implements IsSerializable
 {
 
+    private int sessionTimeoutMin;
+    
     private int fileRetention;
 
     private int userRetention;
@@ -44,6 +46,16 @@ public class Configuration implements IsSerializable
 
     private Boolean systemHasExternalAuthentication;
 
+    public int getSessionTimeoutMin()
+    {
+        return sessionTimeoutMin;
+    }
+
+    public void setSessionTimeoutMin(int sessionTimeoutMin)
+    {
+        this.sessionTimeoutMin = sessionTimeoutMin;
+    }
+    
     public final int getFileRetention()
     {
         return fileRetention;

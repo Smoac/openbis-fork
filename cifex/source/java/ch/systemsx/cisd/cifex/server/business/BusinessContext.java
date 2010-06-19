@@ -32,6 +32,9 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
  */
 class BusinessContext implements IBusinessContext
 {
+    /** The session timeout (in minutes). */
+    private int sessionTimeoutMin;
+    
     /** The root location where uploaded files are going to be stored. */
     private File fileStore;
 
@@ -84,6 +87,16 @@ class BusinessContext implements IBusinessContext
     private int triggerPermits;
 
     private final Set<String> allowedIPsForSetSessionUser = new HashSet<String>();
+    
+    public int getSessionTimeoutMin()
+    {
+        return sessionTimeoutMin;
+    }
+
+    public void setSessionTimeoutMin(int sessionTimeoutMin)
+    {
+        this.sessionTimeoutMin = sessionTimeoutMin;
+    }
     
     public int getTriggerPermits()
     {

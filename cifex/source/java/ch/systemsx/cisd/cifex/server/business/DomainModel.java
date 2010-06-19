@@ -119,6 +119,14 @@ public final class DomainModel implements IDomainModel
     }
 
     /**
+     * Sets the session timeout (in minutes).
+     */
+    public void setSessionTimeoutMin(int sessionTimeoutMin)
+    {
+        businessContext.setSessionTimeoutMin(sessionTimeoutMin);
+    }
+    
+    /**
      * Sets the file retention time in days.
      * <p>
      * This is typically set by <i>Spring</i> via injection.
