@@ -179,7 +179,23 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
 
     public void checkSession(String sessionID) throws InvalidSessionException
     {
-        sessionManager.getSession(sessionID);
+        try
+        {
+            sessionManager.getSession(sessionID);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(userActionLog.getUserHostSessionDescription()
+                        + "Keep alive ping: OK");
+            }
+        } catch (RuntimeException ex)
+        {
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(userActionLog.getUserHostSessionDescription()
+                        + "Keep alive ping: FAILED");
+            }
+            throw ex;
+        }
     }
 
     public String login(final String userCode, final String plainPassword)

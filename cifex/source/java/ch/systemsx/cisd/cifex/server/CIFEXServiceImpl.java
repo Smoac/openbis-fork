@@ -151,13 +151,19 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         try
         {
             privGetCurrentUser();
-            operationLog
-                    .info(userActionLog.getUserHostSessionDescription() + "Keep alive ping: OK");
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(userActionLog.getUserHostSessionDescription()
+                        + "Keep alive ping: OK");
+            }
             return true;
         } catch (InvalidSessionException ex)
         {
-            operationLog.info(userActionLog.getUserHostSessionDescription()
-                    + "Keep alive ping: FAILED");
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(userActionLog.getUserHostSessionDescription()
+                        + "Keep alive ping: FAILED");
+            }
             return false;
         }
     }
