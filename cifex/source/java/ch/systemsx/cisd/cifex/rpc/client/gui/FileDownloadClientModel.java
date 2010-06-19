@@ -16,14 +16,22 @@
 
 package ch.systemsx.cisd.cifex.rpc.client.gui;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
+import javax.swing.JTable;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
@@ -45,11 +53,26 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     private static final long serialVersionUID = 1L;
 
+    // Constants for column order
+    static final int FILE_DETAILS_COLUMN = 0;
+
+    static final int SENDER_COLUMN = 1;
+
+    static final int COMMENT_COLUMN = 2;
+
+    static final int SENT_DATE_COLUMN = 3;
+
+    static final int EXPIRATION_DATE_COLUMN = 4;
+
+    static final int DOWNLOAD_STATUS_COLUMN = 5;
+
     private static ExecutorService executor =
             new NamingThreadPoolExecutor("File download", 1, 1, 0, TimeUnit.SECONDS,
                     new LinkedBlockingQueue<Runnable>()).daemonize();
 
     private final JFrame mainWindow;
+
+    private JTable table;
 
     private final ICIFEXComponent cifex;
 
@@ -67,18 +90,9 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     private String passphrase = "";
 
-    // Constants for column order
-    static final int FILE_DETAILS_COLUMN = 0;
+    protected int sortColumnIndex = 0;
 
-    static final int SENDER_COLUMN = 1;
-
-    static final int COMMENT_COLUMN = 2;
-
-    static final int SENT_DATE_COLUMN = 3;
-
-    static final int EXPIRATION_DATE_COLUMN = 4;
-
-    static final int DOWNLOAD_STATUS_COLUMN = 5;
+    protected boolean sortAscending = true;
 
     /**
      * FileDownloadInfo is a mixture of FileInfoDTO, which encapsulates information about files
@@ -173,6 +187,82 @@ public class FileDownloadClientModel extends AbstractTableModel
         }
     }
 
+    class ColumnSortingListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            TableColumnModel colModel = table.getColumnModel();
+            int columnModelIndex = colModel.getColumnIndexAtX(e.getX());
+            int modelIndex = colModel.getColumn(columnModelIndex).getModelIndex();
+
+            if (modelIndex < 0)
+            {
+                return;
+            }
+            if (sortColumnIndex == modelIndex)
+            {
+                sortAscending = (sortAscending == false);
+            } else
+            {
+                sortColumnIndex = modelIndex;
+                sortAscending = true;
+            }
+
+            for (int i = 0; i < getColumnCount(); i++)
+            {
+                TableColumn column = colModel.getColumn(i);
+                column.setHeaderValue(getColumnName(column.getModelIndex()));
+            }
+            table.getTableHeader().repaint();
+
+            Collections.sort(fileDownloadInfos, new FileDownloadInfoComparator());
+
+            table.tableChanged(new TableModelEvent(FileDownloadClientModel.this));
+            table.repaint();
+        }
+    }
+
+    class FileDownloadInfoComparator implements Comparator<FileDownloadInfo>
+    {
+        public int compare(FileDownloadInfo info1, FileDownloadInfo info2)
+        {
+            int result = 0;
+            switch (sortColumnIndex)
+            {
+                case FILE_DETAILS_COLUMN:
+                    result =
+                            info1.getFileInfoDTO().getName().compareTo(
+                                    info2.getFileInfoDTO().getName());
+                    break;
+                case SENDER_COLUMN:
+                    result =
+                            info1.getFileInfoDTO().getOwner().toString().compareTo(
+                                    info2.getFileInfoDTO().getOwner().toString());
+                    break;
+                case COMMENT_COLUMN:
+                    result =
+                            info1.getFileInfoDTO().getComment().compareTo(
+                                    info2.getFileInfoDTO().getComment());
+                    break;
+                case SENT_DATE_COLUMN:
+                    result =
+                            info1.getFileInfoDTO().getRegistrationDate().compareTo(
+                                    info2.getFileInfoDTO().getRegistrationDate());
+                    break;
+                case EXPIRATION_DATE_COLUMN:
+                    result =
+                            info1.getFileInfoDTO().getExpirationDate().compareTo(
+                                    info2.getFileInfoDTO().getExpirationDate());
+                    break;
+                case DOWNLOAD_STATUS_COLUMN:
+                    result = info1.getStatus().compareTo(info2.getStatus());
+                    break;
+            }
+            return sortAscending ? result : -result;
+        }
+    }
+
     FileDownloadClientModel(FileDownloadClient downloadClient, JFrame mainWindow,
             ITimeProvider timeProvider)
     {
@@ -186,6 +276,12 @@ public class FileDownloadClientModel extends AbstractTableModel
         addProgessListener();
 
         updateDownloadableFiles();
+    }
+
+    public void setTable(JTable table)
+    {
+        this.table = table;
+        table.getTableHeader().addMouseListener(new ColumnSortingListener());
     }
 
     public File getDownloadDirectory()
@@ -312,6 +408,7 @@ public class FileDownloadClientModel extends AbstractTableModel
         {
             fileDownloadInfos.add(new FileDownloadInfo(fileInfo, timeProvider));
         }
+        Collections.sort(fileDownloadInfos, new FileDownloadInfoComparator());
 
         fireTableDataChanged();
     }
@@ -327,24 +424,35 @@ public class FileDownloadClientModel extends AbstractTableModel
     }
 
     @Override
-    public String getColumnName(int column)
+    public String getColumnName(int columnIndex)
     {
-        switch (column)
+        String name = "";
+        if (columnIndex == sortColumnIndex)
+        {
+            name = sortAscending ? "\u25b2" : "\u25bc";
+        }
+        switch (columnIndex)
         {
             case FILE_DETAILS_COLUMN:
-                return "File";
+                name += " File";
+                break;
             case SENDER_COLUMN:
-                return "From";
+                name += " From";
+                break;
             case COMMENT_COLUMN:
-                return "Comment";
+                name += " Comment";
+                break;
             case SENT_DATE_COLUMN:
-                return "Sent Date";
+                name += " Sent Date";
+                break;
             case EXPIRATION_DATE_COLUMN:
-                return "Download Before";
+                name += " Download Before";
+                break;
             case DOWNLOAD_STATUS_COLUMN:
-                return "";
+                break;
         }
-        return null;
+
+        return name;
     }
 
     public Object getValueAt(int rowIndex, int columnIndex)

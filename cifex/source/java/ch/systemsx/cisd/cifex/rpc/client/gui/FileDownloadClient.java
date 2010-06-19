@@ -210,6 +210,7 @@ public class FileDownloadClient extends AbstractSwingGUI
 
                 }
             });
+        tableModel.setTable(fileTable);
 
         // We have two lines of text to display
         fileTable.setRowHeight(fileTable.getRowHeight() * 2);
