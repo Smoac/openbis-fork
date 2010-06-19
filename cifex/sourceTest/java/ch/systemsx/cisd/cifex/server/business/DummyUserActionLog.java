@@ -134,4 +134,9 @@ public class DummyUserActionLog implements IUserActionLog
     {
     }
 
+    public String getUserHostSessionDescription()
+    {
+        return null;
+    }
+
 }
