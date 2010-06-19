@@ -31,8 +31,8 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * This class uses a variant of a trick described in the GWT discussion forum to support autofill.
@@ -113,7 +113,7 @@ public class LoginPanelAutofill extends VerticalPanel
         String username = getUsernameElement().getValue();
         String password = getPasswordElement().getValue();
         // Validate the input -- neither field can be blank
-        return !StringUtils.isBlank(username) && !StringUtils.isBlank(password);
+        return StringUtils.isBlank(username) == false && StringUtils.isBlank(password) == false;
     }
 
     private void giveFocusToFirstField()
