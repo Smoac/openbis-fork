@@ -107,7 +107,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     //
 
     @Override
-    protected String getUserHostSessionDescription()
+    public String getUserHostSessionDescription()
     {
         final Session sessionOrNull = AbstractCIFEXService.tryGetRPCSession(getHttpSession());
         if (useRPCSession && sessionOrNull != null)
