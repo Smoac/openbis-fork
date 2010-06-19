@@ -35,7 +35,7 @@ public enum UniprotColumn
             "Features"), FUNCTION("comment(function)", "Comment (function)", "FUNCTION: "), GENES(
             "genes", "Gene names"), GO("go", "Gene Ontology"), GO_ID("go-id", "Gene Ontology ID"),
     INTERPRO("interpro", "InterPro"), INTERACTOR("interactor", "Interacts with"), KEYWORDS(
-            "keywords", "Keywords"), LAST_MODIFIED("last-modified", "Date of last modification"),
+            "keywords", "Keywords"), LAST_MODIFIED("last-modified", "Date of modification"),
     LENGTH("length", "Length"), ORGANISM("organism", "Organism"), ORGANISM_ID("organism-id",
             "Organism ID"), PATHWAY("pathway", "Pathway"), PROTEIN_NAMES("protein%20names",
             "Protein names"), SCORE("score", "Score"), SEQUENCE("sequence", "Sequence"),
