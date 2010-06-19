@@ -28,7 +28,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import ch.systemsx.cisd.cifex.client.application.page.MainPage;
 import ch.systemsx.cisd.cifex.client.application.ui.LoginPanelAutofill;
-import ch.systemsx.cisd.cifex.client.application.ui.LoginWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -44,8 +43,6 @@ final class LoginPage extends VerticalPanel
 
     private final ViewContext viewContext;
 
-    private static final boolean SUPPORT_AUTOFILL = true;
-
     LoginPage(final ViewContext viewContext)
     {
         this.viewContext = viewContext;
@@ -59,15 +56,8 @@ final class LoginPage extends VerticalPanel
         // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this
         // panel.
         DockPanel loginPanel = new DockPanel();
-        if (SUPPORT_AUTOFILL)
-        {
-            final LoginPanelAutofill loginPanelAutofill = createLoginPanelAutofill();
-            loginPanel.add(loginPanelAutofill, DockPanel.CENTER);
-        } else
-        {
-            final LoginWidget loginWidget = createLoginWidget();
-            loginPanel.add(loginWidget, DockPanel.CENTER);
-        }
+        final LoginPanelAutofill loginPanelAutofill = createLoginPanelAutofill();
+        loginPanel.add(loginPanelAutofill, DockPanel.CENTER);
 
         Image cisdLogo = createImage();
         Anchor logo =
@@ -84,18 +74,6 @@ final class LoginPage extends VerticalPanel
         add(loginPanel);
         add(footerPanel);
         this.setCellVerticalAlignment(footerPanel, VerticalPanel.ALIGN_BOTTOM);
-    }
-
-    private final LoginWidget createLoginWidget()
-    {
-        final LoginWidget loginWidget = new LoginWidget(viewContext);
-        final Map<String, String> urlParams = viewContext.getModel().getUrlParams();
-        final String userCode = urlParams.get(Constants.USERCODE_PARAMETER);
-        if (StringUtils.isBlank(userCode) == false)
-        {
-            loginWidget.getUserField().setValue(userCode);
-        }
-        return loginWidget;
     }
 
     private final LoginPanelAutofill createLoginPanelAutofill()
