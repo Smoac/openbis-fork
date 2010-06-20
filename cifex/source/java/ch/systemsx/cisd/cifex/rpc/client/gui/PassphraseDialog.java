@@ -166,7 +166,8 @@ public final class PassphraseDialog
                 {
                     public void actionPerformed(ActionEvent e)
                     {
-                        if (canCloseRegularly(passphraseField, allowEmptyPassphrase))
+                        if (canCloseRegularly(parentComponent, passphraseField,
+                                passphraseRepeatedField, allowEmptyPassphrase))
                         {
                             dialog.dispose();
                         }
