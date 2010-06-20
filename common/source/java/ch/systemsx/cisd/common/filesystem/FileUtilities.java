@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.FileExistsException;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
@@ -1072,7 +1074,7 @@ public final class FileUtilities
             final String defaultFileNameOrNull)
     {
         assert path != null;
-        
+
         final String filePath = path.getPath();
         final String defaultPathNameOrNull =
                 (defaultFileNameOrNull == null) ? null : new File(path.getParentFile(),
@@ -1541,6 +1543,60 @@ public final class FileUtilities
             }
         }
 
+    }
+
+    /**
+     * Checks the given <var>inFile</var> on whether it exists and is readable.
+     * 
+     * @throws CheckedExceptionTunnel of {@link FileNotFoundException} if the input file does not
+     *             exist.
+     * @throws CheckedExceptionTunnel of {@link IOException} if the input file cannot be read .
+     */
+    public static void checkInputFile(File inFile)
+    {
+        if (inFile.exists() == false)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(new FileNotFoundException("Input file '"
+                    + inFile.getAbsolutePath() + "' not found."));
+        }
+        if (inFile.canRead() == false)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(new IOException("Cannot read input file '"
+                    + inFile.getAbsolutePath() + "'."));
+        }
+    }
+
+    /**
+     * Checks the given <var>inFile</var> on whether it exists and is readable.
+     * 
+     * @throws CheckedExceptionTunnel of {@link FileExistsException} if the <var>outFile</var>
+     *             exists and <var>overwriteOutFile</var> is <code>false</code>.
+     * @throws CheckedExceptionTunnel of {@link IOException} if the output file cannot be written
+     *             to.
+     */
+    public static void checkOutputFile(File outFile, IFileOverwriteStrategy fileOverwriteStrategy)
+    {
+        if (outFile.exists() && fileOverwriteStrategy.overwriteAllowed(outFile) == false)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(new FileExistsException(outFile));
+        }
+        // The fileOverwriteStrategy may have deleted the file, see whether it still exists.
+        if (outFile.exists())
+        {
+            if (outFile.canWrite() == false)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(
+                        "Cannot write to output file '" + outFile.getAbsolutePath() + "'."));
+            }
+        } else
+        {
+            final File parent = outFile.getParentFile();
+            if (parent != null && parent.canWrite() == false)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(
+                        "Cannot write to output directory '" + parent.getAbsolutePath() + "'."));
+            }
+        }
     }
 
 }
