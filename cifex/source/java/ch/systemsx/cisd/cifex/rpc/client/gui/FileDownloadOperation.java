@@ -115,16 +115,24 @@ final class FileDownloadOperation implements Runnable
         {
             try
             {
-                tableModel.fireChanged(fileDownloadInfo.getFileInfoDTO().getID(),
-                        Status.DECRYPTING);
+                tableModel
+                        .fireChanged(fileDownloadInfo.getFileInfoDTO().getID(), Status.DECRYPTING);
                 final File clearTextFile =
                         OpenPGPSymmetricKeyEncryption.decrypt(file, null, passphrase,
                                 createDecryptFileOverwriteStrategyAskUser());
                 tableModel.fireChanged(Status.COMPLETED_DOWNLOAD_AND_DECRYPTION);
-                JOptionPane.showMessageDialog(tableModel.getMainWindow(), "File on Server: "
-                        + fileDownloadInfo.getFileInfoDTO().getName() + "\n" + "Decrypted file: "
-                        + clearTextFile.getPath(), "File Decryption",
-                        JOptionPane.INFORMATION_MESSAGE);
+                final String filenameEncrypted = fileDownloadInfo.getFileInfoDTO().getName();
+                final String filenameDecrypted = clearTextFile.getName();
+                // Show message dialog only for a clear text file that does not follow trivially
+                // from the encrypted file.
+                if (filenameEncrypted.equals(filenameDecrypted
+                        + OpenPGPSymmetricKeyEncryption.PGP_FILE_EXTENSION) == false)
+                {
+                    JOptionPane.showMessageDialog(tableModel.getMainWindow(), "File on Server: "
+                            + fileDownloadInfo.getFileInfoDTO().getName() + "\n"
+                            + "Decrypted file: " + clearTextFile.getPath(), "File Decryption",
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
                 ok = true;
             } catch (CheckedExceptionTunnel ex)
             {
