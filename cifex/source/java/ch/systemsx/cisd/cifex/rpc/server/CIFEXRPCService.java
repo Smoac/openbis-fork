@@ -216,8 +216,14 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
 
     public void logout(String sessionID) throws InvalidSessionException
     {
-        final Session session = sessionManager.getSession(sessionID);
-        logout(session, false);
+        try
+        {
+            final Session session = sessionManager.getSession(sessionID);
+            logout(session, false);
+        } catch (InvalidSessionException ex)
+        {
+            // Silence this as it happens when clients log out twice "to be sure"
+        }
     }
 
     private void logout(Session session, boolean sessionExpired) throws InvalidSessionException
