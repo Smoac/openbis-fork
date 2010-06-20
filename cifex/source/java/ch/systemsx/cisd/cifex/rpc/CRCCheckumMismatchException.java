@@ -29,6 +29,14 @@ public class CRCCheckumMismatchException extends EnvironmentFailureException
     private static final long serialVersionUID = 1L;
 
     public CRCCheckumMismatchException(final String fileName, final int crc32Value,
+            final int crc32ValueExpected, final String msg)
+    {
+        super(String.format(
+                "CRC32 checksum mismatch: File '%s' has CRC32 checksum %x (expected: %x) [%s].",
+                fileName, crc32Value, crc32ValueExpected, msg));
+    }
+
+    public CRCCheckumMismatchException(final String fileName, final int crc32Value,
             final int crc32ValueExpected)
     {
         super(String.format(
