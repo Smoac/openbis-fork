@@ -64,6 +64,8 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
 
     protected final AtomicBoolean inProgress = new AtomicBoolean(false);
 
+    protected final boolean reportFinalException;
+
     abstract protected MonitoringProxy<?> getProxyForOperation();
 
     /**
@@ -71,8 +73,18 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
      */
     public AbstractUploadDownload(ICIFEXRPCService service, String sessionID)
     {
+        this(service, sessionID, true);
+    }
+
+    /**
+     * Creates an instance for the specified service and session ID.
+     */
+    public AbstractUploadDownload(ICIFEXRPCService service, String sessionID,
+            boolean reportFinalException)
+    {
         this.service = service;
         this.sessionID = sessionID;
+        this.reportFinalException = reportFinalException;
         checkService();
     }
 
@@ -125,7 +137,8 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
         return cancelCalled || Thread.interrupted();
     }
 
-    protected void fireStartedEvent(File file, String operationName, long fileSize, Long fileIdOrNull)
+    protected void fireStartedEvent(File file, String operationName, long fileSize,
+            Long fileIdOrNull)
     {
         for (IProgressListener listener : listeners)
         {
@@ -203,9 +216,12 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     {
         private final AbstractUploadDownload uploadDownload;
 
-        public InvocationLogger(AbstractUploadDownload uploadDownload)
+        private final boolean reportFinalException;
+
+        public InvocationLogger(AbstractUploadDownload uploadDownload, boolean reportFinalException)
         {
             this.uploadDownload = uploadDownload;
+            this.reportFinalException = reportFinalException;
         }
 
         public void log(Method method, ExecutionResult<Object> result, boolean willRetry)
@@ -232,7 +248,10 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
                 uploadDownload.fireWarningEvent(warningMessage);
             } else
             {
-                uploadDownload.fireExceptionEvent(originalException);
+                if (reportFinalException)
+                {
+                    uploadDownload.fireExceptionEvent(originalException);
+                }
             }
         }
 

@@ -33,6 +33,8 @@ import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingOutputStream.IWriteP
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy.IMonitorCommunicator;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.IFileOverwriteStrategy;
 
 /**
  * Class which downloads file via an implementation of {@link ICIFEXRPCService}, handling the
@@ -65,7 +67,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
 
     private Downloader(ICIFEXRPCService service, String sessionID)
     {
-        super(service, sessionID);
+        super(service, sessionID, false);
         this.proxyForOperation = createFileDownloaderProxy();
         this.retryingFileDownloader = proxyForOperation.get();
     }
@@ -93,7 +95,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                     return service.getFileInfo(sessionID, fileID);
                 }
             };
-        final InvocationLogger logger = new InvocationLogger(this);
+        final InvocationLogger logger = new InvocationLogger(this, reportFinalException);
         return MonitoringProxy.create(IFileDownloader.class, downloader)
                 .exceptionClassSuitableForRetrying(RemoteAccessException.class).timing(TIMING)
                 .errorValueOnInterrupt().invocationLog(logger);
@@ -107,16 +109,27 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
         listeners.add(listener);
     }
 
-    /**
-     * Downloads the file identified by <var>fileID</var> to the local <var>file</var>.
-     * 
-     * @param fileID The id of the file in CIFEX.
-     * @param directoryToDownloadOrNull The directory to download the file to, or <code>null</code>,
-     *            if the file should be downloaded to the current working directory.
-     * @param fileNameOrNull The file name to save the file to, or <code>null</code>, if the name
-     *            stored in CIFEX should be used.
-     */
-    public File download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull)
+    public File download(final long fileID, final File directoryToDownloadOrNull,
+            final String fileNameOrNull)
+    {
+        return download(fileID, directoryToDownloadOrNull, fileNameOrNull, false);
+    }
+
+    public File download(final long fileID, final File directoryToDownloadOrNull,
+            final String fileNameOrNull, final boolean overwriteOutFile)
+    {
+        return download(fileID, directoryToDownloadOrNull, fileNameOrNull,
+                new IFileOverwriteStrategy()
+                    {
+                        public boolean overwriteAllowed(File outputFile)
+                        {
+                            return overwriteOutFile;
+                        }
+                    });
+    }
+
+    public File download(final long fileID, final File directoryToDownloadOrNull,
+            final String fileNameOrNull, final IFileOverwriteStrategy fileOverwriteStrategy)
     {
         resetCancel();
         try
@@ -127,6 +140,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                     (directoryToDownloadOrNull != null) ? directoryToDownloadOrNull : new File(".");
             final String fileName = (fileNameOrNull != null) ? fileNameOrNull : fileInfo.getName();
             final File file = new File(directory, fileName);
+            FileUtilities.checkOutputFile(file, fileOverwriteStrategy);
             fireStartedEvent(file, "Downloading", fileInfo.getSize(), fileID);
             final boolean ok =
                     retryingFileDownloader.download(fileInfo, file,
@@ -195,7 +209,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             {
                 file.delete();
                 throw new CRCCheckumMismatchException(fileInfo.getName(), crc32Value, fileInfo
-                        .getCrc32Value());
+                        .getCrc32Value(), "File has been deleted");
             }
         } catch (IOException ex)
         {
@@ -215,4 +229,5 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             }
         }
     }
+
 }

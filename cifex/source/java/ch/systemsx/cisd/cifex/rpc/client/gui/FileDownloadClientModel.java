@@ -37,6 +37,7 @@ import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
 import ch.systemsx.cisd.cifex.rpc.client.TransmissionSpeedCalculator;
+import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClient.IDecryptionChecker;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo.Status;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -80,6 +81,8 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     private final ICIFEXDownloader downloader;
 
+    private final IDecryptionChecker decryptionChecker;
+
     private final ITimeProvider timeProvider;
 
     private final ArrayList<FileDownloadInfo> fileDownloadInfos = new ArrayList<FileDownloadInfo>();
@@ -104,8 +107,8 @@ public class FileDownloadClientModel extends AbstractTableModel
     {
         static enum Status
         {
-            TO_DOWNLOAD, QUEUED, DOWNLOADING, DECRYPTING, COMPLETED,
-            COMPLETED_DECRYPTION_CANCELLED, FAILED, STALLED
+            TO_DOWNLOAD, QUEUED_FOR_DOWNLOAD, QUEUED_FOR_DECRYPTION, DOWNLOADING, DECRYPTING,
+            COMPLETED_DOWNLOAD, COMPLETED_DOWNLOAD_AND_DECRYPTION, FAILED, STALLED
         }
 
         private final FileInfoDTO fileInfoDTO;
@@ -269,6 +272,7 @@ public class FileDownloadClientModel extends AbstractTableModel
         this.cifex = downloadClient.getCifex();
         this.sessionId = downloadClient.getSessionId();
         this.downloader = downloadClient.getDownloader();
+        this.decryptionChecker = downloadClient.getDecryptionChecker();
         this.mainWindow = mainWindow;
         this.timeProvider = timeProvider;
         this.downloadDirectory = new File(System.getProperty("user.home"));
@@ -297,6 +301,7 @@ public class FileDownloadClientModel extends AbstractTableModel
     public void setPassphrase(String passphrase)
     {
         this.passphrase = passphrase;
+        fireTableDataChanged();
     }
 
     public ICIFEXDownloader getDownloader()
@@ -343,8 +348,8 @@ public class FileDownloadClientModel extends AbstractTableModel
                             } else
                             {
                                 currentlyDownloadingFile
-                                        .setStatus(FileDownloadInfo.Status.COMPLETED);
-                                fireChanged(FileDownloadInfo.Status.COMPLETED);
+                                        .setStatus(FileDownloadInfo.Status.COMPLETED_DOWNLOAD);
+                                fireChanged(FileDownloadInfo.Status.COMPLETED_DOWNLOAD);
                             }
                         } else
                         {
@@ -363,20 +368,31 @@ public class FileDownloadClientModel extends AbstractTableModel
                     currentlyDownloadingFile.setStatus(FileDownloadInfo.Status.STALLED);
                 }
 
-                private FileDownloadInfo tryToFindDownloadInfoForFile(Long fileIdOrNull)
-                {
-                    if (null == fileIdOrNull)
-                        return null;
-
-                    for (FileDownloadInfo fileDownloadInfo : fileDownloadInfos)
-                    {
-                        if (fileIdOrNull.equals(fileDownloadInfo.fileInfoDTO.getID()))
-                            return fileDownloadInfo;
-                    }
-                    return null;
-                }
-
             });
+    }
+
+    private FileDownloadInfo tryToFindDownloadInfoForFile(Long fileIdOrNull)
+    {
+        if (null == fileIdOrNull)
+            return null;
+
+        for (FileDownloadInfo fileDownloadInfo : fileDownloadInfos)
+        {
+            if (fileIdOrNull.equals(fileDownloadInfo.fileInfoDTO.getID()))
+                return fileDownloadInfo;
+        }
+        return null;
+    }
+
+    void resetCurrentlyDownloadingFile()
+    {
+        currentlyDownloadingFile = null;
+    }
+
+    void fireChanged(Long fileIdOrNull, FileDownloadInfo.Status statusOrNull)
+    {
+        currentlyDownloadingFile = tryToFindDownloadInfoForFile(fileIdOrNull);
+        fireChanged(statusOrNull);
     }
 
     void fireChanged(FileDownloadInfo.Status statusOrNull)
@@ -497,7 +513,8 @@ public class FileDownloadClientModel extends AbstractTableModel
         // Only start downloading if the file hasn't been downloaded yet
         FileDownloadInfo.Status status = fileDownloadInfo.getStatus();
         if ((status != FileDownloadInfo.Status.TO_DOWNLOAD)
-                && (status != FileDownloadInfo.Status.FAILED))
+                && (status != FileDownloadInfo.Status.FAILED)
+                && (status != FileDownloadInfo.Status.COMPLETED_DOWNLOAD))
         {
             return;
         }
@@ -513,15 +530,20 @@ public class FileDownloadClientModel extends AbstractTableModel
     {
         // only the last column is editable
         if (columnIndex != DOWNLOAD_STATUS_COLUMN)
+        {
             return false;
+        }
 
         // and that, only when the file is not currently downloading or finished
         FileDownloadInfo fileDownloadInfo = fileDownloadInfos.get(rowIndex);
         if (null == fileDownloadInfo)
+        {
             return false;
+        }
         FileDownloadInfo.Status status = fileDownloadInfo.getStatus();
         return (status == FileDownloadInfo.Status.TO_DOWNLOAD)
-                || (status == FileDownloadInfo.Status.FAILED);
+                || (status == FileDownloadInfo.Status.FAILED)
+                || (status == FileDownloadInfo.Status.COMPLETED_DOWNLOAD);
     }
 
     /**
@@ -529,7 +551,13 @@ public class FileDownloadClientModel extends AbstractTableModel
      */
     private void queueDownloadOfFile(FileDownloadInfo fileDownloadInfo)
     {
-        fileDownloadInfo.setStatus(Status.QUEUED);
+        if (fileDownloadInfo.getStatus() == Status.COMPLETED_DOWNLOAD)
+        {
+            fileDownloadInfo.setStatus(Status.QUEUED_FOR_DECRYPTION);
+        } else
+        {
+            fileDownloadInfo.setStatus(Status.QUEUED_FOR_DOWNLOAD);
+        }
         FileDownloadOperation op =
                 new FileDownloadOperation(this, fileDownloadInfo, downloadDirectory, passphrase);
         executor.submit(op);
@@ -540,4 +568,8 @@ public class FileDownloadClientModel extends AbstractTableModel
         return mainWindow;
     }
 
+    public IDecryptionChecker getDecryptionChecker()
+    {
+        return decryptionChecker;
+    }
 }

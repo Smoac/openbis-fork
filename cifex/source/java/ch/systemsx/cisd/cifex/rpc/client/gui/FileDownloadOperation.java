@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.rpc.client.gui;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JOptionPane;
 
@@ -27,6 +28,9 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryption;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo.Status;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.common.exceptions.FileExistsException;
+import ch.systemsx.cisd.common.filesystem.IFileOverwriteStrategy;
 
 /**
  * FileDownloadOperation represents a request to download a file from the CIFEX server. The download
@@ -45,8 +49,8 @@ final class FileDownloadOperation implements Runnable
 
     private String passphrase;
 
-    FileDownloadOperation(FileDownloadClientModel model, FileDownloadInfo info,
-            File downloadDirectory, String passphrase)
+    FileDownloadOperation(final FileDownloadClientModel model, final FileDownloadInfo info,
+            final File downloadDirectory, final String passphrase)
     {
         this.tableModel = model;
         this.fileDownloadInfo = info;
@@ -56,20 +60,51 @@ final class FileDownloadOperation implements Runnable
 
     public void run()
     {
-        final File file =
-                tableModel.getDownloader().download(fileDownloadInfo.getFileInfoDTO().getID(),
-                        downloadDirectory, null);
-
-        if (passphrase.length() > 0)
+        try
         {
-            try
+            final File file;
+            if (fileDownloadInfo.getStatus() == FileDownloadInfo.Status.QUEUED_FOR_DOWNLOAD)
             {
-                decrypt(file);
-            } catch (Throwable th)
+                tableModel.fireChanged(fileDownloadInfo.getFileInfoDTO().getID(),
+                        Status.DOWNLOADING);
+                file =
+                        tableModel.getDownloader().download(
+                                fileDownloadInfo.getFileInfoDTO().getID(),
+                                downloadDirectory,
+                                null,
+                                createFileResumeOrOverwriteStrategyAskUser(fileDownloadInfo
+                                        .getFileInfoDTO()));
+                fileDownloadInfo.setFile(file);
+            } else
+            {
+                file = fileDownloadInfo.getFile();
+            }
+            if (passphrase.length() > 0)
+            {
+                try
+                {
+                    decrypt(file);
+                } catch (Throwable th)
+                {
+                    tableModel.fireChanged(Status.COMPLETED_DOWNLOAD);
+                    FileDownloadClient.notifyUserOfThrowable(tableModel.getMainWindow(),
+                            fileDownloadInfo.getFileInfoDTO().getName(), "Decrypting", th, null);
+                }
+            }
+        } catch (Throwable th)
+        {
+            tableModel.fireChanged(fileDownloadInfo.getFileInfoDTO().getID(), Status.FAILED);
+            final Throwable actualTh =
+                    (th instanceof Error) ? th : CheckedExceptionTunnel
+                            .unwrapIfNecessary((Exception) th);
+            if (actualTh instanceof FileExistsException == false)
             {
                 FileDownloadClient.notifyUserOfThrowable(tableModel.getMainWindow(),
-                        fileDownloadInfo.getFileInfoDTO().getName(), "Decrypting", th, null);
+                        fileDownloadInfo.getFileInfoDTO().getName(), "Downloading", th, null);
             }
+        } finally
+        {
+            tableModel.resetCurrentlyDownloadingFile();
         }
     }
 
@@ -80,9 +115,12 @@ final class FileDownloadOperation implements Runnable
         {
             try
             {
+                tableModel.fireChanged(fileDownloadInfo.getFileInfoDTO().getID(),
+                        Status.DECRYPTING);
                 final File clearTextFile =
-                        OpenPGPSymmetricKeyEncryption.decrypt(file, null, passphrase);
-                tableModel.fireChanged(Status.COMPLETED);
+                        OpenPGPSymmetricKeyEncryption.decrypt(file, null, passphrase,
+                                createDecryptFileOverwriteStrategyAskUser());
+                tableModel.fireChanged(Status.COMPLETED_DOWNLOAD_AND_DECRYPTION);
                 JOptionPane.showMessageDialog(tableModel.getMainWindow(), "File on Server: "
                         + fileDownloadInfo.getFileInfoDTO().getName() + "\n" + "Decrypted file: "
                         + clearTextFile.getPath(), "File Decryption",
@@ -90,24 +128,113 @@ final class FileDownloadOperation implements Runnable
                 ok = true;
             } catch (CheckedExceptionTunnel ex)
             {
-                if (ex.getCause() instanceof PGPDataValidationException == false)
+                final Exception actualEx = CheckedExceptionTunnel.unwrapIfNecessary(ex);
+                if (actualEx instanceof PGPDataValidationException)
+                {
+                    passphrase =
+                            PassphraseDialog.tryGetPassphraseForDecryptRetry(tableModel
+                                    .getMainWindow(), "File: '"
+                                    + fileDownloadInfo.getFileInfoDTO().getName() + "'",
+                                    "<div color='red'>Wrong passphrase, "
+                                            + "please try again.</div>");
+                    if (StringUtils.isEmpty(passphrase))
+                    {
+                        cancelDecryption();
+                        ok = true;
+                    }
+                } else if (actualEx instanceof FileExistsException)
+                {
+                    cancelDecryption();
+                    ok = true;
+                } else
                 {
                     throw ex;
                 }
-                passphrase =
-                        PassphraseDialog.tryGetPassphraseForDecryptRetry(
-                                tableModel.getMainWindow(), "File: '"
-                                        + fileDownloadInfo.getFileInfoDTO().getName() + "'",
-                                "<div color='red'>Wrong passphrase, " + "please try again.</div>");
-                if (StringUtils.isEmpty(passphrase))
-                {
-                    tableModel.fireChanged(Status.COMPLETED_DECRYPTION_CANCELLED);
-                    JOptionPane.showMessageDialog(tableModel.getMainWindow(),
-                            "Decryption cancelled.");
-                    ok = true; // Cancel
-                }
             }
         }
+    }
+
+    private IFileOverwriteStrategy createDecryptFileOverwriteStrategyAskUser()
+    {
+        return new IFileOverwriteStrategy()
+            {
+                public boolean overwriteAllowed(File outputFile)
+                {
+                    final int answer =
+                            JOptionPane.showOptionDialog(tableModel.getMainWindow(),
+                                    "The decrypted file '" + outputFile.getAbsolutePath()
+                                            + "' already exists. " + "Overwrite?", "File exists",
+                                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+                                    new Object[]
+                                        { "Yes", "No" }, "No");
+                    return (answer == JOptionPane.YES_OPTION);
+                }
+            };
+    }
+
+    private enum FileOverwriteAction
+    {
+        REPLACE, RESUME, VETO
+    }
+
+    private IFileOverwriteStrategy createFileResumeOrOverwriteStrategyAskUser(
+            final FileInfoDTO fileInfo)
+    {
+        return new IFileOverwriteStrategy()
+            {
+                public boolean overwriteAllowed(File outputFile)
+                {
+                    final long outputFileLength = outputFile.length();
+                    final FileOverwriteAction action;
+                    if (outputFileLength <= fileInfo.getSize())
+                    {
+                        // Resume case
+                        final int answer =
+                                JOptionPane.showOptionDialog(tableModel.getMainWindow(),
+                                        "<html>The file to download '"
+                                                + outputFile.getAbsolutePath()
+                                                + "' already exists.<br>Your options are:<ol>"
+                                                + "<li>Skip file (don't touch local file)"
+                                                + "<li>Resume download of file from server"
+                                                + "<li>Replace local file with file from server"
+                                                + "</ol></html>", "File exists",
+                                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+                                        null, new Object[]
+                                            { "Skip", "Resume", "Replace" }, "Skip");
+                        action =
+                                (answer == 0) ? FileOverwriteAction.VETO
+                                        : (answer == 1 ? FileOverwriteAction.RESUME
+                                                : FileOverwriteAction.REPLACE);
+                    } else
+                    {
+                        final int answer =
+                                JOptionPane.showOptionDialog(tableModel.getMainWindow(), "A file '"
+                                        + outputFile.getAbsolutePath()
+                                        + "' already exists but is unsuitable "
+                                        + "for resume.\nReplace with file from server?",
+                                        "File exists", JOptionPane.YES_NO_OPTION,
+                                        JOptionPane.QUESTION_MESSAGE, null, new Object[]
+                                            { "Yes", "No" }, "No");
+                        action =
+                                (answer == JOptionPane.YES_OPTION) ? FileOverwriteAction.REPLACE
+                                        : FileOverwriteAction.VETO;
+                    }
+                    if (FileOverwriteAction.REPLACE == action)
+                    {
+                        if (outputFile.delete() == false)
+                        {
+                            throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(
+                                    "Cannot delete file '" + outputFile.getAbsolutePath() + "'."));
+                        }
+                    }
+                    return FileOverwriteAction.VETO != action;
+                }
+            };
+    }
+
+    private void cancelDecryption()
+    {
+        tableModel.fireChanged(Status.COMPLETED_DOWNLOAD);
     }
 
 }

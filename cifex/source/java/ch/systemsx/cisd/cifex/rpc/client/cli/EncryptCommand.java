@@ -51,6 +51,9 @@ public class EncryptCommand extends AbstractCommand
 
         @Option(name = "s", longName = "short-passphrase", metaVar = "FLAG", usage = "Create a short and quite memorizable password (implies -g).", skipForExample=true)
         private boolean shortPassphrase;
+        
+        @Option(name = "O", longName = "overwrote-output-file", metaVar = "FLAG", usage = "Whether an already existing output file should be silently overwritten.")
+        private boolean overwriteOutputFile;
 
         public Parameters(String[] args)
         {
@@ -71,6 +74,11 @@ public class EncryptCommand extends AbstractCommand
         public File getOutFile()
         {
             return outFile;
+        }
+
+        public boolean isOverwriteOutputFile()
+        {
+            return overwriteOutputFile;
         }
 
         public String getPassphrase()
@@ -137,7 +145,7 @@ public class EncryptCommand extends AbstractCommand
         final Parameters parameters = new Parameters(arguments);
         final String passphrase = getPassphraseOrExit(parameters);
         OpenPGPSymmetricKeyEncryption.encrypt(parameters.getInFile(), parameters.getOutFile(),
-                passphrase);
+                passphrase, parameters.isOverwriteOutputFile());
 
         return 0;
     }

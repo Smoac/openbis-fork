@@ -49,9 +49,6 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
-import org.apache.commons.lang.StringUtils;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.FileItem;
 import ch.systemsx.cisd.cifex.rpc.client.FileItemStatus;
 import ch.systemsx.cisd.cifex.rpc.client.FileWithOverrideName;
@@ -394,59 +391,23 @@ public class FileUploadClient extends AbstractSwingGUI
                         {
                             public void run()
                             {
-                                String operationName = "Upload";
+                                final List<FileWithOverrideName> files =
+                                        wrapFiles(fileListModel.getFiles());
+                                final String recipients = recipientsTextArea.getText();
+                                final String comment = commentTextArea.getText();
+                                final List<FileWithOverrideName> actualFiles =
+                                        encryptFilesIfRequested(files);
+                                if (actualFiles.isEmpty())
+                                {
+                                    setEnableStateOfButtons(true);
+                                    return;
+                                }
                                 try
                                 {
-                                    final List<FileWithOverrideName> files =
-                                            wrapFiles(fileListModel.getFiles());
-                                    final String recipients = recipientsTextArea.getText();
-                                    final String comment = commentTextArea.getText();
-                                    List<FileWithOverrideName> actualFiles = files;
-                                    if (passphrase.length() > 0)
-                                    {
-                                        operationName = "Encryption";
-                                        actualFiles =
-                                                new ArrayList<FileWithOverrideName>(files.size());
-                                        for (FileWithOverrideName file : files)
-                                        {
-                                            final FileItem fileItemOrNull =
-                                                    tableModel.fireChanged(file.getOriginalFile(),
-                                                            FileItemStatus.ENCRYPTING);
-                                            final File encryptedFile =
-                                                    OpenPGPSymmetricKeyEncryption.encrypt(file
-                                                            .getOriginalFile(), file
-                                                            .getEncryptedFile(), new String(
-                                                            passphrase));
-                                            if (fileItemOrNull != null)
-                                            {
-                                                fileItemOrNull.setUploadedFile(encryptedFile);
-                                            }
-                                            actualFiles.add(new FileWithOverrideName(encryptedFile,
-                                                    file.tryGetOverrideName()));
-                                        }
-                                    }
-                                    operationName = "Upload";
                                     uploader.upload(actualFiles, recipients, comment);
                                 } catch (Throwable th)
                                 {
-                                    final Throwable th2 =
-                                            (th instanceof Error) ? th : CheckedExceptionTunnel
-                                                    .unwrapIfNecessary((Exception) th);
-                                    final String msg;
-                                    if (StringUtils.isBlank(th2.getMessage()))
-                                    {
-                                        msg = th2.getClass().getSimpleName();
-                                    } else
-                                    {
-                                        msg =
-                                                th2.getClass().getSimpleName() + ": "
-                                                        + th2.getMessage();
-                                    }
-                                    th2.printStackTrace();
-                                    JOptionPane.showMessageDialog(getWindowFrame(), operationName
-                                            + " failed:\n" + msg, "Error on " + operationName,
-                                            JOptionPane.ERROR_MESSAGE);
-                                    setEnableStateOfButtons(true);
+                                    // Be silent - exception has already been reported by uploader
                                 }
                             }
                         }).start();
@@ -618,5 +579,68 @@ public class FileUploadClient extends AbstractSwingGUI
     protected final String getTitle()
     {
         return TITLE;
+    }
+
+    private List<FileWithOverrideName> encryptFilesIfRequested(
+            final List<FileWithOverrideName> files)
+    {
+        if (passphrase.length() > 0)
+        {
+            final List<FileWithOverrideName> encryptedFiles =
+                    new ArrayList<FileWithOverrideName>(files.size());
+            for (FileWithOverrideName file : files)
+            {
+                try
+                {
+                    final FileItem fileItemOrNull =
+                            tableModel.fireChanged(file.getOriginalFile(),
+                                    FileItemStatus.ENCRYPTING);
+                    if (file.getEncryptedFile().exists())
+                    {
+                        final int answer =
+                                JOptionPane.showConfirmDialog(getWindowFrame(), "Output file '"
+                                        + file.getEncryptedFile().getAbsolutePath()
+                                        + "' already exists. " + "Overwrite?", "File exists",
+                                        JOptionPane.YES_NO_OPTION);
+                        if (answer == JOptionPane.YES_OPTION)
+                        {
+                            if (file.getEncryptedFile().delete() == false)
+                            {
+                                notifyUserOfThrowable(getWindowFrame(), file.getOriginalFile()
+                                        .getPath(), "Encrypting", new IOException("File '"
+                                        + file.getEncryptedFile() + "' could not be deleted."),
+                                        null);
+                                tableModel.fireChanged(file.getOriginalFile(),
+                                        FileItemStatus.ABORTED);
+                                continue;
+                            }
+                        } else
+                        {
+                            tableModel.fireChanged(file.getOriginalFile(), FileItemStatus.ABORTED);
+                            continue;
+                        }
+                    }
+                    final File encryptedFile =
+                            OpenPGPSymmetricKeyEncryption.encrypt(file.getOriginalFile(), file
+                                    .getEncryptedFile(), passphrase, false);
+                    if (fileItemOrNull != null)
+                    {
+                        fileItemOrNull.setUploadedFile(encryptedFile);
+                    }
+                    encryptedFiles.add(new FileWithOverrideName(encryptedFile, file
+                            .tryGetOverrideName()));
+                } catch (Throwable th)
+                {
+                    notifyUserOfThrowable(getWindowFrame(), file.getOriginalFile().getPath(),
+                            "Encrypting", th, null);
+                    tableModel.fireChanged(file.getOriginalFile(), FileItemStatus.ABORTED);
+                    break;
+                }
+            }
+            return encryptedFiles;
+        } else
+        {
+            return files;
+        }
     }
 }

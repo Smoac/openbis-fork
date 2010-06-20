@@ -92,6 +92,16 @@ public abstract class AbstractSwingGUI
         addShutdownHook();
         startSessionKeepAliveTimer(KEEP_ALIVE_PERIOD_MILLIS);
         addWindowCloseHook();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
+            {
+                public void uncaughtException(Thread thread, Throwable throwable)
+                {
+                    final String message =
+                            throwable.getClass().getSimpleName() + "[Thread: " + thread.getName() + "]: "
+                                    + throwable.getMessage();
+                    notifyUserOfThrowable(windowFrame, message, "Unexpected Error", throwable);
+                }
+            });
     }
 
     /**
@@ -169,17 +179,17 @@ public abstract class AbstractSwingGUI
     protected abstract boolean cancel();
 
     /**
-     * Notifies the user uf the given <var>throwable</var>, if the error message is different from
+     * Notifies the user of the given <var>throwable</var>, if the error message is different from
      * <var>lastExceptionMessageOrNull</var>.
      */
     static String notifyUserOfThrowable(final Frame parentFrame, final String fileName,
             final String operationName, final Throwable throwable,
             final String lastExceptionMessageOrNull)
     {
-        final String message;
         final Throwable th =
                 (throwable instanceof Error) ? throwable : CheckedExceptionTunnel
                         .unwrapIfNecessary((Exception) throwable);
+        final String message;
         if (th instanceof UserFailureException)
         {
             message = th.getMessage();
@@ -189,20 +199,33 @@ public abstract class AbstractSwingGUI
                     operationName + " file '" + fileName + "' failed:\n"
                             + th.getClass().getSimpleName() + ": " + th.getMessage();
         }
+        final String title = "Error " + operationName + " File";
         if (message.equals(lastExceptionMessageOrNull) == false)
         {
-            SwingUtilities.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        JOptionPane.showMessageDialog(parentFrame, WordUtils.wrap(message,
-                                MESSAGE_WRAP_MAX_CHAR), "Error " + operationName + " File",
-                                JOptionPane.ERROR_MESSAGE);
-                    }
-                });
-            th.printStackTrace();
+            notifyUserOfThrowable(parentFrame, message, title, throwable);
         }
         return message;
+    }
+
+    /**
+     * Notifies the user of the given <var>throwable</var>, if the error message is different from
+     * <var>lastExceptionMessageOrNull</var>.
+     */
+    static void notifyUserOfThrowable(final Frame parentFrame, final String message,
+            final String title, final Throwable throwable)
+    {
+        final Throwable th =
+                (throwable instanceof Error) ? throwable : CheckedExceptionTunnel
+                        .unwrapIfNecessary((Exception) throwable);
+        SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    JOptionPane.showMessageDialog(parentFrame, WordUtils.wrap(message,
+                            MESSAGE_WRAP_MAX_CHAR), title, JOptionPane.ERROR_MESSAGE);
+                }
+            });
+        th.printStackTrace();
     }
 
     /**
@@ -246,6 +269,8 @@ public abstract class AbstractSwingGUI
 
                 public void finished(boolean successful)
                 {
+                    lastWarningMessage = null;
+                    lastExceptionMessage = null;
                 }
 
                 public void reportProgress(int percentage, long numberOfBytes)
@@ -258,6 +283,8 @@ public abstract class AbstractSwingGUI
                 {
                     currentFile = file;
                     currentOperationName = operationName;
+                    lastExceptionMessage = null;
+                    lastWarningMessage = null;
                 }
             };
     }

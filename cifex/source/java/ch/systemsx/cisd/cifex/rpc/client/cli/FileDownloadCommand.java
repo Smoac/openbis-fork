@@ -63,6 +63,9 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         @Option(name = "p", longName = "passphrase", metaVar = "STRING", usage = "The pass phrase to use for encryption.")
         private String passphrase;
 
+        @Option(name = "O", longName = "overwrote-output-file", metaVar = "FLAG", usage = "Whether an already existing output file for the local decrypted file should be silently overwritten (only used if decryption is enabled).")
+        private boolean overwriteOutputFile;
+
         private long fileID;
 
         public Parameters(String[] args)
@@ -123,6 +126,11 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         public boolean isDecrypt()
         {
             return decrypt || passphrase != null;
+        }
+
+        public boolean isOverwriteOutputFile()
+        {
+            return overwriteOutputFile;
         }
 
         public String getPassphrase()
@@ -198,7 +206,7 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         {
             File clearTextFile =
                     OpenPGPSymmetricKeyEncryption.decrypt(file, getParameters().getClearName(),
-                            passphrase);
+                            passphrase, getParameters().isOverwriteOutputFile());
             if (getParameters().getName() == null)
             {
                 System.out.println("\nDecrypted file is '" + clearTextFile + "'.");

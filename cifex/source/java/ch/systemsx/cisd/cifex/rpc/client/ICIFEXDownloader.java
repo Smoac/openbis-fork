@@ -18,6 +18,10 @@ package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.FileExistsException;
+import ch.systemsx.cisd.common.filesystem.IFileOverwriteStrategy;
+
 /**
  * Interface for downloads in CIFEX.
  * 
@@ -37,7 +41,46 @@ public interface ICIFEXDownloader extends ICIFEXOperation
      * @param fileNameOrNull The file name to save the file to, or <code>null</code>, if the name
      *            stored in CIFEX should be used.
      * @return The (local) file downloaded.
+     * @throws CheckedExceptionTunnel of {@link FileExistsException} if the output file exists.
      */
     public File download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull);
+
+    /**
+     * Downloads the file identified by <var>fileID</var> to the local <var>file</var>. If a file
+     * with the given destination name already exists, CIFEX will assume that this is the same file
+     * and will resume the download.
+     * 
+     * @param fileID The id of the file in CIFEX.
+     * @param directoryToDownloadOrNull The directory to download the file to, or <code>null</code>,
+     *            if the file should be downloaded to the current working directory.
+     * @param fileNameOrNull The file name to save the file to, or <code>null</code>, if the name
+     *            stored in CIFEX should be used.
+     * @param overwriteOutFile If <code>true</code>, the output file will be overwritten if it
+     *            exists.
+     * @return The (local) file downloaded.
+     * @throws CheckedExceptionTunnel of {@link FileExistsException} if the output file exists and
+     *             <var>overwriteOutFile</var> is <code>false</code>.
+     */
+    public File download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull,
+            boolean overwriteOutFile);
+
+    /**
+     * Downloads the file identified by <var>fileID</var> to the local <var>file</var>. If a file
+     * with the given destination name already exists, CIFEX will assume that this is the same file
+     * and will resume the download.
+     * 
+     * @param fileID The id of the file in CIFEX.
+     * @param directoryToDownloadOrNull The directory to download the file to, or <code>null</code>,
+     *            if the file should be downloaded to the current working directory.
+     * @param fileNameOrNull The file name to save the file to, or <code>null</code>, if the name
+     *            stored in CIFEX should be used.
+     * @param fileOverwriteStrategy If the ohe output file exists, this strategy will be asked on
+     *            whether it should be overwritten.
+     * @return The (local) file downloaded.
+     * @throws CheckedExceptionTunnel of {@link FileExistsException} if the output file exists and
+     *             <var>fileOverwriteStrategy</var> vetos to overwrite it.
+     */
+    public File download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull,
+            IFileOverwriteStrategy fileOverwriteStrategy);
 
 }

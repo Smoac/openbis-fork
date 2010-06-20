@@ -28,6 +28,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClient.IDecryptionChecker;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo;
 import ch.systemsx.cisd.common.utilities.DateTimeUtils;
 
@@ -52,30 +53,34 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
 
     private final JPanel decryptingPanel = new JPanel();
 
-    private final JButton retryButton = new JButton("Retry");
+    private final JButton retryButton = new JButton("Retry Download");
 
-    private final JLabel retryLabel = new JLabel("Could not download. Please retry.");
+    private final JLabel retryLabel = new JLabel("<html><i>Download Failed</i></html>");
 
     private final JPanel retryPanel = new JPanel();
 
-    private final JLabel completedLabel = new JLabel("Finished.");
+    private final JLabel completedLabel = new JLabel("Finished");
 
     private final JPanel completedPanel = new JPanel();
 
-    private final JLabel completedDecryptionCancelledLabel =
-            new JLabel("<html><center>Finished.<br><i>(Decryption Cancelled)</i></center></html>");
+    private final JButton decryptButton = new JButton("Decrypt");
 
-    private final JPanel completedDecryptionCancelledPanel = new JPanel();
+    private final JLabel completedDownloadLabel = new JLabel("Finished Download");
+
+    private final JPanel completedDownloadPanel = new JPanel();
+
+    private final IDecryptionChecker decryptionChecker;
 
     public DownloadStatusTableCellRenderer(FileDownloadClientModel tableModel)
     {
         super();
+        this.decryptionChecker = tableModel.getDecryptionChecker();
         createDownloadPanel();
         createProgressPanel();
         createRetryPanel();
         createDecryptingPanel();
         createCompletedPanel();
-        createCompletedDecryptionCancelledPanel();
+        createCompletedNotDecryptedPanel();
     }
 
     private void createCompletedPanel()
@@ -86,12 +91,14 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
         completedPanel.setOpaque(true);
     }
 
-    private void createCompletedDecryptionCancelledPanel()
+    private void createCompletedNotDecryptedPanel()
     {
-        completedDecryptionCancelledPanel.setLayout(new GridLayout(1, 0));
-        completedDecryptionCancelledLabel.setFont(completedLabel.getFont().deriveFont(Font.PLAIN));
-        completedDecryptionCancelledPanel.add(completedDecryptionCancelledLabel);
-        completedDecryptionCancelledPanel.setOpaque(true);
+        completedDownloadPanel.setLayout(new GridLayout(2, 0));
+        completedDownloadLabel.setFont(completedDownloadLabel.getFont()
+                .deriveFont(Font.PLAIN));
+        completedDownloadPanel.add(completedDownloadLabel);
+        completedDownloadPanel.add(decryptButton);
+        completedDownloadPanel.setOpaque(true);
     }
 
     private void createDecryptingPanel()
@@ -105,9 +112,9 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
     private void createRetryPanel()
     {
         retryPanel.setLayout(new GridLayout(2, 0));
-        retryPanel.add(retryButton);
         retryLabel.setFont(retryLabel.getFont().deriveFont(Font.PLAIN));
         retryPanel.add(retryLabel);
+        retryPanel.add(retryButton);
         retryPanel.setOpaque(true);
     }
 
@@ -132,28 +139,34 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
     {
         FileDownloadInfo fileInfo = (FileDownloadInfo) value;
         if (null == fileInfo)
+        {
             return null;
+        }
 
-        Color backgroundColor =
+        final Color backgroundColor =
                 (isSelected) ? table.getSelectionBackground() : table.getBackground();
 
-        JPanel panel = null;
+        final JPanel panel;
         switch (fileInfo.getStatus())
         {
             case TO_DOWNLOAD:
                 panel = downloadPanel;
                 break;
+            // Queued_for_Decryption and Decrypting have the same logic
+            case QUEUED_FOR_DECRYPTION:
             case DECRYPTING:
                 panel = decryptingPanel;
                 break;
-            case COMPLETED:
+            case COMPLETED_DOWNLOAD_AND_DECRYPTION:
                 panel = completedPanel;
                 break;
-            case COMPLETED_DECRYPTION_CANCELLED:
-                panel = completedDecryptionCancelledPanel;
+            case COMPLETED_DOWNLOAD:
+                panel =
+                        decryptionChecker.willDecrypt() ? completedDownloadPanel
+                                : completedPanel;
                 break;
-            // Queued and Downloading have the same logic
-            case QUEUED:
+            // Queued_for_Download and Downloading have the same logic
+            case QUEUED_FOR_DOWNLOAD:
             case DOWNLOADING:
                 panel = progressPanel;
                 progressBar.setValue(fileInfo.getPercentageDownloaded());
@@ -167,6 +180,8 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
             case FAILED:
                 panel = retryPanel;
                 break;
+            default:
+                throw new RuntimeException("Unknown status: " + fileInfo.getStatus());
         }
 
         panel.setBackground(backgroundColor);

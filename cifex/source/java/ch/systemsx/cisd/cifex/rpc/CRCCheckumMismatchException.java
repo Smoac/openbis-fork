@@ -32,7 +32,7 @@ public class CRCCheckumMismatchException extends EnvironmentFailureException
             final int crc32ValueExpected, final String msg)
     {
         super(String.format(
-                "CRC32 checksum mismatch: File '%s' has CRC32 checksum %x (expected: %x) [%s].",
+                "CRC32 checksum mismatch: File '%s' has CRC32 checksum %x (expected: %x)\n[%s].",
                 fileName, crc32Value, crc32ValueExpected, msg));
     }
 

@@ -48,12 +48,15 @@ import org.bouncycastle.openpgp.PGPObjectFactory;
 import org.bouncycastle.openpgp.PGPPBEEncryptedData;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.FileExistsException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.IFileOverwriteStrategy;
 
 /**
  * A class that provides routines to encrypt and decrypt a file using a symmetric key and
  * phase-phrase based encryption to and from an OpenPGP container using the AES-256 algorithm.
  * <p>
- * The file produced by {@link #encrypt(File, File, String)} is equivalent to calling "
+ * The file produced by {@link #encrypt(File, File, String, boolean)} is equivalent to calling "
  * <code>gpg -c --cipher-alg=aes256 &lt;file&gt;</code>" and can be decrypted by any OpenPGP
  * compliant program.
  * <p>
@@ -75,17 +78,35 @@ public class OpenPGPSymmetricKeyEncryption
 
     /**
      * Encrypts the <var>inFile</var> to an OpenPGP <var>outFile</var>, using an AES-256 and a
-     * passphase-based encryption schema with <var>passPhrase</var>.
+     * passphase-based encryption schema with <var>passPhrase</var>. If <var>overwriteOutFile</var>
+     * is <code>true</code>, an already existing <var>outFile</var> will be silently overwritten.
      * 
      * @return The actual outfile file written which may differ from <var>outFile</var> if
      *         <var>inFile</var> and <var>outFile</var> would have been the same otherwise (in which
      *         case {{@link #PGP_FILE_EXTENSION} will be used as a suffix).
+     * @throws CheckedExceptionTunnel of {@link FileNotFoundException} if the input file does not
+     *             exist.
+     * @throws CheckedExceptionTunnel of {@link FileExistsException} if the <var>outFile</var>
+     *             exists and <var>overwriteOutFile</var> is <code>false</code>.
+     * @throws CheckedExceptionTunnel of {@link IOException} if the input file cannot be read or the
+     *             output file cannot be written to.
+     * @throws CheckedExceptionTunnel of {@link PGPException} if there the cipher cannot be created
+     *             or the encryption fails.
      */
-    public static File encrypt(File inFile, File outFile, String passPhrase)
+    public static File encrypt(final File inFile, final File outFile, final String passPhrase,
+            final boolean overwriteOutFile)
     {
         final List<Closeable> closeables = new ArrayList<Closeable>();
         try
         {
+            FileUtilities.checkInputFile(inFile);
+            FileUtilities.checkOutputFile(outFile, new IFileOverwriteStrategy()
+                {
+                    public boolean overwriteAllowed(File outputFile)
+                    {
+                        return overwriteOutFile;
+                    }
+                });
             FileInputStream inStream = null;
             File actualOutFile = outFile.getCanonicalFile();
             if (inFile.getCanonicalFile().equals(actualOutFile))
@@ -182,12 +203,53 @@ public class OpenPGPSymmetricKeyEncryption
     /**
      * Decrypt the <var>inFile</var> which needs to be PGP file with symmetric key encryption, using
      * the provided <var>passPhrase</var>. If <var>outFileNameOrNull</var> is not <code>null</code>,
-     * this name will be used instead of the name contained in the PGP container.
+     * this name will be used instead of the name contained in the PGP container. If
+     * <var>overwriteOutFile</var> is <code>true</code>, an already existing output file (as
+     * extracted from the PGP file) will be silently overwritten.
      * 
      * @return The actual outfile file written which may contain a prefix {@link #CLEAR_PREFIX} if
      *         it would have overwritten the <var>inFile</var> otherwise.
+     * @throws CheckedExceptionTunnel of {@link FileNotFoundException} if the input file does not
+     *             exist.
+     * @throws CheckedExceptionTunnel of {@link FileExistsException} if the actual outfile exists
+     *             and <var>overwriteOutFile</var> is <code>false</code>.
+     * @throws CheckedExceptionTunnel of {@link IOException} if the input file cannot be read or the
+     *             output file cannot be written to.
+     * @throws CheckedExceptionTunnel of {@link PGPException} if there the cipher cannot be created
+     *             or the decryption fails.
      */
-    public static File decrypt(File inFile, String outFileNameOrNull, String passPhrase)
+    public static File decrypt(final File inFile, final String outFileNameOrNull,
+            final String passPhrase, final boolean overwriteOutFile)
+    {
+        return decrypt(inFile, outFileNameOrNull, passPhrase, new IFileOverwriteStrategy()
+            {
+                public boolean overwriteAllowed(File outputFile)
+                {
+                    return overwriteOutFile;
+                }
+            });
+    }
+
+    /**
+     * Decrypt the <var>inFile</var> which needs to be PGP file with symmetric key encryption, using
+     * the provided <var>passPhrase</var>. If <var>outFileNameOrNull</var> is not <code>null</code>,
+     * this name will be used instead of the name contained in the PGP container. If
+     * <var>overwriteOutFile</var> is <code>true</code>, an already existing output file (as
+     * extracted from the PGP file) will be silently overwritten.
+     * 
+     * @return The actual outfile file written which may contain a prefix {@link #CLEAR_PREFIX} if
+     *         it would have overwritten the <var>inFile</var> otherwise.
+     * @throws CheckedExceptionTunnel of {@link FileNotFoundException} if the input file does not
+     *             exist.
+     * @throws CheckedExceptionTunnel of {@link FileExistsException} if the actual outfile exists
+     *             and <var>fileOverwriteStrategy</var> decides to veto file overwrite.
+     * @throws CheckedExceptionTunnel of {@link IOException} if the input file cannot be read or the
+     *             output file cannot be written to.
+     * @throws CheckedExceptionTunnel of {@link PGPException} if there the cipher cannot be created
+     *             or the decryption fails.
+     */
+    public static File decrypt(final File inFile, String outFileNameOrNull,
+            final String passPhrase, final IFileOverwriteStrategy fileOverwriteStrategy)
     {
         try
         {
@@ -197,6 +259,8 @@ public class OpenPGPSymmetricKeyEncryption
             final String outFileName =
                     (outFileNameOrNull == null) ? literalData.getFileName() : outFileNameOrNull;
             File outFile = new File(directory, outFileName).getCanonicalFile();
+            FileUtilities.checkInputFile(inFile);
+            FileUtilities.checkOutputFile(outFile, fileOverwriteStrategy);
             if (inFile.getCanonicalFile().equals(outFile))
             {
                 outFile = new File(outFile.getParentFile(), CLEAR_PREFIX + outFileName);
@@ -297,7 +361,13 @@ public class OpenPGPSymmetricKeyEncryption
             return (PGPPBEEncryptedData) encryptedDataList.get(0);
         } catch (Exception ex)
         {
-            throw new PGPException("Cannot decrypt file", ex);
+            if (ex instanceof PGPException)
+            {
+                throw (PGPException) ex;
+            } else
+            {
+                throw new PGPException("Cannot decrypt file", ex);
+            }
         }
     }
 

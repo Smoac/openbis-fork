@@ -110,6 +110,8 @@ public class FileDownloadClient extends AbstractSwingGUI
 
     private JButton directoryButton;
 
+    private JCheckBox willDecrypt;
+
     private String passphrase = "";
 
     FileDownloadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
@@ -137,6 +139,23 @@ public class FileDownloadClient extends AbstractSwingGUI
     public ICIFEXDownloader getDownloader()
     {
         return downloader;
+    }
+    
+    public interface IDecryptionChecker
+    {
+        /** Returns <code>true</code> if downloaded files should be decrypted. */
+        boolean willDecrypt();
+    }
+    
+    public IDecryptionChecker getDecryptionChecker()
+    {
+        return new IDecryptionChecker()
+            {
+                public boolean willDecrypt()
+                {
+                    return willDecrypt.isSelected();
+                }
+            };
     }
 
     private void createGUI()
@@ -218,7 +237,7 @@ public class FileDownloadClient extends AbstractSwingGUI
         // Configure the table columns
         TableColumn column;
         column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.FILE_DETAILS_COLUMN);
-        column.setPreferredWidth(310);
+        column.setPreferredWidth(320);
         column.setCellRenderer(new FileDetailsTableCellRenderer());
 
         column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.SENDER_COLUMN);
@@ -240,7 +259,7 @@ public class FileDownloadClient extends AbstractSwingGUI
         column =
                 fileTable.getColumnModel()
                         .getColumn(FileDownloadClientModel.DOWNLOAD_STATUS_COLUMN);
-        column.setPreferredWidth(160);
+        column.setPreferredWidth(150);
         column.setCellRenderer(new DownloadStatusTableCellRenderer(tableModel));
         column.setCellEditor(new DownloadStatusTableCellEditor(tableModel));
         JScrollPane scrollPane = new JScrollPane(fileTable);
@@ -252,7 +271,7 @@ public class FileDownloadClient extends AbstractSwingGUI
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
-        final JCheckBox willDecrypt = new JCheckBox("Will decrypt");
+        willDecrypt = new JCheckBox("Will decrypt");
         willDecrypt.setEnabled(false);
         decryptButton = new JButton("Decrypt\u2026");
         decryptButton.setToolTipText("Decrypt files after downloading");

@@ -70,6 +70,23 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
         @Option(name = "s", longName = "short-passphrase", metaVar = "FLAG", usage = "Create a short and quite memorizable password (implies -g).", skipForExample=true)
         private boolean shortPassphrase;
 
+        @Option(name = "O", longName = "overwrote-output-file", metaVar = "FLAG", usage = "Whether an already existing output file for the local encrypted file should be silently overwritten (only used if encryption is enabled).")
+        private boolean overwriteOutputFile;
+
+        private FileWithOverrideName file;
+
+        public Parameters(String[] args)
+        {
+            super(args, NAME, "<file>");
+            if (getArgs().size() != 1 || (getPassphrase() != null && isGeneratePassphrase()))
+            {
+                printHelp(true);
+            }
+            file = new FileWithOverrideName(new File(getArgs().get(0)), name);
+            comment = StringUtils.trimToEmpty(comment);
+            recipients = StringUtils.trimToEmpty(recipients);
+        }
+
         public boolean isEncrypt()
         {
             return encrypt || passphrase != null || generatePassphrase || shortPassphrase;
@@ -90,18 +107,9 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
             return shortPassphrase;
         }
 
-        private FileWithOverrideName file;
-
-        public Parameters(String[] args)
+        public boolean isOverwriteOutputFile()
         {
-            super(args, NAME, "<file>");
-            if (getArgs().size() != 1 || (getPassphrase() != null && isGeneratePassphrase()))
-            {
-                printHelp(true);
-            }
-            file = new FileWithOverrideName(new File(getArgs().get(0)), name);
-            comment = StringUtils.trimToEmpty(comment);
-            recipients = StringUtils.trimToEmpty(recipients);
+            return overwriteOutputFile;
         }
 
         String getComment()
@@ -199,7 +207,7 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
             final String passphrase = getPassphraseOrExit();
             final File encryptedFile =
                     OpenPGPSymmetricKeyEncryption.encrypt(file.getOriginalFile(), file.getEncryptedFile(),
-                            passphrase);
+                            passphrase, getParameters().isOverwriteOutputFile());
             file = new FileWithOverrideName(encryptedFile, file.tryGetOverrideName());
         }
 

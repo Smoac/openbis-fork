@@ -44,6 +44,9 @@ public class DecryptCommand extends AbstractCommand
         @Option(name = "o", longName = "output-file", metaVar = "STRING", usage = "The name of the decrypted file.")
         private String outFilename;
 
+        @Option(name = "O", longName = "overwrote-output-file", metaVar = "FLAG", usage = "Whether an already existing output file should be silently overwritten.")
+        private boolean overwriteOutputFile;
+
         @Option(name = "p", longName = "passphrase", metaVar = "STRING", usage = "The pass phrase to use for decryption.")
         private String passphrase;
 
@@ -65,6 +68,11 @@ public class DecryptCommand extends AbstractCommand
         public String getOutFilename()
         {
             return outFilename;
+        }
+
+        public boolean isOverwriteOutputFile()
+        {
+            return overwriteOutputFile;
         }
 
         public String getPassphrase()
@@ -105,7 +113,7 @@ public class DecryptCommand extends AbstractCommand
         String passphrase = getPassphraseOrExit(parameters);
         final File clearTextFile =
                 OpenPGPSymmetricKeyEncryption.decrypt(parameters.getInFile(), parameters
-                        .getOutFilename(), passphrase);
+                        .getOutFilename(), passphrase, parameters.isOverwriteOutputFile());
         if (parameters.getOutFilename() == null)
         {
             System.out.println("\nDecrypted file is '" + clearTextFile + "'.");

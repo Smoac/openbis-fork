@@ -37,6 +37,7 @@ import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.IWritePr
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Class which uploads file via an implementation of {@link ICIFEXRPCService}, handling the
@@ -94,7 +95,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                     service.shareFiles(sessionID, new ArrayList<Long>(fileIds), recipientsOrNull);
                 }
             };
-        final InvocationLogger logger = new InvocationLogger(this);
+        final InvocationLogger logger = new InvocationLogger(this, reportFinalException);
         return MonitoringProxy.create(IFileUploader.class, rawFileUploader)
                 .exceptionClassSuitableForRetrying(RemoteAccessException.class).timing(TIMING)
                 .errorValueOnInterrupt().errorTypeValueMapping(Boolean.TYPE, false).invocationLog(
@@ -168,6 +169,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
             Set<Long> fileIds, final MonitoringProxy.IMonitorCommunicator communicator)
             throws IOException
     {
+        FileUtilities.checkInputFile(file);
         final long fileSize = file.length();
         final String filePath =
                 (overrideNameOrNull == null) ? file.getCanonicalPath() : overrideNameOrNull;
