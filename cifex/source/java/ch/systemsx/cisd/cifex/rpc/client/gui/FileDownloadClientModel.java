@@ -275,7 +275,7 @@ public class FileDownloadClientModel extends AbstractTableModel
         this.decryptionChecker = downloadClient.getDecryptionChecker();
         this.mainWindow = mainWindow;
         this.timeProvider = timeProvider;
-        this.downloadDirectory = new File(System.getProperty("user.home"));
+        this.downloadDirectory = PersistenceStore.getWorkingDirectory();
 
         addProgessListener();
 

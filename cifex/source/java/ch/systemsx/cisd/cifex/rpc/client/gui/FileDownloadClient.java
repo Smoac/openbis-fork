@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -32,7 +33,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -140,13 +140,13 @@ public class FileDownloadClient extends AbstractSwingGUI
     {
         return downloader;
     }
-    
+
     public interface IDecryptionChecker
     {
         /** Returns <code>true</code> if downloaded files should be decrypted. */
         boolean willDecrypt();
     }
-    
+
     public IDecryptionChecker getDecryptionChecker()
     {
         return new IDecryptionChecker()
@@ -291,7 +291,6 @@ public class FileDownloadClient extends AbstractSwingGUI
                 }
             });
 
-
         // Download directory panel
         JLabel label = new JLabel("Save To", JLabel.TRAILING);
         label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
@@ -303,12 +302,12 @@ public class FileDownloadClient extends AbstractSwingGUI
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    JFileChooser fileChooser = new JFileChooser(tableModel.getDownloadDirectory());
-                    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    int returnVal = fileChooser.showOpenDialog(getWindowFrame());
-                    if (returnVal == JFileChooser.APPROVE_OPTION)
+                    final File newDirOrNull =
+                            FileChooserUtils.tryChooseFile(getWindowFrame(), tableModel
+                                    .getDownloadDirectory(), true);
+                    if (newDirOrNull != null)
                     {
-                        tableModel.setDownloadDirectory(fileChooser.getSelectedFile());
+                        tableModel.setDownloadDirectory(newDirOrNull);
                         updateDirectoryLabel();
                     }
                 }
@@ -375,5 +374,11 @@ public class FileDownloadClient extends AbstractSwingGUI
     protected String getTitle()
     {
         return TITLE;
+    }
+
+    @Override
+    protected File getWorkingDirectory()
+    {
+        return tableModel.getDownloadDirectory();
     }
 }

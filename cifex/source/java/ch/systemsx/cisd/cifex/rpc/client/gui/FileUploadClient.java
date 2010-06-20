@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.common.utilities.SystemTimeProvider.SYSTEM_TIME_P
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -102,8 +101,6 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private final ICIFEXUploader uploader;
 
-    private final FileDialog fileDialog;
-
     private final PasswordGenerator passphraseGenerator;
 
     private JButton uploadButton;
@@ -124,6 +121,8 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private String passphrase = "";
 
+    private File workingDirectory;
+
     FileUploadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
     {
         // save and create local state
@@ -132,21 +131,12 @@ public class FileUploadClient extends AbstractSwingGUI
         this.passphraseGenerator = new PasswordGenerator();
         this.uploader = cifex.createUploader(sessionId);
 
+        workingDirectory = PersistenceStore.getWorkingDirectory();
+
         tableModel = new UploadTableModel(uploader, timeProvider);
         createGUI();
 
-        fileDialog = new FileDialog(getWindowFrame());
-        initializeFileDialog();
-
         addProgressListener();
-    }
-
-    private void initializeFileDialog()
-    {
-        fileDialog.setDirectory(".");
-        fileDialog.setModal(true);
-        fileDialog.setMode(FileDialog.LOAD);
-        fileDialog.setTitle("Select file to upload");
     }
 
     private void addProgressListener()
@@ -497,13 +487,13 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private void chooseAndAddFile()
     {
-        fileDialog.setVisible(true);
-        String fileName = fileDialog.getFile();
-        if (fileName != null)
+        File file = FileChooserUtils.tryChooseFile(getWindowFrame(), workingDirectory, false);
+        if (file != null)
         {
-            File file = new File(new File(fileDialog.getDirectory()), fileName);
+            workingDirectory = file.getParentFile();
             try
             {
+                // That's need to make the test reliable whether the file is already added.
                 file = file.getCanonicalFile();
             } catch (IOException ex)
             {
@@ -642,5 +632,11 @@ public class FileUploadClient extends AbstractSwingGUI
         {
             return files;
         }
+    }
+
+    @Override
+    protected File getWorkingDirectory()
+    {
+        return workingDirectory;
     }
 }

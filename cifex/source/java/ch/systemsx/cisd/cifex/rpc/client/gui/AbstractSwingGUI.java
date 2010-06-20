@@ -80,6 +80,7 @@ public abstract class AbstractSwingGUI
                 @Override
                 public void run()
                 {
+                    PersistenceStore.setWorkingDirectory(getWorkingDirectory());
                     try
                     {
                         cifex.logout(sessionId);
@@ -166,6 +167,11 @@ public abstract class AbstractSwingGUI
             });
     }
 
+    /**
+     * Returns the current value of the working directory.
+     */
+    protected abstract File getWorkingDirectory();
+    
     /**
      * Log the user out automatically if the app is shutdown.
      */
