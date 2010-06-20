@@ -76,7 +76,7 @@ public abstract class AbstractFileUploadDownloadServlet extends AbstractCIFEXSer
                             + "    <jar href='commons-io.jar'/>\n"
                             + "    <jar href='commons-lang.jar'/>\n"
                             + "    <jar href='commons-logging.jar'/>\n"
-                            + "    <extension name='Bouncy Castle Crypto Provider' href='cifex/bouncycastle'/>\n"
+                            + "    <extension name='Bouncy Castle Crypto Provider' href='cifex/bouncycastle.jnlp'/>\n"
                             + "  </resources>\n"
                             + "  <application-desc main-class='${main-class}'>\n"
                             + "    <argument>${service-URL}</argument>\n"
