@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -544,6 +545,24 @@ public final class PropertyUtils
             properties.setProperty(key, value);
         }
         return properties;
+    }
+    
+    /**
+     * Saves the given <var>properties</var> to the given <var>propertiesFile</var>.
+     */
+    public static void saveProperties(File propertiesFile, Properties properties)
+    {
+        final StringBuilder builder = new StringBuilder();
+        for (Entry<Object, Object> entry : properties.entrySet())
+        {
+            final String key = entry.getKey().toString();
+            final String value = entry.getValue().toString();
+            builder.append(key);
+            builder.append(" = ");
+            builder.append(value);
+            builder.append('\n');
+        }
+        FileUtilities.writeToFile(propertiesFile, builder.toString());
     }
 
 }
