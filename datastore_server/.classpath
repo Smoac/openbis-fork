@@ -1,50 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="source/java"/>
-	<classpathentry kind="src" path="sourceTest/java"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/common"/>
-	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/bds"/>
-	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
-	<classpathentry kind="lib" path="/libraries/cglib/cglib-nodep.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/openbis"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/server-common"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
-	<classpathentry kind="lib" path="/libraries/cifex/cifex.jar" sourcepath="/cifex/source/java"/>
-	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/fast-md5/fast-md5.jar" sourcepath="/libraries/fast-md5/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-api.jar" sourcepath="/libraries/jaxb/jaxb-api-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-impl.jar" sourcepath="/libraries/jaxb/jaxb-impl.src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar"/>
-	<classpathentry kind="lib" path="/libraries/activation/activation.jar"/>
-	<classpathentry kind="lib" path="/libraries/csv/csv.jar" sourcepath="/libraries/csv/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/imagej/ij.jar" sourcepath="/libraries/imagej/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/commons-httpclient/commons-httpclient.jar" sourcepath="/libraries/commons-httpclient/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jfreechart/jcommon-1.0.16.jar"/>
-	<classpathentry kind="lib" path="/libraries/jfreechart/jfreechart-1.0.13.jar" sourcepath="/libraries/jfreechart/jfreechart-src.zip">
-		<attributes>
+  <classpathentry kind="src" path="source/java" />
+  <classpathentry kind="src" path="sourceTest/java" />
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
+  <classpathentry combineaccessrules="false" exported="true" kind="src" path="/common" />
+  <classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip" />
+  <classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip" />
+  <classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip" />
+  <classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip" />
+  <classpathentry kind="lib" path="/libraries/mail/mail.jar" />
+  <classpathentry kind="lib" path="/libraries/jmock/jmock.jar" />
+  <classpathentry combineaccessrules="false" exported="true" kind="src" path="/bds" />
+  <classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar" />
+  <classpathentry kind="lib" path="/libraries/cglib/cglib-nodep.jar" />
+  <classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar" />
+  <classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar" />
+  <classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar" />
+  <classpathentry combineaccessrules="false" exported="true" kind="src" path="/openbis" />
+  <classpathentry combineaccessrules="false" exported="true" kind="src" path="/server-common" />
+  <classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar" />
+  <classpathentry kind="lib" path="/libraries/cifex/cifex.jar" sourcepath="/cifex/source/java" />
+  <classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip" />
+  <classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip" />
+  <classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip" />
+  <classpathentry kind="lib" path="/libraries/fast-md5/fast-md5.jar" sourcepath="/libraries/fast-md5/src.zip" />
+  <classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip" />
+  <classpathentry kind="lib" path="/libraries/jaxb/jaxb-api.jar" sourcepath="/libraries/jaxb/jaxb-api-src.zip" />
+  <classpathentry kind="lib" path="/libraries/jaxb/jaxb-impl.jar" sourcepath="/libraries/jaxb/jaxb-impl.src.zip" />
+  <classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar" />
+  <classpathentry kind="lib" path="/libraries/activation/activation.jar" />
+  <classpathentry kind="lib" path="/libraries/csv/csv.jar" sourcepath="/libraries/csv/src.zip" />
+  <classpathentry kind="lib" path="/libraries/imagej/ij.jar" sourcepath="/libraries/imagej/src.zip" />
+  <classpathentry kind="lib" path="/libraries/commons-httpclient/commons-httpclient.jar" sourcepath="/libraries/commons-httpclient/src.zip" />
+  <classpathentry kind="lib" path="/libraries/jfreechart/jcommon-1.0.16.jar" />
+  <classpathentry kind="lib" path="/libraries/jfreechart/jfreechart-1.0.13.jar" sourcepath="/libraries/jfreechart/jfreechart-src.zip">
+    <attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/jfreechart/jfreechart-1.0.13-javadocs.zip!/jfreechart-1.0.13-javadocs"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-util.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-security.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-continuation.jar"/>
-	<classpathentry kind="output" path="targets/classes"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar" />
+  <classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar" />
+  <classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-util.jar" />
+  <classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar" />
+  <classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar" />
+  <classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-security.jar" />
+  <classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar" />
+  <classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-continuation.jar" />
+  <classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip" />
+  <classpathentry kind="output" path="targets/classes" />
 </classpath>

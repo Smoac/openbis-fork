@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import jline.ConsoleReader;
 
 import ch.systemsx.cisd.args4j.Argument;
 import ch.systemsx.cisd.args4j.Option;
@@ -33,10 +38,10 @@ import ch.systemsx.cisd.args4j.Option;
  */
 class GlobalArguments
 {
-    @Option(name = "u", longName = "username", usage = "User login name (required)")
+    @Option(name = "u", longName = "username", usage = "User login name")
     protected String username = "";
 
-    @Option(name = "p", longName = "password", usage = "User login password (required)")
+    @Option(name = "p", longName = "password", usage = "User login password")
     protected String password = "";
 
     @Option(name = "s", longName = "server-base-url", usage = "URL for openBIS Server (required)")
@@ -104,14 +109,42 @@ class GlobalArguments
         }
 
         // At the moment, username, passowrd, and server base url should all be non-empty
-        if (username.length() < 1)
+
+        // If username wasn't specified, read username and password from console
+        if (StringUtils.isBlank(username))
         {
-            return false;
+            try
+            {
+                UsernameAndPasswordReader reader = new UsernameAndPasswordReader();
+
+                // Prompt the user for the user name and see if s/he inputs something
+                username = reader.readUsername();
+                password = reader.readPassword();
+                if (StringUtils.isBlank(username))
+                {
+                    return false;
+                }
+            } catch (IOException ex)
+            {
+                // Couldn't get the username from the console
+                return false;
+            }
         }
 
-        if (password.length() < 1)
+        if (StringUtils.isBlank(password))
         {
-            return false;
+            try
+            {
+                password = new UsernameAndPasswordReader().readPassword();
+                if (StringUtils.isBlank(password))
+                {
+                    return false;
+                }
+            } catch (IOException ex)
+            {
+                // Couldn't get the username from the console
+                return false;
+            }
         }
         if (serverBaseUrl.length() < 1)
         {
@@ -119,5 +152,25 @@ class GlobalArguments
         }
 
         return true;
+    }
+
+    private static class UsernameAndPasswordReader
+    {
+        private final ConsoleReader consoleReader;
+
+        private UsernameAndPasswordReader() throws IOException
+        {
+            consoleReader = new ConsoleReader();
+        }
+
+        private String readUsername() throws IOException
+        {
+            return consoleReader.readLine("User: ");
+        }
+
+        private String readPassword() throws IOException
+        {
+            return consoleReader.readLine("Password: ", Character.valueOf('*'));
+        }
     }
 }

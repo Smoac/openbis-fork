@@ -176,10 +176,8 @@ class CommandPut extends AbstractCommand
             String ownerIdentifier = arguments.getOwnerIdentifier();
             DataSetOwner owner = new NewDataSetDTO.DataSetOwner(ownerType, ownerIdentifier);
 
-            // Get the file infos
-            String filePath = arguments.getFilePath();
             File file = arguments.getFile();
-            ArrayList<FileInfoDssDTO> fileInfos = getFileInfosForPath(filePath, file);
+            ArrayList<FileInfoDssDTO> fileInfos = getFileInfosForPath(file);
 
             // Get the parent
             String parentNameOrNull = null;
@@ -198,26 +196,21 @@ class CommandPut extends AbstractCommand
             return dataSet;
         }
 
-        private ArrayList<FileInfoDssDTO> getFileInfosForPath(String path, File file)
-                throws IOException
+        private ArrayList<FileInfoDssDTO> getFileInfosForPath(File file) throws IOException
         {
             ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
             if (false == file.exists())
             {
                 return fileInfos;
             }
+
+            String path = file.getCanonicalPath();
             if (false == file.isDirectory())
             {
-                return fileInfos;
+                path = file.getParentFile().getCanonicalPath();
             }
-            // Strip terminal separators for the file info builder
-            String pathToUse = path;
-            String separator = "" + File.separatorChar;
-            if (pathToUse.endsWith(separator))
-            {
-                pathToUse = pathToUse.substring(0, pathToUse.length() - 1);
-            }
-            FileInfoDssBuilder builder = new FileInfoDssBuilder(pathToUse, pathToUse);
+
+            FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
             builder.appendFileInfosForFile(file, fileInfos, true);
             return fileInfos;
         }

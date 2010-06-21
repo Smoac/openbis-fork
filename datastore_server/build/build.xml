@@ -198,6 +198,7 @@
     <copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/spring/spring.jar" todir="${dist.dss_client.lib}" />
+  	<copy file="${lib}/jline/jline.jar" todir="${dist.dss_client.lib}" />
     <property name="dist.file"
               value="${dist.client.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
     
