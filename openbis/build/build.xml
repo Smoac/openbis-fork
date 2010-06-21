@@ -66,6 +66,7 @@
       <classpath>
         <pathelement location="${sources}" />
         <pathelement location="${sources.test}" />
+      	<pathelement location="../common/${sources}" />
         <pathelement path="${ecp}" />
         <pathelement location="${gwt.lib}/gwt-dev.jar" />
       </classpath>
