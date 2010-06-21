@@ -139,7 +139,7 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
             }
             final String sampleCode = tokens[tokens.length - 4];
             if (sampleCode != null
-                    && sampleCode.equals(dataSetInformation.getSampleCode()) == false)
+                    && sampleCode.equalsIgnoreCase(dataSetInformation.getSampleCode()) == false)
             {
                 if (operationLog.isDebugEnabled())
                 {
