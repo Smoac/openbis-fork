@@ -2,6 +2,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Label;
@@ -85,6 +86,7 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
         container.add(new Label(viewContext.getMessage(Dict.PLATE_MATERIAL_REVIEWER_HELP_INFO)));
         container.add(materialListField);
         container.add(searchButton);
+        container.setScrollMode(Scroll.AUTO);
         add(container, new MarginData(10));
     }
 
