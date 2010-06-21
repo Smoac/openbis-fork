@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
 	<classpathentry kind="lib" path="/libraries/activation/activation.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-isserializable.jar"/>
+	<classpathentry kind="lib" path="/libraries/commons-httpclient/commons-httpclient.jar" sourcepath="/libraries/commons-httpclient/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
