@@ -45,6 +45,7 @@ var phosphonetx = {
   openbis_raw_data_sample_browser_CODE: "MS INJECTION Sample",
   openbis_raw_data_sample_browser_REGISTRATION_DATE: "Registration Date",
   openbis_raw_data_sample_browser_PARENT: "Biological Sample",
+  openbis_raw_data_sample_browser_EXPERIMENT: "Experiment",
   copy_data_sets_button_label: "Process Data Sets",
   copy_data_sets_title: "Process Data Sets",
   copy_data_sets_message: "Please, enter the data set type of the data sets of the samples {1} to be processed by '{0}'.", 

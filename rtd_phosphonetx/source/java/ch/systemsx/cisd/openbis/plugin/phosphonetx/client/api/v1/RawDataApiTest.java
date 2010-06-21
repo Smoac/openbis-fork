@@ -52,7 +52,8 @@ public class RawDataApiTest
             if (latestDataSets.isEmpty() == false)
             {
                 System.out.println("   " + info.getMsInjectionSampleCode() + " -> "
-                        + info.getBiologicalSampleIdentifier() + ": latest data sets: "
+                        + info.getBiologicalSampleIdentifier() + " -> "
+                        + info.getBiologicalExperimentIdentifier() + ": latest data sets: "
                         + latestDataSets);
             }
         }

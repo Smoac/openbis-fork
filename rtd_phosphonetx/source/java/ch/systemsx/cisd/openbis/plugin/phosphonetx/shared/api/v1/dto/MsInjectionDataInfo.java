@@ -25,6 +25,7 @@ import java.util.Map;
  * for 
  * <ul><li>MS_INJECTION sample: ID, properties, code and registration date
  * <li>Biological sample: identifier and properties
+ * <li>Identifier of biological experiment (i.e. experiment of biological sample) if present
  * <li>Registration dates of the most recently registered data sets for each data set type 
  * </ul>
  *
@@ -45,6 +46,8 @@ public class MsInjectionDataInfo implements Serializable
     private long biologicalSampleID;
     
     private String biologicalSampleIdentifier;
+    
+    private String biologicalExperimentIdentifier;
     
     private Map<PropertyKey, Serializable> biologicalSampleProperties;
     
@@ -109,6 +112,16 @@ public class MsInjectionDataInfo implements Serializable
     public void setBiologicalSampleIdentifier(String biologicalSampleIdentifier)
     {
         this.biologicalSampleIdentifier = biologicalSampleIdentifier;
+    }
+
+    public final String getBiologicalExperimentIdentifier()
+    {
+        return biologicalExperimentIdentifier;
+    }
+
+    public final void setBiologicalExperimentIdentifier(String biologicalExperimentIdentifier)
+    {
+        this.biologicalExperimentIdentifier = biologicalExperimentIdentifier;
     }
 
     public Map<PropertyKey, Serializable> getBiologicalSampleProperties()

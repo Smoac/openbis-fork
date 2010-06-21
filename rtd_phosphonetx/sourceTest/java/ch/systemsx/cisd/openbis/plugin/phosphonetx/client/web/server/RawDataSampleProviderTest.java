@@ -32,6 +32,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
@@ -102,15 +103,19 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     {
         Sample ms1 = sample("MS1", sample("ABC", "beta", "alpha"), "one");
         Sample ms2 = sample("MS2", sample("DE", "gamma", "beta"), "one");
-        Sample ms3 = sample("MS3", sample("FG", "alpha", "gamma"), "2");
+        Sample parent = sample("FG", "alpha", "gamma");
+        Experiment experiment = new Experiment();
+        experiment.setIdentifier("/G/P/E1");
+        parent.setExperiment(experiment);
+        Sample ms3 = sample("MS3", parent, "2");
         prepareListRawDataSamples(ms1, ms2, ms3);
         
         List<GenericTableRow> data = provider.getOriginalData();
         
         assertEquals(3, data.size());
-        assertRow("MS1, Mon Mar 30 17:18:20 CET 1970, /G/ABC, null, 3.0, 6, 4, null", data.get(0));
-        assertRow("MS2, Mon Mar 30 17:20:00 CET 1970, /G/DE, null, 3.0, null, 5, 5", data.get(1));
-        assertRow("MS3, Mon Mar 30 17:21:40 CET 1970, /G/FG, 1, null, 5, null, 6", data.get(2));
+        assertRow("MS1, Mon Mar 30 17:18:20 CET 1970, /G/ABC, null, null, 3.0, 6, 4, null", data.get(0));
+        assertRow("MS2, Mon Mar 30 17:20:00 CET 1970, /G/DE, null, null, 3.0, null, 5, 5", data.get(1));
+        assertRow("MS3, Mon Mar 30 17:21:40 CET 1970, /G/FG, /G/P/E1, 1, null, 5, null, 6", data.get(2));
         context.assertIsSatisfied();
     }
     
@@ -135,9 +140,9 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         assertFixedColumns(headers);
         for (int i = 0; i < expectedTitles.length; i++)
         {
-            assertPropertyHeader(expectedTitles[i], i + 3, headers);
+            assertPropertyHeader(expectedTitles[i], i + 4, headers);
         }
-        assertEquals(expectedTitles.length + 3, headers.size());
+        assertEquals(expectedTitles.length + 4, headers.size());
     }
     
     private void assertFixedColumns(List<GenericTableColumnHeader> headers)

@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.Column;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -39,6 +40,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
 {
 
+    @Private
+    static final String EXPERIMENT = "EXPERIMENT";
+    
     @Private
     static final String PARENT = "PARENT";
 
@@ -97,10 +101,12 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
         Column dateColumn =
                 new Column(GenericTableColumnHeader.untitledStringHeader(1, REGISTRATION_DATE));
         Column parentColumn = new Column(GenericTableColumnHeader.untitledStringHeader(2, PARENT));
+        Column experimentColumn = new Column(GenericTableColumnHeader.untitledLinkableStringHeader(3, EXPERIMENT));
         List<Column> columns = new ArrayList<Column>();
         columns.add(codeColumn);
         columns.add(dateColumn);
         columns.add(parentColumn);
+        columns.add(experimentColumn);
         int fixedColumns = columns.size();
         PropertyColumns samplePropertyColumns = new PropertyColumns();
         PropertyColumns parentPropertyColumns = new PropertyColumns();
@@ -111,6 +117,11 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
             dateColumn.addDate(i, sample.getRegistrationDate());
             Sample parent = sample.getGeneratedFrom();
             parentColumn.addStringWithID(i, parent.getIdentifier(), parent.getId());
+            Experiment experiment = parent.getExperiment();
+            if (experiment != null)
+            {
+                experimentColumn.addStringWithID(i, experiment.getIdentifier(), experiment.getId());
+            }
             addPropertyTypes(samplePropertyColumns, i, sample);
             addPropertyTypes(parentPropertyColumns, i, sample.getGeneratedFrom());
         }

@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -117,6 +118,11 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         Sample bioSample = msiSample.getGeneratedFrom();
         info.setBiologicalSampleID(bioSample.getId());
         info.setBiologicalSampleIdentifier(bioSample.getIdentifier());
+        Experiment experiment = bioSample.getExperiment();
+        if (experiment != null)
+        {
+            info.setBiologicalExperimentIdentifier(experiment.getIdentifier());
+        }
         info.setBiologicalSampleProperties(translate(bioSample.getProperties()));
         Map<String, Date> latestDataSetRegistrationDates = new HashMap<String, Date>();
         for (Entry<String, ExternalData> entry : sample.getLatestDataSets().entrySet())
@@ -206,7 +212,7 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
 
     public int getMinorVersion()
     {
-        return 0;
+        return 1;
     }
 
 }
