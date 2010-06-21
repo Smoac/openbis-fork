@@ -86,10 +86,6 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         }
         final Set<Class<?>> indexedEntities = indexedEntityFinder.getIndexedEntities();
 
-        // final Set<Class<?>> indexedEntities = new HashSet<Class<?>>();
-        // indexedEntities.add(ExternalDataPE.class);
-        // indexedEntities.add(ExperimentPE.class);
-
         if (indexedEntities.size() == 0)
         {
             operationLog.info(String.format("No entity annotated with '%s' has been found.",
