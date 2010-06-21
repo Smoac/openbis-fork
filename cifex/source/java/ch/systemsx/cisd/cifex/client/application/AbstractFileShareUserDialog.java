@@ -53,7 +53,9 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 {
-    private static final int DIALOG_HEIGHT = 690;
+    private static final int USER_GRID_HEIGHT = 150;
+
+    private static final int DIALOG_HEIGHT = 577;
 
     private static final int DIALOG_WIDTH = 980;
 
@@ -162,6 +164,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                 GridWidget.create(columnConfigs, data, filterItems);
 
         Grid<FileShareUserGridModel> grid = gridWidget.getGrid();
+        grid.setHeight(USER_GRID_HEIGHT);
         grid.addListener(Events.CellClick, new FileShareUserGridCellListener(this));
         return gridWidget;
     }
