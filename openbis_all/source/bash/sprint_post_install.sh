@@ -37,7 +37,7 @@ function restore_common {
   	cp ~openbis/config/index.html  ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
   fi  
   if  [ -f ~openbis/config/server.xml ]; then
-  	cp ~openbis/config/server.xml ~openbis/sprint/openBIS_server/apache-tomcat/conf/
+  	cp ~openbis/config/server.xml ~openbis/sprint/openBIS-server/apache-tomcat/conf/
   fi
   if  [ -f ~openbis/config/datastore_log.xml ]; then
   	cp ~openbis/config/datastore_log.xml ~openbis/sprint/datastore_server/etc/log.xml
