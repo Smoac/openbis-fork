@@ -73,11 +73,16 @@ public class SampleRegisterOrUpdateUtil
     {
         if (i1 != null && i2 != null)
         {
-            return dropDatabaseInstance(i1).equals(dropDatabaseInstance(i2));
+            return normalize(i1).equals(normalize(i2));
         } else
         {
             return i1 == i2;
         }
+    }
+
+    private static String normalize(String id)
+    {
+        return dropDatabaseInstance(id).toUpperCase();
     }
 
     private static String dropDatabaseInstance(String id)
