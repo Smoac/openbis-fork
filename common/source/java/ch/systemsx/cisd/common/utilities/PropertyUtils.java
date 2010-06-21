@@ -154,7 +154,7 @@ public final class PropertyUtils
     }
 
     /**
-     * @returns a list of comma separated values at the specifie property key. Each item is trimmed
+     * @returns a list of comma separated values at the specific property key. Each item is trimmed
      *          and in upper cases.
      */
     public final static List<String> tryGetList(Properties properties, String propertyKey)
