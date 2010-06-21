@@ -101,7 +101,7 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
         Column dateColumn =
                 new Column(GenericTableColumnHeader.untitledStringHeader(1, REGISTRATION_DATE));
         Column parentColumn = new Column(GenericTableColumnHeader.untitledStringHeader(2, PARENT));
-        Column experimentColumn = new Column(GenericTableColumnHeader.untitledLinkableStringHeader(3, EXPERIMENT));
+        Column experimentColumn = new Column(GenericTableColumnHeader.untitledStringHeader(3, EXPERIMENT));
         List<Column> columns = new ArrayList<Column>();
         columns.add(codeColumn);
         columns.add(dateColumn);
