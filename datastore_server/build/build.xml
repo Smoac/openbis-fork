@@ -167,7 +167,7 @@
         <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.client.api.cli.DssClient" />
         <attribute name="Class-Path"
                    value="cisd-base.jar cisd-args4j.jar stream-supporting-httpinvoker.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
- commons-codec.jar commons-httpclient.jar spring.jar" />
+ commons-codec.jar commons-httpclient.jar spring.jar jline.jar" />
         <attribute name="Version" value="${version.number}" />
         <attribute name="Build-Number"
                    value="${version.number} (r${revision.number},${clean.flag})" />

@@ -100,12 +100,20 @@ class GlobalArguments
 
     /**
      * Check that the arguments make sense.
+     * <p>
+     * Note to subclassers -- this command might prompt the user for username and/or password and
+     * thus should be called as the last part of subclass overrides of this method.
      */
     public boolean isComplete()
     {
         if (isHelp)
         {
             return true;
+        }
+
+        if (serverBaseUrl.length() < 1)
+        {
+            return false;
         }
 
         // At the moment, username, passowrd, and server base url should all be non-empty
@@ -145,10 +153,6 @@ class GlobalArguments
                 // Couldn't get the username from the console
                 return false;
             }
-        }
-        if (serverBaseUrl.length() < 1)
-        {
-            return false;
         }
 
         return true;

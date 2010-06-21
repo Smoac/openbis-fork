@@ -97,9 +97,6 @@ class CommandPut extends AbstractCommand
         @Override
         public boolean isComplete()
         {
-            if (false == super.isComplete())
-                return false;
-
             if (getArguments().size() < 3)
                 return false;
 
@@ -120,6 +117,9 @@ class CommandPut extends AbstractCommand
                         .println("\nProprties must be specified using as code=value[,code=value]*\n");
                 return false;
             }
+
+            if (false == super.isComplete())
+                return false;
 
             return true;
         }
