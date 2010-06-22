@@ -49,7 +49,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
 
     private final IFullTextIndexer fullTextIndexer;
 
-    private final IExtendedBlockingQueue<EntitiesToUpdate> updaterQueue;
+    private final IExtendedBlockingQueue<IndexUpdateOperation> updaterQueue;
 
     public FullTextIndexUpdater(final SessionFactory sessionFactory,
             final HibernateSearchContext context)
@@ -62,7 +62,8 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         File queueFile = getUpdaterQueueFile(context);
         operationLog.debug(String.format("Updater queue file: %s.", queueFile));
         updaterQueue =
-                ExtendedBlockingQueueFactory.<EntitiesToUpdate> createPersistRecordBased(queueFile);
+                ExtendedBlockingQueueFactory
+                        .<IndexUpdateOperation> createPersistRecordBased(queueFile);
     }
 
     private static File getUpdaterQueueFile(HibernateSearchContext context)
@@ -89,13 +90,13 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         }
     }
 
-    public void scheduleUpdate(EntitiesToUpdate entities)
+    public void scheduleUpdate(IndexUpdateOperation operation)
     {
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Scheduling update: " + entities);
+            operationLog.debug("Scheduling update: " + operation);
         }
-        updaterQueue.add(entities);
+        updaterQueue.add(operation);
     }
 
     /**
@@ -118,10 +119,10 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
             {
                 while (true)
                 {
-                    final EntitiesToUpdate entities = updaterQueue.peekWait();
+                    final IndexUpdateOperation operation = updaterQueue.peekWait();
                     if (operationLog.isInfoEnabled())
                     {
-                        operationLog.info("Updating " + entities);
+                        operationLog.info("Update: " + operation);
                     }
                     final StopWatch stopWatch = new StopWatch();
                     stopWatch.start();
@@ -129,12 +130,20 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                     try
                     {
                         session = getSession();
-                        fullTextIndexer.doFullTextIndexUpdate(getSession(), entities.getClazz(),
-                                entities.getIds());
+                        switch (operation.getOperationKind())
+                        {
+                            case REINDEX:
+                                fullTextIndexer.doFullTextIndexUpdate(getSession(), operation
+                                        .getClazz(), operation.getIds());
+                                break;
+                            case REMOVE:
+                                fullTextIndexer.removeFromIndex(getSession(), operation.getClazz(),
+                                        operation.getIds());
+                        }
                         stopWatch.stop();
                     } catch (RuntimeException e)
                     {
-                        notificationLog.error("Error updating " + entities + ".", e);
+                        notificationLog.error("Error: " + operation + ".", e);
                     } finally
                     {
                         if (session != null)
@@ -144,8 +153,9 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                     }
                     if (operationLog.isInfoEnabled())
                     {
-                        operationLog.info("Updating " + entities.getIds().size() + " "
-                                + entities.getClazz().getSimpleName() + "s took " + stopWatch);
+                        operationLog.info(operation.getOperationKind() + " of "
+                                + operation.getIds().size() + " "
+                                + operation.getClazz().getSimpleName() + "s took " + stopWatch);
                     }
                     updaterQueue.take();
                 }

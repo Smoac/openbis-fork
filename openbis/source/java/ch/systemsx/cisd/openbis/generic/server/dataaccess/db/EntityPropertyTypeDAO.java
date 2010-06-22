@@ -36,8 +36,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.EntitiesToUpdate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -445,7 +445,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
 
     private void scheduleFullTextIndexUpdate(List<Long> entityIds)
     {
-        fullTextIndexUpdateScheduler.scheduleUpdate(new EntitiesToUpdate(
+        fullTextIndexUpdateScheduler.scheduleUpdate(IndexUpdateOperation.reindex(
                 getIndexedEntityClass(entityKind), entityIds));
     }
 

@@ -22,20 +22,45 @@ import java.util.List;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 
 /**
+ * Encapsulates operation kind and data for an update operation to be performed on an index.
+ * 
  * @author Piotr Buczek
  */
-public class EntitiesToUpdate implements Serializable
+public class IndexUpdateOperation implements Serializable
 {
+    public enum IndexUpdateOperationKind
+    {
+        /** update indexed entity */
+        REINDEX,
+
+        /** remove from index */
+        REMOVE
+    }
+
     private static final long serialVersionUID = 1L;
 
     private final Class<?> clazz;
 
     private final List<Long> ids;
 
-    public EntitiesToUpdate(Class<?> clazz, List<Long> ids)
+    private final IndexUpdateOperationKind operationKind;
+
+    public static IndexUpdateOperation remove(Class<?> clazz, List<Long> ids)
+    {
+        return new IndexUpdateOperation(IndexUpdateOperationKind.REMOVE, clazz, ids);
+    }
+
+    public static IndexUpdateOperation reindex(Class<?> clazz, List<Long> ids)
+    {
+        return new IndexUpdateOperation(IndexUpdateOperationKind.REINDEX, clazz, ids);
+    }
+
+    private IndexUpdateOperation(IndexUpdateOperationKind operationKind, Class<?> clazz,
+            List<Long> ids)
     {
         this.clazz = clazz;
         this.ids = ids;
+        this.operationKind = operationKind;
     }
 
     public Class<?> getClazz()
@@ -48,10 +73,15 @@ public class EntitiesToUpdate implements Serializable
         return ids;
     }
 
+    public IndexUpdateOperationKind getOperationKind()
+    {
+        return operationKind;
+    }
+
     @Override
     public String toString()
     {
-        return clazz.getName() + ": " + CollectionUtils.abbreviate(ids, 10);
+        return operationKind + " " + clazz.getName() + ": " + CollectionUtils.abbreviate(ids, 10);
     }
 
 }

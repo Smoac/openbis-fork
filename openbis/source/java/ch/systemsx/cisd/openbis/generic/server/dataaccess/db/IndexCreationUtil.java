@@ -35,11 +35,11 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.EntitiesToUpdate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdater;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 
 /**
  * Utility methods around database indexing with <i>Hibernate</i>.
@@ -110,7 +110,7 @@ public final class IndexCreationUtil
                 {
                 }
 
-                public void scheduleUpdate(EntitiesToUpdate entities)
+                public void scheduleUpdate(IndexUpdateOperation entities)
                 {
                 }
             };

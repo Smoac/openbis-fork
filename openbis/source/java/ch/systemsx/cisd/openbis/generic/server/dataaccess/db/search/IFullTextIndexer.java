@@ -43,4 +43,11 @@ public interface IFullTextIndexer
      */
     public <T> void doFullTextIndexUpdate(final Session hibernateSession, final Class<T> clazz,
             final List<Long> ids) throws DataAccessException;
+
+    /**
+     * Removes entities of given <var>clazz</var> with given <var>ids</var> from the
+     * <i>full-text</i> index using given <i>Hibernate</i> session.
+     */
+    public <T> void removeFromIndex(final Session hibernateSession, final Class<T> clazz,
+            final List<Long> ids) throws DataAccessException;
 }

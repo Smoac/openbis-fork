@@ -26,7 +26,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 public interface IFullTextIndexUpdateScheduler
 {
     /**
-     * Schedules update of index for specified entities.
+     * Schedules specified operation.
      */
-    void scheduleUpdate(EntitiesToUpdate entities);
+    void scheduleUpdate(IndexUpdateOperation operation);
 }
