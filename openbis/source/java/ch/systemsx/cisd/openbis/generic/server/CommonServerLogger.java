@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -220,7 +218,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             final ListSampleCriteriaDTO criteria, final List<PropertyTypePE> propertyCodes)
     {
         logAccess(sessionToken, "list_samples_properties", "CRITERIA(%s) PROPERTIES(%s)", criteria,
-                propertyCodes.size());
+                abbreviate(propertyCodes));
         return null;
     }
 
@@ -258,8 +256,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             final boolean useWildcardSearchMode)
     {
         logAccess(sessionToken, "list_matching_entities",
-                "SEARCHABLE-ENTITIES(%s) QUERY-TEXT(%s) WILDCARD_MODE(%s)", Arrays
-                        .toString(searchableEntities), queryText, useWildcardSearchMode);
+                "SEARCHABLE-ENTITIES(%s) QUERY-TEXT(%s) WILDCARD_MODE(%s)",
+                abbreviate(searchableEntities), queryText, useWildcardSearchMode);
         return null;
     }
 
@@ -378,9 +376,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<String> vocabularyTerms, Long previousTermOrdinal)
     {
-        logTracking(sessionToken, "add_vocabulary_terms",
-                "ID(%s) NUMBER_OF_TERMS(%s) PREVIOUS_ORDINAL(%s)", vocabularyId, Integer
-                        .toString(vocabularyTerms.size()), Long.toString(previousTermOrdinal));
+        logTracking(sessionToken, "add_vocabulary_terms", "ID(%s) TERMS(%s) PREVIOUS_ORDINAL(%s)",
+                vocabularyId, abbreviate(vocabularyTerms), Long.toString(previousTermOrdinal));
     }
 
     public void updateVocabularyTerm(String sessionToken, IVocabularyTermUpdates updates)
@@ -392,15 +389,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced)
     {
         logTracking(sessionToken, "delete_vocabulary_terms",
-                "VOCABULARY_ID(%s) NUMBER_OF_TERMS(%s) REPLACEMENTS(%s)", vocabularyId,
-                termsToBeDeleted.size() + termsToBeReplaced.size(), termsToBeReplaced);
+                "VOCABULARY_ID(%s) DELETED(%s) REPLACEMENTS(%s)", vocabularyId,
+                abbreviate(termsToBeDeleted), abbreviate(termsToBeReplaced));
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
             String description, String leaderId, Collection<NewAttachment> attachments)
     {
         logTracking(sessionToken, "register_project", "PROJECT(%s) ATTACHMNETS(%s)",
-                projectIdentifier, attachments.size());
+                projectIdentifier, abbreviate(attachments));
     }
 
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
@@ -489,60 +486,65 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)
     {
-        logTracking(sessionToken, "delete_data_sets", "CODES(%s) REASON(%s)", dataSetCodes, reason);
+        logTracking(sessionToken, "delete_data_sets", "CODES(%s) REASON(%s)",
+                abbreviate(dataSetCodes), reason);
     }
 
     public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason)
     {
-        logTracking(sessionToken, "delete_samples", "IDS(%s) REASON(%s)", sampleIds, reason);
+        logTracking(sessionToken, "delete_samples", "IDS(%s) REASON(%s)", abbreviate(sampleIds),
+                reason);
     }
 
     public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason)
     {
-        logTracking(sessionToken, "delete_experiments", "IDS(%s) REASON(%s)", experimentIds, reason);
+        logTracking(sessionToken, "delete_experiments", "IDS(%s) REASON(%s)",
+                abbreviate(experimentIds), reason);
     }
 
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)
     {
-        logTracking(sessionToken, "delete_vocabularies", "IDS(%s) REASON(%s)", vocabularyIds,
-                reason);
+        logTracking(sessionToken, "delete_vocabularies", "IDS(%s) REASON(%s)",
+                abbreviate(vocabularyIds), reason);
     }
 
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason)
     {
-        logTracking(sessionToken, "delete_property_types", "IDS(%s) REASON(%s)", propertyTypeIds,
-                reason);
+        logTracking(sessionToken, "delete_property_types", "IDS(%s) REASON(%s)",
+                abbreviate(propertyTypeIds), reason);
     }
 
     public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
     {
-        logTracking(sessionToken, "delete_projects", "IDS(%s) REASON(%s)", projectIds, reason);
+        logTracking(sessionToken, "delete_projects", "IDS(%s) REASON(%s)", abbreviate(projectIds),
+                reason);
     }
 
     public void deleteSpaces(String sessionToken, List<TechId> groupIds, String reason)
     {
-        logTracking(sessionToken, "delete_spaces", "IDS(%s) REASON(%s)", groupIds, reason);
+        logTracking(sessionToken, "delete_spaces", "IDS(%s) REASON(%s)", abbreviate(groupIds),
+                reason);
     }
 
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {
         logTracking(sessionToken, "delete_experiment_attachments", "ID(%s) FILES(%s) REASON(%s)",
-                experimentId, fileNames, reason);
+                experimentId, abbreviate(fileNames), reason);
     }
 
     public void deleteSampleAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {
         logTracking(sessionToken, "delete_sample_attachments", "ID(%s) FILES(%s) REASON(%s)",
-                experimentId, fileNames, reason);
+                experimentId, abbreviate(fileNames), reason);
     }
 
     public void deleteProjectAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {
         logTracking(sessionToken, "delete_project_attachments", "ID(%s) FILES(%s) REASON(%s)",
-                experimentId, fileNames, reason);
+                experimentId, abbreviate(fileNames), reason);
     }
 
     public List<Attachment> listExperimentAttachments(String sessionToken, TechId experimentId)
@@ -639,30 +641,25 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes)
     {
-        logTracking(sessionToken, "delete_data_set_types", "CODES(%s)", StringUtils
-                .join(entityTypesCodes.toArray(new String[0])));
-
+        logTracking(sessionToken, "delete_data_set_types", "CODES(%s)",
+                abbreviate(entityTypesCodes));
     }
 
     public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes)
     {
-        logTracking(sessionToken, "delete_experiment_types", "CODES(%s)", StringUtils
-                .join(entityTypesCodes.toArray(new String[0])));
-
+        logTracking(sessionToken, "delete_experiment_types", "CODES(%s)",
+                abbreviate(entityTypesCodes));
     }
 
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes)
     {
-        logTracking(sessionToken, "delete_material_types", "CODES(%s)", StringUtils
-                .join(entityTypesCodes.toArray(new String[0])));
-
+        logTracking(sessionToken, "delete_material_types", "CODES(%s)",
+                abbreviate(entityTypesCodes));
     }
 
     public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes)
     {
-        logTracking(sessionToken, "delete_sample_types", "CODES(%s)", StringUtils
-                .join(entityTypesCodes.toArray(new String[0])));
-
+        logTracking(sessionToken, "delete_sample_types", "CODES(%s)", abbreviate(entityTypesCodes));
     }
 
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
@@ -676,9 +673,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void deleteFileFormatTypes(String sessionToken, List<String> codes)
     {
-        logTracking(sessionToken, "delete_file_format_types", "CODES(%s)", StringUtils.join(codes
-                .toArray(new String[0])));
-
+        logTracking(sessionToken, "delete_file_format_types", "CODES(%s)", abbreviate(codes));
     }
 
     public void updateFileFormatType(String sessionToken, AbstractType type)
@@ -719,16 +714,16 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public TableModel createReportFromDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {
-        logAccess(sessionToken, "createReportFromDatasets", "SERVICE(%s), NO_OF_DATASETS(%s)",
-                serviceDescription, datasetCodes.size());
+        logAccess(sessionToken, "createReportFromDatasets", "SERVICE(%s), DATASETS(%s)",
+                serviceDescription, abbreviate(datasetCodes));
         return null;
     }
 
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {
-        logTracking(sessionToken, "processDatasets", "SERVICE(%s), NO_OF_DATASETS(%s)",
-                serviceDescription, datasetCodes.size());
+        logTracking(sessionToken, "processDatasets", "SERVICE(%s), DATASETS(%s)",
+                serviceDescription, abbreviate(datasetCodes));
     }
 
     public void registerAuthorizationGroup(String sessionToken,
@@ -742,8 +737,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void deleteAuthorizationGroups(String sessionToken, List<TechId> authGroupIds,
             String reason)
     {
-        logTracking(sessionToken, "deleteAuthorizationGroups", "TECH_IDS(%s)", StringUtils
-                .join(authGroupIds.toArray(new TechId[0])));
+        logTracking(sessionToken, "deleteAuthorizationGroups", "TECH_IDS(%s)",
+                abbreviate(authGroupIds));
     }
 
     public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken)
@@ -769,14 +764,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             List<String> personsCodes)
     {
         logTracking(sessionToken, "addPersonsToAuthorizationGroup", "TECH_ID(%s) PERSONS(%s)",
-                authorizationGroupId, StringUtils.join(personsCodes.toArray(new String[0]), ","));
+                authorizationGroupId, abbreviate(personsCodes));
     }
 
     public void removePersonsFromAuthorizationGroup(String sessionToken,
             TechId authorizationGroupId, List<String> personsCodes)
     {
         logTracking(sessionToken, "removePersonsFromAuthorizationGroup", "TECH_ID(%s) PERSONS(%s)",
-                authorizationGroupId, StringUtils.join(personsCodes.toArray(new String[0]), ","));
+                authorizationGroupId, abbreviate(personsCodes));
     }
 
     public List<GridCustomFilter> listFilters(String sessionToken, String gridId)
@@ -792,8 +787,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void deleteFilters(String sessionToken, List<TechId> filterIds)
     {
-        logTracking(sessionToken, "deleteFilters", "TECH_IDS(%s)", StringUtils.join(filterIds
-                .toArray(new TechId[0]), ","));
+        logTracking(sessionToken, "deleteFilters", "TECH_IDS(%s)", abbreviate(filterIds));
     }
 
     public void updateFilter(String sessionToken, IExpressionUpdates updates)
@@ -811,8 +805,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void deleteGridCustomColumns(String sessionToken, List<TechId> columnIds)
     {
-        logTracking(sessionToken, "deleteGridCustomColumns", "TECH_IDS(%s)", StringUtils.join(
-                columnIds.toArray(new TechId[0]), ","));
+        logTracking(sessionToken, "deleteGridCustomColumns", "TECH_IDS(%s)", abbreviate(columnIds));
     }
 
     public void updateGridCustomColumn(String sessionToken, IExpressionUpdates updates)
@@ -830,23 +823,24 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             List<VocabularyTerm> terms)
     {
         logTracking(sessionToken, "update_vocabulary_terms", "VOCABULARY_TERMS(%s) VOCABULARY(%s)",
-                terms.size(), vocabularyId);
+                abbreviate(terms), vocabularyId);
     }
 
     public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason)
     {
-        logTracking(sessionToken, "delete_materials", "IDS(%s) REASON(%s)", materialIds, reason);
+        logTracking(sessionToken, "delete_materials", "IDS(%s) REASON(%s)",
+                abbreviate(materialIds), reason);
     }
 
     public int lockDatasets(String sessionToken, List<String> datasetCodes)
     {
-        logTracking(sessionToken, "lockDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
+        logTracking(sessionToken, "lockDatasets", "DATASETS(%s)", abbreviate(datasetCodes));
         return 0;
     }
 
     public int unlockDatasets(String sessionToken, List<String> datasetCodes)
     {
-        logTracking(sessionToken, "unlockDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
+        logTracking(sessionToken, "unlockDatasets", "DATASETS(%s)", abbreviate(datasetCodes));
         return 0;
     }
 

@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -73,6 +75,20 @@ public abstract class AbstractServerLogger implements IServer
         accessLog = LogFactory.getLogger(LogCategory.ACCESS, getClass());
         trackingLog = LogFactory.getLogger(LogCategory.TRACKING, getClass());
     }
+
+    // helper methods for logging collections and arrays
+
+    protected String abbreviate(Collection<?> c)
+    {
+        return CollectionUtils.abbreviate(c, 10);
+    }
+
+    protected String abbreviate(Object[] object)
+    {
+        return CollectionUtils.abbreviate(object, 10);
+    }
+
+    //
 
     private String tryToCreatePrefix(String sessionTokenOrNull)
     {
@@ -258,13 +274,13 @@ public abstract class AbstractServerLogger implements IServer
 
     public int unarchiveDatasets(String sessionToken, List<String> datasetCodes)
     {
-        logTracking(sessionToken, "unarchiveDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
+        logTracking(sessionToken, "unarchiveDatasets", "DATASETS(%s)", abbreviate(datasetCodes));
         return 0;
     }
 
     public int archiveDatasets(String sessionToken, List<String> datasetCodes)
     {
-        logTracking(sessionToken, "archiveDatasets", "NO_OF_DATASETS(%s)", datasetCodes.size());
+        logTracking(sessionToken, "archiveDatasets", "DATASETS(%s)", abbreviate(datasetCodes));
         return 0;
     }
 }
