@@ -202,23 +202,26 @@
 
   <target name="make-dist" description="Makes a distribution file." 
   		depends="check-dictionary-syntax, clean, war, admin-console-dist, query-api-dist">
-    <copy file="${lib}/tomcat5/apache-tomcat.zip" todir="${server.dist}" />
-    <loadfile property="tomcat.version" srcFile="${lib}/tomcat5/version.txt">
+    <copy file="${lib}/jetty7/jetty.zip" todir="${server.dist}" />
+    <loadfile property="jetty.version" srcFile="${lib}/jetty7/version.txt">
       <filterchain>
         <striplinebreaks />
       </filterchain>
     </loadfile>
-    <echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
-    <copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
+    <echo file="${server.dist}/jetty-version.txt">${jetty.version}</echo>
+    <copy file="${original.openbis.server.dist}/jetty.xml" todir="${server.dist}" />
     <move file="${admin.dist.file}" todir="${server.dist}" />
     <move file="${query.api.dist.file}" todir="${server.dist}" />
     <copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
     <copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
     <copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
     <copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
+    <copy file="${original.openbis.server.dist}/setup-env" todir="${server.dist}" />
     <property name="server.dist.file" value="${server.dist}${variant}-${version.number}-r${revision.number}.zip" />
     <zip basedir="${dist}" destfile="${server.dist.file}" excludes="*.zip">
       <zipfileset file="${original.openbis.server.dist}/install.sh" filemode="777" prefix="${server.folder.name}" />
+      <zipfileset file="${original.openbis.server.dist}/startup.sh" filemode="777" prefix="${server.folder.name}" />
+      <zipfileset file="${original.openbis.server.dist}/shutdown.sh" filemode="777" prefix="${server.folder.name}" />
     </zip>
     <delete dir="${server.dist}" />
   </target>
