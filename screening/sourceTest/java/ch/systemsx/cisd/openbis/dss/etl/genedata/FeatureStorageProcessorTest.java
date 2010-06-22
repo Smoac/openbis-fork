@@ -151,7 +151,6 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals(2, original.listFiles().length);
         File[] transformedFiles = original.listFiles(new FilenameFilter()
             {
-
                 public boolean accept(File dir, String name)
                 {
                     return name.endsWith("stat.txt");
