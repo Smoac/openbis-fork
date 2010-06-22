@@ -533,60 +533,54 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     public void delete(final List<TechId> sampleIds, final PersonPE registrator, final String reason)
             throws DataAccessException
     {
-        final String sqlPermId = "SELECT perm_id FROM samples WHERE id = :s_id";
+        final String sqlPermId =
+                "SELECT perm_id FROM " + TableNames.SAMPLES_TABLE + " WHERE id = :sId";
+        final String sqlDeleteProperties =
+                "DELETE FROM " + TableNames.SAMPLE_PROPERTIES_TABLE + " WHERE samp_id = :sId";
+        final String sqlDeleteSample =
+                "DELETE FROM " + TableNames.SAMPLES_TABLE + " WHERE id = :sId";
         final String sqlInsertEvent =
                 String
                         .format(
                                 "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
                                         + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
                                 TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
-        final String sqlDeleteProperties = "DELETE FROM sample_properties WHERE samp_id = :s_id";
-        final String sqlDeleteSample = "DELETE FROM samples WHERE id = :s_id";
 
         executeStatelessAction(new StatelessHibernateCallback()
             {
                 public Object doInStatelessSession(StatelessSession session)
                 {
                     final SQLQuery sqlQueryPermId = session.createSQLQuery(sqlPermId);
+                    final SQLQuery sqlQueryDeleteProperties =
+                            session.createSQLQuery(sqlDeleteProperties);
+                    final SQLQuery sqlQueryDeleteSample = session.createSQLQuery(sqlDeleteSample);
                     final SQLQuery sqlQueryInsertEvent = session.createSQLQuery(sqlInsertEvent);
                     sqlQueryInsertEvent.setParameter("eventType", EventType.DELETION.name());
                     sqlQueryInsertEvent.setParameter("reason", reason);
                     sqlQueryInsertEvent.setParameter("registratorId", registrator.getId());
                     sqlQueryInsertEvent.setParameter("entityType", EntityType.SAMPLE.name());
-                    final SQLQuery sqlQueryDeleteProperties =
-                            session.createSQLQuery(sqlDeleteProperties);
-                    final SQLQuery sqlQueryDeleteSample = session.createSQLQuery(sqlDeleteSample);
                     int counter = 0;
-                    // insertion of events is separated for better performance debugging
-                    List<String> permIds = new ArrayList<String>();
                     for (TechId techId : sampleIds)
                     {
-                        sqlQueryPermId.setParameter("s_id", techId.getId());
+                        sqlQueryPermId.setParameter("sId", techId.getId());
                         final String permIdOrNull = tryGetEntity(sqlQueryPermId.uniqueResult());
                         if (permIdOrNull != null)
                         {
-                            permIds.add(permIdOrNull);
-                            sqlQueryDeleteProperties.setParameter("s_id", techId.getId());
+                            // delete properties
+                            sqlQueryDeleteProperties.setParameter("sId", techId.getId());
                             sqlQueryDeleteProperties.executeUpdate();
-                            sqlQueryDeleteSample.setParameter("s_id", techId.getId());
+                            // delete sample
+                            sqlQueryDeleteSample.setParameter("sId", techId.getId());
                             sqlQueryDeleteSample.executeUpdate();
-                            if (++counter % 100 == 0)
+                            // create event
+                            sqlQueryInsertEvent.setParameter("description", permIdOrNull);
+                            sqlQueryInsertEvent.setParameter("identifier", permIdOrNull);
+                            sqlQueryInsertEvent.executeUpdate();
+                            if (++counter % 1000 == 0)
                             {
                                 operationLog.info(String.format("%d samples have been deleted...",
                                         counter));
                             }
-                        }
-                    }
-                    counter = 0;
-                    for (String permId : permIds)
-                    {
-                        sqlQueryInsertEvent.setParameter("description", permId);
-                        sqlQueryInsertEvent.setParameter("identifier", permId);
-                        sqlQueryInsertEvent.executeUpdate();
-                        if (++counter % 100 == 0)
-                        {
-                            operationLog.info(String.format("%d events have been created...",
-                                    counter));
                         }
                     }
                     return null;
