@@ -31,7 +31,9 @@ import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.GenedataFormatToCanonicalFeatureVector;
 
 /**
- * @author Franz-Josef Elmer
+ * Check that Genedata feature vectors can be converted to the canonical form.
+ * 
+ * @author Chandrasekhar Ramakrishnan
  */
 public class GenedataFormatToCanonicalFeatureVectorTest extends AbstractFileSystemTestCase
 {

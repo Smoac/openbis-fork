@@ -17,26 +17,91 @@
 package ch.systemsx.cisd.openbis.dss.etl.genedata;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
-import ch.systemsx.cisd.openbis.dss.etl.genedata.FeatureStorageProcessor;
+import ch.systemsx.cisd.etlserver.PlateDimensionParser;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
 {
+    private static final String DATA_SET_PERM_ID = "dataset-1";
+
+    private static final String CONTAINER_PERM_ID = "perm12";
+
+    private static final String EXPERIMENT_PERM_ID = "perm11";
+
     private static final String EXAMPLE1 =
             "barcode = Plate_042" + "\n\n<Layer=alpha>\n" + "\t1\t2\n" + "A\t4.5\t4.6\n"
                     + "B\t3.5\t5.6\n" + "C\t3.3\t5.7\n" + "\n\n<Layer=beta>\n" + "\t1\t2\n"
                     + "A\t14.5\t14.6\n" + "B\t13.5\t15.6\n" + "C\t13.3\t15.7\n";
+
+    private Mockery context;
+
+    private IImagingUploadDAO dao;
+
+    @Override
+    @BeforeMethod
+    public void setUp() throws IOException
+    {
+        super.setUp();
+
+        context = new Mockery();
+        dao = context.mock(IImagingUploadDAO.class);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryGetExperimentIdByPermId(EXPERIMENT_PERM_ID);
+                    will(returnValue((long) 1));
+                    one(dao).tryGetContainerIdPermId(CONTAINER_PERM_ID);
+                    will(returnValue((long) 1));
+
+                    ImgDatasetDTO dataSetDTO = new ImgDatasetDTO(DATA_SET_PERM_ID, 3, 2, 1);
+                    dataSetDTO.setId(1);
+                    one(dao).tryGetDatasetByPermId(DATA_SET_PERM_ID);
+                    will(returnValue(dataSetDTO));
+
+                    ImgFeatureDefDTO featureDTO = new ImgFeatureDefDTO("alpha", "alpha", 1);
+                    one(dao).addFeatureDef(with(equal(featureDTO)));
+                    will(returnValue((long) 1));
+
+                    one(dao).addFeatureValues(with(any(ImgFeatureValuesDTO.class)));
+                    will(returnValue((long) 1));
+
+                    featureDTO = new ImgFeatureDefDTO("beta", "beta", 1);
+                    one(dao).addFeatureDef(with(equal(featureDTO)));
+                    will(returnValue((long) 2));
+
+                    one(dao).addFeatureValues(with(any(ImgFeatureValuesDTO.class)));
+                    will(returnValue((long) 2));
+
+                    one(dao).commit();
+                    one(dao).close();
+                }
+            });
+    }
 
     @Test
     public void test()
@@ -47,9 +112,19 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(dataSetFile, EXAMPLE1);
         File rootDir = new File(workingDirectory, "rootDir");
         rootDir.mkdirs();
-        IStorageProcessor storageProcessor = new FeatureStorageProcessor(new Properties());
+        Properties storageProcessorProps = createStorageProcessorProperties();
+        IStorageProcessor storageProcessor = new FeatureStorageProcessor(storageProcessorProps)
+            {
+                // For Testing
+                @Override
+                protected IImagingUploadDAO createDAO()
+                {
+                    return dao;
+                }
+            };
 
-        storageProcessor.storeData(new DataSetInformation(), null, null, dataSetFile, rootDir);
+        DataSetInformation dataSetInfo = createDataSetInformation();
+        storageProcessor.storeData(dataSetInfo, null, null, dataSetFile, rootDir);
 
         assertEquals(0, incomingDir.listFiles().length);
         assertEquals(1, rootDir.listFiles().length);
@@ -59,8 +134,8 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
 
         storageProcessor.commit();
 
-        assertEquals(1, original.listFiles().length);
-        File transformedDataSetFile = original.listFiles()[0];
+        assertEquals(2, original.listFiles().length);
+        File transformedDataSetFile = original.listFiles()[1];
         assertEquals("Plate042.stat.txt", transformedDataSetFile.getName());
         List<String> lines = FileUtilities.loadToStringList(transformedDataSetFile);
         assertEquals("barcode;row;col;alpha;beta", lines.get(0));
@@ -71,5 +146,46 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals("Plate_042;C;1;3.3;13.3", lines.get(5));
         assertEquals("Plate_042;C;2;5.7;15.7", lines.get(6));
         assertEquals(7, lines.size());
+    }
+
+    private DataSetInformation createDataSetInformation()
+    {
+        // Set the Experiment
+        DataSetInformation dataSetInfo = new DataSetInformation();
+        Experiment exp = new Experiment();
+        exp.setIdentifier("/Test/Test1/Exp1");
+        exp.setPermId(EXPERIMENT_PERM_ID);
+        dataSetInfo.setExperiment(exp);
+
+        // Set the Sample
+        Sample sample = new Sample();
+        sample.setCode("Samp1");
+        sample.setExperiment(exp);
+        sample.setPermId(CONTAINER_PERM_ID);
+        dataSetInfo.setSample(sample);
+
+        // Set the DataSet
+        dataSetInfo.setDataSetCode(DATA_SET_PERM_ID);
+
+        // Set the properties
+        IEntityProperty properties[] = new IEntityProperty[1];
+        GenericValueEntityProperty entityProperty = new GenericValueEntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(PlateDimensionParser.PLATE_GEOMETRY_PROPERTY_NAME);
+        entityProperty.setPropertyType(propertyType);
+        entityProperty.setValue("A_2X2");
+        properties[0] = entityProperty;
+        dataSetInfo.setProperties(properties);
+        return dataSetInfo;
+    }
+
+    private Properties createStorageProcessorProperties()
+    {
+        Properties storageProcessorProps = new Properties();
+        storageProcessorProps.setProperty("processor",
+                "ch.systemsx.cisd.etlserver.DefaultStorageProcessor");
+        // storageProcessorProps.setProperty("data-source", "imaging-db");
+        storageProcessorProps.setProperty("data-source", "imaging-db");
+        return storageProcessorProps;
     }
 }

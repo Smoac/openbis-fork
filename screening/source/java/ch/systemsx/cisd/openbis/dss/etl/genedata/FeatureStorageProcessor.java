@@ -17,27 +17,46 @@
 package ch.systemsx.cisd.openbis.dss.etl.genedata;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import javax.sql.DataSource;
+
+import net.lemnik.eodsql.QueryTool;
+
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
+import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TableBuilder;
+import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorUploader;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.GenedataFormatToCanonicalFeatureVector;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class FeatureStorageProcessor extends DefaultStorageProcessor
+public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
 {
     private static final char DELIMITER = ';';
 
     private static final String LAYER_PREFIX = "<Layer=";
 
-    private File originalFile;
+    private final DataSource dataSource;
+
+    // Execution state of this object -- set to null after an execution is finished.
+    private IImagingUploadDAO dataAccessObject = null;
 
     private final class ColumnsBuilder
     {
@@ -131,18 +150,92 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
     public FeatureStorageProcessor(Properties properties)
     {
         super(properties);
+        this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
     }
 
     @Override
-    protected void transform(File originalDataSet, File targetFolderForTransformedDataSet)
+    public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
+            IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
     {
-        originalFile = originalDataSet;
+        File storedDataSet =
+                super.storeData(dataSetInformation, typeExtractor, mailClient,
+                        incomingDataSetDirectory, rootDir);
+        File originalDir = DefaultStorageProcessor.getOriginalDirectory(storedDataSet);
+        final File targetFile = new File(originalDir, incomingDataSetDirectory.getName());
+        transform(targetFile, storedDataSet, dataSetInformation);
+
+        return storedDataSet;
+    }
+
+    protected void transform(File originalDataSet, File targetFolderForTransformedDataSet,
+            DataSetInformation dataSetInformation)
+    {
         List<String> lines = FileUtilities.loadToStringList(originalDataSet);
         if (lines.isEmpty())
         {
             throw new UserFailureException("Empty file: " + originalDataSet.getName());
         }
         String barCode = extractBarCode(lines.get(0));
+        ColumnsBuilder columnsBuilder = convertLinesIntoColumns(lines);
+        String columnsString = convertColumnsToString(barCode, columnsBuilder);
+        File originalDirectory =
+                DefaultStorageProcessor.getOriginalDirectory(targetFolderForTransformedDataSet);
+        File file = new File(originalDirectory, originalDataSet.getName() + ".txt");
+        FileUtilities.writeToFile(file, columnsString);
+
+        try
+        {
+            loadDataSetIntoDatabase(lines, dataSetInformation);
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
+    private void loadDataSetIntoDatabase(List<String> lines, DataSetInformation dataSetInformation)
+            throws IOException
+    {
+        GenedataFormatToCanonicalFeatureVector convertor =
+                new GenedataFormatToCanonicalFeatureVector(lines, LAYER_PREFIX);
+        ArrayList<CanonicalFeatureVector> fvecs = convertor.convert();
+
+        dataAccessObject = createDAO();
+        FeatureVectorUploader uploader =
+                new FeatureVectorUploader(dataAccessObject, ScreeningContainerDatasetInfo
+                        .createScreeningDatasetInfo(dataSetInformation));
+        uploader.uploadFeatureVectors(fvecs);
+    }
+
+    protected IImagingUploadDAO createDAO()
+    {
+        return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
+    }
+
+    private String convertColumnsToString(String barCode, ColumnsBuilder columnsBuilder)
+    {
+        List<Column> columns = columnsBuilder.getColumns();
+        StringBuilder builder = new StringBuilder();
+        builder.append("barcode").append(DELIMITER).append("row").append(DELIMITER).append("col");
+        for (Column column : columns)
+        {
+            builder.append(DELIMITER).append(column.getHeader());
+        }
+        for (int i = 0, n = columnsBuilder.getNumberOfWells(); i < n; i++)
+        {
+            builder.append('\n').append(barCode);
+            builder.append(DELIMITER).append(columnsBuilder.getRowLetter(i));
+            builder.append(DELIMITER).append(columnsBuilder.getColumnNumber(i));
+            for (Column column : columns)
+            {
+                builder.append(DELIMITER).append(column.getValues().get(i));
+            }
+        }
+        String columnsString = builder.toString();
+        return columnsString;
+    }
+
+    private ColumnsBuilder convertLinesIntoColumns(List<String> lines)
+    {
         ColumnsBuilder columnsBuilder = new ColumnsBuilder();
         for (int i = 1; i < lines.size(); i++)
         {
@@ -163,35 +256,44 @@ public class FeatureStorageProcessor extends DefaultStorageProcessor
             }
         }
         columnsBuilder.finish();
-        List<Column> columns = columnsBuilder.getColumns();
-        StringBuilder builder = new StringBuilder();
-        builder.append("barcode").append(DELIMITER).append("row").append(DELIMITER).append("col");
-        for (Column column : columns)
-        {
-            builder.append(DELIMITER).append(column.getHeader());
-        }
-        for (int i = 0, n = columnsBuilder.getNumberOfWells(); i < n; i++)
-        {
-            builder.append('\n').append(barCode);
-            builder.append(DELIMITER).append(columnsBuilder.getRowLetter(i));
-            builder.append(DELIMITER).append(columnsBuilder.getColumnNumber(i));
-            for (Column column : columns)
-            {
-                builder.append(DELIMITER).append(column.getValues().get(i));
-            }
-        }
-        File originalDirectory = getOriginalDirectory(targetFolderForTransformedDataSet);
-        File file = new File(originalDirectory, originalDataSet.getName() + ".txt");
-        FileUtilities.writeToFile(file, builder.toString());
+        return columnsBuilder;
     }
 
     @Override
     public void commit()
     {
-        if (originalFile != null && originalFile.exists())
+        super.commit();
+
+        if (null == dataAccessObject)
         {
-            originalFile.delete();
+            return;
         }
+
+        dataAccessObject.commit();
+        closeDataAccessObject();
+    }
+
+    /**
+     * Close the DAO and set it to null to make clear that it is not initialized.
+     */
+    private void closeDataAccessObject()
+    {
+        dataAccessObject.close();
+        dataAccessObject = null;
+    }
+
+    @Override
+    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
+            final File storedDataDirectory, Throwable exception)
+    {
+        // Delete the data from the database
+        if (null != dataAccessObject)
+        {
+            dataAccessObject.rollback();
+            closeDataAccessObject();
+        }
+
+        return super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
     }
 
     private String extractBarCode(String firstLine)
