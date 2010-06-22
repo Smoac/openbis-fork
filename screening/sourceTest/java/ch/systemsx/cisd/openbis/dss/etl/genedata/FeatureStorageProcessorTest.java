@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.genedata;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
@@ -148,7 +149,16 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         storageProcessor.commit();
 
         assertEquals(2, original.listFiles().length);
-        File transformedDataSetFile = original.listFiles()[1];
+        File[] transformedFiles = original.listFiles(new FilenameFilter()
+            {
+
+                public boolean accept(File dir, String name)
+                {
+                    return name.endsWith("stat.txt");
+                }
+            });
+        assertEquals(1, transformedFiles.length);
+        File transformedDataSetFile = transformedFiles[0];
         assertEquals("Plate042.stat.txt", transformedDataSetFile.getName());
         List<String> lines = FileUtilities.loadToStringList(transformedDataSetFile);
         assertEquals("barcode;row;col;alpha;beta", lines.get(0));
