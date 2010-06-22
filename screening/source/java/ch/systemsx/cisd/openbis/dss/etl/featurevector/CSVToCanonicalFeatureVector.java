@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.geometry.Point;
@@ -30,6 +29,8 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 
 /**
+ * Converts feature vectors from CSV files to CanonicaFeatureVector objects.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class CSVToCanonicalFeatureVector
@@ -105,10 +106,10 @@ public class CSVToCanonicalFeatureVector
         initializeColumns();
         readLines();
 
-        return convertColumnsToFeatureFectors();
+        return convertColumnsToFeatureVectors();
     }
 
-    private ArrayList<CanonicalFeatureVector> convertColumnsToFeatureFectors()
+    private ArrayList<CanonicalFeatureVector> convertColumnsToFeatureVectors()
     {
         int[] dims =
             { maxX + 1, maxY + 1 };
@@ -131,13 +132,13 @@ public class CSVToCanonicalFeatureVector
     {
         CanonicalFeatureVector featureVector = new CanonicalFeatureVector();
         featureVector.setFeatureDef(new ImgFeatureDefDTO(column.name, column.name, 0));
-        byte[] valuesValues = convertColumnToByteArray(dims, column);
+        MDDoubleArray valuesValues = convertColumnToByteArray(dims, column);
         ImgFeatureValuesDTO values = new ImgFeatureValuesDTO(0., 0., valuesValues, 0);
         featureVector.setValues(Collections.singletonList(values));
         return featureVector;
     }
 
-    private byte[] convertColumnToByteArray(int[] dims, FeatureColumn column)
+    private MDDoubleArray convertColumnToByteArray(int[] dims, FeatureColumn column)
     {
         MDDoubleArray doubleArray = new MDDoubleArray(dims);
         for (Point loc : column.values.keySet())
@@ -146,7 +147,7 @@ public class CSVToCanonicalFeatureVector
             doubleArray.set(value, loc.getX(), loc.getY());
         }
 
-        return NativeTaggedArray.toByteArray(doubleArray);
+        return doubleArray;
     }
 
     private void readLines()
