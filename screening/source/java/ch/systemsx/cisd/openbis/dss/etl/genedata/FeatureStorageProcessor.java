@@ -150,7 +150,12 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
     public FeatureStorageProcessor(Properties properties)
     {
         super(properties);
-        this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
+        this.dataSource = createDataSource(properties);
+    }
+
+    protected DataSource createDataSource(Properties properties)
+    {
+        return ServiceProvider.getDataSourceProvider().getDataSource(properties);
     }
 
     @Override

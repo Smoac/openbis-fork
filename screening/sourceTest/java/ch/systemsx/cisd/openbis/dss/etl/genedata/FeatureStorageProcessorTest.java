@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
@@ -61,6 +63,8 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
 
     private IImagingUploadDAO dao;
 
+    private DataSource dataSource;
+
     @Override
     @BeforeMethod
     public void setUp() throws IOException
@@ -69,6 +73,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
 
         context = new Mockery();
         dao = context.mock(IImagingUploadDAO.class);
+        dataSource = context.mock(DataSource.class);
 
         context.checking(new Expectations()
             {
@@ -116,10 +121,18 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         IStorageProcessor storageProcessor = new FeatureStorageProcessor(storageProcessorProps)
             {
                 // For Testing
+
                 @Override
                 protected IImagingUploadDAO createDAO()
                 {
                     return dao;
+                }
+
+                @Override
+                protected DataSource createDataSource(Properties properties)
+                {
+                    // Overide because we have problems with Spring otherwise.
+                    return dataSource;
                 }
             };
 
