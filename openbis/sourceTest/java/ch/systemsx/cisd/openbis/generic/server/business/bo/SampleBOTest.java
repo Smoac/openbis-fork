@@ -300,30 +300,6 @@ public final class SampleBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    // FIXME 2009-06-22, Piotr Buczek
-    // @Test
-    // public void testDelete()
-    // {
-    // final TechId sampleId = SAMPLE_TECH_ID;
-    // final SamplePE sample = createSample(DEFAULT_SAMPLE_CODE);
-    // sample.setId(sampleId.getId());
-    // final String reason = "reason";
-    //
-    // prepareTryToLoadOfSampleWithId(sample);
-    // context.checking(new Expectations()
-    // {
-    // {
-    // PersonPE person = EXAMPLE_SESSION.tryGetPerson();
-    // EventPE event = SampleBO.createDeletionEvent(sample, person, reason);
-    // one(eventDAO).persist(event);
-    // one(sampleDAO).delete(sample);
-    // }
-    // });
-    // final SampleBO sampleBO = createSampleBO();
-    // sampleBO.deleteByTechId(sampleId, reason);
-    // context.assertIsSatisfied();
-    // }
-
     @Test
     public final void testDetachFromExperiment()
     {

@@ -37,15 +37,20 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -334,10 +339,27 @@ public final class SampleDAOTest extends AbstractDAOTest
 
     private void deleteSample(SamplePE sample)
     {
-        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        // before deletion there shouldn't be any entry about deletion of the sample in event table
+        assertNull(tryGetDeletionEvent(sample));
+
         List<TechId> sampleIds = new ArrayList<TechId>();
         sampleIds.add(TechId.create(sample));
-        sampleDAO.delete(sampleIds, getSystemPerson(), "reason");
+        final PersonPE registrator = getSystemPerson();
+        final String reason = "reason" + sample.getPermId();
+
+        daoFactory.getSampleDAO().delete(sampleIds, registrator, reason);
+
+        // after deletion there should be an entry about deletion of the sample in event table
+        final EventPE event = tryGetDeletionEvent(sample);
+        assertNotNull(event);
+        assertEquals(reason, event.getReason());
+        assertEquals(registrator, event.getRegistrator());
+    }
+
+    private EventPE tryGetDeletionEvent(SamplePE sample)
+    {
+        final IEventDAO eventDAO = daoFactory.getEventDAO();
+        return eventDAO.tryFind(sample.getPermId(), EntityType.SAMPLE, EventType.DELETION);
     }
 
     @Test
