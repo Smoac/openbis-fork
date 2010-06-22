@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
@@ -1008,11 +1009,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         Session session = getSession(sessionToken);
         try
         {
-            ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-            for (TechId id : sampleIds)
-            {
-                sampleBO.deleteByTechId(id, reason);
-            }
+            ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
+            sampleTableBO.deleteByTechIds(sampleIds, reason);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

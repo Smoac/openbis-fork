@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
@@ -82,7 +83,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     private final PersistencyResources persistencyResources;
 
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
-            final SessionFactory sessionFactory)
+            final SessionFactory sessionFactory,
+            final IFullTextIndexUpdateScheduler indexUpdateScheduler)
     {
         persistencyResources = new PersistencyResources(context, sessionFactory);
         databaseInstancesDAO = new DatabaseInstanceDAO(sessionFactory);
@@ -93,7 +95,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         externalDataDAO = new ExternalDataDAO(sessionFactory, homeDatabaseInstance);
         experimentDAO = new ExperimentDAO(sessionFactory, homeDatabaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
-        sampleDAO = new SampleDAO(sessionFactory, homeDatabaseInstance);
+        sampleDAO = new SampleDAO(sessionFactory, homeDatabaseInstance, indexUpdateScheduler);
         gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory, homeDatabaseInstance);
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, homeDatabaseInstance);
         queryDAO = new QueryDAO(sessionFactory, homeDatabaseInstance);

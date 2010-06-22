@@ -24,7 +24,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -39,13 +41,21 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -64,9 +74,13 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SampleDAO.class);
 
-    SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
+
+    SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance,
+            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
     {
         super(sessionFactory, databaseInstance, SamplePE.class);
+        this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
     }
 
     private final Criteria createListAllSamplesCriteria()
@@ -514,6 +528,84 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
                 throw e;
             }
         }
+    }
+
+    public void delete(final List<TechId> sampleIds, final PersonPE registrator, final String reason)
+            throws DataAccessException
+    {
+        final String sqlPermId = "SELECT perm_id FROM samples WHERE id = :s_id";
+        final String sqlInsertEvent =
+                String
+                        .format(
+                                "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
+                                        + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
+                                TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
+        final String sqlDeleteProperties = "DELETE FROM sample_properties WHERE samp_id = :s_id";
+        final String sqlDeleteSample = "DELETE FROM samples WHERE id = :s_id";
+
+        executeStatelessAction(new StatelessHibernateCallback()
+            {
+                public Object doInStatelessSession(StatelessSession session)
+                {
+                    final SQLQuery sqlQueryPermId = session.createSQLQuery(sqlPermId);
+                    final SQLQuery sqlQueryInsertEvent = session.createSQLQuery(sqlInsertEvent);
+                    sqlQueryInsertEvent.setParameter("eventType", EventType.DELETION.name());
+                    sqlQueryInsertEvent.setParameter("reason", reason);
+                    sqlQueryInsertEvent.setParameter("registratorId", registrator.getId());
+                    sqlQueryInsertEvent.setParameter("entityType", EntityType.SAMPLE.name());
+                    final SQLQuery sqlQueryDeleteProperties =
+                            session.createSQLQuery(sqlDeleteProperties);
+                    final SQLQuery sqlQueryDeleteSample = session.createSQLQuery(sqlDeleteSample);
+                    int counter = 0;
+                    // insertion of events is separated for better performance debugging
+                    List<String> permIds = new ArrayList<String>();
+                    for (TechId techId : sampleIds)
+                    {
+                        sqlQueryPermId.setParameter("s_id", techId.getId());
+                        final String permIdOrNull = tryGetEntity(sqlQueryPermId.uniqueResult());
+                        if (permIdOrNull != null)
+                        {
+                            permIds.add(permIdOrNull);
+                            sqlQueryDeleteProperties.setParameter("s_id", techId.getId());
+                            sqlQueryDeleteProperties.executeUpdate();
+                            sqlQueryDeleteSample.setParameter("s_id", techId.getId());
+                            sqlQueryDeleteSample.executeUpdate();
+                            if (++counter % 100 == 0)
+                            {
+                                operationLog.info(String.format("%d samples have been deleted...",
+                                        counter));
+                            }
+                        }
+                    }
+                    counter = 0;
+                    for (String permId : permIds)
+                    {
+                        sqlQueryInsertEvent.setParameter("description", permId);
+                        sqlQueryInsertEvent.setParameter("identifier", permId);
+                        sqlQueryInsertEvent.executeUpdate();
+                        if (++counter % 100 == 0)
+                        {
+                            operationLog.info(String.format("%d events have been created...",
+                                    counter));
+                        }
+                    }
+                    return null;
+                }
+            });
+
+        // index will not be updated automatically by Hibernate because we use native SQL queries
+        scheduleRemoveFromFullTextIndex(sampleIds);
+    }
+
+    private void scheduleRemoveFromFullTextIndex(List<TechId> sampleIds)
+    {
+        List<Long> ids = new ArrayList<Long>();
+        for (TechId techId : sampleIds)
+        {
+            ids.add(techId.getId());
+        }
+        fullTextIndexUpdateScheduler.scheduleUpdate(IndexUpdateOperation
+                .remove(SamplePE.class, ids));
     }
 
 }

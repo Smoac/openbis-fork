@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIde
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -421,6 +422,19 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
         dataChanged = true;
         setBatchUpdateMode(false);
+    }
+
+    public void deleteByTechIds(List<TechId> sampleIds, String reason) throws UserFailureException
+    {
+        try
+        {
+            getSessionFactory().getCurrentSession().flush();
+            getSessionFactory().getCurrentSession().clear();
+            getSampleDAO().delete(sampleIds, session.tryGetPerson(), reason);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, "Samples", EntityKind.SAMPLE);
+        }
     }
 
 }

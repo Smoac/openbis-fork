@@ -33,15 +33,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -125,37 +122,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             throw UserFailureException.fromTemplate(
                     "No sample could be found with given identifier '%s'.", identifier);
         }
-    }
-
-    public void deleteByTechId(TechId sampleId, String reason) throws UserFailureException
-    {
-        loadDataByTechId(sampleId);
-        try
-        {
-            getSampleDAO().delete(sample);
-            getEventDAO().persist(createDeletionEvent(sample, session.tryGetPerson(), reason));
-        } catch (final DataAccessException ex)
-        {
-            throwException(ex, String.format("Sample '%s'", sample.getCode()), EntityKind.SAMPLE);
-        }
-    }
-
-    public static EventPE createDeletionEvent(SamplePE sample, PersonPE registrator, String reason)
-    {
-        EventPE event = new EventPE();
-        event.setEventType(EventType.DELETION);
-        event.setEntityType(EntityType.SAMPLE);
-        event.setIdentifier(sample.getPermId());
-        event.setDescription(getDeletionDescription(sample));
-        event.setReason(reason);
-        event.setRegistrator(registrator);
-
-        return event;
-    }
-
-    private static String getDeletionDescription(SamplePE sample)
-    {
-        return String.format("%s [%s]", sample.getIdentifier(), sample.getPermId());
     }
 
     public final void define(final NewSample newSample)

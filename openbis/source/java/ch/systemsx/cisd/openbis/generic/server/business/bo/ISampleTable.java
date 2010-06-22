@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
@@ -70,5 +71,13 @@ public interface ISampleTable
     public void save() throws UserFailureException;
 
     void update(List<SampleBatchUpdatesDTO> updates);
+
+    /**
+     * Deletes samples for specified reason.
+     * 
+     * @param sampleIds sample technical identifiers
+     * @throws UserFailureException if one of the samples can not be deleted.
+     */
+    public void deleteByTechIds(List<TechId> sampleIds, String reason) throws UserFailureException;
 
 }

@@ -90,7 +90,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
             final SessionFactory sessionFactory,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
     {
-        super(context, sessionFactory);
+        super(context, sessionFactory, fullTextIndexUpdateScheduler);
         final DatabaseInstancePE databaseInstance = getHomeDatabaseInstance();
         sampleTypeDAO = new SampleTypeDAO(sessionFactory, databaseInstance);
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory);
