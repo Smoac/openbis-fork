@@ -400,8 +400,8 @@ public class SampleBrowserGrid extends
                         IBrowserGridActionInvoker invoker)
                 {
                     return new SampleListDeletionConfirmationDialog(viewContext, samples,
-                            createDeletionCallback(invoker), getDisplayedAndSelectedItemsAction()
-                                    .execute());
+                            createDeletionCallbackWithProgressBar(invoker, "Deleting samples..."),
+                            getDisplayedAndSelectedItemsAction().execute());
                 }
             });
         changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -38,7 +39,7 @@ public final class SampleListDeletionConfirmationDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AbstractAsyncCallback<Void> callback;
+    private final AsyncCallback<Void> callback;
 
     private final DisplayedAndSelectedSamples selectedAndDisplayedItemsOrNull;
 
@@ -46,8 +47,7 @@ public final class SampleListDeletionConfirmationDialog extends
 
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<Sample> data,
-            AbstractAsyncCallback<Void> callback,
-            DisplayedAndSelectedSamples selectedAndDisplayedItems)
+            AsyncCallback<Void> callback, DisplayedAndSelectedSamples selectedAndDisplayedItems)
     {
         super(viewContext, data, true);
         this.viewContext = viewContext;

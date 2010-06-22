@@ -65,6 +65,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -270,19 +271,19 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         addRefreshDisplaySettingsListener();
         configureLoggingBetweenEvents(logID);
-        
+
         grid.addListener(Events.HeaderContextMenu, new Listener<GridEvent<ModelData>>()
-        {
-            public void handleEvent(final GridEvent<ModelData> ge)
             {
-                Menu menu = ge.getMenu();
-                int itemCount = menu.getItemCount();
-                for (int i = 2; i < itemCount; i++)
+                public void handleEvent(final GridEvent<ModelData> ge)
                 {
-                    menu.remove(menu.getItem(2));
+                    Menu menu = ge.getMenu();
+                    int itemCount = menu.getItemCount();
+                    for (int i = 2; i < itemCount; i++)
+                    {
+                        menu.remove(menu.getItem(2));
+                    }
                 }
-            }
-        });
+            });
     }
 
     private ICellListener<T> createShowEntityViewerLinkClickListener()
@@ -1722,6 +1723,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             IBrowserGridActionInvoker invoker)
     {
         return new DeletionCallback(viewContext, invoker);
+    }
+
+    /** Creates deletion callback that refreshes the grid with additional progress bar. */
+    protected final AsyncCallback<Void> createDeletionCallbackWithProgressBar(
+            IBrowserGridActionInvoker invoker, String progressMessage)
+    {
+        final AbstractAsyncCallback<Void> deletionCallback = createDeletionCallback(invoker);
+        return AsyncCallbackWithProgressBar.decorate(deletionCallback, progressMessage);
     }
 
     /** Deletion callback that refreshes the grid. */
