@@ -1571,8 +1571,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            List<TechId> experimentIds = extractTechIds(criteria);
-            commonServer.deleteSamples(sessionToken, experimentIds, reason);
+            List<TechId> sampleIds = extractTechIds(criteria);
+            commonServer.deleteSamples(sessionToken, sampleIds, reason);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
