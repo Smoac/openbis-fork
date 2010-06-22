@@ -23,6 +23,7 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -312,22 +313,31 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertTrue(deletedSample.getGenerated().isEmpty());
         assertTrue(deletedSample.getContained().isEmpty());
 
+        SamplePE generatedFrom = deletedSample.getGeneratedFrom();
+        assertNotNull(generatedFrom);
+        ExperimentPE experiment = deletedSample.getExperiment();
+        assertNotNull(experiment);
+
         // delete
-        sampleDAO.delete(deletedSample);
+        deleteSample(deletedSample);
 
         // test successful deletion of sample
         assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
 
-        // deleted sample had objects connected that should not have been deleted:
+        // deleted sample had objects connected that should not be deleted:
         // - a parent
-        SamplePE generatedFrom = deletedSample.getGeneratedFrom();
-        assertNotNull(generatedFrom);
         assertNotNull(sampleDAO.tryGetByTechId(new TechId(HibernateUtils.getId(generatedFrom))));
         // - an experiment
-        ExperimentPE experiment = deletedSample.getExperiment();
-        assertNotNull(experiment);
         assertNotNull(daoFactory.getExperimentDAO().tryGetByTechId(
                 new TechId(HibernateUtils.getId(experiment))));
+    }
+
+    private void deleteSample(SamplePE sample)
+    {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        List<TechId> sampleIds = new ArrayList<TechId>();
+        sampleIds.add(TechId.create(sample));
+        sampleDAO.delete(sampleIds, getSystemPerson(), "reason");
     }
 
     @Test
@@ -341,15 +351,15 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertTrue(deletedSample.getDatasets().isEmpty());
         assertTrue(deletedSample.getGenerated().isEmpty());
         assertTrue(deletedSample.getContained().isEmpty());
+        assertFalse(deletedSample.getProperties().isEmpty());
 
         // delete
-        sampleDAO.delete(deletedSample);
+        deleteSample(deletedSample);
 
         // test successful deletion of sample
         assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
 
         // test successful deletion of sample properties
-        assertFalse(deletedSample.getProperties().isEmpty());
         List<EntityTypePropertyTypePE> retrievedPropertyTypes =
                 daoFactory.getEntityPropertyTypeDAO(EntityKind.SAMPLE).listEntityPropertyTypes(
                         deletedSample.getEntityType());
@@ -361,10 +371,9 @@ public final class SampleDAOTest extends AbstractDAOTest
         }
     }
 
-    @Test
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithAttachments()
     {
-        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("3VCP6", "CISD");
 
         // Deleted sample should have attachments which prevent it from deletion.
@@ -375,13 +384,12 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertTrue(deletedSample.getContained().isEmpty());
 
         // delete
-        sampleDAO.delete(deletedSample);
+        deleteSample(deletedSample);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithDatasets()
     {
-        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("CP-TEST-1", "CISD");
 
         // Deleted sample should have data sets which prevent it from deletion.
@@ -392,13 +400,12 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertTrue(deletedSample.getContained().isEmpty());
 
         // delete
-        sampleDAO.delete(deletedSample);
+        deleteSample(deletedSample);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithGeneratedSamples()
     {
-        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("3VCP2", "CISD");
 
         // Deleted sample should have 'generated' samples which prevent it from deletion.
@@ -409,13 +416,12 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertTrue(deletedSample.getContained().isEmpty());
 
         // delete
-        sampleDAO.delete(deletedSample);
+        deleteSample(deletedSample);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithContainedSamples()
     {
-        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("C1", "CISD");
 
         // Deleted sample should have 'contained' samples which prevent it from deletion.
@@ -426,7 +432,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertFalse(deletedSample.getContained().isEmpty());
 
         // delete
-        sampleDAO.delete(deletedSample);
+        deleteSample(deletedSample);
     }
 
     @Test
