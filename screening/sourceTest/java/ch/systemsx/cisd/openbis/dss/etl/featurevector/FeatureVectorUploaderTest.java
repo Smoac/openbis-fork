@@ -26,7 +26,6 @@ import java.util.List;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.AbstractDBTest;
@@ -34,8 +33,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.DBUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorUploader;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -124,8 +121,7 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
             assertEquals(0.0, featureValues.getT());
             assertEquals(0.0, featureValues.getZ());
 
-            MDDoubleArray spreadsheet =
-                    NativeTaggedArray.tryToDoubleArray(featureValues.getValues());
+            MDDoubleArray spreadsheet = featureValues.getValuesDoubleArray();
             int[] dims =
                 { 3, 5 };
             int[] spreadsheetDims = spreadsheet.dimensions();
@@ -167,7 +163,7 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
             String featureDesc = featureName + " desc";
             ImgFeatureDefDTO featureDef = new ImgFeatureDefDTO(featureName, featureDesc, 0);
             fvec.setFeatureDef(featureDef);
-            byte[] values = createValues(rowCount, columnCount);
+            MDDoubleArray values = createValues(rowCount, columnCount);
             ImgFeatureValuesDTO featureValues = new ImgFeatureValuesDTO(0.0, 0.0, values, 0);
 
             fvec.setValues(Collections.singletonList(featureValues));
@@ -175,7 +171,7 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
             return fvec;
         }
 
-        private byte[] createValues(int rowCount, int columnCount)
+        private MDDoubleArray createValues(int rowCount, int columnCount)
         {
             int[] dims =
                 { rowCount, columnCount };
@@ -187,7 +183,7 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
                     array.set(i + j, i, j);
                 }
             }
-            return NativeTaggedArray.toByteArray(array);
+            return array;
         }
     }
 }

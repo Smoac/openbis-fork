@@ -24,7 +24,6 @@ import java.util.List;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 
 /**
@@ -107,7 +106,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         assertEquals(0.0, featureValues.getT());
         assertEquals(0.0, featureValues.getZ());
 
-        MDDoubleArray spreadsheet = NativeTaggedArray.tryToDoubleArray(featureValues.getValues());
+        MDDoubleArray spreadsheet = featureValues.getValuesDoubleArray();
         int[] dims =
             { 2, 3 };
         assertEquals(spreadsheet.dimensions().length, dims.length);
@@ -135,9 +134,8 @@ public class FeatureVectorDAOTest extends AbstractDBTest
                 array.set(i + j, i, j);
             }
         }
-        byte[] values = NativeTaggedArray.toByteArray(array);
         ImgFeatureValuesDTO featureValues =
-                new ImgFeatureValuesDTO(0.0, 0.0, values, featureDef.getId());
+                new ImgFeatureValuesDTO(0.0, 0.0, array, featureDef.getId());
         return dao.addFeatureValues(featureValues);
     }
 
