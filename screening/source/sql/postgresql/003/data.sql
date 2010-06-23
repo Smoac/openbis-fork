@@ -78,6 +78,7 @@ COPY property_types (id, code, description, label, daty_id, registration_timesta
 12	CONTROL	Control	Control	8	2009-11-29 23:56:37.355313+01	1	\N	f	f	1	5
 6	PLATE_GEOMETRY	Plate Geometry	Plate Geometry	7	2008-06-17 16:38:30.723292+02	1	2	t	t	1	\N
 15	NUMBER_OF_CHANNEL	 	Channels	3	2009-12-17 10:56:17.239319+01	1	\N	f	f	1	\N
+16	LIBRARY_ID	Library id	Id from the master plate library	1	2008-02-28 13:03:03.358532+01	1	\N	f	f	1	\N
 \.
 
 
@@ -141,7 +142,9 @@ COPY material_type_property_types (id, maty_id, prty_id, is_mandatory, registrat
 9	5	1	f	2008-02-28 13:03:03.358532+01	1	f	\N	1
 8	4	1	f	2008-02-28 13:03:03.358532+01	1	f	\N	3
 6	4	3	t	2008-02-28 13:03:03.358532+01	1	f	\N	1
+12	4	16	f	2008-02-28 13:03:03.358532+01	1	f	\N	1
 5	3	1	f	2008-02-28 13:03:03.358532+01	1	f	\N	2
+11	3	16	f	2008-02-28 13:03:03.358532+01	1	f	\N	3
 3	7	1	t	2008-02-28 13:03:03.358532+01	1	f	\N	1
 2	6	1	t	2008-02-28 13:03:03.358532+01	1	f	\N	1
 1	1	1	t	2008-02-28 13:03:03.358532+01	1	f	\N	1
