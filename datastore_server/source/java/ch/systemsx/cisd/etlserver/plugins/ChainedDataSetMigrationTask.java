@@ -36,20 +36,23 @@ import ch.systemsx.cisd.etlserver.IMaintenanceTask;
 
 /**
  * Maintenance task migrating all data sets of a store by a chain of {@link IMigrator} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ChainedDataSetMigrationTask implements IMaintenanceTask
 {
     public static final String MIGRATORS_PROPERTY = "migrators";
-    public  static final String STORE_ROOT_PROPERTY = "storeRoot";
-    
-    private static final Pattern UUID_PATTERN = Pattern.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
-    
+
+    public static final String STORE_ROOT_PROPERTY = "storeRoot";
+
+    private static final Pattern UUID_PATTERN =
+            Pattern.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, ChainedDataSetMigrationTask.class);
-    
+            LogFactory.getLogger(LogCategory.OPERATION, ChainedDataSetMigrationTask.class);
+
     private File storeRoot;
+
     private List<IMigrator> migrators;
 
     public void setUp(String pluginName, Properties properties)
@@ -62,7 +65,8 @@ public class ChainedDataSetMigrationTask implements IMaintenanceTask
                     + " does not exist or is not a directory.");
         }
         SectionProperties[] sectionProperties =
-                PropertyParametersUtil.extractSectionProperties(properties, MIGRATORS_PROPERTY, false);
+                PropertyParametersUtil.extractSectionProperties(properties, MIGRATORS_PROPERTY,
+                        false);
         migrators = new ArrayList<IMigrator>();
         for (SectionProperties props : sectionProperties)
         {
@@ -86,7 +90,7 @@ public class ChainedDataSetMigrationTask implements IMaintenanceTask
             operationLog.info("Chain of migrators have been set up: " + builder);
         }
     }
-    
+
     public void execute()
     {
         File[] files = storeRoot.listFiles(new FileFilter()
@@ -113,17 +117,30 @@ public class ChainedDataSetMigrationTask implements IMaintenanceTask
             }
         }
     }
-    
+
     private boolean migrate(File dbInstanceDir, IMigrator migrator)
     {
         List<File> migratedDataSets = new ArrayList<File>();
         List<File> failedDataSets = new ArrayList<File>();
         for (File l1 : dbInstanceDir.listFiles())
         {
+            // The OS may put files into these folders (e.g., .DS_Store)
+            if (false == l1.isDirectory())
+            {
+                continue;
+            }
             for (File l2 : l1.listFiles())
             {
+                if (false == l2.isDirectory())
+                {
+                    continue;
+                }
                 for (File l3 : l2.listFiles())
                 {
+                    if (false == l3.isDirectory())
+                    {
+                        continue;
+                    }
                     for (File dataset : l3.listFiles())
                     {
                         boolean success = migrator.migrate(dataset);
