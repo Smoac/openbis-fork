@@ -1,7 +1,7 @@
 #! /bin/bash
 
 usage() {
-	echo "Usage: $0 [--port <port number>] <server folder>"
+	echo "Usage: $0 [--port <port number>] <server folder> [<service properties file> <startup properties file>]"
 	exit 1
 }
 
@@ -30,6 +30,7 @@ if [ ${installation_folder#/} == ${installation_folder} ]; then
 fi
 # Where the server will be installed.
 server_folder=$1
+shift
 
 if [ ${server_folder#/} == ${server_folder} ]; then
 	server_folder="`pwd`/${server_folder}"
@@ -37,6 +38,28 @@ fi
 
 properties_file="$installation_folder/service.properties"
 logconf_file="$installation_folder/log.xml"
+startup_properties_file="${installation_folder}/openbis.conf"
+# Check whether given properties files exist and are regular file.
+if [ "$1" -a "$2" ]; then
+	if [ ! -f "$1" ]; then
+		echo "Given properties file '$1' does not exist!"
+		exit 1
+	fi
+	properties_file="$1"
+	shift
+	if [ "${properties_file#/}" == "${properties_file}" ]; then
+		properties_file="`pwd`/${properties_file}"
+	fi
+        if [ ! -f "$1" ]; then
+                echo "Given properties file '$1' does not exist!"
+                exit 1
+        fi
+        startup_properties_file="$1"
+        shift
+        if [ "${startup_properties_file#/}" == "${startup_properties_file}" ]; then
+                startup_properties_file="`pwd`/${startup_properties_file}"
+        fi
+fi
 
 rel_jetty_folder="jetty-`cat $installation_folder/jetty-version.txt`"
 jetty_folder="${server_folder}/${rel_jetty_folder}"
@@ -86,7 +109,7 @@ cp -p "$installation_folder"/setup-env "$JETTY_BIN_DIR"
 
 # Create a file called 'jetty.properties'.
 JETTY_PROPERTIES="$JETTY_BIN_DIR"/jetty.properties
-cp "$installation_folder"/openbis.conf "$JETTY_BIN_DIR"
+cp $startup_properties_file "$JETTY_BIN_DIR"
 echo "JETTY_PORT=$JETTY_PORT" > "$JETTY_PROPERTIES"
 echo "JETTY_STOP_PORT=8079" >> "$JETTY_PROPERTIES"
 echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
