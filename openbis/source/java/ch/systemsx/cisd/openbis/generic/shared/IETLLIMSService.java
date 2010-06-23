@@ -413,7 +413,6 @@ public interface IETLLIMSService extends IServer, ISessionProvider
 
     /**
      * Load perm ids of samples contained in given container. Register samples that don't exist.
-     * 
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
@@ -421,6 +420,14 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public Map<String, String> listOrRegisterComponents(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleComponentsDescriptionPredicate.class) SampleComponentsDescription components)
+            throws UserFailureException;
+
+    /**
+     * For the ETL Server to get data sets.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
             throws UserFailureException;
 
 }

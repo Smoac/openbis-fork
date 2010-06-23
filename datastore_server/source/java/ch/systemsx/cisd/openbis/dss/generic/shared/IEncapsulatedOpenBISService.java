@@ -232,7 +232,17 @@ public interface IEncapsulatedOpenBISService
     public Map<String, String> listOrRegisterComponents(final String containerPermId,
             Set<String> codes, String sampleTypeCode) throws UserFailureException;
 
-    /** See {@link IETLLIMSService#tryGetSession(String)} 
-     * @param sessionToken */
+    /**
+     * See {@link IETLLIMSService#tryGetSession(String)}
+     * 
+     * @param sessionToken
+     */
     public SessionContextDTO tryGetSession(String sessionToken);
+
+    /**
+     * Tries to get the data set for the specified data set code using the server's session token
+     * See {@link IETLLIMSService#tryGetDataSetForServer(String, String)}
+     */
+    public ExternalData tryGetDataSetForServer(final String dataSetCode)
+            throws UserFailureException;
 }

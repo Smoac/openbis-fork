@@ -712,4 +712,9 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         return service.tryGetSession(sToken);
     }
+
+    public ExternalData tryGetDataSetForServer(String dataSetCode) throws UserFailureException
+    {
+        return service.tryGetDataSetForServer(sessionToken, dataSetCode);
+    }
 }

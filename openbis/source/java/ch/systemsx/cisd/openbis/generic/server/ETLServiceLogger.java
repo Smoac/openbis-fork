@@ -280,12 +280,20 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     }
 
     public Map<String, String> listOrRegisterComponents(String sessionToken,
-            SampleComponentsDescription components)
-            throws UserFailureException
+            SampleComponentsDescription components) throws UserFailureException
     {
         logTracking(sessionToken, "listOrRegisterComponents", "CONTAINER(%s) CODES(%s) TYPE(%s)",
-                components.getContainerPermId(), components.getCodes().size(), components.getSampleTypeCode());
+                components.getContainerPermId(), components.getCodes().size(), components
+                        .getSampleTypeCode());
 
+        return null;
+    }
+
+    public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
+            throws UserFailureException
+    {
+
+        logAccess(sessionToken, "tryGetDataSetForServer", "DATA_SET(%s)", dataSetCode);
         return null;
     }
 }
