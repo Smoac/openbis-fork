@@ -196,19 +196,22 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         if (criteria.isIncludeSpace())
         {
             logAccess(sessionToken, "list_samples",
-                    "TYPE(%s) OWNERS(space=%s) CONTAINER(%s) EXPERIMENT(%s)", criteria
+                    "TYPE(%s) OWNERS(space=%s) CONTAINER(%s) PARENT(%s) EXPERIMENT(%s)", criteria
                             .getSampleType(), criteria.getSpaceCode(), criteria
-                            .getContainerSampleId(), criteria.getExperimentId());
+                            .getContainerSampleId(), criteria.getParentSampleId(), criteria
+                            .getExperimentId());
         } else if (criteria.isIncludeInstance())
         {
             logAccess(sessionToken, "list_samples",
-                    "TYPE(%s) OWNERS(instance=%s) CONTAINER(%s) EXPERIMENT(%s)", criteria
-                            .getSampleType(), criteria.getSampleType().getDatabaseInstance(),
-                    criteria.getContainerSampleId(), criteria.getExperimentId());
+                    "TYPE(%s) OWNERS(instance=%s) CONTAINER(%s) PARENT(%s) EXPERIMENT(%s)",
+                    criteria.getSampleType(), criteria.getSampleType().getDatabaseInstance(),
+                    criteria.getContainerSampleId(), criteria.getParentSampleId(), criteria
+                            .getExperimentId());
         } else
         {
-            logAccess(sessionToken, "list_samples", "TYPE(%s) CONTAINER(%s) EXPERIMENT(%s)",
-                    criteria.getSampleType(), criteria.getContainerSampleId(), criteria
+            logAccess(sessionToken, "list_samples",
+                    "TYPE(%s) CONTAINER(%s) PARENT(%s) EXPERIMENT(%s)", criteria.getSampleType(),
+                    criteria.getContainerSampleId(), criteria.getParentSampleId(), criteria
                             .getExperimentId());
         }
         return null;

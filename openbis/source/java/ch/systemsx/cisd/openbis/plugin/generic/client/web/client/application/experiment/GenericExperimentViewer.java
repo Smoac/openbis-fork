@@ -244,7 +244,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
         final ExperimentSamplesSection sampleSection =
                 new ExperimentSamplesSection(viewContext, experimentType, experimentId);
-        sampleSection.setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, displayIdSuffix);
+        sampleSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION, displayIdSuffix);
         allPanels.add(sampleSection);
 
         final DisposableSectionPanel dataSection = createExperimentDataSetSection();

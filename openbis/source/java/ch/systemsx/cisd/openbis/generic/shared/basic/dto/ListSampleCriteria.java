@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  * <ol>
  * <li>samples of particular type in a specified space and/or shared
  * <li>samples belonging to a container sample
+ * <li>samples derived from a parent sample
  * <li>samples from the experiment
  * </ol>
  * 
@@ -54,6 +55,9 @@ public class ListSampleCriteria implements IsSerializable, Serializable
     private TechId containerSampleId;
 
     // --------- filter 3 fields
+    private TechId parentSampleId;
+
+    // --------- filter 4 fields
     private TechId experimentId;
 
     // ----
@@ -62,6 +66,13 @@ public class ListSampleCriteria implements IsSerializable, Serializable
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setContainerId(containerSampleId);
+        return criteria;
+    }
+
+    public static ListSampleCriteria createForParent(final TechId parentSampleId)
+    {
+        final ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setParentId(parentSampleId);
         return criteria;
     }
 
@@ -80,6 +91,16 @@ public class ListSampleCriteria implements IsSerializable, Serializable
     private final void setContainerId(final TechId containerSampleId)
     {
         this.containerSampleId = containerSampleId;
+    }
+
+    public TechId getParentSampleId()
+    {
+        return parentSampleId;
+    }
+
+    private final void setParentId(final TechId parentSampleId)
+    {
+        this.parentSampleId = parentSampleId;
     }
 
     public SampleType getSampleType()

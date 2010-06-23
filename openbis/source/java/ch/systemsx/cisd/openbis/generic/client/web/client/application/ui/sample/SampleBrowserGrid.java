@@ -147,6 +147,23 @@ public class SampleBrowserGrid extends
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForContainer(containerSampleId);
         final String entityTypeCode = sampleType.getCode();
+
+        final SampleBrowserGrid browserGrid =
+                createGridAsComponent(viewContext, gridId, criteria, entityTypeCode,
+                        DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
+        browserGrid.updateCriteriaProviderAndRefresh();
+        browserGrid.extendBottomToolbar();
+        return browserGrid.asDisposableWithoutToolbar();
+    }
+
+    public static IDisposableComponent createGridForDerivedSamples(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final TechId parentSampleId,
+            final String gridId, final SampleType sampleType)
+    {
+        final ListSampleDisplayCriteria criteria =
+                ListSampleDisplayCriteria.createForParent(parentSampleId);
+        final String entityTypeCode = sampleType.getCode();
+
         final SampleBrowserGrid browserGrid =
                 createGridAsComponent(viewContext, gridId, criteria, entityTypeCode,
                         DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);

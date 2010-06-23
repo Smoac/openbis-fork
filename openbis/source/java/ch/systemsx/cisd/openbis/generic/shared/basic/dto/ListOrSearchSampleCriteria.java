@@ -124,6 +124,12 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     }
 
     @Override
+    public TechId getParentSampleId()
+    {
+        return listCriteria == null ? null : listCriteria.getParentSampleId();
+    }
+
+    @Override
     public TechId getExperimentId()
     {
         return listCriteria == null ? null : listCriteria.getExperimentId();

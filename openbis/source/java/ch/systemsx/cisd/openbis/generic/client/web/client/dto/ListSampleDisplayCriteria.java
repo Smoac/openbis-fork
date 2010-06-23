@@ -41,6 +41,11 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
                 .createForContainer(containerSampleId));
     }
 
+    public static ListSampleDisplayCriteria createForParent(final TechId parentSampleId)
+    {
+        return new ListSampleDisplayCriteria(ListSampleCriteria.createForParent(parentSampleId));
+    }
+
     public static ListSampleDisplayCriteria createForExperiment(final TechId experimentId)
     {
         return new ListSampleDisplayCriteria(ListSampleCriteria.createForExperiment(experimentId));
@@ -59,7 +64,7 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
 
     private ListEntityDisplayCriteriaKind criteriaKind;
 
-	// artificial 'all' SampleType
+    // artificial 'all' SampleType
     private SampleType allSampleTypeOrNull;
 
     // either search criteria or list criteria is set

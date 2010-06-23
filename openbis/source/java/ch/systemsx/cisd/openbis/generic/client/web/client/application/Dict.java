@@ -419,6 +419,8 @@ public abstract class Dict
 
     public static final String PART_OF_HEADING = "part_of_heading";
 
+    public static final String DERIVED_SAMPLES_HEADING = "derived_samples_heading";
+
     public static final String EXTERNAL_DATA_HEADING = "external_data_heading";
 
     public static final String INVALIDATION = "invalidation";

@@ -206,6 +206,19 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     public DataIterator<SampleRecord> getSamplesForContainer(long sampleContainerId);
 
     //
+    // Samples for parent
+    //
+
+    /**
+     * Returns the samples for the given <var>sampleParentId</var>.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.dbin_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s where s.samp_id_generated_from=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamplesForParent(long sampleParentId);
+
+    //
     // New samples of type
     //
 

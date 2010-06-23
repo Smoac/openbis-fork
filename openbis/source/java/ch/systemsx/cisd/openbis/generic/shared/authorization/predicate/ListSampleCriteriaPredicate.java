@@ -38,7 +38,7 @@ public class ListSampleCriteriaPredicate extends AbstractGroupPredicate<ListSamp
             new ExperimentTechIdPredicate();
 
     private final SampleTechIdPredicate sampleTechIdPredicate = new SampleTechIdPredicate();
-    
+
     private DatabaseInstancePE homeDatabase;
 
     @Override
@@ -72,6 +72,12 @@ public class ListSampleCriteriaPredicate extends AbstractGroupPredicate<ListSamp
             status =
                     sampleTechIdPredicate.doEvaluation(person, allowedRoles, value
                             .getContainerSampleId());
+        }
+        if (value.getParentSampleId() != null && status == Status.OK)
+        {
+            status =
+                    sampleTechIdPredicate.doEvaluation(person, allowedRoles, value
+                            .getParentSampleId());
         }
         if (value.isIncludeSpace() && status == Status.OK)
         {
