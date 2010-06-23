@@ -83,7 +83,7 @@ test -f "$jetty_folder"/etc/keystore && rm "$jetty_folder"/etc/keystore
 cp -p "$installation_folder"/openBIS.keystore "$jetty_folder"/etc
 
 echo Preparing and installing web archive...
-war_file=openbis.war
+war_file=openBIS.war
 war_classes=WEB-INF/classes
 mkdir -p "$war_classes"/etc
 # Replace 'service.properties' and 'log.xml' files in war
