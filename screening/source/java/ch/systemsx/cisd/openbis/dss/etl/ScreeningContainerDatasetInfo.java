@@ -22,6 +22,7 @@ import ch.systemsx.cisd.etlserver.PlateDimensionParser;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * Describes one dataset container (e.g. plate) with images.
@@ -116,8 +117,7 @@ public class ScreeningContainerDatasetInfo
         Experiment experiment = dataSetInformation.tryToGetExperiment();
         ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
         info.setExperimentPermId(experiment.getPermId());
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
-                dataSetInformation.tryToGetSample();
+        Sample sample = dataSetInformation.tryToGetSample();
         assert sample != null : "no sample connected to a dataset";
         info.setContainerPermId(sample.getPermId());
         info.setDatasetPermId(dataSetInformation.getDataSetCode());
@@ -127,6 +127,23 @@ public class ScreeningContainerDatasetInfo
         int plateCols = plateGeometry.getColsNum();
         info.setContainerRows(plateRows);
         info.setContainerColumns(plateCols);
+
+        return info;
+    }
+
+    /**
+     * Create a screening data set info without plate gemometry information.
+     */
+    public static ScreeningContainerDatasetInfo createBasicScreeningDatasetInfo(
+            DataSetInformation dataSetInformation, Sample containingSample)
+    {
+        Experiment experiment = dataSetInformation.tryToGetExperiment();
+        ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
+        info.setExperimentPermId(experiment.getPermId());
+        Sample sample = containingSample;
+        assert sample != null : "no sample connected to a dataset";
+        info.setContainerPermId(sample.getPermId());
+        info.setDatasetPermId(dataSetInformation.getDataSetCode());
 
         return info;
     }

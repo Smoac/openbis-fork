@@ -40,8 +40,11 @@ import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorUploader;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * @author Franz-Josef Elmer
@@ -53,6 +56,8 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
     public static final String LAYER_PREFIX = "<Layer=";
 
     private final DataSource dataSource;
+
+    private final IEncapsulatedOpenBISService openBisService;
 
     // Execution state of this object -- set to null after an execution is finished.
     private IImagingUploadDAO dataAccessObject = null;
@@ -150,6 +155,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
     {
         super(properties);
         this.dataSource = createDataSource(properties);
+        this.openBisService = ServiceProvider.getOpenBISService();
     }
 
     protected DataSource createDataSource(Properties properties)
@@ -213,7 +219,29 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
     private ScreeningContainerDatasetInfo createScreeningDatasetInfo(
             DataSetInformation dataSetInformation)
     {
-        return ScreeningContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);
+        Sample sampleOrNull = tryFindSampleForDataSet(dataSetInformation);
+        return ScreeningContainerDatasetInfo.createBasicScreeningDatasetInfo(dataSetInformation,
+                sampleOrNull);
+    }
+
+    private Sample tryFindSampleForDataSet(DataSetInformation dataSetInformation)
+    {
+        Sample sampleOrNull = dataSetInformation.tryToGetSample();
+        if (null == sampleOrNull)
+        {
+            // check the parent data sets for a sample
+            List<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
+            for (String dataSetCode : parentDataSetCodes)
+            {
+                ExternalData externalData = openBisService.tryGetDataSetForServer(dataSetCode);
+                if (externalData != null && externalData.getSample() != null)
+                {
+                    sampleOrNull = externalData.getSample();
+                    break;
+                }
+            }
+        }
+        return sampleOrNull;
     }
 
     protected IImagingUploadDAO createDAO()

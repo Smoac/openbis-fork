@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.featurevector;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -28,9 +29,11 @@ import net.lemnik.eodsql.QueryTool;
 import ch.systemsx.cisd.etlserver.plugins.IMigrator;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -91,6 +94,13 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
             return true;
         }
 
+        ImgDatasetDTO imgDataset = dao.tryGetDatasetByPermId(decision.dataSetInfo.getDataSetCode());
+        if (null != imgDataset)
+        {
+            // Has already been imported into the db
+            return true;
+        }
+
         AbstractImageDbImporter importer;
         importer =
                 createImporter(createScreeningDatasetInfo(decision.getDataSetInfo()),
@@ -106,13 +116,10 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
     protected abstract AbstractImageDbImporter createImporter(
             ScreeningContainerDatasetInfo dataSetInfo, File fileToMigrate);
 
-    protected ScreeningContainerDatasetInfo createScreeningDatasetInfo(
+    private ScreeningContainerDatasetInfo createScreeningDatasetInfo(
             SimpleDataSetInformationDTO dataSetInfo)
     {
-        SampleIdentifier sampleId =
-                new SampleIdentifier(new SpaceIdentifier(dataSetInfo.getDatabaseInstanceCode(),
-                        dataSetInfo.getGroupCode()), dataSetInfo.getSampleCode());
-        Sample sample = openBisService.tryGetSampleWithExperiment(sampleId);
+        Sample sample = findSampleCodeForDataSet(dataSetInfo);
         assert sample != null : "no sample connected to a dataset";
 
         Experiment experiment = sample.getExperiment();
@@ -122,6 +129,33 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
         info.setDatasetPermId(dataSetInfo.getDataSetCode());
 
         return info;
+    }
+
+    private Sample findSampleCodeForDataSet(SimpleDataSetInformationDTO dataSetInfo)
+    {
+        String sampleCodeOrNull = dataSetInfo.getSampleCode();
+        Sample sample = null;
+        if (null == sampleCodeOrNull)
+        {
+            // check the parent data sets for a sample
+            Collection<String> parentDataSetCodes = dataSetInfo.getParentDataSetCodes();
+            for (String dataSetCode : parentDataSetCodes)
+            {
+                ExternalData externalData = openBisService.tryGetDataSetForServer(dataSetCode);
+                if (externalData.getSample() != null)
+                {
+                    sample = externalData.getSample();
+                    break;
+                }
+            }
+        } else
+        {
+            SampleIdentifier sampleId =
+                    new SampleIdentifier(new SpaceIdentifier(dataSetInfo.getDatabaseInstanceCode(),
+                            dataSetInfo.getGroupCode()), dataSetInfo.getSampleCode());
+            sample = openBisService.tryGetSampleWithExperiment(sampleId);
+        }
+        return sample;
     }
 
     public void close()

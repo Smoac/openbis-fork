@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.featurevector;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -33,8 +34,11 @@ import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper;
 
 /**
@@ -52,6 +56,8 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
 
     private final DataSource dataSource;
 
+    private final IEncapsulatedOpenBISService openBisService;
+
     // Execution state of this object -- set to null after an execution is finished.
     private IImagingUploadDAO dataAccessObject = null;
 
@@ -63,6 +69,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
                 new CsvToCanonicalFeatureVectorConfiguration(configuration.getWellRow(),
                         configuration.getWellColumn(), configuration.isWellColAlphanumeric());
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
+        this.openBisService = ServiceProvider.getOpenBISService();
     }
 
     @Override
@@ -98,9 +105,37 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
 
         dataAccessObject = createDAO();
         FeatureVectorUploader uploader =
-                new FeatureVectorUploader(dataAccessObject, ScreeningContainerDatasetInfo
-                        .createScreeningDatasetInfo(dataSetInformation));
+                new FeatureVectorUploader(dataAccessObject,
+                        createScreeningDatasetInfo(dataSetInformation));
         uploader.uploadFeatureVectors(fvecs);
+    }
+
+    private ScreeningContainerDatasetInfo createScreeningDatasetInfo(
+            DataSetInformation dataSetInformation)
+    {
+        Sample sampleOrNull = tryFindSampleForDataSet(dataSetInformation);
+        return ScreeningContainerDatasetInfo.createBasicScreeningDatasetInfo(dataSetInformation,
+                sampleOrNull);
+    }
+
+    private Sample tryFindSampleForDataSet(DataSetInformation dataSetInformation)
+    {
+        Sample sampleOrNull = dataSetInformation.tryToGetSample();
+        if (null == sampleOrNull)
+        {
+            // check the parent data sets for a sample
+            List<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
+            for (String dataSetCode : parentDataSetCodes)
+            {
+                ExternalData externalData = openBisService.tryGetDataSetForServer(dataSetCode);
+                if (externalData.getSample() != null)
+                {
+                    sampleOrNull = externalData.getSample();
+                    break;
+                }
+            }
+        }
+        return sampleOrNull;
     }
 
     private IImagingUploadDAO createDAO()
