@@ -37,28 +37,28 @@ function report_error {
 
 function exit_if_assertion_failed {
     if [ "$TEST_FAILED" = "true" ]; then
-	report_error Test failed.
-	exit 1;
+        report_error Test failed.
+        exit 1;
     else
-	echo [OK] Test was successful!
+        echo [OK] Test was successful!
     fi
 }
 
 function assert_file_exists {
     local file=$1
     if [ ! -f "$file" ]; then
-	report_error File $file does not exist!  
+        report_error File $file does not exist!  
     else
-	echo [OK] File $file exists
+        echo [OK] File $file exists
     fi
 }
 
 function assert_file_not_exists {
     local file=$1
     if [ -f "$file" ]; then
-	report_error File $file does exist although it should not!  
+        report_error File $file does exist although it should not!  
     else
-	echo [OK] File $file does not exists
+        echo [OK] File $file does not exists
     fi
 }
 
@@ -76,9 +76,9 @@ function assert_same_inode {
 function assert_dir_exists {
     local DIR=$1
     if [ ! -d "$DIR" ]; then
-	report_error Directory \"$DIR\" does not exist!  
+        report_error Directory \"$DIR\" does not exist!  
     else
-	echo [OK] Directory \"$DIR\" exists
+        echo [OK] Directory \"$DIR\" exists
     fi
 }
 
@@ -93,18 +93,18 @@ function assert_file_exists_or_die {
     local F="$1"
     local files_num=`ls -1 $F 2> /dev/null | wc -l`
     if [ $files_num -gt 1 ]; then
-	fatal_error "One file expected for pattern $F, but more found: " $F
+        fatal_error "One file expected for pattern $F, but more found: " $F
     else 
-	if [ ! -f $F ]; then
-	    fatal_error "No file matching pattern $F exists"
-	fi
+        if [ ! -f $F ]; then
+            fatal_error "No file matching pattern $F exists"
+        fi
     fi
 }
 
 function assert_dir_exists_or_die {
     local DIR=$1
     if [ ! -d $DIR ]; then
-	fatal_error "Directory $DIR does not exist!"
+        fatal_error "Directory $DIR does not exist!"
     fi
 }
 
@@ -113,7 +113,7 @@ function assert_dir_empty {
     is_empty_dir $dir
     empty=$?
     if [ $empty == 0 ]; then
-	report_error Directory \'$dir\' should be empty!
+        report_error Directory \'$dir\' should be empty!
     fi
 }
 
@@ -158,18 +158,18 @@ function assert_pattern_present {
   cat $file | grep "$pattern"  
   local lines=`cat $file | grep "$pattern" | wc -l`
   if [ $lines != $occurences ]; then
-	report_error $lines instead of $occurences occurences of pattern $pattern found!
+        report_error $lines instead of $occurences occurences of pattern $pattern found!
   else
-	echo [OK] $occurences occurences of pattern $pattern found
+        echo [OK] $occurences occurences of pattern $pattern found
   fi 
 }
 
 function assert_files_number {
-	local dir=$1
-	local expected_files_count=$2
-	
-	local files_count=`ls -1 $dir | wc -l`
-	assert_equals "Wrong number of files in $dir directory" $expected_files_count $files_count
+        local dir=$1
+        local expected_files_count=$2
+        
+        local files_count=`ls -1 $dir | wc -l`
+        assert_equals "Wrong number of files in $dir directory" $expected_files_count $files_count
 }
 
 
@@ -200,11 +200,11 @@ function locate_file {
     shift
     local additional_paths=$@
     for dir in `get_env_path` $additional_paths; do 
-	local full_path=$dir/$file
-	if [ -x $full_path ]; then
-    	    echo $full_path;
-	    return
-	fi 
+        local full_path=$dir/$file
+        if [ -x $full_path ]; then
+                echo $full_path;
+            return
+        fi 
     done
 }
 
@@ -219,16 +219,16 @@ function run_lsof {
 # Tries to find PostgreSQL executable and returns its absolute path.
 # If not found, then exits the script with an appropriate error message.
 function run_psql {
-	for prg in psql psql84 psql83; do
-		exe=`locate_file $prg $BIN_PATHS`
-		if [ $exe ]; then
-			echo $exe
-			return
-		fi
-	done
-	echo "Cannot find PostgreSQL"
-	echo "This executable is needed to run the integration tests"
-	exit 1
+        for prg in psql psql84 psql83; do
+                exe=`locate_file $prg $BIN_PATHS`
+                if [ $exe ]; then
+                        echo $exe
+                        return
+                fi
+        done
+        echo "Cannot find PostgreSQL"
+        echo "This executable is needed to run the integration tests"
+        exit 1
 }
 
 function build_zips {
@@ -239,14 +239,14 @@ function build_zips {
 
     if [ $build_dss == "true" -o $build_dmv == "true" -o $build_openbis == "true" ]; then
         mkdir -p $INSTALL
-		if [ "$use_local_source" = "true" ]; then
-    		build_zips_from_local $build_dss $build_dmv $build_openbis
-    	else
-	    	build_zips_from_svn $build_dss $build_dmv $build_openbis
-		fi
+                if [ "$use_local_source" = "true" ]; then
+                    build_zips_from_local $build_dss $build_dmv $build_openbis
+            else
+                    build_zips_from_svn $build_dss $build_dmv $build_openbis
+                fi
     else
-		echo "No components to build were specified (--help explains how to do this)."
-		echo "Build process skipped."
+                echo "No components to build were specified (--help explains how to do this)."
+                echo "Build process skipped."
     fi
     assert_file_exists_or_die "$INSTALL/openBIS*.zip"
     assert_file_exists_or_die "$INSTALL/datastore_server-*.zip"
@@ -277,17 +277,17 @@ function build_components {
     build_openbis=$4
 
     if [ $build_dss == "true" ]; then
-	rm -f $INSTALL/datastore_server*.zip
-	rm -f $INSTALL/dss_client*.zip
+        rm -f $INSTALL/datastore_server*.zip
+        rm -f $INSTALL/dss_client*.zip
         $build_cmd datastore_server
         $build_cmd rtd_yeastx
     fi
     if [ $build_dmv == "true" ]; then
-	rm -f $INSTALL/datamover*.zip
-	$build_cmd datamover
+        rm -f $INSTALL/datamover*.zip
+        $build_cmd datamover
     fi
     if [ $build_openbis == "true" ]; then
-	rm -f $INSTALL/openBIS*.zip
+        rm -f $INSTALL/openBIS*.zip
         $build_cmd openbis
     fi
 }
@@ -320,7 +320,7 @@ function build_zips_from_svn {
 function clean_svn {
     local DIR=$1
     for file in `find $DIR -name ".svn"`; do 
-	rm -fr $file; 
+        rm -fr $file; 
     done
 }
 
@@ -355,15 +355,15 @@ function wait_for_server {
     echo -n "Server starting"
     i=0; 
     while [ "`check_server_port`" == "" -a $i -lt 20 ]; do 
-	sleep 2; 
-	echo -n "."; 
-	let i=$i+1; 
+        sleep 2; 
+        echo -n "."; 
+        let i=$i+1; 
     done
     if [ "`check_server_port`" == "" ]; then
-	report_error "Server could not be started!"
-	exit 1
+        report_error "Server could not be started!"
+        exit 1
     else
-	echo "...[Done]"
+        echo "...[Done]"
     fi
 }
 
@@ -376,11 +376,12 @@ function install_openbis_server {
 
     if [ $install_openbis == "true" ]; then
         rm -fr $OPENBIS_SERVER
-	copy_templates $OPENBIS_SERVER_NAME
+        copy_templates $OPENBIS_SERVER_NAME
     
         unzip -d $OPENBIS_SERVER $INSTALL/openBIS*.zip
-	$OPENBIS_SERVER/openBIS-server/install.sh $PWD/$OPENBIS_SERVER $OPENBIS_SERVER/service.properties $OPENBIS_SERVER/openbis.conf
-	wait_for_server
+        $OPENBIS_SERVER/openBIS-server/install.sh $PWD/$OPENBIS_SERVER $OPENBIS_SERVER/service.properties $OPENBIS_SERVER/openbis.conf
+        startup_openbis_server
+        wait_for_server
     else
         copy_templates $OPENBIS_SERVER_NAME
         restart_openbis
@@ -399,20 +400,20 @@ function shutdown_openbis_server {
     fi
 }
 
-# unpack everything, override default configuration with test configuation	
+# unpack everything, override default configuration with test configuation        
 function install_dsss {
     local install_dss=$1
     local dss_dirs="datastore_server1 datastore_server2 datastore_server_yeastx"
     if [ $install_dss == "true" ]; then
         unpack datastore_server-
-	for dss_dir in $dss_dirs; do
-    	    prepare datastore_server $dss_dir
-	done
-	remove_unpacked datastore_server
+        for dss_dir in $dss_dirs; do
+                prepare datastore_server $dss_dir
+        done
+        remove_unpacked datastore_server
     else
-	for dss_dir in $dss_dirs; do
-    	    copy_templates $dss_dir
-	done
+        for dss_dir in $dss_dirs; do
+                copy_templates $dss_dir
+        done
     fi
 }
 
@@ -420,29 +421,29 @@ function install_datamovers {
     local install_dmv=$1
     if [ $install_dmv == "true" ]; then
         unpack datamover
-		prepare datamover datamover-raw
-    	prepare datamover datamover-analysis
-		remove_unpacked datamover
-		cp -fR $TEMPLATE/dummy-img-analyser $WORK
-		copy_templates datamover-raw
-		copy_templates datamover-analysis
+                prepare datamover datamover-raw
+            prepare datamover datamover-analysis
+                remove_unpacked datamover
+                cp -fR $TEMPLATE/dummy-img-analyser $WORK
+                copy_templates datamover-raw
+                copy_templates datamover-analysis
     else 
-		copy_templates datamover-raw
-		copy_templates datamover-analysis
+                copy_templates datamover-raw
+                copy_templates datamover-analysis
     fi
 }
 
 function restart_openbis {
     assert_dir_exists_or_die $OPENBIS_SERVER
     if [ "`check_server_port`" != "" ]; then
-    	# maybe server is just closing, wait a moment
-    	sleep 5
+            # maybe server is just closing, wait a moment
+            sleep 5
     fi
     if [ "`check_server_port`" != "" ]; then
-    	echo Shutting down openbis server.
-	    shutdown_openbis_server
-	    sleep 1
-  	fi
+            echo Shutting down openbis server.
+            shutdown_openbis_server
+            sleep 1
+          fi
     startup_openbis_server
     sleep 4
 }
@@ -455,13 +456,13 @@ function install {
 
     mkdir -p $WORK
     if [ $reinstall_all == "true" ];then
-	    install_dsss "true"
-	    install_datamovers "true"
-	    install_openbis_server "true"
+            install_dsss "true"
+            install_datamovers "true"
+            install_openbis_server "true"
     else
-	    install_dsss $install_dss
-	    install_datamovers $install_dmv
-	    install_openbis_server $install_openbis
+            install_dsss $install_dss
+            install_datamovers $install_dmv
+            install_openbis_server $install_openbis
     fi
 }
 
@@ -482,9 +483,9 @@ function call_in_dir {
 function is_empty_dir {
     dir=$1
     if [ "`ls $dir`" = "" ]; then
-	return 1;
+        return 1;
     else
-	return 0;
+        return 0;
     fi
 }
 
@@ -493,8 +494,8 @@ function is_empty_dir {
 function chmod_exec {
     for file in $@; do
         if [ -f $file ]; then
-	    chmod u+x $file
-	fi
+            chmod u+x $file
+        fi
     done 
 }
 
@@ -511,18 +512,18 @@ function switch_sth {
     chmod_exec $dir/$cmd_stop
 
     if [ "$switch_on" == "on" ]; then
-	echo "Launching $dir..."
-	rm -fr $dir/log/*
-	call_in_dir "$cmd_start" $dir
+        echo "Launching $dir..."
+        rm -fr $dir/log/*
+        call_in_dir "$cmd_start" $dir
     else
-	echo "Stopping $dir, displaying errors from the log"
-	if [ "`cat $dir/log/* | grep ERROR | tee -a $ERR_LOG`" != "" ]; then
-	    if [ $report_error -eq $TRUE ]; then
-	        report_error $dir reported errors.
-	        cat $dir/log/* | grep ERROR >&2    
-	    fi
-	fi
-	call_in_dir "$cmd_stop" $dir
+        echo "Stopping $dir, displaying errors from the log"
+        if [ "`cat $dir/log/* | grep ERROR | tee -a $ERR_LOG`" != "" ]; then
+            if [ $report_error -eq $TRUE ]; then
+                report_error $dir reported errors.
+                cat $dir/log/* | grep ERROR >&2    
+            fi
+        fi
+        call_in_dir "$cmd_stop" $dir
     fi
 }
 
