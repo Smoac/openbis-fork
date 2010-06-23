@@ -29,23 +29,23 @@ import org.testng.annotations.Test;
 import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.CSVToCanonicalFeatureVector;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.CSVToCanonicalFeatureVector.CSVToCanonicalFeatureVectorConfiguration;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class CSVToCanonicalFeatureVectorTest extends AssertJUnit
+public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
 {
     @Test
     public void testConversion() throws IOException
     {
-        CSVToCanonicalFeatureVectorConfiguration config =
-                new CSVToCanonicalFeatureVectorConfiguration("WellName", "WellName", true);
-        CSVToCanonicalFeatureVector convertor =
-                new CSVToCanonicalFeatureVector(getDatasetFileLines(), config);
+        CsvToCanonicalFeatureVectorConfiguration config =
+                new CsvToCanonicalFeatureVectorConfiguration("WellName", "WellName", true);
+        CsvToCanonicalFeatureVector convertor =
+                new CsvToCanonicalFeatureVector(getDatasetFileLines(), config);
         ArrayList<CanonicalFeatureVector> fvs = convertor.convert();
         // Not all the the columns contain numerical data
         assertEquals(16, fvs.size());

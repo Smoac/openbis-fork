@@ -33,14 +33,14 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
 {
     private IImagingUploadDAO dao;
+
     private List<String> channelNames;
+
     private List<ColorComponent> channelColorComponentsOrNull;
 
     private static File tryGetOriginalDir(File dataset)
@@ -52,7 +52,7 @@ public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
         }
         return orgDir;
     }
-    
+
     private static String tryGetOriginalDatasetDirName(File dataset)
     {
         File originalDir = tryGetOriginalDir(dataset);
@@ -76,8 +76,10 @@ public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
     {
         DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         dao = QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
-        channelNames = PropertyUtils.getMandatoryList(properties, PlateStorageProcessor.CHANNEL_NAMES);
-        channelColorComponentsOrNull = AbstractHCSImageFileExtractor.tryGetChannelComponents(properties);
+        channelNames =
+                PropertyUtils.getMandatoryList(properties, PlateStorageProcessor.CHANNEL_NAMES);
+        channelColorComponentsOrNull =
+                AbstractHCSImageFileExtractor.tryGetChannelComponents(properties);
         if (channelColorComponentsOrNull != null
                 && channelColorComponentsOrNull.size() != channelNames.size())
         {
@@ -86,7 +88,7 @@ public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
                             + " Correct the list of values for the components property.");
         }
     }
-    
+
     public String getDescription()
     {
         return "uploading data to the imaging database";
@@ -102,6 +104,13 @@ public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
         }
         return new BDSImagingDbUploader(dataset, dao, originalDatasetDirName, channelNames,
                 channelColorComponentsOrNull).migrate();
+    }
+
+    @Override
+    public void close()
+    {
+        // close the dao
+        dao.close();
     }
 
 }

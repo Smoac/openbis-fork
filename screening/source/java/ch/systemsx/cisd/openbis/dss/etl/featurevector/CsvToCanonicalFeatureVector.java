@@ -33,9 +33,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLine
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class CSVToCanonicalFeatureVector
+public class CsvToCanonicalFeatureVector
 {
-    public static class CSVToCanonicalFeatureVectorConfiguration
+    public static class CsvToCanonicalFeatureVectorConfiguration
     {
         private final String wellRowColumn;
 
@@ -45,7 +45,7 @@ public class CSVToCanonicalFeatureVector
 
         private final boolean isSplit;
 
-        public CSVToCanonicalFeatureVectorConfiguration(String wellRow, String wellColumn,
+        public CsvToCanonicalFeatureVectorConfiguration(String wellRow, String wellColumn,
                 boolean wellColumnIsAlphanumeric)
         {
             this.wellRowColumn = wellRow;
@@ -76,7 +76,7 @@ public class CSVToCanonicalFeatureVector
         }
     }
 
-    private final CSVToCanonicalFeatureVectorConfiguration configuration;
+    private final CsvToCanonicalFeatureVectorConfiguration configuration;
 
     private final String[] header;
 
@@ -93,8 +93,8 @@ public class CSVToCanonicalFeatureVector
 
     private int maxY = 0;
 
-    public CSVToCanonicalFeatureVector(DatasetFileLines fileLines,
-            CSVToCanonicalFeatureVectorConfiguration config)
+    public CsvToCanonicalFeatureVector(DatasetFileLines fileLines,
+            CsvToCanonicalFeatureVectorConfiguration config)
     {
         this.configuration = config;
         this.header = fileLines.getHeaderTokens();

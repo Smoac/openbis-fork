@@ -124,6 +124,12 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
         return info;
     }
 
+    public void close()
+    {
+        // close the dao
+        dao.close();
+    }
+
     /**
      * Helper class for figuring out what to do with files
      * 

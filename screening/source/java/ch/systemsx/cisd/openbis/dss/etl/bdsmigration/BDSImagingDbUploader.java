@@ -81,6 +81,11 @@ class BDSImagingDbUploader
                     return BDSImagingDbUploader.migrateDataset(dataset, dao, channelNames,
                             channelColorComponentsOrNull);
                 }
+
+                public void close()
+                {
+                    // do nothing
+                }
             };
     }
 
@@ -124,9 +129,8 @@ class BDSImagingDbUploader
 
     private final List<ColorComponent> channelColorComponentsOrNull;
 
-    BDSImagingDbUploader(File dataset, IImagingUploadDAO dao,
-            String originalDatasetDirName, List<String> channelNames,
-            List<ColorComponent> channelColorComponentsOrNull)
+    BDSImagingDbUploader(File dataset, IImagingUploadDAO dao, String originalDatasetDirName,
+            List<String> channelNames, List<ColorComponent> channelColorComponentsOrNull)
     {
         this.dataset = dataset;
         this.dao = dao;

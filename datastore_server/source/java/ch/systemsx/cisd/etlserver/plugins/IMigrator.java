@@ -28,7 +28,7 @@ import java.util.Properties;
  */
 public interface IMigrator
 {
-    /** 
+    /**
      * Migrates specified dataset.
      * 
      * @return <code>true</code> if migration was successful.
@@ -37,5 +37,10 @@ public interface IMigrator
 
     /** user-friendly description of the migrator */
     String getDescription();
+
+    /**
+     * Free any held resources. Called once when migration is finished.
+     */
+    void close();
 
 }

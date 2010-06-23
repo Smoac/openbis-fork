@@ -21,8 +21,6 @@ import java.io.File;
 import ch.systemsx.cisd.etlserver.plugins.IMigrator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractBDSMigrator implements IMigrator
@@ -36,9 +34,9 @@ abstract class AbstractBDSMigrator implements IMigrator
     static final String ORIGINAL_DIR = "original";
 
     static final String VERSION_DIR = "version";
-    
+
     static final String DIR_SEP = "/";
-    
+
     public boolean migrate(File dataset)
     {
         if (isBDS(dataset))
@@ -47,7 +45,7 @@ abstract class AbstractBDSMigrator implements IMigrator
         }
         return true;
     }
-    
+
     protected abstract boolean doMigration(File dataset);
 
     private static boolean isBDS(File dataset)
@@ -70,6 +68,12 @@ abstract class AbstractBDSMigrator implements IMigrator
             }
         }
         return false;
+    }
+
+    public void close()
+    {
+        // do nothing
+
     }
 
 }

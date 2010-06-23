@@ -31,7 +31,7 @@ import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.CSVToCanonicalFeatureVector.CSVToCanonicalFeatureVectorConfiguration;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -48,7 +48,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
 
     private final FeatureVectorStorageProcessorConfiguration configuration;
 
-    private final CSVToCanonicalFeatureVectorConfiguration convertorConfig;
+    private final CsvToCanonicalFeatureVectorConfiguration convertorConfig;
 
     private final DataSource dataSource;
 
@@ -60,7 +60,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         super(properties);
         this.configuration = new FeatureVectorStorageProcessorConfiguration(properties);
         convertorConfig =
-                new CSVToCanonicalFeatureVectorConfiguration(configuration.getWellRow(),
+                new CsvToCanonicalFeatureVectorConfiguration(configuration.getWellRow(),
                         configuration.getWellColumn(), configuration.isWellColAlphanumeric());
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
     }
@@ -92,8 +92,8 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
             throws IOException
     {
         DatasetFileLines fileLines = getDatasetFileLines(dataSet);
-        CSVToCanonicalFeatureVector convertor =
-                new CSVToCanonicalFeatureVector(fileLines, convertorConfig);
+        CsvToCanonicalFeatureVector convertor =
+                new CsvToCanonicalFeatureVector(fileLines, convertorConfig);
         ArrayList<CanonicalFeatureVector> fvecs = convertor.convert();
 
         dataAccessObject = createDAO();
