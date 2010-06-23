@@ -7,6 +7,7 @@ if [ ${JETTY_BIN_DIR#/} == ${JETTY_BIN_DIR} ]; then
 fi
 
 source "$JETTY_BIN_DIR"/jetty.properties
+source "$JETTY_BIN_DIR"/openbis.conf
 cd "$JETTY_BIN_DIR"/..
 
 JVM=java

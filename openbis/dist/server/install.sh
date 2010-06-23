@@ -67,7 +67,6 @@ mkdir -p "$war_classes"/etc
 test -f "$properties_file" && cp -p "$properties_file" "$war_classes/"
 test -f "$logconf_file" && cp -p "$logconf_file" "$war_classes/etc/"
 zip "$installation_folder"/$war_file "$war_classes"/service.properties "$war_classes"/etc/log.xml *.js *.html images/*
-#cp -p "$installation_folder"/$war_file "$jetty_folder"/webapps
 cp -p "$installation_folder"/$war_file "$jetty_folder"
 rm -rf WEB-INF
 
@@ -87,10 +86,8 @@ cp -p "$installation_folder"/setup-env "$JETTY_BIN_DIR"
 
 # Create a file called 'jetty.properties'.
 JETTY_PROPERTIES="$JETTY_BIN_DIR"/jetty.properties
-cat "$installation_folder"/openbis.conf > "$JETTY_PROPERTIES"
-echo "" >> "$JETTY_PROPERTIES"
-echo "# Jetty options" >> "$JETTY_PROPERTIES"
-echo "JETTY_PORT=$JETTY_PORT" >> "$JETTY_PROPERTIES"
+cp "$installation_folder"/openbis.conf "$JETTY_BIN_DIR"
+echo "JETTY_PORT=$JETTY_PORT" > "$JETTY_PROPERTIES"
 echo "JETTY_STOP_PORT=8079" >> "$JETTY_PROPERTIES"
 echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
 
