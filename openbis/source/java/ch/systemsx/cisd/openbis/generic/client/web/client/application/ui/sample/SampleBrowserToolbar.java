@@ -32,6 +32,7 @@ import com.google.gwt.user.client.Element;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
@@ -72,22 +73,24 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
 
     public SampleBrowserToolbar(final IViewContext<?> viewContext, final boolean addShared,
             boolean addAll, final boolean excludeWithoutExperiment, String initialGroupOrNull,
-            String initialSampleTypeOrNull)
+            String initialSampleTypeOrNull, SampleTypeDisplayID sampleTypeDisplayID)
     {
         this.viewContext = viewContext;
         this.excludeWithoutExperiment = excludeWithoutExperiment;
         selectSampleTypeCombo =
                 new SampleTypeSelectionWidget(viewContext, ID, true, true, false,
-                        initialSampleTypeOrNull);
+                        initialSampleTypeOrNull, sampleTypeDisplayID);
         selectGroupCombo =
                 new GroupSelectionWidget(viewContext, ID, addShared, addAll, initialGroupOrNull);
         display();
     }
 
     public SampleBrowserToolbar(final IViewContext<?> viewContext, final boolean addShared,
-            boolean addAll, final boolean excludeWithoutExperiment)
+            boolean addAll, final boolean excludeWithoutExperiment,
+            SampleTypeDisplayID sampleTypeDisplayID)
     {
-        this(viewContext, addShared, addAll, excludeWithoutExperiment, null, null);
+        this(viewContext, addShared, addAll, excludeWithoutExperiment, null, null,
+                sampleTypeDisplayID);
     }
 
     public ListSampleDisplayCriteria tryGetCriteria()

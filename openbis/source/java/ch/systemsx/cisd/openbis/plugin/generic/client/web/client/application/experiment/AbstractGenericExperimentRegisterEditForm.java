@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelL
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
@@ -268,7 +269,8 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         importSamplesFileManager = new BasicFileFieldManager(samplesSessionKey, 1, "File");
         importSamplesFileManager.setMandatory();
         importSampleTypeSelection =
-                new SampleTypeSelectionWidget(viewContext, simpleId, false, false, true);
+                new SampleTypeSelectionWidget(viewContext, simpleId, false, false, true,
+                        SampleTypeDisplayID.EXPERIMENT_REGISTRATION);
         FieldUtil.markAsMandatory(importSampleTypeSelection);
 
         existingSamplesRadio = cerateExistingSamplesRadio();

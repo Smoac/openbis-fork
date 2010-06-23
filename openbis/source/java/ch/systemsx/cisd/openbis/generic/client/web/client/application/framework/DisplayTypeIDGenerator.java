@@ -85,6 +85,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     MODULE_SECTION("module-section"),
 
+    SAMPLE_TYPE_BROWSER("sample-type-browser"),
+
     ;
 
     private final String genericNameOrPrefix;
@@ -101,7 +103,7 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     public String createID(String suffix)
     {
-        return genericNameOrPrefix + suffix;
+        return createID() + suffix;
     }
 
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.EntityRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -44,7 +45,8 @@ public final class SampleRegistrationPanel extends
     private SampleRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, EntityKind.SAMPLE, new SampleTypeSelectionWidget(viewContext,
-                EntityRegistrationPanel.createId(EntityKind.SAMPLE), false));
+                EntityRegistrationPanel.createId(EntityKind.SAMPLE), false,
+                SampleTypeDisplayID.SAMPLE_REGISTRATION));
     }
 
 }

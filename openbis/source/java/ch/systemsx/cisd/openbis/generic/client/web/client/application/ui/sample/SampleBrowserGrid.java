@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
@@ -99,10 +100,11 @@ public class SampleBrowserGrid extends
     /** Creates a grid without additional toolbar buttons. It can serve as a entity chooser. */
     public static DisposableEntityChooser<Sample> createChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext, final boolean addShared,
-            boolean addAll, final boolean excludeWithoutExperiment)
+            boolean addAll, final boolean excludeWithoutExperiment, SampleTypeDisplayID sampleTypeID)
     {
         final SampleBrowserToolbar toolbar =
-                new SampleBrowserToolbar(viewContext, addShared, addAll, excludeWithoutExperiment);
+                new SampleBrowserToolbar(viewContext, addShared, addAll, excludeWithoutExperiment,
+                        sampleTypeID);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, false,
@@ -128,7 +130,7 @@ public class SampleBrowserGrid extends
     {
         final SampleBrowserToolbar toolbar =
                 new SampleBrowserToolbar(viewContext, true, true, false, initialGroupOrNull,
-                        initialSampleTypeOrNull);
+                        initialSampleTypeOrNull, SampleTypeDisplayID.MAIN_SAMPLE_BROWSER);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, false,
@@ -136,13 +138,6 @@ public class SampleBrowserGrid extends
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithToolbar(toolbar);
-    }
-
-    /** Create a grid with a toolbar with no initial selection. */
-    public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
-    {
-        return create(viewContext, null, null);
     }
 
     public static IDisposableComponent createGridForContainerSamples(

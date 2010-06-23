@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -53,17 +54,19 @@ public class SampleChooserField extends ChosenEntitySetter<Sample>
     public static SampleChooserFieldAdaptor create(final String labelField,
             final boolean mandatory, final String initialValueOrNull, final boolean addShared,
             boolean addAll, final boolean excludeWithoutExperiment,
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            SampleTypeDisplayID sampleTypeDisplayID)
     {
         return create(labelField, mandatory, initialValueOrNull, addShared, addAll,
-                excludeWithoutExperiment, viewContext, null);
+                excludeWithoutExperiment, viewContext, null, sampleTypeDisplayID);
 
     }
 
     public static SampleChooserFieldAdaptor create(final String labelField,
             final boolean mandatory, final String initialValueOrNull, final boolean addShared,
             final boolean addAll, final boolean excludeWithoutExperiment,
-            final IViewContext<ICommonClientServiceAsync> viewContext, String idOrNull)
+            final IViewContext<ICommonClientServiceAsync> viewContext, String idOrNull,
+            final SampleTypeDisplayID sampleTypeDisplayID)
     {
         final SampleChooserField chooserField =
                 new SampleChooserField(mandatory, initialValueOrNull, viewContext)
@@ -72,7 +75,8 @@ public class SampleChooserField extends ChosenEntitySetter<Sample>
                         protected void onTriggerClick(ComponentEvent ce)
                         {
                             super.onTriggerClick(ce);
-                            browse(viewContext, this, addShared, addAll, excludeWithoutExperiment);
+                            browse(viewContext, this, addShared, addAll, excludeWithoutExperiment,
+                                    sampleTypeDisplayID);
                         }
                     };
         if (idOrNull != null)
@@ -114,11 +118,12 @@ public class SampleChooserField extends ChosenEntitySetter<Sample>
 
     private static void browse(final IViewContext<ICommonClientServiceAsync> viewContext,
             final ChosenEntitySetter<Sample> chosenSampleField, final boolean addShared,
-            boolean addAll, final boolean excludeWithoutExperiment)
+            boolean addAll, final boolean excludeWithoutExperiment,
+            SampleTypeDisplayID sampleTypeDisplayID)
     {
         DisposableEntityChooser<Sample> browser =
                 SampleBrowserGrid.createChooser(viewContext, addShared, addAll,
-                        excludeWithoutExperiment);
+                        excludeWithoutExperiment, sampleTypeDisplayID);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_SAMPLE);
         new EntityChooserDialog<Sample>(browser, chosenSampleField, title, viewContext).show();
     }
@@ -131,7 +136,7 @@ public class SampleChooserField extends ChosenEntitySetter<Sample>
         return entityOrNull.getIdentifier();
     }
 
-    public SampleChooserField(boolean mandatory, String initialValueOrNull,
+    private SampleChooserField(boolean mandatory, String initialValueOrNull,
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
         FieldUtil.setMandatoryFlag(this, mandatory);

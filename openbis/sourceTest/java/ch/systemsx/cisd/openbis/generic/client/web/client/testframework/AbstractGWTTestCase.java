@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 public abstract class AbstractGWTTestCase extends GWTTestCase
 {
     protected static final int SECOND = 1000;
-    
+
     protected static final int DEFAULT_TIMEOUT = 120 * SECOND;
 
     protected RemoteConsole remoteConsole;
@@ -109,13 +109,14 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     }
 
     /**
-     * Starts the tests. Sets the timeout after which the test is terminated to {@value #DEFAULT_TIMEOUT}.
+     * Starts the tests. Sets the timeout after which the test is terminated to
+     * {@value #DEFAULT_TIMEOUT}.
      */
     protected void launchTest()
     {
         launchTest(DEFAULT_TIMEOUT);
     }
-    
+
     /**
      * Starts the tests. Sets the timeout after which the test is terminated.
      */

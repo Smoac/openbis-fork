@@ -373,6 +373,12 @@ public class DisplaySettingsManager
         updater.executeDelayed(delayMs);
     }
 
+    public void storeDropDownSettings(String dropDownSettingsID, String newValue)
+    {
+        updateDropDownSettings(dropDownSettingsID, newValue);
+        updater.executeDelayed(QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
+    }
+
     public void storeSettings()
     {
         updater.executeDelayed(1); // 0 not allowed
@@ -510,6 +516,18 @@ public class DisplaySettingsManager
     public final RealNumberFormatingParameters getRealNumberFormatingParameters()
     {
         return displaySettings.getRealNumberFormatingParameters();
+    }
+
+    @SuppressWarnings("deprecation")
+    public String getDropDownSettings(String dropDownID)
+    {
+        return displaySettings.getDropDownSettings().get(dropDownID);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void updateDropDownSettings(String dropDownSettingsID, String newValue)
+    {
+        displaySettings.getDropDownSettings().put(dropDownSettingsID, newValue);
     }
 
 }

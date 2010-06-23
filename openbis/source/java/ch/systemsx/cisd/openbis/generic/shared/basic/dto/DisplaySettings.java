@@ -45,6 +45,8 @@ public class DisplaySettings implements Serializable, IsSerializable
 
     private Map<String, Boolean> sectionSettings = new HashMap<String, Boolean>();
 
+    private Map<String, String> dropDownSettings = new HashMap<String, String>();
+
     // for new users with clean display settings basic search mode will be used by default
     private boolean useWildcardSearchMode = false;
 
@@ -70,6 +72,17 @@ public class DisplaySettings implements Serializable, IsSerializable
             sectionSettings = new HashMap<String, Boolean>();
         }
         return sectionSettings;
+    }
+
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public Map<String, String> getDropDownSettings()
+    {
+        if (dropDownSettings == null)
+        {
+            dropDownSettings = new HashMap<String, String>();
+        }
+        return dropDownSettings;
     }
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
@@ -102,6 +115,12 @@ public class DisplaySettings implements Serializable, IsSerializable
     private final void setSectionSettings(Map<String, Boolean> sectionSettings)
     {
         this.sectionSettings = sectionSettings;
+    }
+
+    @SuppressWarnings("unused")
+    private final void setDropDownSettings(Map<String, String> dropDownSettings)
+    {
+        this.dropDownSettings = dropDownSettings;
     }
 
     /** @deprecated Should be used only by DisplaySettingsManager. */

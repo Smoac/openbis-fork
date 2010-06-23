@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -72,7 +73,8 @@ public final class SampleBatchRegisterUpdatePanel extends LayoutContainer
         setId(getId(update));
         setScrollMode(Scroll.AUTO);
         sampleTypeSelection =
-                new SampleTypeSelectionWidget(viewContext, ID_SUFFIX, false, false, true);
+                new SampleTypeSelectionWidget(viewContext, ID_SUFFIX, false, false, true,
+                        createDisplayID(update));
         final ToolBar toolBar = createToolBar();
         add(toolBar);
         sampleTypeSelection
@@ -115,6 +117,12 @@ public final class SampleBatchRegisterUpdatePanel extends LayoutContainer
                             }
                         }
                     });
+    }
+
+    private SampleTypeDisplayID createDisplayID(final boolean update)
+    {
+        return update ? SampleTypeDisplayID.SAMPLE_BATCH_UPDATE
+                : SampleTypeDisplayID.SAMPLE_BATCH_REGISTRATION;
     }
 
     private final ToolBar createToolBar()

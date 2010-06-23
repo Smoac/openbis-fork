@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
@@ -40,9 +41,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.At
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -182,11 +183,15 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         parent =
                 SampleChooserField.create(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE),
                         false, null, true, false, false, viewContext.getCommonViewContext(),
-                        getId() + ID_SUFFIX_PARENT);
+                        getId() + ID_SUFFIX_PARENT,
+                        SampleTypeDisplayID.SAMPLE_REGISTRATION_PARENT_CHOOSER
+                                .withSuffix(getSampleTypeCode()));
         container =
                 SampleChooserField.create(viewContext.getMessage(Dict.PART_OF_SAMPLE), false, null,
                         true, false, false, viewContext.getCommonViewContext(), getId()
-                                + ID_SUFFIX_CONTAINER);
+                                + ID_SUFFIX_CONTAINER,
+                        SampleTypeDisplayID.SAMPLE_REGISTRATION_CONTAINER_CHOOSER
+                                .withSuffix(getSampleTypeCode()));
         experimentField = createExperimentField();
         experimentField.getChooserField().setId(getId() + ID_SUFFIX_EXPERIMENT);
         attachmentsManager = new AttachmentsFileFieldManager(attachmentsSessionKey, viewContext);
@@ -229,6 +234,11 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         boolean showParent = sampleType.getGeneratedFromHierarchyDepth() > 0;
         container.getField().setVisible(showContainer);
         parent.getField().setVisible(showParent);
+    }
+
+    private String getSampleTypeCode()
+    {
+        return sampleType.getCode();
     }
 
 }

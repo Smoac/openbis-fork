@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm.InfoBoxResetListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
@@ -206,7 +207,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 if (sampleTypeSelectionWidget == null)
                 {
                     sampleTypeSelectionWidget =
-                            new SampleTypeSelectionWidget(viewContext, SAMPLE_TYPE_ID_SUFFIX, false);
+                            new SampleTypeSelectionWidget(viewContext, SAMPLE_TYPE_ID_SUFFIX,
+                                    false, SampleTypeDisplayID.PROPERTY_ASSIGNMENT);
                     created = true;
                 }
                 result = sampleTypeSelectionWidget;

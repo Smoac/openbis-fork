@@ -21,12 +21,16 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
@@ -56,7 +60,7 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
 
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             final boolean onlyListable, final boolean withAll, final boolean withTypeInFile,
-            final String initialCodeOrNull)
+            final String initialCodeOrNullParameter, final SampleTypeDisplayID displayTypeID)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.SAMPLE_TYPE, ModelDataPropertyNames.CODE,
                 "sample type", "sample types");
@@ -64,22 +68,49 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
         this.onlyListable = onlyListable;
         this.withAll = withAll;
         this.withTypeInFile = withTypeInFile;
-        this.initialCodeOrNull = initialCodeOrNull;
+        this.initialCodeOrNull =
+                tryGetInitialValue(displayTypeID, initialCodeOrNullParameter, viewContext
+                        .getDisplaySettingsManager());
         setAutoSelectFirst(withAll && initialCodeOrNull == null);
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
                 ModelDataPropertyNames.TOOLTIP));
+        final DisplaySettingsManager displaySettingsManager =
+                viewContext.getDisplaySettingsManager();
+        if (displayTypeID.isSavable())
+        {
+            addSelectionChangedListener(new SelectionChangedListener<SampleTypeModel>()
+                {
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<SampleTypeModel> se)
+                    {
+                        saveSelectedValueAsDisplaySetting(displaySettingsManager, displayTypeID
+                                .createDisplayID());
+                    }
+                });
+        }
+    }
+
+    private void saveSelectedValueAsDisplaySetting(
+            final DisplaySettingsManager displaySettingsManager, final String dropDownID)
+    {
+        SampleType selectedOrNull = tryGetSelected();
+        if (selectedOrNull != null)
+        {
+            displaySettingsManager.storeDropDownSettings(dropDownID, selectedOrNull.getCode());
+        }
     }
 
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            final boolean onlyListable, final boolean withAll, final boolean withTypeInFile)
+            final boolean onlyListable, final boolean withAll, final boolean withTypeInFile,
+            final SampleTypeDisplayID displayTypeID)
     {
-        this(viewContext, idSuffix, onlyListable, withAll, withTypeInFile, null);
+        this(viewContext, idSuffix, onlyListable, withAll, withTypeInFile, null, displayTypeID);
     }
 
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            final boolean onlyListable)
+            final boolean onlyListable, final SampleTypeDisplayID displayTypeID)
     {
-        this(viewContext, idSuffix, onlyListable, false, false);
+        this(viewContext, idSuffix, onlyListable, false, false, displayTypeID);
     }
 
     /**
@@ -152,4 +183,21 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
             selectInitialValue();
         }
     }
+
+    private static String tryGetInitialValue(final SampleTypeDisplayID displayTypeID,
+            final String initialCodeOrNull, DisplaySettingsManager displaySettingsManager)
+    {
+        boolean initialCodeExplicitlyDefined = initialCodeOrNull != null;
+        if (initialCodeExplicitlyDefined)
+        {
+            return initialCodeOrNull;
+        } else if (displayTypeID.isSavable())
+        {
+            return displaySettingsManager.getDropDownSettings(displayTypeID.createDisplayID());
+        } else
+        {
+            return null;
+        }
+    }
+
 }
