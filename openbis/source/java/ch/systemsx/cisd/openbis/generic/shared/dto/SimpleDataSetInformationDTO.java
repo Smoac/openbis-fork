@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -29,21 +30,23 @@ public class SimpleDataSetInformationDTO implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    String dataSetCode;
+    private String dataSetCode;
 
-    String dataSetLocation;
+    private String dataSetLocation;
 
-    String dataSetType;
+    private String dataSetType;
 
-    String sampleCode;
+    private String sampleCode;
 
-    String groupCode;
+    private String groupCode;
 
-    String experimentCode;
+    private String experimentCode;
 
-    String projectCode;
+    private String projectCode;
 
-    String databaseInstanceCode;
+    private String databaseInstanceCode;
+
+    private Collection<String> parentDataSetCodes;
 
     public String getDataSetType()
     {
@@ -124,6 +127,16 @@ public class SimpleDataSetInformationDTO implements Serializable
     public void setDatabaseInstanceCode(String dbInstanceCode)
     {
         this.databaseInstanceCode = dbInstanceCode;
+    }
+
+    public Collection<String> getParentDataSetCodes()
+    {
+        return parentDataSetCodes;
+    }
+
+    public void setParentDataSetCodes(Collection<String> parentDataSetCodes)
+    {
+        this.parentDataSetCodes = parentDataSetCodes;
     }
 
 }

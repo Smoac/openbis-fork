@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -134,7 +135,7 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
     private Sample findSampleCodeForDataSet(SimpleDataSetInformationDTO dataSetInfo)
     {
         String sampleCodeOrNull = dataSetInfo.getSampleCode();
-        Sample sample = null;
+        SampleIdentifier sampleId = null;
         if (null == sampleCodeOrNull)
         {
             // check the parent data sets for a sample
@@ -142,20 +143,20 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
             for (String dataSetCode : parentDataSetCodes)
             {
                 ExternalData externalData = openBisService.tryGetDataSetForServer(dataSetCode);
-                if (externalData.getSample() != null)
+                if (externalData != null && externalData.getSample() != null)
                 {
-                    sample = externalData.getSample();
+                    sampleId = SampleIdentifierFactory.parse(externalData.getSampleIdentifier());
                     break;
                 }
             }
         } else
         {
-            SampleIdentifier sampleId =
+            sampleId =
                     new SampleIdentifier(new SpaceIdentifier(dataSetInfo.getDatabaseInstanceCode(),
                             dataSetInfo.getGroupCode()), dataSetInfo.getSampleCode());
-            sample = openBisService.tryGetSampleWithExperiment(sampleId);
         }
-        return sample;
+
+        return openBisService.tryGetSampleWithExperiment(sampleId);
     }
 
     public void close()

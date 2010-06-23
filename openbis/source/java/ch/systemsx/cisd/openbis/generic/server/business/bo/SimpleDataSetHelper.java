@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -58,6 +60,15 @@ public class SimpleDataSetHelper
         SamplePE sampleOrNull = data.tryGetSample();
         result.setSampleCode(sampleOrNull == null ? null : sampleOrNull.getCode());
         result.setDataSetType(data.getDataSetType().getCode());
+
+        HashSet<String> parentCodes = new HashSet<String>();
+        for (DataPE parent : data.getParents())
+        {
+            parentCodes.add(parent.getCode());
+        }
+
+        result.setParentDataSetCodes(parentCodes);
+
         return result;
     }
 }
