@@ -47,7 +47,10 @@
     		<include name="native/**/*"/>
     	</fileset>
     </jar>
-     <antcall target="datastore_server.create-distribution" />
+  	<copy todir="${dist.datastore_server}/data">
+  		<fileset dir="${original.dist}/data" />
+  	</copy>
+  	<antcall target="datastore_server.create-distribution" />
   </target>
   
   <!--
