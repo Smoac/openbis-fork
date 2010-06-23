@@ -183,7 +183,7 @@
   -->
   <target name="screening-compile-module-test" description="Compile the module test mode">
     <delete dir="${targets.www}/${module-test.path}" />
-    <java classpath="${ecp}:${ecp.gwt}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
+    <java classpath="${ecp}:${ecp.gwt}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}:../common/${sources}"
       classname="com.google.gwt.dev.Compiler" fork="true">
       <jvmarg value="-Xmx512M" />
       <arg value="-war" />
