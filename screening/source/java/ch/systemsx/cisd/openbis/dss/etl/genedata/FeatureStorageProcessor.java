@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorUploader;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.GenedataFormatToCanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -51,7 +50,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
 {
     private static final char DELIMITER = ';';
 
-    private static final String LAYER_PREFIX = "<Layer=";
+    public static final String LAYER_PREFIX = "<Layer=";
 
     private final DataSource dataSource;
 
@@ -206,9 +205,15 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
 
         dataAccessObject = createDAO();
         FeatureVectorUploader uploader =
-                new FeatureVectorUploader(dataAccessObject, ScreeningContainerDatasetInfo
-                        .createScreeningDatasetInfo(dataSetInformation));
+                new FeatureVectorUploader(dataAccessObject,
+                        createScreeningDatasetInfo(dataSetInformation));
         uploader.uploadFeatureVectors(fvecs);
+    }
+
+    private ScreeningContainerDatasetInfo createScreeningDatasetInfo(
+            DataSetInformation dataSetInformation)
+    {
+        return ScreeningContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);
     }
 
     protected IImagingUploadDAO createDAO()

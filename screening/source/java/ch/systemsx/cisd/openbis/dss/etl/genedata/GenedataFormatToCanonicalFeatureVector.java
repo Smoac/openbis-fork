@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.featurevector;
+package ch.systemsx.cisd.openbis.dss.etl.genedata;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.geometry.Point;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 
 /**
  * Converts currentFeature vectors from the Genedata currentFeature vector file format to

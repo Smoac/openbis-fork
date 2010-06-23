@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.GenedataFormatToCanonicalFeatureVector;
 
 /**
  * Check that Genedata feature vectors can be converted to the canonical form.
