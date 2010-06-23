@@ -33,13 +33,22 @@ import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
 
 /**
- * Generic <code>IHCSImageFileExtractor</code> implementation.
+ * Generic image extractor implementation. The images names should have an extension present in
+ * {@link #IMAGE_EXTENSIONS} constant. Each image name should adhere to the schema:<br>
+ * 
+ * <pre>
+ * &lt;any-text&gt;_&lt;plate-code&gt;_&lt;well-code&gt;_&lt;tile-code&gt;_&lt;channel-name&gt;.&lt;allowed-image-extension&gt;
+ * </pre>
+ * 
+ * If 'extract-single-image-channels' property is specified for storage processor then the channels
+ * are extracted from the color components and the token &lt;channel-name&gt; from the image file
+ * name is ignored.
  * 
  * @author Tomasz Pylak
  */
 public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 {
-    private static final String[] IMAGE_EXTENSIONS = new String[]
+    public static final String[] IMAGE_EXTENSIONS = new String[]
         { "tif", "tiff", "jpg", "jpeg", "gif", "png" };
 
     private final List<String> channelNames;

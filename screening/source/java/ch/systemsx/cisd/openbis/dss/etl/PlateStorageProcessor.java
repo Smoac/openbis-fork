@@ -70,6 +70,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
  * Storage processor which stores HCS images in a special-purpose database.
+ * <p>
+ * Accepts following properties:
+ * <ul>
+ * <li>generate-thumbnails - should the thumbnails be generated? It slows down the dataset
+ * registration, but increases the performance when the user wants to see the image. Can be 'true'
+ * or 'false', 'false' is the default value
+ * <li>thumbnail-max-width, thumbnail-max-height - thumbnails size in pixels
+ * <li>channel-names - names of the channels in which images have been acquired
+ * <li>well_geometry - format: [width]>x[height], e.g. 3x4. Specifies the grid into which a microscope
+ * divided the well to acquire images.
+ * <li>file-extractor - implementation of the {@link IHCSImageFileExtractor} interface which maps
+ * images to the location on the plate and particular channel
+ * <li>data-source - specification of the imaging db
+ * <li>extract-single-image-channels - optional comma separated list of color components. Available
+ * values: RED, GREEN or BLUE. If specified then the channels are extracted from the color
+ * components and override 'file-extractor' results.
+ * </p>
  * 
  * @author Tomasz Pylak
  */
@@ -89,7 +106,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private static final String SPOT_GEOMETRY_PROPERTY = "well_geometry";
 
     private static final String GENERATE_THUMBNAILS_PROPERTY = "generate-thumbnails";
-    
+
     private static final String THUMBNAIL_MAX_WIDTH_PROPERTY = "thumbnail-max-width";
 
     private static final int DEFAULT_THUMBNAIL_MAX_WIDTH = 200;
@@ -119,7 +136,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private final int thumbnailMaxHeight;
 
     private final boolean generateThumbnails;
-    
+
     // one of the extractors is always null and one not null
     private final IHCSImageFileExtractor imageFileExtractor;
 
@@ -140,7 +157,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         thumbnailMaxHeight =
                 PropertyUtils.getInt(properties, THUMBNAIL_MAX_HEIGHT_PROPERTY,
                         DEFAULT_THUMBNAIL_MAX_HEIGHT);
-        generateThumbnails = PropertyUtils.getBoolean(properties, GENERATE_THUMBNAILS_PROPERTY, false);
+        generateThumbnails =
+                PropertyUtils.getBoolean(properties, GENERATE_THUMBNAILS_PROPERTY, false);
 
         String fileExtractorClass = PropertyUtils.getProperty(properties, FILE_EXTRACTOR_PROPERTY);
         if (fileExtractorClass != null)
@@ -326,7 +344,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                 byte[] byteArray = output.toByteArray();
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug("thumbnail " + imagePath + " (" + byteArray.length + " bytes)");
+                    operationLog.debug("thumbnail " + imagePath + " (" + byteArray.length
+                            + " bytes)");
                 }
                 writer.writeByteArray(imagePath, byteArray);
             } catch (IOException ex)
