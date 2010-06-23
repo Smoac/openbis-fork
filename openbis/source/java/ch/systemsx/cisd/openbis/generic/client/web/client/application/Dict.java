@@ -221,8 +221,6 @@ public abstract class Dict
 
     public static final String EXPERIMENT_IDENTIFIER = "experiment_identifier";
 
-    public static final String GENERATED_SAMPLES = "generated_samples";
-
     public static final String GENERATED_FROM = "generated_from";
 
     public static final String PART_OF = "part_of";
@@ -420,6 +418,8 @@ public abstract class Dict
     public static final String PART_OF_HEADING = "part_of_heading";
 
     public static final String DERIVED_SAMPLES_HEADING = "derived_samples_heading";
+
+    public static final String DERIVED_SAMPLE = "derived_sample";
 
     public static final String EXTERNAL_DATA_HEADING = "external_data_heading";
 

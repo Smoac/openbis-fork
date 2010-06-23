@@ -274,9 +274,11 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
             properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment);
         }
 
-        if (generated.length > 0)
+        // If there is only one Derived Sample it can be shown as a property, otherwise
+        // users should use Derived Samples section.
+        if (generated.length == 1)
         {
-            properties.put(messageProvider.getMessage(Dict.GENERATED_SAMPLES), generated);
+            properties.put(messageProvider.getMessage(Dict.DERIVED_SAMPLE), generated);
         }
         Sample generatedFrom = sample.getGeneratedFrom();
         int depth = getPositiveGeneratedFromHierarchyDepth(sampleType);
