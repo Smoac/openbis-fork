@@ -155,12 +155,17 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
     {
         super(properties);
         this.dataSource = createDataSource(properties);
-        this.openBisService = ServiceProvider.getOpenBISService();
+        this.openBisService = createOpenBisService();
     }
 
     protected DataSource createDataSource(Properties properties)
     {
         return ServiceProvider.getDataSourceProvider().getDataSource(properties);
+    }
+
+    protected IEncapsulatedOpenBISService createOpenBisService()
+    {
+        return ServiceProvider.getOpenBISService();
     }
 
     @Override
