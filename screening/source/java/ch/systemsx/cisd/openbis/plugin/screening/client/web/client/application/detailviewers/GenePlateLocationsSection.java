@@ -72,7 +72,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
         this.materialId = materialId;
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
         this.channelState = new DefaultChannelState();
-        setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
+        setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION, ID_SUFFIX);
     }
 
     @Override

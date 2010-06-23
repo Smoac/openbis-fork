@@ -61,7 +61,7 @@ public class PlateLayoutSampleSection extends SingleSectionPanel
         super("Plate Layout", viewContext);
         this.viewContext = viewContext;
         this.sampleId = sampleId;
-        setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
+        setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION, ID_SUFFIX);
     }
 
     @Override

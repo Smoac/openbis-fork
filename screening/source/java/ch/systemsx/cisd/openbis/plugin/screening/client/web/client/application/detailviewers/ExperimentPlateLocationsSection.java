@@ -53,7 +53,7 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
         this.screeningViewContext = screeningViewContext;
         this.experiment = experiment;
         this.materialListField = createMaterialListArea();
-        setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
+        setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION, ID_SUFFIX);
     }
 
     private MultilineVarcharField createMaterialListArea()
