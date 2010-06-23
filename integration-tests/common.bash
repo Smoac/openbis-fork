@@ -389,13 +389,13 @@ function install_openbis_server {
 
 
 function startup_openbis_server {
-    call_in_dir bin/startup.sh $OPENBIS_SERVER/apache-tomcat
+    call_in_dir bin/startup.sh $OPENBIS_SERVER/jetty
     wait_for_server
 }
 
 function shutdown_openbis_server {
     if [ "`check_server_port`" != "" ]; then
-        $OPENBIS_SERVER/apache-tomcat/bin/shutdown.sh
+        $OPENBIS_SERVER/jetty/bin/shutdown.sh
     fi
 }
 
