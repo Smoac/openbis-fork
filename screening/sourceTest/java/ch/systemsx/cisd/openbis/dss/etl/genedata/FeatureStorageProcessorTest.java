@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
@@ -66,6 +67,8 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
 
     private DataSource dataSource;
 
+    private IEncapsulatedOpenBISService openBisService;
+
     @Override
     @BeforeMethod
     public void setUp() throws IOException
@@ -75,6 +78,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         context = new Mockery();
         dao = context.mock(IImagingUploadDAO.class);
         dataSource = context.mock(DataSource.class);
+        openBisService = context.mock(IEncapsulatedOpenBISService.class);
 
         context.checking(new Expectations()
             {
@@ -135,6 +139,14 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
                     // Overide because we have problems with Spring otherwise.
                     return dataSource;
                 }
+
+                @Override
+                protected IEncapsulatedOpenBISService createOpenBisService()
+                {
+                    // Overide because we have problems with Spring otherwise.
+                    return openBisService;
+                }
+
             };
 
         DataSetInformation dataSetInfo = createDataSetInformation();
