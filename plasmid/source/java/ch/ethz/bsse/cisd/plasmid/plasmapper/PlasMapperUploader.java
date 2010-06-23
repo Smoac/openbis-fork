@@ -104,10 +104,10 @@ public class PlasMapperUploader
         p.setProperty("mapTitle", "");
         p.setProperty("comment", "Created using PlasMapper");
         p.setProperty("imageFormat", "PNG");
-        p.setProperty("imageSize", "850 x 750");
+        p.setProperty("imageSize", "900 x 900");
         p.setProperty("backbone", "medium");
         p.setProperty("arc", "medium");
-        p.setProperty("biomoby", "true"); // special
+        p.setProperty("biomoby", "true"); // special: result of request == relative path to PNG file
 
         PlasMapperUploader uploader = new PlasMapperUploader(p);
         uploader.upload(new File("PRS316.gb"));
