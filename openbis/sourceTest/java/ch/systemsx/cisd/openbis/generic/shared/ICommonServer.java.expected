@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCo
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.DeleteGridCustomColumnPredicate;
@@ -643,8 +644,9 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
-    public void deleteSamples(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) List<TechId> sampleIds,
+    public void deleteSamples(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdCollectionPredicate.class) List<TechId> sampleIds,
             String reason);
 
     /**
