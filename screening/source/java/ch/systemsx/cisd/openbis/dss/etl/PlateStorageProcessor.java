@@ -61,12 +61,12 @@ import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageCheckList.FullLocation;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
 /**
  * Storage processor which stores HCS images in a special-purpose database.
@@ -142,7 +142,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor deprecatedImageFileExtractor;
 
-    private IImagingUploadDAO currentTransaction;
+    private IImagingQueryDAO currentTransaction;
 
     public PlateStorageProcessor(final Properties properties)
     {
@@ -178,9 +178,9 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         this.currentTransaction = null;
     }
 
-    private IImagingUploadDAO createQuery()
+    private IImagingQueryDAO createQuery()
     {
-        return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
+        return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
     }
 
     private final static void checkDataSetInformation(final DataSetInformation dataSetInformation)

@@ -23,10 +23,10 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgChannelDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 
 /**
  * Helper class for retrieving and/or creating entities associated with the screening container data
@@ -36,9 +36,9 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgDatasetDTO;
  */
 public class ScreeningContainerDatasetInfoHelper
 {
-    private final IImagingUploadDAO dao;
+    private final IImagingQueryDAO dao;
 
-    public ScreeningContainerDatasetInfoHelper(IImagingUploadDAO dao)
+    public ScreeningContainerDatasetInfoHelper(IImagingQueryDAO dao)
     {
         this.dao = dao;
     }
@@ -55,7 +55,7 @@ public class ScreeningContainerDatasetInfoHelper
     }
 
     // Package-visible static methods
-    public static long createDataset(IImagingUploadDAO dao, ScreeningContainerDatasetInfo info,
+    public static long createDataset(IImagingQueryDAO dao, ScreeningContainerDatasetInfo info,
             long contId)
     {
         ImgDatasetDTO dataset =
@@ -71,10 +71,10 @@ public class ScreeningContainerDatasetInfoHelper
      * transaction will be rolled back sample and experiment created in first transaction will stay
      * in the DB.
      */
-    public static ExperimentAndContainerIds getOrCreateExperimentAndContainer(
-            IImagingUploadDAO dao, ScreeningContainerDatasetInfo info)
+    public static ExperimentAndContainerIds getOrCreateExperimentAndContainer(IImagingQueryDAO dao,
+            ScreeningContainerDatasetInfo info)
     {
-        synchronized (IImagingUploadDAO.class)
+        synchronized (IImagingQueryDAO.class)
         {
             CreatedOrFetchedEntity exp = getOrCreateExperiment(dao, info);
             CreatedOrFetchedEntity cont = getOrCreateContainer(dao, info, exp.getId());
@@ -96,11 +96,11 @@ public class ScreeningContainerDatasetInfoHelper
      * in the DB.
      */
     public static ExperimentWithChannelsAndContainer getOrCreateExperimentWithChannelsAndContainer(
-            IImagingUploadDAO dao, ScreeningContainerDatasetInfo info,
+            IImagingQueryDAO dao, ScreeningContainerDatasetInfo info,
             Set<HCSImageFileExtractionResult.Channel> channels)
     {
         ScreeningContainerDatasetInfoHelper helper = new ScreeningContainerDatasetInfoHelper(dao);
-        synchronized (IImagingUploadDAO.class)
+        synchronized (IImagingQueryDAO.class)
         {
             CreatedOrFetchedEntity exp = getOrCreateExperiment(dao, info);
             long expId = exp.getId();
@@ -117,7 +117,7 @@ public class ScreeningContainerDatasetInfoHelper
         }
     }
 
-    private static CreatedOrFetchedEntity getOrCreateContainer(IImagingUploadDAO dao,
+    private static CreatedOrFetchedEntity getOrCreateContainer(IImagingQueryDAO dao,
             ScreeningContainerDatasetInfo info, long expId)
     {
         String containerPermId = info.getContainerPermId();
@@ -135,7 +135,7 @@ public class ScreeningContainerDatasetInfoHelper
         }
     }
 
-    private static CreatedOrFetchedEntity getOrCreateExperiment(IImagingUploadDAO dao,
+    private static CreatedOrFetchedEntity getOrCreateExperiment(IImagingQueryDAO dao,
             ScreeningContainerDatasetInfo info)
     {
         String experimentPermId = info.getExperimentPermId();

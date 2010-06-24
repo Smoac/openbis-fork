@@ -27,29 +27,29 @@ import java.util.Map.Entry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfoHelper.ExperimentWithChannelsAndContainer;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgAcquiredImageDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgChannelStackDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgImageDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgSpotDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
 /**
  * @author Tomasz Pylak
  */
 public class HCSDatasetUploader
 {
-    public static void upload(IImagingUploadDAO dao, ScreeningContainerDatasetInfo info,
+    public static void upload(IImagingQueryDAO dao, ScreeningContainerDatasetInfo info,
             List<AcquiredPlateImage> images, Set<HCSImageFileExtractionResult.Channel> channels)
     {
         new HCSDatasetUploader(dao).upload(info, images, channels);
     }
 
-    private final IImagingUploadDAO dao;
+    private final IImagingQueryDAO dao;
 
-    private HCSDatasetUploader(IImagingUploadDAO dao)
+    private HCSDatasetUploader(IImagingQueryDAO dao)
     {
         this.dao = dao;
     }

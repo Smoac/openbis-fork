@@ -9,6 +9,31 @@
 
     <import resource="applicationContext.xml"/>
     
+    <bean id="imaging-db-configuration-context"
+        class="ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext">
+        <property name="basicDatabaseName" value="imaging" />
+        <property name="createFromScratch" value="${imaging.database.create-from-scratch}" />
+        <property name="scriptSingleStepMode" value="${imaging.database.script-single-step-mode}" />
+        <property name="sequenceNameMapper">
+            <bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SequenceNameMapper" />
+        </property>
+        <property name="urlHostPart" value="${imaging.database.url-host-part}" />
+        <property name="adminUser" value="${imaging.database.admin-user}" />
+        <property name="owner" value="${imaging.database.owner}" />
+        <property name="readOnlyGroup" value="imaging_readonly" />
+        <property name="password" value="${imaging.database.owner-password}" />
+        <property name="adminPassword" value="${imaging.database.admin-password}" />
+        <property name="databaseKind" value="${imaging.database.kind}" />
+        <property name="databaseEngineCode" value="${imaging.database.engine}" />
+        <property name="scriptFolder" value="${imaging.script-folder}/sql" />
+        <property name="databaseInstance" value="${imaging.database-instance}" />
+    </bean>
+    
+    <bean id="screening-dao-factory"
+          class="ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.db.ScreeningDAOFactory">
+        <constructor-arg ref="imaging-db-configuration-context"/>
+    </bean>
+    
     <!--
         //Mail Client Parameters
     -->

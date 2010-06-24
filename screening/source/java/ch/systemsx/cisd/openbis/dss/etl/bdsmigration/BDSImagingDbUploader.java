@@ -49,9 +49,9 @@ import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.etl.RelativeImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
 /**
  * Uploads data to the imaging database.
@@ -62,7 +62,7 @@ class BDSImagingDbUploader
 {
     public static IMigrator createImagingDbUploaderMigrator(Properties properties)
     {
-        final IImagingUploadDAO dao = createQuery(properties);
+        final IImagingQueryDAO dao = createQuery(properties);
         final List<String> channelNames =
                 PropertyUtils.getMandatoryList(properties, PlateStorageProcessor.CHANNEL_NAMES);
         final List<ColorComponent> channelColorComponentsOrNull =
@@ -101,13 +101,13 @@ class BDSImagingDbUploader
         }
     }
 
-    private static IImagingUploadDAO createQuery(Properties properties)
+    private static IImagingQueryDAO createQuery(Properties properties)
     {
         DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
-        return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
+        return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
     }
 
-    private static boolean migrateDataset(File dataset, IImagingUploadDAO dao,
+    private static boolean migrateDataset(File dataset, IImagingQueryDAO dao,
             List<String> channelNames, List<ColorComponent> channelColorComponentsOrNull)
     {
         String originalDatasetDirName = tryGetOriginalDatasetDirName(dataset);
@@ -121,7 +121,7 @@ class BDSImagingDbUploader
 
     private final File dataset;
 
-    private final IImagingUploadDAO dao;
+    private final IImagingQueryDAO dao;
 
     private final String originalDatasetDirName;
 
@@ -129,7 +129,7 @@ class BDSImagingDbUploader
 
     private final List<ColorComponent> channelColorComponentsOrNull;
 
-    BDSImagingDbUploader(File dataset, IImagingUploadDAO dao, String originalDatasetDirName,
+    BDSImagingDbUploader(File dataset, IImagingQueryDAO dao, String originalDatasetDirName,
             List<String> channelNames, List<ColorComponent> channelColorComponentsOrNull)
     {
         this.dataset = dataset;

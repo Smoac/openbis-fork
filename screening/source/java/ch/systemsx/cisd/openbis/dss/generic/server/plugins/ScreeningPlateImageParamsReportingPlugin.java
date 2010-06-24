@@ -27,8 +27,8 @@ import java.util.Properties;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
-import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetLoaderFactory;
-import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
+import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
@@ -74,8 +74,8 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
         for (DatasetDescription dataset : datasets)
         {
             File datasetFile = new File(storeRoot, dataset.getDataSetLocation());
-            IHCSDatasetLoader imageAccessor =
-                    HCSDatasetLoaderFactory.create(datasetFile, dataset.getDatasetCode());
+            IHCSImageDatasetLoader imageAccessor =
+                    HCSImageDatasetLoaderFactory.create(datasetFile, dataset.getDatasetCode());
             addReportRows(builder, dataset, imageAccessor);
             imageAccessor.close();
         }
@@ -94,7 +94,7 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
     }
 
     private void addReportRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
-            IHCSDatasetLoader imageAccessor)
+            IHCSImageDatasetLoader imageAccessor)
     {
         Geometry plateGeometry = imageAccessor.getPlateGeometry();
         Geometry wellGeometry = imageAccessor.getWellGeometry();

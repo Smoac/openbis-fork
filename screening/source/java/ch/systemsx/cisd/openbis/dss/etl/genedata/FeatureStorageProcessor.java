@@ -37,7 +37,6 @@ import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TableBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorUploader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -45,6 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
 /**
  * @author Franz-Josef Elmer
@@ -60,7 +60,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
     private final IEncapsulatedOpenBISService openBisService;
 
     // Execution state of this object -- set to null after an execution is finished.
-    private IImagingUploadDAO dataAccessObject = null;
+    private IImagingQueryDAO dataAccessObject = null;
 
     private final class ColumnsBuilder
     {
@@ -260,9 +260,9 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
         return sampleOrNull;
     }
 
-    protected IImagingUploadDAO createDAO()
+    protected IImagingQueryDAO createDAO()
     {
-        return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
+        return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
     }
 
     private String convertColumnsToString(String barCode, ColumnsBuilder columnsBuilder)

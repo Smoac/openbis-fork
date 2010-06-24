@@ -33,10 +33,6 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.PlateDimensionParser;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgDatasetDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -44,6 +40,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityPrope
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
  * @author Franz-Josef Elmer
@@ -63,7 +63,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
 
     private Mockery context;
 
-    private IImagingUploadDAO dao;
+    private IImagingQueryDAO dao;
 
     private DataSource dataSource;
 
@@ -76,7 +76,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         super.setUp();
 
         context = new Mockery();
-        dao = context.mock(IImagingUploadDAO.class);
+        dao = context.mock(IImagingQueryDAO.class);
         dataSource = context.mock(DataSource.class);
         openBisService = context.mock(IEncapsulatedOpenBISService.class);
 
@@ -128,7 +128,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
                 // For Testing
 
                 @Override
-                protected IImagingUploadDAO createDAO()
+                protected IImagingQueryDAO createDAO()
                 {
                     return dao;
                 }

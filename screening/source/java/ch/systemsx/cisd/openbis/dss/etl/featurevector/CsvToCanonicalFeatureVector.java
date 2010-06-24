@@ -24,9 +24,9 @@ import java.util.List;
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.geometry.Point;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
  * Converts feature vectors from CSV files to CanonicaFeatureVector objects.

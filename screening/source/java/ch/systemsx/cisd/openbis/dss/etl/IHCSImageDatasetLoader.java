@@ -16,29 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import java.util.List;
-
-import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
 
 /**
  * @author Tomasz Pylak
  */
-public interface IHCSDatasetLoader
+public interface IHCSImageDatasetLoader extends IHCSDatasetLoader
 {
-
-    /** has to be called at the end */
-    void close();
-
-    Geometry getPlateGeometry();
-
-    Geometry getWellGeometry();
-
-    int getChannelCount();
-
-    List<String> getChannelsNames();
-
     /**
      * @param chosenChannel start from 1
      * @return image (with absolute path, page and color)

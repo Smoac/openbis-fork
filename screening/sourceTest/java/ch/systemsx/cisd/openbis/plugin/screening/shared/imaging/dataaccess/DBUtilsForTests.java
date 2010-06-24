@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImagingDatabaseVersionHolder;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.db.ScreeningDAOFactory;
 
 /**
  * Utilities for dealing with databases in tests.
  * 
  * @author Piotr Buczek
  */
-@Friend(toClasses = ImagingDatabaseVersionHolder.class)
+@Friend(toClasses = ScreeningDAOFactory.class)
 public class DBUtilsForTests
 {
 
     public static void init(DatabaseConfigurationContext context)
     {
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
-                ImagingDatabaseVersionHolder.DATABASE_VERSION);
+                ScreeningDAOFactory.DATABASE_VERSION);
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import java.awt.Color;
 

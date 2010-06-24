@@ -29,28 +29,28 @@ import net.lemnik.eodsql.QueryTool;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.io.FileBasedContent;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.HCSDatasetLoader;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.HCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
 /**
  * @author Tomasz Pylak
  */
-public class HCSDatasetLoaderFactory
+public class HCSImageDatasetLoaderFactory
 {
     private static final Map<String, IContentRepositoryFactory> repositoryFactories =
             createFactories();
 
-    private static final IImagingUploadDAO query = createQuery();
+    private static final IImagingQueryDAO query = createQuery();
 
-    private static IImagingUploadDAO createQuery()
+    private static IImagingQueryDAO createQuery()
     {
         DataSource dataSource =
                 ServiceProvider.getDataSourceProvider().getDataSource(
                         ScreeningConstants.IMAGING_DATA_SOURCE);
-        return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
+        return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
     }
 
     private static Map<String, IContentRepositoryFactory> createFactories()
@@ -61,30 +61,30 @@ public class HCSDatasetLoaderFactory
         return factories;
     }
 
-    public static final IHCSDatasetLoader create(File datasetRootDir, String datasetCode)
+    public static final IHCSImageDatasetLoader create(File datasetRootDir, String datasetCode)
     {
         return createImageDBLoader(datasetRootDir, datasetCode);
         // return createBDSLoader(datasetRootDir);
     }
 
-    private static HCSDatasetLoader createImageDBLoader(File datasetRootDir, String datasetCode)
+    private static HCSImageDatasetLoader createImageDBLoader(File datasetRootDir, String datasetCode)
     {
         IContentRepository repository = new ContentRepository(datasetRootDir, repositoryFactories);
-        return new HCSDatasetLoader(query, datasetCode, repository);
+        return new HCSImageDatasetLoader(query, datasetCode, repository);
     }
 
     // remove when not needed
     @SuppressWarnings("unused")
-    private static IHCSDatasetLoader createBDSLoader(File datasetRootDir)
+    private static IHCSImageDatasetLoader createBDSLoader(File datasetRootDir)
     {
         final ch.systemsx.cisd.bds.hcs.HCSDatasetLoader loader =
                 new ch.systemsx.cisd.bds.hcs.HCSDatasetLoader(datasetRootDir);
         return adapt(loader);
     }
 
-    private static IHCSDatasetLoader adapt(final ch.systemsx.cisd.bds.hcs.HCSDatasetLoader loader)
+    private static IHCSImageDatasetLoader adapt(final ch.systemsx.cisd.bds.hcs.HCSDatasetLoader loader)
     {
-        return new IHCSDatasetLoader()
+        return new IHCSImageDatasetLoader()
             {
 
                 public void close()

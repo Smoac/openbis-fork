@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.dss.etl.featurevector;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
  * Image feature vectors stored in a standardized form.

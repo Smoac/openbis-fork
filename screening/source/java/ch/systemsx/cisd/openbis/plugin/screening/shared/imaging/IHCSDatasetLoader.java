@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
+import java.util.List;
+
+import ch.systemsx.cisd.bds.hcs.Geometry;
 
 /**
- * Stores current version of special purpose imaging database.
- * 
  * @author Tomasz Pylak
  */
-public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
+public interface IHCSDatasetLoader
 {
-    /** Current version of the database. */
-    static final String DATABASE_VERSION = "003"; // S83
 
-    public String getDatabaseVersion()
-    {
-        return DATABASE_VERSION;
-    }
+    /** has to be called at the end */
+    void close();
+
+    Geometry getPlateGeometry();
+
+    Geometry getWellGeometry();
+
+    int getChannelCount();
+
+    List<String> getChannelsNames();
 
 }

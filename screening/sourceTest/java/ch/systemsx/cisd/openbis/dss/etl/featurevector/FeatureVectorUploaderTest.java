@@ -28,11 +28,11 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.AbstractDBTest;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.DBUtils;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.DBUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -47,12 +47,12 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
 
     private static final String TEST_FEATURE_NAME = "test";
 
-    private IImagingUploadDAO dao;
+    private IImagingQueryDAO dao;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        dao = DBUtils.getQuery(datasource, IImagingUploadDAO.class);
+        dao = DBUtils.getQuery(datasource, IImagingQueryDAO.class);
     }
 
     @Test

@@ -21,94 +21,38 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
-import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 
 /**
- * Helper class for easy handling of HCS image dataset standard structure.
+ * {@link HCSDatasetLoader} extension with code for handling images.
  * 
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public class HCSDatasetLoader implements IHCSDatasetLoader
+public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImageDatasetLoader
 {
-    private final IImagingUploadDAO query;
-
-    private final ImgDatasetDTO dataset;
-
     private final IContentRepository contentRepository;
 
-    private ImgContainerDTO container;
-
-    private Integer channelCount;
-
-    private List<String> channelNames;
-
-    public HCSDatasetLoader(IImagingUploadDAO query, String datasetPermId,
+    public HCSImageDatasetLoader(IImagingQueryDAO query, String datasetPermId,
             IContentRepository contentRepository)
     {
+        super(query, datasetPermId);
         this.contentRepository = contentRepository;
-        this.query = query;
-        this.dataset = query.tryGetDatasetByPermId(datasetPermId);
-        if (dataset == null)
-        {
-            throw new IllegalStateException(String.format("Dataset '%s' not found", datasetPermId));
-        }
-    }
-
-    /** has to be called at the end */
-    public void close()
-    {
-        query.close();
-    }
-
-    private ImgContainerDTO getContainer()
-    {
-        if (container == null)
-        {
-            container = query.getContainerById(dataset.getContainerId());
-        }
-        return container;
-    }
-
-    public Geometry getPlateGeometry()
-    {
-        return new Geometry(getContainer().getNumberOfRows(), getContainer().getNumberOfColumns());
-    }
-
-    private ImgDatasetDTO getDataset()
-    {
-        return dataset;
-    }
-
-    public Geometry getWellGeometry()
-    {
-        return new Geometry(getDataset().getFieldNumberOfRows(), getDataset()
-                .getFieldNumberOfColumns());
-    }
-
-    public int getChannelCount()
-    {
-        if (channelCount == null)
-        {
-            channelCount = getChannelsNames().size();
-        }
-        return channelCount;
     }
 
     /**
@@ -224,15 +168,4 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         }
     }
 
-    public List<String> getChannelsNames()
-    {
-        if (channelNames == null)
-        {
-            String[] namesAsArray =
-                    query.getChannelNamesByDatasetIdOrExperimentId(getDataset().getId(),
-                            getContainer().getExperimentId());
-            channelNames = new ArrayList<String>(Arrays.asList(namesAsArray));
-        }
-        return channelNames;
-    }
 }

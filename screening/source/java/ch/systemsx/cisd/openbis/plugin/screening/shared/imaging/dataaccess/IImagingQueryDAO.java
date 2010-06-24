@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ByteArrayMapper;
 /**
  * @author Tomasz Pylak
  */
-public interface IImagingUploadDAO extends TransactionQuery
+public interface IImagingQueryDAO extends TransactionQuery
 {
     public static final int FETCH_SIZE = 1000;
 

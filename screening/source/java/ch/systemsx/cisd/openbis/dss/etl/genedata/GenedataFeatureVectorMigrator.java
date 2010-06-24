@@ -25,11 +25,11 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.AbstractFeatureVectorMigrator;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorUploader;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
 /**
  * Imports Genedata feature vectors into the database.
@@ -112,7 +112,7 @@ public class GenedataFeatureVectorMigrator extends AbstractFeatureVectorMigrator
         /**
          * @param fileToMigrate
          */
-        private ImporterGenedata(IImagingUploadDAO dao,
+        private ImporterGenedata(IImagingQueryDAO dao,
                 ScreeningContainerDatasetInfo screeningDataSetInfo, File fileToMigrate)
         {
             super(dao, screeningDataSetInfo, fileToMigrate);

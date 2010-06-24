@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -28,7 +30,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMater
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
 
 /**
  * The unique {@link IScreeningBusinessObjectFactory} implementation.
@@ -39,6 +44,18 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 public final class ScreeningBusinessObjectFactory extends AbstractPluginBusinessObjectFactory
         implements IScreeningBusinessObjectFactory
 {
+
+    @Resource(name = ResourceNames.SCREENING_DAO_FACTORY)
+    private IScreeningDAOFactory specificDAOFactory;
+
+    public ScreeningBusinessObjectFactory()
+    {
+    }
+
+    public final IHCSDatasetLoader createHCSDatasetLoader(final String datasetPermId)
+    {
+        return new HCSDatasetLoader(specificDAOFactory.getImagingQueryDAO(), datasetPermId);
+    }
 
     public final ISampleBO createSampleBO(final Session session)
     {

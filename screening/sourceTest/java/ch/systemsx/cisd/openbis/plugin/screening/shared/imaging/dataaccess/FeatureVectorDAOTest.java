@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -25,9 +25,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
- * Tests for {@link IImagingUploadDAO} methods that deal with feature vectors.
+ * Tests for {@link IImagingQueryDAO} methods that deal with feature vectors.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -35,7 +40,7 @@ import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
     { "db", "screening" })
 public class FeatureVectorDAOTest extends AbstractDBTest
 {
-    private IImagingUploadDAO dao;
+    private IImagingQueryDAO dao;
 
     private ImgDatasetDTO dataset;
 
@@ -50,12 +55,12 @@ public class FeatureVectorDAOTest extends AbstractDBTest
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        dao = DBUtils.getQuery(datasource, IImagingUploadDAO.class);
+        dao = DBUtils.getQuery(datasource, IImagingQueryDAO.class);
     }
 
     private ImgDatasetDTO createDataSet()
     {
-        IImagingUploadDAO imagingDao = dao;
+        IImagingQueryDAO imagingDao = dao;
 
         // Create an Experiment
         final long experimentId = imagingDao.addExperiment(EXP_PERM_ID);

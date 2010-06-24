@@ -31,7 +31,6 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -39,6 +38,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper;
 
 /**
@@ -59,7 +59,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     private final IEncapsulatedOpenBISService openBisService;
 
     // Execution state of this object -- set to null after an execution is finished.
-    private IImagingUploadDAO dataAccessObject = null;
+    private IImagingQueryDAO dataAccessObject = null;
 
     public FeatureVectorStorageProcessor(Properties properties)
     {
@@ -138,9 +138,9 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         return sampleOrNull;
     }
 
-    private IImagingUploadDAO createDAO()
+    private IImagingQueryDAO createDAO()
     {
-        return QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
+        return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
     }
 
     @Override

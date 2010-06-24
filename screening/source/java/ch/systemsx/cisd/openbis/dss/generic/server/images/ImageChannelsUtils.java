@@ -26,11 +26,11 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
-import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetLoaderFactory;
-import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
+import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
+import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
  * Utility classes to create an image of a specified size containing one channel or a subset of all
@@ -49,7 +49,8 @@ public class ImageChannelsUtils
     public static List<AbsoluteImageReference> getImagePaths(File datasetRoot, String datasetCode,
             TileImageReference params)
     {
-        IHCSDatasetLoader imageAccessor = HCSDatasetLoaderFactory.create(datasetRoot, datasetCode);
+        IHCSImageDatasetLoader imageAccessor =
+                HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
         Location wellLocation = params.getWellLocation();
         Location tileLocation = params.getTileLocation();
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
@@ -218,7 +219,7 @@ public class ImageChannelsUtils
      * @param chosenChannel starts from 1
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
-    public static AbsoluteImageReference getImage(IHCSDatasetLoader imageAccessor,
+    public static AbsoluteImageReference getImage(IHCSImageDatasetLoader imageAccessor,
             Location wellLocation, Location tileLocation, String chosenChannel,
             Size thumbnailSizeOrNull)
     {

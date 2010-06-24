@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -27,15 +27,24 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
 /**
- * Tests for {@link IImagingUploadDAO}.
+ * Tests for {@link IImagingQueryDAO}.
  * 
  * @author Piotr Buczek
  */
 @Test(groups =
     { "db", "screening" })
-public class ImagingUploadDAOTest extends AbstractDBTest
+public class ImagingQueryDAOTest extends AbstractDBTest
 {
 
     private static final String PERM_ID = "PERM_ID";
@@ -68,12 +77,12 @@ public class ImagingUploadDAOTest extends AbstractDBTest
 
     private static final String EXP_CHANNEL = "expChannel";
 
-    private IImagingUploadDAO dao;
+    private IImagingQueryDAO dao;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        dao = DBUtils.getQuery(datasource, IImagingUploadDAO.class);
+        dao = DBUtils.getQuery(datasource, IImagingQueryDAO.class);
     }
 
     @Test

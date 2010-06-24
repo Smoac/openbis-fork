@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
  * Reference to the image with a path relative to the folder with all the images.

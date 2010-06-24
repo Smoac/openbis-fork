@@ -40,8 +40,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
-import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetLoaderFactory;
-import ch.systemsx.cisd.openbis.dss.etl.IHCSDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
+import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
@@ -170,8 +170,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     private static ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,
             File datasetRoot)
     {
-        IHCSDatasetLoader imageAccessor =
-                HCSDatasetLoaderFactory.create(datasetRoot, dataset.getDatasetCode());
+        IHCSImageDatasetLoader imageAccessor =
+                HCSImageDatasetLoaderFactory.create(datasetRoot, dataset.getDatasetCode());
         IContent imageFile = getAnyImagePath(imageAccessor, dataset);
         Geometry wellGeometry = imageAccessor.getWellGeometry();
         int channelsNumber = imageAccessor.getChannelCount();
@@ -181,7 +181,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 image.getHeight());
     }
 
-    private static IContent getAnyImagePath(IHCSDatasetLoader imageAccessor,
+    private static IContent getAnyImagePath(IHCSImageDatasetLoader imageAccessor,
             IImageDatasetIdentifier dataset)
     {
         Geometry plateGeometry = imageAccessor.getPlateGeometry();
@@ -232,14 +232,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
-        Map<String, IHCSDatasetLoader> imageLoadersMap =
+        Map<String, IHCSImageDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
         List<IContent> imageFiles = new ArrayList<IContent>();
         try
         {
             for (PlateImageReference imageReference : imageReferences)
             {
-                IHCSDatasetLoader imageAccessor =
+                IHCSImageDatasetLoader imageAccessor =
                         imageLoadersMap.get(imageReference.getDatasetCode());
                 assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
                 AbsoluteImageReference image = tryGetImage(imageAccessor, imageReference);
@@ -260,20 +260,20 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return new ConcatenatedContentInputStream(true, imageFiles);
     }
 
-    private static void closeDatasetLoaders(Collection<IHCSDatasetLoader> loaders)
+    private static void closeDatasetLoaders(Collection<IHCSImageDatasetLoader> loaders)
     {
-        for (IHCSDatasetLoader loader : loaders)
+        for (IHCSImageDatasetLoader loader : loaders)
         {
             loader.close();
         }
     }
 
     // throws exception if some datasets cannot be found
-    private Map<String/* image or feature vector dataset code */, IHCSDatasetLoader> getImageDatasetsMap(
+    private Map<String/* image or feature vector dataset code */, IHCSImageDatasetLoader> getImageDatasetsMap(
             String sessionToken, List<PlateImageReference> imageReferences)
     {
-        Map<String/* dataset code */, IHCSDatasetLoader> imageDatasetsMap =
-                new HashMap<String, IHCSDatasetLoader>();
+        Map<String/* dataset code */, IHCSImageDatasetLoader> imageDatasetsMap =
+                new HashMap<String, IHCSImageDatasetLoader>();
         for (PlateImageReference imageReference : imageReferences)
         {
             if (imageDatasetsMap.containsKey(imageReference.getDatasetCode()) == false)
@@ -282,7 +282,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                         tryFindImageDataset(sessionToken, imageReference.getDatasetCode());
                 if (imageDataset != null)
                 {
-                    IHCSDatasetLoader imageAccessor = createImageLoader(imageDataset.getCode());
+                    IHCSImageDatasetLoader imageAccessor =
+                            createImageLoader(imageDataset.getCode());
                     imageDatasetsMap.put(imageReference.getDatasetCode(), imageAccessor);
                 } else
                 {
@@ -294,7 +295,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return imageDatasetsMap;
     }
 
-    private AbsoluteImageReference tryGetImage(IHCSDatasetLoader imageAccessor,
+    private AbsoluteImageReference tryGetImage(IHCSImageDatasetLoader imageAccessor,
             PlateImageReference imageRef)
     {
         Location wellLocation = asLocation(imageRef.getWellPosition());
@@ -328,10 +329,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return new Location(wellPosition.getWellColumn(), wellPosition.getWellRow());
     }
 
-    private IHCSDatasetLoader createImageLoader(String datasetCode)
+    private IHCSImageDatasetLoader createImageLoader(String datasetCode)
     {
         File datasetRoot = getRootDirectoryForDataSet(datasetCode);
-        return HCSDatasetLoaderFactory.create(datasetRoot, datasetCode);
+        return HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
     }
 
     private ExternalData tryFindImageDataset(String sessionToken, String datasetCode)

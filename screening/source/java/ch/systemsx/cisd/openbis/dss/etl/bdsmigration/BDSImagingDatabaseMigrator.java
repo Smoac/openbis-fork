@@ -28,16 +28,16 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ColorComponent;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
 {
-    private IImagingUploadDAO dao;
+    private IImagingQueryDAO dao;
 
     private List<String> channelNames;
 
@@ -75,7 +75,7 @@ public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
     public BDSImagingDatabaseMigrator(Properties properties)
     {
         DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
-        dao = QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
+        dao = QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
         channelNames =
                 PropertyUtils.getMandatoryList(properties, PlateStorageProcessor.CHANNEL_NAMES);
         channelColorComponentsOrNull =

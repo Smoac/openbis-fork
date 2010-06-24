@@ -20,9 +20,9 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfoHelper;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureDefDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
  * Helper class for uploading feature vectors from the file system into the data base.
@@ -31,11 +31,11 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgFeatureValuesDTO;
  */
 public class FeatureVectorUploader
 {
-    private final IImagingUploadDAO dao;
+    private final IImagingQueryDAO dao;
 
     private final ScreeningContainerDatasetInfo info;
 
-    public FeatureVectorUploader(IImagingUploadDAO imagingDao, ScreeningContainerDatasetInfo info)
+    public FeatureVectorUploader(IImagingQueryDAO imagingDao, ScreeningContainerDatasetInfo info)
     {
         this.dao = imagingDao;
         this.info = info;
@@ -58,13 +58,13 @@ public class FeatureVectorUploader
 
     private static class FeatureVectorUploaderHelper
     {
-        private final IImagingUploadDAO dao;
+        private final IImagingQueryDAO dao;
 
         private final long dataSetId;
 
         private final CanonicalFeatureVector fvec;
 
-        FeatureVectorUploaderHelper(IImagingUploadDAO dao, ScreeningContainerDatasetInfo info,
+        FeatureVectorUploaderHelper(IImagingQueryDAO dao, ScreeningContainerDatasetInfo info,
                 long dataSetId, CanonicalFeatureVector fvec)
         {
             this.dao = dao;

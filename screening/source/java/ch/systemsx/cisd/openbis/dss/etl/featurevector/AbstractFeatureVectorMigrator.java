@@ -28,8 +28,6 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.etlserver.plugins.IMigrator;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -40,6 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 
 /**
  * Imports individual data sets into the imaging db.
@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public abstract class AbstractFeatureVectorMigrator implements IMigrator
 {
-    protected final IImagingUploadDAO dao;
+    protected final IImagingQueryDAO dao;
 
     protected final IEncapsulatedOpenBISService openBisService;
 
@@ -59,7 +59,7 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
     public AbstractFeatureVectorMigrator(Properties properties)
     {
         DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
-        dao = QueryTool.getQuery(dataSource, IImagingUploadDAO.class);
+        dao = QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
         openBisService = ServiceProvider.getOpenBISService();
         knownDataSets = openBisService.listDataSets();
         knownDataSetsByCode =
@@ -247,7 +247,7 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
      */
     protected abstract static class AbstractImageDbImporter
     {
-        protected final IImagingUploadDAO dao;
+        protected final IImagingQueryDAO dao;
 
         protected final ScreeningContainerDatasetInfo screeningDataSetInfo;
 
@@ -255,7 +255,7 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
 
         protected boolean isSuccessful = false;
 
-        protected AbstractImageDbImporter(IImagingUploadDAO dao,
+        protected AbstractImageDbImporter(IImagingQueryDAO dao,
                 ScreeningContainerDatasetInfo screeningDataSetInfo, File fileToMigrate)
         {
             this.dao = dao;
