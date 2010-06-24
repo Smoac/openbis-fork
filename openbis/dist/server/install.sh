@@ -1,7 +1,7 @@
 #! /bin/bash
 
 usage() {
-	echo "Usage: $0 [--port <port number>] <server folder> [<service properties file> <startup properties file>]"
+	echo "Usage: $0 <server folder> [<service properties file> <startup properties file>]"
 	exit 1
 }
 
@@ -13,14 +13,6 @@ check_arguments() {
 	fi
 }
 
-check_arguments $@
-JETTY_PORT=8443
-if [ $1 == "--port" ]; then
-	shift
-	check_arguments $@
-	JETTY_PORT=$1
-	shift
-fi
 check_arguments $@
 
 # Installation folder: where the distribution zip file has been unzipped (and where this script resides)
@@ -110,8 +102,7 @@ cp -p "$installation_folder"/setup-env "$JETTY_BIN_DIR"
 # Create a file called 'jetty.properties'.
 JETTY_PROPERTIES="$JETTY_BIN_DIR"/jetty.properties
 cp $startup_properties_file "$JETTY_BIN_DIR"
-echo "JETTY_PORT=$JETTY_PORT" > "$JETTY_PROPERTIES"
-echo "JETTY_STOP_PORT=8079" >> "$JETTY_PROPERTIES"
+echo "JETTY_STOP_PORT=8079" > "$JETTY_PROPERTIES"
 echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
 
 # Create a 'work' directory in jetty folder. Web applications will be unpacked there.
