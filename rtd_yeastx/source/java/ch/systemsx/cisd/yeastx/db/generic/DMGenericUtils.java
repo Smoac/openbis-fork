@@ -60,6 +60,8 @@ public class DMGenericUtils
                 sample.setExperiment(experiment);
                 dataSet.setSample(sample); // make sure all the ids are set correctly.
             }
+            // without this commit other threads will not see the new experiment/sample when the
+            // synchronized block ends
             dao.close(true);
         }
 
@@ -67,7 +69,8 @@ public class DMGenericUtils
         dataSet.setId(dataSetId);
     }
 
-    private static DMSampleDTO createSample(IDMGenericDAO dao, DMSampleDTO sample, String samplePermId)
+    private static DMSampleDTO createSample(IDMGenericDAO dao, DMSampleDTO sample,
+            String samplePermId)
     {
         final long sampleId = dao.addSample(sample);
         sample.setId(sampleId);
