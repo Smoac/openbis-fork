@@ -101,9 +101,14 @@ public class ChainedDataSetMigrationTask implements IMaintenanceTask
                     return pathname.isDirectory() && UUID_PATTERN.matcher(name).matches();
                 }
             });
-        if (files == null || files.length != 1)
+        if (files == null || files.length == 0)
         {
-            throw new EnvironmentFailureException("Exactly one folder with UUID expected in "
+            operationLog.warn("Store is empty, there is nothing to migrate");
+            return;
+        }
+        if (files.length > 1)
+        {
+            throw new EnvironmentFailureException("At most one folder with UUID expected in "
                     + storeRoot);
         }
         File dbInstanceDir = files[0];
