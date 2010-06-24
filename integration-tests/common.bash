@@ -13,10 +13,12 @@ WORK=$TARGETS/playground
 INSTALL=$TARGETS/install
 LOCAL_PROJECTS=..
 
-OPENBIS_SERVER_NAME=openBIS-server
-OPENBIS_SERVER=$WORK/$OPENBIS_SERVER_NAME
+OPENBIS_SERVER=$WORK/openBIS-server
 
 ERR_LOG=$WORK/all_err_log.txt
+
+SSH_CRUISE_CONTROL_NAME=ci@cisd-vesuvio.ethz.ch
+CRUISE_CONTROL_ARTIFACTS=cruisecontrol-bin/artifacts
 
 # ----------------------------- global state
 
@@ -314,6 +316,16 @@ function build_zips_from_svn {
     rm -fr $RSC 
 }
 
+function fetch_latest_artifacts_from_cruise_control {
+    local proj_name=$1
+    local dest_dir=$2
+    
+    local list_cmd="ls -1 $CRUISE_CONTROL_ARTIFACTS/$proj_name | sort | tail -1"
+    local last=`echo $list_cmd | ssh $SSH_CRUISE_CONTROL_NAME -T`
+    echo "Fetching artifacts for $proj_name: $last" 
+    scp $SSH_CRUISE_CONTROL_NAME:$CRUISE_CONTROL_ARTIFACTS/$proj_name/$last/*.zip $dest_dir
+}
+
 # -------------------------- installation
 
 # Recursively removes '.svn' directory in passed directory.
@@ -367,36 +379,54 @@ function wait_for_server {
     fi
 }
 
+function restore_database {
+	local db_name=$1
+	local db_file_path=$2 
+		
+    psql_cmd=`run_psql`
+    $psql_cmd -U postgres -c "drop database $db_name"
+    $psql_cmd -U postgres -c "create database $db_name with owner $USER template = template0 encoding = 'UNICODE'"
+    $psql_cmd -U $USER -d $db_name -f $db_file_path
+}
+
+#
+# Installs openbis server in the specified directory. 
+# Copies templates from the directory with the same name in $TEMPLATE diretcory.
+#
 function install_openbis_server {
     local install_openbis=$1
-    psql_cmd=`run_psql`
-    $psql_cmd -U postgres -c "drop database $DATABASE"
-    $psql_cmd -U postgres -c "create database $DATABASE with owner $USER template = template0 encoding = 'UNICODE'"
-    $psql_cmd -U $USER -d $DATABASE -f $TEMPLATE/$OPENBIS_SERVER_NAME/test_database.sql
-
+		local openbis_server_dir=$2
+		
+		local openbis_server_name=`basename $openbis_server_dir`
+		
+		restore_database $DATABASE $TEMPLATE/$openbis_server_name/test_database.sql
     if [ $install_openbis == "true" ]; then
-        rm -fr $OPENBIS_SERVER
-        copy_templates $OPENBIS_SERVER_NAME
+        rm -fr $openbis_server_dir
+		copy_templates $openbis_server_name
     
-        unzip -d $OPENBIS_SERVER $INSTALL/openBIS*.zip
-        $OPENBIS_SERVER/openBIS-server/install.sh $PWD/$OPENBIS_SERVER $OPENBIS_SERVER/service.properties $OPENBIS_SERVER/openbis.conf
-        startup_openbis_server
-        wait_for_server
+        unzip -d $openbis_server_dir $INSTALL/openBIS*.zip
+		$openbis_server_dir/openBIS-server/install.sh $PWD/$openbis_server_dir $openbis_server_dir/service.properties $openbis_server_dir/openbis.conf
+        startup_openbis_server $openbis_server_dir
+		wait_for_server
     else
-        copy_templates $OPENBIS_SERVER_NAME
-        restart_openbis
+        copy_templates $openbis_server_name
+        restart_openbis $openbis_server_dir
     fi
 }
 
 
 function startup_openbis_server {
-    call_in_dir bin/startup.sh $OPENBIS_SERVER/jetty
+	local openbis_server_dir=$1 
+		
+    call_in_dir bin/startup.sh $openbis_server_dir/jetty
     wait_for_server
 }
 
 function shutdown_openbis_server {
+		local openbis_server_dir=$1 
+		
     if [ "`check_server_port`" != "" ]; then
-        $OPENBIS_SERVER/jetty/bin/shutdown.sh
+        $openbis_server_dir/jetty/bin/shutdown.sh
     fi
 }
 
@@ -434,17 +464,19 @@ function install_datamovers {
 }
 
 function restart_openbis {
-    assert_dir_exists_or_die $OPENBIS_SERVER
+	local openbis_server_dir=$1
+		
+    assert_dir_exists_or_die $openbis_server_dir
     if [ "`check_server_port`" != "" ]; then
             # maybe server is just closing, wait a moment
             sleep 5
     fi
     if [ "`check_server_port`" != "" ]; then
-            echo Shutting down openbis server.
-            shutdown_openbis_server
-            sleep 1
-          fi
-    startup_openbis_server
+    	echo Shutting down openbis server.
+	    shutdown_openbis_server $openbis_server_dir
+	    sleep 1
+  	fi
+    startup_openbis_server $openbis_server_dir
     sleep 4
 }
 
@@ -458,11 +490,11 @@ function install {
     if [ $reinstall_all == "true" ];then
             install_dsss "true"
             install_datamovers "true"
-            install_openbis_server "true"
+            install_openbis_server "true" $OPENBIS_SERVER
     else
             install_dsss $install_dss
             install_datamovers $install_dmv
-            install_openbis_server $install_openbis
+            install_openbis_server $install_openbis $OPENBIS_SERVER
     fi
 }
 
