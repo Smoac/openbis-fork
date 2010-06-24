@@ -225,6 +225,12 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
             DataSetInformation dataSetInformation)
     {
         Sample sampleOrNull = tryFindSampleForDataSet(dataSetInformation);
+        if (sampleOrNull == null)
+        {
+            throw new IllegalStateException(
+                    "Cannot find a sample to which a plate should be (directly or indirectly) connected: "
+                            + dataSetInformation);
+        }
         return ScreeningContainerDatasetInfo.createBasicScreeningDatasetInfo(dataSetInformation,
                 sampleOrNull);
     }
@@ -239,7 +245,12 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
             for (String dataSetCode : parentDataSetCodes)
             {
                 ExternalData externalData = openBisService.tryGetDataSetForServer(dataSetCode);
-                if (externalData != null && externalData.getSample() != null)
+                if (externalData == null)
+                {
+                    throw new UserFailureException("Cannot find a parent dataset in openBIS: "
+                            + dataSetCode);
+                }
+                if (externalData.getSample() != null)
                 {
                     sampleOrNull = externalData.getSample();
                     break;
