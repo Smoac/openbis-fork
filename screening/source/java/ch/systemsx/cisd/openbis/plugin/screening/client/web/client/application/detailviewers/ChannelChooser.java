@@ -25,9 +25,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
@@ -56,9 +54,8 @@ class ChannelChooser
         String initialChannel = channelState.getDefaultChannel(channelsNames);
         if (channelsNames.size() > 1)
         {
-            final List<String> channelNames = createChannelsDescriptions(channelsNames);
             ComboBox<SimpleComboValue<String>> channelChooser =
-                    createChannelChooser(channelNames, initialChannel);
+                    new ChannelComboBox(channelsNames, initialChannel);
             channelChooser
                     .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
                         {
@@ -81,21 +78,7 @@ class ChannelChooser
         return container;
     }
 
-    private static ComboBox<SimpleComboValue<String>> createChannelChooser(
-            List<String> channelNames, String initialChannelOrNull)
-    {
-        SimpleComboBox<String> combo = new SimpleComboBox<String>();
-        combo.setTriggerAction(TriggerAction.ALL);
-        combo.add(channelNames);
-        combo.setAllowBlank(false);
-        combo.setEditable(false);
-        String initialChannelName =
-                initialChannelOrNull != null ? initialChannelOrNull : channelNames.get(0);
-        combo.setSimpleValue(initialChannelName);
-        return combo;
-    }
-
-    private static List<String> createChannelsDescriptions(List<String> realChannelsNames)
+    public static List<String> createChannelsDescriptions(List<String> realChannelsNames)
     {
         assert realChannelsNames.size() > 0 : "there has to be at least one channel";
 

@@ -13,6 +13,8 @@ var screening = {
   WELL_COLUMN: "Well Column",
   WELL: "Well",
   WELL_IMAGES: "Well Images",
+  PREVIEW: "Preview",
+  
   
   //
   // Sample Viewer

@@ -30,8 +30,12 @@ public class GuiUtils
     public static void replaceLastItem(LayoutContainer container, Widget newLastWidget)
     {
         int lastItemIx = container.getItemCount() - 1;
-        container.remove(container.getWidget(lastItemIx));
-        container.insert(newLastWidget, lastItemIx);
+        if (lastItemIx >= 0)
+        {
+            container.remove(container.getWidget(lastItemIx));
+            container.insert(newLastWidget, lastItemIx);
+        }
+        container.insert(newLastWidget, 0);
         container.layout();
     }
 

@@ -18,7 +18,13 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -42,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.PlateMaterialReviewerColDefKind;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
@@ -78,8 +84,12 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
             PlateMaterialsSearchCriteria materialCriteria,
             IEntityInformationHolderWithIdentifier experiment)
     {
-        return new PlateMaterialReviewer(viewContext, materialCriteria, experiment)
-                .asDisposableWithoutToolbar();
+        ToolBar toolbar = new ToolBar();
+        toolbar.add(new Label("Channel:"));
+        ChannelComboBox chooser = new ChannelComboBox();
+        toolbar.add(chooser);
+        return new PlateMaterialReviewer(viewContext, materialCriteria, experiment, chooser)
+                .asDisposableWithToolbar(toolbar);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
@@ -88,17 +98,17 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
 
     private final ExperimentIdentifier experiment;
 
-    private final DefaultChannelState channelState;
+    private final ChannelComboBox channelChooser;
 
     private PlateMaterialReviewer(IViewContext<IScreeningClientServiceAsync> viewContext,
             PlateMaterialsSearchCriteria materialCriteria,
-            IEntityInformationHolderWithIdentifier experiment)
+            IEntityInformationHolderWithIdentifier experiment, ChannelComboBox chooser)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID,
                 DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
         this.viewContext = viewContext;
         this.materialCriteria = materialCriteria;
-        this.channelState = new DefaultChannelState();
+        channelChooser = chooser;
         this.experiment = new ExperimentIdentifier(experiment.getIdentifier());
         registerClickListeners();
     }
@@ -153,15 +163,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                             }
                         }
                     });
-        registerLinkClickListenerFor(PlateMaterialReviewerColDefKind.IMAGE.id(),
-                new ICellListener<WellContent>()
-                    {
-                        public void handle(WellContent wellContent, boolean specialKeyPressed)
-                        {
-                            WellContentDialog.showContentDialog(wellContent, channelState,
-                                    viewContext, IMAGE_WIDTH_PX, IMAGE_HEIGHT_PX);
-                        }
-                    });
+
     }
 
     private void showEntityViewer(IEntityInformationHolder entityOrNull, boolean specialKeyPressed)
@@ -176,15 +178,48 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
     protected ColumnDefsAndConfigs<WellContent> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<WellContent> schema = super.createColumnsDefinition();
-        setLinksRenderer(schema,
-                new PlateMaterialReviewerColDefKind[]
-                    { PlateMaterialReviewerColDefKind.WELL_NESTED_MATERIAL,
-                            PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
-                            PlateMaterialReviewerColDefKind.PLATE,
-                            PlateMaterialReviewerColDefKind.WELL,
-                            PlateMaterialReviewerColDefKind.DATASET,
-                            PlateMaterialReviewerColDefKind.IMAGE });
+        setLinksRenderer(schema, new PlateMaterialReviewerColDefKind[]
+            { PlateMaterialReviewerColDefKind.WELL_NESTED_MATERIAL,
+                    PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
+                    PlateMaterialReviewerColDefKind.PLATE, PlateMaterialReviewerColDefKind.WELL,
+                    PlateMaterialReviewerColDefKind.DATASET });
+        setImageRenderer(schema);
         return schema;
+    }
+
+    private void setImageRenderer(ColumnDefsAndConfigs<WellContent> schema)
+    {
+        GridCellRenderer<BaseEntityModel<?>> render = new GridCellRenderer<BaseEntityModel<?>>()
+            {
+
+                public Object render(BaseEntityModel<?> model, String property, ColumnData config,
+                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
+                        Grid<BaseEntityModel<?>> grid)
+                {
+                    final WellContent entity = (WellContent) model.getBaseObject();
+                    if (entity != null && entity.tryGetImages() != null)
+                    {
+                        final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
+                            {
+                                public Widget create(String channel)
+                                {
+                                    return WellContentDialog.createImageViewerForChannel(
+                                            viewContext, entity, IMAGE_WIDTH_PX, IMAGE_HEIGHT_PX,
+                                            channel);
+                                }
+                            };
+                        ChannelWidgetWithListener widgetWithListener =
+                                new ChannelWidgetWithListener(viewerFactory);
+                        widgetWithListener.update(channelChooser.getSimpleValue());
+                        channelChooser.addNamesAndListener(entity.tryGetImages()
+                                .getImageParameters().getChannelsNames(), widgetWithListener
+                                .asSelectionChangedListener());
+                        return widgetWithListener.asWidget();
+                    }
+                    return null;
+                }
+            };
+        schema.setGridCellRendererFor(PlateMaterialReviewerColDefKind.IMAGE.id(), render);
     }
 
     private void setLinksRenderer(ColumnDefsAndConfigs<WellContent> schema,
@@ -230,4 +265,5 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
     {
         return new DatabaseModificationKind[] {};
     }
+
 }

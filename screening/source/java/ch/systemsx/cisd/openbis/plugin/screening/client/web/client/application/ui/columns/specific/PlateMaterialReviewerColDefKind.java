@@ -148,12 +148,18 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             }
         }),
 
-    IMAGE(new AbstractColumnDefinitionKind<WellContent>(Dict.WELL_IMAGES)
+    IMAGE(new AbstractColumnDefinitionKind<WellContent>(Dict.WELL_IMAGES, 250)
         {
             @Override
             public String tryGetValue(WellContent entity)
             {
-                return "Show";
+                if (entity != null && entity.tryGetImages() != null)
+                {
+                    // Used only for export and filtering, renderer will set the image browser
+                    // widget as a value of this column in the GUI
+                    return "[images]";
+                }
+                return null;
             }
         }),
 
