@@ -57,6 +57,10 @@ public class TimeSeriesPropertiesReportingPlugin extends AbstractDatastorePlugin
         for (DatasetDescription dataset : datasets)
         {
             List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
+            for (int i = 0, n = headers.size(); i < n; i++)
+            {
+                row.add(new StringTableCell(""));
+            }
             addTableCellValue(row, headers, "CODE", dataset.getDatasetCode());
             File file = getDataSubDir(dataset);
             List<NewProperty> properies = HeaderUtils.extractHeaderProperties(file, true);
@@ -72,7 +76,7 @@ public class TimeSeriesPropertiesReportingPlugin extends AbstractDatastorePlugin
     private static void addTableCellValue(List<ISerializableComparable> row, List<String> headers,
             String key, String value)
     {
-        row.add(headers.indexOf(key), new StringTableCell(value));
+        row.set(headers.indexOf(key), new StringTableCell(value));
 
     }
 
