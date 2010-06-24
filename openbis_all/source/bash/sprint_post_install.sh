@@ -36,8 +36,8 @@ function restore_common {
   if [ -f ~openbis/config/index.html ]; then
   	cp ~openbis/config/index.html  ~openbis/sprint/openBIS-server/jetty/work/openbis/webapp/
   fi  
-  if  [ -f ~openbis/config/jetty.xml ]; then
-  	cp ~openbis/config/jetty.xml ~openbis/sprint/openBIS-server/jetty/etc/
+  if  [ -f ~openbis/config/openbis-as-jetty.xml ]; then
+  	cp ~openbis/config/openbis-as-jetty.xml ~openbis/sprint/openBIS-server/jetty/etc/
   fi
   if  [ -f ~openbis/config/datastore_log.xml ]; then
   	cp ~openbis/config/datastore_log.xml ~openbis/sprint/datastore_server/etc/log.xml
