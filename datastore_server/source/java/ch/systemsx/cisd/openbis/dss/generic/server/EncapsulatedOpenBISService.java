@@ -316,6 +316,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
+    synchronized public SampleIdentifier tryToGetSampleIdentifier(String samplePermID) throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            return service.tryToGetSampleIdentifier(sessionToken, samplePermID);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return service.tryToGetSampleIdentifier(sessionToken, samplePermID);
+        }
+    }
+
     synchronized public ExperimentType getExperimentType(String experimentTypeCode)
             throws UserFailureException
     {

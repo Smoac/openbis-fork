@@ -99,6 +99,13 @@ public interface IEncapsulatedOpenBISService
             throws UserFailureException;
 
     /**
+     * Tries to get the sample identifier for the sample with specified permanent ID.
+     * 
+     * @return <code>null</code> if nothing found.
+     */
+    public SampleIdentifier tryToGetSampleIdentifier(String samplePermID) throws UserFailureException;
+
+    /**
      * Gets the experiment type with assigned property types for the specified experiment type code.
      */
     public ExperimentType getExperimentType(String experimentTypeCode) throws UserFailureException;
