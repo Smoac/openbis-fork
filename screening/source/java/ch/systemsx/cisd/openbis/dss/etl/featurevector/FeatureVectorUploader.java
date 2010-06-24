@@ -43,11 +43,9 @@ public class FeatureVectorUploader
 
     public void uploadFeatureVectors(List<CanonicalFeatureVector> fvecs)
     {
-        ScreeningContainerDatasetInfoHelper helper =
-                new ScreeningContainerDatasetInfoHelper(dao, info);
-        long expId = helper.getOrCreateExperiment();
-        long contId = helper.getOrCreateContainer(expId);
-        long dataSetId = helper.getOrCreateDataset(contId);
+        ScreeningContainerDatasetInfoHelper helper = new ScreeningContainerDatasetInfoHelper(dao);
+        long contId = helper.getOrCreateExperimentAndContainer(info).getContainerId();
+        long dataSetId = helper.createDataset(contId, info);
 
         for (CanonicalFeatureVector fvec : fvecs)
         {

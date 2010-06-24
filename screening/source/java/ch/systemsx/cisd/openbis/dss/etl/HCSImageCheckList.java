@@ -143,7 +143,7 @@ public final class HCSImageCheckList
             this.wellCol = wellCol;
             this.tileRow = tileRow;
             this.tileCol = tileCol;
-            this.channelName = channelName;
+            this.channelName = channelName.toUpperCase();
         }
 
         private final static String toString(final int row, final int col, final String type)

@@ -25,11 +25,10 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfoHelper.ExperimentWithChannelsAndContainer;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingUploadDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgAcquiredImageDTO;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgChannelStackDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgImageDTO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImgSpotDTO;
@@ -58,121 +57,15 @@ public class HCSDatasetUploader
     private void upload(ScreeningContainerDatasetInfo info, List<AcquiredPlateImage> images,
             Set<HCSImageFileExtractionResult.Channel> channels)
     {
-        long expId = getOrCreateExperiment(info);
-        long contId = getOrCreateContainer(expId, info);
+        ExperimentWithChannelsAndContainer basicStruct =
+                ScreeningContainerDatasetInfoHelper.getOrCreateExperimentWithChannelsAndContainer(
+                        dao, info, channels);
+        long contId = basicStruct.getContainerId();
+        Map<String, Long/* (tech id */> channelsMap = basicStruct.getChannelsMap();
         Long[][] spotIds = getOrCreateSpots(contId, info, images);
-        Map<String, Long/* (tech id */> channelsMap = getOrCreateChannels(expId, channels);
         long datasetId = createDataset(contId, info);
 
         createImages(images, spotIds, channelsMap, datasetId);
-    }
-
-    private Map<String, Long> getOrCreateChannels(long expId,
-            Set<HCSImageFileExtractionResult.Channel> channels)
-    {
-        List<ImgChannelDTO> allChannels = dao.getChannelsByExperimentId(expId);
-        if (allChannels.size() == 0)
-        {
-            return createChannels(expId, channels);
-        } else
-        {
-            return updateChannels(expId, channels, allChannels);
-        }
-    }
-
-    private Map<String, Long> updateChannels(long expId, Set<Channel> channels,
-            List<ImgChannelDTO> allChannels)
-    {
-        Map<String/* name */, ImgChannelDTO> existingChannels = asNameMap(allChannels);
-        Map<String, Long> map = new HashMap<String, Long>();
-        for (HCSImageFileExtractionResult.Channel channel : channels)
-        {
-            ImgChannelDTO channelDTO = updateChannel(channel, expId, existingChannels);
-            addChannel(map, channelDTO);
-        }
-        return map;
-    }
-
-    private Map<String, Long> createChannels(long expId, Set<Channel> channels)
-    {
-        Map<String, Long> map = new HashMap<String, Long>();
-        for (HCSImageFileExtractionResult.Channel channel : channels)
-        {
-            ImgChannelDTO channelDTO = createChannel(expId, channel);
-            addChannel(map, channelDTO);
-        }
-        return map;
-    }
-
-    private static void addChannel(Map<String, Long> map, ImgChannelDTO channelDTO)
-    {
-        map.put(channelDTO.getName(), channelDTO.getId());
-    }
-
-    private static Map<String, ImgChannelDTO> asNameMap(List<ImgChannelDTO> channels)
-    {
-        Map<String, ImgChannelDTO> nameMap = new HashMap<String, ImgChannelDTO>();
-        for (ImgChannelDTO channel : channels)
-        {
-            nameMap.put(channel.getName().toUpperCase(), channel);
-        }
-        return nameMap;
-    }
-
-    private ImgChannelDTO updateChannel(HCSImageFileExtractionResult.Channel channel, long expId,
-            Map<String, ImgChannelDTO> existingChannels)
-    {
-        ImgChannelDTO channelDTO = makeChannelDTO(channel, expId);
-        String channelName = channelDTO.getName();
-        ImgChannelDTO existingChannel = existingChannels.get(channelName);
-        if (existingChannel == null)
-        {
-            throw createInvalidNewChannelException(expId, existingChannels, channelName);
-        }
-        // a channel with a specified name already exists for an experiment, its description
-        // will be updated. Wavelength will be updated only if it was null before.
-        if (channelDTO.getWavelength() == null)
-        {
-            channelDTO.setWavelength(existingChannel.getWavelength());
-        }
-        if (existingChannel.getWavelength() != null
-                && existingChannel.getWavelength().equals(channelDTO.getWavelength()) == false)
-        {
-            throw UserFailureException.fromTemplate(
-                    "There are already datasets registered for the experiment "
-                            + "which use the same channel name, but with a different wavelength! "
-                            + "Channel %s, old wavelength %d, new wavelength %d.", channelName,
-                    existingChannel.getWavelength(), channelDTO.getWavelength());
-        }
-        channelDTO.setId(existingChannel.getId());
-        dao.updateChannel(channelDTO);
-        return channelDTO;
-    }
-
-    private static UserFailureException createInvalidNewChannelException(long expId,
-            Map<String, ImgChannelDTO> existingChannels, String channelName)
-    {
-        return UserFailureException.fromTemplate(
-                "Experiment with id '%d' has already some channels registered "
-                        + "and does not have a channel with a name '%s'. "
-                        + "Register a new experiment to use new channels. "
-                        + "Available channel names in this experiment: %s.", expId, channelName,
-                existingChannels.keySet());
-    }
-
-    private ImgChannelDTO createChannel(long expId, HCSImageFileExtractionResult.Channel channel)
-    {
-        ImgChannelDTO channelDTO = makeChannelDTO(channel, expId);
-        long channelId = dao.addChannel(channelDTO);
-        channelDTO.setId(channelId);
-        return channelDTO;
-    }
-
-    private static ImgChannelDTO makeChannelDTO(HCSImageFileExtractionResult.Channel channel,
-            long expId)
-    {
-        return ImgChannelDTO.createExperimentChannel(channel.getName().toUpperCase(), channel
-                .tryGetDescription(), channel.tryGetWavelength(), expId);
     }
 
     private static class AcquiredImageInStack
@@ -273,7 +166,13 @@ public class HCSDatasetUploader
     {
         for (AcquiredImageInStack image : images)
         {
-            long channelTechId = channelsMap.get(image.getChannelName());
+            String channelName = image.getChannelName().toUpperCase();
+            Long channelTechId = channelsMap.get(channelName);
+            if (channelTechId == null)
+            {
+                throw new EnvironmentFailureException("Invalid channel name " + channelName
+                        + ". Available channels: " + channelsMap.keySet());
+            }
             createImage(stackId, channelTechId, image);
         }
     }
@@ -422,15 +321,5 @@ public class HCSDatasetUploader
     private long createDataset(long contId, ScreeningContainerDatasetInfo info)
     {
         return ScreeningContainerDatasetInfoHelper.createDataset(dao, info, contId);
-    }
-
-    private long getOrCreateContainer(long expId, ScreeningContainerDatasetInfo info)
-    {
-        return ScreeningContainerDatasetInfoHelper.getOrCreateContainer(dao, info, expId);
-    }
-
-    private long getOrCreateExperiment(ScreeningContainerDatasetInfo info)
-    {
-        return ScreeningContainerDatasetInfoHelper.getOrCreateExperiment(dao, info);
     }
 }
