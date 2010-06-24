@@ -136,7 +136,7 @@ public final class PropertyUtils
 
     /**
      * @returns a list of comma separated values at the specified property key. Each item is trimmed
-     *          and in lower cases.
+     *          and in upper case.
      * @throws ConfigurationFailureException when a property is not specified or is empty
      */
     public final static List<String> getMandatoryList(Properties properties, String propertyKey)
@@ -546,7 +546,7 @@ public final class PropertyUtils
         }
         return properties;
     }
-    
+
     /**
      * Saves the given <var>properties</var> to the given <var>propertiesFile</var>.
      */
