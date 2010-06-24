@@ -26,12 +26,13 @@ function compare_configs {
 }
 
 compare_configs $CONFIG_DIR/datastore_server-service.properties ~/sprint/datastore_server/etc/service.properties
-TOMCAT_DIR=~/sprint/openBIS-server/apache-tomcat
-compare_configs $CONFIG_DIR/service.properties $TOMCAT_DIR/webapps/openbis/WEB-INF/classes/service.properties
-compare_configs $CONFIG_DIR/openbis.conf $TOMCAT_DIR/etc/openbis.conf
-compare_configs $CONFIG_DIR/images/ $TOMCAT_DIR/webapps/openbis/images/
-compare_configs $CONFIG_DIR/loginHeader.html $TOMCAT_DIR/webapps/openbis/loginHeader.html
-compare_configs $CONFIG_DIR/help.html $TOMCAT_DIR/webapps/openbis/help.html
+SERVER_DIR=~/sprint/openBIS-server/jetty
+WEBAPP_DIR=$SERVER_DIR/work/openbis/webapp
+compare_configs $CONFIG_DIR/service.properties $WEBAPP_DIR/WEB-INF/classes/service.properties
+compare_configs $CONFIG_DIR/openbis.conf $SERVER_DIR/bin/openbis.conf
+compare_configs $CONFIG_DIR/images/ $WEBAPP_DIR/images/
+compare_configs $CONFIG_DIR/loginHeader.html $WEBAPP_DIR/loginHeader.html
+compare_configs $CONFIG_DIR/help.html $WEBAPP_DIR/help.html
 
 
 rm  .dss_changed

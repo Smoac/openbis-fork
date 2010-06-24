@@ -29,8 +29,8 @@ SQL="WITH RECURSIVE data_set_parents(id, parent_ids, cycle) AS (
 SELECT count(*) AS cycles FROM data_set_parents WHERE cycle = true;"
 
 SQL_QUERY="psql -c \"$SQL\" openbis_productive"
-JAVA_MAX_HEAP_SIZE="echo -n JAVA_MAX_HEAP_SIZE: ;cat ~openbis/sprint/openBIS-server/apache-tomcat/etc/openbis.conf | grep JAVA_MEM_OPTS | cut -d \- -f 2"
-JAVA_INIT_HEAP_SIZE="echo -n JAVA_INIT_HEAP_SIZE: ;cat ~openbis/sprint/openBIS-server/apache-tomcat/etc/openbis.conf | grep JAVA_MEM_OPTS | cut -d \- -f 3"
+JAVA_MAX_HEAP_SIZE="echo -n JAVA_MAX_HEAP_SIZE: ;cat ~openbis/sprint/openBIS-server/jetty/bin/openbis.conf | grep JAVA_MEM_OPTS | cut -d \- -f 2"
+JAVA_INIT_HEAP_SIZE="echo -n JAVA_INIT_HEAP_SIZE: ;cat ~openbis/sprint/openBIS-server/jetty/bin/openbis.conf | grep JAVA_MEM_OPTS | cut -d \- -f 3"
 JAVA_VERSION="java -version"
 PSQL_VERSION="psql --version | grep PostgreSQL"
 OPENBIS_VERSION="ls -1d ~openbis/sprint-* | cut -d - -f2"

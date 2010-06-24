@@ -80,11 +80,11 @@ if [ $? -ne 0 ]; then
 fi
 
 # Shutdown servers
-$BASE_DIR/openBIS-server/apache-tomcat/bin/shutdown.sh
+$BASE_DIR/openBIS-server/jetty/bin/shutdown.sh
 $BASE_DIR/datastore_server/datastore_server.sh stop
 
 # Remove the repos data
-rm -fR $BASE_DIR/openBIS-server/apache-tomcat/indices/*
+rm -fR $BASE_DIR/openBIS-server/jetty/indices/*
 if [ $? -ne 0 ]; then
   echo "Error deleting lucene indices (inconsistent state)"
   rm -fR "$TMPROOT"
@@ -120,7 +120,7 @@ if [ $? -ne 0 ]; then
   rm -fR "$TMPROOT"
   exit 1
 fi
-gtar xf "$TMPDIR/lucene_indices.tar" -C $BASE_DIR/openBIS-server/apache-tomcat
+gtar xf "$TMPDIR/lucene_indices.tar" -C $BASE_DIR/openBIS-server/jetty
 if [ $? -ne 0 ]; then
   echo "Error restoring lucene indices (inconsistent state)"
   rm -fR "$TMPROOT"
@@ -128,7 +128,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Startup servers
-$BASE_DIR/openBIS-server/apache-tomcat/bin/startup.sh
+$BASE_DIR/openBIS-server/jetty/bin/startup.sh
 $BASE_DIR/datastore_server/datastore_server.sh start
 
 # Clean up

@@ -14,7 +14,7 @@ VER=SNAPSHOT
 DATE=`/bin/date +%Y-%m-%d_%H%M`
 DB_NAME=openbis_productive
 DB_SNAPSHOT=~openbis/db_backups
-TOMCAT_DIR=~openbis/sprint/openBIS-server/apache-tomcat
+SERVER_DIR=~openbis/sprint/openBIS-server/jetty
 DAYS_TO_RETAIN=35
 
 if [ $1 ]; then
@@ -38,7 +38,7 @@ alias rm='rm'
 
 if [ -e $SERVERS_PREV_VER ]; then
         echo Stopping the components...
-        ./$SERVERS_PREV_VER/openBIS-server/apache-tomcat/bin/shutdown.sh
+        ./$SERVERS_PREV_VER/openBIS-server/jetty/bin/shutdown.sh
         ./$SERVERS_PREV_VER/datastore_server/datastore_server.sh stop
 fi
 
@@ -59,15 +59,14 @@ ln -s $SERVERS_VER $SERVERS_DIR_ALIAS
 cd $SERVERS_DIR_ALIAS
 unzip -q ../openBIS-server*$VER*
 cd openBIS-server
-./install.sh --nostartup $PWD $CONFIG_DIR/service.properties $CONFIG_DIR/openbis.conf
+./install.sh $PWD $CONFIG_DIR/service.properties $CONFIG_DIR/openbis.conf
 if [ -f $KEYSTORE ]; then
-  cp -p $KEYSTORE apache-tomcat/openBIS.keystore
-  sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' apache-tomcat/bin/startup.sh > new-startup.sh
-  mv -f new-startup.sh apache-tomcat/bin/startup.sh
-  chmod 744 apache-tomcat/bin/startup.sh
+  cp -p $KEYSTORE jetty/etc/openBIS.keystore
+  sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' jetty/bin/openbis.config > new-openbis.config
+  mv -f new-openbis.config jetty/bin/openbis.config
 fi
-cp ~openbis/old/$SERVERS_PREV_VER/openBIS-server/apache-tomcat/conf/server.xml ~openbis/$SERVERS_VER/openBIS-server/apache-tomcat/conf/server.xml
-#apache-tomcat/bin/startup.sh
+cp ~openbis/old/$SERVERS_PREV_VER/openBIS-server/jetty/etc/jetty.xml ~openbis/$SERVERS_VER/openBIS-server/jetty/etc/jetty.xml
+#jetty/bin/startup.sh
 
 echo Installing datastore server...
 cd ..
@@ -89,7 +88,7 @@ cd ~openbis
 mv -f *.zip old/
 rm -rf openbis
 cd ~openbis/sprint/openBIS-server
-rm apache-tomcat.zip install.sh openbis.conf openBIS.keystore openBIS.war passwd.sh server.xml service.properties tomcat-version.txt
+rm jetty.zip install.sh openbis.conf openBIS.keystore openBIS.war passwd.sh jetty.xml service.properties jetty-version.txt
 
 # Reset the rm command alias
 alias 'rm=rm -i'

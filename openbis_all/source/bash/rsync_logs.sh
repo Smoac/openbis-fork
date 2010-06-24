@@ -1,15 +1,15 @@
 #!/bin/bash
 # saves the auth and usage logs of openBIS and DSS logs
 
-export TOMCAT_LOGS=~openbis/sprint/openBIS-server/apache-tomcat/logs
+export AS_LOGS=~openbis/sprint/openBIS-server/jetty/logs
 export DSS_LOGS=~openbis/sprint/datastore_server/log
 export RSYNC=/usr/bin/rsync
 export DESTINATION=~openbis/logs
 
 [ -d $DESTINATION ] || mkdir -p $DESTINATION
 
-$RSYNC -av $TOMCAT_LOGS/*auth* $DESTINATION
-$RSYNC -av $TOMCAT_LOGS/*usage* $DESTINATION
+$RSYNC -av $AS_LOGS/*auth* $DESTINATION
+$RSYNC -av $AS_LOGS/*usage* $DESTINATION
 $RSYNC -av $DSS_LOGS/* $DESTINATION
 
 if [ -f $DESTINATION/check_logins.sh ]; then

@@ -32,16 +32,16 @@ echo "Creating SnapShot in /tmp with the TAG DELETED_OPENBIS"
 popd
 
 # Shutdown servers
-~/sprint/openBIS-server/apache-tomcat/bin/shutdown.sh
+~/sprint/openBIS-server/jetty/bin/shutdown.sh
 ~/sprint/datastore_server/datastore_server.sh stop
 
 # Remove the repos data
 rm -fR  ~/sprint/datastore_server/data/store/*
 psql -U postgres -c "drop database openbis_productive"
-rm -fR ~/sprint/openBIS-server/apache-tomcat/indices/*
+rm -fR ~/sprint/openBIS-server/jetty/indices/*
 
 # Startup servers (will rebuild the database)
-~/sprint/openBIS-server/apache-tomcat/bin/startup.sh
+~/sprint/openBIS-server/jetty/bin/startup.sh
 
 echo ""
 echo "You need to login to openBIS now and to create the first user with system role"

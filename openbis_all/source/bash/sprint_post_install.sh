@@ -20,7 +20,7 @@ export PLASMIDS=bs-openbis02.ethz.ch
 function create_individual_greeting_message {
 # Creates an individual greeting message
 	if [ -f ~openbis/config/openbis_instance.txt ]; then
-	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/common-dictionary.js
+	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/jetty/work/openbis/webapp/common-dictionary.js
 	   export SERVER_INSTANCE_NAME=`cat ~openbis/config/openbis_instance.txt`
 	   perl -pe 's/openbis_instance: "",/openbis_instance: "$ENV{SERVER_INSTANCE_NAME}",/' -i $OPENBIS_DICT
 	fi
@@ -29,15 +29,15 @@ function create_individual_greeting_message {
 function restore_common {
   if [ -f ~openbis/config/loginHeader.html ]; then
     echo restoring loginHeader.html...
-    cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
-    cp ~openbis/config/loginHeader.html ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
-    cp ~openbis/config/help.html ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/jetty/work/openbis/webapp/
+    cp ~openbis/config/loginHeader.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
+    cp ~openbis/config/help.html ~openbis/sprint/openBIS-server/jetty/work/openbis/webapp/
   fi
   if [ -f ~openbis/config/index.html ]; then
-  	cp ~openbis/config/index.html  ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+  	cp ~openbis/config/index.html  ~openbis/sprint/openBIS-server/jetty/work/openbis/webapp/
   fi  
-  if  [ -f ~openbis/config/server.xml ]; then
-  	cp ~openbis/config/server.xml ~openbis/sprint/openBIS-server/apache-tomcat/conf/
+  if  [ -f ~openbis/config/jetty.xml ]; then
+  	cp ~openbis/config/jetty.xml ~openbis/sprint/openBIS-server/jetty/etc/
   fi
   if  [ -f ~openbis/config/datastore_log.xml ]; then
   	cp ~openbis/config/datastore_log.xml ~openbis/sprint/datastore_server/etc/log.xml
@@ -95,7 +95,7 @@ case "$SERVER" in
 	echo DSU:$DSU;
 	restore_common
 	create_individual_greeting_message
-	DSU_SERVER_HOME=~openbis/sprint/openBIS-server/apache-tomcat-5.5.26/webapps/openbis
+	DSU_SERVER_HOME=~openbis/sprint/openBIS-server/jetty/webapps/openbis
     cp ~openbis/config/openBIS_for_DSU.pdf $DSU_SERVER_HOME
 	;;
 	$SCU)
