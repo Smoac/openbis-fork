@@ -62,8 +62,8 @@ cd openBIS-server
 ./install.sh $PWD $CONFIG_DIR/service.properties $CONFIG_DIR/openbis.conf
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE jetty/etc/openBIS.keystore
-  sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' jetty/bin/openbis.config > new-openbis.config
-  mv -f new-openbis.config jetty/bin/openbis.config
+  sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' jetty/bin/openbis.conf > new-openbis.conf
+  mv -f new-openbis.conf jetty/bin/openbis.conf
 fi
 cp ~openbis/old/$SERVERS_PREV_VER/openBIS-server/jetty/etc/jetty.xml ~openbis/$SERVERS_VER/openBIS-server/jetty/etc/jetty.xml
 #jetty/bin/startup.sh
