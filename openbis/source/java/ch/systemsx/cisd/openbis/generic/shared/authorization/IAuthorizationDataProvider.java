@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.authorization;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermId;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -56,7 +58,12 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     /**
      * Returns the information necessary to determine if a user is allowed to access the data sets.
      */
-    public List<DataSetAccessPE> tryGetDatasetCollectionAccessData(List<String> dataSetCodes);
+    public Set<DataSetAccessPE> getDatasetCollectionAccessData(List<String> dataSetCodes);
+
+    /**
+     * Returns the information necessary to determine if a user is allowed to access the samples.
+     */
+    public Set<SampleAccessPE> getSampleCollectionAccessData(List<TechId> sampleIds);
 
     /**
      * Returns the group of an entity with given <var>entityKind</var> and <var>techId</var>

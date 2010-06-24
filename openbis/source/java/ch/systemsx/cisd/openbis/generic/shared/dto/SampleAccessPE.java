@@ -19,50 +19,65 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import javax.persistence.Entity;
 import javax.persistence.EntityResult;
 import javax.persistence.Id;
+import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
+import javax.persistence.SqlResultSetMappings;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * A PE for retrieving only the information necessary to determine if a user/person can access a
- * data set.
+ * sample.
  * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Piotr Buczek
  */
 @Entity
-@SqlResultSetMapping(name = "implicit", entities = @EntityResult(entityClass = DataSetAccessPE.class))
-@NamedNativeQuery(name = "dataset_access", query = "select "
-        + "g.code as groupCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
-        + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.GROUPS_TABLE + " g, "
-        + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
-        + "(select e.proj_id from " + TableNames.DATA_TABLE + " ds, "
-        + TableNames.EXPERIMENTS_TABLE + " e "
-        + "where ds.code in (:codes) and ds.expe_id = e.id group by e.proj_id) "
-        + "and p.grou_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "implicit")
-public class DataSetAccessPE
+@SqlResultSetMappings(value =
+    {
+            @SqlResultSetMapping(name = "implicit1", entities = @EntityResult(entityClass = SampleAccessPE.class)),
+            @SqlResultSetMapping(name = "implicit2", entities = @EntityResult(entityClass = SampleAccessPE.class))
+
+    })
+@NamedNativeQueries(value =
+    {
+            @NamedNativeQuery(name = "space_sample_access", query = "SELECT DISTINCT g.code as groupCode, null as databaseInstanceCode "
+                    + "FROM "
+                    + TableNames.SAMPLES_TABLE
+                    + " s, "
+                    + TableNames.GROUPS_TABLE
+                    + " g "
+                    + "WHERE s.id in (:ids) and s.grou_id = g.id", resultSetMapping = "implicit1"),
+            @NamedNativeQuery(name = "shared_sample_access", query = "SELECT DISTINCT dbi.code as databaseInstanceCode, null as groupCode "
+                    + "FROM "
+                    + TableNames.SAMPLES_TABLE
+                    + " s, "
+                    + TableNames.DATABASE_INSTANCES_TABLE
+                    + " dbi "
+                    + "WHERE s.id in (:ids) and s.dbin_id = dbi.id", resultSetMapping = "implicit2")
+
+    })
+public class SampleAccessPE
 {
     private String groupCode;
 
-    private String databaseInstanceUuid;
-
     private String databaseInstanceCode;
 
-    public final static String DATASET_ACCESS_QUERY_NAME = "dataset_access";
+    public final static String SPACE_SAMPLE_ACCESS_QUERY_NAME = "space_sample_access";
 
-    public final static String DATA_SET_CODES_PARAMETER_NAME = "codes";
+    public final static String SHARED_SAMPLE_ACCESS_QUERY_NAME = "shared_sample_access";
+
+    public final static String SAMPLE_IDS_PARAMETER_NAME = "ids";
 
     /**
      * A factory method that should only be used for testing.
      */
-    public static DataSetAccessPE createDataSetAccessPEForTest(String dataSetId,
-            String dataSetCode, String groupCode, String databaseInstanceUuid,
-            String databaseInstanceCode)
+    public static SampleAccessPE createSampleAccessPEForTest(String dataSetId, String dataSetCode,
+            String groupCode, String databaseInstanceCode)
     {
-        DataSetAccessPE newMe = new DataSetAccessPE();
+        SampleAccessPE newMe = new SampleAccessPE();
         newMe.setGroupCode(groupCode);
-        newMe.setDatabaseInstanceUuid(databaseInstanceUuid);
         newMe.setDatabaseInstanceCode(databaseInstanceCode);
         return newMe;
     }
@@ -70,11 +85,6 @@ public class DataSetAccessPE
     void setGroupCode(String groupCode)
     {
         this.groupCode = groupCode;
-    }
-
-    void setDatabaseInstanceUuid(String databaseInstanceUuid)
-    {
-        this.databaseInstanceUuid = databaseInstanceUuid;
     }
 
     void setDatabaseInstanceCode(String databaseInstanceCode)
@@ -86,11 +96,6 @@ public class DataSetAccessPE
     public String getGroupCode()
     {
         return groupCode;
-    }
-
-    public String getDatabaseInstanceUuid()
-    {
-        return databaseInstanceUuid;
     }
 
     public String getDatabaseInstanceCode()
@@ -109,15 +114,14 @@ public class DataSetAccessPE
         {
             return true;
         }
-        if (obj instanceof DataSetAccessPE == false)
+        if (obj instanceof SampleAccessPE == false)
         {
             return false;
         }
-        final DataSetAccessPE that = (DataSetAccessPE) obj;
+        final SampleAccessPE that = (SampleAccessPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getGroupCode(), that.getGroupCode());
         builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
-        builder.append(getDatabaseInstanceUuid(), that.getDatabaseInstanceUuid());
         return builder.isEquals();
     }
 
@@ -127,7 +131,6 @@ public class DataSetAccessPE
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getGroupCode());
         builder.append(getDatabaseInstanceCode());
-        builder.append(getDatabaseInstanceUuid());
         return builder.toHashCode();
     }
 }

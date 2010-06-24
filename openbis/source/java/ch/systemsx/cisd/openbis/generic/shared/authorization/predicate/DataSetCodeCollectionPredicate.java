@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
@@ -44,13 +45,8 @@ public class DataSetCodeCollectionPredicate extends AbstractGroupPredicate<List<
     {
         assert initialized : "Predicate has not been initialized";
 
-        List<DataSetAccessPE> accessData =
-                authorizationDataProvider.tryGetDatasetCollectionAccessData(dataSetCodes);
-
-        if (accessData == null)
-        {
-            return Status.OK;
-        }
+        Set<DataSetAccessPE> accessData =
+                authorizationDataProvider.getDatasetCollectionAccessData(dataSetCodes);
 
         for (DataSetAccessPE accessDatum : accessData)
         {

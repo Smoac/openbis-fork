@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -47,7 +49,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.plugin.generic.server.batch.BatchOperationExecutor;
+import ch.systemsx.cisd.openbis.plugin.generic.server.batch.IBatchOperation;
 
 /**
  * A static class to execute {@link IPredicate}.
@@ -255,54 +260,99 @@ public final class PredicateExecutor
             }
         }
 
-        @SuppressWarnings("unchecked")
         public DataSetAccessPE tryGetDatasetAccessData(String dataSetCode)
         {
-            Session sess = daoFactory.getSessionFactory().getCurrentSession();
-            Query query = sess.getNamedQuery(DataSetAccessPE.DATASET_ACCESS_QUERY_NAME);
-            query = query.setReadOnly(true);
-            String[] codes =
-                { dataSetCode };
-            List<DataSetAccessPE> results =
-                    query.setParameterList(DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME, codes)
-                            .list();
+            Set<DataSetAccessPE> results =
+                    getDatasetCollectionAccessData(Arrays.asList(dataSetCode));
             if (results.size() < 1)
                 return null;
-            return results.get(0);
+            return results.iterator().next();
         }
 
-        @SuppressWarnings("unchecked")
-        public List<DataSetAccessPE> tryGetDatasetCollectionAccessData(List<String> dataSetCodes)
+        public Set<DataSetAccessPE> getDatasetCollectionAccessData(final List<String> dataSetCodes)
         {
 
             Session sess = daoFactory.getSessionFactory().getCurrentSession();
-            Query query = sess.getNamedQuery(DataSetAccessPE.DATASET_ACCESS_QUERY_NAME);
-            query = query.setReadOnly(true);
+            final Query query = sess.getNamedQuery(DataSetAccessPE.DATASET_ACCESS_QUERY_NAME);
+            query.setReadOnly(true);
 
             // WORKAROUND Problem in Hibernate when the number of data set codes > 1000
             // Though this query runs quickly within the pgadmin tool, even for large numbers of
             // data set codes, Hibernate becomes *very* slow when the size of the data set codes
             // exceeds 1000. For that reason, break down the query into smaller sections and
             // reassemble the results.
-            ArrayList<DataSetAccessPE> fullResults = new ArrayList<DataSetAccessPE>();
+            final Set<DataSetAccessPE> fullResults = new HashSet<DataSetAccessPE>();
 
-            int size = dataSetCodes.size();
-            // blockSize is a magic number -- I don't know what the optimal value is, but execution
-            // speed slows down if the blockSize > 1999
-            int blockSize = 999;
-            int start, end;
-
-            // Loop over the codes, one block at a time
-            for (start = 0, end = Math.min(start + blockSize, size); start < size; start = end, end =
-                    Math.min(start + blockSize, size))
-            {
-                List<String> sublist = dataSetCodes.subList(start, end);
-                query =
+            BatchOperationExecutor.executeInBatches(new IBatchOperation<String>()
+                {
+                    public void execute(List<String> entities)
+                    {
                         query.setParameterList(DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME,
-                                sublist);
-                List<DataSetAccessPE> results = query.list();
-                fullResults.addAll(results);
-            }
+                                entities);
+                        List<DataSetAccessPE> results = cast(query.list());
+                        fullResults.addAll(results);
+                    }
+
+                    public List<String> getAllEntities()
+                    {
+                        return dataSetCodes;
+                    }
+
+                    public String getEntityName()
+                    {
+                        return "dataset";
+                    }
+
+                    public String getOperationName()
+                    {
+                        return "authorization";
+                    }
+                });
+
+            return fullResults;
+        }
+
+        public Set<SampleAccessPE> getSampleCollectionAccessData(final List<TechId> sampleTechIds)
+        {
+            Session sess = daoFactory.getSessionFactory().getCurrentSession();
+            final Query querySpaceSamples =
+                    sess.getNamedQuery(SampleAccessPE.SPACE_SAMPLE_ACCESS_QUERY_NAME);
+            querySpaceSamples.setReadOnly(true);
+            final Query querySharedSamples =
+                    sess.getNamedQuery(SampleAccessPE.SHARED_SAMPLE_ACCESS_QUERY_NAME);
+            querySharedSamples.setReadOnly(true);
+
+            final Set<SampleAccessPE> fullResults = new HashSet<SampleAccessPE>();
+
+            BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
+                {
+                    public void execute(List<TechId> entities)
+                    {
+                        querySpaceSamples.setParameterList(
+                                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, TechId.asLongs(entities));
+                        querySharedSamples.setParameterList(
+                                SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME, TechId.asLongs(entities));
+                        List<SampleAccessPE> spaceSamples = cast(querySpaceSamples.list());
+                        List<SampleAccessPE> sharedSamples = cast(querySharedSamples.list());
+                        fullResults.addAll(spaceSamples);
+                        fullResults.addAll(sharedSamples);
+                    }
+
+                    public List<TechId> getAllEntities()
+                    {
+                        return sampleTechIds;
+                    }
+
+                    public String getEntityName()
+                    {
+                        return "sample";
+                    }
+
+                    public String getOperationName()
+                    {
+                        return "authorization";
+                    }
+                });
 
             return fullResults;
         }
@@ -350,6 +400,19 @@ public final class PredicateExecutor
         public QueryPE getQuery(TechId techId)
         {
             return daoFactory.getQueryDAO().getByTechId(techId);
+        }
+
+        /**
+         * Casts given <var>list</var> to specified type.
+         * <p>
+         * The purpose of this method is to avoid <code>SuppressWarnings("unchecked")</code> in
+         * calling methods.
+         * </p>
+         */
+        @SuppressWarnings("unchecked")
+        private static final <T> List<T> cast(final List list)
+        {
+            return list;
         }
 
     }

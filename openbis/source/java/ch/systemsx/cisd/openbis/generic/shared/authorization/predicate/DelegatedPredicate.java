@@ -39,6 +39,8 @@ public abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
 {
     private final IPredicate<P> delegate;
 
+    protected IAuthorizationDataProvider authorizationDataProvider;
+
     public DelegatedPredicate(final IPredicate<P> delegate)
     {
         this.delegate = delegate;
@@ -55,6 +57,7 @@ public abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
 
     public final void init(IAuthorizationDataProvider provider)
     {
+        this.authorizationDataProvider = provider;
         delegate.init(provider);
     }
 

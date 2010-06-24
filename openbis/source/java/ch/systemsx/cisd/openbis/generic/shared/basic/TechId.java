@@ -88,6 +88,21 @@ public class TechId implements IIdHolder, IsSerializable, Serializable
         return results;
     }
 
+    /**
+     * Convenience method for getting a list of long ids from given list of {@link TechId}s.
+     * 
+     * @see #create(IIdHolder)
+     */
+    public static List<Long> asLongs(List<TechId> techIds)
+    {
+        List<Long> results = new ArrayList<Long>();
+        for (TechId techId : techIds)
+        {
+            results.add(techId.getId());
+        }
+        return results;
+    }
+
     public Long getId()
     {
         return id;

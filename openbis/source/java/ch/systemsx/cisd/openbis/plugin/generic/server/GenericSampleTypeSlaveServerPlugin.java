@@ -79,8 +79,8 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert session != null : "Unspecified session.";
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 
-        new BatchOperationExecutor<NewSample>().executeInBatches(new SampleBatchRegistration(
-                businessObjectFactory.createSampleTable(session), newSamples));
+        BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(businessObjectFactory
+                .createSampleTable(session), newSamples));
     }
 
     public void updateSamples(Session session, List<SampleBatchUpdatesDTO> updateSamples)
@@ -88,7 +88,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert session != null : "Unspecified session.";
         assert updateSamples != null && updateSamples.size() > 0 : "Unspecified sample or empty samples.";
 
-        new BatchOperationExecutor<SampleBatchUpdatesDTO>().executeInBatches(new SampleBatchUpdate(
-                businessObjectFactory.createSampleTable(session), updateSamples));
+        BatchOperationExecutor.executeInBatches(new SampleBatchUpdate(businessObjectFactory
+                .createSampleTable(session), updateSamples));
     }
 }

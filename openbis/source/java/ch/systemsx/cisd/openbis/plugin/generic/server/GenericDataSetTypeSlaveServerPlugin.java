@@ -59,8 +59,8 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
         assert session != null : "Unspecified session.";
         assert newDataSets != null && newDataSets.size() > 0 : "Unspecified data set or empty data sets.";
 
-        new BatchOperationExecutor<NewDataSet>().executeInBatches(new DataSetBatchUpdate(
-                businessObjectFactory.createExternalDataTable(session), newDataSets));
+        BatchOperationExecutor.executeInBatches(new DataSetBatchUpdate(businessObjectFactory
+                .createExternalDataTable(session), newDataSets));
     }
 
 }
