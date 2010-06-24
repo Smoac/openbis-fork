@@ -58,7 +58,6 @@ public class ScreeningContainerDatasetInfoHelper
     public static long createDataset(IImagingUploadDAO dao, ScreeningContainerDatasetInfo info,
             long contId)
     {
-        System.out.println("dataset perm id = " + info.getDatasetPermId());
         ImgDatasetDTO dataset =
                 new ImgDatasetDTO(info.getDatasetPermId(), info.getTileRows(), info
                         .getTileColumns(), contId);
