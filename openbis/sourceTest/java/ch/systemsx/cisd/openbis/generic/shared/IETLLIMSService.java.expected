@@ -437,7 +437,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
+    public ExternalData tryGetDataSetForServer(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
             throws UserFailureException;
 
 }
