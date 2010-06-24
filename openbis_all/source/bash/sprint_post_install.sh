@@ -4,7 +4,7 @@
 export BIN=~/bin
 export SERVER=`uname -n`
 
-export SPRINT=cisd-bamus
+export SPRINT=sprint-openbis
 export DEMO=cisd-tongariro
 export YEASTX=imsb-us-openbis.ethz.ch
 export PHOSPHONETX=openbis-phosphonetx.ethz.ch
