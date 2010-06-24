@@ -117,6 +117,16 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
+    
+    /**
+     * Tries to get the identifier of sample with specified permanent ID.
+     * 
+     * @return <code>null</code> if nothing found.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public SampleIdentifier tryToGetSampleIdentifier(String sessionToken, String samplePermID)
+            throws UserFailureException;
 
     /**
      * Returns the ExperimentType together with assigned property types for specified experiment

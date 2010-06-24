@@ -308,6 +308,24 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
 
     @Test
+    public void testTryToGetSampleIdentifier()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(sampleDAO).tryToFindByPermID("abc");
+                    SamplePE sample = new SamplePE();
+                    sample.setCode("s42");
+                    will(returnValue(sample));
+                }
+            });
+        
+        SampleIdentifier identifier = createService().tryToGetSampleIdentifier(SESSION_TOKEN, "abc");
+        
+        assertEquals("s42", identifier.toString());
+        context.assertIsSatisfied();
+    }
+    @Test
     public void testGetSampleType()
     {
         context.checking(new Expectations()

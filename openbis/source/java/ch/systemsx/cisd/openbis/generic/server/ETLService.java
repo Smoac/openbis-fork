@@ -341,6 +341,14 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return SampleTranslator.translate(sample, session.getBaseIndexURL());
     }
 
+    public SampleIdentifier tryToGetSampleIdentifier(String sessionToken, String samplePermID)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert samplePermID != null : "Unspecified sample perm ID.";
+        return daoFactory.getSampleDAO().tryToFindByPermID(samplePermID).getSampleIdentifier();
+    }
+
     private ExperimentPE tryLoadExperimentBySampleIdentifier(final Session session,
             SampleIdentifier sampleIdentifier)
     {

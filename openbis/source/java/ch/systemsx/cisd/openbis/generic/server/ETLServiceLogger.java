@@ -152,6 +152,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public SampleIdentifier tryToGetSampleIdentifier(String sessionToken, String samplePermID)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "tryToGetSampleIdentifier", "SAMPLE(%s)", samplePermID);
+        return null;
+    }
+
     public ExperimentType getExperimentType(String sessionToken, String experimentTypeCode)
             throws UserFailureException
     {
