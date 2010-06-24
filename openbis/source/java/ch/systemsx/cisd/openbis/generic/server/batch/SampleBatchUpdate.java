@@ -14,37 +14,37 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server.batch;
+package ch.systemsx.cisd.openbis.generic.server.batch;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 
 /**
- * {@link IBatchOperation} registering samples.
+ * {@link IBatchOperation} updating samples.
  * 
  * @author Izabela Adamczyk
  */
-public class SampleBatchRegistration implements IBatchOperation<NewSample>
+public class SampleBatchUpdate implements IBatchOperation<SampleBatchUpdatesDTO>
 {
     private final ISampleTable businessTable;
 
-    private final List<NewSample> entities;
+    private final List<SampleBatchUpdatesDTO> entities;
 
-    public SampleBatchRegistration(ISampleTable businessTable, List<NewSample> entities)
+    public SampleBatchUpdate(ISampleTable businessTable, List<SampleBatchUpdatesDTO> entities)
     {
         this.businessTable = businessTable;
         this.entities = entities;
     }
 
-    public void execute(List<NewSample> batch)
+    public void execute(List<SampleBatchUpdatesDTO> updates)
     {
-        businessTable.add(batch);
+        businessTable.update(updates);
         businessTable.save();
     }
 
-    public List<NewSample> getAllEntities()
+    public List<SampleBatchUpdatesDTO> getAllEntities()
     {
         return entities;
     }
@@ -56,7 +56,7 @@ public class SampleBatchRegistration implements IBatchOperation<NewSample>
 
     public String getOperationName()
     {
-        return "registration";
+        return "update";
     }
 
 }

@@ -14,44 +14,44 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server.batch;
+package ch.systemsx.cisd.openbis.generic.server.batch;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 
 /**
- * {@link IBatchOperation} updating samples.
+ * {@link IBatchOperation} updating data sets.
  * 
  * @author Izabela Adamczyk
  */
-public class SampleBatchUpdate implements IBatchOperation<SampleBatchUpdatesDTO>
+public class DataSetBatchUpdate implements IBatchOperation<NewDataSet>
 {
-    private final ISampleTable businessTable;
+    private final IExternalDataTable businessTable;
 
-    private final List<SampleBatchUpdatesDTO> entities;
+    private final List<NewDataSet> entities;
 
-    public SampleBatchUpdate(ISampleTable businessTable, List<SampleBatchUpdatesDTO> entities)
+    public DataSetBatchUpdate(IExternalDataTable businessTable, List<NewDataSet> entities)
     {
         this.businessTable = businessTable;
         this.entities = entities;
     }
 
-    public void execute(List<SampleBatchUpdatesDTO> updates)
+    public void execute(List<NewDataSet> updates)
     {
         businessTable.update(updates);
         businessTable.save();
     }
 
-    public List<SampleBatchUpdatesDTO> getAllEntities()
+    public List<NewDataSet> getAllEntities()
     {
         return entities;
     }
 
     public String getEntityName()
     {
-        return "sample";
+        return "data set";
     }
 
     public String getOperationName()

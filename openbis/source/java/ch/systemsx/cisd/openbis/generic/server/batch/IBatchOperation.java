@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server.batch;
+package ch.systemsx.cisd.openbis.generic.server.batch;
 
 import java.util.List;
 

@@ -14,49 +14,49 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server.batch;
+package ch.systemsx.cisd.openbis.generic.server.batch;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 
 /**
- * {@link IBatchOperation} updating data sets.
+ * {@link IBatchOperation} registering samples.
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetBatchUpdate implements IBatchOperation<NewDataSet>
+public class SampleBatchRegistration implements IBatchOperation<NewSample>
 {
-    private final IExternalDataTable businessTable;
+    private final ISampleTable businessTable;
 
-    private final List<NewDataSet> entities;
+    private final List<NewSample> entities;
 
-    public DataSetBatchUpdate(IExternalDataTable businessTable, List<NewDataSet> entities)
+    public SampleBatchRegistration(ISampleTable businessTable, List<NewSample> entities)
     {
         this.businessTable = businessTable;
         this.entities = entities;
     }
 
-    public void execute(List<NewDataSet> updates)
+    public void execute(List<NewSample> batch)
     {
-        businessTable.update(updates);
+        businessTable.add(batch);
         businessTable.save();
     }
 
-    public List<NewDataSet> getAllEntities()
+    public List<NewSample> getAllEntities()
     {
         return entities;
     }
 
     public String getEntityName()
     {
-        return "data set";
+        return "sample";
     }
 
     public String getOperationName()
     {
-        return "update";
+        return "registration";
     }
 
 }

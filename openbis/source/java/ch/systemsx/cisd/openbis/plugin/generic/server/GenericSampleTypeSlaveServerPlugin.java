@@ -24,6 +24,9 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
+import ch.systemsx.cisd.openbis.generic.server.batch.SampleBatchRegistration;
+import ch.systemsx.cisd.openbis.generic.server.batch.SampleBatchUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -33,9 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
-import ch.systemsx.cisd.openbis.plugin.generic.server.batch.BatchOperationExecutor;
-import ch.systemsx.cisd.openbis.plugin.generic.server.batch.SampleBatchRegistration;
-import ch.systemsx.cisd.openbis.plugin.generic.server.batch.SampleBatchUpdate;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
