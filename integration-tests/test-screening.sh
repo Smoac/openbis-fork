@@ -9,15 +9,18 @@ source common.bash
 
 # --------------------
 
-#WORK=$TARGETS/playground-screening
-DATA_TEMPLATE=$TEMPLATE/data-screening.zip
-MY_DATA=$WORK/data-screening
+SVN_WEB_SRC_HCS=http://svncisd.ethz.ch/repos/cisd/screening/trunk
+OPENBIS_DATABASE_HCS=openbis_screening_integration_tests
 IMAGING_DB=imaging_integration_tests
+
+WORK=$TARGETS/playground-screening
+DATA_TEMPLATE=$TEMPLATE/data-screening.zip
 OPENBIS_SERVER_HCS=$WORK/openBIS-server-screening
 DSS_DIR_NAME=datastore_server_screening
-DSS_INCOMING_PARENT_DIR=$WORK/$DSS_DIR_NAME/data
-SVN_WEB_SRC_HCS=http://svncisd.ethz.ch/repos/cisd/screening/trunk
-OPENBIS_DATABASE_HCS=openbis_screening
+
+DSS_SERVER_HCS=$WORK/$DSS_DIR_NAME
+DSS_INCOMING_PARENT_DIR=$DSS_SERVER_HCS/data
+API_HCS=$WORK/screening_api
 
 # --------------------
 
@@ -34,17 +37,19 @@ function prepare_data_second_phase {
     chmod -R 700 $DSS_INCOMING_PARENT_DIR/incoming*
 }
 
-function build_and_install_components {
+function fetch_distributions {
 	rm -fr $INSTALL
 	mkdir -p $INSTALL
 	fetch_latest_artifacts_from_cruise_control screening $INSTALL
 }
 
-function install_openbis_server_screening {
+function install_and_run_openbis_server_screening {
     local install_openbis=$1
     
 		local openbis_server_dir=$OPENBIS_SERVER_HCS
 		local openbis_server_name=`basename $openbis_server_dir`
+		
+		cat $TEMPLATE/$openbis_server_name/integration-tests-service.properties >> $openbis_server_dir/jetty/etc/service.properties
 		
 		restore_database $OPENBIS_DATABASE_HCS $TEMPLATE/$openbis_server_name/test_database.sql
     if [ $install_openbis == "true" ]; then
@@ -63,7 +68,7 @@ function install_openbis_server_screening {
 }
 
 function install_dss_screening {
-		local dss_dest=$WORK/$DSS_DIR_NAME
+		local dss_dest=$DSS_SERVER_HCS
 		local dss_template=$TEMPLATE/$DSS_DIR_NAME
 
 		rm -fr $dss_dest
@@ -73,51 +78,36 @@ function install_dss_screening {
 
 		# extend distribution configuration
 		cat $dss_template/integration-tests-service.properties >> $dss_dest/etc/service.properties
-		cat $dss_template/genedata-dropboxes-service.properties >> $dss_dest/etc/service.properties
+		cat $dss_template/genedata-dropboxes-service.properties >> $dss_dest/etc/service.properties	
 }
 
-function build_and_install_screening {
+function install_screening_api {
+		rm -fr $API_HCS
+		mkdir -p $API_HCS
+		# unzip only jar files
+		unzip $INSTALL/screening-api*.zip -x *.zip -d $API_HCS
+}
+
+function install_screening {
+		fetch_distributions
+		
 		mkdir -p $WORK
 		install_dss_screening
-		install_openbis_server_screening "true"
+		install_and_run_openbis_server_screening "true"
+    	install_screening_api
     
 		echo Dropping imaging database: $IMAGING_DB
 		psql_cmd=`run_psql`
 		$psql_cmd -U postgres -c "drop database if exists $IMAGING_DB" 
 }
 
-function check_file_exists {
-    local file=$1
-    if [ -e $marker ]; then echo true; else echo false; fi
-}
-
-function assert_correct_incoming_content {
-	local dir_name=$1
-	local expected_file_count=$2
-	local has_error_marker=$3
-	
-	local dir=$MY_DATA/incoming/$dir_name
-	assert_dir_exists $dir
-	if [ ! -e $dir ]; then
-		return
-	fi
-	
-	assert_files_number $dir $expected_file_count
-	
-	local marker=$dir/_delete_me_after_correcting_errors
-	local error_log=$dir/error-log.txt
-	if [ "$has_error_marker" = "true" ]; then
-		assert_file_exists $marker
-		assert_file_exists $error_log
-	else
-		assert_file_not_exists $marker
-		assert_file_not_exists $error_log
-	fi
+function test_screening_api {
+		. ./$API_HCS/run.sh admin password https://localhost:8443
 }
 
 
 function integration_tests_screening {
-		build_and_install_screening
+		install_screening
 
     prepare_data_first_phase
     switch_dss "on" datastore_server_screening
@@ -131,14 +121,15 @@ function integration_tests_screening {
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-images-merged-channels
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-images-split-channels
     
+    local datasets=`find $DSS_INCOMING_PARENT_DIR/store -name "original" | wc -l | tr -d " "`; 
+    assert_equals "Wrong number of registered datasets" 5 $datasets
+    
+    test_screening_api
+    
     switch_dss "off" datastore_server_screening
     shutdown_openbis_server $OPENBIS_SERVER_HCS
     exit_if_assertion_failed
 }
 
-function build_and_test {
-	build_and_install_components
-	integration_tests_screening
-}
-
-build_and_test
+integration_tests_screening
+#test_screening_api
