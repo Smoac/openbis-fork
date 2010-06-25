@@ -105,7 +105,15 @@ function install_screening {
 }
 
 function test_screening_api {
-		. ./$API_HCS/run.sh admin password https://localhost:8443
+	cd $API_HCS
+	. ./run.sh admin password https://localhost:8443
+	if [ $? -ne 0 ]; then
+       report_error Running screening API has failed
+    else
+       echo [OK] Screening API runs without exceptions.
+	fi
+	# return to the original directory
+	cd ../../..
 }
 
 
@@ -134,5 +142,19 @@ function integration_tests_screening {
     exit_if_assertion_failed
 }
 
+# can be called after integration tests are done just to check the API results
+function quick_api_test {
+	startup_openbis_server $OPENBIS_SERVER_HCS
+	wait_for_server
+	switch_dss "on" datastore_server_screening
+
+	test_screening_api
+
+  
+	switch_dss "off" datastore_server_screening
+	shutdown_openbis_server $OPENBIS_SERVER_HCS
+	exit_if_assertion_failed
+}
+
 integration_tests_screening
-#test_screening_api
+
