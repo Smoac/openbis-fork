@@ -29,10 +29,6 @@
 
   <target name="make-dss-dist" depends="datastore_server.prepare-dist-libs">
     <jar update="true" destfile="${dss-jar.file}">
-      <fileset dir="dist">
-        <include name="etc/**" />
-      </fileset>
-      
       <fileset dir="source">
         <include name="**/*.sql" />
       </fileset>
@@ -54,6 +50,9 @@
   	<copy todir="${dist.datastore_server}/data">
   		<fileset dir="${original.dist}/data" />
   	</copy>
+    <copy todir="${dist.datastore_server}/etc">
+      <fileset dir="${original.dist}/etc" />
+    </copy>
   	<antcall target="datastore_server.create-distribution" />
   </target>
   
