@@ -49,6 +49,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.unix.Unix;
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
@@ -1591,7 +1592,7 @@ public final class FileUtilities
         } else
         {
             final File parent = outFile.getParentFile();
-            if (parent != null && parent.canWrite() == false)
+            if (parent != null && canCreateFile(parent) == false)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(
                         "Cannot write to output directory '" + parent.getAbsolutePath() + "'."));
@@ -1599,4 +1600,32 @@ public final class FileUtilities
         }
     }
 
+    private static boolean canCreateFile(File directory)
+    {
+        if (directory.isDirectory() == false)
+        {
+            return false;
+        }
+        if (directory.canWrite())
+        {
+            return true;
+        }
+        // Workaround for Windows 7: sometimes gives a wrong answer on File.canWrite() for a directory
+        if (OSUtilities.isWindows())
+        {
+            try
+            {
+                final File f = File.createTempFile("fcc", null, directory);
+                f.delete();
+                return true;
+            } catch (IOException ex)
+            {
+                return false;
+            }
+        } else
+        {
+            return false;
+        }
+    }
+    
 }
