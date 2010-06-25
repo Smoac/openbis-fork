@@ -205,7 +205,7 @@ public class GenePlateLocationsLoader
         {
             final IHCSDatasetLoader loader =
                     businessObjectFactory.createHCSDatasetLoader(datasetCode);
-            imageParameters.add(DatasetReportsLoader.createImageParameters(loader));
+            imageParameters.add(PlateImageParametersFactory.create(loader));
         }
         return asDatasetToParamsMap(imageParameters);
     }

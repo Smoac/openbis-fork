@@ -274,7 +274,7 @@ public class PlateContentLoader
     {
         final IHCSDatasetLoader loader =
                 businessObjectFactory.createHCSDatasetLoader(dataset.getCode());
-        return DatasetReportsLoader.createImageParameters(loader);
+        return PlateImageParametersFactory.create(loader);
     }
 
     private static List<WellMetadata> createWells(List<Sample> wellSamples)
