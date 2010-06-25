@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Tomasz Pylak
  */
+// TODO 2010-06-25, Piotr Buczek: remove
 public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastorePlugin implements
         IReportingPluginTask
 {

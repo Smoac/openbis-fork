@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -33,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -48,6 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
 
 /**
  * Loads content of the plate.
@@ -273,14 +272,9 @@ public class PlateContentLoader
     private PlateImageParameters loadImageParams(ExternalDataPE dataset,
             IExternalDataTable externalDataTable)
     {
-        DataStorePE dataStore = dataset.getDataStore();
-        String datasetCode = dataset.getCode();
-        List<String> datasets = Arrays.asList(datasetCode);
-        List<PlateImageParameters> imageParamsReports =
-                DatasetReportsLoader.loadPlateImageParameters(datasets, dataStore.getCode(),
-                        externalDataTable);
-        assert imageParamsReports.size() == 1;
-        return imageParamsReports.get(0);
+        final IHCSDatasetLoader loader =
+                businessObjectFactory.createHCSDatasetLoader(dataset.getCode());
+        return DatasetReportsLoader.createImageParameters(loader);
     }
 
     private static List<WellMetadata> createWells(List<Sample> wellSamples)

@@ -29,6 +29,8 @@ public interface IHCSDatasetLoader
     /** has to be called at the end */
     void close();
 
+    String getDatasetPermId();
+
     Geometry getPlateGeometry();
 
     Geometry getWellGeometry();

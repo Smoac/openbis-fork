@@ -58,8 +58,8 @@ public class ScreeningDAOFactory implements IScreeningDAOFactory
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        // TODO this is the same solution as in PhosphoNetX - is it ok to use connection here?
-        // shouldn't it be a data source passed here in constructor?
+        // TODO 2010-06-25, Piotr Buczek: this is the same solution as in PhosphoNetX - is it ok to
+        // use connection here? shouldn't it be a data source passed here in constructor?
         imagingQueryDAO = QueryTool.getQuery(connection, IImagingQueryDAO.class);
         if (operationLog.isInfoEnabled())
         {

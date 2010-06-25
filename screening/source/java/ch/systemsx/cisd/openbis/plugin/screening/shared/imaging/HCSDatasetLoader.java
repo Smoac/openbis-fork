@@ -79,6 +79,11 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         return dataset;
     }
 
+    public String getDatasetPermId()
+    {
+        return dataset.getPermId();
+    }
+
     public Geometry getWellGeometry()
     {
         return new Geometry(getDataset().getFieldNumberOfRows(), getDataset()

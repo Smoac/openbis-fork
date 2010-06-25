@@ -21,13 +21,13 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
 
 /**
  * Loads content of datasets by contacting DSS.
@@ -43,52 +43,40 @@ public class DatasetReportsLoader
                 ScreeningConstants.PLATE_IMAGE_ANALYSIS_REPORT_KEY, datastoreCode, datasets);
     }
 
-    public static List<PlateImageParameters> loadPlateImageParameters(List<String> datasets,
-            String datastoreCode, IExternalDataTable externalDataTable)
-    {
-        TableModel imageParamsReport =
-                externalDataTable.createReportFromDatasets(
-                        ScreeningConstants.PLATE_IMAGE_PARAMS_REPORT_KEY, datastoreCode, datasets);
-        return asImageParams(imageParamsReport);
-    }
-
-    private static List<PlateImageParameters> asImageParams(TableModel imageParamsReport)
+    public static List<PlateImageParameters> loadPlateImageParameters(List<String> datasetCodes,
+            IScreeningBusinessObjectFactory boFactory)
     {
         List<PlateImageParameters> paramsList = new ArrayList<PlateImageParameters>();
-        for (TableModelRow tableModelRow : imageParamsReport.getRows())
+
+        for (String datasetCode : datasetCodes)
         {
-            paramsList.add(asImageParams(tableModelRow));
+            final IHCSDatasetLoader loader = boFactory.createHCSDatasetLoader(datasetCode);
+            paramsList.add(createImageParameters(loader));
         }
         return paramsList;
     }
 
-    private static PlateImageParameters asImageParams(TableModelRow tableModelRow)
+    // TODO 2010-06-25, Piotr Buczek: move
+    public static PlateImageParameters createImageParameters(IHCSDatasetLoader loader)
     {
+        final String datasetCode = loader.getDatasetPermId();
+        final Geometry plateGeometry = loader.getPlateGeometry();
+        final Geometry wellGeometry = loader.getWellGeometry();
+        final List<String> channelsNames = loader.getChannelsNames();
+
         PlateImageParameters params = new PlateImageParameters();
-        List<ISerializableComparable> values = tableModelRow.getValues();
-        params.setDatasetCode(asText(values.get(0)));
-        params.setRowsNum(asNum(values.get(1)));
-        params.setColsNum(asNum(values.get(2)));
-        params.setTileRowsNum(asNum(values.get(3)));
-        params.setTileColsNum(asNum(values.get(4)));
-        String channelsNamesCsv = asText(values.get(5));
-        String[] splittedChannelsNames = channelsNamesCsv.split(",");
-        List<String> channelNames = new ArrayList<String>();
-        for (String val : splittedChannelsNames)
+        params.setDatasetCode(datasetCode);
+        params.setRowsNum(plateGeometry.getRows());
+        params.setColsNum(plateGeometry.getColumns());
+        params.setTileRowsNum(wellGeometry.getRows());
+        params.setTileColsNum(wellGeometry.getColumns());
+        List<String> escapedChannelNames = new ArrayList<String>();
+        for (String name : channelsNames)
         {
-            channelNames.add(StringEscapeUtils.escapeCsv(val));
+            escapedChannelNames.add(StringEscapeUtils.escapeCsv(name));
         }
-        params.setChannelsNames(channelNames);
+        params.setChannelsNames(escapedChannelNames);
         return params;
     }
 
-    private static String asText(ISerializableComparable serializableComparable)
-    {
-        return serializableComparable.toString();
-    }
-
-    private static int asNum(ISerializableComparable serializableComparable)
-    {
-        return (int) ((IntegerTableCell) serializableComparable).getNumber();
-    }
 }

@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterials
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
 
 /**
  * @author Tomasz Pylak
@@ -90,7 +91,6 @@ public class GenePlateLocationsLoader
         this.businessObjectFactory = businessObjectFactory;
         this.daoFactory = daoFactory;
         this.externalDataTable = businessObjectFactory.createExternalDataTable(session);
-
     }
 
     private List<WellContent> getPlateLocations(PlateMaterialsSearchCriteria materialCriteria)
@@ -200,16 +200,13 @@ public class GenePlateLocationsLoader
             List<ExternalDataPE> usedDatasets)
     {
         List<String> datasetCodes = extractDatasetCodes(usedDatasets);
-        if (datasetCodes.size() == 0)
+        List<PlateImageParameters> imageParameters = new ArrayList<PlateImageParameters>();
+        for (String datasetCode : datasetCodes)
         {
-            return new HashMap<String, PlateImageParameters>();
+            final IHCSDatasetLoader loader =
+                    businessObjectFactory.createHCSDatasetLoader(datasetCode);
+            imageParameters.add(DatasetReportsLoader.createImageParameters(loader));
         }
-
-        // NOTE: assumes that all datasets are from the same datastore
-        String datastoreCode = usedDatasets.get(0).getDataStore().getCode();
-        List<PlateImageParameters> imageParameters =
-                DatasetReportsLoader.loadPlateImageParameters(datasetCodes, datastoreCode,
-                        externalDataTable);
         return asDatasetToParamsMap(imageParameters);
     }
 
