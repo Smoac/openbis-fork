@@ -384,7 +384,7 @@ function restore_database {
 	local db_file_path=$2 
 		
     psql_cmd=`run_psql`
-    $psql_cmd -U postgres -c "drop database $db_name"
+    $psql_cmd -U postgres -c "drop database if exists $db_name"
     $psql_cmd -U postgres -c "create database $db_name with owner $USER template = template0 encoding = 'UNICODE'"
     $psql_cmd -U $USER -d $db_name -f $db_file_path
 }
@@ -402,12 +402,12 @@ function install_openbis_server {
 		restore_database $DATABASE $TEMPLATE/$openbis_server_name/test_database.sql
     if [ $install_openbis == "true" ]; then
         rm -fr $openbis_server_dir
-		copy_templates $openbis_server_name
+				copy_templates $openbis_server_name
     
         unzip -d $openbis_server_dir $INSTALL/openBIS*.zip
-		$openbis_server_dir/openBIS-server/install.sh $PWD/$openbis_server_dir $openbis_server_dir/service.properties $openbis_server_dir/openbis.conf
+				$openbis_server_dir/openBIS-server/install.sh $PWD/$openbis_server_dir $openbis_server_dir/service.properties $openbis_server_dir/openbis.conf
         startup_openbis_server $openbis_server_dir
-		wait_for_server
+				wait_for_server
     else
         copy_templates $openbis_server_name
         restart_openbis $openbis_server_dir
