@@ -90,6 +90,20 @@
 		</antcall>
 	</target>
 
+  <target name="screening-integration-tests"
+          description="Runs integration tests for screening openBIS, fetches distribution from Cruise Control.">
+    <exec executable="sh" dir="${basedir}" resultproperty="result-code">
+			<arg value="./test-screening.sh" />
+		</exec>
+		<fail>
+			<condition>
+				<not>
+					<equals arg1="${result-code}" arg2="0" />
+				</not>
+			</condition>
+		</fail>
+  </target>
+  
 	<!--
 	// Cleans 'install' and 'playground' directories.
 	-->

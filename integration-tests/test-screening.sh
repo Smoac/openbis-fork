@@ -93,6 +93,7 @@ function install_screening_api {
 function install_screening {
 		fetch_distributions
 		
+		rm -fr $WORK
 		mkdir -p $WORK
 		install_dss_screening
 		install_and_run_openbis_server_screening "true"
