@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 
 import net.lemnik.eodsql.QueryTool;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.etlserver.plugins.IMigrator;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -143,7 +144,12 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
             for (String dataSetCode : parentDataSetCodes)
             {
                 ExternalData externalData = openBisService.tryGetDataSetForServer(dataSetCode);
-                if (externalData != null && externalData.getSample() != null)
+                if (externalData == null)
+                {
+                    throw new EnvironmentFailureException(
+                            "Cannot find a parent dataset in openBIS: " + dataSetCode);
+                }
+                if (externalData.getSample() != null)
                 {
                     sampleId = SampleIdentifierFactory.parse(externalData.getSampleIdentifier());
                     break;

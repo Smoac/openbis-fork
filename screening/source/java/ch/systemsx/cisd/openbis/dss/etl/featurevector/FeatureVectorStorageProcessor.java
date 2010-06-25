@@ -27,6 +27,7 @@ import javax.sql.DataSource;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
@@ -128,6 +129,11 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
             for (String dataSetCode : parentDataSetCodes)
             {
                 ExternalData externalData = openBisService.tryGetDataSetForServer(dataSetCode);
+                if (externalData == null)
+                {
+                    throw new UserFailureException("Cannot find a parent dataset in openBIS: "
+                            + dataSetCode);
+                }
                 if (externalData.getSample() != null)
                 {
                     sampleOrNull = externalData.getSample();
