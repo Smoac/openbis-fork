@@ -7,13 +7,16 @@
 
 source common.bash
 
+WORK=$TARGETS/playground-screening
+ERR_LOG=$WORK/all_err_log.txt
+
 # --------------------
 
 SVN_WEB_SRC_HCS=http://svncisd.ethz.ch/repos/cisd/screening/trunk
 OPENBIS_DATABASE_HCS=openbis_screening_integration_tests
 IMAGING_DB=imaging_integration_tests
 
-WORK=$TARGETS/playground-screening
+
 DATA_TEMPLATE=$TEMPLATE/data-screening.zip
 OPENBIS_SERVER_HCS=$WORK/openBIS-server-screening
 DSS_DIR_NAME=datastore_server_screening
@@ -49,8 +52,6 @@ function install_and_run_openbis_server_screening {
 		local openbis_server_dir=$OPENBIS_SERVER_HCS
 		local openbis_server_name=`basename $openbis_server_dir`
 		
-		cat $TEMPLATE/$openbis_server_name/integration-tests-service.properties >> $openbis_server_dir/jetty/etc/service.properties
-		
 		restore_database $OPENBIS_DATABASE_HCS $TEMPLATE/$openbis_server_name/test_database.sql
     if [ $install_openbis == "true" ]; then
         rm -fr $openbis_server_dir
@@ -58,7 +59,8 @@ function install_and_run_openbis_server_screening {
         unzip -d $openbis_server_dir $INSTALL/openBIS*.zip
         mv $openbis_server_dir/openBIS-server/* $openbis_server_dir
 				rmdir $openbis_server_dir/openBIS-server
-		
+
+				cat $TEMPLATE/$openbis_server_name/integration-tests-service.properties >> $openbis_server_dir/service.properties
 				$openbis_server_dir/install.sh $PWD/$openbis_server_dir
 				startup_openbis_server $openbis_server_dir
 				wait_for_server

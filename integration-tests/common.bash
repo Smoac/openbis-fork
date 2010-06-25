@@ -10,12 +10,12 @@ FALSE=0
 TEMPLATE=templates
 TARGETS=targets
 WORK=$TARGETS/playground
+ERR_LOG=$WORK/all_err_log.txt
+
 INSTALL=$TARGETS/install
 LOCAL_PROJECTS=..
 
 OPENBIS_SERVER=$WORK/openBIS-server
-
-ERR_LOG=$WORK/all_err_log.txt
 
 SSH_CRUISE_CONTROL_NAME=ci@cisd-vesuvio.ethz.ch
 CRUISE_CONTROL_ARTIFACTS=cruisecontrol-bin/artifacts
