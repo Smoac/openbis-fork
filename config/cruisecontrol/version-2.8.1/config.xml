@@ -127,6 +127,15 @@
       <ant target="nightly-build" time="0200" buildfile="${project.trunk}/build/build.xml" anthome="apache-ant"/>
     </schedule>
   </project>
+
+  <project name="screening-integration-tests" requiremodification="false">
+    <modificationset quietperiod="${quiet-period}">
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+    <schedule interval="60">
+      <ant target="screening-integration-tests" time="0240" buildfile="${project.trunk}/build/build.xml" anthome="apache-ant"/>
+    </schedule>
+  </project>
   
   <project name="build_resources">
     <schedule>
