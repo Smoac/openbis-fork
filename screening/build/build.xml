@@ -29,6 +29,10 @@
 
   <target name="make-dss-dist" depends="datastore_server.prepare-dist-libs">
     <jar update="true" destfile="${dss-jar.file}">
+      <fileset dir="dist">
+        <include name="etc/**" />
+      </fileset>
+      
       <fileset dir="source">
         <include name="**/*.sql" />
       </fileset>
