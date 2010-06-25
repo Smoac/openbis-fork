@@ -51,7 +51,7 @@
   		<fileset dir="${original.dist}/data" />
   	</copy>
     <copy todir="${dist.datastore_server}/etc">
-      <fileset dir="${original.dist}/etc" />
+      <fileset dir="${original.dist}/etc/tabular-data-graph.properties" />
     </copy>
   	<antcall target="datastore_server.create-distribution" />
   </target>
