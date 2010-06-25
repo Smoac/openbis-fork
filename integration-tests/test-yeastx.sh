@@ -210,7 +210,7 @@ function integration_tests_yeastx {
     assert_correct_incoming_contents $MY_DATA/incoming
     
     switch_dss "off" datastore_server_yeastx
-    shutdown_openbis_server
+    shutdown_openbis_server $OPENBIS_SERVER
     exit_if_assertion_failed
 }
 
