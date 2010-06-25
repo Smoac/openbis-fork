@@ -40,6 +40,7 @@ function prepare_data_second_phase {
     chmod -R 700 $DSS_INCOMING_PARENT_DIR/incoming*
 }
 
+
 function fetch_distributions {
 	rm -fr $INSTALL
 	mkdir -p $INSTALL
@@ -92,16 +93,16 @@ function install_screening_api {
 
 function install_screening {
 		fetch_distributions
+
+		echo Dropping imaging database: $IMAGING_DB
+		psql_cmd=`run_psql`
+		$psql_cmd -U postgres -c "drop database if exists $IMAGING_DB" 
 		
 		rm -fr $WORK
 		mkdir -p $WORK
 		install_dss_screening
 		install_and_run_openbis_server_screening "true"
-    	install_screening_api
-    
-		echo Dropping imaging database: $IMAGING_DB
-		psql_cmd=`run_psql`
-		$psql_cmd -U postgres -c "drop database if exists $IMAGING_DB" 
+    install_screening_api
 }
 
 function test_screening_api {
@@ -135,7 +136,8 @@ function integration_tests_screening {
     local datasets=`find $DSS_INCOMING_PARENT_DIR/store -name "original" | wc -l | tr -d " "`; 
     assert_equals "Wrong number of registered datasets" 5 $datasets
     
-    test_screening_api
+    # TODO: uncomment and add a check if the results are correct 
+    #test_screening_api
     
     switch_dss "off" datastore_server_screening
     shutdown_openbis_server $OPENBIS_SERVER_HCS
