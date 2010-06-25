@@ -166,6 +166,9 @@
       <zipfileset src="${lib}/commons-codec/commons-codec.jar" />
       <zipfileset src="${lib}/log4j/log4j.jar" />     
   	</recursive-jar>
+    <copy todir="${dist.screening-api}">
+      <fileset dir="${original.dist}/api" />
+    </copy>
   </target>
 
 	<target name="screening-api" depends="screening-api-doc, screening-api-libs" >
