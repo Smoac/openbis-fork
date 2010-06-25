@@ -291,7 +291,7 @@ function integration_tests {
     
     assert_correct_content
     
-    shutdown_openbis_server
+    shutdown_openbis_server $OPENBIS_SERVER
     exit_if_assertion_failed
 }
 
