@@ -156,7 +156,10 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         rowBuilder.setCell("col2", new IntegerTableCell(42));
         rowBuilder = builder.addRow();
         rowBuilder.setCell("col1", new StringTableCell("hello"));
-        rowBuilder.setCell("col2", new DoubleTableCell(3.125));
+        rowBuilder.setCell("col2", 3.125);
+        rowBuilder = builder.addRow();
+        rowBuilder.setCell("col1", "world");
+        rowBuilder.setCell("col2", 4711);
         
         TableModel tableModel = builder.getTableModel();
         
@@ -170,7 +173,10 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         assertEquals(new StringTableCell("hello"), rows.get(1).getValues().get(0));
         assertEquals(new DoubleTableCell(3.125), rows.get(1).getValues().get(1));
         assertEquals(2, rows.get(1).getValues().size());
-        assertEquals(2, rows.size());
+        assertEquals(new StringTableCell("world"), rows.get(2).getValues().get(0));
+        assertEquals(new IntegerTableCell(4711), rows.get(2).getValues().get(1));
+        assertEquals(2, rows.get(1).getValues().size());
+        assertEquals(3, rows.size());
     }
     
     private void assertHeader(String expectedTitle, int expectedDefaultWidth, int expectedIndex,

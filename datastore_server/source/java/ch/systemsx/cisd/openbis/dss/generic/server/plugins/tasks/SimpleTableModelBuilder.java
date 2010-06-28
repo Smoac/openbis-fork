@@ -116,6 +116,21 @@ public class SimpleTableModelBuilder
         rows.add(new TableModelRow(values));
         return new IRowBuilder()
             {
+                public void setCell(String headerTitle, String value)
+                {
+                    setCell(headerTitle, new StringTableCell(value));
+                }
+
+                public void setCell(String headerTitle, long value)
+                {
+                    setCell(headerTitle, new IntegerTableCell(value));
+                }
+
+                public void setCell(String headerTitle, double value)
+                {
+                    setCell(headerTitle, new DoubleTableCell(value));
+                }
+
                 public void setCell(String headerTitle, ISerializableComparable value)
                 {
                     Integer index = titleToIndexMap.get(headerTitle);

@@ -29,4 +29,19 @@ public interface IRowBuilder
      * Sets the value of the column specified by the header title.
      */
     public void setCell(String headerTitle, ISerializableComparable value);
+    
+    /**
+     * Sets the value of the column specified by the header title by the specified string.
+     */
+    public void setCell(String headerTitle, String value);
+    
+    /**
+     * Sets the value of the column specified by the header title by the specified long value.
+     */
+    public void setCell(String headerTitle, long value);
+    
+    /**
+     * Sets the value of the column specified by the header title by the specified double value.
+     */
+    public void setCell(String headerTitle, double value);
 }
