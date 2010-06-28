@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
@@ -145,7 +146,7 @@ public class PlateLayouter
             }
         } else if (col == 0)
         {
-            text = asWellLeter(row);
+            text = PlateUtils.translateRowNumberIntoLetterCode(row);
         }
         if (text != null)
         {
@@ -154,17 +155,6 @@ public class PlateLayouter
         } else
         {
             return null;
-        }
-    }
-
-    private static String asWellLeter(int row)
-    {
-        if (row <= 'Z')
-        {
-            return "" + (char) ('A' + row - 1);
-        } else
-        {
-            return "" + row;
         }
     }
 

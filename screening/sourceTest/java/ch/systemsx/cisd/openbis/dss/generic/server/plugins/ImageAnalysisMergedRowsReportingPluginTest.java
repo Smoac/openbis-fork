@@ -21,17 +21,26 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.test.AssertionUtil;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
  * Test cases for the {@link ImageAnalysisMergedRowsReportingPlugin}.
@@ -40,97 +49,129 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
 {
+    private Mockery context;
+    private IEncapsulatedOpenBISService service;
+    private IImagingQueryDAO dao;
+    private ImageAnalysisMergedRowsReportingPlugin plugin;
 
-    private final static File dir =
-            new File("targets/unit-test-wd/ImageAnalysisMergedRowsReportingPluginTest");
-
-    @Test
-    public void testMerge()
+    @BeforeMethod
+    public void beforeMethod()
     {
-        String separator = ",";
-        Properties props = createProperties(separator, true);
-        TableModel model = createReport(separator, props);
-
-        assertEquals(4, model.getHeader().size());
-        assertEquals("Data Set Code#Plate#key#val", StringUtils.join(model.getHeader(), '#'));
-
-        List<TableModelRow> rows = model.getRows();
-        assertEquals(2, rows.size());
-        assertEquals("datasetCode-a#fa.txt#one, and the only#1", StringUtils.join(rows.get(0)
-                .getValues(), '#'));
-        assertEquals("datasetCode-b#fb.txt#two#2", StringUtils.join(rows.get(1).getValues(), '#'));
+        context = new Mockery();
+        service = context.mock(IEncapsulatedOpenBISService.class);
+        dao = context.mock(IImagingQueryDAO.class);
+        plugin = new ImageAnalysisMergedRowsReportingPlugin(new Properties(), new File("."), service, dao);
     }
 
-    @Test
-    // do not ignore comments - should fail when comment is treated as a header
-    public void testMergeNotIgnoringCommentsFailed()
+    @AfterMethod
+    public final void tearDown()
     {
-
-        boolean failedBecauseOfComment = false;
-        try
+        // The following line of code should also be called at the end of each test method.
+        // Otherwise one do not known which test failed.
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void test()
+    {
+        final DatasetDescription ds1 = new DatasetDescription();
+        ds1.setDatasetCode("ds1");
+        final ImgContainerDTO p1 = new ImgContainerDTO("p1", 3, 2, 0);
+        final SampleIdentifier p1Identifier = new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1");
+        final DatasetDescription ds2 = new DatasetDescription();
+        ds2.setDatasetCode("ds2");
+        final ImgContainerDTO p2 = new ImgContainerDTO("p2", 2, 1, 0);
+        final SampleIdentifier p2Identifier = new SampleIdentifier(new SpaceIdentifier("1", "S"), "P2");
+        final ImgFeatureDefDTO ds1f1 = new ImgFeatureDefDTO("f1", "", 1);
+        final ImgFeatureDefDTO ds1f2 = new ImgFeatureDefDTO("f2", "", 1);
+        final ImgFeatureDefDTO ds2f2 = new ImgFeatureDefDTO("f2", "", 2);
+        final ImgFeatureDefDTO ds2f3 = new ImgFeatureDefDTO("f3", "", 2);
+        final ImgFeatureValuesDTO ds1f1Values = createFeatureValues("12, 2.5", "24, 3.25", "-1.5, 42");
+        final ImgFeatureValuesDTO ds1f2Values = createFeatureValues("-3.5, 12.5", "-2, 1", "5, 4.25");
+        final ImgFeatureValuesDTO ds2f2Values = createFeatureValues("23", "5.75");
+        final ImgFeatureValuesDTO ds2f3Values = createFeatureValues("-9", "44.125");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryGetDatasetByPermId(ds1.getDatasetCode());
+                    will(returnValue(createDataSet(1)));
+                    
+                    one(dao).listFeatureDefsByDataSetId(1);
+                    will(returnValue(Arrays.asList(ds1f1, ds1f2)));
+                    
+                    one(dao).getContainerById(101);
+                    will(returnValue(p1));
+                    
+                    one(service).tryToGetSampleIdentifier(p1.getPermId());
+                    will(returnValue(p1Identifier));
+                    
+                    one(dao).getFeatureValues(ds1f1);
+                    will(returnValue(Arrays.asList(ds1f1Values)));
+                    
+                    one(dao).getFeatureValues(ds1f2);
+                    will(returnValue(Arrays.asList(ds1f2Values)));
+                    
+                    one(dao).tryGetDatasetByPermId(ds2.getDatasetCode());
+                    will(returnValue(createDataSet(2)));
+                    
+                    one(dao).listFeatureDefsByDataSetId(2);
+                    will(returnValue(Arrays.asList(ds2f2, ds2f3)));
+                    
+                    one(dao).getContainerById(102);
+                    will(returnValue(p2));
+                    
+                    one(service).tryToGetSampleIdentifier(p2.getPermId());
+                    will(returnValue(p2Identifier));
+                    
+                    one(dao).getFeatureValues(ds2f2);
+                    will(returnValue(Arrays.asList(ds2f2Values)));
+                    
+                    one(dao).getFeatureValues(ds2f3);
+                    will(returnValue(Arrays.asList(ds2f3Values)));
+                    
+                }
+            });
+        
+        TableModel tableModel = plugin.createReport(Arrays.asList(ds1, ds2));
+        
+        List<TableModelColumnHeader> headers = tableModel.getHeader();
+        assertEquals("[Data Set Code, Plate Identifier, Row, Column, f1, f2, f3]", headers.toString());
+        List<TableModelRow> rows = tableModel.getRows();
+        String prefix = "[ds1, 1:/S/P1, ";
+        assertEquals(prefix + "A, 1, 12.0, -3.5, ]", rows.get(0).getValues().toString());
+        assertEquals(prefix + "A, 2, 2.5, 12.5, ]", rows.get(1).getValues().toString());
+        assertEquals(prefix + "B, 1, 24.0, -2.0, ]", rows.get(2).getValues().toString());
+        assertEquals(prefix + "B, 2, 3.25, 1.0, ]", rows.get(3).getValues().toString());
+        assertEquals(prefix + "C, 1, -1.5, 5.0, ]", rows.get(4).getValues().toString());
+        assertEquals(prefix + "C, 2, 42.0, 4.25, ]", rows.get(5).getValues().toString());
+        prefix = "[ds2, 1:/S/P2, ";
+        assertEquals(prefix + "A, 1, , 23.0, -9.0]", rows.get(6).getValues().toString());
+        assertEquals(prefix + "B, 1, , 5.75, 44.125]", rows.get(7).getValues().toString());
+        assertEquals(8, rows.size());
+        context.assertIsSatisfied();
+    }
+    
+    private ImgDatasetDTO createDataSet(long id)
+    {
+        ImgDatasetDTO datasetDTO = new ImgDatasetDTO("ds" + id, null, null, 100 + id);
+        datasetDTO.setId(id);
+        return datasetDTO;
+    }
+    
+    private ImgFeatureValuesDTO createFeatureValues(String... rows)
+    {
+        double[][] matrix = new double[rows.length][];
+        for (int i = 0; i < rows.length; i++)
         {
-            String separator = ";";
-            Properties props = createProperties(separator, false);
-            createReport(separator, props);
-        } catch (UserFailureException ex)
-        {
-            AssertionUtil.assertContains("Number of columns in header", ex.getMessage());
-            failedBecauseOfComment = true;
+            String row = rows[i];
+            String[] cells = row.split(",");
+            matrix[i] = new double[cells.length];
+            for (int j = 0; j < cells.length; j++)
+            {
+                matrix[i][j] = Double.parseDouble(cells[j]);
+            }
         }
-        assertTrue("should fail when comment is treated as a header in file a.txt",
-                failedBecauseOfComment);
+        MDDoubleArray array = new MDDoubleArray(matrix);
+        return new ImgFeatureValuesDTO(0.0, 0.0, array, 0L);
     }
-
-    @Test
-    // the same test, but now treat ';' as separator - two columns should be merged
-    public void testMergeCheckSeparator()
-    {
-        Properties props = createProperties(";", true);
-        TableModel model = createReport(",", props);
-
-        assertEquals(3, model.getHeader().size());
-        assertEquals(2, model.getRows().size());
-    }
-
-    private TableModel createReport(String separator, Properties props)
-    {
-        final File dirA = new File(dir, "a");
-        final File dirB = new File(dir, "b");
-        dirA.mkdirs();
-        dirB.mkdirs();
-        final File f1 = new File(dirA, "fa.txt");
-        f1.deleteOnExit();
-        final File f2 = new File(dirB, "fb.txt");
-        f2.deleteOnExit();
-        FileUtilities.writeToFile(f2, "\n"); // empty line - should be ignored
-        String keyColumnValue = "\"one" + separator + " and the only\""; // escaped separator
-        FileUtilities.writeToFile(f1, "# any comment\n" + "key" + separator + "val\n"
-                + keyColumnValue + separator + "1\n");
-        FileUtilities.writeToFile(f2, "key" + separator + "val\n" + "\"two\"" + separator + "2\n");
-
-        IReportingPluginTask plugin = new ImageAnalysisMergedRowsReportingPlugin(props, dir);
-        List<DatasetDescription> datasets =
-                Arrays.asList(createDatasetDescription(dirA.getName()),
-                        createDatasetDescription(dirB.getName()));
-        TableModel model = plugin.createReport(datasets);
-        return model;
-    }
-
-    private Properties createProperties(String separator, boolean ignoreComments)
-    {
-        Properties props = new Properties();
-        props.put("separator", separator);
-        props.put("sub-directory-name", "");
-        props.put("ignore-comments", "" + ignoreComments);
-        return props;
-    }
-
-    private DatasetDescription createDatasetDescription(String location)
-    {
-        DatasetDescription description = new DatasetDescription();
-        description.setDatasetCode("datasetCode-" + location);
-        description.setDataSetLocation(location);
-        return description;
-    }
-
 }

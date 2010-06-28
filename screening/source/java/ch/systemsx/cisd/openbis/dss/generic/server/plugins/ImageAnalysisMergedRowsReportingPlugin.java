@@ -17,18 +17,36 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import javax.sql.DataSource;
 
+import net.lemnik.eodsql.QueryTool;
+
+import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDataMergingReportingPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IRowBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
  * Reporting plugin that concatenates rows of tabular files of all data sets (stripping the header
@@ -36,50 +54,130 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * additional Data Set code column.
  * 
  * @author Tomasz Pylak
+ * @author Franz-Josef Elmer
  */
-// Possible extensions in future: allow different files to have different headers, merge the same
-// columns and fill columns with empty values if they do not occur in some files.
-public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDataMergingReportingPlugin
+public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlugin implements
+        IReportingPluginTask
 {
-
     private static final long serialVersionUID = 1L;
+    
+    private static final String DATA_SET_CODE_TITLE = "Data Set Code";
+    private static final String PLATE_IDENTIFIER_TITLE = "Plate Identifier";
+    private static final String ROW_TITLE = "Row";
+    private static final String COLUMN_TITLE = "Column";
+
+    private static final class Bundle
+    {
+        private ImgDatasetDTO dataSet;
+        private List<ImgFeatureDefDTO> featureDefinitions;
+        private Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap;
+    }
+    
+    private IEncapsulatedOpenBISService service;
+    
+    private IImagingQueryDAO dao;
 
     public ImageAnalysisMergedRowsReportingPlugin(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot, SEMICOLON_SEPARATOR);
+        this(properties, storeRoot, null, null);
     }
 
+    ImageAnalysisMergedRowsReportingPlugin(Properties properties, File storeRoot,
+            IEncapsulatedOpenBISService service, IImagingQueryDAO dao)
+    {
+        super(properties, storeRoot);
+        this.service = service;
+        this.dao = dao;
+    }
+    
     public TableModel createReport(List<DatasetDescription> datasets)
     {
-        SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-        builder.addHeader("Data Set Code");
-        builder.addHeader("Plate");
-        if (datasets.isEmpty() == false)
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
+        builder.addHeader(DATA_SET_CODE_TITLE);
+        builder.addHeader(PLATE_IDENTIFIER_TITLE);
+        builder.addHeader(ROW_TITLE);
+        builder.addHeader(COLUMN_TITLE);
+        List<Bundle> bundles = new ArrayList<Bundle>();
+        Set<String> featureNames = new HashSet<String>();
+        for (DatasetDescription datasetDescription : datasets)
         {
-            final DatasetDescription firstDataset = datasets.get(0);
-            final String[] titles = getHeaderTitles(firstDataset);
-            for (String title : titles)
+            String datasetCode = datasetDescription.getDatasetCode();
+            ImgDatasetDTO dataSet = getDAO().tryGetDatasetByPermId(datasetCode);
+            if (dataSet == null)
             {
-                builder.addHeader(title);
+                throw new UserFailureException("Unkown data set " + datasetCode);
             }
-            for (DatasetDescription dataset : datasets)
+            Bundle bundle = new Bundle();
+            List<ImgFeatureDefDTO> featureDefinitions = getDAO().listFeatureDefsByDataSetId(dataSet.getId());
+            bundle.dataSet = dataSet;
+            bundle.featureDefinitions = featureDefinitions;
+            bundle.featureDefToValuesMap = new HashMap<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>>();
+            bundles.add(bundle);
+            for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
             {
-                final File dir = getDataSubDir(dataset);
-                final DatasetFileLines lines = loadFromDirectory(dataset, dir);
-                if (Arrays.equals(titles, lines.getHeaderTokens()) == false)
+                String featureName = featureDefinition.getName();
+                if (featureNames.contains(featureName) == false)
                 {
-                    throw UserFailureException.fromTemplate(
-                            "All Data Set files should have the same headers, "
-                                    + "but file header of '%s': \n\t '%s' "
-                                    + "is different than file header of '%s': \n\t '%s'.",
-                            firstDataset.getDatasetCode(), StringUtils.join(titles, "\t"), dataset
-                                    .getDatasetCode(), StringUtils.join(lines.getHeaderTokens(),
-                                    "\t"));
+                    builder.addHeader(featureName);
+                    featureNames.add(featureName);
                 }
-                addDataRows(builder, dataset, lines, true);
+                List<ImgFeatureValuesDTO> featureValueSets =
+                        getDAO().getFeatureValues(featureDefinition);
+                if (featureValueSets.isEmpty())
+                {
+                    throw new UserFailureException("At least one set of values for feature "
+                            + featureName + " of data set " + datasetCode
+                            + " expected.");
+                }
+                bundle.featureDefToValuesMap.put(featureDefinition, featureValueSets);
+            }
+        }
+        for (Bundle bundle : bundles)
+        {
+            String dataSetCode = bundle.dataSet.getPermId();
+            ImgContainerDTO container = getDAO().getContainerById(bundle.dataSet.getContainerId());
+            SampleIdentifier identifier = getService().tryToGetSampleIdentifier(container.getPermId());
+            for (int rowIndex = 0; rowIndex < container.getNumberOfRows(); rowIndex++)
+            {
+                for (int colIndex = 0; colIndex < container.getNumberOfColumns(); colIndex++)
+                {
+                    IRowBuilder rowBuilder = builder.addRow();
+                    rowBuilder.setCell(DATA_SET_CODE_TITLE, dataSetCode);
+                    rowBuilder.setCell(PLATE_IDENTIFIER_TITLE, identifier.toString());
+                    rowBuilder.setCell(ROW_TITLE, PlateUtils.translateRowNumberIntoLetterCode(rowIndex + 1));
+                    rowBuilder.setCell(COLUMN_TITLE, colIndex + 1);
+                    for (ImgFeatureDefDTO featureDefinition : bundle.featureDefinitions)
+                    {
+                        List<ImgFeatureValuesDTO> featureValueSets = bundle.featureDefToValuesMap.get(featureDefinition);
+                        // We take only the first set of feature value sets
+                        ImgFeatureValuesDTO featureValues = featureValueSets.get(0);
+                        MDDoubleArray array = featureValues.getValuesDoubleArray();
+                        rowBuilder.setCell(featureDefinition.getName(), array.get(rowIndex, colIndex));
+                    }
+                }
             }
         }
         return builder.getTableModel();
     }
 
+    private IImagingQueryDAO getDAO()
+    {
+        if (dao == null)
+        {
+            DataSource dataSource =
+                    ServiceProvider.getDataSourceProvider().getDataSource(
+                            ScreeningConstants.IMAGING_DATA_SOURCE);
+            dao = QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
+        }
+        return dao;
+    }
+    
+    private IEncapsulatedOpenBISService getService()
+    {
+        if (service == null)
+        {
+            service = ServiceProvider.getOpenBISService();
+        }
+        return service;
+    }
 }
