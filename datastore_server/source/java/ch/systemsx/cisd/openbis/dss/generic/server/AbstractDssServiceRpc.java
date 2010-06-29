@@ -94,6 +94,17 @@ public abstract class AbstractDssServiceRpc
         }
         return homeDatabaseInstance;
     }
+    
+    /**
+     * Asserts that specified data set is accessible by the user of the specified session.
+     */
+    protected void assertDatasetIsAccessible(String sessionToken, String dataSetCode)
+    {
+        if (isDatasetAccessible(sessionToken, dataSetCode) == false)
+        {
+            throw new IllegalArgumentException("User is not allowed to access data set " + dataSetCode);
+        }
+    }
 
     /**
      * Check with openBIS if the user with the given sessionToken is allowed to access the data set
@@ -118,6 +129,19 @@ public abstract class AbstractDssServiceRpc
         }
 
         return access;
+    }
+
+    /**
+     * Asserts that specified data sets are all accessible by the user of the specified session.
+     */
+    protected void assertDatasetsAreAccessible(String sessionToken, List<String> dataSetCodes)
+    {
+        if (areDatasetsAccessible(sessionToken, dataSetCodes) == false)
+        {
+            throw new IllegalArgumentException(
+                    "User is not allowed to access at least one of the following data sets: "
+                            + dataSetCodes);
+        }
     }
 
     /**
