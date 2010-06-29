@@ -34,8 +34,10 @@ public class GuiUtils
         {
             container.remove(container.getWidget(lastItemIx));
             container.insert(newLastWidget, lastItemIx);
+        } else
+        {
+            container.insert(newLastWidget, 0);
         }
-        container.insert(newLastWidget, 0);
         container.layout();
     }
 
