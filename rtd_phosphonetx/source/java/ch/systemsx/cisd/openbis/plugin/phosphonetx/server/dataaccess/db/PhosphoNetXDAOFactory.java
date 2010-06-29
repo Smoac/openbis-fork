@@ -16,14 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.db;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import net.lemnik.eodsql.QueryTool;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
@@ -44,32 +40,16 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
 
     private final IProteinQueryDAO proteinQueryDAO;
 
-    private final DatabaseConfigurationContext context;
-
     public PhosphoNetXDAOFactory(DatabaseConfigurationContext context)
     {
-        this.context = context;
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
-        Connection connection = null;
-        try
-        {
-            connection = context.getDataSource().getConnection();
-        } catch (SQLException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-        proteinQueryDAO = QueryTool.getQuery(connection, IProteinQueryDAO.class);
+        proteinQueryDAO = QueryTool.getQuery(context.getDataSource(), IProteinQueryDAO.class);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("DAO factory for PhosphoNetX created.");
         }
     }
     
-    public DatabaseConfigurationContext getContext()
-    {
-        return context;
-    }
-
     public IProteinQueryDAO getProteinQueryDAO()
     {
         return proteinQueryDAO;
