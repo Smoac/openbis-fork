@@ -71,7 +71,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         featureVectorDatasetIdentifier1 = create("ds1");
         featureVectorDatasetIdentifier2 = create("ds2");
 
-        screeningService = new DssServiceRpcScreening("targets", dao, service);
+        screeningService = new DssServiceRpcScreening("targets", dao, service, false);
     }
 
     private IFeatureVectorDatasetIdentifier create(final String dataSetCode)

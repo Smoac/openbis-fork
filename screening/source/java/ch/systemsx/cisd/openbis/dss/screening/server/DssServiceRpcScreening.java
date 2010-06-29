@@ -76,27 +76,29 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
     public DssServiceRpcScreening(String storeRootDir)
     {
-        this(storeRootDir, null, ServiceProvider.getOpenBISService());
+        this(storeRootDir, null, ServiceProvider.getOpenBISService(), true);
     }
 
     DssServiceRpcScreening(String storeRootDir, IImagingQueryDAO dao,
-            IEncapsulatedOpenBISService service)
+            IEncapsulatedOpenBISService service, boolean registerAtNameService)
     {
         super(service);
         this.dao = dao;
         setStoreDirectory(new File(storeRootDir));
-
-        // Register the service with the name server
-        RpcServiceInterfaceVersionDTO ifaceVersion =
+        if (registerAtNameService)
+        {
+            // Register the service with the name server
+            RpcServiceInterfaceVersionDTO ifaceVersion =
                 new RpcServiceInterfaceVersionDTO("screening-dss",
                         "/rmi-datastore-server-screening-api-v1", getMajorVersion(),
                         getMinorVersion());
-        HttpInvokerServiceExporter nameServiceExporter =
+            HttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getRpcNameServiceExporter();
-        RpcServiceNameServer nameServer = (RpcServiceNameServer) nameServiceExporter.getService();
-        nameServer.addSupportedInterfaceVersion(ifaceVersion);
-
-        operationLog.info("[rpc] Started DSS RPC screening service V1.");
+            RpcServiceNameServer nameServer = (RpcServiceNameServer) nameServiceExporter.getService();
+            nameServer.addSupportedInterfaceVersion(ifaceVersion);
+            
+            operationLog.info("[rpc] Started DSS RPC screening service V1.");
+        }
     }
     
     // ------------------ impl -----------------
