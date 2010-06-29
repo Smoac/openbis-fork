@@ -59,6 +59,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.EventPE</value>
