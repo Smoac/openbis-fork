@@ -20,13 +20,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.HCSImageDatasetLoader;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
 /**
@@ -37,15 +34,7 @@ public class HCSImageDatasetLoaderFactory
     private static final Map<String, IContentRepositoryFactory> repositoryFactories =
             createFactories();
 
-    private static final IImagingQueryDAO query = createQuery();
-
-    private static IImagingQueryDAO createQuery()
-    {
-        DataSource dataSource =
-                ServiceProvider.getDataSourceProvider().getDataSource(
-                        ScreeningConstants.IMAGING_DATA_SOURCE);
-        return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
-    }
+    private static final IImagingQueryDAO query = DssScreeningUtils.createQuery();
 
     private static Map<String, IContentRepositoryFactory> createFactories()
     {

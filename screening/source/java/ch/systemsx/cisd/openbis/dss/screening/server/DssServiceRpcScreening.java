@@ -18,18 +18,14 @@ package ch.systemsx.cisd.openbis.dss.screening.server;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
-
-import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
@@ -43,11 +39,14 @@ import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
+import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableRow;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -59,7 +58,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetM
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.utils.CsvFileReaderHelper;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 
 /**
  * Implementation of the screening API interface using RPC. The instance will be created in spring
@@ -71,9 +72,18 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         IDssServiceRpcScreening
 {
 
+    private IImagingQueryDAO dao;
+
     public DssServiceRpcScreening(String storeRootDir)
     {
-        super(ServiceProvider.getOpenBISService());
+        this(storeRootDir, null, ServiceProvider.getOpenBISService());
+    }
+
+    DssServiceRpcScreening(String storeRootDir, IImagingQueryDAO dao,
+            IEncapsulatedOpenBISService service)
+    {
+        super(service);
+        this.dao = dao;
         setStoreDirectory(new File(storeRootDir));
 
         // Register the service with the name server
@@ -88,61 +98,28 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
         operationLog.info("[rpc] Started DSS RPC screening service V1.");
     }
-
+    
     // ------------------ impl -----------------
-
-    private File getDatasetFile(String sessionToken, IDatasetIdentifier dataset) throws IOException
-    {
-        File originalDir =
-                checkAccessAndGetFile(sessionToken, dataset.getDatasetCode(), "original");
-        if (originalDir.isDirectory() == false)
-        {
-            throw new IllegalArgumentException(String.format(
-                    "Dataset %s directory '%s' does not exist.", dataset.getDatasetCode(),
-                    originalDir.getPath()));
-        }
-        File[] datasetFiles = originalDir.listFiles();
-        if (datasetFiles.length == 1)
-        {
-            return datasetFiles[0];
-        } else
-        {
-            throw new IllegalArgumentException(String.format(
-                    "Exactly one item was expected in the '%s' directory,"
-                            + " but %d have been found.", originalDir.getPath(),
-                    datasetFiles.length));
-        }
-    }
 
     public List<String> listAvailableFeatureNames(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        try
+        assertDataSetsAreAccessible(sessionToken, featureDatasets);
+        List<String> result = new ArrayList<String>(); // keep the order
+        for (IFeatureVectorDatasetIdentifier identifier : featureDatasets)
         {
-            List<String> result = new ArrayList<String>(); // keep the order
-            for (IFeatureVectorDatasetIdentifier dataset : featureDatasets)
+            // add only new feature names
+            List<ImgFeatureDefDTO> featureDefinitions = getFeatureDefinitions(identifier);
+            for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
             {
-                // add only new feature names
-                String[] featureNames = extractFeatureNames(sessionToken, dataset);
-                for (String featureName : featureNames)
+                String featureName = featureDefinition.getName();
+                if (result.contains(featureName) == false)
                 {
-                    if (result.contains(featureName) == false)
-                    {
-                        result.add(featureName);
-                    }
+                    result.add(featureName);
                 }
             }
-            return result;
-        } catch (IOException ex)
-        {
-            throw wrapIOException(ex);
         }
-    }
-
-    private String[] extractFeatureNames(String sessionToken,
-            IFeatureVectorDatasetIdentifier dataset) throws IOException
-    {
-        return extractFeatureNames(getDatasetFile(sessionToken, dataset));
+        return result;
     }
 
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
@@ -208,26 +185,30 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames)
     {
-        try
+        assertDataSetsAreAccessible(sessionToken, featureDatasets);
+        List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
+        for (FeatureVectorDatasetReference dataset : featureDatasets)
         {
-            List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
-
-            for (FeatureVectorDatasetReference dataset : featureDatasets)
-            {
-                result.add(createFeatureVectorDataset(sessionToken, dataset, featureNames));
-            }
-            return result;
-        } catch (IOException ex)
-        {
-            throw wrapIOException(ex);
+            result.add(createFeatureVectorDataset(sessionToken, dataset, featureNames));
         }
+        return result;
     }
 
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
-            FeatureVectorDatasetReference dataset, List<String> featureNames) throws IOException
+            FeatureVectorDatasetReference dataset, List<String> featureNames)
     {
-        return createFeatureVectorDataset(getDatasetFile(sessionToken, dataset), dataset,
-                featureNames);
+        FeatureTableBuilder builder = new FeatureTableBuilder(featureNames, getDAO(), getOpenBISService());
+        builder.addFeatureVectorsOfDataSet(dataset.getDatasetCode());
+        List<String> existingFeatureNames = builder.getFeatureNames();
+        List<FeatureTableRow> featureTableRows = builder.getFeatureTableRows();
+        List<FeatureVector> featureVectors = new ArrayList<FeatureVector>();
+        for (FeatureTableRow featureTableRow : featureTableRows)
+        {
+            featureVectors.add(new FeatureVector(new WellPosition(
+                    featureTableRow.getRowIndex() + 1, featureTableRow.getColumnIndex() + 1),
+                    featureTableRow.getFeatureValues()));
+        }
+        return new FeatureVectorDataset(dataset, existingFeatureNames, featureVectors);
     }
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
@@ -311,11 +292,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         }
     }
 
-    private static IllegalStateException wrapIOException(IOException exception)
-    {
-        return new IllegalStateException(exception.getMessage());
-    }
-
     // tile - start from 0
     private static Location getTileLocation(int tile, Geometry wellGeometry)
     {
@@ -374,228 +350,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return dataset.getDataSetType().getCode().equals(ScreeningConstants.IMAGE_DATASET_TYPE);
     }
 
-    //
-    // helper methods and classes
-    //
-
-    private static final String WELL_POSITION_HEADER_NAME = "WellName";
-
-    private static final String WELL_ROW_HEADER_NAME = "Row";
-
-    private static final String WELL_COLUMN_HEADER_NAME = "Col";
-
-    // exposed for testing
-    static String[] extractFeatureNames(File datasetFile) throws IOException
-    {
-        CsvReader reader = null;
-        try
-        {
-            reader = CsvFileReaderHelper.getCsvReader(datasetFile);
-            if (reader.readHeaders())
-            {
-                String[] headers = reader.getHeaders();
-                if (reader.readRecord())
-                {
-                    String[] values = reader.getValues();
-                    return chooseNumericValues(headers, values);
-                } else
-                {
-                    return headers;
-                }
-            }
-            return new String[0]; // empty file
-        } finally
-        {
-            if (reader != null)
-            {
-                reader.close();
-            }
-        }
-    }
-
-    // a heuristic to choose only those features which contain numbers. We check the first feature
-    // vector to do that.
-    private static String[] chooseNumericValues(String[] headers, String[] values)
-    {
-        List<String> featureNames = new ArrayList<String>();
-        for (int i = 0; i < Math.min(headers.length, values.length); i++)
-        {
-            if (isWellColumnName(headers[i]) == false && isNumber(values[i]))
-            {
-                featureNames.add(headers[i]);
-            }
-        }
-        return featureNames.toArray(new String[0]);
-    }
-
-    private static boolean isNumber(String value)
-    {
-        return tryGetDouble(value) != null;
-    }
-
-    // exposed for testing
-    static FeatureVectorDataset createFeatureVectorDataset(File datasetFile,
-            FeatureVectorDatasetReference dataset, List<String> featureNames) throws IOException
-    {
-        DatasetFileLines fileLines = CsvFileReaderHelper.getDatasetFileLines(datasetFile);
-        String[] headerTokens = fileLines.getHeaderTokens();
-
-        List<String> existingFeatureNames = new ArrayList<String>();
-        int[] headerTokenFeatureIndexes = new int[headerTokens.length];
-        Arrays.fill(headerTokenFeatureIndexes, -1);
-        for (String featureName : featureNames)
-        {
-            if (isWellColumnName(featureName) == false) // well position columns have wrong format
-            {
-                int index = getColumnIndexForHeader(featureName, headerTokens);
-                if (index > -1)
-                {
-                    existingFeatureNames.add(featureName);
-                    headerTokenFeatureIndexes[index] = existingFeatureNames.size() - 1;
-                }
-            }
-        }
-
-        int[] wellIndexes = new int[3];
-        Arrays.fill(wellIndexes, -1);
-        wellIndexes[0] = getColumnIndexForHeader(WELL_POSITION_HEADER_NAME, headerTokens);
-        wellIndexes[1] = getColumnIndexForHeader(WELL_ROW_HEADER_NAME, headerTokens);
-        wellIndexes[2] = getColumnIndexForHeader(WELL_COLUMN_HEADER_NAME, headerTokens);
-
-        FeatureVectorDatasetBuilder builder =
-                new FeatureVectorDatasetBuilder(dataset, existingFeatureNames);
-        int lineNumber = 1;
-        for (String[] dataLine : fileLines.getDataLines())
-        {
-            FeatureVector vector =
-                    tryExtractFeatureVector(dataLine, wellIndexes, headerTokenFeatureIndexes,
-                            existingFeatureNames.size());
-            if (vector != null)
-            {
-                builder.addFeatureVector(vector);
-            } else
-            {
-                String logMsg =
-                        "wrong data format or well position not found for data set %s (file: %s, line: %s)";
-                operationLog.warn(String.format(logMsg, dataset.getDatasetCode(), datasetFile,
-                        lineNumber));
-            }
-            lineNumber++;
-        }
-        return builder.create();
-    }
-
-    private static boolean isWellColumnName(String string)
-    {
-        return string.equalsIgnoreCase(WELL_POSITION_HEADER_NAME)
-                || string.equalsIgnoreCase(WELL_ROW_HEADER_NAME)
-                || string.equalsIgnoreCase(WELL_COLUMN_HEADER_NAME);
-    }
-
-    /** @return the column index for the column header or -1 if none was found */
-    private static int getColumnIndexForHeader(String columnHeader, String[] headers)
-    {
-        for (int i = 0; i < headers.length; i++)
-        {
-            if (columnHeader.equalsIgnoreCase(headers[i]))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private static FeatureVector tryExtractFeatureVector(String[] dataLine, int[] wellIndexes,
-            int[] headerTokenFeatureIndexes, int existingFeaturesSize)
-    {
-        WellPosition wellPositionOrNull = tryExtractWellPosition(dataLine, wellIndexes);
-
-        if (wellPositionOrNull != null)
-        {
-            double[] values = new double[existingFeaturesSize];
-            for (int i = 0; i < headerTokenFeatureIndexes.length; i++)
-            {
-                if (headerTokenFeatureIndexes[i] > -1)
-                {
-                    Double value = tryGetDouble(dataLine[i]);
-                    if (value != null)
-                    {
-                        values[headerTokenFeatureIndexes[i]] = value;
-                    } else
-                    {
-                        operationLog.warn("feature " + i
-                                + " has wrong format - expected double, found: " + dataLine[i]);
-                        return null;
-                    }
-                }
-            }
-            return new FeatureVector(wellPositionOrNull, values);
-        }
-        return null;
-    }
-
-    private static Double tryGetDouble(String text)
-    {
-        try
-        {
-            return Double.parseDouble(text);
-        } catch (NumberFormatException ex)
-        {
-            return null;
-        }
-    }
-
-    private static WellPosition tryExtractWellPosition(String[] fileLine, int[] wellIndexes)
-    {
-        int wellIndex = wellIndexes[0];
-        int rowIndex = wellIndexes[1];
-        int colIndex = wellIndexes[2];
-
-        String coordinate;
-        if (wellIndex > -1)
-        {
-            coordinate = fileLine[wellIndex];
-        } else
-        {
-            if (rowIndex == -1 || colIndex == -1)
-            {
-                operationLog.warn("well not found");
-                return null;
-            }
-            coordinate = fileLine[rowIndex] + fileLine[colIndex];
-        }
-
-        Location location = Location.tryCreateLocationFromMatrixCoordinate(coordinate);
-        return new WellPosition(location.getY(), location.getX());
-    }
-
-    private static class FeatureVectorDatasetBuilder
-    {
-        private final FeatureVectorDatasetReference dataset;
-
-        private final List<String> featureNames;
-
-        private final List<FeatureVector> featureVectors;
-
-        public FeatureVectorDatasetBuilder(FeatureVectorDatasetReference dataset,
-                List<String> featureNames)
-        {
-            this.dataset = dataset;
-            this.featureNames = featureNames;
-            this.featureVectors = new ArrayList<FeatureVector>();
-        }
-
-        public void addFeatureVector(FeatureVector vector)
-        {
-            featureVectors.add(vector);
-        }
-
-        public FeatureVectorDataset create()
-        {
-            return new FeatureVectorDataset(dataset, featureNames, featureVectors);
-        }
-    }
-
     public int getMajorVersion()
     {
         return 1;
@@ -605,4 +359,35 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         return 0;
     }
+    
+    private List<ImgFeatureDefDTO> getFeatureDefinitions(IDatasetIdentifier identifier)
+    {
+        ImgDatasetDTO dataSet = getDAO().tryGetDatasetByPermId(identifier.getDatasetCode());
+        if (dataSet == null)
+        {
+            throw new UserFailureException("Unknown data set: " + identifier.getDatasetCode());
+        }
+        return getDAO().listFeatureDefsByDataSetId(dataSet.getId());
+    }
+
+    private void assertDataSetsAreAccessible(String sessionToken,
+            List<? extends IDatasetIdentifier> identifiers)
+    {
+        List<String> dataSetCodes = new ArrayList<String>();
+        for (IDatasetIdentifier identifier : identifiers)
+        {
+            dataSetCodes.add(identifier.getDatasetCode());
+        }
+        assertDatasetsAreAccessible(sessionToken, dataSetCodes);
+    }
+
+    private IImagingQueryDAO getDAO()
+    {
+        if (dao == null)
+        {
+            dao = DssScreeningUtils.createQuery();
+        }
+        return dao;
+    }
+
 }

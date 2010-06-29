@@ -18,35 +18,25 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
-import javax.sql.DataSource;
-
-import net.lemnik.eodsql.QueryTool;
-
-import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableRow;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IRowBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
  * Reporting plugin that concatenates rows of tabular files of all data sets (stripping the header
@@ -65,13 +55,6 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
     private static final String PLATE_IDENTIFIER_TITLE = "Plate Identifier";
     private static final String ROW_TITLE = "Row";
     private static final String COLUMN_TITLE = "Column";
-
-    private static final class Bundle
-    {
-        private ImgDatasetDTO dataSet;
-        private List<ImgFeatureDefDTO> featureDefinitions;
-        private Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap;
-    }
     
     private IEncapsulatedOpenBISService service;
     
@@ -92,70 +75,43 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
     
     public TableModel createReport(List<DatasetDescription> datasets)
     {
+        FeatureTableBuilder featureTableBuilder = new FeatureTableBuilder(getDAO(), getService());
+        for (DatasetDescription datasetDescription : datasets)
+        {
+            String dataSetCode = datasetDescription.getDatasetCode();
+            featureTableBuilder.addFeatureVectorsOfDataSet(dataSetCode);
+        }
+        List<String> featureNames = featureTableBuilder.getFeatureNames();
+        List<FeatureTableRow> rows = featureTableBuilder.getFeatureTableRows();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader(DATA_SET_CODE_TITLE);
         builder.addHeader(PLATE_IDENTIFIER_TITLE);
         builder.addHeader(ROW_TITLE);
         builder.addHeader(COLUMN_TITLE);
-        List<Bundle> bundles = new ArrayList<Bundle>();
-        Set<String> featureNames = new HashSet<String>();
-        for (DatasetDescription datasetDescription : datasets)
+        for (String featureName : featureNames)
         {
-            String datasetCode = datasetDescription.getDatasetCode();
-            ImgDatasetDTO dataSet = getDAO().tryGetDatasetByPermId(datasetCode);
-            if (dataSet == null)
-            {
-                throw new UserFailureException("Unkown data set " + datasetCode);
-            }
-            Bundle bundle = new Bundle();
-            List<ImgFeatureDefDTO> featureDefinitions = getDAO().listFeatureDefsByDataSetId(dataSet.getId());
-            bundle.dataSet = dataSet;
-            bundle.featureDefinitions = featureDefinitions;
-            bundle.featureDefToValuesMap = new HashMap<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>>();
-            bundles.add(bundle);
-            for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
-            {
-                String featureName = featureDefinition.getName();
-                if (featureNames.contains(featureName) == false)
-                {
-                    builder.addHeader(featureName);
-                    featureNames.add(featureName);
-                }
-                List<ImgFeatureValuesDTO> featureValueSets =
-                        getDAO().getFeatureValues(featureDefinition);
-                if (featureValueSets.isEmpty())
-                {
-                    throw new UserFailureException("At least one set of values for feature "
-                            + featureName + " of data set " + datasetCode
-                            + " expected.");
-                }
-                bundle.featureDefToValuesMap.put(featureDefinition, featureValueSets);
-            }
+            builder.addHeader(featureName);
         }
-        for (Bundle bundle : bundles)
+        for (FeatureTableRow row : rows)
         {
-            String dataSetCode = bundle.dataSet.getPermId();
-            ImgContainerDTO container = getDAO().getContainerById(bundle.dataSet.getContainerId());
-            SampleIdentifier identifier = getService().tryToGetSampleIdentifier(container.getPermId());
-            for (int rowIndex = 0; rowIndex < container.getNumberOfRows(); rowIndex++)
+            List<ISerializableComparable> values = new ArrayList<ISerializableComparable>();
+            values.add(new StringTableCell(row.getDataSetCode()));
+            values.add(new StringTableCell(row.getPlateIdentifier().toString()));
+            values.add(new StringTableCell(PlateUtils.translateRowNumberIntoLetterCode(row.getRowIndex() + 1)));
+            values.add(new IntegerTableCell(row.getColumnIndex() + 1));
+            double[] featureValues = row.getFeatureValues();
+            StringTableCell nullValue = new StringTableCell("");
+            for (double value : featureValues)
             {
-                for (int colIndex = 0; colIndex < container.getNumberOfColumns(); colIndex++)
+                if (Double.isNaN(value))
                 {
-                    IRowBuilder rowBuilder = builder.addRow();
-                    rowBuilder.setCell(DATA_SET_CODE_TITLE, dataSetCode);
-                    rowBuilder.setCell(PLATE_IDENTIFIER_TITLE, identifier.toString());
-                    rowBuilder.setCell(ROW_TITLE, PlateUtils.translateRowNumberIntoLetterCode(rowIndex + 1));
-                    rowBuilder.setCell(COLUMN_TITLE, colIndex + 1);
-                    for (ImgFeatureDefDTO featureDefinition : bundle.featureDefinitions)
-                    {
-                        List<ImgFeatureValuesDTO> featureValueSets = bundle.featureDefToValuesMap.get(featureDefinition);
-                        // We take only the first set of feature value sets
-                        ImgFeatureValuesDTO featureValues = featureValueSets.get(0);
-                        MDDoubleArray array = featureValues.getValuesDoubleArray();
-                        rowBuilder.setCell(featureDefinition.getName(), array.get(rowIndex, colIndex));
-                    }
+                    values.add(nullValue);
+                } else
+                {
+                    values.add(new DoubleTableCell(value));
                 }
             }
+            builder.addRow(values);
         }
         return builder.getTableModel();
     }
@@ -164,10 +120,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
     {
         if (dao == null)
         {
-            DataSource dataSource =
-                    ServiceProvider.getDataSourceProvider().getDataSource(
-                            ScreeningConstants.IMAGING_DATA_SOURCE);
-            dao = QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
+            dao = DssScreeningUtils.createQuery();
         }
         return dao;
     }

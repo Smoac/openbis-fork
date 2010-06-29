@@ -16,98 +16,209 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.server;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
  * Test cases for the {@link DssServiceRpcScreening}.
  * 
- * @author Piotr Buczek
+ * @author Franz-Josef Elmer
  */
-public class DssServiceRpcScreeningTest extends AbstractFileSystemTestCase
+public class DssServiceRpcScreeningTest extends AssertJUnit
 {
+    private static final String SESSION_TOKEN = "session";
 
-    private static final String EXAMPLE1 =
-            "wellName;f0;f1;f2\n" + "A01;1.0;1.1;1.2\n" + "C7;2.0;2.1;2.2\n" + "D7;3.0;3.1;3.2\n"
-                    + "D8;A3.0;3.1;3.2\n";
+    private Mockery context;
 
-    private static final String EXAMPLE2 =
-            "row;col;f0;f1;f2\n" + "A;01;1.0;1.1;1.2\n" + "C;7;2.0;2.1;2.2\n" + "D;7;3.0;3.1;3.2\n"
-                    + "D;8;A3.0;3.1;3.2\n";
+    private IEncapsulatedOpenBISService service;
 
-    @Test
-    public void testExtractFeatureNames()
+    private IImagingQueryDAO dao;
+
+    private IFeatureVectorDatasetIdentifier featureVectorDatasetIdentifier1;
+
+    private IFeatureVectorDatasetIdentifier featureVectorDatasetIdentifier2;
+
+    private DssServiceRpcScreening screeningService;
+
+    @BeforeMethod
+    public void beforeMethod()
     {
-        File datasetFile = new File(workingDirectory, "scrDataset");
-        FileUtilities.writeToFile(datasetFile, EXAMPLE1);
-        try
-        {
-            String[] names = DssServiceRpcScreening.extractFeatureNames(datasetFile);
-            assertEquals("[f0, f1, f2]", Arrays.toString(names));
-        } catch (IOException ex)
-        {
-            ex.printStackTrace();
-        }
+        context = new Mockery();
+        service = context.mock(IEncapsulatedOpenBISService.class);
+        dao = context.mock(IImagingQueryDAO.class);
+        featureVectorDatasetIdentifier1 = create("ds1");
+        featureVectorDatasetIdentifier2 = create("ds2");
+
+        screeningService = new DssServiceRpcScreening(".", dao, service);
     }
 
-    @Test
-    public void testCreateFeatureVectorDataset()
+    private IFeatureVectorDatasetIdentifier create(final String dataSetCode)
     {
-        File datasetFile = new File(workingDirectory, "scrDataset");
-        final String datasetCode = "CODE";
-        final String url = "URL";
-        final String[] fileData =
-            { EXAMPLE1, EXAMPLE2 };
-        try
-        {
-            for (String data : fileData)
+        final IFeatureVectorDatasetIdentifier identifier =
+                context.mock(IFeatureVectorDatasetIdentifier.class, dataSetCode);
+        context.checking(new Expectations()
             {
-                FileUtilities.writeToFile(datasetFile, data);
-                FeatureVectorDatasetReference dataset =
-                        createFeatureVectorDatasetReference(datasetCode, url);
-                FeatureVectorDataset result =
-                        DssServiceRpcScreening.createFeatureVectorDataset(datasetFile, dataset,
-                                Arrays.asList(new String[]
-                                    { "f2", "f0", "f3" }));
-
-                assertEquals(dataset, result.getDataset());
-                assertEquals("[f2, f0]", result.getFeatureNames().toString());
-                assertEquals(3, result.getFeatureVectors().size());
-
-                assertEquals("[1, 1]", result.getFeatureVectors().get(0).getWellPosition()
-                        .toString());
-                assertEquals("[1.2, 1.0]", Arrays.toString(result.getFeatureVectors().get(0)
-                        .getValues()));
-
-                assertEquals("[3, 7]", result.getFeatureVectors().get(1).getWellPosition()
-                        .toString());
-                assertEquals("[2.2, 2.0]", Arrays.toString(result.getFeatureVectors().get(1)
-                        .getValues()));
-
-                assertEquals("[4, 7]", result.getFeatureVectors().get(2).getWellPosition()
-                        .toString());
-                assertEquals("[3.2, 3.0]", Arrays.toString(result.getFeatureVectors().get(2)
-                        .getValues()));
-            }
-
-        } catch (IOException ex)
-        {
-            ex.printStackTrace();
-        }
+                {
+                    allowing(identifier).getDatasetCode();
+                    will(returnValue(dataSetCode));
+                }
+            });
+        return identifier;
     }
 
-    private FeatureVectorDatasetReference createFeatureVectorDatasetReference(
-            final String datasetCode, final String url)
+    @AfterMethod
+    public final void tearDown()
     {
-        return new FeatureVectorDatasetReference(datasetCode, url, null, null, null, null);
+        // The following line of code should also be called at the end of each test method.
+        // Otherwise one do not known which test failed.
+        context.assertIsSatisfied();
     }
 
+    @Test
+    public void testListAvailableFeatureNames()
+    {
+        prepareAssetDataSetsAreAccessible();
+        prepareGetFeatureDefinitions(1, "f1", "f2");
+        prepareGetFeatureDefinitions(2, "f2", "f3");
+
+        List<String> names =
+                screeningService.listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(
+                        featureVectorDatasetIdentifier1, featureVectorDatasetIdentifier2));
+
+        assertEquals("[f1, f2, f3]", names.toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLoadFeatures()
+    {
+        prepareAssetDataSetsAreAccessible();
+        FeatureVectorDatasetReference r1 = createFeatureVectorDatasetReference("ds1");
+        FeatureVectorDatasetReference r2 = createFeatureVectorDatasetReference("ds2");
+        prepareCreateFeatureVectorDataSet(1, "f1", "f2");
+        prepareCreateFeatureVectorDataSet(2, "f2");
+
+        List<FeatureVectorDataset> dataSets =
+                screeningService.loadFeatures(SESSION_TOKEN, Arrays.asList(r1, r2), Arrays.asList(
+                        "f1", "f2"));
+        
+        assertSame(r1, dataSets.get(0).getDataset());
+        assertEquals("[f1, f2]", dataSets.get(0).getFeatureNames().toString());
+        assertFeatureVector(1, 1, dataSets.get(0).getFeatureVectors().get(0), 244.5, 245.5);
+        assertFeatureVector(1, 2, dataSets.get(0).getFeatureVectors().get(1), 242.25, 243.25);
+        assertEquals(2, dataSets.get(0).getFeatureVectors().size());
+        assertSame(r2, dataSets.get(1).getDataset());
+        assertEquals("[f2]", dataSets.get(1).getFeatureNames().toString());
+        assertFeatureVector(1, 1, dataSets.get(1).getFeatureVectors().get(0), 249.0);
+        assertFeatureVector(1, 2, dataSets.get(1).getFeatureVectors().get(1), 244.5);
+        assertEquals(2, dataSets.get(1).getFeatureVectors().size());
+        assertEquals(2, dataSets.size());
+        context.assertIsSatisfied();
+    }
+    
+    private void assertFeatureVector(int expectedRowNumber, int expectedColumnNumber,
+            FeatureVector featureVector, double... expectedValues)
+    {
+        assertEquals(expectedRowNumber, featureVector.getWellPosition().getWellRow());
+        assertEquals(expectedColumnNumber, featureVector.getWellPosition().getWellColumn());
+        
+        assertEquals(asList(expectedValues), asList(featureVector.getValues()));
+    }
+    
+    private List<Double> asList(double[] values)
+    {
+        List<Double> list = new ArrayList<Double>();
+        for (double value : values)
+        {
+            list.add(value);
+        }
+        return list;
+    }
+
+    private void prepareCreateFeatureVectorDataSet(final long dataSetID, final String... featureNames)
+    {
+        prepareGetFeatureDefinitions(dataSetID, featureNames);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).getContainerById(100 + dataSetID);
+                    will(returnValue(new ImgContainerDTO("12-34", 1, 2, 0)));
+
+                    one(service).tryToGetSampleIdentifier("12-34");
+                    will(returnValue(new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1")));
+
+                    for (String name : featureNames)
+                    {
+                        one(dao).getFeatureValues(new ImgFeatureDefDTO(name, "", 0));
+                        int offset = Integer.parseInt(name, 16);
+                        MDDoubleArray array = new MDDoubleArray(new double[][]
+                            {
+                                { 3.5 * dataSetID + offset, 1.25 * dataSetID + offset } });
+                        will(returnValue(Arrays
+                                .asList(new ImgFeatureValuesDTO(0.0, 0.0, array, 0L))));
+                    }
+                }
+            });
+    }
+
+    private void prepareGetFeatureDefinitions(final long dataSetID,
+            final String... featureNames)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    String permID = "ds" + dataSetID;
+                    one(dao).tryGetDatasetByPermId(permID);
+                    ImgDatasetDTO dataSet = new ImgDatasetDTO(permID, null, null, 100 + dataSetID);
+                    dataSet.setId(dataSetID);
+                    will(returnValue(dataSet));
+
+                    one(dao).listFeatureDefsByDataSetId(dataSetID);
+                    List<ImgFeatureDefDTO> defs = new ArrayList<ImgFeatureDefDTO>();
+                    for (String name : featureNames)
+                    {
+                        defs.add(new ImgFeatureDefDTO(name, "", 0));
+                    }
+                    will(returnValue(defs));
+                }
+            });
+    }
+
+    private void prepareAssetDataSetsAreAccessible()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).checkDataSetCollectionAccess(SESSION_TOKEN,
+                            Arrays.asList("ds1", "ds2"));
+                }
+            });
+    }
+
+    private FeatureVectorDatasetReference createFeatureVectorDatasetReference(String dataSetCode)
+    {
+        return new FeatureVectorDatasetReference(dataSetCode, "", null, null, null, null);
+    }
 }
