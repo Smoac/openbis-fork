@@ -283,9 +283,14 @@ public class GenePlateLocationsLoader
     private List<WellContent> loadLocations(PlateMaterialsSearchCriteria materialCriteria)
     {
         String[] materialCodes = materialCriteria.getGeneSymbols();
+        String[] materialCodesInUpperCase = new String[materialCodes.length];
+        for (int i = 0; i < materialCodes.length; i++)
+        {
+            materialCodesInUpperCase[i] = materialCodes[i].toUpperCase();
+        }
         DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations =
                 createDAO(daoFactory).getPlateLocationsForNestedMaterialCodes(
-                        materialCriteria.getExperimentId().getId(), materialCodes);
+                        materialCriteria.getExperimentId().getId(), materialCodesInUpperCase);
 
         return convert(locations);
     }
