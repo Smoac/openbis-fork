@@ -20,7 +20,7 @@ export PLASMIDS=bs-openbis02.ethz.ch
 function create_individual_greeting_message {
 # Creates an individual greeting message
 	if [ -f ~openbis/config/openbis_instance.txt ]; then
-	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/jetty/work/openbis/webapp/common-dictionary.js
+	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/jetty/webapps/openbis/common-dictionary.js
 	   export SERVER_INSTANCE_NAME=`cat ~openbis/config/openbis_instance.txt`
 	   perl -pe 's/openbis_instance: "",/openbis_instance: "$ENV{SERVER_INSTANCE_NAME}",/' -i $OPENBIS_DICT
 	fi
@@ -29,12 +29,12 @@ function create_individual_greeting_message {
 function restore_common {
   if [ -f ~openbis/config/loginHeader.html ]; then
     echo restoring loginHeader.html...
-    cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/jetty/work/openbis/webapp/
+    cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
     cp ~openbis/config/loginHeader.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
-    cp ~openbis/config/help.html ~openbis/sprint/openBIS-server/jetty/work/openbis/webapp/
+    cp ~openbis/config/help.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
   fi
   if [ -f ~openbis/config/index.html ]; then
-  	cp ~openbis/config/index.html  ~openbis/sprint/openBIS-server/jetty/work/openbis/webapp/
+  	cp ~openbis/config/index.html  ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
   fi  
   if  [ -f ~openbis/config/openbis-as-jetty.xml ]; then
   	cp ~openbis/config/openbis-as-jetty.xml ~openbis/sprint/openBIS-server/jetty/etc/jetty.xml
