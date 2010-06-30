@@ -28,26 +28,7 @@
     </Call>
 
     <Set name="handler">
-      <New id="Handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
-        <Set name="handlers">
-         <Array type="org.eclipse.jetty.server.Handler">
-           <Item>
-             <New class="org.eclipse.jetty.webapp.WebAppContext">
-               <Set name="contextPath">/openbis</Set>
-               <Set name="war">
-                 <SystemProperty name="jetty.home" default="." />/openBIS.war
-               </Set>
-               <Set name="tempDirectory">
-                 <SystemProperty name="jetty.home" default="." />/work/openbis
-               </Set>
-             </New>
-           </Item>
-           <Item>
-             <New id="Contexts" class="org.eclipse.jetty.server.handler.ContextHandlerCollection"/>
-           </Item>
-         </Array>
-        </Set>
-      </New>
+        <New id="Contexts" class="org.eclipse.jetty.server.handler.ContextHandlerCollection"/>
     </Set>
 
     <Call name="addBean">
