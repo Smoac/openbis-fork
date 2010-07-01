@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
 /**
@@ -26,7 +25,5 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
  */
 public interface IScreeningDAOFactory
 {
-    public DatabaseConfigurationContext getContext();
-
     public IImagingQueryDAO getImagingQueryDAO();
 }

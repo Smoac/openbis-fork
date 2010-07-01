@@ -16,14 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.db;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import net.lemnik.eodsql.QueryTool;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
@@ -44,32 +40,14 @@ public class ScreeningDAOFactory implements IScreeningDAOFactory
 
     private final IImagingQueryDAO imagingQueryDAO;
 
-    private final DatabaseConfigurationContext imagingDatabaseContext;
-
     public ScreeningDAOFactory(DatabaseConfigurationContext context)
     {
-        this.imagingDatabaseContext = context;
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
-        Connection connection = null;
-        try
-        {
-            connection = context.getDataSource().getConnection();
-        } catch (SQLException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-        // TODO 2010-06-25, Piotr Buczek: this is the same solution as in PhosphoNetX - is it ok to
-        // use connection here? shouldn't it be a data source passed here in constructor?
-        imagingQueryDAO = QueryTool.getQuery(connection, IImagingQueryDAO.class);
+        imagingQueryDAO = QueryTool.getQuery(context.getDataSource(), IImagingQueryDAO.class);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("DAO factory for Screening created.");
         }
-    }
-
-    public DatabaseConfigurationContext getContext()
-    {
-        return imagingDatabaseContext;
     }
 
     public IImagingQueryDAO getImagingQueryDAO()
