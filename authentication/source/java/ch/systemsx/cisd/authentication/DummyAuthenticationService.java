@@ -27,10 +27,10 @@ public final class DummyAuthenticationService implements IAuthenticationService
 {
 
     final String[] firstNames =
-        { "Stéphane", "Günter", "Elfriede", "Ryszard", "Karel", "Claude" };
+        { "St√©phane", "G√ºnter", "Elfriede", "Ryszard", "Karel", "Claude" };
 
     final String[] lastNames =
-        { "Mallarmé", "Grass", "Jelinek", "Kapu\u015Bci\u0144ski", "\u010Capek", "Lévi-Strauss" };
+        { "Mallarm√©", "Grass", "Jelinek", "Kapu\u015Bci\u0144ski", "\u010Capek", "L√©vi-Strauss" };
 
     //
     // IAuthenticationService
