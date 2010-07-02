@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Authentica
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationGroupsTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationManagementConsolTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditorTest;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationTest;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -38,8 +39,7 @@ public class EditingTestSuite1 extends GWTTestSuite
         testSuite.addTestSuite(AuthorizationGroupsTest.class);
         testSuite.addTestSuite(GenericDataSetEditorTest.class);
         testSuite.addTestSuite(AuthorizationManagementConsolTest.class);
-        // TODO 2010-06-25, Piotr Buczek: uncomment when fixed
-        // testSuite.addTestSuite(GenericSampleRegistrationTest.class);
+        testSuite.addTestSuite(GenericSampleRegistrationTest.class);
 
         // TODO 2009-01-21, IA: Uncomment after it's clear how to deal with
         // (NS_ERROR_DOM_SECURITY_ERR): Security error on CC
