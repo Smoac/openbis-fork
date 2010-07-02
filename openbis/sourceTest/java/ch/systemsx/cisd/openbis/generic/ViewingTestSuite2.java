@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Authentica
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ExperimentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.MaterialBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewerTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewerTest;
 
@@ -40,8 +41,7 @@ public class ViewingTestSuite2 extends GWTTestSuite
         testSuite.addTestSuite(GenericDataSetViewerTest.class);
         testSuite.addTestSuite(SampleBrowserTest.class);
         testSuite.addTestSuite(GenericSampleViewerTest.class);
-        // TODO 2010-06-25, Piotr Buczek: uncomment when fixed
-        // testSuite.addTestSuite(SearchTest.class);
+        testSuite.addTestSuite(SearchTest.class);
 
         testSuite.addTestSuite(ExperimentBrowserTest.class);
         testSuite.addTestSuite(MaterialBrowserTest.class);
