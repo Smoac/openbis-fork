@@ -27,7 +27,9 @@
     // Source path elements to Java classes to be compiled to JavaScript
   -->
   <source path="generic/client/web/client" />
-  <source path="generic/shared/basic" />
+  <source path="generic/shared/basic" >
+    <exclude name="**/*Test.java" />
+  </source>
 
   <public path="public" />
   <public path="generic/client/web/public" />
