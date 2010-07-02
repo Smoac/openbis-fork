@@ -260,19 +260,11 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         return samples;
     }
 
-    public final void add(final NewSample newSample) throws UserFailureException
+    public void set(List<NewSample> newSamples) throws UserFailureException
     {
-        assert newSample != null : "Unspecified new sample.";
-        if (samples == null)
-        {
-            samples = new ArrayList<SamplePE>();
-        }
-        samples.add(createSample(newSample, null, null, null));
-        dataChanged = true;
-    }
+        onlyNewSamples = true;
+        samples = new ArrayList<SamplePE>();
 
-    public void add(List<NewSample> newSamples) throws UserFailureException
-    {
         setBatchUpdateMode(true);
 
         final Map<String, SampleTypePE> sampleTypeCache = new HashMap<String, SampleTypePE>();
@@ -292,10 +284,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             Map<String, ExperimentPE> experimentCache) throws UserFailureException
     {
         assert newSample != null : "Unspecified new sample.";
-        if (samples == null)
-        {
-            samples = new ArrayList<SamplePE>();
-        }
         samples.add(createSample(newSample, sampleTypeCache, sampleOwnerCache, experimentCache));
         dataChanged = true;
     }

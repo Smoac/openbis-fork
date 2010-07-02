@@ -483,7 +483,6 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         assert sample != null : "Unspecified sample";
         validatePE(sample);
 
-        getHibernateTemplate().flush();
         flushWithSqlExceptionHandling(getHibernateTemplate());
 
         if (operationLog.isInfoEnabled())

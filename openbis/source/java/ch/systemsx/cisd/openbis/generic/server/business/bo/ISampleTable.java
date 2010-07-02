@@ -56,14 +56,9 @@ public interface ISampleTable
     List<SamplePE> getSamples();
 
     /**
-     * Adds given <var>newSample</var> sample to this table.
+     * Sets given samples to be handled by this table.
      */
-    public void add(final NewSample newSample) throws UserFailureException;
-
-    /**
-     * Adds given samples to this table.
-     */
-    public void add(List<NewSample> newSamples) throws UserFailureException;
+    public void set(List<NewSample> newSamples) throws UserFailureException;
 
     /**
      * Writes changed are added data to the Data Access Layers.

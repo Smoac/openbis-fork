@@ -40,7 +40,7 @@ public class SampleBatchRegistration implements IBatchOperation<NewSample>
 
     public void execute(List<NewSample> batch)
     {
-        businessTable.add(batch);
+        businessTable.set(batch);
         businessTable.save();
     }
 
