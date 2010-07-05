@@ -72,38 +72,6 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    // TODO 2010-07-02, Piotr Buczek: remove annotation when fixed
-    @DoNotRunWith(Platform.HtmlUnit)
-    public final void testListAllSamples()
-    {
-        loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
-        remoteConsole.prepare(new ListSamples("CISD", "(all)"));
-
-        // samples of all types in home group should be automatically displayed
-        CheckSampleTable table = new CheckSampleTable();
-
-        // Test that there are two samples displayed that have different types, and a proper
-        // value is displayed in property columns that are assigned only to one of these types
-        // (union of property values is displayed).
-
-        // 'ORGANISM' is assigned only to 'CELL_PLATE' sample type
-        table.expectedRow(new SampleRow("CP-TEST-1", "CELL_PLATE").identifier("CISD", "CISD")
-                .withUserPropertyCell("ORGANISM", "HUMAN"));
-        // 'PLATE_GEOMETRY' is assigned only to 'CONTROL_LAYOUT' and 'MASTER PLATE' sample types
-        table.expectedRow(new SampleRow("C1", "CONTROL_LAYOUT").identifier("CISD", "CISD")
-                .withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
-
-        // test that 3 parents of 'REINFECT_PLATE' are displayed
-        table.expectedRow(new SampleRow("RP1-A2X", "REINFECT_PLATE").identifier("CISD", "CISD")
-                .derivedFromAncestors("CISD:/CISD/CP1-A2", "CISD:/CISD/DP1-A",
-                        "CISD:/CISD/MP1-MIXED"));
-
-        table.expectedColumnsNumber(25);
-        remoteConsole.prepare(table.expectedSize(40));
-
-        launchTest();
-    }
-
     public final void testListMasterPlates()
     {
         loginAndGotoListSamplesTab();
@@ -176,6 +144,37 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 "CISD:/CISD/MP001-1"));
         table.expectedColumnsNumber(22);
         remoteConsole.prepare(table.expectedSize(15));
+
+        launchTest();
+    }
+
+    // WORKAROUND if this test is invoked before other listing tests they fail
+    public final void testListAllSamples()
+    {
+        loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
+        remoteConsole.prepare(new ListSamples("CISD", "(all)"));
+
+        // samples of all types in home group should be automatically displayed
+        CheckSampleTable table = new CheckSampleTable();
+
+        // Test that there are two samples displayed that have different types, and a proper
+        // value is displayed in property columns that are assigned only to one of these types
+        // (union of property values is displayed).
+
+        // 'ORGANISM' is assigned only to 'CELL_PLATE' sample type
+        table.expectedRow(new SampleRow("CP-TEST-1", "CELL_PLATE").identifier("CISD", "CISD")
+                .withUserPropertyCell("ORGANISM", "HUMAN"));
+        // 'PLATE_GEOMETRY' is assigned only to 'CONTROL_LAYOUT' and 'MASTER PLATE' sample types
+        table.expectedRow(new SampleRow("C1", "CONTROL_LAYOUT").identifier("CISD", "CISD")
+                .withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
+
+        // test that 3 parents of 'REINFECT_PLATE' are displayed
+        table.expectedRow(new SampleRow("RP1-A2X", "REINFECT_PLATE").identifier("CISD", "CISD")
+                .derivedFromAncestors("CISD:/CISD/CP1-A2", "CISD:/CISD/DP1-A",
+                        "CISD:/CISD/MP1-MIXED"));
+
+        table.expectedColumnsNumber(25);
+        remoteConsole.prepare(table.expectedSize(40));
 
         launchTest();
     }
