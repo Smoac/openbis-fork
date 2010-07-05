@@ -126,7 +126,7 @@
       // Runs system tests
       -->
   <target name="run-system-tests"
-    depends="prepare-gwt, compile-tests, run-editing1-tests, run-editing2-tests, run-viewing1-tests, run-viewing2-tests">
+    depends="prepare-gwt, compile-tests, run-editing1-tests, run-editing2-tests, run-viewing1-tests, run-viewing2-tests, run-viewing3-tests">
     <delete dir="${output.test}" />
     <mkdir dir="${output.test}" />
   </target>
