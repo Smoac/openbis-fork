@@ -39,10 +39,10 @@ public class ViewingTestSuite2 extends GWTTestSuite
         final TestSuite testSuite = new TestSuite("Viewing Tests 2");
         testSuite.addTestSuite(AuthenticationTest.class);
         testSuite.addTestSuite(GenericDataSetViewerTest.class);
-        testSuite.addTestSuite(SampleBrowserTest.class);
         testSuite.addTestSuite(GenericSampleViewerTest.class);
         testSuite.addTestSuite(SearchTest.class);
 
+        testSuite.addTestSuite(SampleBrowserTest.class);
         testSuite.addTestSuite(ExperimentBrowserTest.class);
         testSuite.addTestSuite(MaterialBrowserTest.class);
 
