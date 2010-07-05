@@ -147,6 +147,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         launchTest();
     }
 
+    // TODO 2010-07-02, Piotr Buczek: remove annotation when fixed
     @DoNotRunWith(Platform.HtmlUnit)
     public final void testRegisterGroupSampleWithContainer()
     {
