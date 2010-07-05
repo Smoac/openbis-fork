@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
@@ -147,8 +144,6 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    // TODO 2010-07-02, Piotr Buczek: remove annotation when fixed
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testRegisterGroupSampleWithContainer()
     {
         final String sampleCode = "W12";
@@ -172,8 +167,6 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    // TODO 2010-07-02, Piotr Buczek: remove annotation when fixed
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testRegisterSharedSample()
     {
         final String sampleTypeCode = CONTROL_LAYOUT;
