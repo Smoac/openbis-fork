@@ -59,80 +59,68 @@
   </target>
 
   <!--
-			// Target that sets up enviroment info for tests. The test.suite parameter should be provided when called.
+      // Macro that runs a system test suite. The 'testsuite' parameter should be provided when called.
+      // Property with name specified in 'failureproperty' parameter will hold info about failure.
 	-->
-  <target name="run-system-test-suite">
-    <junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
-      <classpath>
-        <pathelement location="${sources}" />
-        <pathelement location="${sources.test}" />
-      	<pathelement location="../common/${sources}" />
-        <pathelement path="${ecp}" />
-        <pathelement location="${gwt.lib}/gwt-dev.jar" />
-      </classpath>
-      <jvmarg value="-ea" />
-      <sysproperty key="authentication-service" value="file-authentication-service" />
-      <sysproperty key="database.create-from-scratch" value="true" />
-      <sysproperty key="database.kind" value="system_test" />
-      <sysproperty key="script-folder" value="sourceTest" />
-      <sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
-      <sysproperty key="log4j.configuration" value="etc/log.xml" />
-      <sysproperty key="hibernate.search.index-base" value="sourceTest/lucene/indices" />
-      <sysproperty key="hibernate.search.index-mode" value="NO_INDEX" />
-      <sysproperty key="hibernate.search.indexing_strategy" value="manual" />
-      <sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
-      <sysproperty key="gwt.args" value="-testMethodTimeout 4 -Xtries 1" />
-      <formatter type="xml" />
-      <test name="${test.suite}" todir="${output.test}" />
-    </junit>
-    <fail>
-      <condition>
-        <isset property="tests-failed" />
-      </condition>
-    </fail>
-  </target>
-
-  <target name="run-editing1-tests">
-    <antcall target="run-system-test-suite">
-      <param name="test.suite" value="ch.systemsx.cisd.openbis.generic.EditingTestSuite1" />
-    </antcall>
-  </target>
-
-  <target name="run-editing2-tests">
-    <antcall target="run-system-test-suite">
-      <param name="test.suite" value="ch.systemsx.cisd.openbis.generic.EditingTestSuite2" />
-    </antcall>
-  </target>
-
-  <target name="run-viewing1-tests">
-    <antcall target="run-system-test-suite">
-      <param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1" />
-    </antcall>
-  </target>
-
-  <target name="run-viewing2-tests">
-    <antcall target="run-system-test-suite">
-      <param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite2" />
-    </antcall>
-  </target>
-
-  <target name="run-viewing3-tests">
-    <antcall target="run-system-test-suite">
-      <param name="test.suite" value="ch.systemsx.cisd.openbis.generic.ViewingTestSuite3" />
-    </antcall>
-  </target>
+  <macrodef name="run-system-test-suite" description="runs one system test suite">
+    <attribute name="testsuite"/>
+    <attribute name="failureproperty"/>
+    <sequential>
+      <echo>Running @{testsuite}...</echo>
+      <junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="@{failureproperty}">
+        <classpath>
+          <pathelement location="${sources}" />
+          <pathelement location="${sources.test}" />
+        	<pathelement location="../common/${sources}" />
+          <pathelement path="${ecp}" />
+          <pathelement location="${gwt.lib}/gwt-dev.jar" />
+        </classpath>
+        <jvmarg value="-ea" />
+        <sysproperty key="authentication-service" value="file-authentication-service" />
+        <sysproperty key="database.create-from-scratch" value="true" />
+        <sysproperty key="database.kind" value="system_test" />
+        <sysproperty key="script-folder" value="sourceTest" />
+        <sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
+        <sysproperty key="log4j.configuration" value="etc/log.xml" />
+        <sysproperty key="hibernate.search.index-base" value="sourceTest/lucene/indices" />
+        <sysproperty key="hibernate.search.index-mode" value="NO_INDEX" />
+        <sysproperty key="hibernate.search.indexing_strategy" value="manual" />
+        <sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
+        <sysproperty key="gwt.args" value="-testMethodTimeout 4 -Xtries 1" />
+        <formatter type="xml" />
+        <test name="@{testsuite}" todir="${output.test}" />
+      </junit>
+    </sequential>
+	</macrodef>
 
   <!-- 
       // Runs system tests
       -->
-  <target name="run-system-tests"
-    depends="prepare-gwt, compile-tests, run-editing1-tests, run-editing2-tests, run-viewing1-tests, run-viewing2-tests, run-viewing3-tests">
-    <delete dir="${output.test}" />
-    <mkdir dir="${output.test}" />
-  </target>
+  
+  <target name="run-system-tests" depends="prepare-gwt, compile-tests, run-system-tests-no-prep"/>
 
-  <target name="run-system-tests-no-prep"
-    depends="run-editing1-tests, run-editing2-tests, run-viewing1-tests, run-viewing2-tests, run-viewing3-tests">
+  <target name="run-system-tests-no-prep">
+    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite1"
+                           failureproperty="editing1-failed" />
+    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite2"
+                           failureproperty="editing2-failed" />
+    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1"
+                           failureproperty="viewing1-failed" />
+    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite2"
+                           failureproperty="viewing2-failed" />
+    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite3"
+                           failureproperty="viewing3-failed" />
+    <fail>
+      <condition>
+        <or>
+          <isset property="editing1-failed" />
+          <isset property="editing2-failed" />
+          <isset property="viewing1-failed" />
+          <isset property="viewing2-failed" />
+          <isset property="viewing3-failed" />
+        </or>
+      </condition>
+    </fail>
     <delete dir="${output.test}" />
     <mkdir dir="${output.test}" />
   </target>
