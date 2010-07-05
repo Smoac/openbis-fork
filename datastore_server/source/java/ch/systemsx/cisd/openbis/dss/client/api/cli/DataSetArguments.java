@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.util.List;
 
+import ch.systemsx.cisd.args4j.Option;
+
 /**
  * Command line arguments for dss commands that refer to data sets. The format is:
  * <p>
@@ -29,6 +31,14 @@ import java.util.List;
  */
 class DataSetArguments extends GlobalArguments
 {
+    @Option(name = "r", longName = "recursive", usage = "Recurse into directories")
+    private boolean recursive = false;
+
+    public boolean isRecursive()
+    {
+        return recursive;
+    }
+    
     public String getDataSetCode()
     {
         List<String> args = getArguments();

@@ -17,64 +17,27 @@
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
-import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
- * Comand that lists files in the data set.
+ * Command that lists files in the data set.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 class CommandLs extends AbstractCommand
 {
-    private static class CommandLsArguments extends DataSetArguments
+    private static class CommandLsExecutor extends AbstractDataSetExecutor<DataSetArguments>
     {
-        @Option(name = "r", longName = "recursive", usage = "Recurse into directories")
-        private boolean recursive = false;
-
-        public boolean isRecursive()
+        CommandLsExecutor(DataSetArguments arguments, AbstractCommand command)
         {
-            return recursive;
-        }
-    }
-
-    private static class CommandLsExecutor
-    {
-        private final CommandLsArguments arguments;
-
-        private final IDataSetDss dataSet;
-
-        CommandLsExecutor(IDataSetDss dataSet, CommandLsArguments arguments)
-        {
-            this.arguments = arguments;
-            this.dataSet = dataSet;
+            super(arguments, command);
         }
 
-        int execute()
-        {
-            FileInfoDssDTO[] fileInfos = getFileInfos();
-            printFileInfos(fileInfos);
-
-            return 0;
-        }
-
-        private FileInfoDssDTO[] getFileInfos()
-        {
-
-            String path = getRequestedPath();
-            return dataSet.listFiles(path, arguments.isRecursive());
-        }
-
-        private String getRequestedPath()
-        {
-            return arguments.getRequestedPath();
-        }
-
-        private void printFileInfos(FileInfoDssDTO[] fileInfos)
+        @Override
+        protected void handle(FileInfoDssDTO[] fileInfos, IDataSetDss dataSet)
         {
             for (FileInfoDssDTO fileInfo : fileInfos)
             {
@@ -91,52 +54,20 @@ class CommandLs extends AbstractCommand
                 System.out.println(sb.toString());
             }
         }
+
     }
 
-    private final CommandLsArguments arguments;
+    private final DataSetArguments arguments;
 
     CommandLs()
     {
-        arguments = new CommandLsArguments();
+        arguments = new DataSetArguments();
         parser = new CmdLineParser(arguments);
     }
 
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
     {
-        parser.parseArgument(args);
-
-        // Show help and exit
-        if (arguments.isHelp())
-        {
-            printUsage(System.out);
-            return 0;
-        }
-
-        // Show usage and exit
-        if (arguments.isComplete() == false)
-        {
-            printUsage(System.err);
-            return 1;
-        }
-
-        IDssComponent component = null;
-        try
-        {
-            component = login(arguments);
-            if (null == component)
-            {
-                return 1;
-            }
-            IDataSetDss dataSet = getDataSet(component, arguments);
-            return new CommandLsExecutor(dataSet, arguments).execute();
-        } finally
-        {
-            // Cleanup
-            if (null != component)
-            {
-                component.logout();
-            }
-        }
+        return new CommandLsExecutor(arguments, this).execute(args);
     }
 
     public String getName()

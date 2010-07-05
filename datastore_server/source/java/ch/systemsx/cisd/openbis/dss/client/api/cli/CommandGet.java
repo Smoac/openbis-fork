@@ -29,7 +29,6 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
@@ -41,16 +40,8 @@ class CommandGet extends AbstractCommand
 {
     private static class CommandGetArguments extends DataSetArguments
     {
-        @Option(name = "r", longName = "recursive", usage = "Recurse into directories")
-        private boolean recursive = false;
-
         @Option(name = "o", longName = "output", usage = "Path for output")
         private String output = "";
-
-        public boolean isRecursive()
-        {
-            return recursive;
-        }
 
         public String getOutput()
         {
@@ -58,38 +49,15 @@ class CommandGet extends AbstractCommand
         }
     }
 
-    private static class CommandGetExecutor
+    private static class CommandGetExecutor extends AbstractDataSetExecutor<CommandGetArguments>
     {
-        private final CommandGetArguments arguments;
-
-        private final IDataSetDss dataSet;
-
-        CommandGetExecutor(IDataSetDss dataSet, CommandGetArguments arguments)
+        CommandGetExecutor(CommandGetArguments arguments, AbstractCommand command)
         {
-            this.arguments = arguments;
-            this.dataSet = dataSet;
+            super(arguments, command);
         }
 
-        int execute()
-        {
-            FileInfoDssDTO[] fileInfos = getFileInfos();
-            downloadFiles(fileInfos);
-
-            return 0;
-        }
-
-        private FileInfoDssDTO[] getFileInfos()
-        {
-
-            String path = arguments.getRequestedPath();
-
-            return dataSet.listFiles(path, arguments.isRecursive());
-        }
-
-        /**
-         * Download the files, printing status information to System.out.
-         */
-        private void downloadFiles(FileInfoDssDTO[] fileInfos)
+        @Override
+        protected void handle(FileInfoDssDTO[] fileInfos, IDataSetDss dataSet)
         {
             File outputDir;
             if (arguments.getOutput().length() > 0)
@@ -126,13 +94,13 @@ class CommandGet extends AbstractCommand
                     // Make sure the parent exists
                     file.getParentFile().mkdirs();
 
-                    downloadFile(fileInfo, file);
+                    downloadFile(fileInfo, file, dataSet);
                 }
             }
             System.out.println("Finished.");
         }
 
-        private void downloadFile(FileInfoDssDTO fileInfo, File file)
+        private void downloadFile(FileInfoDssDTO fileInfo, File file, IDataSetDss dataSet)
         {
             try
             {
@@ -144,6 +112,7 @@ class CommandGet extends AbstractCommand
                 throw new IOExceptionUnchecked(e);
             }
         }
+
     }
 
     private final CommandGetArguments arguments;
@@ -156,29 +125,7 @@ class CommandGet extends AbstractCommand
 
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
     {
-        parser.parseArgument(args);
-
-        // Show help and exit
-        if (arguments.isHelp())
-        {
-            printUsage(System.out);
-            return 0;
-        }
-
-        // Show usage and exit
-        if (arguments.isComplete() == false)
-        {
-            printUsage(System.err);
-            return 1;
-        }
-
-        IDssComponent component = login(arguments);
-        if (null == component)
-        {
-            return 1;
-        }
-        IDataSetDss dataSet = getDataSet(component, arguments);
-        return new CommandGetExecutor(dataSet, arguments).execute();
+        return new CommandGetExecutor(arguments, this).execute(args);
     }
 
     public String getName()

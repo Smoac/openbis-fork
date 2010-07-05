@@ -125,19 +125,16 @@ class CommandPut extends AbstractCommand
         }
     }
 
-    private static class CommandPutExecutor
+    private static class CommandPutExecutor extends AbstractExecutor<CommandPutArguments>
     {
-        private final CommandPutArguments arguments;
 
-        private final IDssComponent component;
-
-        CommandPutExecutor(IDssComponent dssService, CommandPutArguments arguments)
+        CommandPutExecutor(CommandPutArguments arguments, AbstractCommand command)
         {
-            this.arguments = arguments;
-            this.component = dssService;
+            super(arguments, command);
         }
 
-        int execute()
+        @Override
+        protected int doExecute(IDssComponent component)
         {
             try
             {
@@ -226,28 +223,7 @@ class CommandPut extends AbstractCommand
 
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
     {
-        parser.parseArgument(args);
-
-        // Show help and exit
-        if (arguments.isHelp())
-        {
-            printUsage(System.out);
-            return 0;
-        }
-
-        // Show usage and exit
-        if (arguments.isComplete() == false)
-        {
-            printUsage(System.err);
-            return 1;
-        }
-
-        IDssComponent component = login(arguments);
-        if (null == component)
-        {
-            return 1;
-        }
-        return new CommandPutExecutor(component, arguments).execute();
+        return new CommandPutExecutor(arguments, this).execute(args);
     }
 
     public String getName()

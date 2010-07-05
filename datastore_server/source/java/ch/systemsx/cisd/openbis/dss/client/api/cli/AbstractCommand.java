@@ -21,7 +21,6 @@ import java.io.PrintStream;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 
 /**
@@ -91,11 +90,4 @@ abstract class AbstractCommand implements ICommand
         return component;
     }
 
-    /**
-     * Retuns a proxy to the DSS object referenced by the arguments.
-     */
-    protected IDataSetDss getDataSet(IDssComponent component, DataSetArguments arguments)
-    {
-        return component.getDataSet(arguments.getDataSetCode());
-    }
 }
