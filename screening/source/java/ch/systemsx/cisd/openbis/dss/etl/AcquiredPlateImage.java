@@ -45,7 +45,7 @@ public class AcquiredPlateImage extends AbstractHashable
     {
         this.wellLocation = wellLocation;
         this.tileLocation = tileLocation;
-        this.channelName = channelName;
+        this.channelName = channelName.toUpperCase();
         this.timePointOrNull = timePointOrNull;
         this.depthOrNull = depthOrNull;
         this.imageFilePath = imageFilePath;

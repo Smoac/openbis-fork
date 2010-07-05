@@ -28,7 +28,7 @@ public class PlateImageReference extends DatasetIdentifier implements Serializab
         super(dataset.getDatasetCode(), dataset.getDatastoreServerUrl());
         this.wellPosition = new WellPosition(wellRow, wellColumn);
         this.tile = tile;
-        this.channel = channel;
+        this.channel = channel.toUpperCase();
     }
 
     /** well position on the plate */

@@ -262,7 +262,7 @@ public class ScreeningContainerDatasetInfoHelper
         Map<String, ImgChannelDTO> nameMap = new HashMap<String, ImgChannelDTO>();
         for (ImgChannelDTO channel : channels)
         {
-            nameMap.put(channel.getName().toUpperCase(), channel);
+            nameMap.put(channel.getName(), channel);
         }
         return nameMap;
     }
@@ -319,7 +319,7 @@ public class ScreeningContainerDatasetInfoHelper
     private static ImgChannelDTO makeChannelDTO(HCSImageFileExtractionResult.Channel channel,
             long expId)
     {
-        return ImgChannelDTO.createExperimentChannel(channel.getName().toUpperCase(), channel
-                .tryGetDescription(), channel.tryGetWavelength(), expId);
+        return ImgChannelDTO.createExperimentChannel(channel.getName(),
+                channel.tryGetDescription(), channel.tryGetWavelength(), expId);
     }
 }

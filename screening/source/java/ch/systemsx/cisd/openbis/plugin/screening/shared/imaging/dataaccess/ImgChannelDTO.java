@@ -68,7 +68,7 @@ public class ImgChannelDTO extends AbstractHashable
     {
         assert (datasetIdOrNull == null && experimentIdOrNull != null)
                 || (datasetIdOrNull != null && experimentIdOrNull == null);
-        this.name = name;
+        this.name = name.toUpperCase();
         this.descriptionOrNull = descriptionOrNull;
         this.wavelengthOrNull = wavelengthOrNull;
         this.datasetIdOrNull = datasetIdOrNull;

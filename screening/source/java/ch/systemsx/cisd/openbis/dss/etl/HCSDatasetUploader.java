@@ -79,7 +79,7 @@ public class HCSDatasetUploader
         public AcquiredImageInStack(String channelName, RelativeImageReference imageFilePath,
                 RelativeImageReference thumbnailPathOrNull)
         {
-            this.channelName = channelName;
+            this.channelName = channelName.toUpperCase();
             this.imageFilePath = imageFilePath;
             this.thumbnailPathOrNull = thumbnailPathOrNull;
         }
@@ -166,7 +166,7 @@ public class HCSDatasetUploader
     {
         for (AcquiredImageInStack image : images)
         {
-            String channelName = image.getChannelName().toUpperCase();
+            String channelName = image.getChannelName();
             Long channelTechId = channelsMap.get(channelName);
             if (channelTechId == null)
             {

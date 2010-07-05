@@ -112,7 +112,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     }
 
     @Override
-    protected final List<AcquiredPlateImage> getImages(String channelStr, Location plateLocation,
+    protected final List<AcquiredPlateImage> getImages(String channelToken, Location plateLocation,
             Location wellLocation, String imageRelativePath)
     {
         List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
@@ -129,17 +129,17 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
             }
         } else
         {
-            ensureChannelExist(channelStr);
-            images
-                    .add(createImage(plateLocation, wellLocation, imageRelativePath, channelStr,
-                            null));
+            String channelName = channelToken.toUpperCase();
+            ensureChannelExist(channelName);
+            images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelName,
+                    null));
         }
         return images;
     }
 
     private void ensureChannelExist(String channelName)
     {
-        if (channelNames.indexOf(channelName.toUpperCase()) == -1)
+        if (channelNames.indexOf(channelName) == -1)
         {
             throw UserFailureException.fromTemplate(
                     "Channel '%s' is not one of: %s. Change the configuration.", channelName,
