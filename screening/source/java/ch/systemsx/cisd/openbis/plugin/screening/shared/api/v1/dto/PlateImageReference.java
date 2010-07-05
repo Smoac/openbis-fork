@@ -83,11 +83,11 @@ public class PlateImageReference extends DatasetIdentifier implements Serializab
             return false;
 
         PlateImageReference other = (PlateImageReference) obj;
-        if (channel != other.channel)
+        if (channel.equals(other.channel) == false)
             return false;
         if (tile != other.tile)
             return false;
-        if (!wellPosition.equals(other.wellPosition))
+        if (wellPosition.equals(other.wellPosition) == false)
             return false;
         return true;
     }
