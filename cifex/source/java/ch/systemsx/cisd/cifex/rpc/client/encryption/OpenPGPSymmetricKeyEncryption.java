@@ -276,7 +276,7 @@ public class OpenPGPSymmetricKeyEncryption
                     checkIntegrity(encryptedData, inFile);
                 } finally
                 {
-                    IOUtils.closeQuietly(literalDataStream);
+                    IOUtils.closeQuietly(encryptedData.getInputStream());
                 }
             } finally
             {
