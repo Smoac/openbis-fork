@@ -196,8 +196,9 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         String query =
                 String
                         .format(
-                                "SELECT s.id FROM %s s WHERE s.sampleType = ? AND s not in (SELECT sp.entity FROM %s sp WHERE sp.entityTypePropertyType = ?)",
+                                "SELECT e.id FROM %s e WHERE e.%s = ? AND e not in (SELECT p.entity FROM %s p WHERE p.entityTypePropertyType = ?)",
                                 entityKind.getEntityClass().getSimpleName(), entityKind
+                                        .getEntityTypeFieldName(), entityKind
                                         .getEntityPropertyClass().getSimpleName());
         final List<Long> list =
                 cast(getHibernateTemplate().find(query,
