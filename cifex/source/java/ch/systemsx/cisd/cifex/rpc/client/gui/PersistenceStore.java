@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.rpc.client.gui;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
@@ -29,12 +30,12 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 public class PersistenceStore
 {
 
-    private final static File HOME_DIRECTORY = new File(System.getProperty("user.home"));
+    private final static File CONFIG_DIRECTORY = RPCServiceFactory.getCIFEXConfigDir();
 
-    private final static String CIFEX_PROPERTIES_FILENAME = ".cifex.properties";
+    private final static String CIFEX_PROPERTIES_FILENAME = "service.properties";
 
     private final static File CIFEX_PROPERTIES_FILE =
-            new File(HOME_DIRECTORY, CIFEX_PROPERTIES_FILENAME);
+            new File(CONFIG_DIRECTORY, CIFEX_PROPERTIES_FILENAME);
 
     private final static String WORKING_DIRECTORY_KEY = "working-directory";
 
@@ -64,7 +65,7 @@ public class PersistenceStore
     public static File getWorkingDirectory()
     {
         return new File(getProperties()
-                .getProperty(WORKING_DIRECTORY_KEY, HOME_DIRECTORY.getPath()));
+                .getProperty(WORKING_DIRECTORY_KEY, CONFIG_DIRECTORY.getPath()));
     }
     
     public static void setWorkingDirectory(File workingDirectory)
