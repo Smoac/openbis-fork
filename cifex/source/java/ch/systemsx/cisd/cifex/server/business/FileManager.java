@@ -436,6 +436,7 @@ final class FileManager extends AbstractManager implements IFileManager
                                             lastUpdated = now;
                                         }
                                     }
+
                                     public void exceptionThrown(IOException e)
                                     {
                                     }
@@ -522,6 +523,7 @@ final class FileManager extends AbstractManager implements IFileManager
                                             lastUpdated = now;
                                         }
                                     }
+
                                     public void exceptionThrown(IOException e)
                                     {
                                     }
@@ -738,21 +740,22 @@ final class FileManager extends AbstractManager implements IFileManager
             final List<String> invalidEmailAdresses, Set<UserDTO> users)
     {
         String password = null;
-        final String lowerCaseIdentifier = identifier.toLowerCase().trim();
+        final String trimmedIdentifier = identifier.trim();
         // If the Identifier start with "id:", it is not a email
-        if (UserUtils.isUserCodeWithIdPrefix(lowerCaseIdentifier))
+        if (UserUtils.isUserCodeWithIdPrefix(trimmedIdentifier))
         {
             final UserDTO userOrNull =
-                    existingUniqueUsers.tryGet(UserUtils.extractUserId(lowerCaseIdentifier));
+                    existingUniqueUsers.tryGet(UserUtils.extractUserId(trimmedIdentifier));
             if (userOrNull != null && StringUtils.isNotBlank(userOrNull.getEmail()))
             {
                 users.add(userOrNull);
             } else
             {
-                invalidEmailAdresses.add(lowerCaseIdentifier);
+                invalidEmailAdresses.add(trimmedIdentifier);
             }
-        } else if (UserUtils.EMAIL_PATTERN.matcher(lowerCaseIdentifier).matches())
+        } else if (UserUtils.EMAIL_PATTERN.matcher(trimmedIdentifier).matches())
         {
+            final String lowerCaseIdentifier = trimmedIdentifier.toLowerCase();
             final Set<UserDTO> existingUsersOrNull =
                     removeUnsuitableUsersForSharing(requestUser, existingUsers
                             .tryGet(lowerCaseIdentifier));
@@ -778,7 +781,7 @@ final class FileManager extends AbstractManager implements IFileManager
             }
         } else
         {
-            invalidEmailAdresses.add(lowerCaseIdentifier);
+            invalidEmailAdresses.add(trimmedIdentifier);
         }
         return password;
     }
