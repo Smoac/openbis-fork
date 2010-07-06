@@ -35,7 +35,7 @@ public class UserUtils
 {
 
     static final Pattern USER_CODE_WITH_ID_PREFIX_PATTERN =
-            Pattern.compile(Constants.USER_CODE_WITH_ID_PREFIX_REGEX);
+            Pattern.compile(Constants.USER_CODE_WITH_ID_PREFIX_REGEX, Pattern.CASE_INSENSITIVE);
 
     static final Pattern EMAIL_PATTERN = Pattern.compile(Constants.EMAIL_REGEX);
 
@@ -61,9 +61,9 @@ public class UserUtils
     /**
      * Checks weather identifier starts with {@link #USER_ID_PREFIX}.
      */
-    static boolean isUserCodeWithIdPrefix(final String lowerCaseIdentifier)
+    static boolean isUserCodeWithIdPrefix(final String identifier)
     {
-        return USER_CODE_WITH_ID_PREFIX_PATTERN.matcher(lowerCaseIdentifier).matches();
+        return USER_CODE_WITH_ID_PREFIX_PATTERN.matcher(identifier).matches();
     }
 
     /**

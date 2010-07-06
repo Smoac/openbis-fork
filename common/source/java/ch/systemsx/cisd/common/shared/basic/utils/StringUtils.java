@@ -225,6 +225,24 @@ public final class StringUtils
     /**
      * Returns <code>true</code> if given <var>regExp</var> could be found in given
      * <var>value</var>.
+     * <p>
+     * Allowed modifiers are:
+     * <ul>
+     * <li> <i>i</i> - Perform case-insensitive matching
+     * <li> <i>g</i> - Perform a global match (find all matches rather than stopping after the first match) 
+     * <li> <i>m</i> - Perform multiline matching
+     * </ul>
+     */
+    public static final native boolean matches(final String regExp, final String value, 
+            final String modifiers)
+    /*-{
+        var re = new RegExp(regExp, modifiers);
+        return value.search(re) > -1;
+    }-*/;
+    
+    /**
+     * Returns <code>true</code> if given <var>regExp</var> could be found in given
+     * <var>value</var>.
      */
     public static final native boolean matches(final String regExp, final String value)
     /*-{

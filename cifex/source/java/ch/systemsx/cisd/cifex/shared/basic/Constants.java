@@ -87,6 +87,9 @@ public final class Constants
     public static final String USER_CODE_WITH_ID_PREFIX_REGEX =
             "^" + USER_ID_PREFIX + USER_CODE_REGEX.substring(1);
 
+    /** Modifier for case-insensitive regular expression matching. */
+    public static final String CASE_INSENSITIVE_MATCHING = "i";
+    
     /** The property key to set the cifex.base.url in Eclipse. */
     public static final String CIFEX_BASE_URL_PROP_KEY = "cifex.base.url";
 

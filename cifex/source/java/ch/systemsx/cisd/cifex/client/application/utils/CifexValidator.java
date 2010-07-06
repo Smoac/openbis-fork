@@ -58,7 +58,7 @@ public class CifexValidator
                         if (item.length() > 0
                                 && StringUtils.matches(Constants.EMAIL_REGEX, item) == false
                                 && StringUtils.matches(Constants.USER_CODE_WITH_ID_PREFIX_REGEX,
-                                        item) == false)
+                                        item, Constants.CASE_INSENSITIVE_MATCHING) == false)
                         {
                             return msg(UPLOAD_FILES_RECIPIENT_FIELD_INVALID_MSG);
                         }

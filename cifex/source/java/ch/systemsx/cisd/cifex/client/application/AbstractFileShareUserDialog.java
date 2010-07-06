@@ -224,7 +224,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                     Button button = ce.getButton();
                     button.disable();
                     final String emailOrCode = userTextField.getValue();
-                    if (emailOrCode.startsWith(Constants.USER_ID_PREFIX))
+                    if (emailOrCode.substring(0, Constants.USER_ID_PREFIX.length())
+                            .equalsIgnoreCase(Constants.USER_ID_PREFIX))
                     {
                         final String userCode =
                                 emailOrCode.substring(Constants.USER_ID_PREFIX.length());
@@ -280,7 +281,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                 }
                                                 existingUserGrid
                                                         .setDataAndRefresh(FileShareUserGridModel
-                                                                .convert(requestUser, existingUsers,
+                                                                .convert(requestUser,
+                                                                        existingUsers,
                                                                         existingUserGrid.getGrid()
                                                                                 .getStore()));
                                             } else
