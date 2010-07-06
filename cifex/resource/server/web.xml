@@ -39,6 +39,12 @@
     -->
 
     <servlet>
+        <servlet-name>dummy</servlet-name>
+        <servlet-class>ch.systemsx.cisd.cifex.server.DummyServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
         <servlet-name>file-download</servlet-name>
         <servlet-class>ch.systemsx.cisd.cifex.server.FileDownloadServlet</servlet-class>
         <load-on-startup>1</load-on-startup>

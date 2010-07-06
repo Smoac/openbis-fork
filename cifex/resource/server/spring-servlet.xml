@@ -11,6 +11,7 @@
         <property name="mappings">
             <value>
                 cifex=cifex-service-servlet
+                dummy=url-servlet-forwarding-controller
                 file-download=url-servlet-forwarding-controller
                 file-upload=url-servlet-forwarding-controller
                 file2GB-upload.jnlp=url-servlet-forwarding-controller

@@ -21,7 +21,8 @@
 -->
 <iframe src="javascript:''" id="__gwt_historyFrame" style="width:0;height:0;border:0"></iframe>
 		<div id="cifex_login_div" style="visibility: hidden">
-			<form id="cifex_login_form" method="post" action="javascript:;">
+		  <!-- Simulate a regular static POST call to convince browsers to do autofill. The real work is done in Javascript. -->
+			<form id="cifex_login_form" method="post" action="/cifex/dummy">
 				<table cellspacing="5">
 				<tbody>
 					<tr style="padding-bottom: 10px">

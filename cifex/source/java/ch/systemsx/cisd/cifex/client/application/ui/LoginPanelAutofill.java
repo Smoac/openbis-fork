@@ -27,6 +27,8 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 
@@ -39,16 +41,14 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
  * This class uses a variant of a trick described in the GWT discussion forum to support autofill.
  * Browsers do not support autofill on input fields that are generated on the client by javascript,
  * so it is necessary for the page to statically contain the input fields we want to autofill. These
- * fields are unhidden and used on the login page.
+ * fields are unhidden and used on the login page. Additionally we do a dummy POST operation to
+ * convince the more stubborn browsers that this is a login call that deserves to be autofilled.
  * 
  * @see <a href
  *      ="http://groups.google.com/group/Google-Web-Toolkit/browse%5Fthread/thread/2b2ce0b6aaa82461">GWT
  *      Discussion Forum</a>
  * @author Chandrasekhar Ramakrishnan
  */
-// TODO 2010-03-10, CR: This implementation currently supports Firefox, but not Safari or Chrome. To
-// support Safari, we cannot use javascript in the action, instead we need to have the login post
-// data to a server.
 public class LoginPanelAutofill extends VerticalPanel
 {
     private final ViewContext context;
@@ -86,19 +86,32 @@ public class LoginPanelAutofill extends VerticalPanel
         Element formElement = Document.get().getElementById(LOGIN_FORM_ID);
         if (formElement == null)
         {
-            // This is an error and should not happen
+            // This is a severe error and should never happen.
+            MessageBox.alert("Internal Error", "Login form not found.", null);
             formPanel = null;
             return;
         }
-        formPanel = FormPanel.wrap(formElement, false);
+        formPanel = FormPanel.wrap(formElement, true);
 
         formPanel.addSubmitHandler(new SubmitHandler()
             {
                 public void onSubmit(SubmitEvent event)
                 {
+                    // Disable button until we have had a chance to validate the input.
+                    getButtonElement().setDisabled(true);
+                }
+            });
+
+        // Called when the dummy POST operation returns.
+        formPanel.addSubmitCompleteHandler(new SubmitCompleteHandler()
+            {
+                public void onSubmitComplete(SubmitCompleteEvent event)
+                {
                     if (isUserInputValid() == false)
                     {
-                        event.cancel();
+                        final String title = msg(MESSAGE_BOX_WARNING_TITLE);
+                        MessageBox.alert(title, msg(LOGIN_FAILED_MSG), null);
+                        getButtonElement().setDisabled(false);
                     } else
                     {
                         doLogin();
@@ -137,8 +150,6 @@ public class LoginPanelAutofill extends VerticalPanel
 
     private final void doLogin()
     {
-        getButtonElement().setDisabled(true);
-
         InputElement usernameElement = getUsernameElement();
         InputElement passwordElement = getPasswordElement();
 
