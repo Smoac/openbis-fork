@@ -18,14 +18,16 @@ package ch.systemsx.cisd.cifex.server.business.dto;
 
 import java.io.Serializable;
 
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 
 /**
  * Abstract super class of all Data Transfer Objects (DTOs) with a unique ID.
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class ID extends AbstractHashable implements Serializable
+public abstract class ID implements Serializable
 {
     private static final long serialVersionUID = 1L;
     private Long id;
@@ -59,5 +61,46 @@ public abstract class ID extends AbstractHashable implements Serializable
     {
         this.id = id;
     }
+    
+    //
+    // Object
+    //
 
+    @Override
+    public int hashCode()
+    {
+        return ((id == null) ? 0 : id.hashCode());
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj instanceof ID == false)
+        {
+            return false;
+        }
+        final ID other = (ID) obj;
+        if (id == null)
+        {
+            if (other.id != null)
+            {
+                return false;
+            }
+        } else if (id.equals(other.id) == false)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+    }
 }
