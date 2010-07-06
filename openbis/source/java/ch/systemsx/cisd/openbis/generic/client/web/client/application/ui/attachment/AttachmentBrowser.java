@@ -150,11 +150,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     protected ColumnDefsAndConfigs<AttachmentVersions> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<AttachmentVersions> schema = super.createColumnsDefinition();
-        if (attachmentHolder.getAttachmentHolderKind() != AttachmentHolderKind.PROJECT)
-        {
-            schema.setGridCellRendererFor(AttachmentColDefKind.PERMLINK.id(), LinkRenderer
-                    .createExternalLinkRenderer(viewContext.getMessage(Dict.PERMLINK)));
-        }
+        schema.setGridCellRendererFor(AttachmentColDefKind.PERMLINK.id(), LinkRenderer
+                .createExternalLinkRenderer(viewContext.getMessage(Dict.PERMLINK)));
         return schema;
     }
 

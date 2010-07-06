@@ -24,11 +24,13 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * A {@link Attachment} &lt;---&gt; {@link AttachmentPE} translator.
@@ -51,13 +53,7 @@ public final class AttachmentTranslator
             return null;
         }
         final Attachment result = new Attachment();
-        final AttachmentHolderPE holder = attachment.getParent();
-        if (baseIndexURL != null)
-        {
-            result.setPermlink(PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL,
-                    attachment.getFileName(), attachment.getVersion(), holder
-                            .getAttachmentHolderKind(), holder.getPermId()));
-        }
+        result.setPermlink(createPermlink(attachment, baseIndexURL));
         result.setFileName(StringEscapeUtils.escapeHtml(attachment.getFileName()));
         result.setTitle(StringEscapeUtils.escapeHtml(attachment.getTitle()));
         result.setDescription(StringEscapeUtils.escapeHtml(attachment.getDescription()));
@@ -65,6 +61,23 @@ public final class AttachmentTranslator
         result.setRegistrationDate(attachment.getRegistrationDate());
         result.setVersion(attachment.getVersion());
         return result;
+    }
+
+    private static String createPermlink(AttachmentPE attachment, String baseIndexURL)
+    {
+        final AttachmentHolderPE holder = attachment.getParent();
+        final String fileName = attachment.getFileName();
+        final int version = attachment.getVersion();
+        if (holder.getAttachmentHolderKind() == AttachmentHolderKind.PROJECT)
+        {
+            ProjectPE project = (ProjectPE) holder;
+            return PermlinkUtilities.createProjectAttachmentPermlinkURL(baseIndexURL, fileName, version,
+                    project.getCode(), project.getGroup().getCode());
+        } else
+        {
+            return PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL, fileName, version,
+                    holder.getAttachmentHolderKind(), holder.getPermId()); 
+        }
     }
 
     public final static AttachmentWithContent translateWithContent(final AttachmentPE attachment)

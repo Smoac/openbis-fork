@@ -44,7 +44,7 @@ public class ProjectLocatorResolver extends AbstractViewLocatorResolver
         openInitialProjectViewer(extractProjectIdentifier(locator));
     }
 
-    protected BasicProjectIdentifier extractProjectIdentifier(ViewLocator locator)
+    static BasicProjectIdentifier extractProjectIdentifier(ViewLocator locator)
     {
         String codeValueOrNull = locator.getParameters().get(CODE_PARAMETER_KEY);
         String spaceValueOrNull = locator.getParameters().get(SPACE_PARAMETER_KEY);

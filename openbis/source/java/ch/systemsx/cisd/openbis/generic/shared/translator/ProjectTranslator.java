@@ -69,14 +69,8 @@ public final class ProjectTranslator
         result.setRegistrationDate(project.getRegistrationDate());
         result.setIdentifier(StringEscapeUtils.escapeHtml(IdentifierHelper.createProjectIdentifier(
                 project).toString()));
-        List<Attachment> attachments;
-        if (project.attachmentsInitialized() == false)
-        {
-            attachments = DtoConverters.createUnmodifiableEmptyList();
-        } else
-        {
-            attachments = AttachmentTranslator.translate(project.getAttachments(), null);
-        }
+        // we don't use attachments collection directly from project
+        List<Attachment> attachments = DtoConverters.createUnmodifiableEmptyList();
         result.setAttachments(attachments);
         return result;
     }

@@ -1205,7 +1205,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
             projectBO.loadDataByTechId(projectId);
             return AttachmentTranslator.translate(listHolderAttachments(session, projectBO
-                    .getProject()), null);
+                    .getProject()), session.getBaseIndexURL());
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

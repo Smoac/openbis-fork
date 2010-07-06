@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -50,19 +51,38 @@ public class PermlinkUtilities
 
     public static final String VERSION_KEY = "version";
 
-    public final static String createAttachmentPermlinkURL(final String baseIndexURL,
-            final String fileName, final int version, final AttachmentHolderKind entityKind,
-            final String permId)
+    private final static URLMethodWithParameters createAttachmentParameters(
+            final String baseIndexURL, final String fileName, final int version)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
         ulrWithParameters.addParameter(BasicConstant.VIEW_MODE_KEY, BasicConstant.VIEW_MODE_SIMPLE);
         ulrWithParameters.startHistoryToken();
         ulrWithParameters.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER,
                 DOWNLOAD_ATTACHMENT_ACTION);
-        ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
-        ulrWithParameters.addParameter(PERM_ID_PARAMETER_KEY, permId);
         ulrWithParameters.addParameter(FILE_NAME_KEY, fileName);
         ulrWithParameters.addParameter(VERSION_KEY, version);
+        return ulrWithParameters;
+    }
+
+    public final static String createAttachmentPermlinkURL(final String baseIndexURL,
+            final String fileName, final int version, final AttachmentHolderKind entityKind,
+            final String permId)
+    {
+        URLMethodWithParameters ulrWithParameters =
+                createAttachmentParameters(baseIndexURL, fileName, version);
+        ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
+        ulrWithParameters.addParameter(PERM_ID_PARAMETER_KEY, permId);
+        return ulrWithParameters.toString();
+    }
+
+    public final static String createProjectAttachmentPermlinkURL(final String baseIndexURL,
+            final String fileName, final int version, final String projectCode, final String space)
+    {
+        URLMethodWithParameters ulrWithParameters =
+                createAttachmentParameters(baseIndexURL, fileName, version);
+        ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, AttachmentHolderKind.PROJECT);
+        ulrWithParameters.addParameter(ProjectLocatorResolver.CODE_PARAMETER_KEY, projectCode);
+        ulrWithParameters.addParameter(ProjectLocatorResolver.SPACE_PARAMETER_KEY, space);
         return ulrWithParameters.toString();
     }
 

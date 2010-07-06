@@ -9,7 +9,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
  * ViewLocatorHandler used for downloading attachment. We use permIds to identify attachment holder
@@ -33,21 +35,28 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
         checkRequiredParameter(entityKindValueOrNull, ViewLocator.ENTITY_PARAMETER);
         AttachmentHolderKind attachmentHolderKind = getAttachmentHolderKind(entityKindValueOrNull);
 
-        EntityKind entityKind = getEntityKind(locator);
-        // valid only for samples and experiments
-        String permIdValueOrNull =
-                locator.getParameters().get(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
         String fileNameOrNull = locator.getParameters().get(PermlinkUtilities.FILE_NAME_KEY);
         String versionOrNull = locator.getParameters().get(PermlinkUtilities.VERSION_KEY);
 
-        checkRequiredParameter(permIdValueOrNull, PermlinkUtilities.PERM_ID_PARAMETER_KEY);
         checkRequiredParameter(fileNameOrNull, PermlinkUtilities.FILE_NAME_KEY);
         checkRequiredParameter(versionOrNull, PermlinkUtilities.VERSION_KEY);
         try
         {
             int version = Integer.parseInt(versionOrNull);
-            downloadAttachment(entityKind, attachmentHolderKind, permIdValueOrNull, fileNameOrNull,
-                    version);
+            if (attachmentHolderKind == AttachmentHolderKind.PROJECT)
+            {
+                BasicProjectIdentifier projectIdentifier =
+                        ProjectLocatorResolver.extractProjectIdentifier(locator);
+                downloadProjectAttachment(projectIdentifier, fileNameOrNull, version);
+            } else
+            {
+                String permIdValueOrNull =
+                        locator.getParameters().get(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
+                checkRequiredParameter(permIdValueOrNull, PermlinkUtilities.PERM_ID_PARAMETER_KEY);
+                EntityKind entityKind = getEntityKind(locator);
+                downloadAttachment(entityKind, attachmentHolderKind, permIdValueOrNull,
+                        fileNameOrNull, version);
+            }
         } catch (NumberFormatException e)
         {
             throw new UserFailureException("URL parameter '" + PermlinkUtilities.VERSION_KEY
@@ -66,17 +75,18 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
                                 version));
     }
 
+    private void downloadProjectAttachment(BasicProjectIdentifier identifier,
+            final String fileName, final int version) throws UserFailureException
+    {
+        viewContext.getService().getProjectInfo(identifier,
+                new ProjectAttachmentDownloadCallback(viewContext, fileName, version));
+    }
+
     private AttachmentHolderKind getAttachmentHolderKind(String entityKind)
     {
         try
         {
-            AttachmentHolderKind holderKind = AttachmentHolderKind.valueOf(entityKind);
-            if (holderKind == AttachmentHolderKind.PROJECT)
-            {
-                throw new UserFailureException(
-                        "Download of attachments is not supported for projects.");
-            }
-            return holderKind;
+            return AttachmentHolderKind.valueOf(entityKind);
         } catch (IllegalArgumentException exception)
         {
             throw new UserFailureException("Invalid '" + ViewLocator.ENTITY_PARAMETER
@@ -84,7 +94,8 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
         }
     }
 
-    public class AttachmentDownloadCallback extends AbstractAsyncCallback<IEntityInformationHolder>
+    private static class AttachmentDownloadCallback extends
+            AbstractAsyncCallback<IEntityInformationHolder>
     {
 
         private final AttachmentHolderKind attachmentHolderKind;
@@ -131,6 +142,27 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
                 };
         }
 
+    }
+
+    private static class ProjectAttachmentDownloadCallback extends AbstractAsyncCallback<Project>
+    {
+        private final String fileName;
+
+        private final int version;
+
+        private ProjectAttachmentDownloadCallback(final IViewContext<?> viewContext,
+                final String fileName, final int version)
+        {
+            super(viewContext);
+            this.fileName = fileName;
+            this.version = version;
+        }
+
+        @Override
+        protected final void process(final Project result)
+        {
+            AttachmentDownloadHelper.download(fileName, version, result);
+        }
     }
 
 }
