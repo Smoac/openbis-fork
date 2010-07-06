@@ -28,7 +28,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.ChecksumHandling;
-import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.IWriteProgressListener;
 
 import static org.testng.AssertJUnit.*;
 
@@ -81,7 +80,7 @@ public class ResumingAndChecksummingInputStreamTest
         final int chunkSize = 10;
         final int[] count = new int[] { 0 };
         final ResumingAndChecksummingInputStream s =
-                new ResumingAndChecksummingInputStream(file, chunkSize, new IWriteProgressListener()
+                new ResumingAndChecksummingInputStream(file, chunkSize, new ISimpleChecksummingProgressListener()
                     {
                         public void update(long bytesRead, int crc32Value)
                         {
@@ -94,6 +93,9 @@ public class ResumingAndChecksummingInputStreamTest
                             }
                             assertEquals(contentCrc32Values[count[0]], crc32Value);
                             ++count[0];
+                        }
+                        public void exceptionThrown(IOException e)
+                        {
                         }
                     }, ChecksumHandling.COMPUTE);
         int bcount = 0;
@@ -114,13 +116,16 @@ public class ResumingAndChecksummingInputStreamTest
         final int chunkSize = 10;
         final int[] count = new int[] { 0 };
         final ResumingAndChecksummingInputStream s =
-                new ResumingAndChecksummingInputStream(file, chunkSize, new IWriteProgressListener()
+                new ResumingAndChecksummingInputStream(file, chunkSize, new ISimpleChecksummingProgressListener()
                     {
                         public void update(long bytesRead, int crc32Value)
                         {
                             assertEquals(content.length, bytesRead);
                             assertEquals(contentCrc32Values[2], crc32Value);
                             ++count[0];
+                        }
+                        public void exceptionThrown(IOException e)
+                        {
                         }
                     }, ChecksumHandling.COMPUTE);
         final byte[] b = new byte[3 * chunkSize];
@@ -136,13 +141,16 @@ public class ResumingAndChecksummingInputStreamTest
         final int chunkSize = 10;
         final int[] count = new int[] { 0 };
         final ResumingAndChecksummingInputStream s =
-                new ResumingAndChecksummingInputStream(file, chunkSize, new IWriteProgressListener()
+                new ResumingAndChecksummingInputStream(file, chunkSize, new ISimpleChecksummingProgressListener()
                     {
                         public void update(long bytesRead, int crc32Value)
                         {
                             assertEquals(content.length, bytesRead);
                             assertEquals(0, crc32Value);
                             ++count[0];
+                        }
+                        public void exceptionThrown(IOException e)
+                        {
                         }
                     }, ChecksumHandling.DONT_COMPUTE);
         final byte[] b = new byte[3 * chunkSize];
@@ -158,13 +166,16 @@ public class ResumingAndChecksummingInputStreamTest
         final int chunkSize = 10;
         final int[] count = new int[] { 0 };
         final ResumingAndChecksummingInputStream s =
-                new ResumingAndChecksummingInputStream(file, chunkSize, new IWriteProgressListener()
+                new ResumingAndChecksummingInputStream(file, chunkSize, new ISimpleChecksummingProgressListener()
                     {
                         public void update(long bytesRead, int crc32Value)
                         {
                             assertEquals(content.length, bytesRead);
                             assertEquals(contentCrc32Values[2], crc32Value);
                             ++count[0];
+                        }
+                        public void exceptionThrown(IOException e)
+                        {
                         }
                     }, ChecksumHandling.COMPUTE_AND_APPEND);
         final byte[] b = new byte[3 * chunkSize];
@@ -185,13 +196,16 @@ public class ResumingAndChecksummingInputStreamTest
         final int chunkSize = 10;
         final int[] count = new int[] { 0 };
         final ResumingAndChecksummingInputStream s =
-                new ResumingAndChecksummingInputStream(file, 10, new IWriteProgressListener()
+                new ResumingAndChecksummingInputStream(file, 10, new ISimpleChecksummingProgressListener()
                     {
                         public void update(long bytesRead, int crc32Value)
                         {
                             assertEquals(content.length, bytesRead);
                             assertEquals(contentCrc32Values[2], crc32Value);
                             ++count[0];
+                        }
+                        public void exceptionThrown(IOException e)
+                        {
                         }
                     }, chunkSize, ChecksumHandling.COMPUTE);
         final byte[] b = new byte[3 * chunkSize];
@@ -207,13 +221,16 @@ public class ResumingAndChecksummingInputStreamTest
         final int chunkSize = 10;
         final int[] count = new int[] { 0 };
         final ResumingAndChecksummingInputStream s =
-                new ResumingAndChecksummingInputStream(file, 10, new IWriteProgressListener()
+                new ResumingAndChecksummingInputStream(file, 10, new ISimpleChecksummingProgressListener()
                     {
                         public void update(long bytesRead, int crc32Value)
                         {
                             assertEquals(content.length, bytesRead);
                             assertEquals(contentCrc32Values[2], crc32Value);
                             ++count[0];
+                        }
+                        public void exceptionThrown(IOException e)
+                        {
                         }
                     }, chunkSize, contentCrc32Values[0], ChecksumHandling.COMPUTE);
         final byte[] b = new byte[3 * chunkSize];

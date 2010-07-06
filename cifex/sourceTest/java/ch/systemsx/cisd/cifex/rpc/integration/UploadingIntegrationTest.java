@@ -279,7 +279,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    one(userActionLog).logUploadFile(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileStart(SMALL_FILE, null, 0L);
+                    one(userActionLog).logUploadFileFinished(SMALL_FILE, fileDTO, true);
                     one(listener).start(fileOnClient, "Uploading", SMALL_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(SMALL_FILE)),
@@ -335,7 +336,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    one(userActionLog).logUploadFile(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileStart(LARGE_FILE, null, 0L);
+                    one(userActionLog).logUploadFileFinished(LARGE_FILE, fileDTO, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
                     will(returnValue(fileDTOPartial));
@@ -383,7 +385,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getUserActionLogHttp();
                     will(returnValue(null));
-                    one(userActionLog).logUploadFile(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileStart(LARGE_FILE, fileDTO, 2 * BLOCK_SIZE);
+                    one(userActionLog).logUploadFileFinished(LARGE_FILE, fileDTO, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
                     will(returnValue(fileDTOPartial));
@@ -495,7 +498,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    one(userActionLog).logUploadFile(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileStart(LARGE_FILE, null, 0L);
+                    one(userActionLog).logUploadFileFinished(LARGE_FILE, fileDTO, true);
                     one(listener).start(fileOnClient, "Uploading", LARGE_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(LARGE_FILE)),
@@ -577,8 +581,10 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     exactly(2).of(userManager).refreshQuotaInformation(user);
-                    one(userActionLog).logUploadFile(SMALL_FILE, true);
-                    one(userActionLog).logUploadFile(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileStart(SMALL_FILE, null, 0L);
+                    one(userActionLog).logUploadFileFinished(SMALL_FILE, fileDTO1, true);
+                    one(userActionLog).logUploadFileStart(LARGE_FILE, null, 0L);
+                    one(userActionLog).logUploadFileFinished(LARGE_FILE, fileDTO2, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient1, "Uploading", SMALL_FILE_SIZE * 1024L, null);
@@ -643,7 +649,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    atMost(1).of(userActionLog).logUploadFile(SMALL_FILE, true);
+                    atMost(1).of(userActionLog).logUploadFileStart(SMALL_FILE, null, 0L);
+                    atMost(1).of(userActionLog).logUploadFileFinished(SMALL_FILE, fileDTO, true);
                     one(listener).start(fileOnClient, "Uploading", SMALL_FILE_SIZE * 1024L, null);
                     one(listener).reportProgress(0, 0L);
                     one(listener).reportProgress(100, SMALL_FILE_SIZE * 1024L);
@@ -702,7 +709,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    atMost(1).of(userActionLog).logUploadFile(SMALL_FILE, true);
+                    atMost(1).of(userActionLog).logUploadFileStart(SMALL_FILE, null, 0L);
+                    atMost(1).of(userActionLog).logUploadFileFinished(SMALL_FILE, fileDTO, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
                             SMALL_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient, "Uploading", SMALL_FILE_SIZE * 1024L, null);
@@ -799,7 +807,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                                 return null;
                             }
                         });
-                    atMost(1).of(userActionLog).logUploadFile(LARGE_FILE, false);
+                    one(userActionLog).logUploadFileStart(LARGE_FILE, null, 0L);
+                    atMost(1).of(userActionLog).logUploadFileFinished(LARGE_FILE, null, false);
                     prepareFailure(this);
                 }
             });
@@ -830,9 +839,13 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     exactly(3).of(userManager).refreshQuotaInformation(user);
-                    allowing(userActionLog).logUploadFile(SMALL_FILE, true);
-                    allowing(userActionLog).logUploadFile(LARGE_FILE, false);
-                    allowing(userActionLog).logUploadFile(LARGE_FILE, true);
+                    allowing(userActionLog).logUploadFileStart(SMALL_FILE, null, 0L);
+                    allowing(userActionLog).logUploadFileFinished(SMALL_FILE, fileDTO1, true);
+                    allowing(userActionLog).logUploadFileStart(LARGE_FILE, null, 0L);
+                    allowing(userActionLog).logUploadFileFinished(LARGE_FILE, null, false);
+                    // Note: we don't do resume in this test, see below.
+                    allowing(userActionLog).logUploadFileStart(LARGE_FILE, null, 0L);
+                    allowing(userActionLog).logUploadFileFinished(LARGE_FILE, fileDTO2, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
                             SMALL_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient1, "Uploading", SMALL_FILE_SIZE * 1024L, null);
@@ -847,6 +860,8 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
+                    // That means: no suitable file to resume uploading!
+                    will(returnValue(null));
                     one(listener).start(fileOnClient2, "Uploading", LARGE_FILE_SIZE * 1024L, null);
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(LARGE_FILE)),

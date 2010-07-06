@@ -58,11 +58,11 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
 
     private static final SimpleDateFormat dateTimeFormat =
             new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
-    
+
     private final boolean useRPCSession;
 
-    public UserActionLog(final IRequestContextProvider requestContextProvider, boolean useRPCSession,
-            String testingFlag)
+    public UserActionLog(final IRequestContextProvider requestContextProvider,
+            boolean useRPCSession, String testingFlag)
     {
         super("true".equals(testingFlag) ? new IRequestContextProvider()
             {
@@ -265,32 +265,31 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     // Files
     //
 
-    public void logUploadFile(final String filename, final boolean success)
+    public void logUploadFileStart(String filename, FileDTO fileOrNull, long startPosition)
     {
         if (trackingLog.isInfoEnabled())
         {
-            trackingLog.info(getUserHostSessionDescription()
-                    + String.format("upload_file '%s': %s", filename, getSuccessString(success)));
+            if (startPosition > 0L)
+            {
+                trackingLog.info(getUserHostSessionDescription()
+                        + String.format("upload_file_resume %s [pos: %d]", getFileDescription(
+                                fileOrNull, filename), startPosition));
+            } else
+            {
+                trackingLog.info(getUserHostSessionDescription()
+                        + String.format("upload_file_start %s", getFileDescription(fileOrNull,
+                                filename)));
+            }
         }
     }
 
-    public void logUploadFileStart(String filename, final boolean success)
+    public void logUploadFileFinished(String filename, FileDTO fileOrNull, boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
-                    + String.format("upload_file_start '%s': %s", filename,
-                            getSuccessString(success)));
-        }
-    }
-
-    public void logUploadFileFinished(String filename, boolean success)
-    {
-        if (trackingLog.isInfoEnabled())
-        {
-            trackingLog.info(getUserHostSessionDescription()
-                    + String.format("upload_file_finished '%s': %s", filename,
-                            getSuccessString(success)));
+                    + String.format("upload_file_finished %s: %s", getFileDescription(fileOrNull,
+                            filename), getSuccessString(success)));
         }
     }
 
@@ -356,18 +355,24 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         return b.toString();
     }
 
-    private String getFileDescription(final FileDTO file)
+    private String getFileDescription(final FileDTO fileOrNull, String filenameOrNull)
     {
-        assert file != null;
+        assert fileOrNull != null || filenameOrNull != null;
 
-        final UserDTO registratorOrNull = file.getOwner();
-        if (registratorOrNull != null)
+        if (fileOrNull != null)
         {
-            return "'" + registratorOrNull.getUserCode() + "::" + file.getName() + "' ("
-                    + file.getID() + ")";
+            final UserDTO registratorOrNull = fileOrNull.getOwner();
+            if (registratorOrNull != null)
+            {
+                return "'" + registratorOrNull.getUserCode() + "::" + fileOrNull.getName() + "' ("
+                        + fileOrNull.getID() + ")";
+            } else
+            {
+                return fileOrNull.getName();
+            }
         } else
         {
-            return file.getName();
+            return "'" + filenameOrNull + "'";
         }
     }
 
@@ -377,7 +382,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
             {
                 public String getDescription(final FileDTO file)
                 {
-                    return getFileDescription(file);
+                    return getFileDescription(file, null);
                 }
             });
     }
@@ -409,7 +414,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
-                    + String.format("delete_file %s: %s", getFileDescription(file),
+                    + String.format("delete_file %s: %s", getFileDescription(file, null),
                             getSuccessString(success)));
         }
     }
@@ -418,8 +423,8 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     {
         if (trackingLog.isInfoEnabled())
         {
-            trackingLog.info(String.format("{SYSTEM} delete_file %s: %s", getFileDescription(file),
-                    getSuccessString(success)));
+            trackingLog.info(String.format("{SYSTEM} delete_file %s: %s", getFileDescription(file,
+                    null), getSuccessString(success)));
         }
     }
 
@@ -435,23 +440,20 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
-    public void logDownloadFile(final FileDTO file, final boolean success)
+    public void logDownloadFileStart(FileDTO file, long startPosition)
     {
         if (accessLog.isInfoEnabled())
         {
-            accessLog.info(getUserHostSessionDescription()
-                    + String.format("download_file %s: %s", getFileDescription(file),
-                            getSuccessString(success)));
-        }
-    }
-
-    public void logDownloadFileStart(FileDTO file, final boolean success)
-    {
-        if (accessLog.isInfoEnabled())
-        {
-            accessLog.info(getUserHostSessionDescription()
-                    + String.format("download_file_start %s: %s", getFileDescription(file),
-                            getSuccessString(success)));
+            if (startPosition > 0L)
+            {
+                accessLog.info(getUserHostSessionDescription()
+                        + String.format("download_file_resume %s [pos: %d]", getFileDescription(
+                                file, null), startPosition));
+            } else
+            {
+                accessLog.info(getUserHostSessionDescription()
+                        + String.format("download_file_start %s", getFileDescription(file, null)));
+            }
         }
     }
 
@@ -460,8 +462,27 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         if (accessLog.isInfoEnabled())
         {
             accessLog.info(getUserHostSessionDescription()
-                    + String.format("download_file_finished %s: %s", getFileDescription(file),
-                            getSuccessString(success)));
+                    + String.format("download_file_finished %s: %s",
+                            getFileDescription(file, null), getSuccessString(success)));
+        }
+    }
+
+    public void logDownloadFileFailedNotAuthorized(FileDTO file)
+    {
+        if (accessLog.isInfoEnabled())
+        {
+            accessLog.info(getUserHostSessionDescription()
+                    + String.format("download_file %s: NOT AUTHORIZED", getFileDescription(file,
+                            null)));
+        }
+    }
+
+    public void logDownloadFileFailedNotFound(FileDTO file)
+    {
+        if (accessLog.isInfoEnabled())
+        {
+            accessLog.info(getUserHostSessionDescription()
+                    + String.format("download_file %s: NOT FOUND", getFileDescription(file, null)));
         }
     }
 

@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.server.business.FileInformation;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
+import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -53,6 +54,7 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException, InvalidSessionException
     {
+        final IUserActionLog log = domainModel.getBusinessContext().getUserActionLogHttp();
         final UserDTO requestUser = getUserDTO(request); // Throws exception if session is not
         // valid.
         final String fileIdParameter = request.getParameter(Constants.FILE_ID_PARAMETER);
@@ -65,43 +67,46 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
                 final long fileId = Long.parseLong(fileIdParameter);
                 final IFileManager fileManager = domainModel.getFileManager();
                 final FileInformation fileInfo = fileManager.getFileInformation(fileId);
+                if (fileInfo.isFileAvailable() == false)
+                {
+                    log.logDownloadFileFailedNotFound(fileInfo.getFileDTO());
+                    throw new UserFailureException(fileInfo.getErrorMessage());
+                }
+                if (fileManager.isAllowedAccess(requestUser, fileInfo.getFileDTO()) == false)
+                {
+                    log.logDownloadFileFailedNotAuthorized(fileInfo.getFileDTO());
+                    // Note: we send back the exact same error message as for a file that cannot
+                    // be found.
+                    // We do not want to give information out on whether the file exists or not.
+                    throw UserFailureException.fromTemplate(Constants
+                            .getErrorMessageForFileNotFound(fileId));
+                }
+                final FileContent fileOutput = fileManager.getFileContent(fileInfo.getFileDTO());
+                final Long size = fileOutput.getBasicFile().getSize();
+                if (size != null)
+                {
+                    if (size <= Integer.MAX_VALUE)
+                    {
+                        response.setContentLength(size.intValue());
+                    } else
+                    {
+                        response.addHeader("Content-Length", Long.toString(size));
+                    }
+                }
+                response.setContentType("application/x-unknown");
+                response.setHeader("Content-Disposition", "attachment; filename=\""
+                        + fileOutput.getBasicFile().getName() + "\"");
+                inputStream = fileOutput.getInputStream();
+                outputStream = response.getOutputStream();
+                log.logDownloadFileStart(fileInfo.getFileDTO(), 0L);
                 boolean success = false;
                 try
                 {
-                    if (fileInfo.isFileAvailable() == false)
-                    {
-                        throw new UserFailureException(fileInfo.getErrorMessage());
-                    }
-                    if (fileManager.isAllowedAccess(requestUser, fileInfo.getFileDTO()) == false)
-                    {
-                        throw UserFailureException.fromTemplate(
-                                "User '%s' does not have access to file '%s'.", requestUser
-                                        .getUserCode(), fileInfo.getFileDTO().getPath());
-                    }
-                    final FileContent fileOutput =
-                            fileManager.getFileContent(fileInfo.getFileDTO());
-                    final Long size = fileOutput.getBasicFile().getSize();
-                    if (size != null)
-                    {
-                        if (size <= Integer.MAX_VALUE)
-                        {
-                            response.setContentLength(size.intValue());
-                        } else
-                        {
-                            response.addHeader("Content-Length", Long.toString(size));
-                        }
-                    }
-                    response.setContentType("application/x-unknown");
-                    response.setHeader("Content-Disposition", "attachment; filename=\""
-                            + fileOutput.getBasicFile().getName() + "\"");
-                    inputStream = fileOutput.getInputStream();
-                    outputStream = response.getOutputStream();
                     IOUtils.copy(inputStream, outputStream);
                     success = true;
                 } finally
                 {
-                    domainModel.getBusinessContext().getUserActionLogHttp().logDownloadFile(
-                            fileInfo.getFileDTO(), success);
+                    log.logDownloadFileFinished(fileInfo.getFileDTO(), success);
                 }
             } catch (final NumberFormatException ex)
             {

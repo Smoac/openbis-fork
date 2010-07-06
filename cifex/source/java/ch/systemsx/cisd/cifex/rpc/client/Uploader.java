@@ -31,9 +31,9 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
+import ch.systemsx.cisd.cifex.rpc.io.ISimpleChecksummingProgressListener;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.ChecksumHandling;
-import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.IWriteProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -179,7 +179,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         {
             contentStream =
                     new ResumingAndChecksummingInputStream(file, PROGRESS_REPORT_BLOCK_SIZE,
-                            new IWriteProgressListener()
+                            new ISimpleChecksummingProgressListener()
                                 {
                                     long lastUpdated = System.currentTimeMillis();
 
@@ -197,6 +197,9 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                                             fireProgressEvent(bytesRead, fileSize);
                                             lastUpdated = now;
                                         }
+                                    }
+                                    public void exceptionThrown(IOException e)
+                                    {
                                     }
                                 }, ChecksumHandling.COMPUTE_AND_APPEND);
             // If we cancelled, bail out now

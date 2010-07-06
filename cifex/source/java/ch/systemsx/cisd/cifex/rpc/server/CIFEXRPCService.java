@@ -41,9 +41,9 @@ import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.QuotaExceededException;
+import ch.systemsx.cisd.cifex.rpc.io.ISimpleChecksummingProgressListener;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.ChecksumHandling;
-import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.IWriteProgressListener;
 import ch.systemsx.cisd.cifex.server.AbstractCIFEXService;
 import ch.systemsx.cisd.cifex.server.HttpUtils;
 import ch.systemsx.cisd.cifex.server.business.FileInformation;
@@ -267,34 +267,26 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             IOExceptionUnchecked
     {
         logInvocation(sessionID, "Download file id=" + fileID);
-        boolean success = false;
         FileDTO file = new FileDTO();
         file.setName("id:" + fileID);
-        try
+        final Session session = sessionManager.getSession(sessionID);
+        final FileInformation fileInfo = fileManager.getFileInformation(fileID);
+        if (fileInfo.isFileAvailable() == false)
         {
-            final Session session = sessionManager.getSession(sessionID);
-            final FileInformation fileInfo = fileManager.getFileInformation(fileID);
-            if (fileInfo.isFileAvailable() == false)
-            {
-                throw new IOExceptionUnchecked(new IOException(fileInfo.getErrorMessage()));
-            }
-            file = fileInfo.getFileDTO();
-            if (fileManager.isAllowedAccess(session.getUser(), file) == false)
-            {
-                // Note: we send back the exact same error message as for a file that cannot be
-                // found.
-                // We do not want to give information out on whether the file exists or not.
-                throw new IOExceptionUnchecked(new IOException(Constants
-                        .getErrorMessageForFileNotFound(fileID)));
-            }
-            final FileInfoDTO fileInfoDTO =
-                    BeanUtils.createBean(FileInfoDTO.class, fileInfo.getFileDTO());
-            success = true;
-            return fileInfoDTO;
-        } finally
-        {
-            userActionLog.logDownloadFileStart(file, success);
+            throw new IOExceptionUnchecked(new IOException(fileInfo.getErrorMessage()));
         }
+        file = fileInfo.getFileDTO();
+        if (fileManager.isAllowedAccess(session.getUser(), file) == false)
+        {
+            // Note: we send back the exact same error message as for a file that cannot be
+            // found.
+            // We do not want to give information out on whether the file exists or not.
+            throw new IOExceptionUnchecked(new IOException(Constants
+                    .getErrorMessageForFileNotFound(fileID)));
+        }
+        final FileInfoDTO fileInfoDTO =
+                BeanUtils.createBean(FileInfoDTO.class, fileInfo.getFileDTO());
+        return fileInfoDTO;
     }
 
     //
@@ -306,22 +298,24 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     {
         boolean success = false;
         String fileName = "UNKNOWN";
+        FileDTO fileDTO = null;
         try
         {
             final Session session = sessionManager.getSession(sessionID);
             final UserDTO requestUser = session.getUser();
             fileName = FilenameUtils.getName(file.getFilePathOnClient());
             logInvocation(sessionID, "Start uploading " + fileName);
+            userActionLog.logUploadFileStart(fileName, null, 0L);
             checkQuota(sessionID, requestUser, file);
             final String contentType = FilenameUtilities.getMimeType(fileName);
-            final FileDTO fileDTO =
+            fileDTO =
                     fileManager.saveFile(requestUser, fileName, comment, contentType, file
                             .getFileSize(), contentStream);
             success = true;
             return fileDTO.getID();
         } finally
         {
-            userActionLog.logUploadFile(fileName, success);
+            userActionLog.logUploadFileFinished(fileName, fileDTO, success);
         }
     }
 
@@ -330,16 +324,18 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     {
         boolean success = false;
         String fileName = "UNKNOWN";
+        FileDTO fileDTO = null;
         try
         {
             final Session session = sessionManager.getSession(sessionID);
             final UserDTO requestUser = session.getUser();
             final FileInformation fileInfo = fileManager.getFileInformation(fileId);
             fileName = fileInfo.getFileDTO().getName();
-            final FileDTO fileDTO = fileInfo.getFileDTO();
+            fileDTO = fileInfo.getFileDTO();
             final File file = fileInfo.getFile();
             logInvocation(sessionID, "Resume uploading of file " + fileName + " (id=" + fileId
                     + ")");
+            userActionLog.logUploadFileStart(fileName, fileDTO, startPosition);
             if (fileManager.isControlling(requestUser, fileInfo.getFileDTO()) == false)
             {
                 operationLog
@@ -354,7 +350,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             success = true;
         } finally
         {
-            userActionLog.logUploadFile(fileName, success);
+            userActionLog.logUploadFileFinished(fileName, fileDTO, success);
         }
     }
 
@@ -515,52 +511,53 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         }
     }
 
-    public InputStream download(String sessionID, long fileID, long startPosition)
+    public InputStream download(final String sessionID, long fileID, long startPosition)
             throws InvalidSessionException, IOExceptionUnchecked
     {
         logInvocation(sessionID, "Download file id=" + fileID);
-        boolean success = false;
         FileDTO file = new FileDTO();
         file.setName("id:" + fileID);
+        final Session session = sessionManager.getSession(sessionID);
+        final FileInformation fileInfo = fileManager.getFileInformation(fileID);
+        if (fileInfo.isFileAvailable() == false)
+        {
+            userActionLog.logDownloadFileFailedNotFound(fileInfo.getFileDTO());
+            throw new IOExceptionUnchecked(new IOException(fileInfo.getErrorMessage()));
+        }
+        file = fileInfo.getFileDTO();
+        if (fileManager.isAllowedAccess(session.getUser(), file) == false)
+        {
+            userActionLog.logDownloadFileFailedNotAuthorized(fileInfo.getFileDTO());
+            // Note: we send back the exact same error message as for a file that cannot be
+            // found.
+            // We do not want to give information out on whether the file exists or not.
+            throw new IOExceptionUnchecked(new IOException(Constants
+                    .getErrorMessageForFileNotFound(fileID)));
+        }
+        userActionLog.logDownloadFileStart(file, startPosition);
         try
         {
-            final Session session = sessionManager.getSession(sessionID);
-            final FileInformation fileInfo = fileManager.getFileInformation(fileID);
-            if (fileInfo.isFileAvailable() == false)
-            {
-                throw new IOExceptionUnchecked(new IOException(fileInfo.getErrorMessage()));
-            }
-            file = fileInfo.getFileDTO();
-            if (fileManager.isAllowedAccess(session.getUser(), file) == false)
-            {
-                // Note: we send back the exact same error message as for a file that cannot be
-                // found.
-                // We do not want to give information out on whether the file exists or not.
-                throw new IOExceptionUnchecked(new IOException(Constants
-                        .getErrorMessageForFileNotFound(fileID)));
-            }
-            try
-            {
-                final FileDTO finalFile = file;
-                final ResumingAndChecksummingInputStream fileContent =
-                        new ResumingAndChecksummingInputStream(fileInfo.getFile(), Long.MAX_VALUE,
-                                new IWriteProgressListener()
+            final FileDTO finalFile = file;
+            final ResumingAndChecksummingInputStream fileContent =
+                    new ResumingAndChecksummingInputStream(fileInfo.getFile(), Long.MAX_VALUE,
+                            new ISimpleChecksummingProgressListener()
+                                {
+                                    public void update(long bytesRead, int crc32Value)
                                     {
-                                        public void update(long bytesRead, int crc32Value)
-                                        {
-                                            userActionLog.logDownloadFileFinished(
-                                                    finalFile, true);
-                                        }
-                                    }, startPosition, ChecksumHandling.DONT_COMPUTE);
-                success = true;
-                return fileContent;
-            } catch (IOException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
-        } finally
+                                        userActionLog.logDownloadFileFinished(finalFile, true);
+                                    }
+
+                                    public void exceptionThrown(IOException e)
+                                    {
+                                        operationLog.error("[" + sessionID
+                                                + "]: download() failed.", e);
+                                        userActionLog.logDownloadFileFinished(finalFile, false);
+                                    }
+                                }, startPosition, ChecksumHandling.DONT_COMPUTE);
+            return fileContent;
+        } catch (IOException ex)
         {
-            userActionLog.logDownloadFileStart(file, success);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 

@@ -253,7 +253,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             userDTOOrNull.setExpirationDate(null);
             userDTOOrNull.setRegistrator(null);
 
-            userManager.updateUser(userDTOOrNull, null, privGetCurrentUser(), userActionLog);
+            userManager.updateUser(userDTOOrNull, null, privGetCurrentUser(), null);
 
             copyUserDetailsExceptCode(privGetCurrentUser(), userDTOOrNull); // updating session
 
@@ -322,35 +322,46 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             final String comment) throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException
     {
-        checkCreateUserAllowed(user);
-        ensureCodeIsValid(user.getUserCode());
-        final IUserManager userManager = domainModel.getUserManager();
-
-        final UserDTO userFromExternalAuthServiceOrNull =
-                tryCreateUserFromExternalAuthenticationService(user);
-        if (userFromExternalAuthServiceOrNull != null)
-        {
-            return BeanUtils.createBean(UserInfoDTO.class, userFromExternalAuthServiceOrNull);
-        }
-        if (StringUtils.isBlank(user.getEmail()))
-        {
-            throw new UserFailureException(
-                    "No email address but user not found in external authentication service!");
-        }
-
-        final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
+        boolean success = false;
+        UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
         try
         {
-            final UserDTO createdUser =
-                    userManager.createUserAndSendEmail(userDTO, password, privGetCurrentUser(),
-                            comment, getBasicURL());
-            return BeanUtils.createBean(UserInfoDTO.class, createdUser);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
+            checkCreateUserAllowed(user);
+            ensureCodeIsValid(user.getUserCode());
+            final IUserManager userManager = domainModel.getUserManager();
+    
+            final UserDTO userFromExternalAuthServiceOrNull =
+                    tryCreateUserFromExternalAuthenticationService(user);
+            if (userFromExternalAuthServiceOrNull != null)
+            {
+                userDTO = userFromExternalAuthServiceOrNull;
+                success = true;
+                return BeanUtils.createBean(UserInfoDTO.class, userFromExternalAuthServiceOrNull);
+            }
+            if (StringUtils.isBlank(user.getEmail()))
+            {
+                throw new UserFailureException(
+                        "No email address but user not found in external authentication service!");
+            }
+    
+            try
+            {
+                final UserDTO createdUser =
+                        userManager.createUserAndSendEmail(userDTO, password, privGetCurrentUser(),
+                                comment, getBasicURL());
+                userDTO = createdUser;
+                success = true;
+                return BeanUtils.createBean(UserInfoDTO.class, createdUser);
+            } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
+            {
+                throw new UserFailureException(ex.getMessage());
+            } catch (final ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
+            {
+                throw new EnvironmentFailureException(ex.getMessage());
+            }
+        } finally
         {
-            throw new UserFailureException(ex.getMessage());
-        } catch (final ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
-        {
-            throw new EnvironmentFailureException(ex.getMessage());
+            userActionLog.logCreateUser(userDTO, success);
         }
     }
 

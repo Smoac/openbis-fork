@@ -28,8 +28,8 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.CRCCheckumMismatchException;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
+import ch.systemsx.cisd.cifex.rpc.io.ISimpleChecksummingProgressListener;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingOutputStream;
-import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingOutputStream.IWriteProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy.IMonitorCommunicator;
@@ -175,7 +175,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             input = service.download(sessionID, fileID, clientFileSize);
             output =
                     new ResumingAndChecksummingOutputStream(file, PROGRESS_REPORT_BLOCK_SIZE,
-                            new IWriteProgressListener()
+                            new ISimpleChecksummingProgressListener()
                                 {
                                     long lastUpdated = System.currentTimeMillis();
 
@@ -193,6 +193,9 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                                             fireProgressEvent(bytesWritten, fileSize);
                                             lastUpdated = now;
                                         }
+                                    }
+                                    public void exceptionThrown(IOException e)
+                                    {
                                     }
                                 }, clientFileSize);
             if (isCancelled() || communicator.isCancelled())

@@ -310,18 +310,21 @@ public final class FileUploadServlet extends AbstractFileUploadDownloadServlet
                 final String fileName =
                         FilenameUtilities.ensureMaximumSize(filenameToUpload, MAX_FILENAME_LENGTH);
                 final String contentType = FilenameUtilities.getMimeType(item.getName());
+                domainModel.getBusinessContext().getUserActionLogHttp().logUploadFileStart(
+                        fileName, null, 0L);
                 boolean success = false;
+                FileDTO file = null;
                 try
                 {
-                    final FileDTO file =
+                    file =
                             fileManager.saveFile(requestUser, fileName, comment.toString(),
                                     contentType, stream);
                     success = true;
                     files.add(file);
                 } finally
                 {
-                    domainModel.getBusinessContext().getUserActionLogHttp().logUploadFile(fileName,
-                            success);
+                    domainModel.getBusinessContext().getUserActionLogHttp().logUploadFileFinished(
+                            fileName, file, success);
                 }
             } else
             {

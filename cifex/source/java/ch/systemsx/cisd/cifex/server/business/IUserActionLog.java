@@ -66,11 +66,9 @@ public interface IUserActionLog extends IActionLog
     // Files
     //
 
-    public void logUploadFile(String filename, boolean success);
+    public void logUploadFileStart(String filename, FileDTO fileOrNull, long startPosition);
 
-    public void logUploadFileStart(String filename, final boolean success);
-
-    public void logUploadFileFinished(String filename, boolean success);
+    public void logUploadFileFinished(String filename, FileDTO fileOrNull, boolean success);
 
     public void logShareFilesAuthorizationFailure(Collection<FileDTO> files,
             Collection<String> recipientsToShareWith);
@@ -86,9 +84,11 @@ public interface IUserActionLog extends IActionLog
     public void logEditFile(long fileId, String newName, Date fileExpirationDateOrNull,
             boolean success);
 
-    public void logDownloadFile(FileDTO file, boolean success);
+    public void logDownloadFileFailedNotFound(FileDTO file);
 
-    public void logDownloadFileStart(FileDTO file, final boolean success);
+    public void logDownloadFileFailedNotAuthorized(FileDTO file);
+
+    public void logDownloadFileStart(FileDTO file, long startPosition);
 
     public void logDownloadFileFinished(FileDTO file, boolean success);
 

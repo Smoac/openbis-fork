@@ -51,8 +51,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.CRCCheckumMismatchException;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.io.CopyUtils;
+import ch.systemsx.cisd.cifex.rpc.io.ISimpleChecksummingProgressListener;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingOutputStream;
-import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingOutputStream.IWriteProgressListener;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
@@ -420,7 +420,7 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             outputStream =
                     new ResumingAndChecksummingOutputStream(file, PROGRESS_UPDATE_CHUNK_SIZE,
-                            new IWriteProgressListener()
+                            new ISimpleChecksummingProgressListener()
                                 {
                                     long lastUpdated = System.currentTimeMillis();
 
@@ -435,6 +435,9 @@ final class FileManager extends AbstractManager implements IFileManager
                                             updateUploadProgress(fileDTO, user);
                                             lastUpdated = now;
                                         }
+                                    }
+                                    public void exceptionThrown(IOException e)
+                                    {
                                     }
                                 });
             final int remoteCrc32Value =
@@ -503,7 +506,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     (fileDTO.getCrc32Value() != null) ? fileDTO.getCrc32Value() : 0;
             outputStream =
                     new ResumingAndChecksummingOutputStream(file, PROGRESS_UPDATE_CHUNK_SIZE,
-                            new IWriteProgressListener()
+                            new ISimpleChecksummingProgressListener()
                                 {
                                     long lastUpdated = System.currentTimeMillis();
 
@@ -518,6 +521,9 @@ final class FileManager extends AbstractManager implements IFileManager
                                             updateUploadProgress(fileDTO, user);
                                             lastUpdated = now;
                                         }
+                                    }
+                                    public void exceptionThrown(IOException e)
+                                    {
                                     }
                                 }, startPos, partialCrc32Value);
             final int remoteCrc32Value =

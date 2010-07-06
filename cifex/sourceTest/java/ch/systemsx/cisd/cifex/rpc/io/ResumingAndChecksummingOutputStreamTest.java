@@ -16,16 +16,15 @@
 
 package ch.systemsx.cisd.cifex.rpc.io;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.zip.CRC32;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingOutputStream.IWriteProgressListener;
-
-import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for the {@link ResumingAndChecksummingOutputStream}.
@@ -59,14 +58,18 @@ public class ResumingAndChecksummingOutputStreamTest
         f.delete();
         f.deleteOnExit();
         final ResumingAndChecksummingOutputStream s =
-                new ResumingAndChecksummingOutputStream(f, chunkSize, new IWriteProgressListener()
-                    {
-                        public void update(long size, int crc32Value)
-                        {
-                            assertEquals(1, size);
-                            assertEquals((int) crc32.getValue(), crc32Value);
-                        }
-                    });
+                new ResumingAndChecksummingOutputStream(f, chunkSize,
+                        new ISimpleChecksummingProgressListener()
+                            {
+                                public void update(long size, int crc32Value)
+                                {
+                                    assertEquals(1, size);
+                                    assertEquals((int) crc32.getValue(), crc32Value);
+                                }
+                                public void exceptionThrown(IOException e)
+                                {
+                                }
+                            });
         s.write(content);
         s.close();
         assertEquals(1, f.length());
@@ -84,14 +87,18 @@ public class ResumingAndChecksummingOutputStreamTest
         f.delete();
         f.deleteOnExit();
         final ResumingAndChecksummingOutputStream s =
-                new ResumingAndChecksummingOutputStream(f, chunkSize, new IWriteProgressListener()
-                    {
-                        public void update(long size, int crc32Value)
-                        {
-                            assertEquals(content.length, size);
-                            assertEquals((int) crc32.getValue(), crc32Value);
-                        }
-                    });
+                new ResumingAndChecksummingOutputStream(f, chunkSize,
+                        new ISimpleChecksummingProgressListener()
+                            {
+                                public void update(long size, int crc32Value)
+                                {
+                                    assertEquals(content.length, size);
+                                    assertEquals((int) crc32.getValue(), crc32Value);
+                                }
+                                public void exceptionThrown(IOException e)
+                                {
+                                }
+                            });
         s.write(content);
         s.close();
         assertEquals(content.length, f.length());
@@ -113,15 +120,19 @@ public class ResumingAndChecksummingOutputStreamTest
         final int[] count = new int[]
             { 0 };
         final ResumingAndChecksummingOutputStream s =
-                new ResumingAndChecksummingOutputStream(f, chunkSize, new IWriteProgressListener()
-                    {
-                        public void update(long bytesWritten, int crc32Value)
-                        {
-                            assertEquals(chunkSize * (count[0] + 1), bytesWritten);
-                            assertEquals(crc32[count[0]].getValue(), crc32Value);
-                            ++count[0];
-                        }
-                    });
+                new ResumingAndChecksummingOutputStream(f, chunkSize,
+                        new ISimpleChecksummingProgressListener()
+                            {
+                                public void update(long bytesWritten, int crc32Value)
+                                {
+                                    assertEquals(chunkSize * (count[0] + 1), bytesWritten);
+                                    assertEquals(crc32[count[0]].getValue(), crc32Value);
+                                    ++count[0];
+                                }
+                                public void exceptionThrown(IOException e)
+                                {
+                                }
+                            });
         s.write(content, 0, chunkSize);
         s.write(content, chunkSize, chunkSize);
         s.close();
@@ -146,21 +157,25 @@ public class ResumingAndChecksummingOutputStreamTest
         final int[] count = new int[]
             { 0 };
         final ResumingAndChecksummingOutputStream s =
-                new ResumingAndChecksummingOutputStream(f, chunkSize, new IWriteProgressListener()
-                    {
-                        public void update(long bytesWritten, int crc32Value)
-                        {
-                            if (count[0] < 2)
+                new ResumingAndChecksummingOutputStream(f, chunkSize,
+                        new ISimpleChecksummingProgressListener()
                             {
-                                assertEquals(chunkSize * (count[0] + 1), bytesWritten);
-                            } else
-                            {
-                                assertEquals(content.length, bytesWritten);
-                            }
-                            assertEquals(crc32[count[0]].getValue(), crc32Value);
-                            ++count[0];
-                        }
-                    });
+                                public void update(long bytesWritten, int crc32Value)
+                                {
+                                    if (count[0] < 2)
+                                    {
+                                        assertEquals(chunkSize * (count[0] + 1), bytesWritten);
+                                    } else
+                                    {
+                                        assertEquals(content.length, bytesWritten);
+                                    }
+                                    assertEquals(crc32[count[0]].getValue(), crc32Value);
+                                    ++count[0];
+                                }
+                                public void exceptionThrown(IOException e)
+                                {
+                                }
+                            });
         s.write(content, 0, chunkSize);
         s.write(content, chunkSize, chunkSize);
         s.write(content[content.length - 1]);
@@ -186,33 +201,42 @@ public class ResumingAndChecksummingOutputStreamTest
         final int[] count = new int[]
             { 0 };
         ResumingAndChecksummingOutputStream s =
-                new ResumingAndChecksummingOutputStream(f, chunkSize, new IWriteProgressListener()
-                    {
-                        public void update(long bytesWritten, int crc32Value)
-                        {
-                            assertEquals(0, count[0]);
-                            assertEquals(chunkSize, bytesWritten);
-                            assertEquals(crc32[0].getValue(), crc32Value);
-                            ++count[0];
-                        }
-                    });
+                new ResumingAndChecksummingOutputStream(f, chunkSize,
+                        new ISimpleChecksummingProgressListener()
+                            {
+                                public void update(long bytesWritten, int crc32Value)
+                                {
+                                    assertEquals(0, count[0]);
+                                    assertEquals(chunkSize, bytesWritten);
+                                    assertEquals(crc32[0].getValue(), crc32Value);
+                                    ++count[0];
+                                }
+                                public void exceptionThrown(IOException e)
+                                {
+                                }
+                            });
         s.write(content, 0, chunkSize);
         s.close();
-        s = new ResumingAndChecksummingOutputStream(f, chunkSize, new IWriteProgressListener()
-            {
-                public void update(long bytesWritten, int crc32Value)
-                {
-                    if (count[0] < 2)
-                    {
-                        assertEquals(chunkSize * (count[0] + 1), bytesWritten);
-                    } else
-                    {
-                        assertEquals(content.length, bytesWritten);
-                    }
-                    assertEquals(crc32[count[0]].getValue(), crc32Value);
-                    ++count[0];
-                }
-            }, chunkSize, (int) crc32[0].getValue());
+        s =
+                new ResumingAndChecksummingOutputStream(f, chunkSize,
+                        new ISimpleChecksummingProgressListener()
+                            {
+                                public void update(long bytesWritten, int crc32Value)
+                                {
+                                    if (count[0] < 2)
+                                    {
+                                        assertEquals(chunkSize * (count[0] + 1), bytesWritten);
+                                    } else
+                                    {
+                                        assertEquals(content.length, bytesWritten);
+                                    }
+                                    assertEquals(crc32[count[0]].getValue(), crc32Value);
+                                    ++count[0];
+                                }
+                                public void exceptionThrown(IOException e)
+                                {
+                                }
+                            }, chunkSize, (int) crc32[0].getValue());
         s.write(content, chunkSize, chunkSize);
         s.write(content[content.length - 1]);
         s.close();
@@ -237,35 +261,44 @@ public class ResumingAndChecksummingOutputStreamTest
         final int[] count = new int[]
             { 0 };
         ResumingAndChecksummingOutputStream s =
-                new ResumingAndChecksummingOutputStream(f, chunkSize, new IWriteProgressListener()
-                    {
-                        public void update(long bytesWritten, int crc32Value)
-                        {
-                            assertEquals(chunkSize * (count[0] + 1), bytesWritten);
-                            assertEquals(crc32[count[0]].getValue(), crc32Value);
-                            ++count[0];
-                        }
-                    });
+                new ResumingAndChecksummingOutputStream(f, chunkSize,
+                        new ISimpleChecksummingProgressListener()
+                            {
+                                public void update(long bytesWritten, int crc32Value)
+                                {
+                                    assertEquals(chunkSize * (count[0] + 1), bytesWritten);
+                                    assertEquals(crc32[count[0]].getValue(), crc32Value);
+                                    ++count[0];
+                                }
+                                public void exceptionThrown(IOException e)
+                                {
+                                }
+                            });
         s.write(content, 0, chunkSize);
         s.write(content, chunkSize, chunkSize);
         s.close();
         assertEquals(count[0], 2);
         --count[0];
-        s = new ResumingAndChecksummingOutputStream(f, chunkSize, new IWriteProgressListener()
-            {
-                public void update(long bytesWritten, int crc32Value)
-                {
-                    if (count[0] < 2)
-                    {
-                        assertEquals(chunkSize * (count[0] + 1), bytesWritten);
-                    } else
-                    {
-                        assertEquals(content.length, bytesWritten);
-                    }
-                    assertEquals(crc32[count[0]].getValue(), crc32Value);
-                    ++count[0];
-                }
-            }, chunkSize, (int) crc32[0].getValue());
+        s =
+                new ResumingAndChecksummingOutputStream(f, chunkSize,
+                        new ISimpleChecksummingProgressListener()
+                            {
+                                public void update(long bytesWritten, int crc32Value)
+                                {
+                                    if (count[0] < 2)
+                                    {
+                                        assertEquals(chunkSize * (count[0] + 1), bytesWritten);
+                                    } else
+                                    {
+                                        assertEquals(content.length, bytesWritten);
+                                    }
+                                    assertEquals(crc32[count[0]].getValue(), crc32Value);
+                                    ++count[0];
+                                }
+                                public void exceptionThrown(IOException e)
+                                {
+                                }
+                            }, chunkSize, (int) crc32[0].getValue());
         s.write(content, chunkSize, chunkSize);
         s.write(content[content.length - 1]);
         s.close();
@@ -289,20 +322,24 @@ public class ResumingAndChecksummingOutputStreamTest
         f.deleteOnExit();
         final int[] count = new int[]
             { 0 };
-        new ResumingAndChecksummingOutputStream(f, chunkSize, new IWriteProgressListener()
-            {
-                public void update(long bytesWritten, int crc32Value)
-                {
-                    if (count[0] < 2)
+        new ResumingAndChecksummingOutputStream(f, chunkSize,
+                new ISimpleChecksummingProgressListener()
                     {
-                        assertEquals(chunkSize * (count[0] + 1), bytesWritten);
-                    } else
-                    {
-                        assertEquals(content.length, bytesWritten);
-                    }
-                    assertEquals(crc32[count[0]].getValue(), crc32Value);
-                    ++count[0];
-                }
-            }, 10, 0);
+                        public void update(long bytesWritten, int crc32Value)
+                        {
+                            if (count[0] < 2)
+                            {
+                                assertEquals(chunkSize * (count[0] + 1), bytesWritten);
+                            } else
+                            {
+                                assertEquals(content.length, bytesWritten);
+                            }
+                            assertEquals(crc32[count[0]].getValue(), crc32Value);
+                            ++count[0];
+                        }
+                        public void exceptionThrown(IOException e)
+                        {
+                        }
+                    }, 10, 0);
     }
 }

@@ -45,7 +45,7 @@ public final class ResumingAndChecksummingInputStream extends InputStream
 
     private final RandomAccessFile raFile;
 
-    private final IWriteProgressListener listenerOrNull;
+    private final ISimpleChecksummingProgressListener listenerOrNull;
 
     private CloneableCRC32 crc32OrNull;
 
@@ -60,15 +60,6 @@ public final class ResumingAndChecksummingInputStream extends InputStream
     private long bytesRead;
 
     private long bytesReadSinceListenerCalled;
-
-    public interface IWriteProgressListener
-    {
-        /**
-         * Indicates that <var>bytesRead</var> bytes have been read and that the content of all
-         * bytes read up to now have a ckecksum of <var>crc32Value</var>.
-         */
-        void update(long bytesRead, int crc32Value);
-    }
 
     public ResumingAndChecksummingInputStream(final File file) throws IOException
     {
@@ -88,8 +79,8 @@ public final class ResumingAndChecksummingInputStream extends InputStream
     }
 
     public ResumingAndChecksummingInputStream(final File file, final long progressChunkSize,
-            final IWriteProgressListener listenerOrNull, final ChecksumHandling checksumHandling)
-            throws IOException
+            final ISimpleChecksummingProgressListener listenerOrNull,
+            final ChecksumHandling checksumHandling) throws IOException
     {
         this.raFile = new RandomAccessFile(file, "r");
         this.length = raFile.length();
@@ -100,7 +91,7 @@ public final class ResumingAndChecksummingInputStream extends InputStream
     }
 
     public ResumingAndChecksummingInputStream(final File file, final long progressChunkSize,
-            final IWriteProgressListener listenerOrNull, final long startPos,
+            final ISimpleChecksummingProgressListener listenerOrNull, final long startPos,
             final ChecksumHandling checksumHandling) throws IOException, IllegalArgumentException
     {
         this.raFile = new RandomAccessFile(file, "r");
@@ -112,8 +103,9 @@ public final class ResumingAndChecksummingInputStream extends InputStream
     }
 
     public ResumingAndChecksummingInputStream(final File file, final long progressChunkSize,
-            final IWriteProgressListener listenerOrNull, final long startPos, final int startCRC32,
-            final ChecksumHandling checksumHandling) throws IOException, IllegalArgumentException
+            final ISimpleChecksummingProgressListener listenerOrNull, final long startPos,
+            final int startCRC32, final ChecksumHandling checksumHandling) throws IOException,
+            IllegalArgumentException
     {
         this.raFile = new RandomAccessFile(file, "r");
         this.length = raFile.length();
@@ -133,70 +125,84 @@ public final class ResumingAndChecksummingInputStream extends InputStream
     @Override
     public int read() throws IOException
     {
-        if (state != StreamState.TRANSFER_CONTENT)
+        try
         {
-            return -1;
-        }
-        checkEndOfContent();
-        if (state != StreamState.TRANSFER_CONTENT)
-        {
-            finishProgressReport();
-            return -1;
-        }
-        final int b = raFile.read();
-        if (b >= 0)
-        {
-            if (crc32OrNull != null)
+            if (state != StreamState.TRANSFER_CONTENT)
             {
-                crc32OrNull.update(b);
+                return -1;
             }
-            updateProgress(1);
-        } else
+            checkEndOfContent();
+            if (state != StreamState.TRANSFER_CONTENT)
+            {
+                finishProgressReport();
+                return -1;
+            }
+            final int b = raFile.read();
+            if (b >= 0)
+            {
+                if (crc32OrNull != null)
+                {
+                    crc32OrNull.update(b);
+                }
+                updateProgress(1);
+            } else
+            {
+                // unexpected - the file has grown shorter while being read
+                finishProgressReport();
+            }
+            return b;
+        } catch (IOException ex)
         {
-            // unexpected - the file has grown shorter while being read
-            finishProgressReport();
+            reportException(ex);
+            throw ex;
         }
-        return b;
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException
     {
-        if (state == StreamState.EOD)
+        try
         {
-            return -1;
-        }
-        if (len == 0)
-        {
-            return 0;
-        }
-        checkEndOfContent();
-        if (state == StreamState.EOD)
-        {
-            finishProgressReport();
-            return -1;
-        }
-        if (state == StreamState.TRANSFER_CHECKSUM)
-        {
-            IntConversionUtils.intToBytes(getCrc32Value(), b, off);
-            state = StreamState.EOD;
-            bytesReadSinceListenerCalled += 4;
-            return 4;
-        }
-        final int actualLen = raFile.read(b, off, len);
-        if (actualLen > 0)
-        {
-            if (crc32OrNull != null)
+            if (state == StreamState.EOD)
             {
-                crc32OrNull.update(b, off, actualLen);
+                return -1;
             }
-            updateProgress(actualLen);
-        } else
+            if (len == 0)
+            {
+                return 0;
+            }
+            checkEndOfContent();
+            if (state == StreamState.EOD)
+            {
+                finishProgressReport();
+                return -1;
+            }
+            if (state == StreamState.TRANSFER_CHECKSUM)
+            {
+                IntConversionUtils.intToBytes(getCrc32Value(), b, off);
+                state = StreamState.EOD;
+                bytesReadSinceListenerCalled += 4;
+                return 4;
+            }
+            final int actualLen = raFile.read(b, off, len);
+            if (actualLen > 0)
+            {
+                if (crc32OrNull != null)
+                {
+                    crc32OrNull.update(b, off, actualLen);
+                }
+                updateProgress(actualLen);
+            } else
+            {
+                // unexpected - the file has grown shorter while being read
+                finishProgressReport();
+            }
+            return actualLen;
+        } catch (IOException ex)
         {
-            // unexpected - the file has grown shorter while being read
-            finishProgressReport();
+            reportException(ex);
+            throw ex;
         }
-        return actualLen;
     }
 
     @Override
@@ -248,6 +254,14 @@ public final class ResumingAndChecksummingInputStream extends InputStream
         }
         this.bytesRead = startPos;
         this.bytesReadSinceListenerCalled = 0L;
+    }
+    
+    private void reportException(IOException e)
+    {
+        if (listenerOrNull != null)
+        {
+            listenerOrNull.exceptionThrown(e);
+        }
     }
 
     private void finishProgressReport()

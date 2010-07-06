@@ -45,10 +45,6 @@ public class DummyUserActionLog implements IUserActionLog
     {
     }
 
-    public void logDownloadFile(final FileDTO file, final boolean success)
-    {
-    }
-
     public void logExpireFile(final FileDTO file, final boolean success)
     {
     }
@@ -90,10 +86,6 @@ public class DummyUserActionLog implements IUserActionLog
     {
     }
 
-    public void logUploadFile(final String filename, final boolean success)
-    {
-    }
-
     public void logDeleteSharingLink(final long fileId, final String userCode, final boolean success)
     {
     }
@@ -118,15 +110,23 @@ public class DummyUserActionLog implements IUserActionLog
     {
     }
 
-    public void logDownloadFileStart(FileDTO file, boolean success)
+    public void logDownloadFileStart(FileDTO file, long startPosition)
     {
     }
 
-    public void logUploadFileFinished(String filename, boolean success)
+    public void logDownloadFileFailedNotAuthorized(FileDTO file)
     {
     }
 
-    public void logUploadFileStart(String filename, boolean success)
+    public void logDownloadFileFailedNotFound(FileDTO file)
+    {
+    }
+
+    public void logUploadFileFinished(String filename, FileDTO file, boolean success)
+    {
+    }
+
+    public void logUploadFileStart(String filename, FileDTO fileOrNull, long startPosition)
     {
     }
 

@@ -34,7 +34,7 @@ public final class ResumingAndChecksummingOutputStream extends OutputStream
 
     private final CloneableCRC32 crc32;
 
-    private final IWriteProgressListener listenerOrNull;
+    private final ISimpleChecksummingProgressListener listenerOrNull;
 
     private final long progressChunkSize;
 
@@ -42,22 +42,13 @@ public final class ResumingAndChecksummingOutputStream extends OutputStream
 
     private long bytesWrittenSinceListenerCalled;
 
-    public interface IWriteProgressListener
-    {
-        /**
-         * Indicates that <var>bytesWritten</var> bytes have been written and that the content of
-         * all bytes written up to now have a ckecksum of <var>crc32Value</var>.
-         */
-        void update(long bytesWritten, int crc32Value);
-    }
-
     public ResumingAndChecksummingOutputStream(final File file) throws IOException
     {
         this(file, 0L, null);
     }
-    
+
     public ResumingAndChecksummingOutputStream(final File file, final long progressChunkSize,
-            final IWriteProgressListener listenerOrNull) throws IOException
+            final ISimpleChecksummingProgressListener listenerOrNull) throws IOException
     {
         this.raFile = new RandomAccessFile(file, "rw");
         if (this.raFile.length() > 0)
@@ -72,8 +63,8 @@ public final class ResumingAndChecksummingOutputStream extends OutputStream
     }
 
     public ResumingAndChecksummingOutputStream(final File file, final long progressChunkSize,
-            final IWriteProgressListener listenerOrNull, final long startPos, final int startCRC32)
-            throws IOException, IllegalArgumentException
+            final ISimpleChecksummingProgressListener listenerOrNull, final long startPos,
+            final int startCRC32) throws IOException, IllegalArgumentException
     {
         this.raFile = new RandomAccessFile(file, "rw");
         if (startPos > raFile.length())
@@ -94,7 +85,7 @@ public final class ResumingAndChecksummingOutputStream extends OutputStream
     }
 
     public ResumingAndChecksummingOutputStream(final File file, final long progressChunkSize,
-            final IWriteProgressListener listenerOrNull, final long startPos)
+            final ISimpleChecksummingProgressListener listenerOrNull, final long startPos)
             throws IOException, IllegalArgumentException
     {
         this.raFile = new RandomAccessFile(file, "rw");
@@ -117,46 +108,63 @@ public final class ResumingAndChecksummingOutputStream extends OutputStream
     @Override
     public void close() throws IOException
     {
-        if (bytesWrittenSinceListenerCalled > 0)
+        try
         {
-            if (listenerOrNull != null)
-            {
-                listenerOrNull.update(bytesWritten, crc32.getIntValue());
-            }
-            bytesWrittenSinceListenerCalled = 0L;
+            raFile.close();
+            finishProgressReport();
+        } catch (IOException ex)
+        {
+            reportException(ex);
         }
-        raFile.close();
     }
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException
     {
-        crc32.update(b, off, len);
-        updateProgress(len);
-        raFile.write(b, off, len);
+        try
+        {
+            crc32.update(b, off, len);
+            updateProgress(len);
+            raFile.write(b, off, len);
+        } catch (IOException ex)
+        {
+            reportException(ex);
+        }
     }
 
     @Override
     public void write(byte[] b) throws IOException
     {
-        crc32.update(b);
-        updateProgress(b.length);
-        raFile.write(b);
+        try
+        {
+            crc32.update(b);
+            updateProgress(b.length);
+            raFile.write(b);
+        } catch (IOException ex)
+        {
+            reportException(ex);
+        }
     }
 
     @Override
     public void write(int b) throws IOException
     {
-        crc32.update(b);
-        updateProgress(1);
-        raFile.write(b);
+        try
+        {
+            crc32.update(b);
+            updateProgress(1);
+            raFile.write(b);
+        } catch (IOException ex)
+        {
+            reportException(ex);
+        }
     }
-    
+
     public int getCrc32Value()
     {
         return crc32.getIntValue();
     }
-    
+
     public long getByteCount()
     {
         return bytesWritten;
@@ -173,6 +181,26 @@ public final class ResumingAndChecksummingOutputStream extends OutputStream
                 listenerOrNull.update(bytesWritten, crc32.getIntValue());
             }
             bytesWrittenSinceListenerCalled = 0L;
+        }
+    }
+
+    private void finishProgressReport()
+    {
+        if (bytesWrittenSinceListenerCalled > 0)
+        {
+            if (listenerOrNull != null)
+            {
+                listenerOrNull.update(bytesWritten, crc32.getIntValue());
+            }
+            bytesWrittenSinceListenerCalled = 0L;
+        }
+    }
+
+    private void reportException(IOException e)
+    {
+        if (listenerOrNull != null)
+        {
+            listenerOrNull.exceptionThrown(e);
         }
     }
 
