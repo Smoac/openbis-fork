@@ -266,12 +266,6 @@ public class SectionsPanel extends ContentPanel
 
         private void initializePressedState(ToggleButton result, boolean pressed)
         {
-            // because of strange ToggleToolItem implementation need to initialize both:
-            // - 'pressed' value
-            result.toggle(pressed);// TODO 2010-01-03, IA: get rid of those hacks, as we no longer
-            // need
-            // ToggleToolItem
-            // - internal button pressed state using 'toggle(boolean)'
             result.toggle(pressed);
         }
     }
