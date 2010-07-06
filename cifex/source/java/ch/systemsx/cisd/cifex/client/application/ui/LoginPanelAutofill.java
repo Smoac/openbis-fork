@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
@@ -70,13 +71,17 @@ public class LoginPanelAutofill extends VerticalPanel
     public static LoginPanelAutofill get(final ViewContext context)
     {
         if (singleton == null)
+        {
             singleton = new LoginPanelAutofill(context);
+        }
         return singleton;
     }
 
     private LoginPanelAutofill(final ViewContext context)
     {
         this.context = context;
+
+        setHorizontalAlign(HorizontalAlignment.CENTER);
 
         Element formElement = Document.get().getElementById(LOGIN_FORM_ID);
         if (formElement == null)
@@ -89,15 +94,16 @@ public class LoginPanelAutofill extends VerticalPanel
 
         formPanel.addSubmitHandler(new SubmitHandler()
             {
-
                 public void onSubmit(SubmitEvent event)
                 {
-                    if (!isUserInputValid())
+                    if (isUserInputValid() == false)
+                    {
                         event.cancel();
-                    else
+                    } else
+                    {
                         doLogin();
+                    }
                 }
-
             });
 
         add(formPanel);
