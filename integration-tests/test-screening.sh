@@ -139,7 +139,7 @@ function integration_tests_screening {
     assert_equals "Wrong number of registered datasets" 5 $datasets
     
     # TODO: uncomment and add a check if the results are correct 
-    #test_screening_api
+    test_screening_api
     
     switch_dss "off" datastore_server_screening
     shutdown_openbis_server $OPENBIS_SERVER_HCS
