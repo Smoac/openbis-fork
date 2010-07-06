@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
-import ch.systemsx.cisd.openbis.plugin.query.server.api.v1.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
@@ -28,7 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 public class FacadeFactory
 {
     private static final ServiceFinder SERVICE_FINDER =
-            new ServiceFinder("openbis", ResourceNames.QUERY_PLUGIN_SERVER_URL);
+            new ServiceFinder("openbis", IQueryApiServer.QUERY_PLUGIN_SERVER_URL);
 
     /**
      * Creates a facade for specified server URL, user Id, and password.

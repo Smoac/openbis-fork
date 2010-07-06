@@ -19,12 +19,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.DragEvent;
+import com.extjs.gxt.ui.client.event.DragListener;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.fx.Draggable;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.SplitBar;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
@@ -117,8 +123,38 @@ public class RowLayoutManager
     /**
      * Adds the specified panel to the container in accordance to the specified row data.
      */
-    public void addToContainer(ContentPanel contentPanel, RowData rowData)
+    public void addToContainer(final ContentPanel contentPanel, RowData rowData)
     {
+        if (container.getItemCount() > 0)
+        {
+            contentPanel.addListener(Events.Render, new Listener<BaseEvent>()
+                {
+                    public void handleEvent(BaseEvent be)
+                    {
+                        SplitBar splitBar = new SplitBar(LayoutRegion.NORTH, contentPanel);
+                        Draggable draggable = splitBar.getDraggable();
+                        draggable.addDragListener(new DragListener()
+                            {
+
+                                private int y;
+
+                                @Override
+                                public void dragEnd(DragEvent de)
+                                {
+                                    handleSplitMovement(contentPanel, de.getY() - y);
+                                }
+
+                                @Override
+                                public void dragStart(DragEvent de)
+                                {
+                                    y = de.getY();
+                                }
+                            });
+                        draggable.setMoveAfterProxyDrag(false);
+                        splitBar.setAutoSize(false);
+                    }
+                });
+        }
         contentPanel.setAnimCollapse(false);
         container.add(contentPanel, rowData);
         double value = manipulator.getFor(rowData);
@@ -142,7 +178,7 @@ public class RowLayoutManager
         contentPanel.addListener(Events.Collapse, listener);
         contentPanel.addListener(Events.Expand, listener);
     }
-
+    
     private void adjustRelative()
     {
         double sum = 0;
@@ -166,5 +202,21 @@ public class RowLayoutManager
             manipulator.setFor(data.rowData, value);
         }
         container.layout(true);
+    }
+
+    private void handleSplitMovement(final ContentPanel contentPanel, int diff)
+    {
+        int sum = 0;
+        for (int i = 0, n = container.getItemCount(); i < n; i++)
+        {
+            Component item = container.getItem(i);
+            if (item instanceof ContentPanel)
+            {
+                ContentPanel panel = (ContentPanel) item;
+                sum += panel.getFrameHeight();
+            }
+        }
+        int h = container.getHeight() - sum;
+        System.out.println(contentPanel.getHeading() + " dragged " + diff + " " + h);
     }
 }

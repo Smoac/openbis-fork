@@ -25,6 +25,4 @@ public class ResourceNames
 {
     public final static String QUERY_PLUGIN_SERVER = "query-api-server-v1";
 
-    public final static String QUERY_PLUGIN_SERVER_URL = "/rmi-query-v1";
-
 }

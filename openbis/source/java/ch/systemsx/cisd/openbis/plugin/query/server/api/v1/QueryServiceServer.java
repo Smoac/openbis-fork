@@ -18,14 +18,10 @@ package ch.systemsx.cisd.openbis.plugin.query.server.api.v1;
 
 import javax.annotation.Resource;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
-import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
-import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
-import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
+import ch.systemsx.cisd.common.api.server.AbstractApiServiceExporter;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
@@ -33,27 +29,17 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
  */
 @Controller
 @RequestMapping(
-    { ResourceNames.QUERY_PLUGIN_SERVER_URL, "/openbis" + ResourceNames.QUERY_PLUGIN_SERVER_URL })
-public class QueryServiceServer extends HttpInvokerServiceExporter
+    { IQueryApiServer.QUERY_PLUGIN_SERVER_URL, "/openbis" + IQueryApiServer.QUERY_PLUGIN_SERVER_URL })
+public class QueryServiceServer extends AbstractApiServiceExporter
 {
     @Resource(name = ResourceNames.QUERY_PLUGIN_SERVER)
     private IQueryApiServer server;
 
-    @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
-    private RpcServiceNameServer nameServer;
-
     @Override
     public void afterPropertiesSet()
     {
-        setServiceInterface(IQueryApiServer.class);
-        setService(server);
-        setInterceptors(new Object[]
-            { new ServiceExceptionTranslator() });
-
-        RpcServiceInterfaceVersionDTO ifaceVersion =
-                new RpcServiceInterfaceVersionDTO("query", ResourceNames.QUERY_PLUGIN_SERVER_URL,
-                        1, 0);
-        nameServer.addSupportedInterfaceVersion(ifaceVersion);
+        establishService(IQueryApiServer.class, server, IQueryApiServer.SERVICE_NAME,
+                IQueryApiServer.QUERY_PLUGIN_SERVER_URL);
         super.afterPropertiesSet();
     }
 }

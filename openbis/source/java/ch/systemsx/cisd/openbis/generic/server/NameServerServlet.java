@@ -18,14 +18,12 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import javax.annotation.Resource;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
-import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
+import ch.systemsx.cisd.common.api.server.AbstractApiServiceExporter;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
-import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
 
 /**
  * A servlet that exports the name server via the HttpInvoker interface.
@@ -34,27 +32,18 @@ import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
  */
 @Controller
 @RequestMapping(
-    { NameServerServlet.NAME_SERVER_URL, "/openbis" + NameServerServlet.NAME_SERVER_URL })
-public class NameServerServlet extends HttpInvokerServiceExporter
+    { IRpcServiceNameServer.PREFFERED_URL_SUFFIX, "/openbis" + IRpcServiceNameServer.PREFFERED_URL_SUFFIX })
+public class NameServerServlet extends AbstractApiServiceExporter
 {
-    private final static String NAME_SERVER_URL = IRpcServiceNameServer.PREFFERED_URL_SUFFIX;
-
-    private final static String NAME_SERVER_SERVICE_NAME =
-            IRpcServiceNameServer.PREFFERED_SERVICE_NAME;
-
     @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
-    private RpcServiceNameServer nameServer;
+    private RpcServiceNameServer server;
 
     @Override
     public void afterPropertiesSet()
     {
-        setServiceInterface(IRpcServiceNameServer.class);
-        setService(nameServer);
-        setInterceptors(new Object[]
-            { new ServiceExceptionTranslator() });
-        RpcServiceInterfaceVersionDTO ifaceVersion =
-                new RpcServiceInterfaceVersionDTO(NAME_SERVER_SERVICE_NAME, NAME_SERVER_URL, 1, 0);
-        nameServer.addSupportedInterfaceVersion(ifaceVersion);
-        super.afterPropertiesSet();
+        establishService(IRpcServiceNameServer.class, server,
+                IRpcServiceNameServer.PREFFERED_SERVICE_NAME,
+                IRpcServiceNameServer.PREFFERED_URL_SUFFIX);
+   super.afterPropertiesSet();
     }
 }

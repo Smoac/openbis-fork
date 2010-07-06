@@ -18,14 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import javax.annotation.Resource;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
-import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
-import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
-import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
+import ch.systemsx.cisd.common.api.server.AbstractApiServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
@@ -35,30 +31,17 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
  */
 @Controller
 @RequestMapping(
-    { IGeneralInformationService.SERVICE_URL,
-            "/openbis" + IGeneralInformationService.SERVICE_URL })
-public class GeneralInformationServiceServer extends HttpInvokerServiceExporter
+    { IGeneralInformationService.SERVICE_URL, "/openbis" + IGeneralInformationService.SERVICE_URL })
+public class GeneralInformationServiceServer extends AbstractApiServiceExporter
 {
     @Resource(name = ResourceNames.GENERAL_INFORMATION_SERVICE_SERVER)
     private IGeneralInformationService service;
-    
-    @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
-    private RpcServiceNameServer nameServer;
-    
+
     @Override
     public void afterPropertiesSet()
     {
-        setServiceInterface(IGeneralInformationService.class);
-        setService(service);
-        setInterceptors(new Object[]
-            { new ServiceExceptionTranslator() });
-
-        int majorVersion = service.getMajorVersion();
-        int minorVersion = service.getMinorVersion();
-        RpcServiceInterfaceVersionDTO ifaceVersion =
-                new RpcServiceInterfaceVersionDTO(IGeneralInformationService.SERVICE_NAME,
-                        IGeneralInformationService.SERVICE_URL, majorVersion, minorVersion);
-        nameServer.addSupportedInterfaceVersion(ifaceVersion);
+        establishService(IGeneralInformationService.class, service,
+                IGeneralInformationService.SERVICE_NAME, IGeneralInformationService.SERVICE_URL);
         super.afterPropertiesSet();
     }
 }
