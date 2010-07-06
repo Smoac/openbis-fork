@@ -18,14 +18,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import javax.annotation.Resource;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
-import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
-import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
-import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
+import ch.systemsx.cisd.common.api.server.AbstractApiServiceExporter;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 
@@ -36,27 +32,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServ
  */
 @Controller
 @RequestMapping(
-    { ScreeningApiServiceServer.SERVICE_URL, "/openbis" + ScreeningApiServiceServer.SERVICE_URL })
-public class ScreeningApiServiceServer extends HttpInvokerServiceExporter
+    { IScreeningApiServer.SERVICE_URL, "/openbis" + IScreeningApiServer.SERVICE_URL })
+public class ScreeningApiServiceServer extends AbstractApiServiceExporter
 {
-    private static final String SERVICE_URL = "/rmi-screening-api-v1";
-
     @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVER)
     private IScreeningApiServer server;
-
-    @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
-    private RpcServiceNameServer nameServer;
 
     @Override
     public void afterPropertiesSet()
     {
-        setServiceInterface(IScreeningApiServer.class);
-        setService(server);
-        setInterceptors(new Object[]
-            { new ServiceExceptionTranslator() });
-        RpcServiceInterfaceVersionDTO ifaceVersion =
-                new RpcServiceInterfaceVersionDTO("screening", SERVICE_URL, 1, 0);
-        nameServer.addSupportedInterfaceVersion(ifaceVersion);
+        establishService(IScreeningApiServer.class, server, IScreeningApiServer.SERVICE_NAME,
+                IScreeningApiServer.SERVICE_URL);
         super.afterPropertiesSet();
     }
 }

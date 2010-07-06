@@ -43,6 +43,16 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 public interface IScreeningApiServer extends IRpcService
 {
     /**
+     * Name of this service for which it is registered at the RPC name server.
+     */
+    public static final String SERVICE_NAME = "screening";
+    
+    /**
+     * Service part of the URL to access this service remotely.
+     */
+    public static final String SERVICE_URL = "/rmi-" + SERVICE_NAME + "-api-v1";
+
+    /**
      * Authenticates the user with a given password.
      * 
      *@return sessionToken if authentication suceeded, null otherwise
