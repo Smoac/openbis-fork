@@ -16,40 +16,29 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.bdsmigration;
 
-import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationMaintananceTask.DIR_SEP;
-import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationMaintananceTask.METADATA_DIR;
-import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationMaintananceTask.ORIGINAL_DIR;
-import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationMaintananceTask.asNum;
-import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationMaintananceTask.readLines;
-import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationMaintananceTask.tryGetOriginalDir;
+import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationUtils.DIR_SEP;
+import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationUtils.METADATA_DIR;
+import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationUtils.ORIGINAL_DIR;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
-import javax.sql.DataSource;
-
-import net.lemnik.eodsql.QueryTool;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.plugins.IMigrator;
-import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.AcquiredPlateImage;
 import ch.systemsx.cisd.openbis.dss.etl.HCSDatasetUploader;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult;
-import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.etl.RelativeImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
@@ -60,68 +49,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
  */
 class BDSImagingDbUploader
 {
-    public static IMigrator createImagingDbUploaderMigrator(Properties properties)
-    {
-        final IImagingQueryDAO dao = createQuery(properties);
-        final List<String> channelNames =
-                PropertyUtils.getMandatoryList(properties, PlateStorageProcessor.CHANNEL_NAMES);
-        final List<ColorComponent> channelColorComponentsOrNull =
-                AbstractHCSImageFileExtractor.tryGetChannelComponents(properties);
-        checkChannelsAndColorComponents(channelNames, channelColorComponentsOrNull);
-
-        return new IMigrator()
-            {
-                public String getDescription()
-                {
-                    return "uploading data to the imaging database";
-                }
-
-                public boolean migrate(File dataset)
-                {
-                    return BDSImagingDbUploader.migrateDataset(dataset, dao, channelNames,
-                            channelColorComponentsOrNull);
-                }
-
-                public void close()
-                {
-                    // do nothing
-                }
-            };
-    }
-
-    private static void checkChannelsAndColorComponents(List<String> channelNames,
-            List<ColorComponent> channelColorComponentsOrNull)
-    {
-        if (channelColorComponentsOrNull != null
-                && channelColorComponentsOrNull.size() != channelNames.size())
-        {
-            throw new ConfigurationFailureException(
-                    "There should be exactly one color component for each channel name."
-                            + " Correct the list of values for the components property.");
-        }
-    }
-
-    private static IImagingQueryDAO createQuery(Properties properties)
-    {
-        DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
-        return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
-    }
-
-    private static boolean migrateDataset(File dataset, IImagingQueryDAO dao,
-            List<String> channelNames, List<ColorComponent> channelColorComponentsOrNull)
-    {
-        String originalDatasetDirName = tryGetOriginalDatasetDirName(dataset);
-        if (originalDatasetDirName == null)
-        {
-            return false;
-        }
-        return new BDSImagingDbUploader(dataset, dao, originalDatasetDirName, channelNames,
-                channelColorComponentsOrNull).migrate();
-    }
-
     private final File dataset;
-
-    private final IImagingQueryDAO dao;
 
     private final String originalDatasetDirName;
 
@@ -129,11 +57,13 @@ class BDSImagingDbUploader
 
     private final List<ColorComponent> channelColorComponentsOrNull;
 
+    private final IImagingQueryDAO dao;
+
     BDSImagingDbUploader(File dataset, IImagingQueryDAO dao, String originalDatasetDirName,
             List<String> channelNames, List<ColorComponent> channelColorComponentsOrNull)
     {
-        this.dataset = dataset;
         this.dao = dao;
+        this.dataset = dataset;
         this.originalDatasetDirName = originalDatasetDirName;
         this.channelNames = channelNames;
         this.channelColorComponentsOrNull = channelColorComponentsOrNull;
@@ -181,39 +111,23 @@ class BDSImagingDbUploader
         try
         {
             HCSDatasetUploader.upload(dao, info, images, channels);
+            dao.commit();
+            return true;
         } catch (Exception ex)
         {
             ex.printStackTrace();
             logError("Uploading to the imaging db failed: " + ex.getMessage());
             dao.rollback();
             return false;
+        } finally
+        {
+            dao.close();
         }
-        dao.commit();
-        return true;
     }
 
     private String getRelativeImagesDirectory()
     {
         return ORIGINAL_DIR + DIR_SEP + originalDatasetDirName;
-    }
-
-    private static String tryGetOriginalDatasetDirName(File dataset)
-    {
-        File originalDir = tryGetOriginalDir(dataset);
-        if (originalDir == null)
-        {
-            BDSMigrationMaintananceTask.logError(dataset, "Original directory does not exist.");
-            return null;
-        }
-        File[] files = originalDir.listFiles();
-        if (files.length != 1)
-        {
-            BDSMigrationMaintananceTask.logError(dataset, "Original directory '" + originalDir
-                    + "' should contain exactly one file, but contains " + files.length + ": "
-                    + files);
-            return null;
-        }
-        return files[0].getName();
     }
 
     private List<AcquiredPlateImage> tryExtractMappings()
@@ -234,6 +148,13 @@ class BDSImagingDbUploader
             logError("Error when reading mapping file '" + mappingFile + "': " + ex.getMessage());
             return null;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<String> readLines(File mappingFile) throws IOException,
+            FileNotFoundException
+    {
+        return IOUtils.readLines(new FileInputStream(mappingFile));
     }
 
     private List<AcquiredPlateImage> tryParseMappings(List<String> lines)
@@ -312,6 +233,12 @@ class BDSImagingDbUploader
         return createImages(wellLocation, tileLocation, relativeImagePath, channelName);
     }
 
+    private static int asNum(String standardPathToken, String prefix) throws NumberFormatException
+    {
+        String number = standardPathToken.substring(prefix.length());
+        return Integer.parseInt(number);
+    }
+
     private List<AcquiredPlateImage> createImages(Location wellLocation, Location tileLocation,
             String relativeImagePath, String channelName)
     {
@@ -388,6 +315,6 @@ class BDSImagingDbUploader
 
     private void logError(String reason)
     {
-        BDSMigrationMaintananceTask.logError(dataset, reason);
+        BDSMigrationUtils.logError(dataset, reason);
     }
 }

@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.bdsmigration;
 
-import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationMaintananceTask.DIR_SEP;
-import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationMaintananceTask.METADATA_DIR;
+import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationUtils.DIR_SEP;
+import static ch.systemsx.cisd.openbis.dss.etl.bdsmigration.BDSMigrationUtils.METADATA_DIR;
 
 import java.io.File;
 
@@ -49,8 +49,7 @@ class ScreeningDatasetInfoExtractor
         } catch (Exception ex)
         {
             ex.printStackTrace();
-            BDSMigrationMaintananceTask.logError(dataset, "Unexpected exception: "
-                    + ex.getMessage());
+            BDSMigrationUtils.logError(dataset, "Unexpected exception: " + ex.getMessage());
             return null;
         }
     }
@@ -62,7 +61,7 @@ class ScreeningDatasetInfoExtractor
         Sample sample = openBISService.tryGetSampleWithExperiment(sampleIdentifier);
         if (sample == null)
         {
-            BDSMigrationMaintananceTask.logError(dataset, "Sample '" + sampleIdentifier
+            BDSMigrationUtils.logError(dataset, "Sample '" + sampleIdentifier
                     + "' cannot be found in openBIS");
         }
         return sample;
@@ -70,9 +69,7 @@ class ScreeningDatasetInfoExtractor
 
     private static SampleIdentifier createSampleIdentifier(File dataset)
     {
-        File sampleDir =
-                new File(dataset, BDSMigrationMaintananceTask.METADATA_DIR
-                        + BDSMigrationMaintananceTask.DIR_SEP + "sample");
+        File sampleDir = new File(dataset, METADATA_DIR + DIR_SEP + "sample");
         String databaseInstanceCode = contentAsString(new File(sampleDir, "instance_code"));
         String spaceCode = contentAsString(new File(sampleDir, "space_code"));
         String sampleCode = contentAsString(new File(sampleDir, "code"));
@@ -110,8 +107,8 @@ class ScreeningDatasetInfoExtractor
     private static String extractDatasetPermId(File dataset)
     {
         File file =
-                new File(dataset, BDSMigrationMaintananceTask.METADATA_DIR + DIR_SEP + "data_set"
-                        + DIR_SEP + "code");
+                new File(dataset, BDSMigrationUtils.METADATA_DIR + DIR_SEP + "data_set" + DIR_SEP
+                        + "code");
         return contentAsString(file);
     }
 

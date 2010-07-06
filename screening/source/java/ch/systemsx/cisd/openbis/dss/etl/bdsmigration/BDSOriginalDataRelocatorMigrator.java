@@ -26,7 +26,7 @@ import java.util.Properties;
  */
 public class BDSOriginalDataRelocatorMigrator extends AbstractBDSMigrator
 {
-    
+
     BDSOriginalDataRelocatorMigrator()
     {
     }
@@ -35,7 +35,7 @@ public class BDSOriginalDataRelocatorMigrator extends AbstractBDSMigrator
     public BDSOriginalDataRelocatorMigrator(Properties properties)
     {
     }
-    
+
     public String getDescription()
     {
         return "moving data from data/original to original/";
@@ -44,18 +44,17 @@ public class BDSOriginalDataRelocatorMigrator extends AbstractBDSMigrator
     @Override
     protected boolean doMigration(File dataset)
     {
-        File originalDir = BDSMigrationMaintananceTask.tryGetOriginalDir(dataset);
+        File originalDir = BDSMigrationUtils.tryGetOriginalDir(dataset);
         if (originalDir == null)
         {
-            BDSMigrationMaintananceTask.operationLog.warn("No original data directory in dataset "
-                    + dataset);
+            BDSMigrationUtils.operationLog.warn("No original data directory in dataset " + dataset);
             return false;
         }
-        File destinationDir = new File(dataset, BDSMigrationMaintananceTask.ORIGINAL_DIR);
+        File destinationDir = new File(dataset, BDSMigrationUtils.ORIGINAL_DIR);
         boolean ok = originalDir.renameTo(destinationDir);
         if (ok == false)
         {
-            BDSMigrationMaintananceTask.operationLog.error("Cannot move " + originalDir + " to "
+            BDSMigrationUtils.operationLog.error("Cannot move " + originalDir + " to "
                     + destinationDir);
             return false;
         } else

@@ -37,15 +37,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
  */
 public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
 {
-    private IImagingQueryDAO dao;
+    private final List<String> channelNames;
 
-    private List<String> channelNames;
+    private final List<ColorComponent> channelColorComponentsOrNull;
 
-    private List<ColorComponent> channelColorComponentsOrNull;
+    private final DataSource dataSource;
 
     private static File tryGetOriginalDir(File dataset)
     {
-        File orgDir = new File(dataset, DATA_DIR + DIR_SEP + ORIGINAL_DIR);
+        File orgDir =
+                new File(dataset, BDSMigrationUtils.DATA_DIR + BDSMigrationUtils.DIR_SEP
+                        + BDSMigrationUtils.ORIGINAL_DIR);
         if (orgDir.isDirectory() == false)
         {
             return null;
@@ -58,13 +60,13 @@ public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
         File originalDir = tryGetOriginalDir(dataset);
         if (originalDir == null)
         {
-            BDSMigrationMaintananceTask.logError(dataset, "Original directory does not exist.");
+            BDSMigrationUtils.logError(dataset, "Original directory does not exist.");
             return null;
         }
         File[] files = originalDir.listFiles();
         if (files.length != 1)
         {
-            BDSMigrationMaintananceTask.logError(dataset, "Original directory '" + originalDir
+            BDSMigrationUtils.logError(dataset, "Original directory '" + originalDir
                     + "' should contain exactly one file, but contains " + files.length + ": "
                     + files);
             return null;
@@ -74,11 +76,10 @@ public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
 
     public BDSImagingDatabaseMigrator(Properties properties)
     {
-        DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
-        dao = QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
-        channelNames =
+        this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
+        this.channelNames =
                 PropertyUtils.getMandatoryList(properties, PlateStorageProcessor.CHANNEL_NAMES);
-        channelColorComponentsOrNull =
+        this.channelColorComponentsOrNull =
                 AbstractHCSImageFileExtractor.tryGetChannelComponents(properties);
         if (channelColorComponentsOrNull != null
                 && channelColorComponentsOrNull.size() != channelNames.size())
@@ -102,15 +103,23 @@ public class BDSImagingDatabaseMigrator extends AbstractBDSMigrator
         {
             return false;
         }
-        return new BDSImagingDbUploader(dataset, dao, originalDatasetDirName, channelNames,
-                channelColorComponentsOrNull).migrate();
+        IImagingQueryDAO dao = createQuery();
+        boolean ok =
+                new BDSImagingDbUploader(dataset, dao, originalDatasetDirName, channelNames,
+                        channelColorComponentsOrNull).migrate();
+        dao = null;
+        return ok;
+    }
+
+    private IImagingQueryDAO createQuery()
+    {
+        return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
     }
 
     @Override
     public void close()
     {
-        // close the dao
-        dao.close();
+        // do nothing
     }
 
 }

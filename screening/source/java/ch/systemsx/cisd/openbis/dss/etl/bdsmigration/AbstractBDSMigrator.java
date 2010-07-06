@@ -25,18 +25,6 @@ import ch.systemsx.cisd.etlserver.plugins.IMigrator;
  */
 abstract class AbstractBDSMigrator implements IMigrator
 {
-    static final String ANNOTATIONS_DIR = "annotations";
-
-    static final String METADATA_DIR = "metadata";
-
-    static final String DATA_DIR = "data";
-
-    static final String ORIGINAL_DIR = "original";
-
-    static final String VERSION_DIR = "version";
-
-    static final String DIR_SEP = "/";
-
     public boolean migrate(File dataset)
     {
         if (isBDS(dataset))
@@ -51,8 +39,10 @@ abstract class AbstractBDSMigrator implements IMigrator
     private static boolean isBDS(File dataset)
     {
         File[] files = dataset.listFiles();
-        return containsDir(files, VERSION_DIR) && containsDir(files, DATA_DIR)
-                && containsDir(files, METADATA_DIR) && containsDir(files, ANNOTATIONS_DIR);
+        return containsDir(files, BDSMigrationUtils.VERSION_DIR)
+                && containsDir(files, BDSMigrationUtils.DATA_DIR)
+                && containsDir(files, BDSMigrationUtils.METADATA_DIR)
+                && containsDir(files, BDSMigrationUtils.ANNOTATIONS_DIR);
     }
 
     private static boolean containsDir(File[] files, String dirName)

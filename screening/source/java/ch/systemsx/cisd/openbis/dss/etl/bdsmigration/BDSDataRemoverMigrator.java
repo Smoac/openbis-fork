@@ -32,7 +32,7 @@ public class BDSDataRemoverMigrator extends AbstractBDSMigrator
     public BDSDataRemoverMigrator()
     {
     }
-    
+
     // Every IMigrator needs the following constructor.
     public BDSDataRemoverMigrator(Properties properties)
     {
@@ -46,17 +46,17 @@ public class BDSDataRemoverMigrator extends AbstractBDSMigrator
     @Override
     protected boolean doMigration(File dataset)
     {
-        if (BDSMigrationMaintananceTask.tryGetOriginalDir(dataset) != null)
+        if (BDSMigrationUtils.tryGetOriginalDir(dataset) != null)
         {
-            BDSMigrationMaintananceTask.logError(dataset, "original data has not been moved");
+            BDSMigrationUtils.logError(dataset, "original data has not been moved");
             return false;
         }
         try
         {
-            removeDir(dataset, METADATA_DIR);
-            removeDir(dataset, VERSION_DIR);
-            removeDir(dataset, ANNOTATIONS_DIR);
-            removeDir(dataset, DATA_DIR);
+            removeDir(dataset, BDSMigrationUtils.METADATA_DIR);
+            removeDir(dataset, BDSMigrationUtils.VERSION_DIR);
+            removeDir(dataset, BDSMigrationUtils.ANNOTATIONS_DIR);
+            removeDir(dataset, BDSMigrationUtils.DATA_DIR);
         } catch (EnvironmentFailureException ex)
         {
             return false;
@@ -71,7 +71,7 @@ public class BDSDataRemoverMigrator extends AbstractBDSMigrator
         if (ok == false)
         {
             String errorMsg = "Cannot delete the directory: " + dir.getAbsolutePath();
-            BDSMigrationMaintananceTask.operationLog.error(errorMsg);
+            BDSMigrationUtils.operationLog.error(errorMsg);
             throw new EnvironmentFailureException(errorMsg);
         }
     }
