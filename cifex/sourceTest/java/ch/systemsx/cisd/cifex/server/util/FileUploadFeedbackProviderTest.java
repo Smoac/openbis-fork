@@ -86,7 +86,7 @@ public class FileUploadFeedbackProviderTest
         provider.set(feedback1);
         provider.set(feedback2);
         provider.set(feedback3);
-        final Message message = new Message(Message.WARNING, "Some Message");
+        final Message message = new Message(Message.Type.WARNING, "Some Message");
         provider.setMessage(message);
         final FileUploadFeedback fakeFeedback = provider.take();
         assertNotSame(feedback3, fakeFeedback);
@@ -130,7 +130,7 @@ public class FileUploadFeedbackProviderTest
         final FileUploadFeedback initialFeedback = new FileUploadFeedback();
         provider.set(initialFeedback);
         provider.take(); // empty the queue
-        final Message message = new Message(Message.INFO, "Message from other thread");
+        final Message message = new Message(Message.Type.INFO, "Message from other thread");
         new Thread(new Runnable()
             {
                 public void run()

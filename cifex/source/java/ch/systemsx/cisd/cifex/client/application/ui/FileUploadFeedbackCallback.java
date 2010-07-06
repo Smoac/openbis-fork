@@ -115,16 +115,14 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
                 {
                     public void handleEvent(MessageBoxEvent be)
                     {
-                        submitButton.enable();
+                        finish(Message.Type.ERROR.equals(message.getType()));
                     }
                 });
             return;
         }
         if (feedback.isFinished())
         {
-            messageBox.close();
-            refreshMainPage();
-            submitButton.enable();
+            finish(false);
             return;
         }
         if (messageBox == null)
@@ -140,5 +138,15 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
         }
         getViewContext().getCifexService().getFileUploadFeedback(
                 new FileUploadFeedbackCallback(getViewContext(), messageBox, submitButton));
+    }
+
+    private void finish(boolean isError)
+    {
+        if (isError == false)
+        {
+            messageBox.close();
+            refreshMainPage();
+        }
+        submitButton.enable();
     }
 }

@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
+import ch.systemsx.cisd.cifex.shared.basic.dto.Message.Type;
 
 /**
  * Useful utility functions concerning widgets.
@@ -45,12 +46,12 @@ public final class WidgetUtils
     public final static void showMessage(final Message message,
             final Listener<MessageBoxEvent> eventListenerOrNull)
     {
-        final String type = message.getType();
+        final Type type = message.getType();
         String title;
-        if (Message.INFO.equals(type))
+        if (Message.Type.INFO.equals(type))
         {
             title = msg(MESSAGE_BOX_INFO_TITLE);
-        } else if (Message.WARNING.equals(type))
+        } else if (Message.Type.WARNING.equals(type))
         {
             title = msg(MESSAGE_BOX_WARNING_TITLE);
         } else

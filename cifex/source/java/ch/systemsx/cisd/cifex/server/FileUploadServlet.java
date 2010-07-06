@@ -132,7 +132,8 @@ public final class FileUploadServlet extends AbstractFileUploadDownloadServlet
                 final String msg =
                         "Some user identifiers are invalid:<br>"
                                 + CollectionUtils.abbreviate(invalidUserIdentifiers, 10);
-                feedbackProvider.setMessage(new Message(Message.WARNING, UPLOAD_FINISHED + msg));
+                feedbackProvider
+                        .setMessage(new Message(Message.Type.WARNING, UPLOAD_FINISHED + msg));
             } else
             {
                 feedbackProvider.setFileUploadFinished();
@@ -142,7 +143,7 @@ public final class FileUploadServlet extends AbstractFileUploadDownloadServlet
         {
             operationLog.error("Could not process multipart content.", ex);
             final String msg = getErrorMessage(ex);
-            feedbackProvider.setMessage(new Message(Message.ERROR, msg));
+            feedbackProvider.setMessage(new Message(Message.Type.ERROR, msg));
         }
     }
 

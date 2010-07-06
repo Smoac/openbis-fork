@@ -544,7 +544,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         } catch (final InterruptedException ex)
         {
             final FileUploadFeedback feedback = new FileUploadFeedback();
-            feedback.setMessage(new Message(Message.ERROR, ex.getClass().getSimpleName()));
+            feedback.setMessage(new Message(Message.Type.ERROR, ex.getClass().getSimpleName()));
             return feedback;
         }
     }

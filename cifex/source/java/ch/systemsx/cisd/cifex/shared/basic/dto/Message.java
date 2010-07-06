@@ -29,13 +29,9 @@ public class Message implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    public static final String INFO = "INFO";
-
-    public static final String WARNING = "WARNING";
-
-    public static final String ERROR = "ERROR";
-
-    private String type; // enum would be better but not possible in GWT 1.4
+    public enum Type { INFO, WARNING, ERROR }
+    
+    private Type type;
 
     private String messageText;
 
@@ -44,18 +40,18 @@ public class Message implements IsSerializable, Serializable
         // For serialization
     }
 
-    public Message(final String type, final String messageText)
+    public Message(final Type type, final String messageText)
     {
         this.type = type;
         this.messageText = messageText;
     }
 
-    public final String getType()
+    public final Type getType()
     {
         return type;
     }
 
-    public final void setType(final String type)
+    public final void setType(final Type type)
     {
         this.type = type;
     }
