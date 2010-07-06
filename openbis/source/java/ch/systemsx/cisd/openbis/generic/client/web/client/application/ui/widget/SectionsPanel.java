@@ -145,9 +145,22 @@ public class SectionsPanel extends ContentPanel
                     refreshLayout();
                 }
             });
+        // sections will be disposed when section panel is removed, not when they are hidden
+        // (see onDetach())
+        panel.disableAutoDisposeComponents();
         elements.add(element);
         addToToolbar(element.getButton());
         updateElementVisibility(element);
+    }
+
+    @Override
+    protected void onDetach()
+    {
+        for (SectionElement el : elements)
+        {
+            el.getPanel().enableAutoDisposeComponents();
+        }
+        super.onDetach();
     }
 
     /** removes all sections and adds them once again with with refreshed state */

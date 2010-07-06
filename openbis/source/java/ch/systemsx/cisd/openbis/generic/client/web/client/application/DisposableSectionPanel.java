@@ -46,13 +46,12 @@ abstract public class DisposableSectionPanel extends SingleSectionPanel
     }
 
     @Override
-    protected void onDetach()
+    protected void disposeComponents()
     {
         if (disposableComponentOrNull != null)
         {
             disposableComponentOrNull.dispose();
         }
-        super.onDetach();
     }
 
     @Override

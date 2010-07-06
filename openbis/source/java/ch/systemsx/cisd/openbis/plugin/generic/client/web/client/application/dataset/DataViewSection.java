@@ -73,7 +73,7 @@ public class DataViewSection extends SingleSectionPanel
     }
 
     @Override
-    protected void onDetach()
+    protected void disposeComponents()
     {
         disposeCurrentReport();
     }

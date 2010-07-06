@@ -41,6 +41,13 @@ abstract public class SingleSectionPanel extends ContentPanel
 
     private boolean isContentVisible = false;
 
+    /**
+     * whether additional components created for this section (e.g. browsers) should be automatically
+     * disposed (for sections that can temporarily removed from container as in
+     * {@link SectionsPanel} it should be turned off until detach from the container)
+     */
+    private boolean autoDisposeComponents = true;
+
     public SingleSectionPanel(final String header, IViewContext<?> viewContext)
     {
         this.viewContext = viewContext;
@@ -82,4 +89,45 @@ abstract public class SingleSectionPanel extends ContentPanel
             isContentVisible = true;
         }
     }
+
+    public boolean isContentVisible()
+    {
+        return isContentVisible;
+    }
+
+    public void enableAutoDisposeComponents()
+    {
+        setAutoDisposeComponents(true);
+    }
+
+    public void disableAutoDisposeComponents()
+    {
+        setAutoDisposeComponents(false);
+    }
+
+    protected boolean isAutoDisposeComponents()
+    {
+        return autoDisposeComponents;
+    }
+
+    private void setAutoDisposeComponents(boolean autoDisposeComponent)
+    {
+        this.autoDisposeComponents = autoDisposeComponent;
+    }
+
+    @Override
+    protected void onDetach()
+    {
+        if (isAutoDisposeComponents())
+        {
+            disposeComponents();
+        }
+        super.onDetach();
+    }
+
+    /** disposes components created for the section (by default does nothing) */
+    protected void disposeComponents()
+    {
+    }
+
 }
