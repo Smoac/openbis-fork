@@ -59,10 +59,10 @@ public interface IUserDAO
     public String tryFindUserCodeById(long id) throws DataAccessException;
 
     /**
-     * Returns <code>true</code> if the database has a user with <var>code</var>. 
+     * Returns <code>true</code> if the database has a user with <var>code</var>.
      */
     public boolean hasUserCode(final String code) throws DataAccessException;
-    
+
     /**
      * Returns a list with all users, which have the given email address.
      */
@@ -95,13 +95,62 @@ public interface IUserDAO
     public boolean isMainUserOfQuotaGroup(UserDTO user) throws DataAccessException;
 
     /**
+     * Fills all registrators of all <var>users</var> that are contained in the given list of users.
+     * <p>
+     * Note that only if <var>users</var> is the complete list of users all registrators will have
+     * been filled.
+     */
+    public void fillInRegistrators(final List<UserDTO> users);
+
+    /**
      * @return The list of all users currently present in the database.
      */
     public List<UserDTO> listUsers() throws DataAccessException;
 
     /**
-     * @return The list of users that have been registered by the user with given
-     *         <var>userId</var>.
+     * Lists all users which have an id which is contained in <var>userIds</var>.
+     * <p>
+     * Note that user ids in the given list that are not found in the database are no error but
+     * lead to fewer entries in the resulting list.
+     * <p>
+     * Note that {@link UserDTO#getRegistrator()} of all entries of the returned list will provide a
+     * minimal object that has only the user id filled.
+     * 
+     * @see #fillInRegistrators(List)
+     * @return The list of all users with one of the given <var>userIds</var>.
+     */
+    public List<UserDTO> listUsersById(long... userIds) throws DataAccessException;
+
+    /**
+     * Lists all users which have a user code which is contained in <var>userCodes</var>.
+     * <p>
+     * Note that user codes in the given list that are not found in the database are no error but
+     * lead to fewer entries in the resulting list.
+     * <p>
+     * Note that {@link UserDTO#getRegistrator()} of all entries of the returned list will provide a
+     * minimal object that has only the user id filled.
+     * 
+     * @see #fillInRegistrators(List)
+     * @return The list of all users with one of the given <var>userCodes</var>.
+     */
+    public List<UserDTO> listUsersByCode(String... userCodes) throws DataAccessException;
+
+    /**
+     * Lists all users which have an email address which is contained in <var>emailAddresses</var>.
+     * <p>
+     * Note that email addresses in the given list that are not found in the database are no error
+     * but lead to fewer entries in the resulting list.
+     * <p>
+     * Note that {@link UserDTO#getRegistrator()} of all entries of the returned list will provide a
+     * minimal object that has only the user id filled.
+     * 
+     * @see #fillInRegistrators(List)
+     * @return The list of all users with one of the given <var>emailAddresses</var>.
+     */
+    public List<UserDTO> listUsersByEmail(String... emailAddresses) throws DataAccessException;
+
+    /**
+     * @return The list of users that have been registered by the user with given <var>userId</var>.
      */
     public List<UserDTO> listUsersRegisteredBy(long userId);
 

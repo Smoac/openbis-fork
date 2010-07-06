@@ -307,6 +307,42 @@ public final class UserDAOTest extends AbstractDAOTest
         assertEquals(3, userDAO.listUsers().size());
     }
 
+    @Test(dependsOnGroups =
+        { "user.create" }, groups = "user.read")
+    public final void testListUserWithIds()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        assertEquals(1, userDAO.listUsersById(1).size());
+        assertEquals(2, userDAO.listUsersById(1, 2).size());
+        assertEquals(2, userDAO.listUsersById(1, 2, 1).size());
+        assertEquals(3, userDAO.listUsersById(1, 2, 3).size());
+    }
+
+    @Test(dependsOnGroups =
+        { "user.create" }, groups = "user.read")
+    public final void testListUserWithCodes()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        assertEquals(1, userDAO.listUsersByCode("admin").size());
+        assertEquals(2, userDAO.listUsersByCode("admin", "user").size());
+        assertEquals(2, userDAO.listUsersByCode("admin", "user", "admin").size());
+        assertEquals(3, userDAO.listUsersByCode("admin", "user", "tempuser").size());
+    }
+
+    @Test(dependsOnGroups =
+        { "user.create" }, groups = "user.read")
+    public final void testListUserWithEmail()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        assertEquals(1, userDAO.listUsersByEmail("admin@systemsx.ch").size());
+        assertEquals(2, userDAO.listUsersByEmail("admin@systemsx.ch", "someuser@systemsx.ch")
+                .size());
+        assertEquals(2, userDAO.listUsersByEmail("admin@systemsx.ch", "someuser@systemsx.ch",
+                "admin@systemsx.ch").size());
+        assertEquals(3, userDAO.listUsersByEmail("admin@systemsx.ch", "someuser@systemsx.ch",
+                "someuser@somewhereelse.edu").size());
+    }
+
     //
     // 'update' group
     //
@@ -395,7 +431,7 @@ public final class UserDAOTest extends AbstractDAOTest
 
         assertTrue(userDAO.deleteUser(testAdminUser, testPermanentUser.getID()));
         assertEquals(listUsers.size() - 1, userDAO.listUsers().size());
-        
+
         assertTrue(userDAO.deleteUser(testTemporaryUser, null));
         assertEquals(listUsers.size() - 2, userDAO.listUsers().size());
     }

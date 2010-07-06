@@ -18,9 +18,13 @@ package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -169,9 +173,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
-    UserDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler)
+    UserDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler,
+            final boolean supportsAnyOperator)
     {
-        super(dataSource, sequencerHandler);
+        super(dataSource, sequencerHandler, supportsAnyOperator);
     }
 
     private long createID()
@@ -202,6 +207,94 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                 template.query(SELECT_USERS_WITH_QUOTA_INFO, new UserRowMapperWithQuotaInfo());
         fillInRegistrators(list);
         return list;
+    }
+
+    public List<UserDTO> listUsersById(long... userIds) throws DataAccessException
+    {
+        if (supportsAnyOperator)
+        {
+            final List<UserDTO> list =
+                    query(SELECT_USERS_WITH_QUOTA_INFO + " where u.id = any(?)", new Object[]
+                        { new SimpleSQLLongArray(userIds) }, new int[]
+                        { Types.ARRAY }, new UserRowMapperWithQuotaInfo());
+            return list;
+        } else
+        {
+            final Set<Long> uniqueIdSet = new HashSet<Long>();
+            final List<UserDTO> list = new ArrayList<UserDTO>(userIds.length);
+            for (final long id : userIds)
+            {
+                if (uniqueIdSet.contains(id) == false)
+                {
+                    uniqueIdSet.add(id);
+                    list.addAll(getSimpleJdbcTemplate().query(
+                            SELECT_USERS_WITH_QUOTA_INFO + " where u.id = ?",
+                            new UserRowMapperWithQuotaInfo(), id));
+                }
+            }
+            return list;
+        }
+    }
+
+    public List<UserDTO> listUsersByCode(String... userCodes) throws DataAccessException
+    {
+        if (supportsAnyOperator)
+        {
+            final List<UserDTO> list =
+                    query(SELECT_USERS_WITH_QUOTA_INFO + " where u.user_code = any(?)", new Object[]
+                        { new SimpleSQLStringArray(userCodes) }, new int[]
+                        { Types.ARRAY }, new UserRowMapperWithQuotaInfo());
+            return list;
+        } else
+        {
+            final Set<String> uniqueIdSet = new HashSet<String>();
+            final List<UserDTO> list = new ArrayList<UserDTO>(userCodes.length);
+            for (final String code : userCodes)
+            {
+                if (uniqueIdSet.contains(code) == false)
+                {
+                    uniqueIdSet.add(code);
+                    list.addAll(getSimpleJdbcTemplate().query(
+                            SELECT_USERS_WITH_QUOTA_INFO + " where u.user_code = ?",
+                            new UserRowMapperWithQuotaInfo(), code));
+                }
+            }
+            return list;
+        }
+    }
+
+    public List<UserDTO> listUsersByEmail(String... emailAddresses) throws DataAccessException
+    {
+        if (supportsAnyOperator)
+        {
+            final List<UserDTO> list =
+                    query(SELECT_USERS_WITH_QUOTA_INFO + " where u.email = any(?)", new Object[]
+                        { new SimpleSQLStringArray(emailAddresses) }, new int[]
+                        { Types.ARRAY }, new UserRowMapperWithQuotaInfo());
+            return list;
+        } else
+        {
+            final Set<String> uniqueIdSet = new HashSet<String>();
+            final List<UserDTO> list = new ArrayList<UserDTO>(emailAddresses.length);
+            for (final String email : emailAddresses)
+            {
+                if (uniqueIdSet.contains(email) == false)
+                {
+                    uniqueIdSet.add(email);
+                    list.addAll(getSimpleJdbcTemplate().query(
+                            SELECT_USERS_WITH_QUOTA_INFO + " where u.email = ?",
+                            new UserRowMapperWithQuotaInfo(), email));
+                }
+            }
+            return list;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> List<T> query(String sql, Object[] args, int[] argTypes,
+            ParameterizedRowMapper<T> rowMapper) throws DataAccessException
+    {
+        return getSimpleJdbcTemplate().getJdbcOperations().query(sql, args, argTypes, rowMapper);
     }
 
     public List<UserDTO> listUsersRegisteredBy(final long userId) throws DataAccessException
@@ -246,7 +339,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
-    private void fillInRegistrators(final List<UserDTO> users)
+    public void fillInRegistrators(final List<UserDTO> users)
     {
         fillInRegistrators(users, users);
     }
@@ -304,8 +397,8 @@ final class UserDAO extends AbstractDAO implements IUserDAO
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         final int count =
-                template.queryForInt("select count(*) from users where user_code = ? limit 1",
-                        code);
+                template
+                        .queryForInt("select count(*) from users where user_code = ? limit 1", code);
         return count > 0;
     }
 

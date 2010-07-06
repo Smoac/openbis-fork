@@ -65,9 +65,10 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     private static final String FILES_JOIN_USERS_WHERE_ID = FILES_JOIN_USERS + " where f.id = ?";
 
-    FileDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler)
+    FileDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler,
+            final boolean supportsAnyOperator)
     {
-        super(dataSource, sequencerHandler);
+        super(dataSource, sequencerHandler, supportsAnyOperator);
     }
 
     private final long createID()

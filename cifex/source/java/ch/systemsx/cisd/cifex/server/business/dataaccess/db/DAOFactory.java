@@ -24,6 +24,7 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.common.db.ISequencerHandler;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.dbmigration.DatabaseEngine;
 
 /**
  * <code>IDAOFactory</code> implementation for data bases.
@@ -38,17 +39,17 @@ public class DAOFactory implements IDAOFactory
     private final IUserDAO userDAO;
 
     private final IFileDAO fileDAO;
-
+    
     public DAOFactory(final DatabaseConfigurationContext context)
     {
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
 
         final DataSource dataSource = context.getDataSource();
         final ISequencerHandler sequencerHandler = context.getSequencerHandler();
+        final boolean supportsAnyOperator = DatabaseEngine.H2.equals(context.getDatabaseEngine()) == false;
 
-        userDAO = new UserDAO(dataSource, sequencerHandler);
-        fileDAO = new FileDAO(dataSource, sequencerHandler);
-
+        userDAO = new UserDAO(dataSource, sequencerHandler, supportsAnyOperator);
+        fileDAO = new FileDAO(dataSource, sequencerHandler, supportsAnyOperator);
     }
 
     public final IUserDAO getUserDAO()
@@ -60,4 +61,5 @@ public class DAOFactory implements IDAOFactory
     {
         return fileDAO;
     }
+
 }

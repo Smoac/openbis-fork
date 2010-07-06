@@ -37,6 +37,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -57,7 +58,6 @@ import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
-import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
@@ -66,7 +66,6 @@ import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -692,98 +691,129 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             return Collections.emptyList();
         }
-        final Set<UserDTO> allUsers = new HashSet<UserDTO>();
-        final List<String> invalidEmailAdresses = new ArrayList<String>();
+        final Set<UserDTO> users = new LinkedHashSet<UserDTO>();
+        final List<String> invalidIdentifiers = new ArrayList<String>();
         boolean success = false;
-        RuntimeException firstExceptionOrNull = null;
         try
         {
+            final List<String> userCodes = new ArrayList<String>();
+            final List<String> emailAddresses = new ArrayList<String>();
+            extractUserCodesAndEmailAddresses(userIdentifiers, userCodes, emailAddresses,
+                    invalidIdentifiers);
+            final Collection<UserDTO> relevantUsers = getRelevantUsers(userCodes, emailAddresses);
             final TableMapNonUniqueKey<String, UserDTO> existingUsers =
-                    createTableMapOfExistingUsersWithEmailAsKey();
+                    UserUtils.createTableMapOfExistingUsersWithEmailAsKey(relevantUsers);
             final TableMap<String, UserDTO> existingUniqueUsers =
-                    UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(daoFactory
-                            .getUserDAO().listUsers());
-            for (final String identifier : userIdentifiers)
+                    UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(relevantUsers);
+            for (final String userCode : userCodes)
             {
-                final Set<UserDTO> users = new LinkedHashSet<UserDTO>();
-                final String password =
-                        handleIdentifer(identifier, requestUser, existingUsers,
-                                existingUniqueUsers, invalidEmailAdresses, users);
-                allUsers.addAll(users);
-                final RuntimeException ex =
-                        createLinksAndCallTriggersAndSendEmails(users, files, url, comment,
-                                requestUser, password);
-                if (firstExceptionOrNull == null && ex != null)
-                {
-                    firstExceptionOrNull = ex;
-                }
+                handleUserCode(userCode, requestUser, existingUsers, existingUniqueUsers,
+                        invalidIdentifiers, users);
             }
-            success = (firstExceptionOrNull == null);
-            if (firstExceptionOrNull != null)
+            for (final String emailAddress : emailAddresses)
             {
-                throw firstExceptionOrNull;
+                handleEmailAddress(emailAddress, requestUser, existingUsers, existingUniqueUsers,
+                        invalidIdentifiers, users);
             }
-            return invalidEmailAdresses;
+            final RuntimeException exception =
+                    createLinksAndCallTriggersAndSendEmails(users, files, url, comment, requestUser);
+            success = (exception == null);
+            if (exception != null)
+            {
+                throw exception;
+            }
+            return invalidIdentifiers;
         } finally
         {
             if (logOrNull != null)
             {
-                logOrNull.logShareFiles(files, allUsers, userIdentifiers, invalidEmailAdresses,
-                        success);
+                logOrNull.logShareFiles(files, users, userIdentifiers, invalidIdentifiers, success);
             }
         }
     }
 
-    private String handleIdentifer(final String identifier, final UserDTO requestUser,
+    private Collection<UserDTO> getRelevantUsers(final List<String> userCodes,
+            final List<String> emailAddresses)
+    {
+        final LinkedHashSet<UserDTO> result =
+                new LinkedHashSet<UserDTO>(userCodes.size() + emailAddresses.size());
+        if (userCodes.isEmpty() == false)
+        {
+            result.addAll(daoFactory.getUserDAO().listUsersByCode(
+                    userCodes.toArray(new String[userCodes.size()])));
+        }
+        if (emailAddresses.isEmpty() == false)
+        {
+            result.addAll(daoFactory.getUserDAO().listUsersByEmail(
+                    emailAddresses.toArray(new String[emailAddresses.size()])));
+        }
+        return result;
+    }
+
+    private void extractUserCodesAndEmailAddresses(final Collection<String> identifiers,
+            final List<String> userCodes, final List<String> validEmailAddresses,
+            final List<String> invalidIdentifiers)
+    {
+        for (final String identifier : identifiers)
+        {
+            final String trimmedIdentifier = identifier.trim();
+            if (UserUtils.isUserCodeWithIdPrefix(trimmedIdentifier))
+            {
+                userCodes.add(UserUtils.extractUserCode(trimmedIdentifier));
+            } else if (UserUtils.isEmail(trimmedIdentifier))
+            {
+                validEmailAddresses.add(trimmedIdentifier.toLowerCase());
+            } else
+            {
+                invalidIdentifiers.add(trimmedIdentifier);
+            }
+        }
+    }
+
+    private void handleUserCode(final String userCode, final UserDTO requestUser,
             final TableMapNonUniqueKey<String, UserDTO> existingUsers,
             final TableMap<String, UserDTO> existingUniqueUsers,
-            final List<String> invalidEmailAdresses, Set<UserDTO> users)
+            final List<String> invalidIdentifiers, final Set<UserDTO> users)
     {
-        String password = null;
-        final String trimmedIdentifier = identifier.trim();
-        // If the Identifier start with "id:", it is not a email
-        if (UserUtils.isUserCodeWithIdPrefix(trimmedIdentifier))
+        final UserDTO userOrNull = existingUniqueUsers.tryGet(userCode);
+        if (userOrNull != null && StringUtils.isNotBlank(userOrNull.getEmail()))
         {
-            final UserDTO userOrNull =
-                    existingUniqueUsers.tryGet(UserUtils.extractUserId(trimmedIdentifier));
-            if (userOrNull != null && StringUtils.isNotBlank(userOrNull.getEmail()))
+            users.add(userOrNull);
+        } else
+        {
+            invalidIdentifiers.add(userCode);
+        }
+    }
+
+    private void handleEmailAddress(final String emailAddress, final UserDTO requestUser,
+            final TableMapNonUniqueKey<String, UserDTO> existingUsers,
+            final TableMap<String, UserDTO> existingUniqueUsers,
+            final List<String> invalidIdentifiers, final Set<UserDTO> users)
+    {
+        final String lowerCaseIdentifier = emailAddress.toLowerCase();
+        final Set<UserDTO> existingUsersOrNull =
+                removeUnsuitableUsersForSharing(requestUser, existingUsers
+                        .tryGet(lowerCaseIdentifier));
+        if (existingUsersOrNull == null)
+        {
+            final String password =
+                    businessContext.getPasswordGenerator().generatePassword(
+                            UserManager.PASSWORD_LENGTH);
+            final UserDTO user = tryCreateUser(requestUser, lowerCaseIdentifier, password);
+            if (user != null)
             {
-                users.add(userOrNull);
+                existingUsers.add(user);
+                users.add(user);
             } else
             {
-                invalidEmailAdresses.add(trimmedIdentifier);
-            }
-        } else if (UserUtils.EMAIL_PATTERN.matcher(trimmedIdentifier).matches())
-        {
-            final String lowerCaseIdentifier = trimmedIdentifier.toLowerCase();
-            final Set<UserDTO> existingUsersOrNull =
-                    removeUnsuitableUsersForSharing(requestUser, existingUsers
-                            .tryGet(lowerCaseIdentifier));
-            if (existingUsersOrNull == null)
-            {
-                password =
-                        businessContext.getPasswordGenerator().generatePassword(
-                                UserManager.PASSWORD_LENGTH);
-                final UserDTO user = tryCreateUser(requestUser, lowerCaseIdentifier, password);
-                if (user != null)
-                {
-                    existingUsers.add(user);
-                    users.add(user);
-                } else
-                {
-                    // Email address is invalid because user does not exist and requestUser
-                    // is not allowed to create new users.
-                    invalidEmailAdresses.add(lowerCaseIdentifier);
-                }
-            } else
-            {
-                users.addAll(existingUsersOrNull);
+                // Email address is invalid because user does not exist and requestUser
+                // is not allowed to create new users.
+                invalidIdentifiers.add(lowerCaseIdentifier);
             }
         } else
         {
-            invalidEmailAdresses.add(trimmedIdentifier);
+            users.addAll(existingUsersOrNull);
         }
-        return password;
     }
 
     /**
@@ -809,6 +839,8 @@ final class FileManager extends AbstractManager implements IFileManager
         }
         // For a permanent user, the accepted owner of users to share the file with is the request
         // user itself, for a temporary user it is the registrator of the request user.
+        // Note that acceptedOwner can be a minimal UserDTO which has only the id set. That's fine
+        // as UserDTO.equals() is based solely on the id.
         final UserDTO acceptedOwner =
                 (requestUser.isPermanent() ? requestUser : requestUser.getRegistrator());
         final Iterator<UserDTO> it = usersByEmailOrNull.iterator();
@@ -826,16 +858,20 @@ final class FileManager extends AbstractManager implements IFileManager
 
     private RuntimeException createLinksAndCallTriggersAndSendEmails(Set<UserDTO> users,
             final Collection<FileDTO> files, final String url, final String comment,
-            final UserDTO requestUser, String password)
+            final UserDTO requestUser)
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
         final IMailClient mailClient = businessContext.getMailClient();
         // Implementation note: we do the sharing link creation and the email sending in
         // two loops in order to ensure that all database links are created before any
         // email is sent (note that this method is @Transactional).
-        final List<String> alreadyExistingSharingLinks = new ArrayList<String>();
+        final Map<String, UserDTO> emailToUserMap = new HashMap<String, UserDTO>();
         for (final UserDTO user : users)
         {
+            if (triggerManager.isTriggerUser(user) == false)
+            {
+                emailToUserMap.put(user.getEmail(), user);
+            }
             for (final FileDTO file : files)
             {
                 try
@@ -843,17 +879,11 @@ final class FileManager extends AbstractManager implements IFileManager
                     fileDAO.createSharingLink(file.getID(), user.getID());
                 } catch (final DataIntegrityViolationException ex)
                 {
-                    alreadyExistingSharingLinks.add(user.getUserCode());
-                    operationLog.error(String.format(
-                            "Sharing file %s with user %s for the second time.", file.getPath(),
-                            user.getUserCode()), ex);
+                    operationLog.warn(String.format(
+                            "Trying to share file %s with user %s for the second time, skipped.",
+                            file.getPath(), user.getUserCode()), ex);
                 }
             }
-        }
-        if (alreadyExistingSharingLinks.size() > 0)
-        {
-            throw new UserFailureException(("Cannot share file with the users twice ("
-                    + alreadyExistingSharingLinks + "). Operation failed."));
         }
 
         final Set<FileDTO> filesLeft = new HashSet<FileDTO>(files);
@@ -895,17 +925,16 @@ final class FileManager extends AbstractManager implements IFileManager
         }
 
         boolean notified = false;
-        for (final UserDTO user : users)
+        for (final Entry<String, UserDTO> userEntry : emailToUserMap.entrySet())
         {
-            if (triggerManager.isTriggerUser(user))
-            {
-                continue;
-            }
-            final String email = user.getEmail();
+            final String email = userEntry.getKey();
+            final UserDTO user = userEntry.getValue();
             final EMailBuilderForUploadedFiles builder =
                     new EMailBuilderForUploadedFiles(mailClient, requestUser, email);
             builder.setURL(url);
-            builder.setPassword(password);
+            final String passwordOrNull =
+                    (user.getPassword() == null) ? null : user.getPassword().tryGetPlain();
+            builder.setPassword(passwordOrNull);
             builder.setUserCode(user.getUserCode());
             for (final FileDTO fileDTO : filesLeft)
             {
@@ -935,19 +964,6 @@ final class FileManager extends AbstractManager implements IFileManager
             }
         }
         return firstExceptionOrNull;
-    }
-
-    private TableMapNonUniqueKey<String, UserDTO> createTableMapOfExistingUsersWithEmailAsKey()
-    {
-        final IUserDAO userDAO = daoFactory.getUserDAO();
-        return new TableMapNonUniqueKey<String, UserDTO>(userDAO.listUsers(),
-                new IKeyExtractor<String, UserDTO>()
-                    {
-                        public String getKey(final UserDTO user)
-                        {
-                            return user.getEmail();
-                        }
-                    });
     }
 
     private UserDTO tryCreateUser(final UserDTO requestUser, final String email,

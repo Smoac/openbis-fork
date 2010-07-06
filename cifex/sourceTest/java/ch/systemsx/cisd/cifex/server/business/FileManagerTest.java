@@ -378,8 +378,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
-                    allowing(userDAO).listUsers();
-                    will(returnValue(Arrays.asList(requestUser, receivingUser)));
+                    one(userDAO).listUsersByEmail(emailOfUserToShareWith);
+                    will(returnValue(Arrays.asList(receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     context.checking(new Expectations()
                         {
@@ -437,8 +437,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
-                    allowing(userDAO).listUsers();
-                    will(returnValue(Arrays.asList(requestUser, receivingUser)));
+                    one(userDAO).listUsersByCode(receivingUserCode);
+                    will(returnValue(Arrays.asList(receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     context.checking(new Expectations()
                         {
@@ -631,9 +631,10 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
-                    allowing(userDAO).listUsers();
-                    will(returnValue(Arrays.asList(requestUser, firstReceivingUser,
-                            secondReceivingUser)));
+                    one(userDAO).listUsersByCode(firstReceivingUserCode);
+                    will(returnValue(Arrays.asList(firstReceivingUser)));
+                    allowing(userDAO).listUsersByEmail(emailOfSecondUserToShareWith);
+                    will(returnValue(Arrays.asList(secondReceivingUser)));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     context.checking(new Expectations()
@@ -665,6 +666,195 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         List<String> users = new ArrayList<String>();
         users.add(Constants.USER_ID_PREFIX + firstReceivingUserCode);
         users.add(emailOfSecondUserToShareWith);
+        final List<String> invalidUsers =
+                fileManager.shareFilesWith(url, requestUser, users, Collections.singleton(file),
+                        comment, null);
+        assertEquals(0, invalidUsers.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testShareFileWithUserDuplicatedCodeAndEmail()
+    {
+        final String url = "https://server/instance";
+        final long requestUserId = 42;
+        final String requestUserCode = "requestuser";
+        final long firstReceivingUserId = 43;
+        final String firstReceivingUserCode = "firstreceivinguser";
+        final String emailOfRequestUser = "request.user@organization.edu";
+        final UserDTO requestUser = new UserDTO();
+        requestUser.setID(requestUserId);
+        requestUser.setUserCode(requestUserCode);
+        requestUser.setEmail(emailOfRequestUser);
+        final String emailOfFirstUserToShareWith = "first.receiving.user@organization.edu";
+        final UserDTO firstReceivingUser = new UserDTO();
+        firstReceivingUser.setID(firstReceivingUserId);
+        firstReceivingUser.setUserCode(firstReceivingUserCode);
+        firstReceivingUser.setEmail(emailOfFirstUserToShareWith);
+        final String comment = "some comment";
+        final long fileId = 17;
+        final FileDTO file = new FileDTO(requestUserId);
+        final long now = System.currentTimeMillis();
+        final long expirationPeriod = 24 * 3600 * 1000L;
+        final Date expirationDate = new Date(now + expirationPeriod);
+        file.setID(fileId);
+        file.setExpirationDate(expirationDate);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).listUsersByCode(firstReceivingUserCode);
+                    will(returnValue(Arrays.asList(firstReceivingUser)));
+                    allowing(userDAO).listUsersByEmail(emailOfFirstUserToShareWith);
+                    will(returnValue(Arrays.asList(firstReceivingUser)));
+                    one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
+                    final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
+                    context.checking(new Expectations()
+                        {
+                            {
+                                allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+                                will(returnValue(false));
+                            }
+                        });
+                    one(mailClient).sendEmailMessage(
+                            with(Matchers.containsString(requestUserCode)),
+                            with(Matchers.containsString(url
+                                    + String.format("/?fileId=%d&user=%s", fileId,
+                                            firstReceivingUserCode))),
+                            with(containsEmail(replyTo)), with(matchesEmail(replyTo)),
+                            with(matchesEmail(new String[]
+                                { emailOfFirstUserToShareWith })));
+                }
+            });
+        List<String> users = new ArrayList<String>();
+        users.add(Constants.USER_ID_PREFIX + firstReceivingUserCode);
+        users.add(emailOfFirstUserToShareWith); // That's the same user
+        final List<String> invalidUsers =
+                fileManager.shareFilesWith(url, requestUser, users, Collections.singleton(file),
+                        comment, null);
+        assertEquals(0, invalidUsers.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testShareFileWithUserDuplicatedEmailTwice()
+    {
+        final String url = "https://server/instance";
+        final long requestUserId = 42;
+        final String requestUserCode = "requestuser";
+        final long firstReceivingUserId = 43;
+        final String firstReceivingUserCode = "firstreceivinguser";
+        final String emailOfRequestUser = "request.user@organization.edu";
+        final UserDTO requestUser = new UserDTO();
+        requestUser.setID(requestUserId);
+        requestUser.setUserCode(requestUserCode);
+        requestUser.setEmail(emailOfRequestUser);
+        final String emailOfFirstUserToShareWith = "first.receiving.user@organization.edu";
+        final UserDTO firstReceivingUser = new UserDTO();
+        firstReceivingUser.setID(firstReceivingUserId);
+        firstReceivingUser.setUserCode(firstReceivingUserCode);
+        firstReceivingUser.setEmail(emailOfFirstUserToShareWith);
+        final String comment = "some comment";
+        final long fileId = 17;
+        final FileDTO file = new FileDTO(requestUserId);
+        final long now = System.currentTimeMillis();
+        final long expirationPeriod = 24 * 3600 * 1000L;
+        final Date expirationDate = new Date(now + expirationPeriod);
+        file.setID(fileId);
+        file.setExpirationDate(expirationDate);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    allowing(userDAO).listUsersByEmail(emailOfFirstUserToShareWith,
+                            emailOfFirstUserToShareWith);
+                    will(returnValue(Arrays.asList(firstReceivingUser)));
+                    one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
+                    final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
+                    context.checking(new Expectations()
+                        {
+                            {
+                                allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+                                will(returnValue(false));
+                            }
+                        });
+                    one(mailClient).sendEmailMessage(
+                            with(Matchers.containsString(requestUserCode)),
+                            with(Matchers.containsString(url
+                                    + String.format("/?fileId=%d&user=%s", fileId,
+                                            firstReceivingUserCode))),
+                            with(containsEmail(replyTo)), with(matchesEmail(replyTo)),
+                            with(matchesEmail(new String[]
+                                { emailOfFirstUserToShareWith })));
+                }
+            });
+        List<String> users = new ArrayList<String>();
+        users.add(emailOfFirstUserToShareWith);
+        users.add(emailOfFirstUserToShareWith);
+        final List<String> invalidUsers =
+                fileManager.shareFilesWith(url, requestUser, users, Collections.singleton(file),
+                        comment, null);
+        assertEquals(0, invalidUsers.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testShareFileWithUserDuplicatedCodeTwice()
+    {
+        final String url = "https://server/instance";
+        final long requestUserId = 42;
+        final String requestUserCode = "requestuser";
+        final long firstReceivingUserId = 43;
+        final String firstReceivingUserCode = "firstreceivinguser";
+        final String emailOfRequestUser = "request.user@organization.edu";
+        final UserDTO requestUser = new UserDTO();
+        requestUser.setID(requestUserId);
+        requestUser.setUserCode(requestUserCode);
+        requestUser.setEmail(emailOfRequestUser);
+        final String emailOfFirstUserToShareWith = "first.receiving.user@organization.edu";
+        final UserDTO firstReceivingUser = new UserDTO();
+        firstReceivingUser.setID(firstReceivingUserId);
+        firstReceivingUser.setUserCode(firstReceivingUserCode);
+        firstReceivingUser.setEmail(emailOfFirstUserToShareWith);
+        final String comment = "some comment";
+        final long fileId = 17;
+        final FileDTO file = new FileDTO(requestUserId);
+        final long now = System.currentTimeMillis();
+        final long expirationPeriod = 24 * 3600 * 1000L;
+        final Date expirationDate = new Date(now + expirationPeriod);
+        file.setID(fileId);
+        file.setExpirationDate(expirationDate);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).listUsersByCode(firstReceivingUserCode, firstReceivingUserCode);
+                    will(returnValue(Arrays.asList(firstReceivingUser)));
+                    one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
+                    final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
+                    context.checking(new Expectations()
+                        {
+                            {
+                                allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+                                will(returnValue(false));
+                            }
+                        });
+                    one(mailClient).sendEmailMessage(
+                            with(Matchers.containsString(requestUserCode)),
+                            with(Matchers.containsString(url
+                                    + String.format("/?fileId=%d&user=%s", fileId,
+                                            firstReceivingUserCode))),
+                            with(containsEmail(replyTo)), with(matchesEmail(replyTo)),
+                            with(matchesEmail(new String[]
+                                { emailOfFirstUserToShareWith })));
+                }
+            });
+        List<String> users = new ArrayList<String>();
+        users.add(Constants.USER_ID_PREFIX + firstReceivingUserCode);
+        users.add(Constants.USER_ID_PREFIX + firstReceivingUserCode);
         final List<String> invalidUsers =
                 fileManager.shareFilesWith(url, requestUser, users, Collections.singleton(file),
                         comment, null);
@@ -705,8 +895,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
-                    allowing(userDAO).listUsers();
-                    will(returnValue(Arrays.asList(requestUser, receivingUser)));
+                    one(userDAO).listUsersByEmail(emailOfReceivingUserLowerCase);
+                    will(returnValue(Arrays.asList(receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     context.checking(new Expectations()
@@ -972,8 +1162,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
-                    allowing(userDAO).listUsers();
-                    will(returnValue(Arrays.asList(requestUser, receivingUser)));
+                    one(userDAO).listUsersByEmail(emailOfUserToShareWith);
+                    will(returnValue(Arrays.asList(receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
                     will(returnValue(true));

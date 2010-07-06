@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -25,6 +26,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
 
 /**
  * Methods helpful in users management.
@@ -47,7 +49,7 @@ public class UserUtils
     private static final String DISPLAY_NAME_PROPERTY = "displayName";
 
     static TableMap<String, UserDTO> createTableMapOfExistingUsersWithUserCodeAsKey(
-            List<UserDTO> users)
+            final Collection<UserDTO> users)
     {
         return new TableMap<String, UserDTO>(users, new IKeyExtractor<String, UserDTO>()
             {
@@ -58,18 +60,37 @@ public class UserUtils
             });
     }
 
+    static TableMapNonUniqueKey<String, UserDTO> createTableMapOfExistingUsersWithEmailAsKey(
+            final Collection<UserDTO> users)
+    {
+        return new TableMapNonUniqueKey<String, UserDTO>(users,
+                new IKeyExtractor<String, UserDTO>()
+                    {
+                        public String getKey(final UserDTO user)
+                        {
+                            return user.getEmail();
+                        }
+                    });
+    }
+
     /**
-     * Checks weather identifier starts with {@link #USER_ID_PREFIX}.
+     * Checks whether the identifier starts with {@link #USER_ID_PREFIX}.
      */
     static boolean isUserCodeWithIdPrefix(final String identifier)
     {
         return USER_CODE_WITH_ID_PREFIX_PATTERN.matcher(identifier).matches();
     }
+    
+    /** Checks whether the <var>identifier</var> is a valid email address. */
+    static boolean isEmail(final String identifier)
+    {
+        return UserUtils.EMAIL_PATTERN.matcher(identifier).matches();        
+    }
 
     /**
      * Removes {@link #USER_ID_PREFIX} from the identifier.
      */
-    static String extractUserId(final String lowerCaseIdentifier)
+    static String extractUserCode(final String lowerCaseIdentifier)
     {
         assert isUserCodeWithIdPrefix(lowerCaseIdentifier);
         return lowerCaseIdentifier.substring(UserUtils.USER_ID_PREFIX.length());
@@ -100,7 +121,7 @@ public class UserUtils
             String lowerCaseIdentifier = identifier.toLowerCase();
             if (isUserCodeWithIdPrefix(lowerCaseIdentifier))
             {
-                userCodes.add(extractUserId(lowerCaseIdentifier));
+                userCodes.add(extractUserCode(lowerCaseIdentifier));
             }
         }
         return userCodes;

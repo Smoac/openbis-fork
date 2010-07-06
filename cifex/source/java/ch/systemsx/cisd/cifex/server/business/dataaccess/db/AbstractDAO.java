@@ -33,12 +33,16 @@ abstract class AbstractDAO extends SimpleJdbcDaoSupport
 {
     protected final ISequencerHandler sequencerHandler;
 
-    AbstractDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler)
+    protected final boolean supportsAnyOperator;
+
+    AbstractDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler,
+            final boolean supportsAnyOperator)
     {
         assert dataSource != null : "Unspecified data source.";
         assert sequencerHandler != null : "Unspecified sequencer handler.";
 
         this.sequencerHandler = sequencerHandler;
+        this.supportsAnyOperator = supportsAnyOperator;
         setDataSource(dataSource);
 
     }

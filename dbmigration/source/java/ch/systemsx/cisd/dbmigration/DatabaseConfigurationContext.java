@@ -516,6 +516,18 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
+     * Returns the {@link DatabaseEngine}.
+     */
+    public DatabaseEngine getDatabaseEngine() throws ConfigurationFailureException
+    {
+        if (databaseEngine == null)
+        {
+            throw new ConfigurationFailureException("No database engine defined.");
+        }
+        return databaseEngine;
+    }
+
+    /**
      * Returns the code of the database engine.
      * 
      * @throws ConfigurationFailureException If undefined.

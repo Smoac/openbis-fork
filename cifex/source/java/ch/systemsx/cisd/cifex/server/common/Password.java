@@ -57,6 +57,14 @@ public final class Password
     }
 
     /**
+     * Returns the plain password or <code>null</code>, if the password is not set.
+     */
+    public String tryGetPlain()
+    {
+        return plainPasswordOrNull;
+    }
+    
+    /**
      * Creates a hash for the password.
      * 
      * @throws IllegalStateException If this password is empty.
