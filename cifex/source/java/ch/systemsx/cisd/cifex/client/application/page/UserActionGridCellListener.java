@@ -254,7 +254,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
             } else if (Constants.CHANGE_USER_CODE_ID.equals(targetId))
             {
                 // Change users code
-                assert userCode.equals(viewContext.getModel().getUser().getUserCode()) == false : "An user cannot change his own code.";
+                assert userCode.equals(viewContext.getModel().getUser().getUserCode()) == false : "A user cannot change his own code.";
                 MessageBox.prompt(msg(RENAME_USER_MSGBOX_TITLE), userCode,
                         new Listener<MessageBoxEvent>()
                             {
@@ -269,8 +269,8 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
                                         if (StringUtils.matches(Constants.USER_CODE_REGEX,
                                                 userCodeAfterRenaming) == false)
                                         {
-                                            MessageBox.alert("Invalid user code",
-                                                    Constants.VALID_USER_CODE_DESCRIPTION, null);
+                                            MessageBox.alert(msg(VALIDATION_INVALID_USER_CODE_TITLE),
+                                                    msg(VALIDATION_INVALID_USER_CODE_MSG), null);
                                         } else
                                         {
                                             MessageBox.confirm(

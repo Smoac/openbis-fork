@@ -409,6 +409,10 @@ var message_dict = {
   
   VALIDATION_WRONG_USERCODE_MSG: 'Wrong user code',
   
+  VALIDATION_INVALID_USER_CODE_TITLE: 'Invalid user code',
+  
+  VALIDATION_INVALID_USER_CODE_MSG: 'User code must not be empty and must contain only allowed characters: letters, digits, \'_\', \'.\', \'-\', \'@\'. Note that whitespaces are not allowed.',
+  
   // LAST LINE: KEEP IT AT THE END
   lastline: '' // we need a line without a comma
 };

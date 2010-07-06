@@ -314,6 +314,10 @@ public enum MessageDictionary
     
     VALIDATION_WRONG_USERCODE_MSG,
     
+    VALIDATION_INVALID_USER_CODE_TITLE,
+    
+    VALIDATION_INVALID_USER_CODE_MSG,
+    
     ;
     
     private static final Dictionary MSG_DICT = Dictionary.getDictionary("message_dict");
