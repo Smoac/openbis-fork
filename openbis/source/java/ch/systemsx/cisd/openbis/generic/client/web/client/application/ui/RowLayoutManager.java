@@ -127,33 +127,9 @@ public class RowLayoutManager
     {
         if (container.getItemCount() > 0)
         {
-            contentPanel.addListener(Events.Render, new Listener<BaseEvent>()
-                {
-                    public void handleEvent(BaseEvent be)
-                    {
-                        SplitBar splitBar = new SplitBar(LayoutRegion.NORTH, contentPanel);
-                        Draggable draggable = splitBar.getDraggable();
-                        draggable.addDragListener(new DragListener()
-                            {
-
-                                private int y;
-
-                                @Override
-                                public void dragEnd(DragEvent de)
-                                {
-                                    handleSplitMovement(contentPanel, de.getY() - y);
-                                }
-
-                                @Override
-                                public void dragStart(DragEvent de)
-                                {
-                                    y = de.getY();
-                                }
-                            });
-                        draggable.setMoveAfterProxyDrag(false);
-                        splitBar.setAutoSize(false);
-                    }
-                });
+            Listener<BaseEvent> listener = createListener(contentPanel);
+            System.out.println(listener);
+//            contentPanel.addListener(Events.Render, listener);
         }
         contentPanel.setAnimCollapse(false);
         container.add(contentPanel, rowData);
@@ -178,7 +154,7 @@ public class RowLayoutManager
         contentPanel.addListener(Events.Collapse, listener);
         contentPanel.addListener(Events.Expand, listener);
     }
-    
+
     private void adjustRelative()
     {
         double sum = 0;
@@ -204,6 +180,37 @@ public class RowLayoutManager
         container.layout(true);
     }
 
+    private Listener<BaseEvent> createListener(final ContentPanel contentPanel)
+    {
+        return new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    SplitBar splitBar = new SplitBar(LayoutRegion.NORTH, contentPanel);
+                    Draggable draggable = splitBar.getDraggable();
+                    draggable.addDragListener(new DragListener()
+                        {
+
+                            private int y;
+
+                            @Override
+                            public void dragEnd(DragEvent de)
+                            {
+                                handleSplitMovement(contentPanel, de.getY() - y);
+                            }
+
+                            @Override
+                            public void dragStart(DragEvent de)
+                            {
+                                y = de.getY();
+                            }
+                        });
+                    draggable.setMoveAfterProxyDrag(false);
+                    splitBar.setAutoSize(false);
+                }
+            };
+    }
+    
     private void handleSplitMovement(final ContentPanel contentPanel, int diff)
     {
         int sum = 0;
