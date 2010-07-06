@@ -107,7 +107,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     }
 
     @SuppressWarnings("unchecked")
-    public final void testCreatePersonByAnUnauthorizedUser()
+    public final void testListPersonsByAnUnauthorizedUser()
     {
         loginAndInvokeAction("o", "o", ActionMenuKind.AUTHORIZATION_MENU_USERS);
 
