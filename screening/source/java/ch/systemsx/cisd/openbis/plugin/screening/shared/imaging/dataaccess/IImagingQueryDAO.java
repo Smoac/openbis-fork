@@ -93,22 +93,36 @@ public interface IImagingQueryDAO extends TransactionQuery
     @Select(value = "SELECT * from FEATURE_VALUES where FD_ID = ?{1.id}", resultSetBinding = FeatureVectorDataObjectBinding.class)
     public List<ImgFeatureValuesDTO> getFeatureValues(ImgFeatureDefDTO featureDef);
 
+    // generate ids
+
+    @Select("select nextval('images_id_seq')")
+    public long createImageId();
+
+    @Select("select nextval('channel_stacks_id_seq')")
+    public long createChannelStackId();
+
+    // batch updates
+
+    @Update(sql = "insert into CHANNEL_STACKS (ID, X, Y, Z_in_M, T_in_SEC, DS_ID, SPOT_ID) values "
+            + "(?{1.id}, ?{1.column}, ?{1.row}, ?{1.z}, ?{1.t}, ?{1.datasetId}, ?{1.spotId})", batchUpdate = true)
+    public void addChannelStacks(List<ImgChannelStackDTO> channelStacks);
+
+    @Update(sql = "insert into IMAGES (ID, PATH, PAGE, COLOR) values "
+            + "(?{1.id}, ?{1.filePath}, ?{1.page}, ?{1.colorComponentAsString})", batchUpdate = true)
+    public void addImages(List<ImgImageDTO> images);
+
+    @Update(sql = "insert into ACQUIRED_IMAGES (IMG_ID, THUMBNAIL_ID, CHANNEL_STACK_ID, CHANNEL_ID) values "
+            + "(?{1.imageId}, ?{1.thumbnailId}, ?{1.channelStackId}, ?{1.channelId})", batchUpdate = true)
+    public void addAcquiredImages(List<ImgAcquiredImageDTO> acquiredImages);
+
     // inserts
 
     @Select("insert into EXPERIMENTS (PERM_ID) values (?{1}) returning ID")
     public long addExperiment(String experimentPermId);
 
-    @Select("insert into ACQUIRED_IMAGES (IMG_ID, THUMBNAIL_ID, CHANNEL_STACK_ID, CHANNEL_ID) values "
-            + "(?{1.imageId}, ?{1.thumbnailId}, ?{1.channelStackId}, ?{1.channelId}) returning ID")
-    public long addAcquiredImage(ImgAcquiredImageDTO acquiredImage);
-
     @Select("insert into CHANNELS (NAME, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID) values "
             + "(?{1.name}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}) returning ID")
     public long addChannel(ImgChannelDTO channel);
-
-    @Select("insert into CHANNEL_STACKS (X, Y, Z_in_M, T_in_SEC, DS_ID, SPOT_ID) values "
-            + "(?{1.column}, ?{1.row}, ?{1.z}, ?{1.t}, ?{1.datasetId}, ?{1.spotId}) returning ID")
-    public long addChannelStack(ImgChannelStackDTO channelStack);
 
     @Select("insert into CONTAINERS (PERM_ID, SPOTS_WIDTH, SPOTS_HEIGHT, EXPE_ID) values "
             + "(?{1.permId}, ?{1.numberOfColumns}, ?{1.numberOfRows}, ?{1.experimentId}) returning ID")
@@ -118,10 +132,6 @@ public interface IImagingQueryDAO extends TransactionQuery
             + "(?{1.permId}, ?{1.fieldNumberOfColumns}, "
             + "?{1.fieldNumberOfRows}, ?{1.containerId}) returning ID")
     public long addDataset(ImgDatasetDTO dataset);
-
-    @Select("insert into IMAGES (PATH, PAGE, COLOR) values "
-            + "(?{1.filePath}, ?{1.page}, ?{1.colorComponentAsString}) returning ID")
-    public long addImage(ImgImageDTO image);
 
     @Select("insert into SPOTS (X, Y, CONT_ID, PERM_ID) values "
             + "(?{1.column}, ?{1.row}, ?{1.containerId}, ?{1.permId}) returning ID")

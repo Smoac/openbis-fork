@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.AssertJUnit;
@@ -148,8 +149,8 @@ public class ImagingQueryDAOTest extends AbstractDBTest
                 || channels[1] == channelId1 && channels[0] == channelId2);
 
         // test get id of first channel
-        assertEquals(channels[0], dao.tryGetChannelIdByChannelNameDatasetIdOrExperimentId(datasetId,
-                experimentId, "dsChannel").intValue());
+        assertEquals(channels[0], dao.tryGetChannelIdByChannelNameDatasetIdOrExperimentId(
+                datasetId, experimentId, "dsChannel").intValue());
 
         List<ImgChannelDTO> experimentChannels = dao.getChannelsByExperimentId(experimentId);
         assertEquals(1, experimentChannels.size());
@@ -164,8 +165,9 @@ public class ImagingQueryDAOTest extends AbstractDBTest
 
     private long addImage(String path, ColorComponent colorComponent)
     {
-        final ImgImageDTO image = new ImgImageDTO(path, PAGE, colorComponent);
-        return dao.addImage(image);
+        final ImgImageDTO image = new ImgImageDTO(dao.createImageId(), path, PAGE, colorComponent);
+        dao.addImages(Arrays.asList(image));
+        return image.getId();
     }
 
     private long addExperiment()
@@ -243,17 +245,20 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     private long addChannelStack(long datasetId, long spotId)
     {
         final ImgChannelStackDTO channelStack =
-                new ImgChannelStackDTO(Y_TILE_ROW, X_TILE_COLUMN, datasetId, spotId);
-        return dao.addChannelStack(channelStack);
+                new ImgChannelStackDTO(dao.createChannelStackId(), Y_TILE_ROW, X_TILE_COLUMN,
+                        datasetId, spotId);
+        dao.addChannelStacks(Arrays.asList(channelStack));
+        return channelStack.getId();
     }
 
-    private long addAcquiredImage(long imageId, long channelStackId, long channelId)
+    private void addAcquiredImage(long imageId, long channelStackId, long channelId)
     {
         final ImgAcquiredImageDTO acquiredImage = new ImgAcquiredImageDTO();
         acquiredImage.setImageId(imageId);
         acquiredImage.setChannelStackId(channelStackId);
         acquiredImage.setChannelId(channelId);
-        return dao.addAcquiredImage(acquiredImage);
+
+        dao.addAcquiredImages(Arrays.asList(acquiredImage));
     }
 
 }

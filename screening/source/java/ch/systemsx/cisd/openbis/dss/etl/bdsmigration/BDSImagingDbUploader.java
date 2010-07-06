@@ -59,7 +59,7 @@ class BDSImagingDbUploader
 
     private final IImagingQueryDAO dao;
 
-    BDSImagingDbUploader(File dataset, IImagingQueryDAO dao, String originalDatasetDirName,
+    public BDSImagingDbUploader(File dataset, IImagingQueryDAO dao, String originalDatasetDirName,
             List<String> channelNames, List<ColorComponent> channelColorComponentsOrNull)
     {
         this.dao = dao;
@@ -70,7 +70,7 @@ class BDSImagingDbUploader
 
     }
 
-    boolean migrate()
+    public boolean migrate()
     {
         List<AcquiredPlateImage> images = tryExtractMappings();
         if (images == null)
@@ -154,7 +154,14 @@ class BDSImagingDbUploader
     private static List<String> readLines(File mappingFile) throws IOException,
             FileNotFoundException
     {
-        return IOUtils.readLines(new FileInputStream(mappingFile));
+        FileInputStream stream = new FileInputStream(mappingFile);
+        try
+        {
+            return IOUtils.readLines(stream);
+        } finally
+        {
+            stream.close();
+        }
     }
 
     private List<AcquiredPlateImage> tryParseMappings(List<String> lines)
