@@ -29,6 +29,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
  */
 // PLEASE, if you add here a new test add also a system test to
 // ch.systemsx.cisd.openbis.systemtest.api.v1.GeneralInformationService
+@Friend(toClasses=RoleAssignmentPE.class)
 public class GeneralInformationServiceTest extends AbstractServerTestCase
 {
     private GeneralInformationService service;
