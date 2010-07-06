@@ -111,20 +111,26 @@ public final class UserGridModel extends AbstractUserGridModel
         return result;
     }
 
-    static public final List<ColumnConfig> getColumnConfigs()
+    static public final List<ColumnConfig> getColumnConfigs(final boolean adminGrid)
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(createIdColumnConfig());
         configs.add(createUserCodeColumnConfig());
         configs.add(createUserEmailColumnConfig());
-        configs.add(createTotalFileSizeColumnConfig());
-        configs.add(createTotalFileCountColumnConfig());
+        if (adminGrid)
+        {
+            configs.add(createTotalFileSizeColumnConfig());
+            configs.add(createTotalFileCountColumnConfig());
+        }
         configs.add(createFullNameColumnConfig());
         configs.add(createStatusColumnConfig());
         configs.add(createActiveColumnConfig());
-        configs.add(createQuotaSizeColumnConfig());
-        configs.add(createQuotaCountColumnConfig());
-        configs.add(createRegistratorColumnConfig());
+        if (adminGrid)
+        {
+            configs.add(createQuotaSizeColumnConfig());
+            configs.add(createQuotaCountColumnConfig());
+            configs.add(createRegistratorColumnConfig());
+        }
         configs.add(createActionColumnConfig());
         return configs;
     }

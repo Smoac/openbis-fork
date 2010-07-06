@@ -34,10 +34,10 @@ public class GridUtils
 {
     /** creates a grid with specified users */
     public static GridWidget<UserGridModel> createUserGrid(final List<UserInfoDTO> users,
-            ViewContext viewContext)
+            final boolean adminGrid, final ViewContext viewContext)
     {
         List<UserGridModel> data = UserGridModel.convert(viewContext, users);
-        List<ColumnConfig> columnConfigs = UserGridModel.getColumnConfigs();
+        List<ColumnConfig> columnConfigs = UserGridModel.getColumnConfigs(adminGrid);
         List<AbstractFilterField<UserGridModel>> filterItems =
                 AbstractUserGridModel.createFilterItems(columnConfigs);
 

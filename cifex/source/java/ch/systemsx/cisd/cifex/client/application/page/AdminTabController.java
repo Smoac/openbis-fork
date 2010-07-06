@@ -86,7 +86,7 @@ class AdminTabController extends AbstractMainPageTabController
     {
         addTitleRow(listUserPanel, msg(LIST_USERS_GRID_TITLE));
         final GridWidget<UserGridModel> userGridWidget =
-                GridUtils.createUserGrid(new ArrayList<UserInfoDTO>(), context);
+                GridUtils.createUserGrid(new ArrayList<UserInfoDTO>(), true, context);
         userGridWidget.getGrid().getView().setEmptyText(msg(LIST_USERS_LOADING_MSG));
         // Delete user and change code function
         userGridWidget.getGrid().addListener(Events.CellClick,

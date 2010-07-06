@@ -65,7 +65,7 @@ final class InviteTabController extends AbstractMainPageTabController
             ViewContext context)
     {
         final GridWidget<UserGridModel> gridWidget =
-                GridUtils.createUserGrid(new ArrayList<UserInfoDTO>(), context);
+                GridUtils.createUserGrid(new ArrayList<UserInfoDTO>(), false, context);
         gridWidget.getGrid().getView().setEmptyText(msg(LIST_USERS_LOADING_MSG));
         // Delete user function
         gridWidget.getGrid().addListener(Events.CellClick,
