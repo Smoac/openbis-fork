@@ -55,7 +55,7 @@ public class DssServiceRpcFactory implements IRpcServiceFactory
         Class<IRpcServiceNameServer> clazz = IRpcServiceNameServer.class;
         if (getServerCertificateFromServer)
         {
-            new SslCertificateHelper(nameServerURL, getConfigDirectory(), "dss").setUpKeyStore();
+            new SslCertificateHelper(nameServerURL, getKeystoreFile(), "dss").setUpKeyStore();
         }
 
         IRpcServiceNameServer nameServer =
@@ -71,13 +71,18 @@ public class DssServiceRpcFactory implements IRpcServiceFactory
         String serviceURL = serverURL + ifaceVersion.getUrlSuffix();
         if (getServerCertificateFromServer)
         {
-            new SslCertificateHelper(serviceURL, getConfigDirectory(), "dss").setUpKeyStore();
+            new SslCertificateHelper(serviceURL, getKeystoreFile(), "dss").setUpKeyStore();
         }
 
         return new ServiceProxyBuilder<T>(serviceURL, ifaceClazz, SERVER_TIMEOUT_MIN, 1)
                 .getServiceInterface();
     }
 
+    private File getKeystoreFile()
+    {
+        return new File(getConfigDirectory(), "keystore");
+    }
+    
     private File getConfigDirectory()
     {
         String homeDir = System.getProperty("dss.root");
