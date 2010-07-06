@@ -32,7 +32,6 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
@@ -61,8 +60,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     {
     }
     
-    GeneralInformationService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            ICommonServer commonServer)
+    GeneralInformationService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory)
     {
         super(sessionManager, daoFactory);
     }
