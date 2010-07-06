@@ -501,7 +501,14 @@ public class FileDownloadClientModel extends AbstractTableModel
     @Override
     public Class<?> getColumnClass(int c)
     {
-        return getValueAt(0, c).getClass();
+        final Object columnValue = getValueAt(0, c);
+        if (columnValue == null)
+        {
+            return super.getColumnClass(c);
+        } else
+        {
+            return columnValue.getClass();
+        }
     }
 
     @Override
