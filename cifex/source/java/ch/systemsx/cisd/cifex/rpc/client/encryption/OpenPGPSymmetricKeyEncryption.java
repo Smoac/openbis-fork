@@ -251,10 +251,12 @@ public class OpenPGPSymmetricKeyEncryption
     public static File decrypt(final File inFile, String outFileNameOrNull,
             final String passPhrase, final IFileOverwriteStrategy fileOverwriteStrategy)
     {
+        final List<Closeable> closeables = new ArrayList<Closeable>();
         try
         {
-            final PGPPBEEncryptedData encryptedData = getPGPEncryptedData(inFile);
+            final PGPPBEEncryptedData encryptedData = getPGPEncryptedData(inFile, closeables);
             final PGPLiteralData literalData = getLiteralData(encryptedData, passPhrase);
+            closeables.add(literalData.getInputStream());
             final String directory = inFile.getParent();
             final String outFileName =
                     (outFileNameOrNull == null) ? literalData.getFileName() : outFileNameOrNull;
@@ -270,14 +272,8 @@ public class OpenPGPSymmetricKeyEncryption
             try
             {
                 final InputStream literalDataStream = literalData.getInputStream();
-                try
-                {
-                    IOUtils.copyLarge(literalDataStream, outStream);
-                    checkIntegrity(encryptedData, inFile);
-                } finally
-                {
-                    IOUtils.closeQuietly(encryptedData.getInputStream());
-                }
+                IOUtils.copyLarge(literalDataStream, outStream);
+                checkIntegrity(encryptedData, inFile);
             } finally
             {
                 outStream.close();
@@ -286,6 +282,9 @@ public class OpenPGPSymmetricKeyEncryption
         } catch (Exception e)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        } finally
+        {
+            closeInReverseOrder(closeables, true);
         }
     }
 
@@ -328,8 +327,9 @@ public class OpenPGPSymmetricKeyEncryption
         return (PGPLiteralData) openPGPObject;
     }
 
-    private static PGPPBEEncryptedData getPGPEncryptedData(File inFile)
-            throws FileNotFoundException, IOException, PGPException
+    private static PGPPBEEncryptedData getPGPEncryptedData(final File inFile,
+            final List<Closeable> closeables) throws FileNotFoundException, IOException,
+            PGPException
     {
         try
         {
@@ -345,6 +345,7 @@ public class OpenPGPSymmetricKeyEncryption
                 default:
                     throw new PGPException("No PGP file.");
             }
+            closeables.add(pgpIn);
             final PGPObjectFactory pgpFactory = new PGPObjectFactory(pgpIn);
             final PGPEncryptedDataList encryptedDataList;
 
@@ -358,7 +359,10 @@ public class OpenPGPSymmetricKeyEncryption
                 encryptedDataList = (PGPEncryptedDataList) pgpFactory.nextObject();
             }
 
-            return (PGPPBEEncryptedData) encryptedDataList.get(0);
+            final PGPPBEEncryptedData encryptedData =
+                    (PGPPBEEncryptedData) encryptedDataList.get(0);
+            closeables.add(encryptedData.getInputStream());
+            return encryptedData;
         } catch (Exception ex)
         {
             if (ex instanceof PGPException)
