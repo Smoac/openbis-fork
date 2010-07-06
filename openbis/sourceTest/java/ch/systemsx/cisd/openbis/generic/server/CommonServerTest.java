@@ -644,9 +644,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getProjectDAO();
-                    will(returnValue(projectDAO));
-
                     one(projectDAO).listProjects();
                     will(returnValue(new ArrayList<ProjectPE>()));
                 }
