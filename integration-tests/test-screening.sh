@@ -30,13 +30,15 @@ API_HCS=$WORK/screening_api
 # Prepare template incoming data and some destination data structures
 function prepare_data_first_phase {
 		rm -fr $DSS_INCOMING_PARENT_DIR/incoming*
-		unzip $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR -x incoming-analysis-genedata/*
+		unzip $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR -x incoming-analysis*/*
 		mkdir -p $DSS_INCOMING_PARENT_DIR/incoming-analysis-genedata
+		mkdir -p $DSS_INCOMING_PARENT_DIR/incoming-analysis
     chmod -R 700 $DSS_INCOMING_PARENT_DIR/incoming*
 }
 
 function prepare_data_second_phase {
 		unzip $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR incoming-analysis-genedata/*
+		unzip $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR incoming-analysis/*
     chmod -R 700 $DSS_INCOMING_PARENT_DIR/incoming*
 }
 
