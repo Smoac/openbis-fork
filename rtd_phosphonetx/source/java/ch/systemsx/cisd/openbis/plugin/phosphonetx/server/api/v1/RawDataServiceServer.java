@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService
  */
 @Controller
 @RequestMapping(
-    { Constants.RAW_DATA_SERVER_URL, "/openbis" + Constants.RAW_DATA_SERVER_URL })
+    { IRawDataService.SERVER_URL, "/openbis" + IRawDataService.SERVER_URL })
 public class RawDataServiceServer extends HttpInvokerServiceExporter
 {
     @Resource(name = Constants.PHOSPHONETX_RAW_DATA_SERVICE)
@@ -51,9 +51,11 @@ public class RawDataServiceServer extends HttpInvokerServiceExporter
         setService(service);
         setInterceptors(new Object[]
             { new ServiceExceptionTranslator() });
+        int majorVersion = service.getMajorVersion();
+        int minorVersion = service.getMinorVersion();
         RpcServiceInterfaceVersionDTO ifaceVersion =
-                new RpcServiceInterfaceVersionDTO("phosphonetx-raw-data",
-                        Constants.RAW_DATA_SERVER_URL, 1, 0);
+                new RpcServiceInterfaceVersionDTO(IRawDataService.SERVICE_NAME,
+                        IRawDataService.SERVER_URL, majorVersion, minorVersion);
         nameServer.addSupportedInterfaceVersion(ifaceVersion);
         super.afterPropertiesSet();
     }

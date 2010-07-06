@@ -16,8 +16,15 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.api.v1;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
@@ -29,12 +36,15 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjection
  */
 class RawDataApiFacade implements IRawDataApiFacade
 {
+    private static final String USER_ROLE_SET = "USER";
     private final IRawDataService service;
+    private final IGeneralInformationService generalInfoService;
     private final String sessionToken;
 
-    RawDataApiFacade(IRawDataService service, String sessionToken)
+    RawDataApiFacade(IRawDataService service, IGeneralInformationService generalInfoService, String sessionToken)
     {
         this.service = service;
+        this.generalInfoService = generalInfoService;
         this.sessionToken = sessionToken;
     }
 
@@ -60,9 +70,37 @@ class RawDataApiFacade implements IRawDataApiFacade
                 dataSetType);
     }
 
+    public List<Project> listProjects(String userID)
+    {
+        Map<String, Set<Role>> namedRoleSets = generalInfoService.listNamedRoleSets(sessionToken);
+        Set<Role> allowedRoles = namedRoleSets.get(USER_ROLE_SET);
+        if (allowedRoles == null)
+        {
+            throw new IllegalStateException("Role set " + USER_ROLE_SET + " not known.");
+        }
+        
+        List<SpaceWithProjectsAndRoleAssignments> spaces =
+                generalInfoService.listSpacesWithProjectsAndRoleAssignments(sessionToken, null);
+        List<Project> projects = new ArrayList<Project>();
+        for (SpaceWithProjectsAndRoleAssignments space : spaces)
+        {
+            Set<Role> roles = space.getRoles(userID);
+            roles.retainAll(allowedRoles);
+            if (roles.isEmpty() == false)
+            {
+                for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project project : space
+                        .getProjects())
+                {
+                    projects.add(new Project(space.getCode(), project.getCode()));
+                }
+            }
+        }
+        return projects;
+    }
+
     public void logout()
     {
-        service.logout(sessionToken);
+        generalInfoService.logout(sessionToken);
     }
     
 }

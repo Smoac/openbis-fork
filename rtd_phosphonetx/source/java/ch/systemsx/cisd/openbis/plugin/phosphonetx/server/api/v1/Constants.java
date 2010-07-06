@@ -23,7 +23,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1;
  */
 public class Constants
 {
-    public final static String RAW_DATA_SERVER_URL = "/rmi-phosphonetx-raw-data-v1";
+    // Spring bean IDs
     public final static String PHOSPHONETX_RAW_DATA_SERVICE = "phosphonetx-raw-data-service";
     public final static String PHOSPHONETX_RAW_DATA_SERVICE_INTERNAL = "phosphonetx-raw-data-service-internal";
 

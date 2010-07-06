@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.api.v1;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
@@ -51,6 +52,11 @@ public interface IRawDataApiFacade
      */
     public void processingRawData(String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
+    
+    /**
+     * Returns all projects where the specified user has USER access rights.
+     */
+    public List<Project> listProjects(String userID);
 
     /**
      * Logs current user out.

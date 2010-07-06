@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
@@ -64,6 +65,13 @@ public class RawDataApiTest
         {
             System.out.println("   key:" + info.getKey() + ", label:'" + info.getLabel()
                     + "', data set types:" + info.getDatasetTypeCodes());
+        }
+        
+        System.out.println("Projects:");
+        List<Project> projects = facade.listProjects(userID);
+        for (Project project : projects)
+        {
+            System.out.println(project);
         }
         facade.logout();
     }
