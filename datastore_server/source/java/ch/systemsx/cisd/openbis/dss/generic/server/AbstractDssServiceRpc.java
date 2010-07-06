@@ -94,7 +94,7 @@ public abstract class AbstractDssServiceRpc
         }
         return homeDatabaseInstance;
     }
-    
+
     /**
      * Asserts that specified data set is accessible by the user of the specified session.
      */
@@ -102,7 +102,8 @@ public abstract class AbstractDssServiceRpc
     {
         if (isDatasetAccessible(sessionToken, dataSetCode) == false)
         {
-            throw new IllegalArgumentException("User is not allowed to access data set " + dataSetCode);
+            throw new IllegalArgumentException("User is not allowed to access data set "
+                    + dataSetCode);
         }
     }
 
@@ -218,7 +219,7 @@ public abstract class AbstractDssServiceRpc
         File dataSetRootDirectory = getRootDirectoryForDataSet(dataSetCode);
         if (dataSetRootDirectory.exists() == false)
         {
-            throw new IllegalArgumentException("Path does not exist.");
+            throw new IllegalArgumentException("Path does not exist: " + dataSetRootDirectory);
         }
         return dataSetRootDirectory;
     }
