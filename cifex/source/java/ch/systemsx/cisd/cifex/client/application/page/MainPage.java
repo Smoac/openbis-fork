@@ -55,6 +55,12 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 public final class MainPage extends Viewport
 {
 
+    private static final int LOGO_WIDTH_IN_PIXELS = 81;
+
+    private static final int HEADER_HEIGHT_IN_PIXELS = 50;
+
+    private static final int BORDER_WIDTH_IN_PIXELS = 5;
+
     public static final String CISD_LOGO_TITLE =
             "CISD - Center for Information Sciences and Databases";
 
@@ -69,12 +75,13 @@ public final class MainPage extends Viewport
         this.context = context;
         this.tabPanel = tabPanel;
 
-        BorderLayoutData headerLayoutData = new BorderLayoutData(LayoutRegion.NORTH, 50);
-        headerLayoutData.setMargins(new Margins(10));
+        BorderLayoutData headerLayoutData = new BorderLayoutData(LayoutRegion.NORTH, HEADER_HEIGHT_IN_PIXELS);
+        headerLayoutData.setMargins(new Margins(BORDER_WIDTH_IN_PIXELS));
         add(createHeaderWidget(), headerLayoutData);
 
         BorderLayoutData centerLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
-        centerLayoutData.setMargins(new Margins(0, 10, 10, 10));
+        centerLayoutData.setMargins(new Margins(0, BORDER_WIDTH_IN_PIXELS, BORDER_WIDTH_IN_PIXELS,
+                BORDER_WIDTH_IN_PIXELS));
         add(this.tabPanel, centerLayoutData);
 
     }
@@ -88,7 +95,7 @@ public final class MainPage extends Viewport
 
         final Image cifexLogo = ImageUtils.getCIFEXLogoImageSmall();
         cifexLogo.setTitle(CISD_LOGO_TITLE);
-        cifexLogo.setPixelSize(81, 50);
+        cifexLogo.setPixelSize(LOGO_WIDTH_IN_PIXELS, HEADER_HEIGHT_IN_PIXELS);
         Anchor cifexLogoLinked =
                 new Anchor(cifexLogo.getElement().getString(), true, info(HEADER_WEBPAGE_LINK),
                         "_blank");
