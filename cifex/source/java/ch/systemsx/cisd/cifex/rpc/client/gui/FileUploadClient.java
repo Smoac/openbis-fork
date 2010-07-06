@@ -361,7 +361,7 @@ public class FileUploadClient extends AbstractSwingGUI
         BoxLayout layout = new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS);
         buttonsPanel.setLayout(layout);
 
-        final JCheckBox willEncrypt = new JCheckBox("Will encrypt");
+        final JCheckBox willEncrypt = new JCheckBox("Will Encrypt");
         willEncrypt.setEnabled(false);
         encryptButton = new JButton("Encrypt\u2026");
         encryptButton.setToolTipText("Encrypt files before uploading");

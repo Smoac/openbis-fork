@@ -276,7 +276,7 @@ public class FileDownloadClient extends AbstractSwingGUI
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
-        willDecrypt = new JCheckBox("Will decrypt");
+        willDecrypt = new JCheckBox("Will Decrypt");
         willDecrypt.setEnabled(false);
         decryptButton = new JButton("Decrypt\u2026");
         decryptButton.setToolTipText("Decrypt files after downloading");

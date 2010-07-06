@@ -163,8 +163,9 @@ public final class PassphraseDialog
             checkBoxPanelOrNull.add(Box.createHorizontalGlue());
             deleteEncryptedBoxOrNull =
                     new JCheckBox("Delete Encrypted Files", deleteEncryptedOrNull);
-            deleteEncryptedBoxOrNull.setToolTipText("Delete Encrypted File(s) after successful "
-                    + (encrypt ? "Upload" : "Decryption"));
+            deleteEncryptedBoxOrNull
+                    .setToolTipText("Delete encrypted file(s) from local harddisk after successful "
+                            + (encrypt ? "upload" : "decryption"));
             checkBoxPanelOrNull.add(deleteEncryptedBoxOrNull);
         } else
         {
