@@ -115,4 +115,4 @@ cd "$jetty_folder"
 
 echo openBIS Application Server installation finished
 echo Starting server by jetty/bin/startup.sh
-echo Stopng server by jetty/bin/shutdown.sh
+echo Stopping server by jetty/bin/shutdown.sh
