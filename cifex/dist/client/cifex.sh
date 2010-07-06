@@ -14,5 +14,7 @@ while [ -n "${LINK}" ]; do
   LINK="`readlink ${SCRIPT}`"
 done
 CIFEX_ROOT="`dirname ${SCRIPT}`"
+CIFEX_ETC="${CIFEX_ROOT}/etc"
+CIFEX_LIB="${CIFEX_ROOT}/lib"
 
-java -Xmx256m -Djavax.net.ssl.trustStore=${CIFEX_ROOT}/etc/keystore -Dcifex.root=${CIFEX_ROOT} -jar ${CIFEX_ROOT}/lib/cifex.jar "$@"
+java -Xmx256m -Djavax.net.ssl.trustStore=${CIFEX_ETC}/keystore -Dcifex.config="${CIFEX_ETC}" -jar "${CIFEX_LIB}/cifex.jar" "$@"

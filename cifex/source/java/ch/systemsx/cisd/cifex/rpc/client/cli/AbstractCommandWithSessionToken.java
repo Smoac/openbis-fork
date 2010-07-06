@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
+import ch.systemsx.cisd.cifex.rpc.client.ClientConfigurationFiles;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -31,9 +32,9 @@ public abstract class AbstractCommandWithSessionToken extends AbstractCommand
 
     private static String tryCheckAndGetSessionToken()
     {
-        if (SESSION_TOKEN_FILE.exists())
+        if (ClientConfigurationFiles.SESSION_TOKEN_FILE.exists())
         {
-            return FileUtilities.loadToString(SESSION_TOKEN_FILE).trim();
+            return FileUtilities.loadToString(ClientConfigurationFiles.SESSION_TOKEN_FILE).trim();
         }
         System.err.println("You are not logged in. Please call '"
                 + MinimalParameters.getCommandPrepender() + "login' to start a session.");

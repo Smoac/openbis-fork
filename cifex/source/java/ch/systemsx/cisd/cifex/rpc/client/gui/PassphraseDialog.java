@@ -40,6 +40,7 @@ import javax.swing.SpringLayout;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
@@ -52,10 +53,6 @@ public final class PassphraseDialog
 
     private static final long serialVersionUID = 1L;
 
-    private static final int GENERATED_MEMORABLE_PASSPHRASE_LENGTH = 10;
-
-    private static final int GENERATED_STRONG_PASSPHRASE_LENGTH = 40;
-
     private static final int PASSPHRASE_FIELD_LENGTH = 40;
 
     public static final class PassphraseAndFileDeletion
@@ -64,7 +61,8 @@ public final class PassphraseDialog
 
         private final Boolean deleteEncryptedOrNull;
 
-        private PassphraseAndFileDeletion(final String passphrase, final Boolean deleteEncryptedOrNull)
+        private PassphraseAndFileDeletion(final String passphrase,
+                final Boolean deleteEncryptedOrNull)
         {
             this.passphrase = passphrase;
             this.deleteEncryptedOrNull = deleteEncryptedOrNull;
@@ -343,8 +341,8 @@ public final class PassphraseDialog
                 public void actionPerformed(ActionEvent e)
                 {
                     final String passphrase =
-                            generatorOrNull.generatePassword(GENERATED_STRONG_PASSPHRASE_LENGTH,
-                                    false);
+                            generatorOrNull.generatePassword(
+                                    Constants.GENERATED_STRONG_PASSPHRASE_LENGTH, false);
                     passphraseField.setText(passphrase);
                     passphraseRepeatedField.setText(passphrase);
                     ClipboardUtils.copyToClipboard(passphrase);
@@ -368,8 +366,8 @@ public final class PassphraseDialog
                 public void actionPerformed(ActionEvent e)
                 {
                     final String passphrase =
-                            generatorOrNull.generatePassword(GENERATED_MEMORABLE_PASSPHRASE_LENGTH,
-                                    true);
+                            generatorOrNull.generatePassword(
+                                    Constants.GENERATED_MEMORABLE_PASSPHRASE_LENGTH, true);
                     passphraseField.setText(passphrase);
                     passphraseRepeatedField.setText(passphrase);
                     ClipboardUtils.copyToClipboard(passphrase);

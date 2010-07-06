@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.cifex.rpc.client.ClientConfigurationFiles;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -116,7 +117,7 @@ public final class LoginCommand extends AbstractCommand
             FileWriter writer = null;
             try
             {
-                writer = new FileWriter(SESSION_TOKEN_FILE);
+                writer = new FileWriter(ClientConfigurationFiles.SESSION_TOKEN_FILE);
                 writer.write(sessionToken);
                 System.out.println("Successfully authenticated.");
                 return 0;

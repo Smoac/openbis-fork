@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.cifex.rpc.client;
 
-import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -74,25 +73,6 @@ public final class RPCServiceFactory
     }
 
     /**
-     * Returns the directory of CIFEX configuration data.
-     */
-    public static File getCIFEXConfigDir()
-    {
-        String homeDir = System.getProperty("cifex.root");
-        File cifexDir;
-        if (homeDir != null)
-        {
-            cifexDir = new File(homeDir, "etc");
-        } else
-        {
-            homeDir = System.getProperty("user.home");
-            cifexDir = new File(homeDir, ".cifex");
-        }
-        cifexDir.mkdirs();
-        return cifexDir;
-    }
-
-    /**
      * Creates the CIFEX component class.
      */
     public static ICIFEXComponent createCIFEXComponent(String serviceURL,
@@ -115,7 +95,8 @@ public final class RPCServiceFactory
         return new CIFEXComponent(proxy);
     }
 
-    // TODO 2010-04-21, Tomasz Pylak: refactor to use HttpInvokerUtils.createStreamSupportingServiceStub() 
+    // TODO 2010-04-21, Tomasz Pylak: refactor to use
+    // HttpInvokerUtils.createStreamSupportingServiceStub()
     private static ICIFEXRPCService createService(String serviceURL,
             boolean getServerCertificateFromServer)
     {
@@ -150,7 +131,8 @@ public final class RPCServiceFactory
 
     private static void setUpKeyStore(String serviceURL)
     {
-        new SslCertificateHelper(serviceURL, getCIFEXConfigDir(), "cifex").setUpKeyStore();
+        new SslCertificateHelper(serviceURL, ClientConfigurationFiles.KEYSTORE_FILE, "cifex")
+                .setUpKeyStore();
     }
 
 }

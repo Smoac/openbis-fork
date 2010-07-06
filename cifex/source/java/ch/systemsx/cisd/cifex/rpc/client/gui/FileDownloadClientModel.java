@@ -36,6 +36,7 @@ import javax.swing.table.TableColumnModel;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
+import ch.systemsx.cisd.cifex.rpc.client.PersistenceStore;
 import ch.systemsx.cisd.cifex.rpc.client.TransmissionSpeedCalculator;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClient.IDecryptionChecker;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo.Status;

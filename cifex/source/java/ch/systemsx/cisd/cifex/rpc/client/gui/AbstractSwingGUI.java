@@ -34,6 +34,7 @@ import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
+import ch.systemsx.cisd.cifex.rpc.client.PersistenceStore;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -81,6 +82,8 @@ public abstract class AbstractSwingGUI
                 public void run()
                 {
                     PersistenceStore.setWorkingDirectory(getWorkingDirectory());
+                    PersistenceStore.setDeleteEncryptedFiles(isDeleteEncryptedFile());
+                    PersistenceStore.saveProperties();
                     try
                     {
                         cifex.logout(sessionId);
@@ -171,6 +174,11 @@ public abstract class AbstractSwingGUI
      * Returns the current value of the working directory.
      */
     protected abstract File getWorkingDirectory();
+    
+    /**
+     * Returns whether the encrypted files should be deleted after successful upload / decryption.
+     */
+    protected abstract boolean isDeleteEncryptedFile();
     
     /**
      * Log the user out automatically if the app is shutdown.

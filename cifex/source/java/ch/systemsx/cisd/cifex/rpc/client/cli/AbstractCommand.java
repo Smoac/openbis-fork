@@ -23,9 +23,9 @@ import jline.ConsoleReader;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.cifex.rpc.client.ClientConfigurationFiles;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.IProgressListenerHolder;
 import ch.systemsx.cisd.cifex.rpc.client.IncompatibleAPIVersionsException;
@@ -42,32 +42,18 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
  */
 abstract class AbstractCommand implements ICommand
 {
-
-    private static final String APPLICATION_NAME = "cifex";
-
-    private static final int GENERATED_MEMORABLE_PASSPHRASE_LENGTH = 10;
-
-    private static final int GENERATED_STRONG_PASSPHRASE_LENGTH = 60;
-
-    private static final File HOME_DIRECTORY = SystemUtils.getUserHome();
-
-    private static final String SESSION_TOKEN_FILE_NAME = "." + APPLICATION_NAME + "-session-token";
-
     private static final PasswordGenerator passwordGenerator = new PasswordGenerator();
-
-    protected static final File SESSION_TOKEN_FILE =
-            new File(HOME_DIRECTORY, SESSION_TOKEN_FILE_NAME);
 
     static String configuredBaseURL;
 
     static
     {
-        final File baseURLFile = getBaseURLFile();
-        if (baseURLFile.exists())
+        if (ClientConfigurationFiles.BASE_URL_FILE.exists())
         {
             try
             {
-                configuredBaseURL = FileUtils.readFileToString(baseURLFile);
+                configuredBaseURL =
+                        FileUtils.readFileToString(ClientConfigurationFiles.BASE_URL_FILE);
             } catch (final IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -80,20 +66,16 @@ abstract class AbstractCommand implements ICommand
         }
     }
 
-    static File getBaseURLFile()
-    {
-        final File baseURLFile = new File(RPCServiceFactory.getCIFEXConfigDir(), "server");
-        return baseURLFile;
-    }
-
     static String generatePassphrase(boolean shortPassphrase)
     {
         if (shortPassphrase)
         {
-            return passwordGenerator.generatePassword(GENERATED_MEMORABLE_PASSPHRASE_LENGTH, true);
+            return passwordGenerator.generatePassword(
+                    Constants.GENERATED_MEMORABLE_PASSPHRASE_LENGTH, true);
         } else
         {
-            return passwordGenerator.generatePassword(GENERATED_STRONG_PASSPHRASE_LENGTH, false);
+            return passwordGenerator.generatePassword(Constants.GENERATED_STRONG_PASSPHRASE_LENGTH,
+                    false);
         }
     }
 

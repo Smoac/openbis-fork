@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
+import ch.systemsx.cisd.cifex.rpc.client.ClientConfigurationFiles;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -52,11 +53,13 @@ public final class LogoutCommand extends AbstractCommand
     public final int execute(String[] arguments) throws UserFailureException,
             EnvironmentFailureException
     {
-        if (SESSION_TOKEN_FILE.exists())
+        if (ClientConfigurationFiles.SESSION_TOKEN_FILE.exists())
         {
             try
             {
-                String sessionToken = FileUtilities.loadToString(SESSION_TOKEN_FILE).trim();
+                String sessionToken =
+                        FileUtilities.loadToString(ClientConfigurationFiles.SESSION_TOKEN_FILE)
+                                .trim();
                 final MinimalParameters parameters = new MinimalParameters(arguments, NAME);
                 parameters.assertArgsEmpty();
                 final ICIFEXComponent cifexOrNull = tryGetComponent();
@@ -64,7 +67,7 @@ public final class LogoutCommand extends AbstractCommand
                 {
                     cifexOrNull.logout(sessionToken);
                 }
-                SESSION_TOKEN_FILE.delete();
+                ClientConfigurationFiles.SESSION_TOKEN_FILE.delete();
                 if (cifexOrNull == null)
                 {
                     return 2;
@@ -73,7 +76,7 @@ public final class LogoutCommand extends AbstractCommand
             } catch (InvalidSessionException ex)
             {
                 // Ignore InvalidSessionException, as we logout anyway.
-                SESSION_TOKEN_FILE.delete();
+                ClientConfigurationFiles.SESSION_TOKEN_FILE.delete();
                 return 0;
             }
         }

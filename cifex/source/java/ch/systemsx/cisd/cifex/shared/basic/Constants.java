@@ -24,6 +24,12 @@ package ch.systemsx.cisd.cifex.shared.basic;
 public final class Constants
 {
 
+    /** The length for automatically generated passphrases which are supposed to be memorable. */
+    public static final int GENERATED_MEMORABLE_PASSPHRASE_LENGTH = 10;
+
+    /** The length for automatically generated passphrases which are supposed to be strong. */
+    public static final int GENERATED_STRONG_PASSPHRASE_LENGTH = 40;
+
     /** The <code>id</code> attribute value for renew action. */
     public static final String RENEW_ID = "renew";
 
@@ -108,15 +114,15 @@ public final class Constants
 
     public static final int GRID_HEIGHT = 250;
 
-    private Constants()
-    {
-        // Can not be instantiated.
-    }
-
     public final static String SERVICE = "cifex-service";
 
     public final static String SERVER = "cifex-server";
 
     public static final long VERSION = 1L;
+
+    private Constants()
+    {
+        // Can not be instantiated.
+    }
 
 }

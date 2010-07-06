@@ -55,6 +55,7 @@ import ch.systemsx.cisd.cifex.rpc.client.FileItem;
 import ch.systemsx.cisd.cifex.rpc.client.FileItemStatus;
 import ch.systemsx.cisd.cifex.rpc.client.FileWithOverrideName;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
+import ch.systemsx.cisd.cifex.rpc.client.PersistenceStore;
 import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryption;
 import ch.systemsx.cisd.cifex.rpc.client.gui.PassphraseDialog.PassphraseAndFileDeletion;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -125,7 +126,8 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private String passphrase = "";
 
-    private boolean deleteEncryptedFilesAfterSuccessfulUpload = true;
+    private boolean deleteEncryptedFilesAfterSuccessfulUpload =
+            PersistenceStore.isDeleteEncryptedFiles();
 
     final List<File> encryptedFilesToBeDeleted = new LinkedList<File>();
 
@@ -705,5 +707,11 @@ public class FileUploadClient extends AbstractSwingGUI
     protected File getWorkingDirectory()
     {
         return workingDirectory;
+    }
+
+    @Override
+    protected boolean isDeleteEncryptedFile()
+    {
+        return deleteEncryptedFilesAfterSuccessfulUpload;
     }
 }

@@ -27,7 +27,7 @@ public class SslCertificateHelper
 {
     private final String serviceURL;
 
-    private final File configDirectory;
+    private final File keystoreFile;
 
     private final String certificateEntryName;
 
@@ -36,13 +36,13 @@ public class SslCertificateHelper
      * file with the name "keystore" in the configDirectory.
      * 
      * @param serviceURL The URL to retrieve the certificate from.
-     * @param configDirectory The directory to store the certificate in.
+     * @param keystoreFile The file where to store the certificate in.
      * @param certificateEntryName The name in the keystore the certificate is stored under.
      */
-    public SslCertificateHelper(String serviceURL, File configDirectory, String certificateEntryName)
+    public SslCertificateHelper(String serviceURL, File keystoreFile, String certificateEntryName)
     {
         this.serviceURL = serviceURL;
-        this.configDirectory = configDirectory;
+        this.keystoreFile = keystoreFile;
         this.certificateEntryName = certificateEntryName;
     }
 
@@ -67,11 +67,10 @@ public class SslCertificateHelper
             FileOutputStream fileOutputStream = null;
             try
             {
-                File keyStoreFile = new File(configDirectory, "keystore");
-                fileOutputStream = new FileOutputStream(keyStoreFile);
+                fileOutputStream = new FileOutputStream(keystoreFile);
                 keyStore.store(fileOutputStream, "changeit".toCharArray());
                 fileOutputStream.close();
-                System.setProperty("javax.net.ssl.trustStore", keyStoreFile.getAbsolutePath());
+                System.setProperty("javax.net.ssl.trustStore", keystoreFile.getAbsolutePath());
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);

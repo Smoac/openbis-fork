@@ -23,6 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.cifex.rpc.client.ClientConfigurationFiles;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -89,7 +90,7 @@ public class InitializeCommand extends AbstractCommand
                 }
             }
             // Write Base URL to file.
-            FileUtils.writeStringToFile(getBaseURLFile(), baseURL);
+            FileUtils.writeStringToFile(ClientConfigurationFiles.BASE_URL_FILE, baseURL);
 
             // Initialize Trust Store.
             if (tryGetComponent(baseURL, true) == null)

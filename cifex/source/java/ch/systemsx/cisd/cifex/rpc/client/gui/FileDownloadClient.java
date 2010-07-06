@@ -48,6 +48,7 @@ import javax.swing.table.TableColumn;
 
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
+import ch.systemsx.cisd.cifex.rpc.client.PersistenceStore;
 import ch.systemsx.cisd.cifex.rpc.client.gui.PassphraseDialog.PassphraseAndFileDeletion;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -115,7 +116,8 @@ public class FileDownloadClient extends AbstractSwingGUI
 
     private String passphrase = "";
 
-    private boolean deleteEncryptedFileAfterSuccessfulDecryption = true;
+    private boolean deleteEncryptedFileAfterSuccessfulDecryption =
+            PersistenceStore.isDeleteEncryptedFiles();
 
     FileDownloadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
     {
@@ -387,5 +389,11 @@ public class FileDownloadClient extends AbstractSwingGUI
     protected File getWorkingDirectory()
     {
         return tableModel.getDownloadDirectory();
+    }
+
+    @Override
+    protected boolean isDeleteEncryptedFile()
+    {
+        return deleteEncryptedFileAfterSuccessfulDecryption;
     }
 }
