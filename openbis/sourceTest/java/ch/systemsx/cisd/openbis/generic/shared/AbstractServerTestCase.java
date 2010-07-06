@@ -226,6 +226,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(databaseInstanceDAO));
                     allowing(daoFactory).getPersonDAO();
                     will(returnValue(personDAO));
+                    allowing(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
                     allowing(daoFactory).getGroupDAO();
                     will(returnValue(groupDAO));
                     allowing(daoFactory).getSampleDAO();
