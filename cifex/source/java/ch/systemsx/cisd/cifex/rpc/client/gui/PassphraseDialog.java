@@ -25,7 +25,10 @@ import java.awt.event.WindowListener;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -55,24 +58,49 @@ public final class PassphraseDialog
 
     private static final int PASSPHRASE_FIELD_LENGTH = 40;
 
-    /**
-     * @return The passphrase, or <code>null</code> if the user cancelled entering the passphrase.
-     */
-    public static String tryGetPassphraseForEncrypt(final Frame parentComponent,
-            final String oldPassphase, final PasswordGenerator generatorOrNull, final String title,
-            final String message)
+    public static final class PassphraseAndFileDeletion
     {
-        return tryGetPassphrase(parentComponent, generatorOrNull, title, message, oldPassphase,
-                true, true);
+        private final String passphrase;
+
+        private final Boolean deleteEncryptedOrNull;
+
+        private PassphraseAndFileDeletion(final String passphrase, final Boolean deleteEncryptedOrNull)
+        {
+            this.passphrase = passphrase;
+            this.deleteEncryptedOrNull = deleteEncryptedOrNull;
+        }
+
+        public String getPassphrase()
+        {
+            return passphrase;
+        }
+
+        public Boolean tryGetDeleteEncrypted()
+        {
+            return deleteEncryptedOrNull;
+        }
     }
 
     /**
      * @return The passphrase, or <code>null</code> if the user cancelled entering the passphrase.
      */
-    public static String tryGetPassphraseForDecrypt(final Frame parentComponent,
-            final String oldPassphase, final String title, final String message)
+    public static PassphraseAndFileDeletion tryGetPassphraseForEncrypt(final Frame parentComponent,
+            final String oldPassphase, final boolean deleteEncrypted,
+            final PasswordGenerator generatorOrNull, final String title, final String message)
     {
-        return tryGetPassphrase(parentComponent, null, title, message, oldPassphase, false, true);
+        return tryGetPassphrase(parentComponent, generatorOrNull, title, message, oldPassphase,
+                true, true, deleteEncrypted);
+    }
+
+    /**
+     * @return The passphrase, or <code>null</code> if the user cancelled entering the passphrase.
+     */
+    public static PassphraseAndFileDeletion tryGetPassphraseForDecrypt(final Frame parentComponent,
+            final String oldPassphase, final boolean deleteEncrypted, final String title,
+            final String message)
+    {
+        return tryGetPassphrase(parentComponent, null, title, message, oldPassphase, false, true,
+                deleteEncrypted);
     }
 
     /**
@@ -82,16 +110,18 @@ public final class PassphraseDialog
     public static String tryGetPassphraseForDecryptRetry(final Frame parentComponent,
             final String title, final String message)
     {
-        return tryGetPassphrase(parentComponent, null, title, message, null, false, false);
+        final PassphraseAndFileDeletion resultOrNull =
+                tryGetPassphrase(parentComponent, null, title, message, null, false, false, null);
+        return (resultOrNull != null) ? resultOrNull.getPassphrase() : null;
     }
 
     /**
      * @return The passphrase, or <code>null</code> if the user cancelled entering the passphrase.
      */
-    public static String tryGetPassphrase(final Frame parentComponent,
+    public static PassphraseAndFileDeletion tryGetPassphrase(final Frame parentComponent,
             final PasswordGenerator generatorOrNull, final String title, final String message,
             final String oldPassphraseOrNull, final boolean encrypt,
-            final boolean allowEmptyPassphrase)
+            final boolean allowEmptyPassphrase, final Boolean deleteEncryptedOrNull)
     {
         // Whether the dialog has been cancelled. We use an AtomicBoolean to be able to change it
         // from anonymous classes which only can access final local variables.
@@ -125,6 +155,24 @@ public final class PassphraseDialog
                     dialog.dispose();
                 }
             });
+
+        final JPanel checkBoxPanelOrNull;
+        final JCheckBox deleteEncryptedBoxOrNull;
+        if (deleteEncryptedOrNull != null)
+        {
+            checkBoxPanelOrNull = new JPanel();
+            checkBoxPanelOrNull.setLayout(new BoxLayout(checkBoxPanelOrNull, BoxLayout.LINE_AXIS));
+            checkBoxPanelOrNull.add(Box.createHorizontalGlue());
+            deleteEncryptedBoxOrNull =
+                    new JCheckBox("Delete Encrypted Files", deleteEncryptedOrNull);
+            deleteEncryptedBoxOrNull.setToolTipText("Delete Encrypted File(s) after successful "
+                    + (encrypt ? "Upload" : "Decryption"));
+            checkBoxPanelOrNull.add(deleteEncryptedBoxOrNull);
+        } else
+        {
+            checkBoxPanelOrNull = null;
+            deleteEncryptedBoxOrNull = null;
+        }
 
         if (encrypt)
         {
@@ -247,10 +295,16 @@ public final class PassphraseDialog
                     createOKButtonStateUpdater(okButton, passphraseField));
         }
 
+        int numberOfItems = 3;
         panel.add(messageLabel);
         panel.add(passphrasePanel);
+        if (checkBoxPanelOrNull != null)
+        {
+            panel.add(checkBoxPanelOrNull);
+            ++numberOfItems;
+        }
         panel.add(buttonPanel);
-        SpringLayoutUtilities.makeCompactGrid(panel, 3, 1, 5, 5, 5, 5);
+        SpringLayoutUtilities.makeCompactGrid(panel, numberOfItems, 1, 5, 5, 5, 5);
 
         // Make ESC cancel the dialog.
         dialog.getRootPane().registerKeyboardAction(new ActionListener()
@@ -274,7 +328,9 @@ public final class PassphraseDialog
             return null;
         } else
         {
-            return new String(passphraseField.getPassword());
+            return new PassphraseAndFileDeletion(new String(passphraseField.getPassword()),
+                    (deleteEncryptedBoxOrNull != null) ? deleteEncryptedBoxOrNull.isSelected()
+                            : null);
         }
     }
 

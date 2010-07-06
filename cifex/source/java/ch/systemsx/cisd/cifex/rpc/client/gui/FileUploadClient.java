@@ -27,6 +27,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.Box;
@@ -48,11 +49,14 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.cifex.rpc.client.FileItem;
 import ch.systemsx.cisd.cifex.rpc.client.FileItemStatus;
 import ch.systemsx.cisd.cifex.rpc.client.FileWithOverrideName;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryption;
+import ch.systemsx.cisd.cifex.rpc.client.gui.PassphraseDialog.PassphraseAndFileDeletion;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -121,6 +125,10 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private String passphrase = "";
 
+    private boolean deleteEncryptedFilesAfterSuccessfulUpload = true;
+
+    final List<File> encryptedFilesToBeDeleted = new LinkedList<File>();
+
     private File workingDirectory;
 
     FileUploadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
@@ -142,7 +150,49 @@ public class FileUploadClient extends AbstractSwingGUI
     private void addProgressListener()
     {
         uploader.addProgressListener(createErrorLogListener());
+        uploader.addProgressListener(createEncryptedFileDeletionListener());
         uploader.addProgressListener(createFinishLogListenerWhoExitsProgram());
+    }
+
+    private IProgressListener createEncryptedFileDeletionListener()
+    {
+        return new IProgressListener()
+            {
+                public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
+                {
+                }
+
+                public void reportProgress(int percentage, long numberOfBytes)
+                {
+                }
+
+                public void finished(boolean successful)
+                {
+                    // The check for doDeleteEncryptedFilesAfterSuccessfulUpload() shouldn't be
+                    // necessary as that has happened already in encryptFilesIfRequested(), but just
+                    // to be sure.
+                    if (successful && doDeleteEncryptedFilesAfterSuccessfulUpload())
+                    {
+                        for (File file : encryptedFilesToBeDeleted)
+                        {
+                            if (file.delete() == false)
+                            {
+                                JOptionPane.showMessageDialog(getWindowFrame(),
+                                        "Failed to delete file '" + file.getAbsolutePath() + "'.",
+                                        "Warning", JOptionPane.WARNING_MESSAGE);
+                            }
+                        }
+                    }
+                }
+
+                public void exceptionOccured(Throwable throwable)
+                {
+                }
+
+                public void warningOccured(String warningMessage)
+                {
+                }
+            };
     }
 
     private IProgressListener createFinishLogListenerWhoExitsProgram()
@@ -162,7 +212,8 @@ public class FileUploadClient extends AbstractSwingGUI
                         JOptionPane.showMessageDialog(getWindowFrame(),
                                 "Operation did not complete successfully. "
                                         + "Check the status in the CIFEX Web GUI "
-                                        + "(Uploaded Files > Edit Sharing)");
+                                        + "(Uploaded Files > Edit Sharing)", "Warning",
+                                JOptionPane.WARNING_MESSAGE);
                     }
                 }
 
@@ -316,14 +367,16 @@ public class FileUploadClient extends AbstractSwingGUI
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    final String newPassphraseOrNull =
+                    final PassphraseAndFileDeletion newPassphraseAndFileDeletionOrNull =
                             PassphraseDialog.tryGetPassphraseForEncrypt(getWindowFrame(),
-                                    passphrase, passphraseGenerator, "Encrypt Files",
-                                    "Enter Passphrase");
-                    if (newPassphraseOrNull != null)
+                                    passphrase, deleteEncryptedFilesAfterSuccessfulUpload,
+                                    passphraseGenerator, "Encrypt Files", "Enter Passphrase");
+                    if (newPassphraseAndFileDeletionOrNull != null)
                     {
-                        passphrase = newPassphraseOrNull;
-                        willEncrypt.setSelected(passphrase.length() > 0);
+                        passphrase = newPassphraseAndFileDeletionOrNull.getPassphrase();
+                        deleteEncryptedFilesAfterSuccessfulUpload =
+                                newPassphraseAndFileDeletionOrNull.tryGetDeleteEncrypted();
+                        willEncrypt.setSelected(doEncrypt());
                     }
                 }
             });
@@ -574,7 +627,7 @@ public class FileUploadClient extends AbstractSwingGUI
     private List<FileWithOverrideName> encryptFilesIfRequested(
             final List<FileWithOverrideName> files)
     {
-        if (passphrase.length() > 0)
+        if (doEncrypt())
         {
             final List<FileWithOverrideName> encryptedFiles =
                     new ArrayList<FileWithOverrideName>(files.size());
@@ -619,6 +672,10 @@ public class FileUploadClient extends AbstractSwingGUI
                     }
                     encryptedFiles.add(new FileWithOverrideName(encryptedFile, file
                             .tryGetOverrideName()));
+                    if (doDeleteEncryptedFilesAfterSuccessfulUpload())
+                    {
+                        encryptedFilesToBeDeleted.add(encryptedFile);
+                    }
                 } catch (Throwable th)
                 {
                     notifyUserOfThrowable(getWindowFrame(), file.getOriginalFile().getPath(),
@@ -632,6 +689,16 @@ public class FileUploadClient extends AbstractSwingGUI
         {
             return files;
         }
+    }
+
+    private boolean doDeleteEncryptedFilesAfterSuccessfulUpload()
+    {
+        return doEncrypt() && deleteEncryptedFilesAfterSuccessfulUpload;
+    }
+
+    private boolean doEncrypt()
+    {
+        return StringUtils.isNotEmpty(passphrase);
     }
 
     @Override

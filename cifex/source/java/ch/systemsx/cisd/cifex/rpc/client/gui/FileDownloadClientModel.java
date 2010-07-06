@@ -93,6 +93,8 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     private String passphrase = "";
 
+    private boolean deleteEncryptedFileAfterSuccessfulDecryption;
+
     protected int sortColumnIndex = 0;
 
     protected boolean sortAscending = true;
@@ -298,9 +300,12 @@ public class FileDownloadClientModel extends AbstractTableModel
         this.downloadDirectory = downloadDirectory;
     }
 
-    public void setPassphrase(String passphrase)
+    public void setPassphraseAndEncryptedFileDeletion(String passphrase,
+            boolean deleteEncryptedFileAfterSuccessfulDecryption)
     {
         this.passphrase = passphrase;
+        this.deleteEncryptedFileAfterSuccessfulDecryption =
+                deleteEncryptedFileAfterSuccessfulDecryption;
         fireTableDataChanged();
     }
 
@@ -559,7 +564,8 @@ public class FileDownloadClientModel extends AbstractTableModel
             fileDownloadInfo.setStatus(Status.QUEUED_FOR_DOWNLOAD);
         }
         FileDownloadOperation op =
-                new FileDownloadOperation(this, fileDownloadInfo, downloadDirectory, passphrase);
+                new FileDownloadOperation(this, fileDownloadInfo, downloadDirectory, passphrase,
+                        deleteEncryptedFileAfterSuccessfulDecryption);
         executor.submit(op);
     }
 

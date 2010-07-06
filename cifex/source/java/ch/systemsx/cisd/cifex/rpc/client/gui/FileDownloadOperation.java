@@ -48,14 +48,21 @@ final class FileDownloadOperation implements Runnable
     private final File downloadDirectory;
 
     private String passphrase;
+    
+    private boolean decryptionCancelled = false;
+
+    private boolean deleteEncryptedFileAfterSuccessfulDecryption;
 
     FileDownloadOperation(final FileDownloadClientModel model, final FileDownloadInfo info,
-            final File downloadDirectory, final String passphrase)
+            final File downloadDirectory, final String passphrase,
+            final boolean deleteEncryptedFileAfterSuccessfulDecryption)
     {
         this.tableModel = model;
         this.fileDownloadInfo = info;
         this.downloadDirectory = downloadDirectory;
         this.passphrase = passphrase;
+        this.deleteEncryptedFileAfterSuccessfulDecryption =
+                deleteEncryptedFileAfterSuccessfulDecryption;
     }
 
     public void run()
@@ -84,6 +91,7 @@ final class FileDownloadOperation implements Runnable
                 try
                 {
                     decrypt(file);
+                    removeEncryptedIfRequested(file);
                 } catch (Throwable th)
                 {
                     tableModel.fireChanged(Status.COMPLETED_DOWNLOAD);
@@ -105,6 +113,18 @@ final class FileDownloadOperation implements Runnable
         } finally
         {
             tableModel.resetCurrentlyDownloadingFile();
+        }
+    }
+
+    private void removeEncryptedIfRequested(final File file)
+    {
+        if (deleteEncryptedFileAfterSuccessfulDecryption && decryptionCancelled == false)
+        {
+            if (file.delete() == false)
+            {
+                JOptionPane.showMessageDialog(tableModel.getMainWindow(), "Failed to delete file '"
+                        + file.getAbsolutePath() + "'.", "Warning", JOptionPane.WARNING_MESSAGE);
+            }
         }
     }
 
@@ -156,6 +176,7 @@ final class FileDownloadOperation implements Runnable
                     ok = true;
                 } else
                 {
+                    decryptionCancelled = true;
                     throw ex;
                 }
             }
@@ -242,6 +263,7 @@ final class FileDownloadOperation implements Runnable
 
     private void cancelDecryption()
     {
+        decryptionCancelled = true;
         tableModel.fireChanged(Status.COMPLETED_DOWNLOAD);
     }
 

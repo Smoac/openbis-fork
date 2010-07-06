@@ -48,6 +48,7 @@ import javax.swing.table.TableColumn;
 
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
+import ch.systemsx.cisd.cifex.rpc.client.gui.PassphraseDialog.PassphraseAndFileDeletion;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
@@ -113,6 +114,8 @@ public class FileDownloadClient extends AbstractSwingGUI
     private JCheckBox willDecrypt;
 
     private String passphrase = "";
+
+    private boolean deleteEncryptedFileAfterSuccessfulDecryption = true;
 
     FileDownloadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
     {
@@ -279,13 +282,17 @@ public class FileDownloadClient extends AbstractSwingGUI
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    final String newPassphraseOrNull =
+                    final PassphraseAndFileDeletion newPassphraseAndFileDeletionOrNull =
                             PassphraseDialog.tryGetPassphraseForDecrypt(getWindowFrame(),
-                                    passphrase, "Decrypt Files", "Enter Passphrase");
-                    if (newPassphraseOrNull != null)
+                                    passphrase, deleteEncryptedFileAfterSuccessfulDecryption,
+                                    "Decrypt Files", "Enter Passphrase");
+                    if (newPassphraseAndFileDeletionOrNull != null)
                     {
-                        passphrase = newPassphraseOrNull;
-                        tableModel.setPassphrase(passphrase);
+                        passphrase = newPassphraseAndFileDeletionOrNull.getPassphrase();
+                        deleteEncryptedFileAfterSuccessfulDecryption =
+                                newPassphraseAndFileDeletionOrNull.tryGetDeleteEncrypted();
+                        tableModel.setPassphraseAndEncryptedFileDeletion(passphrase,
+                                deleteEncryptedFileAfterSuccessfulDecryption);
                         willDecrypt.setSelected(passphrase.length() > 0);
                     }
                 }
