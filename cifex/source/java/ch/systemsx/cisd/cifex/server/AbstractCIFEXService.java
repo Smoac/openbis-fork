@@ -245,8 +245,9 @@ abstract public class AbstractCIFEXService
             {
                 return finishLogin(userDTOOrNull);
             }
-            operationLog.info("User '" + userDTOOrNull.getUserCode()
-                    + "' which is deactivated tried to login.");
+            operationLog.info(String.format("User '%s' failed to login: %s.", userDTOOrNull
+                    .getUserCode(), userDTOOrNull.isActive() ? "password mismatch"
+                    : "account deactivated"));
         }
         return null;
     }

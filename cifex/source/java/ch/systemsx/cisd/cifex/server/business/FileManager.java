@@ -88,6 +88,8 @@ import ch.systemsx.cisd.common.utilities.StringUtilities.IUniquenessChecker;
  */
 final class FileManager extends AbstractManager implements IFileManager
 {
+    private static final String FILE_CHECKSUM_TEMPLATE = "File %s has crc32 checksum %x.";
+
     private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
     private static final int PROGRESS_UPDATE_CHUNK_SIZE = 128 * 1024; // 128 kB
@@ -372,8 +374,6 @@ final class FileManager extends AbstractManager implements IFileManager
                 outputStream.close();
                 final long byteCount = outputStream.getByteCount();
                 final int crc32Value = outputStream.getCrc32Value();
-                operationLog.info(String.format("File %s has crc32 checksum %x.", fileName,
-                        crc32Value));
                 if (byteCount > 0)
                 {
                     final FileDTO fileDTO =
@@ -461,8 +461,7 @@ final class FileManager extends AbstractManager implements IFileManager
                         "Wrong file size of file %s [expected: %d, found: %d]", fileName, fileSize,
                         byteCount);
             }
-            operationLog
-                    .info(String.format("File %s has crc32 checksum %x.", fileName, crc32Value));
+            operationLog.info(String.format(FILE_CHECKSUM_TEMPLATE, fileName, crc32Value));
             // Set file to 'complete' in database.
             updateUploadProgress(fileDTO, user);
             return fileDTO;
@@ -548,8 +547,7 @@ final class FileManager extends AbstractManager implements IFileManager
                         "Wrong file size of file %s [expected: %d, found: %d]", fileName, fileSize,
                         byteCount);
             }
-            operationLog
-                    .info(String.format("File %s has crc32 checksum %x.", fileName, crc32Value));
+            operationLog.info(String.format(FILE_CHECKSUM_TEMPLATE, fileName, crc32Value));
             // Set file to 'complete' in database.
             updateUploadProgress(fileDTO, user);
         } catch (final IOException ex)
@@ -578,7 +576,7 @@ final class FileManager extends AbstractManager implements IFileManager
     private FileDTO registerFile(final UserDTO user, final String fileName, final String comment,
             final String contentType, final File file, final long byteCount, final int crc32Value)
     {
-        operationLog.info(String.format("File %s has crc32 checksum %x.", fileName, crc32Value));
+        operationLog.info(String.format(FILE_CHECKSUM_TEMPLATE, fileName, crc32Value));
         final FileDTO fileDTO = new FileDTO(user);
         fileDTO.setName(FilenameUtilities.ensureMaximumSize(fileName, MAX_FILENAME_LENGTH));
         fileDTO.setContentType(contentType);
