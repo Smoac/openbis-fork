@@ -52,14 +52,19 @@ public class ExperimentSamplesSection extends DisposableSectionPanel
     // @Private
     static String createGridId(TechId experimentId)
     {
-        return ID_PREFIX + experimentId + "-grid";
+        return SampleBrowserGrid.createGridId(createBrowserId(experimentId));
+    }
+
+    private static String createBrowserId(TechId experimentId)
+    {
+        return ID_PREFIX + experimentId + "-browser";
     }
 
     @Override
     protected IDisposableComponent createDisposableContent()
     {
         return SampleBrowserGrid.createGridForExperimentSamples(viewContext.getCommonViewContext(),
-                experimentId, createGridId(experimentId), experimentType);
+                experimentId, createBrowserId(experimentId), experimentType);
     }
 
 }

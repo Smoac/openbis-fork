@@ -121,7 +121,7 @@ public final class ComponentProvider
                 @Override
                 public String getId()
                 {
-                    return SampleBrowserGrid.BROWSER_ID;
+                    return SampleBrowserGrid.MAIN_BROWSER_ID;
                 }
 
                 @Override

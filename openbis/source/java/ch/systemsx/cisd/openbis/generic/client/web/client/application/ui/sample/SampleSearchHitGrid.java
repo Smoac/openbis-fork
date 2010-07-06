@@ -49,11 +49,6 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     public static final String SEARCH_BROWSER_ID =
             GenericConstants.ID_PREFIX + "sample-search-hit-browser";
 
-    public static final String SEARCH_GRID_ID = SEARCH_BROWSER_ID + "-grid";
-
-    public static final String SHOW_RELATED_DATASETS_BUTTON_ID =
-            SEARCH_GRID_ID + "_show-related-datasets-button";
-
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -98,7 +93,7 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     private SampleSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             final ISampleCriteriaProvider criteriaProvider)
     {
-        super(viewContext, criteriaProvider, SEARCH_GRID_ID, SEARCH_BROWSER_ID, false,
+        super(viewContext, criteriaProvider, SEARCH_BROWSER_ID, false,
                 DisplayTypeIDGenerator.SAMPLE_SEARCH_RESULT_GRID);
         updateCriteriaProviderAndRefresh();
         extendBottomToolbar();
@@ -117,7 +112,6 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
                             showRelatedDataSets(viewContext, SampleSearchHitGrid.this);
                         }
                     });
-        showRelatedDatasetsButton.setId(SHOW_RELATED_DATASETS_BUTTON_ID);
         addButton(showRelatedDatasetsButton);
 
         super.addEntityOperationButtons();

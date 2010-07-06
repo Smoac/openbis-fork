@@ -44,10 +44,13 @@ public final class ShowSample extends AbstractDefaultTestCommand
     @SuppressWarnings("unchecked")
     public void execute()
     {
-        final Widget widget = GWTTestUtil.getWidgetWithID(SampleBrowserGrid.GRID_ID);
+        final Widget widget = GWTTestUtil.getWidgetWithID(SampleBrowserGrid.MAIN_GRID_ID);
         assertTrue(widget instanceof Grid);
         final Grid<BaseEntityModel<Sample>> table = (Grid<BaseEntityModel<Sample>>) widget;
         GridTestUtils.fireSelectRow(table, CommonSampleColDefKind.CODE.id(), code);
-        GWTTestUtil.clickButtonWithID(SampleBrowserGrid.SHOW_DETAILS_BUTTON_ID);
+        GWTTestUtil
+                .clickButtonWithID(SampleBrowserGrid.createChildComponentId(
+                        SampleBrowserGrid.MAIN_BROWSER_ID,
+                        SampleBrowserGrid.SHOW_DETAILS_BUTTON_ID_SUFFIX));
     }
 }

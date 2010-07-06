@@ -89,13 +89,15 @@ public class SampleBrowserGrid extends
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser";
 
     // browser consists of the grid and additional toolbars (paging, filtering)
-    public static final String BROWSER_ID = PREFIX + "_main";
+    public static final String MAIN_BROWSER_ID = PREFIX + "_main";
 
-    public static final String GRID_ID = PREFIX + "_grid";
+    public static final String MAIN_GRID_ID = createGridId(MAIN_BROWSER_ID);
 
-    public static final String EDIT_BUTTON_ID = BROWSER_ID + "_edit-button";
+    public static final String GRID_ID_SUFFIX = "_grid";
 
-    public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "_show-details-button";
+    public static final String EDIT_BUTTON_ID_SUFFIX = "_edit-button";
+
+    public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
 
     /** Creates a grid without additional toolbar buttons. It can serve as a entity chooser. */
     public static DisposableEntityChooser<Sample> createChooser(
@@ -107,7 +109,7 @@ public class SampleBrowserGrid extends
                         sampleTypeID);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, false,
+                new SampleBrowserGrid(viewContext, criteriaProvider, MAIN_BROWSER_ID, false,
                         DisplayTypeIDGenerator.ENTITY_BROWSER_GRID)
                     {
                         @Override
@@ -133,7 +135,7 @@ public class SampleBrowserGrid extends
                         initialSampleTypeOrNull, SampleTypeDisplayID.MAIN_SAMPLE_BROWSER);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, false,
+                new SampleBrowserGrid(viewContext, criteriaProvider, MAIN_BROWSER_ID, false,
                         DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
@@ -142,14 +144,14 @@ public class SampleBrowserGrid extends
 
     public static IDisposableComponent createGridForContainerSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final TechId containerSampleId, final String gridId, final SampleType sampleType)
+            final TechId containerSampleId, final String browserId, final SampleType sampleType)
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForContainer(containerSampleId);
         final String entityTypeCode = sampleType.getCode();
 
         final SampleBrowserGrid browserGrid =
-                createGridAsComponent(viewContext, gridId, criteria, entityTypeCode,
+                createGridAsComponent(viewContext, browserId, criteria, entityTypeCode,
                         DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
@@ -158,14 +160,14 @@ public class SampleBrowserGrid extends
 
     public static IDisposableComponent createGridForDerivedSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId parentSampleId,
-            final String gridId, final SampleType sampleType)
+            final String browserId, final SampleType sampleType)
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForParent(parentSampleId);
         final String entityTypeCode = sampleType.getCode();
 
         final SampleBrowserGrid browserGrid =
-                createGridAsComponent(viewContext, gridId, criteria, entityTypeCode,
+                createGridAsComponent(viewContext, browserId, criteria, entityTypeCode,
                         DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
@@ -174,14 +176,14 @@ public class SampleBrowserGrid extends
 
     public static IDisposableComponent createGridForExperimentSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId experimentId,
-            final String gridId, final BasicEntityType experimentType)
+            final String browserId, final BasicEntityType experimentType)
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForExperiment(experimentId);
         final String entityTypeCode = experimentType.getCode();
 
         final SampleBrowserGrid browserGrid =
-                createGridAsComponent(viewContext, gridId, criteria, entityTypeCode,
+                createGridAsComponent(viewContext, browserId, criteria, entityTypeCode,
                         DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
@@ -189,7 +191,7 @@ public class SampleBrowserGrid extends
     }
 
     private static SampleBrowserGrid createGridAsComponent(
-            final IViewContext<ICommonClientServiceAsync> viewContext, final String gridId,
+            final IViewContext<ICommonClientServiceAsync> viewContext, final String browserId,
             final ListSampleDisplayCriteria criteria, final String entityTypeCode,
             DisplayTypeIDGenerator displayTypeIDGenerator)
     {
@@ -199,7 +201,7 @@ public class SampleBrowserGrid extends
         // be loaded
         boolean refreshAutomatically = false;
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, gridId, BROWSER_ID,
+                new SampleBrowserGrid(viewContext, criteriaProvider, browserId,
                         refreshAutomatically, displayTypeIDGenerator)
                     {
                         @Override
@@ -311,10 +313,10 @@ public class SampleBrowserGrid extends
     private final ISampleCriteriaProvider propertyTypesAndCriteriaProvider;
 
     protected SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            ISampleCriteriaProvider criteriaProvider, String gridId, String browserId,
+            ISampleCriteriaProvider criteriaProvider, String browserId,
             boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, refreshAutomatically, displayTypeIDGenerator);
+        super(viewContext, createGridId(browserId), refreshAutomatically, displayTypeIDGenerator);
         this.propertyTypesAndCriteriaProvider = criteriaProvider;
         this.previousPropertyTypes = null;
 
@@ -344,6 +346,22 @@ public class SampleBrowserGrid extends
                         }
                     });
         setId(browserId);
+    }
+
+    public static final String createGridId(final String browserId)
+    {
+        return browserId + GRID_ID_SUFFIX;
+    }
+
+    public static final String createChildComponentId(final String browserId,
+            final String childSuffix)
+    {
+        return browserId + childSuffix;
+    }
+
+    private final String createChildComponentId(final String childSuffix)
+    {
+        return createChildComponentId(getId(), childSuffix);
     }
 
     private abstract class OpenEntityDetailsTabCellClickListener implements ICellListener<Sample>
@@ -395,12 +413,12 @@ public class SampleBrowserGrid extends
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-        showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
+        showDetailsButton.setId(createChildComponentId(SHOW_DETAILS_BUTTON_ID_SUFFIX));
         addButton(showDetailsButton);
 
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
-        editButton.setId(EDIT_BUTTON_ID);
+        editButton.setId(createChildComponentId(EDIT_BUTTON_ID_SUFFIX));
         addButton(editButton);
 
         final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);

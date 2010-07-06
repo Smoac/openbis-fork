@@ -52,12 +52,12 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         loginAndGotoListSamplesTab();
         remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
         ChangeTableColumnSettingsCommand settingsCommand =
-                new ChangeTableColumnSettingsCommand(SampleBrowserGrid.GRID_ID);
+                new ChangeTableColumnSettingsCommand(SampleBrowserGrid.MAIN_GRID_ID);
         settingsCommand.hiddenChangeEvent(CommonSampleColDefKind.CODE.name(), true);
         settingsCommand.widthChangeEvent(CommonSampleColDefKind.REGISTRATOR.name(),
                 2 * DEFAULT_COLUMN_WIDTH);
         remoteConsole.prepare(settingsCommand);
-        remoteConsole.prepare(new Logout(SampleBrowserGrid.GRID_ID));
+        remoteConsole.prepare(new Logout());
         Login login = new Login("test", "a");
         remoteConsole.prepare(login);
         remoteConsole.prepare(new InvokeActionMenu(ActionMenuKind.SAMPLE_MENU_BROWSE));

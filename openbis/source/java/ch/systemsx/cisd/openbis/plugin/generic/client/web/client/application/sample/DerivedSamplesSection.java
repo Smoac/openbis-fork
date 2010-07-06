@@ -45,10 +45,9 @@ public class DerivedSamplesSection extends DisposableSectionPanel
         this.parent = parent;
     }
 
-    // @Private
-    static String createGridId(TechId parentId)
+    private static String createBrowserId(TechId parentId)
     {
-        return ID_PREFIX + parentId + "-grid";
+        return ID_PREFIX + parentId + "-browser";
     }
 
     @Override
@@ -56,7 +55,7 @@ public class DerivedSamplesSection extends DisposableSectionPanel
     {
         TechId parentId = TechId.create(parent);
         return SampleBrowserGrid.createGridForDerivedSamples(viewContext.getCommonViewContext(),
-                parentId, createGridId(parentId), parent.getSampleType());
+                parentId, createBrowserId(parentId), parent.getSampleType());
     }
 
 }

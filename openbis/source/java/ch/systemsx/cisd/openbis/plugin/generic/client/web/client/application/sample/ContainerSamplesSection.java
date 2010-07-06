@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
@@ -48,7 +48,12 @@ public class ContainerSamplesSection extends DisposableSectionPanel
     // @Private
     static String createGridId(TechId containerId)
     {
-        return ID_PREFIX + containerId + "-grid";
+        return SampleBrowserGrid.createGridId(createBrowserId(containerId));
+    }
+
+    private static String createBrowserId(TechId containerId)
+    {
+        return ID_PREFIX + containerId + "-browser";
     }
 
     @Override
@@ -56,7 +61,7 @@ public class ContainerSamplesSection extends DisposableSectionPanel
     {
         TechId containerId = TechId.create(container);
         return SampleBrowserGrid.createGridForContainerSamples(viewContext.getCommonViewContext(),
-                containerId, createGridId(containerId), container.getSampleType());
+                containerId, createBrowserId(containerId), container.getSampleType());
     }
 
 }
