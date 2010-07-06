@@ -35,7 +35,8 @@
         <include name="ch/systemsx/cisd/common/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/**/api/**/*.class" />
-        <exclude name="ch/systemsx/cisd/openbis/**/server/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/openbis/generic/server/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/openbis/generic/shared/api/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/*BuildAndEnvironmentInfo.class" />
         <include name="*.INFO" />
       </zipfileset>
