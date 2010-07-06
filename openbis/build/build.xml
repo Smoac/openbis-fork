@@ -67,7 +67,9 @@
     <attribute name="failureproperty"/>
     <sequential>
       <echo>Running @{testsuite}...</echo>
-      <junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="@{failureproperty}">
+      <!-- add showoutput="true" when running locally for additional output on console -->
+      <junit dir="." fork="true" forkmode="once" maxmemory="2048m"
+      	     failureproperty="@{failureproperty}" printsummary="on">
         <classpath>
           <pathelement location="${sources}" />
           <pathelement location="${sources.test}" />
@@ -100,29 +102,19 @@
   <target name="run-system-tests" depends="prepare-gwt, compile-tests, run-system-tests-no-prep"/>
 
   <target name="run-system-tests-no-prep">
-    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite1"
-                           failureproperty="editing1-failed" />
+  	<delete dir="${output.test}" />
+  	<mkdir dir="${output.test}" />
+  	<run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite1"
+                           failureproperty="tests.failed" />
     <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite2"
-                           failureproperty="editing2-failed" />
+                           failureproperty="tests.failed" />
     <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1"
-                           failureproperty="viewing1-failed" />
+                           failureproperty="tests.failed" />
     <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite2"
-                           failureproperty="viewing2-failed" />
+                           failureproperty="tests.failed" />
     <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite3"
-                           failureproperty="viewing3-failed" />
-    <fail>
-      <condition>
-        <or>
-          <isset property="editing1-failed" />
-          <isset property="editing2-failed" />
-          <isset property="viewing1-failed" />
-          <isset property="viewing2-failed" />
-          <isset property="viewing3-failed" />
-        </or>
-      </condition>
-    </fail>
-    <delete dir="${output.test}" />
-    <mkdir dir="${output.test}" />
+                           failureproperty="tests.failed" />
+    <fail if="tests.failed" message="At least one of system test suites failed. See reports!"/>    
   </target>
 
   <!-- 
