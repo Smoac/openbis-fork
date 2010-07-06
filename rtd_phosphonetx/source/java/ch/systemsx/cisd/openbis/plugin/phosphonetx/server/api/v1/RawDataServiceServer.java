@@ -18,14 +18,10 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1;
 
 import javax.annotation.Resource;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
-import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
-import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
-import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
+import ch.systemsx.cisd.common.api.server.AbstractApiServiceExporter;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
 
 /**
@@ -36,27 +32,16 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService
 @Controller
 @RequestMapping(
     { IRawDataService.SERVER_URL, "/openbis" + IRawDataService.SERVER_URL })
-public class RawDataServiceServer extends HttpInvokerServiceExporter
+public class RawDataServiceServer extends AbstractApiServiceExporter
 {
     @Resource(name = Constants.PHOSPHONETX_RAW_DATA_SERVICE)
     private IRawDataService service;
 
-    @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
-    private RpcServiceNameServer nameServer;
-
     @Override
     public void afterPropertiesSet()
     {
-        setServiceInterface(IRawDataService.class);
-        setService(service);
-        setInterceptors(new Object[]
-            { new ServiceExceptionTranslator() });
-        int majorVersion = service.getMajorVersion();
-        int minorVersion = service.getMinorVersion();
-        RpcServiceInterfaceVersionDTO ifaceVersion =
-                new RpcServiceInterfaceVersionDTO(IRawDataService.SERVICE_NAME,
-                        IRawDataService.SERVER_URL, majorVersion, minorVersion);
-        nameServer.addSupportedInterfaceVersion(ifaceVersion);
+        establishService(IRawDataService.class, service, IRawDataService.SERVICE_NAME,
+                IRawDataService.SERVER_URL);
         super.afterPropertiesSet();
     }
 }

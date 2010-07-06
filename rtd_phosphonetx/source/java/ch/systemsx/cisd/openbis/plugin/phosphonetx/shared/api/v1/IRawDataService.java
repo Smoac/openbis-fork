@@ -39,7 +39,7 @@ public interface IRawDataService extends IRpcService
     public static final String SERVICE_NAME = "phosphonetx-raw-data";
     
     /**
-     * Application part of the URL to access this service remotely.
+     * Service part of the URL to access this service remotely.
      */
     public static final String SERVER_URL = "/rmi-" + SERVICE_NAME + "-v1";
 
