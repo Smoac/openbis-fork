@@ -123,9 +123,9 @@ function integration_tests_screening {
 
     prepare_data_first_phase
     switch_dss "on" datastore_server_screening
-		sleep 60
-		prepare_data_second_phase
-  	sleep 20
+	sleep 30
+	prepare_data_second_phase
+  	sleep 15
 	  
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-analysis
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-analysis-genedata
@@ -151,7 +151,6 @@ function quick_api_test {
 	switch_dss "on" datastore_server_screening
 
 	test_screening_api
-
   
 	switch_dss "off" datastore_server_screening
 	shutdown_openbis_server $OPENBIS_SERVER_HCS
@@ -159,4 +158,4 @@ function quick_api_test {
 }
 
 integration_tests_screening
-
+#quick_api_test
