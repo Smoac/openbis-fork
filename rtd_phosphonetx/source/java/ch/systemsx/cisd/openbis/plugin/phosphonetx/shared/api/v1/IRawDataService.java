@@ -34,6 +34,16 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjection
 public interface IRawDataService extends IRpcService
 {
     /**
+     * Name of this service for which it is registered at the RPC name server.
+     */
+    public static final String SERVICE_NAME = "phosphonetx-raw-data";
+    
+    /**
+     * Application part of the URL to access this service remotely.
+     */
+    public static final String SERVER_URL = "/rmi-" + SERVICE_NAME + "-v1";
+
+    /**
      * Tries to authenticate specified user with specified password. Returns session token if
      * succeeded otherwise <code>null</code> is returned.
      */
