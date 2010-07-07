@@ -274,7 +274,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             if (systemUser.getRoleAssignments().isEmpty())
             {
                 final RoleAssignmentPE roleAssignment =
-                        createInstanceAdminRoleAssigment(systemUser, systemUser);
+                        createInstanceAdminRoleAssigment(systemUser, person);
                 daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignment);
             }
         }

@@ -20,11 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.hamcrest.core.IsEqual;
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -209,20 +206,15 @@ public final class CommonServerTest extends AbstractServerTestCase
                     person.setDisplaySettings(systemPerson.getDisplaySettings());
 
                     one(personDAO).createPerson(with(new PersonWithDisplaySettingsMatcher(person)));
-                    one(personDAO).updatePerson(with(new BaseMatcher<PersonPE>()
-                        {
-                            public boolean matches(Object item)
-                            {
-                                Set<RoleAssignmentPE> roles = ((PersonPE) item).getAllPersonRoles();
-                                return roles.size() == 1
-                                        && roles.iterator().next().getRole().equals(RoleCode.ADMIN);
-                            }
 
-                            public void describeTo(Description description)
-                            {
-                                description.appendValue(person);
-                            }
-                        }));
+                    // assign instance admin role
+                    final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
+                    roleAssignmentPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+                    roleAssignmentPE.setRegistrator(systemPerson);
+                    roleAssignmentPE.setRole(RoleCode.ADMIN);
+                    person.addRoleAssignment(roleAssignmentPE);
+
+                    one(roleAssignmentDAO).createRoleAssignment(with(roleAssignmentPE));
                 }
             });
 
