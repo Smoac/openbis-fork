@@ -42,8 +42,9 @@ public class ScreeningDAOFactory implements IScreeningDAOFactory
             LogFactory.getLogger(LogCategory.OPERATION, ScreeningDAOFactory.class);
 
     private final IDataSourceProvider dataSourceProvider;
-    
-    private final Map<DataSource, IImagingQueryDAO> daos = new HashMap<DataSource, IImagingQueryDAO>();
+
+    private final Map<DataSource, IImagingQueryDAO> daos =
+            new HashMap<DataSource, IImagingQueryDAO>();
 
     public ScreeningDAOFactory(IDataSourceProvider dataSourceProvider)
     {
@@ -51,13 +52,14 @@ public class ScreeningDAOFactory implements IScreeningDAOFactory
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("DAO factory for Screening created. Data source provider: "
-                    + dataSourceProvider.getClass());
+                    + dataSourceProvider.getClass().getName());
         }
     }
 
-    public IImagingQueryDAO getImagingQueryDAO(String datasetPermId)
+    public IImagingQueryDAO getImagingQueryDAO(String dssCode)
     {
-        DataSource dataSource = dataSourceProvider.getDataSourceByDataSetCode(datasetPermId, TECHNOLOGY);
+        DataSource dataSource =
+                dataSourceProvider.getDataSourceByDataStoreServerCode(dssCode, TECHNOLOGY);
         IImagingQueryDAO dao = daos.get(dataSource);
         if (dao == null)
         {

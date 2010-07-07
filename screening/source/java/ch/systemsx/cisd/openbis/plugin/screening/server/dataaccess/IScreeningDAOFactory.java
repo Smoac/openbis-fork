@@ -25,5 +25,5 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
  */
 public interface IScreeningDAOFactory
 {
-    public IImagingQueryDAO getImagingQueryDAO(String datasetPermId);
+    public IImagingQueryDAO getImagingQueryDAO(String dssCode);
 }

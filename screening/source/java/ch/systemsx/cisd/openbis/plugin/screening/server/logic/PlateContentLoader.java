@@ -273,7 +273,7 @@ public class PlateContentLoader
             IExternalDataTable externalDataTable)
     {
         final IHCSDatasetLoader loader =
-                businessObjectFactory.createHCSDatasetLoader(dataset.getCode());
+                businessObjectFactory.createHCSDatasetLoader(dataset);
         return PlateImageParametersFactory.create(loader);
     }
 

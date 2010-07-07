@@ -197,27 +197,33 @@ public class GenePlateLocationsLoader
     }
 
     private Map<String/* dataset code */, PlateImageParameters> loadImagesReport(
-            List<ExternalDataPE> usedDatasets)
+            List<ExternalDataPE> usedDataSets)
     {
-        List<String> datasetCodes = extractDatasetCodes(usedDatasets);
         List<PlateImageParameters> imageParameters = new ArrayList<PlateImageParameters>();
-        for (String datasetCode : datasetCodes)
+        List<ExternalDataPE> distinctDataSets = getDistinctDataSets(usedDataSets);
+        for (ExternalDataPE dataSet : distinctDataSets)
         {
             final IHCSDatasetLoader loader =
-                    businessObjectFactory.createHCSDatasetLoader(datasetCode);
+                    businessObjectFactory.createHCSDatasetLoader(dataSet);
             imageParameters.add(PlateImageParametersFactory.create(loader));
         }
         return asDatasetToParamsMap(imageParameters);
     }
-
-    private static List<String> extractDatasetCodes(List<ExternalDataPE> usedDatasets)
+    
+    private List<ExternalDataPE> getDistinctDataSets(List<ExternalDataPE> usedDataSets)
     {
-        Set<String> codes = new HashSet<String>();
-        for (ExternalDataPE dataset : usedDatasets)
+        List<ExternalDataPE> result = new ArrayList<ExternalDataPE>();
+        Set<String> dataSetCodes = new HashSet<String>();
+        for (ExternalDataPE dataSet : usedDataSets)
         {
-            codes.add(dataset.getCode());
+            String code = dataSet.getCode();
+            if (dataSetCodes.contains(code) == false)
+            {
+                dataSetCodes.add(code);
+                result.add(dataSet);
+            }
         }
-        return new ArrayList<String>(codes);
+        return result;
     }
 
     private static Map<String/* dataset code */, PlateImageParameters> asDatasetToParamsMap(
