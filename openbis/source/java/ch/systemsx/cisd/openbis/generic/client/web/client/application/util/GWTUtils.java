@@ -118,11 +118,19 @@ public final class GWTUtils
     }
 
     /**
-     * Deferrs a task allowing browser to handle events.
+     * Defers a task allowing browser to handle events.
      */
     public static void executeDelayed(final IDelegatedAction delegatedAction)
     {
-        DeferredCommand.addCommand(delegatedAction);
+        // In testing mode the action has to be performed without delay - otherwise system tests
+        // will perform new commands before the deferred action starts.
+        if (isTesting() == false)
+        {
+            DeferredCommand.addCommand(delegatedAction);
+        } else
+        {
+            delegatedAction.execute();
+        }
     }
 
     /**
