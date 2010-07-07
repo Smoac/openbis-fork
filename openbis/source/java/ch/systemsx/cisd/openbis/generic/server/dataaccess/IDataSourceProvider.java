@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Interface for providing a {@link DataSource} for a technology specific database based on data set
- * code or epxeriment/sample permID.
+ * code or data store server code
  * 
  * @author Franz-Josef Elmer
  */
@@ -38,20 +38,11 @@ public interface IDataSourceProvider
     public DataSource getDataSourceByDataSetCode(String dataSetCode, String technology);
 
     /**
-     * Returns an appropriated data source for specified experiment permID and technology.
+     * Returns an appropriated data source for specified data store server code and technology.
      * 
-     * @throws IllegalArgumentException if getting data source by experiment permID isn't supported
-     *             for the specified technology.
-     * @throws UserFailureException if the specified experiment doesn't exist.
+     * @throws IllegalArgumentException if getting data source by data store server code isn't
+     *             supported for the specified technology.
+     * @throws UserFailureException if the specified data store server doesn't exist.
      */
-    public DataSource getDataSourceByExperimentPermID(String experimentPermID, String technology);
-
-    /**
-     * Returns an appropriated data source for specified sample permID and technology.
-     * 
-     * @throws IllegalArgumentException if getting data source by sample permID isn't supported
-     *             for the specified technology.
-     * @throws UserFailureException if the specified sample doesn't exist.
-     */
-    public DataSource getDataSourceBySamplePermID(String samplePermID, String technology);
+    public DataSource getDataSourceByDataStoreServerCode(String dssCode, String technology);
 }

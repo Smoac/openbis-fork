@@ -35,7 +35,7 @@ import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
- * 
+ * Data source provider based on configuration per Data Store Server.
  *
  * @author Franz-Josef Elmer
  */
@@ -68,7 +68,9 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         {
             String key = sectionProperties.getKey().toUpperCase();
             Properties properties = sectionProperties.getProperties();
-            dataSources.put(key, create(properties));
+            SimpleDatabaseConfigurationContext context =
+                    new SimpleDatabaseConfigurationContext(properties);
+            dataSources.put(key, context.getDataSource());
         }
     }
 
@@ -79,10 +81,10 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         {
             throw new UserFailureException("Unknown data set " + dataSetCode);
         }
-        return getDataSource(dataSet.getDataStore().getCode());
+        return getDataSourceByDataSetCode(dataSet.getDataStore().getCode(), technology);
     }
     
-    private DataSource getDataSource(String dssCode)
+    public DataSource getDataSourceByDataStoreServerCode(String dssCode, String technology)
     {
         DataSource dataSource = dataSources.get(dssCode);
         if (dataSource == null)
@@ -91,25 +93,6 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
                     "No data source configured for Data Store Server '" + dssCode + "'");
         }
         return dataSource;
-    }
-
-    private DataSource create(Properties properties)
-    {
-        return new SimpleDatabaseConfigurationContext(properties).getDataSource();
-    }
-
-    public DataSource getDataSourceByExperimentPermID(String experimentPermID, String technology)
-    {
-        throw new IllegalArgumentException(
-                "Getting data source by experiment permID is not supported for technology '"
-                        + technology + "'.");
-    }
-
-    public DataSource getDataSourceBySamplePermID(String samplePermID, String technology)
-    {
-        throw new IllegalArgumentException(
-                "Getting data source by sample permID is not supported for technology '"
-                + technology + "'.");
     }
 
 }

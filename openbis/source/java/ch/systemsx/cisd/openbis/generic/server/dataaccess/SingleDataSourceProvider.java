@@ -42,12 +42,7 @@ public class SingleDataSourceProvider implements IDataSourceProvider
         return dataSource;
     }
 
-    public DataSource getDataSourceByExperimentPermID(String experimentPermID, String technology)
-    {
-        return dataSource;
-    }
-
-    public DataSource getDataSourceBySamplePermID(String samplePermID, String technology)
+    public DataSource getDataSourceByDataStoreServerCode(String dssCode, String technology)
     {
         return dataSource;
     }
