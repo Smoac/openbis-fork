@@ -158,7 +158,7 @@ public class SectionsPanel extends ContentPanel
     {
         for (SectionElement el : elements)
         {
-            el.getPanel().enableAutoDisposeComponents();
+            el.getPanel().disposeComponents();
         }
         super.onDetach();
     }

@@ -540,7 +540,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
                 public void dispose()
                 {
-                    debug("dispose a tab");
+                    debug("dispose a browser");
                     self.disposeCache();
                 }
 

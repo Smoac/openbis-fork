@@ -46,7 +46,7 @@ abstract public class DisposableSectionPanel extends SingleSectionPanel
     }
 
     @Override
-    protected void disposeComponents()
+    public void disposeComponents()
     {
         if (disposableComponentOrNull != null)
         {

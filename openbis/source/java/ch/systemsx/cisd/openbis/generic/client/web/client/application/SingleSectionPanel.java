@@ -42,9 +42,10 @@ abstract public class SingleSectionPanel extends ContentPanel
     private boolean isContentVisible = false;
 
     /**
-     * whether additional components created for this section (e.g. browsers) should be automatically
-     * disposed (for sections that can temporarily removed from container as in
-     * {@link SectionsPanel} it should be turned off until detach from the container)
+     * Whether additional components created for this section (e.g. browsers) should be
+     * automatically disposed when the section is detached from its container. For sections that can
+     * temporarily removed from container as in {@link SectionsPanel} it should be turned off and
+     * the container should dispose section components manually.
      */
     private boolean autoDisposeComponents = true;
 
@@ -95,24 +96,14 @@ abstract public class SingleSectionPanel extends ContentPanel
         return isContentVisible;
     }
 
-    public void enableAutoDisposeComponents()
-    {
-        setAutoDisposeComponents(true);
-    }
-
     public void disableAutoDisposeComponents()
     {
-        setAutoDisposeComponents(false);
+        this.autoDisposeComponents = false;
     }
 
     protected boolean isAutoDisposeComponents()
     {
         return autoDisposeComponents;
-    }
-
-    private void setAutoDisposeComponents(boolean autoDisposeComponent)
-    {
-        this.autoDisposeComponents = autoDisposeComponent;
     }
 
     @Override
@@ -126,7 +117,7 @@ abstract public class SingleSectionPanel extends ContentPanel
     }
 
     /** disposes components created for the section (by default does nothing) */
-    protected void disposeComponents()
+    public void disposeComponents()
     {
     }
 
