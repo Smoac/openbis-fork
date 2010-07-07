@@ -39,8 +39,6 @@ public class RoleAssignmentDAOTest extends AbstractDAOTest
 
     private static final String AUTH_GROUP_ID = "rivia";
 
-    @Test(groups = "broken")
-    // FIXME
     public void testAddGroupAdminRoleToUser() throws Exception
     {
         String userId = USER_ID;
@@ -57,13 +55,12 @@ public class RoleAssignmentDAOTest extends AbstractDAOTest
         roleAssignment.setRegistrator(getSystemPerson());
 
         user.addRoleAssignment(roleAssignment);
-        AssertJUnit.assertEquals(1, daoFactory.getPersonDAO().tryFindPersonByUserId(userId)
-                .getRoleAssignments().size());
+
+        daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignment);
         AssertJUnit.assertEquals(1, daoFactory.getRoleAssignmentDAO().listRoleAssignmentsByPerson(
                 user).size());
     }
 
-    @Test
     public void testAddGroupAdminRoleToAuthorizationGroup() throws Exception
     {
         String code = AUTH_GROUP_ID;
@@ -78,6 +75,8 @@ public class RoleAssignmentDAOTest extends AbstractDAOTest
         roleAssignment.setRegistrator(getSystemPerson());
 
         authGroup.addRoleAssignment(roleAssignment);
+
+        daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignment);
         AssertJUnit.assertEquals(1, daoFactory.getRoleAssignmentDAO()
                 .listRoleAssignmentsByAuthorizationGroup(authGroup).size());
     }

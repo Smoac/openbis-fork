@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -149,7 +148,7 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
         this.modificationDate = versionDate;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "authorizationGroupInternal", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "authorizationGroupInternal")
     private Set<RoleAssignmentPE> getRoleAssignmentsInternal()
     {
         return roleAssignments;
