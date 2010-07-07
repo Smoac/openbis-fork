@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
+package ch.systemsx.cisd.openbis.dss.etl;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
 
 /**
- * A factory for Screening specific DAOs.
- * 
- * @author Piotr Buczek
+ * Version holder for imaging database.
+ *
+ * @author Franz-Josef Elmer
  */
-public interface IScreeningDAOFactory
+public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
 {
-    public IImagingQueryDAO getImagingQueryDAO(String datasetPermId);
+
+    public String getDatabaseVersion()
+    {
+        return "003"; // S83
+    }
+
 }

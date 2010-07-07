@@ -29,9 +29,17 @@
         <property name="databaseInstance" value="${imaging.database-instance}" />
     </bean>
     
+    <bean id="single-data-source-provider" class="ch.systemsx.cisd.openbis.generic.server.dataaccess.SingleDataSourceProvider">
+        <constructor-arg ref="imaging-db-configuration-context"/>
+    </bean>
+    
+    <bean id="dss-based-data-source-provider" class="ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider">
+        <constructor-arg ref="dao-factory"/>
+    </bean>
+    
     <bean id="screening-dao-factory"
           class="ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.db.ScreeningDAOFactory">
-        <constructor-arg ref="imaging-db-configuration-context"/>
+        <constructor-arg ref="${data-source-provider}"/>
     </bean>
     
     <!--

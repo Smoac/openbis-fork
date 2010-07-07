@@ -16,14 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.db;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import net.lemnik.eodsql.QueryTool;
 
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSourceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
@@ -32,26 +36,34 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
  */
 public class ScreeningDAOFactory implements IScreeningDAOFactory
 {
-    /** Current version of the database. */
-    public static final String DATABASE_VERSION = "003"; // S83
+    private static final String TECHNOLOGY = "screening";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ScreeningDAOFactory.class);
 
-    private final IImagingQueryDAO imagingQueryDAO;
+    private final IDataSourceProvider dataSourceProvider;
+    
+    private final Map<DataSource, IImagingQueryDAO> daos = new HashMap<DataSource, IImagingQueryDAO>();
 
-    public ScreeningDAOFactory(DatabaseConfigurationContext context)
+    public ScreeningDAOFactory(IDataSourceProvider dataSourceProvider)
     {
-        DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
-        imagingQueryDAO = QueryTool.getQuery(context.getDataSource(), IImagingQueryDAO.class);
+        this.dataSourceProvider = dataSourceProvider;
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("DAO factory for Screening created.");
+            operationLog.info("DAO factory for Screening created. Data source provider: "
+                    + dataSourceProvider.getClass());
         }
     }
 
-    public IImagingQueryDAO getImagingQueryDAO()
+    public IImagingQueryDAO getImagingQueryDAO(String datasetPermId)
     {
-        return imagingQueryDAO;
+        DataSource dataSource = dataSourceProvider.getDataSourceByDataSetCode(datasetPermId, TECHNOLOGY);
+        IImagingQueryDAO dao = daos.get(dataSource);
+        if (dao == null)
+        {
+            dao = QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
+            daos.put(dataSource, dao);
+        }
+        return dao;
     }
 }

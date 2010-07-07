@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseVersionHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.db.ScreeningDAOFactory;
 
 /**
@@ -32,7 +33,8 @@ public class DBUtilsForTests
 
     public static void init(DatabaseConfigurationContext context)
     {
+        String databaseVersion = new ImagingDatabaseVersionHolder().getDatabaseVersion();
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
-                ScreeningDAOFactory.DATABASE_VERSION);
+                databaseVersion);
     }
 }

@@ -54,7 +54,7 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
 
     public final IHCSDatasetLoader createHCSDatasetLoader(final String datasetPermId)
     {
-        return new HCSDatasetLoader(specificDAOFactory.getImagingQueryDAO(), datasetPermId);
+        return new HCSDatasetLoader(specificDAOFactory.getImagingQueryDAO(datasetPermId), datasetPermId);
     }
 
     public final ISampleBO createSampleBO(final Session session)
