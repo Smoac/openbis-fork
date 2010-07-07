@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.shared;
 
+import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 
