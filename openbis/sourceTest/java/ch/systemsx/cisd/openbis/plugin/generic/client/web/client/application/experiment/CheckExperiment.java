@@ -38,7 +38,9 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     private CheckTableCommand attachmentsSection;
 
-    private CheckTableCommand sampleSection;
+    private CheckTableCommand samplesSection;
+
+    private CheckTableCommand dataSetsSection;
 
     public CheckExperiment()
     {
@@ -67,9 +69,17 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
         propertyCheckingManager.assertPropertiesOf(ExperimentPropertiesPanel.PROPERTIES_ID_PREFIX
                 + experimentId);
 
-        if (sampleSection != null)
+        if (samplesSection != null)
         {
-            sampleSection.execute();
+            samplesSection.execute();
+        }
+        if (dataSetsSection != null)
+        {
+            dataSetsSection.execute();
+        }
+        if (attachmentsSection != null)
+        {
+            attachmentsSection.execute();
         }
     }
 
@@ -83,13 +93,15 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     public CheckTableCommand sampleTable()
     {
-        sampleSection = new CheckTableCommand(ExperimentSamplesSection.createGridId(experimentId));
-        return sampleSection;
+        samplesSection = new CheckTableCommand(ExperimentSamplesSection.createGridId(experimentId));
+        return samplesSection;
     }
 
     public CheckTableCommand dataSetTable()
     {
-        return new CheckTableCommand(ExperimentDataSetBrowser.createGridId(experimentId));
+        dataSetsSection =
+                new CheckTableCommand(ExperimentDataSetBrowser.createGridId(experimentId));
+        return dataSetsSection;
     }
 
 }
