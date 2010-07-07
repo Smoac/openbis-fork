@@ -81,7 +81,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         {
             throw new UserFailureException("Unknown data set " + dataSetCode);
         }
-        return getDataSourceByDataSetCode(dataSet.getDataStore().getCode(), technology);
+        return getDataSourceByDataStoreServerCode(dataSet.getDataStore().getCode(), technology);
     }
     
     public DataSource getDataSourceByDataStoreServerCode(String dssCode, String technology)
