@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -142,7 +141,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 .getPlugin(EntityKind.DATA_SET, dataSetType).getSlaveServer();
     }
 
-    private final RoleAssignmentPE createRoleAssigment(final PersonPE registrator,
+    private final RoleAssignmentPE createInstanceAdminRoleAssigment(final PersonPE registrator,
             final PersonPE person)
     {
         final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
@@ -269,12 +268,15 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
         if (isFirstLoggedUser)
         {
-            // First logged user does not have any role assignment yet.
-            // Make him database instance administrator.
+            // If system user does not have any role assignment yet make him database instance
+            // administrator.
             final PersonPE systemUser = getSystemUser(persons);
-            final RoleAssignmentPE roleAssignment = createRoleAssigment(systemUser, person);
-            person.setRoleAssignments(Collections.singleton(roleAssignment));
-            daoFactory.getPersonDAO().updatePerson(person);
+            if (systemUser.getRoleAssignments().isEmpty())
+            {
+                final RoleAssignmentPE roleAssignment =
+                        createInstanceAdminRoleAssigment(systemUser, systemUser);
+                daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignment);
+            }
         }
         return asDTO(session);
     }
