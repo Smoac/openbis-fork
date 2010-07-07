@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -200,7 +199,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         this.homeGroup = homeGroup;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "personInternal", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "personInternal")
     private final Set<RoleAssignmentPE> getRoleAssignmentsInternal()
     {
         return roleAssignments;
