@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjection
  */
 class RawDataApiFacade implements IRawDataApiFacade
 {
-    private static final String USER_ROLE_SET = "USER";
+    private static final String USER_ROLE_SET = "SPACE_USER";
     private final IRawDataService service;
     private final IGeneralInformationService generalInfoService;
     private final String sessionToken;

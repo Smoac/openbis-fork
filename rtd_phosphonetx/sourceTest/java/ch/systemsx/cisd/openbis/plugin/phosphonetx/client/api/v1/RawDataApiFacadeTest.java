@@ -156,7 +156,7 @@ public class RawDataApiFacadeTest extends AssertJUnit
             fail("IllegalStateException expected");
         } catch (IllegalStateException ex)
         {
-            assertEquals("Role set USER not known.", ex.getMessage());
+            assertEquals("Role set SPACE_USER not known.", ex.getMessage());
         }
         
         context.assertIsSatisfied();
@@ -173,7 +173,7 @@ public class RawDataApiFacadeTest extends AssertJUnit
                 HashSet<Role> set = new HashSet<Role>();
                 set.add(new Role("R1", true));
                 set.add(new Role("R2", false));
-                sets.put("USER", set);
+                sets.put("SPACE_USER", set);
                 will(returnValue(sets));
                 
                 one(generalInfoService).listSpacesWithProjectsAndRoleAssignments(SESSION_TOKEN, null);
