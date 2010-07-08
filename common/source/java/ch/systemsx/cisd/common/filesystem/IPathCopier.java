@@ -48,6 +48,18 @@ public interface IPathCopier extends ITerminable, ISelfTestable
     Status copy(File sourcePath, File destinationDirectory);
 
     /**
+     * Copies the content of <var>sourcePath</var> to <var>destinationDir</var>.
+     * 
+     * @param sourcePath The source to copy. It needs to be an existing, readable directory. The
+     *            content of the directory is copied rather than the directory itself.
+     * @param destinationDirectory The directory to use as a destination in the copy operation. It
+     *            must be readable and writable. If <var>destinationDir/sourcePath</var> exists, it
+     *            will be overwritten.
+     * @return The status of the operation, {@link Status#OK} if everything went OK.
+     */
+    Status copyContent(File sourcePath, File destinationDirectory);
+
+    /**
      * Copies <var>sourcePath</var> to <var>destinationDir</var> on <var>destinationHost</var>.
      * 
      * @param sourcePath The source to copy. Can be a file or a directory. It needs to exist and be
@@ -68,6 +80,28 @@ public interface IPathCopier extends ITerminable, ISelfTestable
             String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
 
     /**
+     * Copies the content of <var>sourcePath</var> to <var>destinationDir</var> on
+     * <var>destinationHost</var>.
+     * 
+     * @param sourcePath The source to copy. It needs to be an existing, readable directory. The
+     *            content of the directory is copied rather than the directory itself.
+     * @param destinationDirectory The directory to use as a destination in the copy operation. It
+     *            must be readable and writable. If <var>destinationDir/sourcePath</var> exists, it
+     *            will be overwritten.
+     * @param destinationHostOrNull The host where the <var>destinationDirectory</var> resides or
+     *            null if it is local.
+     * @param rsyncModuleNameOrNull The name of the rsync module to use in the rsync protocol, or
+     *            <code>null</code>, if the bulk transfer should be using an ssh tunnel.
+     * @param rsyncPasswordFileOrNull The name of the password file to use if an rsync server is
+     *            used. May be <code>null</code> or the name of a non-existent file, in which case
+     *            no password is used when accessing the rsync server.
+     * @return The status of the operation, {@link Status#OK} if everything went OK.
+     */
+    Status copyContentToRemote(File sourcePath, File destinationDirectory,
+            String destinationHostOrNull, String rsyncModuleNameOrNull,
+            String rsyncPasswordFileOrNull);
+
+    /**
      * Copies <var>sourcePath</var> on <var>sourceHost</var> to <var>destinationDir</var>.
      * 
      * @param sourcePath The source to copy. Can be a file or a directory. It needs to exist and be
@@ -84,6 +118,26 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory,
+            String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
+
+    /**
+     * Copies the content of <var>sourcePath</var> on <var>sourceHost</var> to
+     * <var>destinationDir</var>.
+     * 
+     * @param sourcePath The source to copy. It needs to be an existing, readable directory. The
+     *            content of the directory is copied rather than the directory itself.
+     * @param sourceHost The host where the <var>sourcePath</var> resides
+     * @param destinationDirectory The directory to use as a destination in the copy operation. It
+     *            must be readable and writable. If <var>destinationDir/sourcePath</var> exists, it
+     *            will be overwritten.
+     * @param rsyncModuleNameOrNull The name of the rsync module to use in the rsync protocol, or
+     *            <code>null</code>, if the bulk transfer should be using an ssh tunnel.
+     * @param rsyncPasswordFileOrNull The name of the password file to use if an rsync server is
+     *            used. May be <code>null</code> or the name of a non-existent file, in which case
+     *            no password is used when accessing the rsync server.
+     * @return The status of the operation, {@link Status#OK} if everything went OK.
+     */
+    Status copyContentFromRemote(File sourcePath, String sourceHost, File destinationDirectory,
             String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
 
     /**

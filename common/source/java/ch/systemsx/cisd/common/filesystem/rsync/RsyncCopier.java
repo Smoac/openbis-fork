@@ -185,7 +185,12 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     public final Status copy(final File sourcePath, final File destinationDirectory)
     {
-        return copy(sourcePath, null, destinationDirectory, null, null, null);
+        return copy(sourcePath, null, destinationDirectory, null, null, null, false);
+    }
+
+    public final Status copyContent(final File sourcePath, final File destinationDirectory)
+    {
+        return copy(sourcePath, null, destinationDirectory, null, null, null, true);
     }
 
     public final Status copyFromRemote(final File sourcePath, final String sourceHost,
@@ -193,7 +198,14 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             String rsyncPasswordFileOrNull)
     {
         return copy(sourcePath, sourceHost, destinationDirectory, null, rsyncModuleNameOrNull,
-                rsyncPasswordFileOrNull);
+                rsyncPasswordFileOrNull, false);
+    }
+
+    public Status copyContentFromRemote(File sourcePath, String sourceHost,
+            File destinationDirectory, String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull)
+    {
+        return copy(sourcePath, sourceHost, destinationDirectory, null, rsyncModuleNameOrNull,
+                rsyncPasswordFileOrNull, true);
     }
 
     public final Status copyToRemote(final File sourcePath, final File destinationDirectory,
@@ -201,7 +213,15 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             String rsyncPasswordFileOrNull)
     {
         return copy(sourcePath, null, destinationDirectory, destinationHost, rsyncModuleNameOrNull,
-                rsyncPasswordFileOrNull);
+                rsyncPasswordFileOrNull, false);
+    }
+
+    public Status copyContentToRemote(File sourcePath, File destinationDirectory,
+            String destinationHostOrNull, String rsyncModuleNameOrNull,
+            String rsyncPasswordFileOrNull)
+    {
+        return copy(sourcePath, null, destinationDirectory, destinationHostOrNull,
+                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, true);
     }
 
     //
@@ -424,7 +444,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     private final Status copy(final File sourcePath, final String sourceHostOrNull,
             final File destinationDirectory, final String destinationHostOrNull,
-            final String rsyncModuleNameOrNull, final String rsyncPasswordFileOrNull)
+            final String rsyncModuleNameOrNull, final String rsyncPasswordFileOrNull,
+            final boolean copyDirectoryContent)
     {
         assert sourcePath != null;
         assert sourceHostOrNull != null || sourcePath.exists() : logNonExistent(sourcePath);
@@ -434,7 +455,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         assert sourceHostOrNull == null || destinationHostOrNull == null;
         final List<String> commandLine =
                 createCommandLineForMutableCopy(sourcePath, sourceHostOrNull, destinationDirectory,
-                        destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull);
+                        destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull,
+                        copyDirectoryContent);
         return createStatus(runCommand(commandLine,
                 ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY));
     }
@@ -454,7 +476,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     final List<String> createCommandLineForMutableCopy(final File sourcePath,
             final String sourceHostOrNull, final File destinationDirectory,
             final String destinationHostOrNull, final String rsyncModuleNameOrNull,
-            final String rsyncPasswordFileOrNull)
+            final String rsyncPasswordFileOrNull, final boolean copyDirectoryContent)
     {
         assert sourcePath != null && (sourceHostOrNull != null || sourcePath.exists());
         assert destinationDirectory != null
@@ -466,7 +488,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace");
         final List<String> commandLineList = new ArrayList<String>();
         final RsyncRecord remoteRsyncOrNull =
-                tryGetRemotRsync(sourceHostOrNull, destinationHostOrNull);
+                tryGetRemoteRsync(sourceHostOrNull, destinationHostOrNull);
 
         commandLineList.add(rsyncExecutable);
         commandLineList.addAll(standardParameters);
@@ -498,14 +520,15 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         {
             commandLineList.addAll(additionalCmdLineFlags);
         }
-        commandLineList.add(buildPath(sourceHostOrNull, sourcePath, rsyncModuleNameOrNull, false));
+        commandLineList.add(buildPath(sourceHostOrNull, sourcePath, rsyncModuleNameOrNull,
+                copyDirectoryContent));
         commandLineList.add(buildPath(destinationHostOrNull, destinationDirectory,
                 rsyncModuleNameOrNull, true));
 
         return commandLineList;
     }
 
-    private RsyncRecord tryGetRemotRsync(final String sourceHostOrNull,
+    private RsyncRecord tryGetRemoteRsync(final String sourceHostOrNull,
             final String destinationHostOrNull)
     {
         final RsyncRecord sourceRemoteRsyncOrNull =
@@ -531,12 +554,12 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     }
 
     private static String buildPath(final String host, final File resource,
-            final String rsyncModule, final boolean isDirectory)
+            final String rsyncModule, final boolean appendSlash)
     {
         if (null == host)
         {
             String path = resource.getAbsolutePath();
-            if (isDirectory)
+            if (appendSlash)
             {
                 path += File.separator;
             }
@@ -550,7 +573,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 sep = ":";
                 path = resource.getPath();
             }
-            if (isDirectory)
+            if (appendSlash)
             {
                 path += File.separator;
             }
