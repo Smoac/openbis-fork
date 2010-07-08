@@ -89,18 +89,19 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         {
             // Register the service with the name server
             RpcServiceInterfaceVersionDTO ifaceVersion =
-                new RpcServiceInterfaceVersionDTO("screening-dss",
-                        "/rmi-datastore-server-screening-api-v1", getMajorVersion(),
-                        getMinorVersion());
+                    new RpcServiceInterfaceVersionDTO("screening-dss",
+                            "/rmi-datastore-server-screening-api-v1", getMajorVersion(),
+                            getMinorVersion());
             HttpInvokerServiceExporter nameServiceExporter =
-                ServiceProvider.getRpcNameServiceExporter();
-            RpcServiceNameServer nameServer = (RpcServiceNameServer) nameServiceExporter.getService();
+                    ServiceProvider.getRpcNameServiceExporter();
+            RpcServiceNameServer nameServer =
+                    (RpcServiceNameServer) nameServiceExporter.getService();
             nameServer.addSupportedInterfaceVersion(ifaceVersion);
-            
+
             operationLog.info("[rpc] Started DSS RPC screening service V1.");
         }
     }
-    
+
     // ------------------ impl -----------------
 
     public List<String> listAvailableFeatureNames(String sessionToken,
@@ -153,11 +154,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 HCSImageDatasetLoaderFactory.create(datasetRoot, dataset.getDatasetCode());
         IContent imageFile = getAnyImagePath(imageAccessor, dataset);
         Geometry wellGeometry = imageAccessor.getWellGeometry();
-        int channelsNumber = imageAccessor.getChannelCount();
         int tilesNumber = wellGeometry.getColumns() * wellGeometry.getRows();
         BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
-        return new ImageDatasetMetadata(dataset, channelsNumber, tilesNumber, image.getWidth(),
-                image.getHeight());
+        return new ImageDatasetMetadata(dataset, imageAccessor.getChannelsNames(), tilesNumber,
+                image.getWidth(), image.getHeight());
     }
 
     private static IContent getAnyImagePath(IHCSImageDatasetLoader imageAccessor,
@@ -199,7 +199,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
             FeatureVectorDatasetReference dataset, List<String> featureNames)
     {
-        FeatureTableBuilder builder = new FeatureTableBuilder(featureNames, getDAO(), getOpenBISService());
+        FeatureTableBuilder builder =
+                new FeatureTableBuilder(featureNames, getDAO(), getOpenBISService());
         builder.addFeatureVectorsOfDataSet(dataset.getDatasetCode());
         List<String> existingFeatureNames = builder.getFeatureNames();
         List<FeatureTableRow> featureTableRows = builder.getFeatureTableRows();
@@ -361,7 +362,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         return 0;
     }
-    
+
     private List<ImgFeatureDefDTO> getFeatureDefinitions(IDatasetIdentifier identifier)
     {
         ImgDatasetDTO dataSet = getDAO().tryGetDatasetByPermId(identifier.getDatasetCode());

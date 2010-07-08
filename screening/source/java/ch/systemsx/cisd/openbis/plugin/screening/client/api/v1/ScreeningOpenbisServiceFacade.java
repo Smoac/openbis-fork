@@ -245,6 +245,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * Saves images for a given list of image references (given by data set code, well position,
      * channel and tile) in the provided output streams. Output streams will not be closed
      * automatically.<br>
+     * <p>
+     * If there is an image reference specified which is not referring to the existing image on the
+     * server, nothing will be written to the output stream returned by the output streams provider.
+     * No exception will be thrown.
+     * </p>
      * The number of image references has to be the same as the number of files.
      * 
      * @throws IOException when reading images from the server or writing them to the output streams

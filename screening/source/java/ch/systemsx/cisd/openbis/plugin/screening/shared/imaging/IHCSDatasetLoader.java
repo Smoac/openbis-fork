@@ -35,8 +35,6 @@ public interface IHCSDatasetLoader
 
     Geometry getWellGeometry();
 
-    int getChannelCount();
-
     List<String> getChannelsNames();
 
 }

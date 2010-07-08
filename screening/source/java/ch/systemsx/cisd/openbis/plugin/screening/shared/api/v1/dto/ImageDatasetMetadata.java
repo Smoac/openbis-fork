@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Metadata information about images in a specified dataset.
@@ -15,17 +16,20 @@ public class ImageDatasetMetadata implements Serializable
 
     private final int channelsNumber;
 
+    private final List<String> channelNames;
+
     private final int tilesNumber;
 
     private final int width;
 
     private final int height;
 
-    public ImageDatasetMetadata(IImageDatasetIdentifier dataset, int channelsNumber,
+    public ImageDatasetMetadata(IImageDatasetIdentifier dataset, List<String> channelNames,
             int tilesNumber, int width, int height)
     {
         this.imageDataset = dataset;
-        this.channelsNumber = channelsNumber;
+        this.channelNames = channelNames;
+        this.channelsNumber = channelNames.size();
         this.tilesNumber = tilesNumber;
         this.width = width;
         this.height = height;
@@ -43,6 +47,14 @@ public class ImageDatasetMetadata implements Serializable
     public int getNumberOfChannels()
     {
         return channelsNumber;
+    }
+
+    /**
+     * names of channels in which images have been acquired for the described dataset
+     */
+    public List<String> getChannelNames()
+    {
+        return channelNames;
     }
 
     /**
@@ -68,7 +80,7 @@ public class ImageDatasetMetadata implements Serializable
     @Override
     public String toString()
     {
-        return "Dataset " + imageDataset + " has " + channelsNumber + " channels, " + tilesNumber
+        return "Dataset " + imageDataset + " has [" + channelNames + "] channels, " + tilesNumber
                 + " tiles. Images resolution: " + width + "x" + height;
     }
 }
