@@ -59,17 +59,23 @@
   </target>
 
   <!--
-      // Macro that runs a system test suite. The 'testsuite' parameter should be provided when called.
-      // Property with name specified in 'failureproperty' parameter will hold info about failure.
+      // Macro that runs a GWT system test suite. Attributes:
+      // - 'testsuite' (mandatory) 
+      //		fully qualified class name of the GWT system test suite to run
+      // - 'failureproperty' (optional, default="tests.failed") 
+      //		name of a property that will hold info about failure
+      // - 'recreatedb' (optional, "true"|"false", default="false")
+      /			whether to create db from scratch before suite tests are run 
 	-->
   <macrodef name="run-system-test-suite" description="runs one system test suite">
     <attribute name="testsuite"/>
-    <attribute name="failureproperty"/>
+    <attribute name="failureproperty" default="tests.failed"/>
+    <attribute name="recreatedb" default="false"/>
     <sequential>
       <echo>Running @{testsuite}...</echo>
       <!-- add showoutput="true" when running locally for additional output on console -->
-      <junit dir="." fork="true" forkmode="once" maxmemory="2048m"
-      	     failureproperty="@{failureproperty}" printsummary="on">
+      <junit dir="." fork="true" forkmode="once" maxmemory="2048m" showoutput="true"
+      	     failureproperty="@{failure_property}" printsummary="on">
         <classpath>
           <pathelement location="${sources}" />
           <pathelement location="${sources.test}" />
@@ -79,7 +85,7 @@
         </classpath>
         <jvmarg value="-ea" />
         <sysproperty key="authentication-service" value="file-authentication-service" />
-        <sysproperty key="database.create-from-scratch" value="true" />
+        <sysproperty key="database.create-from-scratch" value="@{recreatedb}" />
         <sysproperty key="database.kind" value="system_test" />
         <sysproperty key="script-folder" value="sourceTest" />
         <sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
@@ -105,16 +111,12 @@
   	<delete dir="${output.test}" />
   	<mkdir dir="${output.test}" />
   	<run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite1"
-                           failureproperty="tests.failed" />
-    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite2"
-                           failureproperty="tests.failed" />
-    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1"
-                           failureproperty="tests.failed" />
-    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite2"
-                           failureproperty="tests.failed" />
-    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite3"
-                           failureproperty="tests.failed" />
-    <fail if="tests.failed" message="At least one of system test suites failed. See reports!"/>    
+                           recreatedb="true"/>
+    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite2"/>
+    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1"/>
+    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite2"/>
+    <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite3"/>
+    <fail if="tests.failed" message="At least one of system test suites failed."/>    
   </target>
 
   <!-- 
