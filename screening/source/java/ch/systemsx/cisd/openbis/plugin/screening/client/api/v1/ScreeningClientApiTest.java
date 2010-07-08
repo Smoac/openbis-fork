@@ -80,25 +80,45 @@ public class ScreeningClientApiTest
                 facade.listFeatureVectorDatasets(plates);
         System.out.println("Feature vector datasets: " + featureVectorDatasets);
 
-        // test for feature vector dataset
-        String featureVectorDatasetCode = featureVectorDatasets.get(0).getDatasetCode(); // feature
-        // vector
-        IDatasetIdentifier datasetIdentifier =
+        if (featureVectorDatasets.isEmpty() == false)
+        {
+            // test for feature vector dataset
+            String featureVectorDatasetCode = featureVectorDatasets.get(0).getDatasetCode(); // feature
+            // vector
+            IDatasetIdentifier datasetIdentifier =
                 getDatasetIdentifier(facade, featureVectorDatasetCode);
-        loadImages(facade, datasetIdentifier);
-
-        String imageDatasetCode = imageDatasets.get(0).getDatasetCode(); // image
-        datasetIdentifier = getDatasetIdentifier(facade, imageDatasetCode);
-        loadImages(facade, datasetIdentifier);
-
+            loadImages(facade, datasetIdentifier);
+            
+            String imageDatasetCode = imageDatasets.get(0).getDatasetCode(); // image
+            datasetIdentifier = getDatasetIdentifier(facade, imageDatasetCode);
+            loadImages(facade, datasetIdentifier);
+            
+        }
         List<String> featureNames = facade.listAvailableFeatureNames(featureVectorDatasets);
         System.out.println("Feature names: " + featureNames);
         List<FeatureVectorDataset> features =
                 facade.loadFeatures(featureVectorDatasets, featureNames);
         System.out.println("Features: " + features);
 
-        List<ImageDatasetMetadata> imageMetadata = facade.listImageMetadata(imageDatasets);
-        System.out.println("Image metadata: " + imageMetadata);
+        Map<String, List<ImageDatasetReference>> imageDataSetReferencesPerDss =
+                new HashMap<String, List<ImageDatasetReference>>();
+        for (ImageDatasetReference imageDataset : imageDatasets)
+        {
+            String url = imageDataset.getDatastoreServerUrl();
+            List<ImageDatasetReference> list = imageDataSetReferencesPerDss.get(url);
+            if (list == null)
+            {
+                list = new ArrayList<ImageDatasetReference>();
+                imageDataSetReferencesPerDss.put(url, list);
+            }
+            list.add(imageDataset);
+        }
+        Collection<List<ImageDatasetReference>> bundle = imageDataSetReferencesPerDss.values();
+        for (List<ImageDatasetReference> imageDataSets : bundle)
+        {
+            List<ImageDatasetMetadata> imageMetadata = facade.listImageMetadata(imageDataSets);
+            System.out.println("Image metadata: " + imageMetadata);
+        }
 
         facade.logout();
     }
