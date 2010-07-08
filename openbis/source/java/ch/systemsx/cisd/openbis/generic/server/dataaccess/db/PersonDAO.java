@@ -88,7 +88,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         validatePE(person);
 
         final HibernateTemplate template = getHibernateTemplate();
-        template.update(person);
+        template.merge(person); // WORKAROUND update cannot be used - see LMS-1603
         template.flush();
         if (operationLog.isInfoEnabled())
         {
