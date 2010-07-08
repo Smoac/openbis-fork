@@ -139,8 +139,9 @@ public enum RoleWithHierarchy implements IsSerializable
 
     public Set<RoleWithHierarchy> getRoles()
     {
-        Set<RoleWithHierarchy> roles = new LinkedHashSet<RoleWithHierarchy>(strongerRoles);
+        Set<RoleWithHierarchy> roles = new LinkedHashSet<RoleWithHierarchy>();
         roles.add(this);
+        roles.addAll(strongerRoles);
         return roles;
     }
 
