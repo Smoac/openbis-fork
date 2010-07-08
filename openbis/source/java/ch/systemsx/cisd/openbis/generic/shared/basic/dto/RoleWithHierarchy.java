@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -92,7 +92,7 @@ public enum RoleWithHierarchy implements IsSerializable
 
     private final RoleLevel roleLevel;
 
-    private final Set<RoleWithHierarchy> strongerRoles = new HashSet<RoleWithHierarchy>();
+    private final Set<RoleWithHierarchy> strongerRoles = new LinkedHashSet<RoleWithHierarchy>();
 
     private RoleWithHierarchy(RoleWithHierarchy... strongerRoles)
     {
@@ -139,7 +139,7 @@ public enum RoleWithHierarchy implements IsSerializable
 
     public Set<RoleWithHierarchy> getRoles()
     {
-        HashSet<RoleWithHierarchy> roles = new HashSet<RoleWithHierarchy>(strongerRoles);
+        Set<RoleWithHierarchy> roles = new LinkedHashSet<RoleWithHierarchy>(strongerRoles);
         roles.add(this);
         return roles;
     }
