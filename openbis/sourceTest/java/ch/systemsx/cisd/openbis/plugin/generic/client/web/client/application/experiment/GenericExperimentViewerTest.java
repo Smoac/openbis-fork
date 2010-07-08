@@ -221,9 +221,9 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         checkExperiment.property("PermID").matchingPattern(
                 ".*<a href=\".*permId=" + EXP1_PERM_ID + ".*>" + EXP1_PERM_ID + "</a>.*");
         final CheckTableCommand datasetTable = checkExperiment.dataSetTable().expectedSize(2);
-        datasetTable.expectedRow(new DataSetRow("20080912142304152-1").invalid().notDerived());
-        datasetTable.expectedRow(new DataSetRow("20080912142304476-3").invalid().withSample(
-                "CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").derived().withIsComplete(null));
+        datasetTable.expectedRow(new DataSetRow("20081105092159188-3").valid().derived());
+        datasetTable.expectedRow(new DataSetRow("20081105092158673-1").invalid().withSample(
+                "CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").notDerived().withIsComplete(null));
         datasetTable.expectedColumnsNumber(14);
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
         datasetTable.expectedColumnHidden(commentColIdent, true);
