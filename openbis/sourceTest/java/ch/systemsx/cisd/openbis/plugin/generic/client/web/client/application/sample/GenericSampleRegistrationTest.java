@@ -110,7 +110,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         FailureExpectation failureExpectation =
                 new FailureExpectation(GenericSampleRegistrationForm.RegisterSampleCallback.class)
                         .with("Authorization failure: None of method roles "
-                                + "'[SPACE.USER, SPACE.POWER_USER, SPACE.ADMIN, INSTANCE.ADMIN]' "
+                                + "'[INSTANCE_ADMIN, SPACE_ADMIN, SPACE_USER, SPACE_POWER_USER]' "
                                 + "could be found in roles of user 'observer'.");
         remoteConsole.prepare(failureExpectation);
         launchTest();

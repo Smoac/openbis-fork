@@ -97,7 +97,8 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(new OpenRoleAssignmentDialog());
         remoteConsole.prepare(FillRoleAssignmentForm.fillAuthorizationGroupRole(TEST_GROUP
-                .toUpperCase(), TestConstants.ADMINS_GROUP, RoleWithHierarchy.SPACE_OBSERVER.toString()));
+                .toUpperCase(), TestConstants.ADMINS_GROUP, RoleWithHierarchy.SPACE_OBSERVER
+                .toString()));
         final CheckRoleAssignmentTable table = new CheckRoleAssignmentTable();
         table.expectedRow(RoleAssignmentRow.authorizationGroupRoleRow(TEST_GROUP.toUpperCase(),
                 ADMINS_GROUP, RoleWithHierarchy.SPACE_OBSERVER.toString()));
@@ -114,7 +115,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         FailureExpectation failureExpectation =
                 new FailureExpectation(
                         (Class<? extends AsyncCallback<?>>) AbstractBrowserGrid.ListEntitiesCallback.class)
-                        .with("Authorization failure: None of method roles '[INSTANCE.ADMIN]' "
+                        .with("Authorization failure: None of method roles '[INSTANCE_ADMIN]' "
                                 + "could be found in roles of user 'o'.");
 
         remoteConsole.prepare(failureExpectation);
