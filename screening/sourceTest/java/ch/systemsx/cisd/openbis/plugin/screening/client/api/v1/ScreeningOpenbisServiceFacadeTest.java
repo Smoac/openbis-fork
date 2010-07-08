@@ -215,22 +215,23 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
     @Test
     public void testListImageMetaData()
     {
-        final ImageDatasetMetadata m1 = new ImageDatasetMetadata(i1id, 1, 1, 1, 1);
-        final ImageDatasetMetadata m2 = new ImageDatasetMetadata(i1id, 1, 1, 1, 1);
-        final ImageDatasetMetadata m3 = new ImageDatasetMetadata(i2id, 1, 1, 1, 1);
+        List<String> channelNames = Arrays.asList("channel1");
+        final ImageDatasetMetadata m1 = new ImageDatasetMetadata(i1id, channelNames, 1, 1, 1);
+        final ImageDatasetMetadata m2 = new ImageDatasetMetadata(i1id, channelNames, 1, 1, 1);
+        final ImageDatasetMetadata m3 = new ImageDatasetMetadata(i2id, channelNames, 1, 1, 1);
         context.checking(new Expectations()
             {
                 {
                     one(dssService1).listImageMetadata(SESSION_TOKEN, Arrays.asList(i1id));
                     will(returnValue(Arrays.asList(m1, m2)));
-                    
+
                     one(dssService2).listImageMetadata(SESSION_TOKEN, Arrays.asList(i2id));
                     will(returnValue(Arrays.asList(m3)));
                 }
             });
-        
+
         List<ImageDatasetMetadata> metaData = facade.listImageMetadata(Arrays.asList(i1id, i2id));
-        
+
         assertSame(m1, metaData.get(0));
         assertSame(m2, metaData.get(1));
         assertSame(m3, metaData.get(2));
