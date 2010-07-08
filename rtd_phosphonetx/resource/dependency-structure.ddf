@@ -30,7 +30,7 @@ check [grid-columns] independentOf [extjs]
 # Check API
 #
 
-[api-shared] = ${root}.generic.shared.api.* ${phosphonetx}.shared.api.*
+[api-shared] = ${root}.generic.shared.api.* ${root}.generic.shared.basic.dto.RoleWithHierarchy* ${phosphonetx}.shared.api.* 
 [api-client] = ${phosphonetx}.client.api.*
 [everything-except-java] = * excluding java* *.annotation.* ch.systemsx.cisd.common.api.IRpcService
 [everything-except-java-and-api-shared] = [everything-except-java] excluding [api-shared] ch.systemsx.cisd.common.api.client.*
