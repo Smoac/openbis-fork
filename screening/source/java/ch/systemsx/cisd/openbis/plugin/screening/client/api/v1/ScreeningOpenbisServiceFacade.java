@@ -5,8 +5,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
@@ -37,11 +40,28 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private static final int SERVER_TIMEOUT_MIN = 5;
 
+    private static final IDssServiceFactory DSS_SERVICE_FACTORY = new IDssServiceFactory()
+        {
+            public IDssServiceRpcScreening createDssService(String serverUrl)
+            {
+                return HttpInvokerUtils.createStreamSupportingServiceStub(
+                        IDssServiceRpcScreening.class, serverUrl + DSS_SCREENING_API,
+                        SERVER_TIMEOUT_MIN);
+            }
+        };
+
     private final IScreeningApiServer openbisScreeningServer;
 
-    private final Map<String/* url */, IDssServiceRpcScreening> dssScreeningServerCache;
-
+    private final DataStoreMultiplexer<PlateImageReference> plateImageReferencesMultiplexer;
+    
+    private final DataStoreMultiplexer<IFeatureVectorDatasetIdentifier> featureVectorDataSetIdentifierMultiplexer;
+    
+    private final DataStoreMultiplexer<FeatureVectorDatasetReference> featureVectorDataSetReferenceMultiplexer;
+    
+    private final DataStoreMultiplexer<IImageDatasetIdentifier> metaDataMultiplexer;
+    
     private final String sessionToken;
+
 
     /**
      * Creates a service facade which communicates with the openBIS server at the specified URL.
@@ -58,7 +78,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         {
             return null;
         }
-        return new ScreeningOpenbisServiceFacade(openbisServer, sessionToken);
+        return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, DSS_SERVICE_FACTORY);
     }
 
     /**
@@ -71,7 +91,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl)
     {
         IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
-        return new ScreeningOpenbisServiceFacade(openbisServer, sessionToken);
+        return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, DSS_SERVICE_FACTORY);
     }
 
     private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
@@ -79,18 +99,35 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         ServiceFinder serviceFinder = new ServiceFinder("openbis", OPENBIS_SCREENING_API);
         return serviceFinder.createService(IScreeningApiServer.class, serverUrl);
     }
-
-    private static IDssServiceRpcScreening createScreeningDssServer(String serverUrl)
-    {
-        return HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcScreening.class,
-                serverUrl + DSS_SCREENING_API, SERVER_TIMEOUT_MIN);
-    }
-
-    private ScreeningOpenbisServiceFacade(IScreeningApiServer screeningServer, String sessionToken)
+    
+    ScreeningOpenbisServiceFacade(String sessionToken,
+            IScreeningApiServer screeningServer, final IDssServiceFactory dssServiceFactory)
     {
         this.openbisScreeningServer = screeningServer;
-        this.dssScreeningServerCache = new HashMap<String, IDssServiceRpcScreening>();
         this.sessionToken = sessionToken;
+        IDssServiceFactory dssServiceCache = new IDssServiceFactory()
+            {
+                private final Map<String/* url */, IDssServiceRpcScreening> cache =
+                        new HashMap<String, IDssServiceRpcScreening>();
+
+                public IDssServiceRpcScreening createDssService(String serverUrl)
+                {
+                    IDssServiceRpcScreening dssService = cache.get(serverUrl);
+                    if (dssService == null)
+                    {
+                        dssService = dssServiceFactory.createDssService(serverUrl);
+                        cache.put(serverUrl, dssService);
+                    }
+                    return dssService;
+                }
+            };
+        plateImageReferencesMultiplexer =
+                new DataStoreMultiplexer<PlateImageReference>(dssServiceCache);
+        metaDataMultiplexer = new DataStoreMultiplexer<IImageDatasetIdentifier>(dssServiceCache);
+        featureVectorDataSetIdentifierMultiplexer =
+                new DataStoreMultiplexer<IFeatureVectorDatasetIdentifier>(dssServiceCache);
+        featureVectorDataSetReferenceMultiplexer =
+                new DataStoreMultiplexer<FeatureVectorDatasetReference>(dssServiceCache);
     }
 
     /**
@@ -151,12 +188,18 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<String> listAvailableFeatureNames(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        if (featureDatasets.size() == 0)
-        {
-            return new ArrayList<String>();
-        }
-        IDssServiceRpcScreening dssServer = getScreeningDssServer(featureDatasets);
-        return dssServer.listAvailableFeatureNames(sessionToken, featureDatasets);
+        final Set<String> result = new HashSet<String>();
+        featureVectorDataSetIdentifierMultiplexer.process(featureDatasets,
+                new IReferenceHandler<IFeatureVectorDatasetIdentifier>()
+                    {
+                        public void handle(IDssServiceRpcScreening dssService,
+                                List<IFeatureVectorDatasetIdentifier> references)
+                        {
+                            result.addAll(dssService.listAvailableFeatureNames(sessionToken,
+                                    references));
+                        }
+                    });
+        return new ArrayList<String>(result);
     }
 
     /**
@@ -164,18 +207,25 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * feature vectors.
      */
     public List<FeatureVectorDataset> loadFeatures(
-            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames)
+            List<FeatureVectorDatasetReference> featureDatasets, final List<String> featureNames)
     {
-        if (featureDatasets.size() == 0)
-        {
-            return new ArrayList<FeatureVectorDataset>();
-        }
         if (featureNames.size() == 0)
         {
             throw new IllegalArgumentException("no feature names has been specified");
         }
-        IDssServiceRpcScreening dssServer = getScreeningDssServer(featureDatasets);
-        return dssServer.loadFeatures(sessionToken, featureDatasets, featureNames);
+        final List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
+        featureVectorDataSetReferenceMultiplexer.process(featureDatasets,
+                new IReferenceHandler<FeatureVectorDatasetReference>()
+                    {
+                        public void handle(IDssServiceRpcScreening dssService,
+                                List<FeatureVectorDatasetReference> references)
+                        {
+
+                            result.addAll(dssService.loadFeatures(sessionToken, references,
+                                    featureNames));
+                        }
+                    });
+        return result;
     }
 
     /**
@@ -201,31 +251,50 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      *             fails
      */
     public void loadImages(List<PlateImageReference> imageReferences,
-            IImageOutputStreamProvider outputStreamProvider) throws IOException
+            final IImageOutputStreamProvider outputStreamProvider) throws IOException
     {
-        if (imageReferences.size() == 0)
-        {
-            return;
-        }
-        String datastoreServerUrl = extractDatastoreServerUrl(imageReferences);
-        IDssServiceRpcScreening dssServer = getScreeningDssServer(datastoreServerUrl);
-
-        InputStream stream = dssServer.loadImages(sessionToken, imageReferences);
         try
         {
-            ConcatenatedFileOutputStreamWriter imagesWriter =
-                    new ConcatenatedFileOutputStreamWriter(stream);
-            for (PlateImageReference imageRef : imageReferences)
-            {
-                OutputStream output = outputStreamProvider.getOutputStream(imageRef);
-                imagesWriter.writeNextBlock(output);
-            }
-        } finally
+            plateImageReferencesMultiplexer.process(imageReferences,
+                    new IReferenceHandler<PlateImageReference>()
+                        {
+                            public void handle(IDssServiceRpcScreening dssService,
+                                    List<PlateImageReference> references)
+                            {
+                                InputStream stream =
+                                        dssService.loadImages(sessionToken, references);
+                                try
+                                {
+                                    ConcatenatedFileOutputStreamWriter imagesWriter =
+                                            new ConcatenatedFileOutputStreamWriter(stream);
+                                    for (PlateImageReference imageRef : references)
+                                    {
+                                        OutputStream output =
+                                                outputStreamProvider.getOutputStream(imageRef);
+                                        imagesWriter.writeNextBlock(output);
+                                    }
+                                } catch (IOException ex)
+                                {
+                                    throw new WrappedIOException(ex);
+                                } finally
+                                {
+                                    try
+                                    {
+                                        stream.close();
+                                    } catch (IOException ex)
+                                    {
+                                        throw new WrappedIOException(ex);
+                                    }
+                                }
+
+                            }
+                        });
+        } catch (WrappedIOException ex)
         {
-            stream.close();
+            throw ex.getIoException();
         }
     }
-
+    
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and
      * the available (natural) image size(s).
@@ -233,53 +302,89 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<ImageDatasetMetadata> listImageMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
-        if (imageDatasets.size() == 0)
-        {
-            return new ArrayList<ImageDatasetMetadata>();
-        }
-        IDssServiceRpcScreening dssServer = getScreeningDssServer(imageDatasets);
-        return dssServer.listImageMetadata(sessionToken, imageDatasets);
+        final List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
+        metaDataMultiplexer.process(imageDatasets,
+                new IReferenceHandler<IImageDatasetIdentifier>()
+                    {
+                        public void handle(IDssServiceRpcScreening dssService,
+                                List<IImageDatasetIdentifier> references)
+                        {
+                            result.addAll(dssService.listImageMetadata(sessionToken, references));
+                        }
+                    });
+        return result;
     }
-
+    
     // --------- helpers -----------
 
-    private static String extractDatastoreServerUrl(List<? extends IDatasetIdentifier> datasets)
+    private static final class WrappedIOException extends RuntimeException
     {
-        assert datasets.size() > 0 : "no datasets specified";
-        String datastoreServerUrl = null;
-        for (IDatasetIdentifier dataset : datasets)
+        private static final long serialVersionUID = 1L;
+        
+        private final IOException ioException;
+
+        WrappedIOException(IOException cause)
         {
-            String url = dataset.getDatastoreServerUrl();
-            if (datastoreServerUrl == null)
+            super(cause);
+            ioException = cause;
+        }
+
+        public final IOException getIoException()
+        {
+            return ioException;
+        }
+        
+    }
+    
+    private static interface IReferenceHandler<R extends IDatasetIdentifier>
+    {
+        public void handle(IDssServiceRpcScreening dssService, List<R> references);
+    }
+    
+    private static final class DataStoreMultiplexer<R extends IDatasetIdentifier>
+    {
+        private final IDssServiceFactory dssServiceFactory;
+        
+        public DataStoreMultiplexer(IDssServiceFactory dssServiceFactory)
+        {
+            this.dssServiceFactory = dssServiceFactory;
+        }
+        
+        public void process(List<? extends R> references, IReferenceHandler<R> handler)
+        {
+            Map<String, List<R>> referencesPerDss = getReferencesPerDss(cast(references));
+            Set<Entry<String, List<R>>> entrySet = referencesPerDss.entrySet();
+            for (Entry<String, List<R>> entry : entrySet)
             {
-                datastoreServerUrl = url;
-            } else
-            {
-                if (datastoreServerUrl.equals(url) == false)
-                {
-                    throw new IllegalArgumentException(
-                            "Only datasets from one datastore server can be specified in one call. Datasets from two different servers have been found.");
-                }
+                IDssServiceRpcScreening dssService = dssServiceFactory.createDssService(entry.getKey());
+                handler.handle(dssService, entry.getValue());
             }
         }
-        return datastoreServerUrl;
-    }
-
-    private IDssServiceRpcScreening getScreeningDssServer(String serverUrl)
-    {
-        IDssServiceRpcScreening dssService = dssScreeningServerCache.get(serverUrl);
-        if (dssService == null)
+        
+        @SuppressWarnings("unchecked")
+        private List<R> cast(List<? extends R> references)
         {
-            dssService = createScreeningDssServer(serverUrl);
-            dssScreeningServerCache.put(serverUrl, dssService);
+            return (List<R>) references;
         }
-        return dssService;
+        
+    }
+    
+    private static <R extends IDatasetIdentifier> Map<String, List<R>> getReferencesPerDss(
+            List<R> references)
+    {
+        HashMap<String, List<R>> referencesPerDss = new HashMap<String, List<R>>();
+        for (R reference : references)
+        {
+            String url = reference.getDatastoreServerUrl();
+            List<R> list = referencesPerDss.get(url);
+            if (list == null)
+            {
+                list = new ArrayList<R>();
+                referencesPerDss.put(url, list);
+            }
+            list.add(reference);
+        }
+        return referencesPerDss;
     }
 
-    private IDssServiceRpcScreening getScreeningDssServer(
-            List<? extends IDatasetIdentifier> datasets)
-    {
-        String datastoreServerUrl = extractDatastoreServerUrl(datasets);
-        return getScreeningDssServer(datastoreServerUrl);
-    }
 }
