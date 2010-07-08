@@ -137,7 +137,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         final CheckTableCommand attachmentsTable =
                 checkExperiment.attachmentsTable().expectedSize(1);
         attachmentsTable.expectedRow(new Row().withCell(AttachmentColDefKind.FILE_NAME.id(),
-                "exampleExperiments.txt").withCell(AttachmentColDefKind.VERSION.id(), 4));
+                "exampleExperiments.txt").withCell(AttachmentColDefKind.VERSION.id(),
+                versionCellText(4)));
         remoteConsole.prepare(checkExperiment);
 
         launchTest();
@@ -176,9 +177,10 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         final CheckTableCommand attachmentsTable =
                 checkExperiment.attachmentsTable().expectedSize(2);
         attachmentsTable.expectedRow(new Row().withCell(AttachmentColDefKind.FILE_NAME.id(),
-                "exampleExperiments.txt").withCell(AttachmentColDefKind.VERSION.id(), 1));
+                "exampleExperiments.txt").withCell(AttachmentColDefKind.VERSION.id(),
+                versionCellText(1)));
         attachmentsTable.expectedRow(new Row().withCell(AttachmentColDefKind.FILE_NAME.id(),
-                "cellPlates.txt").withCell(AttachmentColDefKind.VERSION.id(), 1));
+                "cellPlates.txt").withCell(AttachmentColDefKind.VERSION.id(), versionCellText(1)));
         remoteConsole.prepare(checkExperiment);
 
         launchTest();
@@ -237,5 +239,11 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.EXPERIMENT_MENU_BROWSE);
         remoteConsole.prepare(new ListExperiments(projectName, experimentTypeName));
         remoteConsole.prepare(new ShowExperiment(experimentCode));
+    }
+
+    private final static String versionCellText(int version)
+    {
+        // TODO 2010-07-08, Piotr Buczek: implement better html tag stripping in TestUtil
+        return version + " (<a href=\"#\">show all versions</a>)";
     }
 }
