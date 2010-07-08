@@ -20,10 +20,9 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.DefaultAccessController;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.Role;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.Role.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -36,13 +35,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class AuthorizationChecker implements IAuthorizationChecker
 {
 
-    public boolean isAuthorized(PersonPE person, GroupPE dataSpaceOrNull, RoleSet minimalRole)
+    public boolean isAuthorized(PersonPE person, GroupPE dataSpaceOrNull, RoleWithHierarchy minimalRole)
     {
-        final Set<Role> requiredRoles = minimalRole.getRoles();
+        final Set<RoleWithHierarchy> requiredRoles = minimalRole.getRoles();
         if (person != null)
         {
             List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
-            userRoles.retainAll(requiredRoles);
+            DefaultAccessController.retainMatchingRoleWithIdentifiers(userRoles, requiredRoles);
             if (userRoles.size() > 0)
             {
                 if (dataSpaceOrNull == null)

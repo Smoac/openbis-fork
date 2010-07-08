@@ -123,8 +123,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
@@ -317,7 +317,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerGroupRole(final RoleSetCode roleSetCode, final String group,
+    public final void registerGroupRole(final RoleWithHierarchy roleSetCode, final String group,
             final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -334,7 +334,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerInstanceRole(final RoleSetCode roleSetCode, final Grantee grantee)
+    public final void registerInstanceRole(final RoleWithHierarchy roleSetCode, final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -348,7 +348,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void deleteGroupRole(final RoleSetCode roleSetCode, final String group,
+    public final void deleteGroupRole(final RoleWithHierarchy roleSetCode, final String group,
             final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -366,7 +366,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public final void deleteInstanceRole(final RoleSetCode roleSetCode, final Grantee grantee)
+    public final void deleteInstanceRole(final RoleWithHierarchy roleSetCode, final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

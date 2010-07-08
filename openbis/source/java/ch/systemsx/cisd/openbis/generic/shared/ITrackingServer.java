@@ -20,13 +20,13 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 
 /**
  * Definition of the client-server interface for tracking creation of samples and datasets.
@@ -42,9 +42,8 @@ public interface ITrackingServer extends IServer
      * @return a sorted list of {@link Sample}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    public List<Sample> listSamples(final String sessionToken,
-            final TrackingSampleCriteria criteria);
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public List<Sample> listSamples(final String sessionToken, final TrackingSampleCriteria criteria);
 
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
@@ -52,7 +51,7 @@ public interface ITrackingServer extends IServer
      * @return a sorted list of {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public List<ExternalData> listDataSets(final String sessionToken,
             final TrackingDataSetCriteria criteria);
 

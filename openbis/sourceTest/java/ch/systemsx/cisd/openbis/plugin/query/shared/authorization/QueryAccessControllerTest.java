@@ -24,12 +24,12 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 
 /**
  * Test cases for {@link QueryAccessController}
@@ -84,7 +84,7 @@ public class QueryAccessControllerTest
     @Test
     public final void testIsAuthorizedWithNoPersonFailure()
     {
-        assertFalse(QueryAccessController.isAuthorized(null, null, RoleSet.USER));
+        assertFalse(QueryAccessController.isAuthorized(null, null, RoleWithHierarchy.SPACE_USER));
     }
 
     // no space
@@ -97,7 +97,8 @@ public class QueryAccessControllerTest
         roleAssignments.add(createInstanceRole(RoleCode.ADMIN));
         person.setRoleAssignments(roleAssignments);
 
-        assertTrue(QueryAccessController.isAuthorized(person, null, RoleSet.INSTANCE_ADMIN));
+        assertTrue(QueryAccessController.isAuthorized(person, null,
+                RoleWithHierarchy.INSTANCE_ADMIN));
     }
 
     @Test
@@ -109,7 +110,8 @@ public class QueryAccessControllerTest
         roleAssignments.add(createGroupRole("G2", RoleCode.POWER_USER));
         person.setRoleAssignments(roleAssignments);
 
-        assertTrue(QueryAccessController.isAuthorized(person, null, RoleSet.POWER_USER));
+        assertTrue(QueryAccessController.isAuthorized(person, null,
+                RoleWithHierarchy.SPACE_POWER_USER));
     }
 
     @Test
@@ -121,7 +123,8 @@ public class QueryAccessControllerTest
         roleAssignments.add(createGroupRole("G2", RoleCode.POWER_USER));
         person.setRoleAssignments(roleAssignments);
 
-        assertFalse(QueryAccessController.isAuthorized(person, null, RoleSet.INSTANCE_ADMIN));
+        assertFalse(QueryAccessController.isAuthorized(person, null,
+                RoleWithHierarchy.INSTANCE_ADMIN));
     }
 
     @Test
@@ -133,7 +136,8 @@ public class QueryAccessControllerTest
         roleAssignments.add(createGroupRole("G2", RoleCode.USER));
         person.setRoleAssignments(roleAssignments);
 
-        assertFalse(QueryAccessController.isAuthorized(person, null, RoleSet.POWER_USER));
+        assertFalse(QueryAccessController.isAuthorized(person, null,
+                RoleWithHierarchy.SPACE_POWER_USER));
     }
 
     // with space
@@ -147,8 +151,8 @@ public class QueryAccessControllerTest
         roleAssignments.add(createGroupRole("G2", RoleCode.POWER_USER));
         person.setRoleAssignments(roleAssignments);
 
-        assertTrue(QueryAccessController
-                .isAuthorized(person, createGroup("G2"), RoleSet.POWER_USER));
+        assertTrue(QueryAccessController.isAuthorized(person, createGroup("G2"),
+                RoleWithHierarchy.SPACE_POWER_USER));
     }
 
     @Test
@@ -159,8 +163,8 @@ public class QueryAccessControllerTest
         roleAssignments.add(createInstanceRole(RoleCode.ADMIN));
         person.setRoleAssignments(roleAssignments);
 
-        assertTrue(QueryAccessController
-                .isAuthorized(person, createGroup("G1"), RoleSet.POWER_USER));
+        assertTrue(QueryAccessController.isAuthorized(person, createGroup("G1"),
+                RoleWithHierarchy.SPACE_POWER_USER));
     }
 
     @Test
@@ -173,7 +177,7 @@ public class QueryAccessControllerTest
         person.setRoleAssignments(roleAssignments);
 
         assertFalse(QueryAccessController.isAuthorized(person, createGroup("G1"),
-                RoleSet.POWER_USER));
+                RoleWithHierarchy.SPACE_POWER_USER));
     }
 
     @Test

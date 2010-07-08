@@ -34,18 +34,18 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 
 /**
  * @author Franz-Josef Elmer
  */
 // PLEASE, if you add here a new test add also a system test to
 // ch.systemsx.cisd.openbis.systemtest.api.v1.GeneralInformationService
-@Friend(toClasses=RoleAssignmentPE.class)
+@Friend(toClasses = RoleAssignmentPE.class)
 public class GeneralInformationServiceTest extends AbstractServerTestCase
 {
     private GeneralInformationService service;
@@ -74,19 +74,20 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     return e1.getKey().compareTo(e2.getKey());
                 }
             });
-        assertNamedRoles("ETL_SERVER", "[ADMIN(instance), "
-                + "ETL_SERVER(instance), ETL_SERVER(space)]", entries.get(0));
-        assertNamedRoles("INSTANCE_ADMIN", "[ADMIN(instance)]", entries.get(1));
-        assertNamedRoles("INSTANCE_ADMIN_OBSERVER", "[ADMIN(instance), OBSERVER(instance)]",
-                entries.get(2));
-        assertNamedRoles("NONE", "[]", entries.get(3));
-        assertNamedRoles("OBSERVER", "[ADMIN(instance), ADMIN(space), OBSERVER(space), "
-                + "POWER_USER(space), USER(space)]", entries.get(4));
-        assertNamedRoles("POWER_USER", "[ADMIN(instance), ADMIN(space), POWER_USER(space)]",
-                entries.get(5));
-        assertNamedRoles("SPACE_ADMIN", "[ADMIN(instance), ADMIN(space)]", entries.get(6));
-        assertNamedRoles("USER", "[ADMIN(instance), ADMIN(space), POWER_USER(space), USER(space)]",
-                entries.get(7));
+        assertNamedRoles("INSTANCE_ADMIN", "[ADMIN(instance)]", entries.get(0));
+        assertNamedRoles("INSTANCE_ETL_SERVER", "[ADMIN(instance), " + "ETL_SERVER(instance)]",
+                entries.get(1));
+        assertNamedRoles("INSTANCE_OBSERVER", "[ADMIN(instance), OBSERVER(instance)]", entries
+                .get(2));
+        assertNamedRoles("SPACE_ADMIN", "[ADMIN(instance), ADMIN(space)]", entries.get(3));
+        assertNamedRoles("SPACE_ETL_SERVER", "[ADMIN(instance), "
+                + "ETL_SERVER(instance), ETL_SERVER(space)]", entries.get(4));
+        assertNamedRoles("SPACE_OBSERVER", "[ADMIN(instance), ADMIN(space), OBSERVER(space), "
+                + "POWER_USER(space), USER(space)]", entries.get(5));
+        assertNamedRoles("SPACE_POWER_USER", "[ADMIN(instance), ADMIN(space), POWER_USER(space)]",
+                entries.get(6));
+        assertNamedRoles("SPACE_USER",
+                "[ADMIN(instance), ADMIN(space), POWER_USER(space), USER(space)]", entries.get(7));
         assertEquals(8, entries.size());
         context.assertIsSatisfied();
     }
@@ -114,15 +115,18 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
             {
                 {
                     one(roleAssignmentDAO).listRoleAssignments();
-                    RoleAssignmentPE assignment1 = createUserAssignment("user1", null, RoleCode.ADMIN);
-                    RoleAssignmentPE assignment2 = createUserAssignment("user2", "s2", RoleCode.OBSERVER);
-                    RoleAssignmentPE assignment3 = createUserAssignment("user1", "s1", RoleCode.USER);
+                    RoleAssignmentPE assignment1 =
+                            createUserAssignment("user1", null, RoleCode.ADMIN);
+                    RoleAssignmentPE assignment2 =
+                            createUserAssignment("user2", "s2", RoleCode.OBSERVER);
+                    RoleAssignmentPE assignment3 =
+                            createUserAssignment("user1", "s1", RoleCode.USER);
                     will(returnValue(Arrays.asList(assignment1, assignment2, assignment3)));
-                    
+
                     one(groupDAO).listGroups(daoFactory.getHomeDatabaseInstance());
                     List<GroupPE> spaces = createSpaces("s1", "s2", "s3");
                     will(returnValue(spaces));
-                    
+
                     one(projectDAO).listProjects(spaces.get(0));
                     ProjectPE a = new ProjectPE();
                     a.setCode("a");
@@ -131,10 +135,10 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     b.setCode("b");
                     b.setGroup(spaces.get(0));
                     will(returnValue(Arrays.asList(a, b)));
-                    
+
                     one(projectDAO).listProjects(spaces.get(1));
                     will(returnValue(Arrays.asList()));
-                    
+
                     one(projectDAO).listProjects(spaces.get(2));
                     ProjectPE c = new ProjectPE();
                     c.setCode("c");
@@ -145,20 +149,20 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
         List<SpaceWithProjectsAndRoleAssignments> spaces =
                 service.listSpacesWithProjectsAndRoleAssignments(SESSION_TOKEN, null);
-        
+
         assertSpaceAndProjects("s1", "[/s1/a, /s1/b]", spaces.get(0));
         assertRoles("[]", spaces.get(0).getRoles("unknown user"));
         assertRoles("[ADMIN(instance), USER(space)]", spaces.get(0).getRoles("user1"));
         assertRoles("[]", spaces.get(0).getRoles("user2"));
-        
+
         assertSpaceAndProjects("s2", "[]", spaces.get(1));
         assertRoles("[ADMIN(instance)]", spaces.get(1).getRoles("user1"));
         assertRoles("[OBSERVER(space)]", spaces.get(1).getRoles("user2"));
-        
+
         assertSpaceAndProjects("s3", "[/s3/c]", spaces.get(2));
         assertRoles("[ADMIN(instance)]", spaces.get(2).getRoles("user1"));
         assertRoles("[]", spaces.get(2).getRoles("user2"));
-        
+
         assertEquals(3, spaces.size());
         context.assertIsSatisfied();
     }
@@ -197,7 +201,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         RoleAssignmentPE assignment = new RoleAssignmentPE();
         if (spaceCodeOrNull != null)
         {
-        assignment.setGroup(createGroup(spaceCodeOrNull));
+            assignment.setGroup(createGroup(spaceCodeOrNull));
         }
         assignment.setRole(roleCode);
         PersonPE person = new PersonPE();
@@ -205,7 +209,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         assignment.setPersonInternal(person);
         return assignment;
     }
-    
+
     private List<GroupPE> createSpaces(String... codes)
     {
         List<GroupPE> list = new ArrayList<GroupPE>();
@@ -215,5 +219,5 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         }
         return list;
     }
-    
+
 }

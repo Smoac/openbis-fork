@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
@@ -31,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -54,7 +54,7 @@ public interface IScreeningServer extends IServer
      * image analysis only if one dataset with such a data exist.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public PlateContent getPlateContent(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId);
 
@@ -63,19 +63,19 @@ public interface IScreeningServer extends IServer
      * specified dataset, which is supposed to contain images in BDS-HCS format.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public PlateImages getPlateContentForDataset(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<WellContent> getPlateLocations(
             String sessionToken,
             TechId geneMaterialId,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier);
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<WellContent> listPlateLocations(
             String sessionToken,
             @AuthorizationGuard(guardClass = PlateMaterialsSearchCriteriaPredicate.class) PlateMaterialsSearchCriteria materialCriteria);
@@ -85,7 +85,7 @@ public interface IScreeningServer extends IServer
      * specified experiment. It is assumed that all datasets are CSV files with the same headers.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel loadImageAnalysisForExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
@@ -94,7 +94,7 @@ public interface IScreeningServer extends IServer
      * specified plate. It is assumed that all datasets are CSV files with the same headers.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel loadImageAnalysisForPlate(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId);
 
@@ -106,7 +106,7 @@ public interface IScreeningServer extends IServer
      *             uniquely identified by given <var>sampleId</var> does not exist.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
             throws UserFailureException;
@@ -115,7 +115,7 @@ public interface IScreeningServer extends IServer
      * For given {@link TechId} returns the corresponding {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExternalData getDataSetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
 
@@ -123,6 +123,6 @@ public interface IScreeningServer extends IServer
      * Returns vocabulary with given code.
      */
     @Transactional
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException;
 }

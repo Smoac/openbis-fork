@@ -81,8 +81,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -136,20 +136,20 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportRoleAssignments(TableExportCriteria<RoleAssignment> exportCriteria,
             AsyncCallback<String> callback);
 
-    /** @see ICommonClientService#registerGroupRole(RoleSetCode, String, Grantee) */
-    public void registerGroupRole(RoleSetCode roleSetCode, String group, Grantee grantee,
+    /** @see ICommonClientService#registerGroupRole(RoleWithHierarchy, String, Grantee) */
+    public void registerGroupRole(RoleWithHierarchy roleSetCode, String group, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteGroupRole(RoleSetCode, String, Grantee) */
-    public void deleteGroupRole(RoleSetCode roleSetCode, String group, Grantee grantee,
+    /** @see ICommonClientService#deleteGroupRole(RoleWithHierarchy, String, Grantee) */
+    public void deleteGroupRole(RoleWithHierarchy roleSetCode, String group, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#registerInstanceRole(RoleSetCode, Grantee) */
-    public void registerInstanceRole(RoleSetCode roleSetCode, Grantee grantee,
+    /** @see ICommonClientService#registerInstanceRole(RoleWithHierarchy, Grantee) */
+    public void registerInstanceRole(RoleWithHierarchy roleSetCode, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteInstanceRole(RoleSetCode, Grantee) */
-    public void deleteInstanceRole(RoleSetCode roleSetCode, Grantee grantee,
+    /** @see ICommonClientService#deleteInstanceRole(RoleWithHierarchy, Grantee) */
+    public void deleteInstanceRole(RoleWithHierarchy roleSetCode, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listSampleTypes() */

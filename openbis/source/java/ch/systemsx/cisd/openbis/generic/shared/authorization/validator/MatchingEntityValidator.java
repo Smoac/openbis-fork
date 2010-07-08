@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**

@@ -25,9 +25,9 @@ import java.util.Set;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
@@ -88,7 +88,7 @@ public class QueryResultFilter
                 ISerializableComparable value = row.getValues().get(c);
                 if (value != null
                         && authorizationChecker.isAuthorized(person, entitySpaces.get(value
-                                .toString()), RoleSet.OBSERVER) == false)
+                                .toString()), RoleWithHierarchy.SPACE_OBSERVER) == false)
                 {
                     rowIterator.remove();
                     continue rowLoop;

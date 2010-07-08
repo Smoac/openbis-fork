@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;

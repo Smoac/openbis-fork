@@ -28,8 +28,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.Role.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -38,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -315,7 +315,7 @@ public class AuthorizationTestCase extends AssertJUnit
      * Creates a list of roles which contains a group role for a USER and group defined by code
      * {@link #SPACE_CODE} and database instance {@link AuthorizationTestCase#INSTANCE_CODE}. If
      * <code>withInstanceRole == true</code> the list contains in addition an instance role for a
-     * USER and database instance defined by {@link #ANOTHER_INSTANCE_CODE}.
+     * ADMIN and database instance defined by {@link #ANOTHER_INSTANCE_CODE}.
      */
     protected List<RoleWithIdentifier> createRoles(final boolean withInstanceRole)
     {
@@ -326,7 +326,7 @@ public class AuthorizationTestCase extends AssertJUnit
         if (withInstanceRole)
         {
             final RoleWithIdentifier databaseInstanceRole =
-                    createInstanceRole(RoleCode.USER, new DatabaseInstanceIdentifier(
+                    createInstanceRole(RoleCode.ADMIN, new DatabaseInstanceIdentifier(
                             ANOTHER_INSTANCE_CODE));
             list.add(databaseInstanceRole);
         }

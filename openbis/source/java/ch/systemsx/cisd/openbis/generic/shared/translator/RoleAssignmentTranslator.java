@@ -19,8 +19,9 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
@@ -61,48 +62,17 @@ public final class RoleAssignmentTranslator
         return result;
     }
 
-    private final static RoleSetCode getRoleCode(final RoleAssignmentPE role)
+    private final static RoleWithHierarchy getRoleCode(final RoleAssignmentPE role)
     {
-        RoleSetCode code;
-        switch (role.getRole())
+        RoleLevel roleLevel = null;
+        if (role.getGroup() != null)
         {
-            case ADMIN:
-                if (role.getGroup() == null)
-                {
-                    code = RoleSetCode.INSTANCE_ADMIN;
-                } else
-                {
-                    code = RoleSetCode.SPACE_ADMIN;
-                }
-                break;
-            case OBSERVER:
-                if (role.getGroup() == null)
-                {
-                    code = RoleSetCode.INSTANCE_ADMIN_OBSERVER;
-                } else
-                {
-                    code = RoleSetCode.OBSERVER;
-                }
-                break;
-            case USER:
-                code = RoleSetCode.USER;
-                break;
-            case POWER_USER:
-                code = RoleSetCode.POWER_USER;
-                break;
-            case ETL_SERVER:
-                if (role.getGroup() == null)
-                {
-                    code = RoleSetCode.INSTANCE_ETL_SERVER;
-                } else
-                {
-                    code = RoleSetCode.SPACE_ETL_SERVER;
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown role");
+            roleLevel = RoleLevel.SPACE;
         }
-        return code;
+        if (role.getDatabaseInstance() != null)
+        {
+            roleLevel = RoleLevel.INSTANCE;
+        }
+        return RoleWithHierarchy.valueOf(roleLevel, role.getRole());
     }
-
 }

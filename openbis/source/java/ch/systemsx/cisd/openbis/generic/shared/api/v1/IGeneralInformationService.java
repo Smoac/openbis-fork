@@ -25,12 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 
 /**
  * Service for retrieving general informations.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IGeneralInformationService extends IRpcService
@@ -39,12 +38,12 @@ public interface IGeneralInformationService extends IRpcService
      * Name of this service for which it is registered at the RPC name server.
      */
     public static final String SERVICE_NAME = "general-information";
-    
+
     /**
      * Application part of the URL to access this service remotely.
      */
     public static final String SERVICE_URL = "/rmi-" + SERVICE_NAME + "-v1";
-    
+
     /**
      * Tries to authenticate specified user with specified password. Returns session token if
      * succeeded otherwise <code>null</code> is returned. The returned session token can be used for
@@ -59,14 +58,14 @@ public interface IGeneralInformationService extends IRpcService
      */
     @Transactional(readOnly = true)
     public void logout(String sessionToken);
-    
+
     /**
      * Returns all named role sets. The name is the key of the returned map.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
+    @RolesAllowed(ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.INSTANCE_OBSERVER)
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken);
-    
+
     /**
      * Returns all spaces of specified database instance enriched with their projects and role
      * assignments.
@@ -75,7 +74,7 @@ public interface IGeneralInformationService extends IRpcService
      *            for the home database instance is meant.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
+    @RolesAllowed(ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<SpaceWithProjectsAndRoleAssignments> listSpacesWithProjectsAndRoleAssignments(
             String sessionToken, String databaseInstanceCodeOrNull);
 

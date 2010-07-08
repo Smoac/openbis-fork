@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * Wait until all fields are loaded and fill role assignment form.
@@ -80,7 +80,7 @@ public class FillRoleAssignmentForm extends AbstractDefaultTestCommand
             GWTUtils.setSelectedItem(listBox, roleNameOrNull);
         } else
         {
-            GWTUtils.setSelectedItem(listBox, RoleSetCode.INSTANCE_ADMIN.toString());
+            GWTUtils.setSelectedItem(listBox, RoleWithHierarchy.INSTANCE_ADMIN.toString());
         }
         if (personRole == false)
         {

@@ -17,14 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.shared.authorization;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
- * Stores the {@link Role} and the "owner" to which this role is connected: database instance or a
+ * Stores the {@link RoleWithHierarchy} and the "owner" to which this role is connected: database instance or a
  * group.
  * <p>
  * Note that {@link #equals(Object)} resp. {@link #hashCode()} are not overridden and so do not
@@ -33,8 +35,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
  * 
  * @author Christian Ribeaud
  */
-public final class RoleWithIdentifier extends Role
+public final class RoleWithIdentifier
 {
+
+    RoleWithHierarchy role;
+
     private final DatabaseInstancePE databaseInstanceOrNull;
 
     private final GroupPE groupOrNull;
@@ -43,7 +48,7 @@ public final class RoleWithIdentifier extends Role
     RoleWithIdentifier(final RoleLevel roleGroup, final RoleCode roleName,
             final DatabaseInstancePE databaseInstanceOrNull, final GroupPE groupOrNull)
     {
-        super(roleGroup, roleName);
+        role = RoleWithHierarchy.valueOf(roleGroup, roleName);
         if (RoleLevel.SPACE.equals(roleGroup))
         {
             assert groupOrNull != null : "Unspecified identifier";
@@ -124,5 +129,20 @@ public final class RoleWithIdentifier extends Role
         {
             return IdentifierHelper.createGroupIdentifier(groupOrNull).toString();
         }
+    }
+
+    public RoleLevel getRoleLevel()
+    {
+        return role.getRoleLevel();
+    }
+
+    public RoleCode getRoleName()
+    {
+        return role.getRoleCode();
+    }
+
+    public RoleWithHierarchy getRole()
+    {
+        return role;
     }
 }

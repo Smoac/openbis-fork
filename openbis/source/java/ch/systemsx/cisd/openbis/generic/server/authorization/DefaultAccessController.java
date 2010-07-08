@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +36,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.Role;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -68,7 +69,7 @@ public final class DefaultAccessController implements IAccessController
     /**
      * Cache for the method roles as they are <code>static</code>.
      */
-    private final Map<Method, Set<Role>> methodRolesCache = new HashMap<Method, Set<Role>>();
+    private final Map<Method, Set<RoleWithHierarchy>> methodRolesCache = new HashMap<Method, Set<RoleWithHierarchy>>();
 
     public DefaultAccessController(final IAuthorizationDAOFactory daoFactory)
     {
@@ -103,18 +104,21 @@ public final class DefaultAccessController implements IAccessController
         }
     }
 
-    private Set<Role> getMethodRoles(final Method method)
+    private Set<RoleWithHierarchy> getMethodRoles(final Method method)
     {
         synchronized (methodRolesCache)
         {
-            Set<Role> roles = methodRolesCache.get(method);
+            Set<RoleWithHierarchy> roles = methodRolesCache.get(method);
             if (roles == null)
             {
-                roles = new LinkedHashSet<Role>();
+                roles = new LinkedHashSet<RoleWithHierarchy>();
                 final RolesAllowed rolesAllowed = method.getAnnotation(RolesAllowed.class);
                 if (rolesAllowed != null)
                 {
-                    roles = rolesAllowed.value().getRoles();
+                    for (RoleWithHierarchy role : rolesAllowed.value())
+                    {
+                        roles.addAll(role.getRoles());
+                    }
                 }
                 methodRolesCache.put(method, roles);
             }
@@ -132,7 +136,7 @@ public final class DefaultAccessController implements IAccessController
         stopWatch.start();
         try
         {
-            final Set<Role> methodRoles = getMethodRoles(method);
+            final Set<RoleWithHierarchy> methodRoles = getMethodRoles(method);
             if (methodRoles.size() == 0)
             {
                 // TODO 2008-08-07, Tomasz Pylak: why this is not a programming error? What a user
@@ -151,7 +155,8 @@ public final class DefaultAccessController implements IAccessController
                 return Status.createError(msg);
             }
             final List<RoleWithIdentifier> userRoles = getUserRoles(person);
-            userRoles.retainAll(methodRoles);
+            retainMatchingRoleWithIdentifiers(userRoles, methodRoles);
+
             if (userRoles.size() == 0)
             {
                 final String msg =
@@ -174,6 +179,24 @@ public final class DefaultAccessController implements IAccessController
         } finally
         {
             logTimeTaken(stopWatch, method);
+        }
+    }
+
+    /**
+     * Retains {@link RoleWithIdentifier}s with {@link RoleWithIdentifier#getRole()} included in the
+     * set of {@link RoleWithHierarchy}s.
+     */
+    public static void retainMatchingRoleWithIdentifiers(final List<RoleWithIdentifier> userRoles,
+            final Set<RoleWithHierarchy> methodRoles)
+    {
+        Iterator<RoleWithIdentifier> it = userRoles.iterator();
+        while (it.hasNext())
+        {
+            RoleWithIdentifier roleWithIdentifier = it.next();
+            if (methodRoles.contains(roleWithIdentifier.getRole()) == false)
+            {
+                it.remove();
+            }
         }
     }
 }

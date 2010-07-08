@@ -21,8 +21,8 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
@@ -37,7 +37,7 @@ public interface IRawDataService extends IRpcService
      * Name of this service for which it is registered at the RPC name server.
      */
     public static final String SERVICE_NAME = "phosphonetx-raw-data";
-    
+
     /**
      * Service part of the URL to access this service remotely.
      */
@@ -56,30 +56,30 @@ public interface IRawDataService extends IRpcService
      */
     @Transactional(readOnly = true)
     public void logout(String sessionToken);
-    
+
     /**
      * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample which
      * the specified user is allow to read.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<MsInjectionDataInfo> listRawDataSamples(String sessionToken, String userID);
 
     /**
      * Lists all processing plugins on DSS.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos(
             String sessionToken);
-    
+
     /**
      * Processes the data sets of specified samples by the DSS processing plug-in of specified key
      * for the specified user. Implementations should check that the specified user is allowed to
      * read specified samples.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
 }

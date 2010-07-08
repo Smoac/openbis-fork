@@ -22,6 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+
 /**
  * The roles that are allowed to execute an <i>openBIS</i> method.
  * <p>
@@ -41,5 +43,6 @@ public @interface RolesAllowed
      * Should be the primary choice to specify roles.
      * </p>
      */
-    RoleSet value() default RoleSet.NONE;
+    RoleWithHierarchy[] value() default {};
+
 }

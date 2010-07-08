@@ -24,13 +24,13 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -46,7 +46,7 @@ public interface IDemoServer extends IServer
      * Returns number of experiments.
      */
     @Transactional
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public int getNumberOfExperiments(String sessionToken);
 
     /**
@@ -57,7 +57,7 @@ public interface IDemoServer extends IServer
      *             uniquely identified by given <var>sampleId</var> does not exist.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
             throws UserFailureException;
@@ -66,7 +66,7 @@ public interface IDemoServer extends IServer
      * Registers a new sample.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void registerSample(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample,

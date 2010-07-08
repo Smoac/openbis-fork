@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityL
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 
 import java.sql.SQLException;

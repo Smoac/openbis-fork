@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>AMC</i>.
@@ -82,10 +82,10 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(new OpenRoleAssignmentDialog());
         remoteConsole.prepare(FillRoleAssignmentForm.fillPersonRole(TEST_GROUP.toUpperCase(),
-                TestConstants.USER_ID_O, RoleSetCode.OBSERVER.toString()));
+                TestConstants.USER_ID_O, RoleWithHierarchy.SPACE_OBSERVER.toString()));
         final CheckRoleAssignmentTable table = new CheckRoleAssignmentTable();
         table.expectedRow(RoleAssignmentRow.personRoleRow(TEST_GROUP.toUpperCase(),
-                TestConstants.USER_ID_O, RoleSetCode.OBSERVER.toString()));
+                TestConstants.USER_ID_O, RoleWithHierarchy.SPACE_OBSERVER.toString()));
         remoteConsole.prepare(table);
 
         launchTest();
@@ -97,10 +97,10 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(new OpenRoleAssignmentDialog());
         remoteConsole.prepare(FillRoleAssignmentForm.fillAuthorizationGroupRole(TEST_GROUP
-                .toUpperCase(), TestConstants.ADMINS_GROUP, RoleSetCode.OBSERVER.toString()));
+                .toUpperCase(), TestConstants.ADMINS_GROUP, RoleWithHierarchy.SPACE_OBSERVER.toString()));
         final CheckRoleAssignmentTable table = new CheckRoleAssignmentTable();
         table.expectedRow(RoleAssignmentRow.authorizationGroupRoleRow(TEST_GROUP.toUpperCase(),
-                ADMINS_GROUP, RoleSetCode.OBSERVER.toString()));
+                ADMINS_GROUP, RoleWithHierarchy.SPACE_OBSERVER.toString()));
         remoteConsole.prepare(table);
 
         launchTest();

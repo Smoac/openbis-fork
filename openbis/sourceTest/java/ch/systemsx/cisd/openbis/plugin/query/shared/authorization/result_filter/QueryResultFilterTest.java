@@ -28,9 +28,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -187,10 +187,10 @@ public class QueryResultFilterTest extends AssertJUnit
                     exactly(2).of(loader).loadGroups(new HashSet<String>());
                     will(returnValue(new HashMap<String, GroupPE>()));
 
-                    one(authorizationChecker).isAuthorized(person, group, RoleSet.OBSERVER);
+                    one(authorizationChecker).isAuthorized(person, group, RoleWithHierarchy.SPACE_OBSERVER);
                     will(returnValue(true));
 
-                    one(authorizationChecker).isAuthorized(person, null, RoleSet.OBSERVER);
+                    one(authorizationChecker).isAuthorized(person, null, RoleWithHierarchy.SPACE_OBSERVER);
                     will(returnValue(false));
                 }
             });

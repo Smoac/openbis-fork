@@ -23,11 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -102,7 +102,7 @@ public interface IServer extends ISessionProvider
      * address or else it will throw an {@link AuthorizationFailureException}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void setSessionUser(String sessionToken, String userID);
 
 }

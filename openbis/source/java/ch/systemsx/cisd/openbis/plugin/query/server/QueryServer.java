@@ -45,9 +45,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
@@ -76,7 +76,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     private static final String CREATOR_MINIMAL_ROLE_KEY = "creator-minimal-role";
 
-    private static final String DEFAULT_CREATOR_MINIMAL_ROLE = RoleSet.POWER_USER.name();
+    private static final String DEFAULT_CREATOR_MINIMAL_ROLE = RoleWithHierarchy.SPACE_POWER_USER.name();
 
     private static final String DATA_SPACE_KEY = "data-space";
 
@@ -331,7 +331,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             }
             try
             {
-                final RoleSet creatorMinimalRole = RoleSet.valueOf(creatorMinimalRoleString);
+                final RoleWithHierarchy creatorMinimalRole = RoleWithHierarchy.valueOf(creatorMinimalRoleString);
                 definitions.put(databaseKey, new DatabaseDefinition(configurationContext,
                         databaseKey, label, creatorMinimalRole, dataSpaceOrNull));
             } catch (IllegalArgumentException ex)

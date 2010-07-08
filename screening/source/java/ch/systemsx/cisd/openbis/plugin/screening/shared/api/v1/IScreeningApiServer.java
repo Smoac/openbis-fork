@@ -23,9 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreenerPlateValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreenerReadonlyPlatePredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -72,7 +72,7 @@ public interface IScreeningApiServer extends IRpcService
      * hierarchical context (space, project, experiment).
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ScreenerPlateValidator.class)
     List<Plate> listPlates(String sessionToken) throws IllegalArgumentException;
 
@@ -81,7 +81,7 @@ public interface IScreeningApiServer extends IRpcService
      * sets containing feature vectors for each of these plates.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             String sessionToken,
             @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<? extends PlateIdentifier> plates)
@@ -92,7 +92,7 @@ public interface IScreeningApiServer extends IRpcService
      * these plates.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     List<ImageDatasetReference> listImageDatasets(
             String sessionToken,
             @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<? extends PlateIdentifier> plates)
@@ -102,7 +102,7 @@ public interface IScreeningApiServer extends IRpcService
      * Converts a given list of dataset codes to dataset identifiers.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     List<IDatasetIdentifier> getDatasetIdentifiers(
             String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);

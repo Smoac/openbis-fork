@@ -79,8 +79,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -168,25 +168,25 @@ public interface ICommonClientService extends IClientService
     /**
      * Registers a new role from given role set code, group code and grantee.
      */
-    public void registerGroupRole(RoleSetCode roleSetCode, String group, Grantee grantee)
+    public void registerGroupRole(RoleWithHierarchy roleSetCode, String group, Grantee grantee)
             throws UserFailureException;
 
     /**
      * Deletes the role described by given role set code, group code and grantee.
      */
-    public void deleteGroupRole(RoleSetCode roleSetCode, String group, Grantee grantee)
+    public void deleteGroupRole(RoleWithHierarchy roleSetCode, String group, Grantee grantee)
             throws UserFailureException;
 
     /**
      * Registers a new role from given role set code and grantee.
      */
-    public void registerInstanceRole(RoleSetCode roleSetCode, Grantee grantee)
+    public void registerInstanceRole(RoleWithHierarchy roleSetCode, Grantee grantee)
             throws UserFailureException;
 
     /**
      * Deletes the role described by given role set code and grantee.
      */
-    public void deleteInstanceRole(RoleSetCode roleSetCode, Grantee grantee)
+    public void deleteInstanceRole(RoleWithHierarchy roleSetCode, Grantee grantee)
             throws UserFailureException;
 
     /**

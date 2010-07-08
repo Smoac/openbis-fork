@@ -35,24 +35,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "system test")
 public class SetSessionUserTest extends SystemTestCase
 {
     @Autowired
-    public WhiteListBasedRemoteHostValidator remoteHostValidator; 
-    
+    public WhiteListBasedRemoteHostValidator remoteHostValidator;
+
     private BufferedAppender logRecorder;
-    
+
     @BeforeMethod
     public void setUp()
     {
         logRecorder = new BufferedAppender("%m%n", Level.INFO);
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -63,7 +61,7 @@ public class SetSessionUserTest extends SystemTestCase
     @Test
     public void testNotInstanceAdmin()
     {
-        
+
         SessionContextDTO session = commonServer.tryToAuthenticate("observer", "a");
         String sessionToken = session.getSessionToken();
         try
@@ -72,11 +70,11 @@ public class SetSessionUserTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: None of method roles '[INSTANCE.ADMIN]' " +
-            		"could be found in roles of user 'observer'.", ex.getMessage());
+            assertEquals("Authorization failure: None of method roles '[INSTANCE_ADMIN]' "
+                    + "could be found in roles of user 'observer'.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testUnkownRemoteHost()
     {
@@ -89,14 +87,15 @@ public class SetSessionUserTest extends SystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("It is not allowed to change the user from remote host localhost", ex.getMessage());
+            assertEquals("It is not allowed to change the user from remote host localhost", ex
+                    .getMessage());
         }
     }
-    
+
     @Test
     public void testUnkownUser()
     {
-        
+
         SessionContextDTO session = commonServer.tryToAuthenticate("test", "a");
         String sessionToken = session.getSessionToken();
         try
@@ -108,32 +107,32 @@ public class SetSessionUserTest extends SystemTestCase
             assertEquals("Unknown user: dontKnow", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testLogging()
     {
         SessionContextDTO session = commonServer.tryToAuthenticate("test", "a");
         String sessionToken = session.getSessionToken();
-        
+
         commonServer.setSessionUser(sessionToken, "observer");
-        
+
         String[] logContent = logRecorder.getLogContent().split("\n");
         assertEquals(3, logContent.length);
         String logLine = logContent[2];
         assertTrue("Following log line does start as expected: " + logLine, logLine
                 .startsWith("[USER:'test' SPACE:'CISD' HOST:'localhost'"));
         assertTrue("Following log line does end as expected: " + logLine, logLine
-                .endsWith("set_session_user  USER('observer')"));      
-        
+                .endsWith("set_session_user  USER('observer')"));
+
         commonServer.logout(sessionToken);
-        
+
         logContent = logRecorder.getLogContent().split("\n");
         assertEquals(5, logContent.length);
         logLine = logContent[4];
         assertEquals("LOGOUT: Session '" + sessionToken + "' of user 'observer' has been closed.",
                 logLine);
     }
-    
+
     @Test
     public void testAuthorization()
     {
@@ -145,13 +144,13 @@ public class SetSessionUserTest extends SystemTestCase
         criteria.setSampleType(sampleType);
         criteria.setIncludeSpace(true);
         // INSTANCE ADMIN sees all samples
-        assertEquals(15, commonServer.listSamples(sessionToken, criteria).size()); 
-        
+        assertEquals(15, commonServer.listSamples(sessionToken, criteria).size());
+
         commonServer.setSessionUser(sessionToken, "test");
         commonServer.setSessionUser(sessionToken, "observer"); // allowed because still user 'test'
         // Observer of another space sees nothing
         assertEquals(0, commonServer.listSamples(sessionToken, criteria).size());
-        
+
         try
         {
             // not allowed because user 'observer' has no INSTANCE ADMIN rights
@@ -159,8 +158,8 @@ public class SetSessionUserTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: None of method roles '[INSTANCE.ADMIN]' " +
-                    "could be found in roles of user 'observer'.", ex.getMessage());
+            assertEquals("Authorization failure: None of method roles '[INSTANCE_ADMIN]' "
+                    + "could be found in roles of user 'observer'.", ex.getMessage());
         }
     }
 }

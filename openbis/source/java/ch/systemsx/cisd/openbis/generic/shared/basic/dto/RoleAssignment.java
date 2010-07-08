@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+
 /**
  * The DTO for authorization role assignments.
  * 
@@ -25,7 +26,7 @@ public final class RoleAssignment extends Code<RoleAssignment>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private RoleSetCode roleSetCode;
+    private RoleWithHierarchy role;
 
     private Person person;
 
@@ -49,14 +50,14 @@ public final class RoleAssignment extends Code<RoleAssignment>
     {
     }
 
-    public final RoleSetCode getRoleSetCode()
+    public final RoleWithHierarchy getRoleSetCode()
     {
-        return roleSetCode;
+        return role;
     }
 
-    public final void setRoleSetCode(RoleSetCode roleSetCode)
+    public final void setRoleSetCode(RoleWithHierarchy roleSetCode)
     {
-        this.roleSetCode = roleSetCode;
+        this.role = roleSetCode;
         setCode(roleSetCode.toString());
     }
 

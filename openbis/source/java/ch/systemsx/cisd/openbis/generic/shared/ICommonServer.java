@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
@@ -90,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -98,9 +98,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -116,7 +116,7 @@ public interface ICommonServer extends IServer
 {
     /** Keeps the session with specified token alive. */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public void keepSessionAlive(String sessionToken);
 
     /**
@@ -125,7 +125,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link Space}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SpaceValidator.class)
     public List<Space> listSpaces(String sessionToken, DatabaseInstanceIdentifier identifier);
 
@@ -133,7 +133,7 @@ public interface ICommonServer extends IServer
      * Registers a new space with specified code and optional description.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
     public void registerSpace(String sessionToken, String spaceCode, String descriptionOrNull);
 
@@ -141,7 +141,7 @@ public interface ICommonServer extends IServer
      * Updates a property type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.SPACE)
     public void updateSpace(final String sessionToken, final ISpaceUpdates updates);
 
@@ -149,7 +149,7 @@ public interface ICommonServer extends IServer
      * Registers a new authorization group.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.AUTHORIZATION_GROUP)
     public void registerAuthorizationGroup(String sessionToken,
             NewAuthorizationGroup newAuthorizationGroup);
@@ -158,7 +158,7 @@ public interface ICommonServer extends IServer
      * Deletes selected authorization groups.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.AUTHORIZATION_GROUP)
     public void deleteAuthorizationGroups(String sessionToken, List<TechId> authGroupIds,
             String reason);
@@ -169,7 +169,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link Person}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public List<Person> listPersons(String sessionToken);
 
     /**
@@ -178,7 +178,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link Project}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ProjectValidator.class)
     public List<Project> listProjects(String sessionToken);
 
@@ -186,7 +186,7 @@ public interface ICommonServer extends IServer
      * Registers a new person.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PERSON)
     public void registerPerson(String sessionToken, String userID);
 
@@ -194,14 +194,14 @@ public interface ICommonServer extends IServer
      * Returns a list of all roles.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     public List<RoleAssignment> listRoleAssignments(String sessionToken);
 
     /**
      * Registers a new space role.
      */
     @Transactional
-    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void registerSpaceRole(
             String sessionToken,
@@ -213,7 +213,7 @@ public interface ICommonServer extends IServer
      * Registers a new instance role.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void registerInstanceRole(String sessionToken, RoleCode roleCode, Grantee grantee);
 
@@ -221,7 +221,7 @@ public interface ICommonServer extends IServer
      * Deletes role described by given role code, space identifier and grantee.
      */
     @Transactional
-    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void deleteSpaceRole(
             String sessionToken,
@@ -233,7 +233,7 @@ public interface ICommonServer extends IServer
      * Deletes role described by given role code and user id.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void deleteInstanceRole(String sessionToken, RoleCode roleCode, Grantee grantee);
 
@@ -243,7 +243,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link SampleType}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<SampleType> listSampleTypes(String sessionToken);
 
     /**
@@ -252,7 +252,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link Sample}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamples(
             final String sessionToken,
@@ -264,7 +264,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link Experiment}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(
             final String sessionToken,
             ExperimentType experimentType,
@@ -276,7 +276,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ExternalData> listSampleExternalData(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId,
             final boolean showOnlyDirectlyConnected);
@@ -287,7 +287,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ExternalData> listExperimentExternalData(
             final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) final TechId experimentId);
@@ -299,7 +299,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ExternalData> listDataSetRelationships(final String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) final TechId datasetId,
             final DataSetRelationshipRole role);
@@ -308,7 +308,7 @@ public interface ICommonServer extends IServer
      * Performs an <i>Hibernate Search</i> based on given parameters.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = MatchingEntityValidator.class)
     public List<MatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText,
@@ -320,7 +320,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link ExperimentType}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ExperimentType> listExperimentTypes(String sessionToken);
 
     /**
@@ -329,7 +329,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link PropertyType}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<PropertyType> listPropertyTypes(final String sessionToken, boolean withRelations);
 
     /**
@@ -338,7 +338,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link DataType}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataType> listDataTypes(final String sessionToken);
 
     /**
@@ -347,7 +347,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link FileFormatType}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<FileFormatType> listFileFormatTypes(String sessionToken);
 
     /**
@@ -356,7 +356,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link Vocabulary}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Vocabulary> listVocabularies(final String sessionToken, final boolean withTerms,
             boolean excludeInternal);
 
@@ -364,7 +364,7 @@ public interface ICommonServer extends IServer
      * Registers given {@link PropertyType}.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
     public void registerPropertyType(final String sessionToken, final PropertyType propertyType);
 
@@ -372,7 +372,7 @@ public interface ICommonServer extends IServer
      * Updates a property type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.PROPERTY_TYPE)
     public void updatePropertyType(final String sessionToken, final IPropertyTypeUpdates updates);
 
@@ -380,7 +380,7 @@ public interface ICommonServer extends IServer
      * Deletes specified property types.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason);
 
@@ -388,7 +388,7 @@ public interface ICommonServer extends IServer
      * Assigns property type to entity type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
     public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
             final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
@@ -398,7 +398,7 @@ public interface ICommonServer extends IServer
      * Update property type assignment to entity type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
     public void updatePropertyTypeAssignment(final String sessionToken,
             final EntityKind entityKind, final String propertyTypeCode,
@@ -409,7 +409,7 @@ public interface ICommonServer extends IServer
      * Unassigns property type to entity type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
     public void unassignPropertyType(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode);
@@ -419,7 +419,7 @@ public interface ICommonServer extends IServer
      * type.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public int countPropertyTypedEntities(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode);
 
@@ -427,7 +427,7 @@ public interface ICommonServer extends IServer
      * Registers given {@link NewVocabulary}.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
     public void registerVocabulary(final String sessionToken, final NewVocabulary vocabulary);
 
@@ -435,7 +435,7 @@ public interface ICommonServer extends IServer
      * Updates a vocabulary.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.VOCABULARY)
     public void updateVocabulary(String sessionToken, IVocabularyUpdates updates);
 
@@ -443,7 +443,7 @@ public interface ICommonServer extends IServer
      * Deletes specified vocabularies.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason);
 
@@ -451,7 +451,7 @@ public interface ICommonServer extends IServer
      * Deletes specified projects.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     public void deleteProjects(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) List<TechId> projectIds,
@@ -461,7 +461,7 @@ public interface ICommonServer extends IServer
      * Deletes specified spaces.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
     public void deleteSpaces(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceTechIdPredicate.class) List<TechId> spaceIds,
@@ -471,7 +471,7 @@ public interface ICommonServer extends IServer
      * Adds new terms to a vocabulary starting from specified ordinal + 1.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<String> vocabularyTerms, Long previousTermOrdinal);
@@ -480,7 +480,7 @@ public interface ICommonServer extends IServer
      * Updates a vocabulary term.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.VOCABULARY_TERM)
     public void updateVocabularyTerm(final String sessionToken, final IVocabularyTermUpdates updates);
 
@@ -488,7 +488,7 @@ public interface ICommonServer extends IServer
      * Deletes from the specified vocabulary the specified terms.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced);
@@ -497,7 +497,7 @@ public interface ICommonServer extends IServer
      * Registers new project.
      */
     @Transactional
-    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     public void registerProject(
             String sessionToken,
@@ -508,7 +508,7 @@ public interface ICommonServer extends IServer
      * Performs an <i>Hibernate Search</i> based on given parameters.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria);
 
@@ -516,7 +516,7 @@ public interface ICommonServer extends IServer
      * For given {@link TechId} returns the corresponding {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExternalData getDataSetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
 
@@ -524,7 +524,7 @@ public interface ICommonServer extends IServer
      * Performs an <i>Hibernate Search</i> based on given parameters.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria);
 
@@ -532,7 +532,7 @@ public interface ICommonServer extends IServer
      * Returns all data sets related to specified entities.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities entities);
@@ -543,7 +543,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link MaterialType}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<MaterialType> listMaterialTypes(String sessionToken);
 
     /**
@@ -552,7 +552,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link Material}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Material> listMaterials(String sessionToken, MaterialType materialType,
             boolean withProperties);
 
@@ -560,7 +560,7 @@ public interface ICommonServer extends IServer
      * Creates a new material type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
     public void registerMaterialType(String sessionToken, MaterialType entityType);
 
@@ -568,7 +568,7 @@ public interface ICommonServer extends IServer
      * Updates a material type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL_TYPE)
     public void updateMaterialType(String sessionToken, EntityType entityType);
 
@@ -576,7 +576,7 @@ public interface ICommonServer extends IServer
      * Creates a new sample type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
     public void registerSampleType(String sessionToken, SampleType entityType);
 
@@ -584,7 +584,7 @@ public interface ICommonServer extends IServer
      * Updates a sample type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE_TYPE)
     public void updateSampleType(String sessionToken, EntityType entityType);
 
@@ -592,7 +592,7 @@ public interface ICommonServer extends IServer
      * Creates a new experiment type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
     public void registerExperimentType(String sessionToken, ExperimentType entityType);
 
@@ -600,7 +600,7 @@ public interface ICommonServer extends IServer
      * Updates a experiment type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT_TYPE)
     public void updateExperimentType(String sessionToken, EntityType entityType);
 
@@ -608,7 +608,7 @@ public interface ICommonServer extends IServer
      * Creates a new file format type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.FILE_FORMAT_TYPE)
     public void registerFileFormatType(String sessionToken, FileFormatType type);
 
@@ -616,7 +616,7 @@ public interface ICommonServer extends IServer
      * Creates a new data set type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
     public void registerDataSetType(String sessionToken, DataSetType entityType);
 
@@ -624,7 +624,7 @@ public interface ICommonServer extends IServer
      * Updates a data set type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATASET_TYPE)
     public void updateDataSetType(String sessionToken, EntityType entityType);
 
@@ -632,7 +632,7 @@ public interface ICommonServer extends IServer
      * Deletes specified data sets.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void deleteDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
@@ -642,7 +642,7 @@ public interface ICommonServer extends IServer
      * Deletes specified samples.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void deleteSamples(
             String sessionToken,
@@ -653,7 +653,7 @@ public interface ICommonServer extends IServer
      * Deletes specified experiments.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public void deleteExperiments(
             String sessionToken,
@@ -664,7 +664,7 @@ public interface ICommonServer extends IServer
      * Deletes specified attachments (all versions with given file names) of specified experiment.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void deleteExperimentAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
@@ -674,7 +674,7 @@ public interface ICommonServer extends IServer
      * Deletes specified attachments (all versions with given file names) of specified sample.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void deleteSampleAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId,
@@ -684,7 +684,7 @@ public interface ICommonServer extends IServer
      * Deletes specified attachments (all versions with given file names) of specified project.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void deleteProjectAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId,
@@ -694,7 +694,7 @@ public interface ICommonServer extends IServer
      * Returns all attachments (all versions) of specified experiment.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listExperimentAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
@@ -702,7 +702,7 @@ public interface ICommonServer extends IServer
      * Returns all attachments (all versions) of specified sample.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listSampleAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId);
 
@@ -710,7 +710,7 @@ public interface ICommonServer extends IServer
      * Returns all attachments (all versions) of specified project.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listProjectAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId);
 
@@ -720,7 +720,7 @@ public interface ICommonServer extends IServer
      * @return a message or an empty string
      */
     @Transactional
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext);
 
@@ -728,7 +728,7 @@ public interface ICommonServer extends IServer
      * Lists vocabulary terms of a given vocabulary. Includes terms usage statistics.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,
             Vocabulary vocabulary);
 
@@ -736,7 +736,7 @@ public interface ICommonServer extends IServer
      * Lists vocabulary terms of a given vocabulary.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Set<VocabularyTerm> listVocabularyTerms(String sessionToken, Vocabulary vocabulary);
 
     /**
@@ -745,21 +745,21 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link DataSetType}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSetType> listDataSetTypes(String sessionToken);
 
     /**
      * @return Information about the time and kind of the last modification, separately for each
      *         kind of database object.
      */
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public LastModificationState getLastModificationState(String sessionToken);
 
     /**
      * For given {@link TechId} returns the corresponding {@link Project}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Project getProjectInfo(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId);
 
@@ -768,7 +768,7 @@ public interface ICommonServer extends IServer
      * attachments).
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Project getProjectInfo(
             String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
@@ -777,14 +777,14 @@ public interface ICommonServer extends IServer
      * Returns unique code.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public String generateCode(String sessionToken, String prefix);
 
     /**
      * Saves changed project.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public Date updateProject(
             String sessionToken,
@@ -794,7 +794,7 @@ public interface ICommonServer extends IServer
      * Deletes specified data set types.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.DATASET_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes);
@@ -803,7 +803,7 @@ public interface ICommonServer extends IServer
      * Deletes specified sample types.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.SAMPLE_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes);
@@ -812,7 +812,7 @@ public interface ICommonServer extends IServer
      * Deletes specified experiment types.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.EXPERIMENT_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes);
@@ -821,7 +821,7 @@ public interface ICommonServer extends IServer
      * Deletes specified file format types.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.FILE_FORMAT_TYPE })
     public void deleteFileFormatTypes(String sessionToken, List<String> codes);
@@ -830,7 +830,7 @@ public interface ICommonServer extends IServer
      * Deletes specified material types.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.MATERIAL_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes);
@@ -840,7 +840,7 @@ public interface ICommonServer extends IServer
      * {@link IEntityInformationHolder}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
             EntityKind entityKind, String permId);
 
@@ -849,7 +849,7 @@ public interface ICommonServer extends IServer
      * {@link IEntityInformationHolder}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public IEntityInformationHolder getMaterialInformationHolder(String sessionToken,
             MaterialIdentifier identifier);
 
@@ -857,7 +857,7 @@ public interface ICommonServer extends IServer
      * Returns file template available during batch operation of entity of given type.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public String getTemplateColumns(String sessionToken, EntityKind kind, String type,
             boolean autoGenerate, boolean withExperiments, BatchOperationKind operationKind);
 
@@ -865,7 +865,7 @@ public interface ICommonServer extends IServer
      * Updates file format type.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.FILE_FORMAT_TYPE)
     public void updateFileFormatType(String sessionToken, AbstractType type);
 
@@ -873,7 +873,7 @@ public interface ICommonServer extends IServer
      * Updates the experiment attachment.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void updateExperimentAttachments(String sessionToken, TechId experimentId,
             Attachment attachment);
@@ -882,7 +882,7 @@ public interface ICommonServer extends IServer
      * Updates the sample attachment.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment);
 
@@ -890,26 +890,26 @@ public interface ICommonServer extends IServer
      * Updates the project attachment.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void updateProjectAttachments(String sessionToken, TechId projectId,
             Attachment attachment);
 
     /** Lists all available datastore services of the specified kind */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
             DataStoreServiceKind dataStoreServiceKind);
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel createReportFromDatasets(
             String sessionToken,
             DatastoreServiceDescription serviceDescription,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processDatasets(
             String sessionToken,
             DatastoreServiceDescription serviceDescription,
@@ -921,7 +921,7 @@ public interface ICommonServer extends IServer
      * @return number of data sets scheduled for archiving.
      */
     @Transactional
-    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public int archiveDatasets(
             String sessionToken,
@@ -933,7 +933,7 @@ public interface ICommonServer extends IServer
      * @return number of data sets scheduled for unarchiving.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public int unarchiveDatasets(
             String sessionToken,
@@ -945,7 +945,7 @@ public interface ICommonServer extends IServer
      * @return number of data sets scheduled for locking.
      */
     @Transactional
-    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public int lockDatasets(
             String sessionToken,
@@ -957,7 +957,7 @@ public interface ICommonServer extends IServer
      * @return number of data sets scheduled for unlocking.
      */
     @Transactional
-    @RolesAllowed(RoleSet.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public int unlockDatasets(
             String sessionToken,
@@ -967,14 +967,14 @@ public interface ICommonServer extends IServer
      * Returns all authorization groups.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken);
 
     /**
      * Saves changed authorization group.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.AUTHORIZATION_GROUP)
     public Date updateAuthorizationGroup(String sessionToken, AuthorizationGroupUpdates updates);
 
@@ -982,7 +982,7 @@ public interface ICommonServer extends IServer
      * Returns all persons belonging to given authorization group.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Person> listPersonInAuthorizationGroup(String sessionToken,
             TechId authorizatonGroupId);
 
@@ -990,7 +990,7 @@ public interface ICommonServer extends IServer
      * Adds specified persons to given authorization group.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void addPersonsToAuthorizationGroup(String sessionToken, TechId authorizationGroupId,
             List<String> personsCodes);
 
@@ -998,7 +998,7 @@ public interface ICommonServer extends IServer
      * Removes specified persons from given authorization group.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void removePersonsFromAuthorizationGroup(String sessionToken,
             TechId authorizationGroupId, List<String> personsCodes);
 
@@ -1006,7 +1006,7 @@ public interface ICommonServer extends IServer
      * Lists filters available for selected grid.
      */
     @Transactional
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<GridCustomFilter> listFilters(String sessionToken, String gridId);
 
@@ -1014,7 +1014,7 @@ public interface ICommonServer extends IServer
      * Creates a new filter.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.GRID_CUSTOM_FILTER)
     public void registerFilter(String sessionToken, NewColumnOrFilter filter);
 
@@ -1022,7 +1022,7 @@ public interface ICommonServer extends IServer
      * Deletes specified filters.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.GRID_CUSTOM_FILTER)
     public void deleteFilters(
             String sessionToken,
@@ -1032,7 +1032,7 @@ public interface ICommonServer extends IServer
      * Updates a filter.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.GRID_CUSTOM_FILTER)
     public void updateFilter(
             String sessionToken,
@@ -1044,7 +1044,7 @@ public interface ICommonServer extends IServer
      * Lists columns available for selected grid.
      */
     @Transactional
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId);
 
@@ -1052,7 +1052,7 @@ public interface ICommonServer extends IServer
      * Creates a new column.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.GRID_CUSTOM_COLUMN)
     public void registerGridCustomColumn(String sessionToken, NewColumnOrFilter column);
 
@@ -1060,7 +1060,7 @@ public interface ICommonServer extends IServer
      * Deletes specified columns.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.GRID_CUSTOM_COLUMN)
     public void deleteGridCustomColumns(
             String sessionToken,
@@ -1070,7 +1070,7 @@ public interface ICommonServer extends IServer
      * Updates a column.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.GRID_CUSTOM_COLUMN)
     public void updateGridCustomColumn(
             String sessionToken,
@@ -1080,7 +1080,7 @@ public interface ICommonServer extends IServer
      * Updates vocabulary terms.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.VOCABULARY_TERM)
     public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> terms);
@@ -1089,7 +1089,7 @@ public interface ICommonServer extends IServer
      * Deletes specified materials.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason);
 

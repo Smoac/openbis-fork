@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * {@link ListBox} with RoleSets.
@@ -31,39 +31,40 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
  */
 public class RoleListBox extends ListBox
 {
-    public RoleListBox(final GroupSelectionWidget group)
+    public RoleListBox(final GroupSelectionWidget groupWidget)
     {
-        RoleSetCode[] values = RoleSetCode.values();
-        for (RoleSetCode visibleRoleCode : values)
+        RoleWithHierarchy[] values = RoleWithHierarchy.values();
+        for (RoleWithHierarchy visibleRoleCode : values)
         {
             addItem(visibleRoleCode.toString());
         }
         setVisibleItemCount(1);
+        updateWidgetsVisibility(groupWidget);
 
         addChangeHandler(new ChangeHandler()
             {
-                //
-                // ChangeListener
-                //
 
                 public final void onChange(final ChangeEvent sender)
                 {
-                    int index = getSelectedIndex();
-                    RoleSetCode[] roleSetCodes = RoleSetCode.values();
-                    if (index < 0 || index >= roleSetCodes.length)
-                        return;
-
-                    boolean groupLevel = roleSetCodes[index].isSpaceLevel();
-                    FieldUtil.setMandatoryFlag(group, groupLevel);
-                    group.setVisible(groupLevel);
+                    updateWidgetsVisibility(groupWidget);
                 }
-
             });
 
     }
 
-    public final RoleSetCode getValue()
+    public final RoleWithHierarchy getValue()
     {
-        return RoleSetCode.values()[getSelectedIndex()];
+        return RoleWithHierarchy.values()[getSelectedIndex()];
+    }
+
+    private void updateWidgetsVisibility(final GroupSelectionWidget group)
+    {
+        int index = getSelectedIndex();
+        RoleWithHierarchy[] roles = RoleWithHierarchy.values();
+        if (index < 0 || index >= roles.length)
+            return;
+        boolean groupLevel = roles[index].isSpaceLevel();
+        FieldUtil.setMandatoryFlag(group, groupLevel);
+        group.setVisible(groupLevel);
     }
 }

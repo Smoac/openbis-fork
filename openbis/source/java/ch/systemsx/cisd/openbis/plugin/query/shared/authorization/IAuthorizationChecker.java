@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.shared.authorization;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -27,5 +27,5 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public interface IAuthorizationChecker
 {
-    boolean isAuthorized(PersonPE person, GroupPE dataSpaceOrNull, RoleSet minimalRole);
+    boolean isAuthorized(PersonPE person, GroupPE dataSpaceOrNull, RoleWithHierarchy minimalRole);
 }

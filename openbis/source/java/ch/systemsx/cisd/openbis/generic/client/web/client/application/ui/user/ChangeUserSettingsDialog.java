@@ -46,8 +46,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * {@link Window} containing form for changing logged user settings.

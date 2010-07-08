@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -47,8 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component(ResourceNames.GENERAL_INFORMATION_SERVICE_SERVER)
@@ -59,7 +56,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public GeneralInformationService()
     {
     }
-    
+
     GeneralInformationService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory)
     {
         super(sessionManager, daoFactory);
@@ -79,14 +76,15 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken)
     {
         checkSession(sessionToken);
-        
+
         Map<String, Set<Role>> namedRoleSets = new LinkedHashMap<String, Set<Role>>();
-        RoleSet[] values = RoleSet.values();
-        for (RoleSet roleSet : values)
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy[] values =
+                ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.values();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy roleSet : values)
         {
-            Set<ch.systemsx.cisd.openbis.generic.shared.authorization.Role> roles = roleSet.getRoles();
+            Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy> roles = roleSet.getRoles();
             Set<Role> translatedRoles = new HashSet<Role>();
-            for (ch.systemsx.cisd.openbis.generic.shared.authorization.Role role : roles)
+            for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy role : roles)
             {
                 translatedRoles.add(Translator.translate(role));
             }
@@ -99,12 +97,12 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             String sessionToken, String databaseInstanceCodeOrNull)
     {
         checkSession(sessionToken);
-        
+
         Map<String, List<RoleAssignmentPE>> roleAssignmentsPerSpace = getRoleAssignmentsPerSpace();
         List<RoleAssignmentPE> instanceRoleAssignments = roleAssignmentsPerSpace.get(null);
         List<GroupPE> spaces = listSpaces(databaseInstanceCodeOrNull);
         List<SpaceWithProjectsAndRoleAssignments> result =
-            new ArrayList<SpaceWithProjectsAndRoleAssignments>();
+                new ArrayList<SpaceWithProjectsAndRoleAssignments>();
         for (GroupPE space : spaces)
         {
             SpaceWithProjectsAndRoleAssignments fullSpace =
@@ -133,8 +131,10 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
     {
-        List<RoleAssignmentPE> roleAssignments = getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
-        Map<String, List<RoleAssignmentPE>> roleAssignmentsPerSpace = new HashMap<String, List<RoleAssignmentPE>>();
+        List<RoleAssignmentPE> roleAssignments =
+                getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
+        Map<String, List<RoleAssignmentPE>> roleAssignmentsPerSpace =
+                new HashMap<String, List<RoleAssignmentPE>>();
         for (RoleAssignmentPE roleAssignment : roleAssignments)
         {
             GroupPE space = roleAssignment.getGroup();
@@ -149,7 +149,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
         return roleAssignmentsPerSpace;
     }
-    
+
     private List<GroupPE> listSpaces(String databaseInstanceCodeOrNull)
     {
         IDAOFactory daoFactory = getDAOFactory();
@@ -158,11 +158,11 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         {
             IDatabaseInstanceDAO databaseInstanceDAO = daoFactory.getDatabaseInstanceDAO();
             databaseInstance =
-                databaseInstanceDAO.tryFindDatabaseInstanceByCode(databaseInstanceCodeOrNull);
+                    databaseInstanceDAO.tryFindDatabaseInstanceByCode(databaseInstanceCodeOrNull);
         }
         return daoFactory.getGroupDAO().listGroups(databaseInstance);
     }
-    
+
     private void addProjectsTo(SpaceWithProjectsAndRoleAssignments fullSpace, GroupPE space)
     {
         List<ProjectPE> projects = getDAOFactory().getProjectDAO().listProjects(space);
@@ -171,12 +171,14 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             fullSpace.add(new Project(fullSpace.getCode(), project.getCode()));
         }
     }
-    
+
     private void addRoles(SpaceWithProjectsAndRoleAssignments fullSpace, List<RoleAssignmentPE> list)
     {
         for (RoleAssignmentPE roleAssignment : list)
         {
-            Role role = Translator.translate(roleAssignment.getRole(), roleAssignment.getGroup() != null);
+            Role role =
+                    Translator.translate(roleAssignment.getRole(),
+                            roleAssignment.getGroup() != null);
             Set<PersonPE> persons;
             AuthorizationGroupPE authorizationGroup = roleAssignment.getAuthorizationGroup();
             if (authorizationGroup != null)
@@ -193,4 +195,3 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
     }
 }
-

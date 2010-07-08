@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModificatio
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
@@ -55,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -78,7 +78,7 @@ public interface IGenericServer extends IServer
      *             uniquely identified by given <var>sampleId</var> does not exist.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
             throws UserFailureException;
@@ -87,7 +87,7 @@ public interface IGenericServer extends IServer
      * Registers a new sample.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void registerSample(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample,
@@ -97,7 +97,7 @@ public interface IGenericServer extends IServer
      * For given {@link ExperimentIdentifier} returns the corresponding {@link Experiment}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Experiment getExperimentInfo(
             String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier identifier);
@@ -106,7 +106,7 @@ public interface IGenericServer extends IServer
      * For given {@link TechId} returns the corresponding {@link Experiment}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Experiment getExperimentInfo(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
@@ -114,14 +114,14 @@ public interface IGenericServer extends IServer
      * For given {@link TechId} returns the corresponding {@link Material}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Material getMaterialInfo(String sessionToken, TechId materialId);
 
     /**
      * For given {@link TechId} returns the corresponding {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExternalData getDataSetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
 
@@ -129,7 +129,7 @@ public interface IGenericServer extends IServer
      * Returns attachment described by given experiment identifier, filename and version.
      */
     @Transactional
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AttachmentWithContent getExperimentFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
             String filename, int version) throws UserFailureException;
@@ -138,7 +138,7 @@ public interface IGenericServer extends IServer
      * Registers samples of different types in batches.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void registerSamples(
             final String sessionToken,
@@ -149,7 +149,7 @@ public interface IGenericServer extends IServer
      * Registers or updates samples of different types in batches.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void registerOrUpdateSamples(
             final String sessionToken,
@@ -160,7 +160,7 @@ public interface IGenericServer extends IServer
      * Updates samples of different types in batches.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void updateSamples(
             final String sessionToken,
@@ -171,7 +171,7 @@ public interface IGenericServer extends IServer
      * Registers experiment. At the same time samples may be registered or updated.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
@@ -184,7 +184,7 @@ public interface IGenericServer extends IServer
      * Registers materials in batch.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void registerMaterials(String sessionToken, String materialTypeCode,
             List<NewMaterial> newMaterials) throws UserFailureException;
@@ -194,7 +194,7 @@ public interface IGenericServer extends IServer
      * are not mentioned stay unchanged).
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void registerOrUpdateMaterials(String sessionToken, String materialTypeCode,
             List<NewMaterial> newMaterials) throws UserFailureException;
@@ -203,7 +203,7 @@ public interface IGenericServer extends IServer
      * Returns attachment described by given sample identifier, filename and version.
      */
     @Transactional
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AttachmentWithContent getSampleFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId,
             String fileName, int version);
@@ -212,7 +212,7 @@ public interface IGenericServer extends IServer
      * Returns attachment described by given project identifier, filename and version.
      */
     @Transactional
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AttachmentWithContent getProjectFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId,
             String fileName, int version);
@@ -221,14 +221,14 @@ public interface IGenericServer extends IServer
      * Returns a list of unique codes.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> generateCodes(String sessionToken, String prefix, int number);
 
     /**
      * Saves changed experiment.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value =
         { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     public ExperimentUpdateResult updateExperiment(
@@ -239,7 +239,7 @@ public interface IGenericServer extends IServer
      * Saves changed material.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
     public Date updateMaterial(String sessionToken, TechId materialId,
             List<IEntityProperty> properties, Date version);
@@ -248,7 +248,7 @@ public interface IGenericServer extends IServer
      * Saves changed sample.
      */
     @Transactional
-    @RolesAllowed(RoleSet.USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public Date updateSample(String sessionToken,
             @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates);
@@ -257,7 +257,7 @@ public interface IGenericServer extends IServer
      * Saves changed data set.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public DataSetUpdateResult updateDataSet(
             String sessionToken,
@@ -267,7 +267,7 @@ public interface IGenericServer extends IServer
      * Updates data sets of different types in batches.
      */
     @Transactional
-    @RolesAllowed(RoleSet.POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void updateDataSets(
             final String sessionToken,

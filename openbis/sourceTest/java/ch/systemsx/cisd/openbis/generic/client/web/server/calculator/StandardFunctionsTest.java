@@ -19,18 +19,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.DOUBLE_DEFAULT_VALUE;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.INTEGER_DEFAULT_VALUE;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.avg;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.avgOrDefault;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.choose;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.max;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.maxOrDefault;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.median;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.medianOrDefault;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.min;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.minOrDefault;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.stdev;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.stdevOrDefault;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.toFloat;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.toInt;
-import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.avgOrDefault;
-import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.maxOrDefault;
-import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.medianOrDefault;
-import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.minOrDefault;
-import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.stdevOrDefault;
 
 import java.util.Arrays;
 

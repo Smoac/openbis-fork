@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;

@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 
 /**
