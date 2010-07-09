@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -40,7 +41,7 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
      * @return property renderer for given column of given entity
      */
     public static <S extends IEntityPropertiesHolder> AbstractPropertyColRenderer<S> getPropertyColRenderer(
-            EntityPropertyColDef<S> colDef,
+            final IViewContext<?> viewContext, EntityPropertyColDef<S> colDef,
             RealNumberFormatingParameters realNumberFormatingParameters)
     {
         switch (colDef.getDataTypeCode())
@@ -56,7 +57,7 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
             case TIMESTAMP:
                 return new TimestampPropertyColRenderer<S>(colDef);
             case MATERIAL:
-                return new MaterialPropertyColRenderer<S>(colDef);
+                return new MaterialPropertyColRenderer<S>(viewContext, colDef);
             default:
                 return new DefaultPropertyColRenderer<S>(colDef);
         }

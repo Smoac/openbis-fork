@@ -229,7 +229,7 @@ public class MaterialBrowserGrid extends
 
     private EntityGridModelFactory<Material> getColumnsFactory()
     {
-        return new EntityGridModelFactory<Material>(getStaticColumnsDefinition());
+        return new EntityGridModelFactory<Material>(viewContext, getStaticColumnsDefinition());
     }
 
     @Override

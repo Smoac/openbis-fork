@@ -16,14 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -36,10 +39,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 class MaterialPropertyColRenderer<T extends IEntityPropertiesHolder> extends
         AbstractPropertyColRenderer<T>
 {
+    final IViewContext<?> viewContext;
 
-    public MaterialPropertyColRenderer(EntityPropertyColDef<T> colDef)
+    public MaterialPropertyColRenderer(final IViewContext<?> viewContext,
+            EntityPropertyColDef<T> colDef)
     {
         super(colDef);
+        this.viewContext = viewContext;
     }
 
     @Override
@@ -47,19 +53,17 @@ class MaterialPropertyColRenderer<T extends IEntityPropertiesHolder> extends
     {
         String value = colDef.getValue(entity);
         final MaterialIdentifier identifier = MaterialIdentifier.tryParseIdentifier(value);
-        // FIXME Can't create ClickHandler because we don't have access to viewContext here.
-        // Material will be rendered as link only in simple mode
-        if (identifier != null && ClientStaticState.isSimpleMode())
+        if (identifier != null)
         {
-            // final ClickHandler listener = new ClickHandler() {
-            //
-            // public void onClick(ClickEvent event)
-            // {
-            // OpenEntityDetailsTabHelper.open(viewContext, identifier);
-            // }
-            // }
+            final ClickHandler listener = new ClickHandler()
+                {
+                    public void onClick(ClickEvent event)
+                    {
+                        OpenEntityDetailsTabHelper.open(viewContext, identifier);
+                    }
+                };
             String href = LinkExtractor.tryExtract(identifier);
-            final Widget link = LinkRenderer.getLinkWidget(identifier.getCode(), null, href);
+            final Widget link = LinkRenderer.getLinkWidget(identifier.getCode(), listener, href);
 
             FlowPanel panel = new FlowPanel();
             panel.add(link);

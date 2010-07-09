@@ -256,7 +256,7 @@ public class ExperimentBrowserGrid extends
 
     private EntityGridModelFactory<Experiment> getColumnsFactory()
     {
-        return new EntityGridModelFactory<Experiment>(getStaticColumnsDefinition());
+        return new EntityGridModelFactory<Experiment>(viewContext, getStaticColumnsDefinition());
     }
 
     @Override

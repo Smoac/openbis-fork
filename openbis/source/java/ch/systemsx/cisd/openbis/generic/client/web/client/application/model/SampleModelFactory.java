@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.AbstractParentSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
@@ -46,19 +47,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 public final class SampleModelFactory
 {
     public static ColumnDefsAndConfigs<Sample> createColumnsSchema(
-            IMessageProvider messageProvider, List<PropertyType> propertyTypes,
+            final IViewContext<?> viewContext, List<PropertyType> propertyTypes,
             List<AbstractParentSampleColDef> parentColumnsSchema)
     {
-        return new SampleModelFactory().doCreateColumnsSchema(messageProvider, propertyTypes,
-                parentColumnsSchema);
+        return new SampleModelFactory(viewContext).doCreateColumnsSchema(viewContext,
+                propertyTypes, parentColumnsSchema);
     }
 
-    public static BaseEntityModel<Sample> createModel(GridRowModel<Sample> sampleModel,
-            SampleType sampleType, RealNumberFormatingParameters realNumberFormatingParameters)
+    public static BaseEntityModel<Sample> createModel(final IViewContext<?> viewContext,
+            GridRowModel<Sample> sampleModel, SampleType sampleType,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<? extends IColumnDefinitionUI<Sample>> allColumnsDefinition =
-                new SampleModelFactory().createColumnsSchemaForRendering(sampleModel, sampleType,
-                        realNumberFormatingParameters);
+                new SampleModelFactory(viewContext).createColumnsSchemaForRendering(sampleModel,
+                        sampleType, realNumberFormatingParameters);
         BaseEntityModel<Sample> model =
                 new BaseEntityModel<Sample>(sampleModel, allColumnsDefinition);
         return model;
@@ -66,10 +68,10 @@ public final class SampleModelFactory
 
     private final EntityGridModelFactory<Sample> entityGridModelFactory;
 
-    private SampleModelFactory()
+    private SampleModelFactory(final IViewContext<?> viewContext)
     {
         this.entityGridModelFactory =
-                new EntityGridModelFactory<Sample>(CommonSampleColDefKind.values());
+                new EntityGridModelFactory<Sample>(viewContext, CommonSampleColDefKind.values());
     }
 
     private List<IColumnDefinitionUI<Sample>> createColumnsSchemaForRendering(

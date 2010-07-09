@@ -336,7 +336,7 @@ public abstract class AbstractExternalDataGrid
 
     private EntityGridModelFactory<ExternalData> getColumnsFactory()
     {
-        return new EntityGridModelFactory<ExternalData>(getStaticColumnsDefinition());
+        return new EntityGridModelFactory<ExternalData>(viewContext, getStaticColumnsDefinition());
     }
 
     @Override

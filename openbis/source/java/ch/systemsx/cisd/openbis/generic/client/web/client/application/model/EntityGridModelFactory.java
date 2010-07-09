@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.AbstractPropertyColRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -50,10 +51,14 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
 {
     private static final long serialVersionUID = 1L;
 
+    private final IViewContext<?> viewContext;
+
     private final IColumnDefinitionKind<T>[] staticColumnDefinitions;
 
-    public EntityGridModelFactory(IColumnDefinitionKind<T>[] staticColumnDefinitions)
+    public EntityGridModelFactory(final IViewContext<?> viewContext,
+            IColumnDefinitionKind<T>[] staticColumnDefinitions)
     {
+        this.viewContext = viewContext;
         this.staticColumnDefinitions = staticColumnDefinitions;
     }
 
@@ -61,7 +66,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
             RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<IColumnDefinitionUI<T>> allColumnsDefinition =
-                new EntityGridModelFactory<T>(staticColumnDefinitions)
+                new EntityGridModelFactory<T>(viewContext, staticColumnDefinitions)
                         .createColumnsSchemaForRendering(entity, realNumberFormatingParameters);
         return new BaseEntityModel<T>(entity, allColumnsDefinition);
     }
@@ -78,7 +83,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
         {
             PropertyType propertyType = prop.getPropertyType();
             EntityPropertyColDef<T> colDef = new EntityPropertyColDef<T>(propertyType, true, null);
-            list.add(AbstractPropertyColRenderer.getPropertyColRenderer(colDef,
+            list.add(AbstractPropertyColRenderer.getPropertyColRenderer(viewContext, colDef,
                     realNumberFormatingParameters));
         }
         return list;
