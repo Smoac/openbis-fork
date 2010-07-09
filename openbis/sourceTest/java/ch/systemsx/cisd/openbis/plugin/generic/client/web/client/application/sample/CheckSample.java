@@ -68,6 +68,13 @@ public class CheckSample extends AbstractDefaultTestCommand implements
         return componentsTableCheck;
     }
 
+    public CheckTableCommand childrenTable()
+    {
+        String gridId = DerivedSamplesSection.createGridId(sampleId);
+        componentsTableCheck = new CheckTableCommand(gridId);
+        return componentsTableCheck;
+    }
+
     public CheckTableCommand dataTable()
     {
         String gridId = SampleDataSetBrowser.createGridId(sampleId);
