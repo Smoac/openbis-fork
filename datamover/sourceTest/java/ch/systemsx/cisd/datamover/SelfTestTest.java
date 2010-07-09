@@ -118,6 +118,25 @@ public class SelfTestTest
                     throw new AssertionError();
                 }
 
+                public Status copyContent(File sourcePath, File destinationDirectory)
+                {
+                    throw new AssertionError();
+                }
+
+                public Status copyContentFromRemote(File sourcePath, String sourceHost,
+                        File destinationDirectory, String rsyncModuleNameOrNull,
+                        String rsyncPasswordFileOrNull)
+                {
+                    throw new AssertionError();
+                }
+
+                public Status copyContentToRemote(File sourcePath, File destinationDirectory,
+                        String destinationHostOrNull, String rsyncModuleNameOrNull,
+                        String rsyncPasswordFileOrNull)
+                {
+                    throw new AssertionError();
+                }
+
                 public boolean terminate()
                 {
                     return true;
