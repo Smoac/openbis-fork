@@ -224,7 +224,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         datasetTable.expectedRow(new DataSetRow("20081105092159188-3").valid().derived());
         datasetTable.expectedRow(new DataSetRow("20081105092158673-1").invalid().withSample(
                 "CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").notDerived().withIsComplete(null));
-        datasetTable.expectedColumnsNumber(26);
+        datasetTable.expectedColumnsNumber(25);
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
         datasetTable.expectedColumnHidden(commentColIdent, true);
 
