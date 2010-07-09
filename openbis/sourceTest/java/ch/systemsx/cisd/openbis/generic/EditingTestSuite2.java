@@ -21,6 +21,7 @@ import junit.framework.TestSuite;
 
 import com.google.gwt.junit.tools.GWTTestSuite;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DummyAuthenticationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypePropertyTypeAssignmentTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectRegistrationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeRegistrationTest;
@@ -35,7 +36,7 @@ public class EditingTestSuite2 extends GWTTestSuite
     public static Test suite()
     {
         final TestSuite testSuite = new TestSuite("Editing Tests 2");
-
+        testSuite.addTestSuite(DummyAuthenticationTest.class);
         testSuite.addTestSuite(EntityTypePropertyTypeAssignmentTest.class);
         testSuite.addTestSuite(VocabularyRegistrationTest.class);
         testSuite.addTestSuite(PropertyTypeRegistrationTest.class);

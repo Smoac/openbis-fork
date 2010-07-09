@@ -21,8 +21,8 @@ import junit.framework.TestSuite;
 
 import com.google.gwt.junit.tools.GWTTestSuite;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthenticationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DataSetSearchTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DummyAuthenticationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFormatTypeGridTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyBrowserTest;
 
@@ -34,7 +34,7 @@ public class ViewingTestSuite1 extends GWTTestSuite
     public static Test suite()
     {
         final TestSuite testSuite = new TestSuite("Viewing Tests 1");
-        testSuite.addTestSuite(AuthenticationTest.class);
+        testSuite.addTestSuite(DummyAuthenticationTest.class);
         testSuite.addTestSuite(VocabularyBrowserTest.class);
         testSuite.addTestSuite(FileFormatTypeGridTest.class);
         testSuite.addTestSuite(DataSetSearchTest.class);

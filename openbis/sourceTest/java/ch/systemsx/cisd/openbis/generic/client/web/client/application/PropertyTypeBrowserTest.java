@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeTable;
@@ -30,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
  * 
  * @author Izabela Adamczyk
  */
-@DoNotRunWith(Platform.HtmlUnit)
 public class PropertyTypeBrowserTest extends AbstractGWTTestCase
 {
 

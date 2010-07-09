@@ -21,7 +21,7 @@ import junit.framework.TestSuite;
 
 import com.google.gwt.junit.tools.GWTTestSuite;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthenticationTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DummyAuthenticationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ExperimentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.MaterialBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrowserTest;
@@ -37,7 +37,7 @@ public class ViewingTestSuite2 extends GWTTestSuite
     public static Test suite()
     {
         final TestSuite testSuite = new TestSuite("Viewing Tests 2");
-        testSuite.addTestSuite(AuthenticationTest.class);
+        testSuite.addTestSuite(DummyAuthenticationTest.class);
         testSuite.addTestSuite(GenericDataSetViewerTest.class);
         testSuite.addTestSuite(GenericSampleViewerTest.class);
         testSuite.addTestSuite(SearchTest.class);
