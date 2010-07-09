@@ -42,7 +42,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
 {
     protected static final int SECOND = 1000;
 
-    protected static final int DEFAULT_TIMEOUT = 180 * SECOND;
+    protected static final int DEFAULT_TIMEOUT = 90 * SECOND;
 
     protected RemoteConsole remoteConsole;
 

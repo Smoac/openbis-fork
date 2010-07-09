@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
@@ -43,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
  * 
  * @author Franz-Josef Elmer
  */
-@DoNotRunWith(Platform.HtmlUnit)
 public class GenericSampleViewerTest extends AbstractGWTTestCase
 {
     static final String GROUP_IDENTIFIER = "CISD:/CISD";

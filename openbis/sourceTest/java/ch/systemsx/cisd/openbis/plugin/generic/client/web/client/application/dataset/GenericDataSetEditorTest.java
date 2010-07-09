@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSet;
@@ -40,7 +37,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  * @author Piotr Buczek
  */
 // TODO 2009-10-07, Piotr Buczek: add tests where sample/experiment is modified
-@DoNotRunWith(Platform.HtmlUnit)
 public class GenericDataSetEditorTest extends AbstractGWTTestCase
 {
     // private static final String DS_WITH_DIRECT_SAMPLE_CONNECTION_CODE = "20081105092158673-1";
@@ -71,7 +67,7 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
         checkParents.expectedRow(new DataSetRow(oldParentCode));
         remoteConsole.prepare(checkDataSet);
 
-        launchTest(180 * SECOND);
+        launchTest();
     }
 
     // could be removed when we implement BO unit test or merged with first test
