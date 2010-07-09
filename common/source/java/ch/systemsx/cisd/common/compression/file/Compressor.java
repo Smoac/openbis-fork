@@ -73,6 +73,10 @@ public class Compressor
             operationLog.info(String.format("Found %d files to compress.",
                     filesToCompressOrNull.length));
         }
+        if (filesToCompressOrNull.length == 0)
+        {
+            return null;
+        }
         return new ArrayBlockingQueue<File>(filesToCompressOrNull.length, false, Arrays
                 .asList(filesToCompressOrNull));
     }
@@ -110,7 +114,7 @@ public class Compressor
                 tryFillWorkerQueue(new File(directoryName), compressionMethod);
         final Collection<FailureRecord> failed =
                 Collections.synchronizedCollection(new ArrayList<FailureRecord>());
-        if (workerQueue.size() == 0)
+        if (workerQueue == null || workerQueue.size() == 0)
         {
             System.out.println("No files to compress.");
             return failed;
