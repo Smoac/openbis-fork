@@ -44,13 +44,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
  * Data set handler for time series data sets and time point data sets.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
 {
     private static final String CIFEX_DIR_ENDING = ".dir";
-    @Private static final String HELPDESK_EMAIL = "helpdesk.openbis.basysbio@bsse.ethz.ch";
+
+    @Private
+    static final String HELPDESK_EMAIL = "helpdesk.openbis.basysbio@bsse.ethz.ch";
 
     private static final IDataSetValidator DUMMY_DATA_SET_VALIDATOR = new IDataSetValidator()
         {
@@ -77,7 +79,7 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
         private final String userEMail;
 
         private final ITimeProvider timeProvider;
-        
+
         private String dataSetFileName;
 
         private int numberOfDerivedDataSets;
@@ -101,8 +103,9 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
                 dataSetFileName = dataSetFileName.substring(0, until);
             }
         }
-        
-        void setNumberOfExpectedDerivedDataSets(TypeOfDerivedDataSet type, int numberOfDerivedDataSets)
+
+        void setNumberOfExpectedDerivedDataSets(TypeOfDerivedDataSet type,
+                int numberOfDerivedDataSets)
         {
             this.type = type;
             this.numberOfDerivedDataSets = numberOfDerivedDataSets;
@@ -122,17 +125,17 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
                 if (sendEMail)
                 {
                     String subject =
-                        "BaSysBio: Failed uploading of data set '" + dataSetFileName
-                        + "'";
+                            "BaSysBio: Failed uploading of data set '" + dataSetFileName + "'";
                     String timeStamp =
-                        Constants.DATE_FORMAT.get().format(
-                                new Date(timeProvider.getTimeInMilliseconds()));
+                            Constants.DATE_FORMAT.get().format(
+                                    new Date(timeProvider.getTimeInMilliseconds()));
                     String message =
-                        "Uploading of data set '" + dataSetFileName
-                        + "' failed because only " + count + " of " + numberOfDerivedDataSets
-                        + " " + type.name + " data sets could be registered in openBIS.\n\n"
-                        + "Please, contact the help desk for support: " + HELPDESK_EMAIL
-                        + "\n(Time stamp of failure: " + timeStamp + ")";
+                            "Uploading of data set '" + dataSetFileName + "' failed because only "
+                                    + count + " of " + numberOfDerivedDataSets + " " + type.name
+                                    + " data sets could be registered in openBIS.\n\n"
+                                    + "Please, contact the help desk for support: "
+                                    + HELPDESK_EMAIL + "\n(Time stamp of failure: " + timeStamp
+                                    + ")";
                     mailClient.sendMessage(subject, message, null, null, userEMail, HELPDESK_EMAIL);
                 }
             } else
@@ -158,7 +161,7 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, TimeSeriesAndTimePointDataSetHandler.class);
-    
+
     private static final FilenameFilter LCA_MIC_TIME_SERIES_FILE_FILTER = new FilenameFilter()
         {
 
@@ -175,7 +178,7 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
     private final IDataSetHandler timePointDataSetHandler;
 
     private final File timePointDataSetFolder;
-    
+
     private final ITimeProvider timeProvider;
 
     public TimeSeriesAndTimePointDataSetHandler(Properties parentProperties,
@@ -190,10 +193,10 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
         timePointDataSetFolder = threadParameters.getIncomingDataDirectory();
         timePointDataSetHandler =
                 ETLDaemon.createDataSetHandler(parentProperties, threadParameters, openbisService,
-                        DUMMY_DATA_SET_VALIDATOR, false);
+                        mailClient, DUMMY_DATA_SET_VALIDATOR, false);
         timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
     }
-    
+
     @Private
     TimeSeriesAndTimePointDataSetHandler(IDataSetHandler delegator, IMailClient mailClient,
             IDataSetHandler timePointDataSetHandler, File timePointDataSetFolder,
@@ -225,7 +228,8 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
             handleDerivedDataSets(files, TypeOfDerivedDataSet.LCA_MIC_TIME_SERIES, delegator,
                     dataSetInfos, builder);
             DataSetType dataSetType = dataSetInformation.getDataSetType();
-            boolean lcaMicTimeSeries = dataSetType.getCode().equals(DataSetHandler.LCA_MIC_TIME_SERIES);
+            boolean lcaMicTimeSeries =
+                    dataSetType.getCode().equals(DataSetHandler.LCA_MIC_TIME_SERIES);
             builder.logAndSendOptinallyAnEMail(operationLog, mailClient, lcaMicTimeSeries == false);
         }
         return dataSetInfos;
@@ -238,8 +242,8 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
         {
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("Starting registration of " + files.length
-                        + " " + type.name + " data sets.");
+                operationLog.info("Starting registration of " + files.length + " " + type.name
+                        + " data sets.");
             }
             builder.setNumberOfExpectedDerivedDataSets(type, files.length);
             for (File file : files)
@@ -253,11 +257,10 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
             }
         }
     }
-    
+
     private String getDataSetCode(List<DataSetInformation> result)
     {
         return result.get(0).getDataSetCode();
     }
-
 
 }
