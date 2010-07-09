@@ -27,8 +27,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * An <code>IDirectoryRenderer</code> implementation which renders on HTML pages.
@@ -190,7 +190,7 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
     {
         try
         {
-            return URLEncoder.encode(url, "UTF-8");
+            return URLEncoder.encode(url, "UTF-8").replace("%2F", "/");
         } catch (final UnsupportedEncodingException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

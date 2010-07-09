@@ -120,7 +120,7 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
     {
         try
         {
-            return URLEncoder.encode(url, "UTF-8");
+            return URLEncoder.encode(url, "UTF-8").replace("%2F", "/");
         } catch (final UnsupportedEncodingException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
