@@ -108,12 +108,11 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 ".*<a href=\".*permId=" + CELL_PLATE_EXAMPLE_PERM_ID + ".*>"
                         + CELL_PLATE_EXAMPLE_PERM_ID + "</a>.*");
         checkSample.property("Sample Type").asCode("CELL_PLATE");
-        // TODO 2010-07-09, Piotr Buczek: test Parent column
         final CheckTableCommand childrenTable = checkSample.childrenTable().expectedSize(2);
         childrenTable.expectedRow(new SampleRow("3VRP1A", "REINFECT_PLATE").identifier("CISD",
-                "CISD"));
+                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE));
         childrenTable.expectedRow(new SampleRow("3VRP1B", "REINFECT_PLATE").identifier("CISD",
-                "CISD"));
+                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE));
         checkSample.property("Invalidation").by(new IValueAssertion<Invalidation>()
             {
                 public void assertValue(final Invalidation invalidation)
