@@ -106,8 +106,12 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 ".*<a href=\".*permId=" + CELL_PLATE_EXAMPLE_PERM_ID + ".*>"
                         + CELL_PLATE_EXAMPLE_PERM_ID + "</a>.*");
         checkSample.property("Sample Type").asCode("CELL_PLATE");
-        checkSample.property("Children Samples").asGeneratedSamples("3VRP1A [REINFECT_PLATE]",
-                "3VRP1B [REINFECT_PLATE]");
+        // TODO 2010-07-09, Piotr Buczek: test Parent column
+        final CheckTableCommand childrenTable = checkSample.childrenTable().expectedSize(2);
+        childrenTable.expectedRow(new SampleRow("3VRP1A", "REINFECT_PLATE").identifier("CISD",
+                "CISD"));
+        childrenTable.expectedRow(new SampleRow("3VRP1B", "REINFECT_PLATE").identifier("CISD",
+                "CISD"));
         checkSample.property("Invalidation").by(new IValueAssertion<Invalidation>()
             {
                 public void assertValue(final Invalidation invalidation)
@@ -124,7 +128,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(1);
         dataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
                 .withFileFormatType("TIFF"));
-        dataTable.expectedColumnsNumber(23);
+        dataTable.expectedColumnsNumber(25);
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
         dataTable.expectedColumnHidden(commentColIdent, true);
 

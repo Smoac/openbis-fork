@@ -45,6 +45,12 @@ public class DerivedSamplesSection extends DisposableSectionPanel
         this.parent = parent;
     }
 
+    // @Private
+    static String createGridId(TechId containerId)
+    {
+        return SampleBrowserGrid.createGridId(createBrowserId(containerId));
+    }
+
     private static String createBrowserId(TechId parentId)
     {
         return ID_PREFIX + parentId + "-browser";
