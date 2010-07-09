@@ -45,6 +45,7 @@
                 <constructor-arg value="${mail.smtp.host}" />
                 <constructor-arg value="${mail.smtp.user}" />
                 <constructor-arg value="${mail.smtp.password}" />
+                <constructor-arg value="${mail.test.address}" />
             </bean>
         </constructor-arg>
         <constructor-arg ref="user-action-log-http" />
