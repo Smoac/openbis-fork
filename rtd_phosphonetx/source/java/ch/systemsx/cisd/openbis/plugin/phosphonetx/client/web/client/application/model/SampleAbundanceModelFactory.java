@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -40,19 +41,20 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPr
 public final class SampleAbundanceModelFactory
 {
     public static ColumnDefsAndConfigs<SampleWithPropertiesAndAbundance> createColumnsSchema(
-            IMessageProvider messageProvider, List<PropertyType> propertyTypes)
+            final IViewContext<?> viewContext, List<PropertyType> propertyTypes)
     {
-        return new SampleAbundanceModelFactory().doCreateColumnsSchema(messageProvider,
+        return new SampleAbundanceModelFactory(viewContext).doCreateColumnsSchema(viewContext,
                 propertyTypes);
     }
 
     public static BaseEntityModel<SampleWithPropertiesAndAbundance> createModel(
+            final IViewContext<?> viewContext,
             GridRowModel<SampleWithPropertiesAndAbundance> entity,
             RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<IColumnDefinitionUI<SampleWithPropertiesAndAbundance>> allColumnsDefinition =
-                new SampleAbundanceModelFactory().createColumnsSchemaForRendering(entity,
-                        realNumberFormatingParameters);
+                new SampleAbundanceModelFactory(viewContext).createColumnsSchemaForRendering(
+                        entity, realNumberFormatingParameters);
         BaseEntityModel<SampleWithPropertiesAndAbundance> model =
                 new BaseEntityModel<SampleWithPropertiesAndAbundance>(entity, allColumnsDefinition);
         return model;
@@ -60,10 +62,10 @@ public final class SampleAbundanceModelFactory
 
     private final EntityGridModelFactory<SampleWithPropertiesAndAbundance> entityGridModelFactory;
 
-    private SampleAbundanceModelFactory()
+    private SampleAbundanceModelFactory(final IViewContext<?> viewContext)
     {
         this.entityGridModelFactory =
-                new EntityGridModelFactory<SampleWithPropertiesAndAbundance>(
+                new EntityGridModelFactory<SampleWithPropertiesAndAbundance>(viewContext,
                         SampleAbundanceColDefKind.values());
     }
 

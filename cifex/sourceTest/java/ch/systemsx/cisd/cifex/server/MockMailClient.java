@@ -61,4 +61,11 @@ final class MockMailClient implements IMailClient
         this.recipients = emails;
     }
 
+    public void sendTestEmail()
+    {
+        this.subject = "test";
+        this.content = "";
+        this.recipients = new EMailAddress[]
+            { new EMailAddress("test@localhost") };
+    }
 }

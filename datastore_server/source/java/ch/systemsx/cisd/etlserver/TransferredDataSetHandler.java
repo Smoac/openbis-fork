@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -39,7 +38,6 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
@@ -123,14 +121,14 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
      *            certain amount of time (so called "quiet period").
      */
     public TransferredDataSetHandler(String dssCode, final IETLServerPlugin plugin,
-            final IEncapsulatedOpenBISService limsService, final Properties mailProperties,
+            final IEncapsulatedOpenBISService limsService, final IMailClient mailClient,
             IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration,
             boolean useIsFinishedMarkerFile, boolean deleteUnidentified)
 
     {
-        this(dssCode, plugin.getStorageProcessor(), plugin, limsService, new MailClient(
-                mailProperties), dataSetValidator, notifySuccessfulRegistration,
-                useIsFinishedMarkerFile, deleteUnidentified);
+        this(dssCode, plugin.getStorageProcessor(), plugin, limsService, mailClient,
+                dataSetValidator, notifySuccessfulRegistration, useIsFinishedMarkerFile,
+                deleteUnidentified);
     }
 
     TransferredDataSetHandler(String dssCode,

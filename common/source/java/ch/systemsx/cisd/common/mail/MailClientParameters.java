@@ -19,21 +19,21 @@ package ch.systemsx.cisd.common.mail;
 import java.io.Serializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class MailClientParameters implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private String from;
-    
+
     private String smtpUser;
-    
+
     private String smtpPassword;
-    
+
     private String smtpHost;
+
+    private String testAddress;
 
     public final String getFrom()
     {
@@ -73,5 +73,15 @@ public class MailClientParameters implements Serializable
     public final void setSmtpHost(String smtpHost)
     {
         this.smtpHost = smtpHost;
+    }
+
+    public String getTestAddress()
+    {
+        return testAddress;
+    }
+
+    public void setTestAddress(String testAddress)
+    {
+        this.testAddress = testAddress;
     }
 }

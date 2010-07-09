@@ -273,7 +273,7 @@ public class SampleAbundanceBrowserGrid
     protected BaseEntityModel<SampleWithPropertiesAndAbundance> createModel(
             GridRowModel<SampleWithPropertiesAndAbundance> entity)
     {
-        return SampleAbundanceModelFactory.createModel(entity, viewContext
+        return SampleAbundanceModelFactory.createModel(viewContext, entity, viewContext
                 .getDisplaySettingsManager().getRealNumberFormatingParameters());
     }
 

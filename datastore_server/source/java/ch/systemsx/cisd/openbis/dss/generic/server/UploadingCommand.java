@@ -50,11 +50,11 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 
 /**
@@ -545,11 +545,7 @@ class UploadingCommand implements IDataSetCommand
 
     private void sendEMail(String message)
     {
-        String from = mailClientParameters.getFrom();
-        String smtpHost = mailClientParameters.getSmtpHost();
-        String smtpUser = mailClientParameters.getSmtpUser();
-        String smtpPassword = mailClientParameters.getSmtpPassword();
-        IMailClient mailClient = new MailClient(from, smtpHost, smtpUser, smtpPassword);
+        final IMailClient mailClient = new MailClient(mailClientParameters);
         mailClient
                 .sendMessage("[Data Set Server] Uploading failed", message, null, null, userEMail);
     }

@@ -67,6 +67,9 @@ public final class MailClient extends Authenticator implements IMailClient
     /** This system property is not supported by the <i>JavaMail API</i> */
     public final static String MAIL_SMTP_PASSWORD = "mail.smtp.password";
 
+    /** This system property is not supported by the <i>JavaMail API</i> */
+    public final static String MAIL_TEST_ADDRESS = "mail.test.address";
+
     private static final String UNICODE_CHARSET = "utf-8";
 
     private static final Logger operationLog =
@@ -80,9 +83,17 @@ public final class MailClient extends Authenticator implements IMailClient
 
     private final String from;
 
+    private final String testAddress;
+
     public MailClient(final String from, final String smtpHost)
     {
-        this(from, smtpHost, null, null);
+        this(from, smtpHost, null, null, null);
+    }
+
+    public MailClient(MailClientParameters parameters)
+    {
+        this(parameters.getFrom(), parameters.getSmtpHost(), parameters.getSmtpUser(), parameters
+                .getSmtpPassword(), null);
     }
 
     public MailClient(Properties properties)
@@ -90,11 +101,11 @@ public final class MailClient extends Authenticator implements IMailClient
         this(properties.getProperty(JavaMailProperties.MAIL_FROM), properties
                 .getProperty(JavaMailProperties.MAIL_SMTP_HOST), properties
                 .getProperty(JavaMailProperties.MAIL_SMTP_USER), properties
-                .getProperty(MAIL_SMTP_PASSWORD));
+                .getProperty(MAIL_SMTP_PASSWORD), properties.getProperty(MAIL_TEST_ADDRESS));
     }
 
     public MailClient(final String from, final String smtpHost, final String smtpUsername,
-            final String smtpPassword)
+            final String smtpPassword, final String testAddress)
     {
         assert from != null;
         assert smtpHost != null;
@@ -103,6 +114,7 @@ public final class MailClient extends Authenticator implements IMailClient
         this.smtpHost = smtpHost;
         this.smtpUsername = smtpUsername;
         this.smtpPassword = smtpPassword;
+        this.testAddress = testAddress;
     }
 
     private final Properties createProperties()
@@ -133,6 +145,26 @@ public final class MailClient extends Authenticator implements IMailClient
         return properties;
     }
 
+    public void sendTestEmail()
+    {
+        if (testAddress != null)
+        {
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Sending test email.");
+            }
+            // subject, content, replyToOrNull, fromOrNull, recipients
+            sendEmailMessage("test", "", null, null, new EMailAddress[]
+                { new EMailAddress(testAddress) });
+        } else
+        {
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Test address was not provided.");
+            }
+        }
+    }
+
     private final Session createSession()
     {
         Properties properties = createProperties();
@@ -156,7 +188,7 @@ public final class MailClient extends Authenticator implements IMailClient
         }
         return createInternetAddress(internetAddressOrNull.getValue());
     }
-    
+
     private final static InternetAddress createInternetAddress(String internetAddressOrNull)
     {
         if (internetAddressOrNull == null)
@@ -186,7 +218,7 @@ public final class MailClient extends Authenticator implements IMailClient
         }
         return addresses;
     }
-    
+
     private final static InternetAddress[] createInternetAddresses(String[] addressesOrNull)
     {
         if (addressesOrNull == null)
@@ -200,7 +232,7 @@ public final class MailClient extends Authenticator implements IMailClient
         }
         return addresses;
     }
-    
+
     private final static InternetAddress createInternetAddress(EMailAddress addressOrNull)
     {
         if (addressOrNull == null || addressOrNull.tryGetEmailAddress() == null)
@@ -235,7 +267,7 @@ public final class MailClient extends Authenticator implements IMailClient
                     msg.setText(content);
                 }
             };
-        privateSendMessage(messagePreparer, subject, content, createInternetAddress(replyToOrNull),
+        privateSendMessage(messagePreparer, subject, createInternetAddress(replyToOrNull),
                 createInternetAddress(fromOrNull), createInternetAddresses(recipients));
     }
 
@@ -250,7 +282,7 @@ public final class MailClient extends Authenticator implements IMailClient
                     msg.setText(content);
                 }
             };
-        privateSendMessage(messagePreparer, subject, content, createInternetAddress(replyToOrNull),
+        privateSendMessage(messagePreparer, subject, createInternetAddress(replyToOrNull),
                 createInternetAddress(fromOrNull), createInternetAddresses(recipients));
     }
 
@@ -286,7 +318,7 @@ public final class MailClient extends Authenticator implements IMailClient
                     msg.setContent(multipart);
                 }
             };
-        privateSendMessage(messagePreparer, subject, content, createInternetAddress(replyTo),
+        privateSendMessage(messagePreparer, subject, createInternetAddress(replyTo),
                 createInternetAddress(fromOrNull), createInternetAddresses(recipients));
     }
 
@@ -317,7 +349,7 @@ public final class MailClient extends Authenticator implements IMailClient
                     msg.setContent(multipart);
                 }
             };
-        privateSendMessage(messagePreparer, subject, content, createInternetAddress(replyToOrNull),
+        privateSendMessage(messagePreparer, subject, createInternetAddress(replyToOrNull),
                 createInternetAddress(fromOrNull), createInternetAddresses(recipients));
     }
 
@@ -328,8 +360,8 @@ public final class MailClient extends Authenticator implements IMailClient
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
     private final void privateSendMessage(IMessagePreparer messagePreparerOrNull, String subject,
-            String content, InternetAddress replyTo, InternetAddress fromOrNull,
-            InternetAddress[] recipients) throws EnvironmentFailureException
+            InternetAddress replyTo, InternetAddress fromOrNull, InternetAddress[] recipients)
+            throws EnvironmentFailureException
     {
         final InternetAddress fromPerMail =
                 (fromOrNull != null) ? fromOrNull : createInternetAddress(from);

@@ -1332,7 +1332,7 @@ public final class FileUtilities
      *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
      *            becoming unresponsive).
      * @return A list of java.io.File (all files) with the matching files, or an empty list, if
-     *         <var>directory</var> ist not a directory.
+     *         <var>directory</var> is not a directory.
      */
     public static List<File> listFiles(File directory, String[] extensionsOrNull,
             boolean recursive, IActivityObserver observerOrNull)

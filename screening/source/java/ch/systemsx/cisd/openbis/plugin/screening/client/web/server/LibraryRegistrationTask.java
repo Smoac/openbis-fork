@@ -126,11 +126,7 @@ class LibraryRegistrationTask implements Runnable
 
     private void sendEmail(String subject, String content, String recipient)
     {
-        String from = mailClientParameters.getFrom();
-        String smtpHost = mailClientParameters.getSmtpHost();
-        String smtpUser = mailClientParameters.getSmtpUser();
-        String smtpPassword = mailClientParameters.getSmtpPassword();
-        IMailClient mailClient = new MailClient(from, smtpHost, smtpUser, smtpPassword);
+        final IMailClient mailClient = new MailClient(mailClientParameters);
         mailClient.sendMessage(subject, content, null, null, recipient);
     }
 

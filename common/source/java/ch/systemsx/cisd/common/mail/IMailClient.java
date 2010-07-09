@@ -88,4 +88,7 @@ public interface IMailClient
             final EMailAddress replyToOrNull, final EMailAddress fromOrNull,
             final EMailAddress... recipients) throws EnvironmentFailureException;
 
+    /** Sends a test email if a test address was configured for the mail client. */
+    public void sendTestEmail();
+
 }

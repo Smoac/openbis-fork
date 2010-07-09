@@ -53,6 +53,8 @@ import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.IStopSignaler;
@@ -218,11 +220,15 @@ public final class ETLDaemon
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(getHighwaterMark(properties));
         IDataSetValidator dataSetValidator = new DataSetValidator(properties);
+        final Properties mailProperties = Parameters.createMailProperties(properties);
+        final IMailClient mailClient = new MailClient(mailProperties);
         for (final ThreadParameters threadParameters : threads)
         {
             createProcessingThread(parameters, threadParameters, openBISService,
-                    highwaterMarkWatcher, dataSetValidator, notifySuccessfulRegistration);
+                    highwaterMarkWatcher, mailClient, dataSetValidator,
+                    notifySuccessfulRegistration);
         }
+        mailClient.sendTestEmail();
     }
 
     private final static File getStoreRootDir(final Properties properties)
@@ -274,13 +280,14 @@ public final class ETLDaemon
     private final static void createProcessingThread(final Parameters parameters,
             final ThreadParameters threadParameters,
             final IEncapsulatedOpenBISService authorizedLimsService,
-            final HighwaterMarkWatcher highwaterMarkWatcher, IDataSetValidator dataSetValidator,
-            final boolean notifySuccessfulRegistration)
+            final HighwaterMarkWatcher highwaterMarkWatcher, final IMailClient mailClient,
+            final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
         final TransferredDataSetHandler pathHandler =
                 createDataSetHandler(parameters.getProperties(), threadParameters,
-                        authorizedLimsService, dataSetValidator, notifySuccessfulRegistration);
+                        authorizedLimsService, mailClient, dataSetValidator,
+                        notifySuccessfulRegistration);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
                         incomingDataDirectory, threadParameters.reprocessFaultyDatasets());
@@ -301,17 +308,16 @@ public final class ETLDaemon
 
     public static TransferredDataSetHandler createDataSetHandler(final Properties properties,
             final ThreadParameters threadParameters,
-            final IEncapsulatedOpenBISService openBISService, IDataSetValidator dataSetValidator,
-            final boolean notifySuccessfulRegistration)
+            final IEncapsulatedOpenBISService openBISService, final IMailClient mailClient,
+            final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
         final IETLServerPlugin plugin = threadParameters.getPlugin();
         final File storeRootDir = getStoreRootDir(properties);
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
         plugin.getStorageProcessor().setStoreRootDirectory(storeRootDir);
-        final Properties mailProperties = Parameters.createMailProperties(properties);
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
         boolean deleteUnidentified = threadParameters.deleteUnidentified();
-        return new TransferredDataSetHandler(dssCode, plugin, openBISService, mailProperties,
+        return new TransferredDataSetHandler(dssCode, plugin, openBISService, mailClient,
                 dataSetValidator, notifySuccessfulRegistration, threadParameters
                         .useIsFinishedMarkerFile(), deleteUnidentified);
     }

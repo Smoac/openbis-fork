@@ -54,9 +54,9 @@ import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
@@ -191,6 +191,11 @@ class TriggerManager implements ITriggerManager
         {
             mailClient.sendEmailMessageWithAttachment(subject, content, filename,
                     attachmentContent, replyToOrNull, fromOrNull, recipients);
+        }
+
+        public void sendTestEmail()
+        {
+            mailClient.sendTestEmail();
         }
 
         void deleteDismissables()
