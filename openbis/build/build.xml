@@ -72,7 +72,7 @@
       <echo>Running @{testsuite}...</echo>
       <!-- add showoutput="true" when running locally for additional output on console -->
       <junit dir="." fork="true" forkmode="once" maxmemory="2048m" showoutput="true"
-      	     failureproperty="@{failure_property}" printsummary="on">
+      	     failureproperty="@{failureproperty}" printsummary="on">
         <classpath>
           <pathelement location="${sources}" />
           <pathelement location="${sources.test}" />
