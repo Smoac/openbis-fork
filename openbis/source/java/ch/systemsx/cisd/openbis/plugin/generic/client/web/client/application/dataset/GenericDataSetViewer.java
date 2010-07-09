@@ -67,8 +67,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    public static final String VIEW_BUTTON_ID_SUFFIX = "_view-button";
-
     private final ProcessButtonHolder processButtonHolder;
 
     protected final TechId datasetId;

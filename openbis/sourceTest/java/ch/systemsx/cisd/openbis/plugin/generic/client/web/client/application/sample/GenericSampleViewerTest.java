@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import com.extjs.gxt.ui.client.event.MvcEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.mvc.DispatcherListener;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.BrowseDataSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ShowSample;
@@ -149,11 +151,40 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     String showDetailsButtonId =
                             SampleDataSetBrowser.createBrowserId(wildcard)
                                     + SampleDataSetBrowser.SHOW_DETAILS_BUTTON_ID_SUFFIX;
+
+                    // prepare check of request made by Data View section browsing the dataset
+                    final Dispatcher dispatcher = Dispatcher.get();
+                    DispatcherListener dispatcherListener =
+                            createDispatcherListenerForDataView(DIRECTLY_CONNECTED_DATA_SET_CODE);
+                    dispatcher.addDispatcherListener(dispatcherListener);
                     GWTTestUtil.clickButtonWithID(showDetailsButtonId);
+                    dispatcher.removeDispatcherListener(dispatcherListener);
+                }
+
+                /**
+                 * Performs a check of the URL before dispatch. Dispatch will be canceled.
+                 */
+                private DispatcherListener createDispatcherListenerForDataView(
+                        final String dataSetCode)
+                {
+                    return new DispatcherListener()
+                        {
+                            @Override
+                            public void beforeDispatch(MvcEvent mvce)
+                            {
+                                // TODO 2010-07-09, Piotr Buczek: fix URL check
+                                // String url = String.valueOf(mvce.getAppEvent().getData());
+                                // assertTrue("Invalid URL: " + url, url
+                                // .startsWith("https://localhost:8889/"
+                                // + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
+                                // + dataSetCode + "?sessionID=test-"));
+                                // assertTrue("Invalid URL: " + url, url
+                                // .endsWith("mode=simpleHtml&autoResolve=true"));
+                                mvce.setCancelled(true);
+                            }
+                        };
                 }
             });
-        // browse shown dataset
-        remoteConsole.prepare(new BrowseDataSet(DIRECTLY_CONNECTED_DATA_SET_CODE));
 
         launchTest();
     }
