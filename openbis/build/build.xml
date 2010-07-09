@@ -64,13 +64,10 @@
       //		fully qualified class name of the GWT system test suite to run
       // - 'failureproperty' (optional, default="tests.failed") 
       //		name of a property that will hold info about failure
-      // - 'recreatedb' (optional, "true"|"false", default="false")
-      /			whether to create db from scratch before suite tests are run 
 	-->
   <macrodef name="run-system-test-suite" description="runs one system test suite">
     <attribute name="testsuite"/>
     <attribute name="failureproperty" default="tests.failed"/>
-    <attribute name="recreatedb" default="false"/>
     <sequential>
       <echo>Running @{testsuite}...</echo>
       <!-- add showoutput="true" when running locally for additional output on console -->
@@ -85,7 +82,7 @@
         </classpath>
         <jvmarg value="-ea" />
         <sysproperty key="authentication-service" value="file-authentication-service" />
-        <sysproperty key="database.create-from-scratch" value="@{recreatedb}" />
+        <sysproperty key="database.create-from-scratch" value="true" />
         <sysproperty key="database.kind" value="system_test" />
         <sysproperty key="script-folder" value="sourceTest" />
         <sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
@@ -110,8 +107,7 @@
   <target name="run-system-tests-no-prep">
   	<delete dir="${output.test}" />
   	<mkdir dir="${output.test}" />
-  	<run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite1"
-                           recreatedb="true"/>
+  	<run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite1"/>
     <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.EditingTestSuite2"/>
     <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1"/>
     <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite2"/>
