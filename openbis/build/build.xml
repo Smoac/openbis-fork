@@ -71,7 +71,7 @@
     <sequential>
       <echo>Running @{testsuite}...</echo>
       <!-- add showoutput="true" when running locally for additional output on console -->
-      <junit dir="." fork="true" forkmode="once" maxmemory="2048m" showoutput="true"
+      <junit dir="." fork="true" forkmode="once" maxmemory="2048m" 
       	     failureproperty="@{failureproperty}" printsummary="on">
         <classpath>
           <pathelement location="${sources}" />
