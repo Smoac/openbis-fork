@@ -17,12 +17,19 @@
 package ch.ethz.bsse.cisd.dsu.dss.plugins;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -36,6 +43,8 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
 {
     private static final long serialVersionUID = 1L;
 
+    private static final String SUMMARY_FILE_NAME = "Summary.xml";
+
     public IlluminaSummaryReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
@@ -44,8 +53,56 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
     public TableModel createReport(List<DatasetDescription> datasets)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-        builder.addHeader("Test");
+        builder.addHeader("Clusters");
+        builder.addHeader("Clusters (PF)");
+        builder.addHeader("Yield (kbases)");
+        for (DatasetDescription dataset : datasets)
+        {
+            File originalData = getDataSubDir(dataset);
+            describe(builder, dataset, originalData);
+        }
         return builder.getTableModel();
+    }
+
+    private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset,
+            File originalData)
+    {
+        List<File> files = new ArrayList<File>();
+        FileUtilities.findFiles(originalData, files, createIlluminaSummaryFileFilter());
+        int size = files.size();
+        if (size == 1)
+        {
+            File file = files.get(0);
+            IlluminaSummary summary = new IlluminaSummaryXMLLoader(false).readSummaryXML(file);
+            describeSummary(builder, summary);
+        } else
+        {
+            throw new EnvironmentFailureException(String.format(
+                    "%s file was found for the dataset %s (%s).", (size == 0) ? "No summary"
+                            : " More than one", dataset.getDatasetCode(), dataset.getSampleCode()));
+        }
+    }
+
+    private static void describeSummary(SimpleTableModelBuilder builder, IlluminaSummary summary)
+    {
+        ChipResultsSummary chipResultSummary = summary.getChipResultsSummary();
+        List<ISerializableComparable> row =
+                Arrays.<ISerializableComparable> asList(
+                        new StringTableCell(chipResultSummary.getClusterCountPF()),
+                        new StringTableCell(chipResultSummary.getClusterCountRaw()),
+                        new StringTableCell(chipResultSummary.getYield()));
+        builder.addRow(row);
+    }
+
+    private static FileFilter createIlluminaSummaryFileFilter()
+    {
+        return new FileFilter()
+            {
+                public boolean accept(File file)
+                {
+                    return file.isFile() && file.getName().equals(SUMMARY_FILE_NAME);
+                }
+            };
     }
 
 }
