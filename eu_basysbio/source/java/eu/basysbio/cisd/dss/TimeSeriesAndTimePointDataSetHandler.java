@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -116,12 +117,13 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
             count++;
         }
 
-        void logAndSendOptinallyAnEMail(Logger logger, IMailClient mailClient, boolean sendEMail)
+        void logSendEMailAndHandlerError(Logger logger, IMailClient mailClient, boolean sendEMail)
         {
             if (count < numberOfDerivedDataSets)
             {
-                operationLog.error("Only " + count + " " + type.name + " data sets instead of "
-                        + numberOfDerivedDataSets + " have been registered.");
+                int numberOfFailures = numberOfDerivedDataSets - count;
+                operationLog.error(numberOfFailures + " " + type.name
+                        + " data sets couldn't be registered.");
                 if (sendEMail)
                 {
                     String subject =
@@ -130,14 +132,16 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
                             Constants.DATE_FORMAT.get().format(
                                     new Date(timeProvider.getTimeInMilliseconds()));
                     String message =
-                            "Uploading of data set '" + dataSetFileName + "' failed because only "
-                                    + count + " of " + numberOfDerivedDataSets + " " + type.name
-                                    + " data sets could be registered in openBIS.\n\n"
+                            "Uploading of data set '" + dataSetFileName + "' failed because "
+                                    + numberOfFailures + " of " + numberOfDerivedDataSets + " "
+                                    + type.name + " data sets couldn't be registered.\n\n"
                                     + "Please, contact the help desk for support: "
                                     + HELPDESK_EMAIL + "\n(Time stamp of failure: " + timeStamp
                                     + ")";
                     mailClient.sendMessage(subject, message, null, null, userEMail, HELPDESK_EMAIL);
                 }
+                throw new UserFailureException("Not all data sets could be registered. "
+                        + "For more details see error messages in the log.");
             } else
             {
                 if (count > 0 && operationLog.isInfoEnabled())
@@ -181,10 +185,13 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
 
     private final ITimeProvider timeProvider;
 
+    private final IEncapsulatedOpenBISService service;
+
     public TimeSeriesAndTimePointDataSetHandler(Properties parentProperties,
             IDataSetHandler delegator, IEncapsulatedOpenBISService openbisService)
     {
         this.delegator = delegator;
+        this.service = openbisService;
         this.mailClient = new MailClient(parentProperties);
         Properties specificProperties =
                 ExtendedProperties.getSubset(parentProperties,
@@ -198,11 +205,13 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
     }
 
     @Private
-    TimeSeriesAndTimePointDataSetHandler(IDataSetHandler delegator, IMailClient mailClient,
+    TimeSeriesAndTimePointDataSetHandler(IDataSetHandler delegator,
+            IEncapsulatedOpenBISService openbisService, IMailClient mailClient,
             IDataSetHandler timePointDataSetHandler, File timePointDataSetFolder,
             ITimeProvider timeProvider)
     {
         this.delegator = delegator;
+        service = openbisService;
         this.mailClient = mailClient;
         this.timePointDataSetHandler = timePointDataSetHandler;
         this.timePointDataSetFolder = timePointDataSetFolder;
@@ -217,20 +226,36 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
         boolean successful = result.isEmpty() == false;
         if (successful)
         {
-            DataSetInformation dataSetInformation = result.get(0);
-            MessageBuilder builder =
+            try
+            {
+                DataSetInformation dataSetInformation = result.get(0);
+                MessageBuilder builder =
                     new MessageBuilder(dataSetInformation.tryGetUploadingUserEmail(), timeProvider);
-            builder.setDataSetFileName(dataSet);
-            File[] files = timePointDataSetFolder.listFiles();
-            handleDerivedDataSets(files, TypeOfDerivedDataSet.TIME_POINT, timePointDataSetHandler,
-                    dataSetInfos, builder);
-            files = dataSet.getParentFile().listFiles(LCA_MIC_TIME_SERIES_FILE_FILTER);
-            handleDerivedDataSets(files, TypeOfDerivedDataSet.LCA_MIC_TIME_SERIES, delegator,
-                    dataSetInfos, builder);
-            DataSetType dataSetType = dataSetInformation.getDataSetType();
-            boolean lcaMicTimeSeries =
+                builder.setDataSetFileName(dataSet);
+                File[] files = timePointDataSetFolder.listFiles();
+                handleDerivedDataSets(files, TypeOfDerivedDataSet.TIME_POINT, timePointDataSetHandler,
+                        dataSetInfos, builder);
+                files = dataSet.getParentFile().listFiles(LCA_MIC_TIME_SERIES_FILE_FILTER);
+                handleDerivedDataSets(files, TypeOfDerivedDataSet.LCA_MIC_TIME_SERIES, delegator,
+                        dataSetInfos, builder);
+                DataSetType dataSetType = dataSetInformation.getDataSetType();
+                boolean lcaMicTimeSeries =
                     dataSetType.getCode().equals(DataSetHandler.LCA_MIC_TIME_SERIES);
-            builder.logAndSendOptinallyAnEMail(operationLog, mailClient, lcaMicTimeSeries == false);
+                builder.logSendEMailAndHandlerError(operationLog, mailClient, lcaMicTimeSeries == false);
+            } catch (RuntimeException ex)
+            {
+                // Data sets are deleted in reverse order because of possible parent-child relationships.
+                for (int i = dataSetInfos.size() - 1; i >= 0; i--)
+                {
+                    String dataSetCode = dataSetInfos.get(i).getDataSetCode();
+                    if (operationLog.isInfoEnabled())
+                    {
+                        operationLog.info("Delete data set " + dataSetCode);
+                    }
+                    service.deleteDataSet(dataSetCode, "Rollback registration");
+                }
+                throw ex;
+            }
         }
         return dataSetInfos;
     }
