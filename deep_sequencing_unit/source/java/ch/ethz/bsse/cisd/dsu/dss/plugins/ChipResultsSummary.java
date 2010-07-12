@@ -29,44 +29,43 @@ import javax.xml.bind.annotation.XmlElement;
  * 
  * @author Manuel Kohler
  */
-// @XmlType
 public class ChipResultsSummary
 {
-    private String clusterCountPF;
+    private Long clusterCountPF;
 
-    private String clusterCountRaw;
+    private Long clusterCountRaw;
 
-    private String yield;
+    private Long yield;
 
     @XmlElement
-    public String getClusterCountPF()
+    public Long getClusterCountPF()
     {
         return clusterCountPF;
     }
 
-    public void setClusterCountPF(String clusterCountPF)
+    public void setClusterCountPF(Long clusterCountPF)
     {
         this.clusterCountPF = clusterCountPF;
     }
 
     @XmlElement
-    public String getClusterCountRaw()
+    public Long getClusterCountRaw()
     {
         return clusterCountRaw;
     }
 
-    public void setClusterCountRaw(String clusterCountRaw)
+    public void setClusterCountRaw(Long clusterCountRaw)
     {
         this.clusterCountRaw = clusterCountRaw;
     }
 
     @XmlElement
-    public String getYield()
+    public Long getYield()
     {
         return yield;
     }
 
-    public void setYield(String yield)
+    public void setYield(Long yield)
     {
         this.yield = yield;
     }

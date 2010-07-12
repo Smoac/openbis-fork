@@ -36,28 +36,29 @@ public class IlluminaSummaryXMLLoaderTest extends AbstractFileSystemTestCase
         IlluminaSummary summary = new IlluminaSummaryXMLLoader(false).readSummaryXML(file);
 
         ChipResultsSummary chipResultsSummary = summary.getChipResultsSummary();
-        assertEquals("98792458", chipResultsSummary.getClusterCountPF());
-        assertEquals("158466917", chipResultsSummary.getClusterCountRaw());
-        assertEquals("3556528488", chipResultsSummary.getYield());
+        assertEquals(new Long(98792458L), chipResultsSummary.getClusterCountPF());
+        assertEquals(new Long(158466917L), chipResultsSummary.getClusterCountRaw());
+        assertEquals(new Long(3556528488L), chipResultsSummary.getYield());
     }
 
-    protected static final String EXAMPLE = "<?xml version='1.0' ?>\n               "
-            + "<?xml-stylesheet type='text/xsl' href='Summary.xsl' ?>\n             "
-            + "<Summary>                                                            "
-            + "  <ChipResultsSummary>                                               "
-            + "    <clusterCountPF>98792458</clusterCountPF>                        "
-            + "    <clusterCountRaw>158466917</clusterCountRaw>                     "
-            + "    <yield>3556528488</yield>                                        "
-            + "  </ChipResultsSummary>                                              "
-            + "  <ChipSummary>                                                      "
-            + "    <ChipID>unknown</ChipID>                                         "
-            + "    <Machine>HWI-EAS264</Machine>                                    "
-            + "    <RunFolder>090916_42R0CAAXX</RunFolder>                          "
-            + "  </ChipSummary>                                                     "
-            + "  <Date>Tue Oct 20 18:15:43 2009</Date>                              "
-            + "  <ExpandedLaneSummary/>                                             "
-            + "  <LaneParameterSummary/>                                            "
-            + "  <LaneResultsSummary/>                                              "
-            + "  <TileErrorsByLane/>                                                "
-            + "</Summary>";
+    protected static final String EXAMPLE =
+            "<?xml version='1.0' ?>\n               "
+                    + "<?xml-stylesheet type='text/xsl' href='Summary.xsl' ?>\n             "
+                    + "<Summary>                                                            "
+                    + "  <ChipResultsSummary>                                               "
+                    + "    <clusterCountPF>98792458</clusterCountPF>                        "
+                    + "    <clusterCountRaw>158466917</clusterCountRaw>                     "
+                    + "    <yield>3556528488</yield>                                        "
+                    + "  </ChipResultsSummary>                                              "
+                    + "  <ChipSummary>                                                      "
+                    + "    <ChipID>unknown</ChipID>                                         "
+                    + "    <Machine>HWI-EAS264</Machine>                                    "
+                    + "    <RunFolder>090916_42R0CAAXX</RunFolder>                          "
+                    + "  </ChipSummary>                                                     "
+                    + "  <Date>Tue Oct 20 18:15:43 2009</Date>                              "
+                    + "  <ExpandedLaneSummary/>                                             "
+                    + "  <LaneParameterSummary/>                                            "
+                    + "  <LaneResultsSummary/>                                              "
+                    + "  <TileErrorsByLane/>                                                "
+                    + "</Summary>";
 }

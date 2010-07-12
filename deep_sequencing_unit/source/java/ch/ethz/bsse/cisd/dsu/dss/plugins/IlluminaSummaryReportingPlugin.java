@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractData
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -90,9 +91,9 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
         ChipResultsSummary chipResultSummary = summary.getChipResultsSummary();
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(
-                        new StringTableCell(dataset.getSampleCode()), new StringTableCell(
-                                chipResultSummary.getClusterCountPF()), new StringTableCell(
-                                chipResultSummary.getClusterCountRaw()), new StringTableCell(
+                        new StringTableCell(dataset.getSampleCode()), new IntegerTableCell(
+                                chipResultSummary.getClusterCountPF()), new IntegerTableCell(
+                                chipResultSummary.getClusterCountRaw()), new IntegerTableCell(
                                 chipResultSummary.getYield()));
         builder.addRow(row);
     }

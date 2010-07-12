@@ -34,7 +34,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Manuel Kohler
  */
 @XmlRootElement(name = "Summary")
-// @XmlType
 public class IlluminaSummary
 {
     private ChipResultsSummary chipResultsSummary;
