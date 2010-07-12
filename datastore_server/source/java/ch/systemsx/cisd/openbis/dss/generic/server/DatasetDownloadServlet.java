@@ -212,12 +212,9 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
 
     private IRendererFactory createRendererFactory(String displayMode)
     {
-        if (displayMode.equals(SIMPLE_HTML_MODE_DISPLAY))
+        if (displayMode.equals(SIMPLE_HTML_MODE_DISPLAY) || displayMode.equals(HTML_MODE_DISPLAY))
         {
             return new SimpleHTMLRendererFactory();
-        } else if (displayMode.equals(HTML_MODE_DISPLAY))
-        {
-            return new HTMLRendererFactory();
         } else
         {
             return new PlainTextRendererFactory();

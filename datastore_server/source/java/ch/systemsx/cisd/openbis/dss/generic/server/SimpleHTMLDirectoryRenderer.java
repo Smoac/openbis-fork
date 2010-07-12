@@ -35,8 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
 {
-    // TODO 2010-01-11, IA: Extract common part from this class and HTMLDirectoryRenderer
-
     private static final String CSS =
             "<style type='text/css'> "
                     + "* { margin: 3px; }"
