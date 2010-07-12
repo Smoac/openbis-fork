@@ -275,6 +275,21 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             final NewExternalData externalData) throws UserFailureException;
 
     /**
+     * Deletes the specified data set if it exists.
+     * 
+     * @param sessionToken The user authentication token. Must not be <code>null</code>.
+     * @param dataSetCode Data set code.
+     * @param reason Reason for deleting.
+     * @throws UserFailureException if given data set code could not be deleted.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
+    public void deleteDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode,
+            String reason) throws UserFailureException;
+
+    /**
      * Does nothing besides checking that the current user has rights to access the content of the
      * dataset.
      */

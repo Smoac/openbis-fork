@@ -132,6 +132,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 experimentIdentifier, externalData);
     }
 
+    public void deleteDataSet(String sessionToken, String dataSetCode, String reason)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "deleteDataSet", "DATA_SET(%s) REASON(%s)",
+                dataSetCode, reason);
+    }
+
     public Experiment tryToGetExperiment(String sessionToken,
             ExperimentIdentifier experimentIdentifier) throws UserFailureException
     {

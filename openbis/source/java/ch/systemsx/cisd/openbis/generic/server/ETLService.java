@@ -47,7 +47,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -592,6 +594,20 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         externalDataBO.save();
         final String dataSetCode = externalDataBO.getExternalData().getCode();
         assert dataSetCode != null : "Data set code not specified.";
+    }
+
+    public void deleteDataSet(String sessionToken, String dataSetCode, String reason)
+            throws UserFailureException
+    {
+        Session session = getSession(sessionToken);
+        IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
+        ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
+        if (dataSet != null)
+        {
+            DataSetTypePE dataSetType = dataSet.getDataSetType();
+            IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
+            plugin.deleteDataSets(session, Collections.singletonList(dataSet), reason);
+        }
     }
 
     public void addPropertiesToDataSet(String sessionToken, List<NewProperty> properties,
