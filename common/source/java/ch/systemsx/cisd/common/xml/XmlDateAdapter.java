@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.yeastx.utils;
+package ch.systemsx.cisd.common.xml;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -23,11 +23,11 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.xml.JaxbXmlParser;
+import ch.systemsx.cisd.common.xml.XmlDateAdapter;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationsDTO;
-import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
-import ch.systemsx.cisd.yeastx.utils.XmlDateAdapter;
 
 /**
  * Tests that *.quantML files can be parsed to the {@link MSQuantificationsDTO} bean.

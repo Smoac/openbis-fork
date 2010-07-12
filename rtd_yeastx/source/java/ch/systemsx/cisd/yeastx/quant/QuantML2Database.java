@@ -22,13 +22,13 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import ch.systemsx.cisd.common.xml.JaxbXmlParser;
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
 import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.ConcentrationCompounds;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationsDTO;
-import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
 
 /**
  * Tool for uploading <code>quantML</code> files to the database.

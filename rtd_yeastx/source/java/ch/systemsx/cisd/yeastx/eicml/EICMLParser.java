@@ -33,7 +33,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import ch.systemsx.cisd.base.convert.NativeData;
 import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
-import ch.systemsx.cisd.yeastx.utils.XmlDateAdapter;
+import ch.systemsx.cisd.common.xml.XmlDateAdapter;
 
 /**
  * A file for parsing <code>eicML</code> files.

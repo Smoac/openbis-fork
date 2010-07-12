@@ -22,12 +22,12 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.xml.JaxbXmlParser;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzInstrumentDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPrecursorDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzRunDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzScanDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzXmlDTO;
-import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
 import ch.systemsx.cisd.yeastx.utils.XmlUtils;
 
 /**
@@ -77,7 +77,7 @@ public class MzXMLParserTest extends AssertJUnit
         assertNumbers("174.6", "695.88", scan.getPeaksCount(), scan.getPeakPositions());
         assertNumbers("16666.666", "16666.666", scan.getPeaksCount(), scan.getPeakIntensities());
     }
-    
+
     private void assertNumbers(String firstNumber, String lastNumber, int count, String numbers)
     {
         String[] numberArray = numbers.split(",");
@@ -85,5 +85,5 @@ public class MzXMLParserTest extends AssertJUnit
         assertEquals(lastNumber, numberArray[numberArray.length - 1].trim());
         assertEquals(count, numberArray.length);
     }
-    
+
 }

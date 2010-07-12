@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.xml.JaxbXmlParser;
 import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -30,7 +31,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationsDTO;
-import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
 
 /**
  * A default data set info extractor enriched with parent dataset codes.

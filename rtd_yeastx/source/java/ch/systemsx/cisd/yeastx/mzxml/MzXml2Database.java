@@ -24,13 +24,13 @@ import javax.sql.DataSource;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.xml.JaxbXmlParser;
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
 import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPrecursorDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzRunDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzScanDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzXmlDTO;
-import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
 
 /**
  * Tool for uploading <code>mzXML</code> files to the database.

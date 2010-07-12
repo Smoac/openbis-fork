@@ -86,7 +86,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
     private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset,
             File summaryFile)
     {
-        IlluminaSummary summary = new IlluminaSummaryXMLLoader(false).readSummaryXML(summaryFile);
+        IlluminaSummary summary = IlluminaSummaryXMLLoader.readSummaryXML(summaryFile, false);
         describeSummary(builder, dataset, summary);
     }
 

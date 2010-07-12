@@ -17,20 +17,8 @@
 package ch.ethz.bsse.cisd.dsu.dss.plugins;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.UnmarshallerHandler;
-
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
+import ch.systemsx.cisd.common.xml.JaxbXmlParser;
 
 /**
  * Loader of Illumina summary XML file.
@@ -40,55 +28,9 @@ import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
 class IlluminaSummaryXMLLoader
 {
 
-    private final Unmarshaller unmarshaller;
-
-    private final XMLInfraStructure xmlInfraStructure;
-
-    IlluminaSummaryXMLLoader(boolean validating)
+    public static IlluminaSummary readSummaryXML(File dataSet, boolean validate)
     {
-        try
-        {
-            JAXBContext context = JAXBContext.newInstance(IlluminaSummary.class);
-            unmarshaller = context.createUnmarshaller();
-            xmlInfraStructure = new XMLInfraStructure(validating);
-            xmlInfraStructure.setEntityResolver(new EntityResolver()
-                {
-                    public InputSource resolveEntity(String publicId, String systemId)
-                            throws SAXException, IOException
-                    {
-                        String schemaVersion = systemId.substring(systemId.lastIndexOf('/'));
-                        String resource =
-                                "/"
-                                        + IlluminaSummaryXMLLoader.class.getPackage().getName()
-                                                .replace('.', '/') + schemaVersion;
-                        InputStream inputStream =
-                                IlluminaSummaryXMLLoader.class.getResourceAsStream(resource);
-                        return inputStream == null ? null : new InputSource(inputStream);
-                    }
-                });
-
-        } catch (Exception ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
-    IlluminaSummary readSummaryXML(File dataSet)
-    {
-        try
-        {
-            UnmarshallerHandler unmarshallerHandler = unmarshaller.getUnmarshallerHandler();
-            xmlInfraStructure.parse(new FileReader(dataSet), unmarshallerHandler);
-            Object object = unmarshallerHandler.getResult();
-            if (object instanceof IlluminaSummary == false)
-            {
-                throw new IllegalArgumentException("Wrong type: " + object);
-            }
-            return (IlluminaSummary) object;
-        } catch (Exception ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        return JaxbXmlParser.parse(IlluminaSummary.class, dataSet, validate);
     }
 
 }
