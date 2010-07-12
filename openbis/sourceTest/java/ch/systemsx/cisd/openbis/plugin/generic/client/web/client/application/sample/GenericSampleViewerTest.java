@@ -45,17 +45,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
  */
 public class GenericSampleViewerTest extends AbstractGWTTestCase
 {
-    static final String GROUP_IDENTIFIER = "CISD:/CISD";
+    private static final String CISD_ID_PREFIX = "CISD:/CISD/";
 
     private static final String CONTROL_LAYOUT_EXAMPLE = "CL1";
 
-    private static final String CONTROL_LAYOUT_EXAMPLE_ID = "CISD:/CISD/CL1";
+    private static final String CONTROL_LAYOUT_EXAMPLE_ID = CISD_ID_PREFIX + CONTROL_LAYOUT_EXAMPLE;
 
     private static final String CONTROL_LAYOUT_EXAMPLE_PERM_ID = "200811050919915-8";
 
     private static final String CELL_PLATE_EXAMPLE = "3VCP1";
 
-    private static final String CELL_PLATE_EXAMPLE_ID = "CISD:/CISD/3VCP1";
+    private static final String CELL_PLATE_EXAMPLE_ID = CISD_ID_PREFIX + CELL_PLATE_EXAMPLE;
 
     private static final String CELL_PLATE_EXAMPLE_PERM_ID = "200811050946559-983";
 
@@ -101,6 +101,11 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
 
+        final String parentCode1 = "3V-123";
+        final String parentId1 = CISD_ID_PREFIX + parentCode1;
+        final String parentCode2 = "MP001-1";
+        final String parentId2 = CISD_ID_PREFIX + parentCode2;
+
         final CheckSample checkSample = new CheckSample();
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE_ID);
         checkSample.property("Experiment").asString(CELL_PLATE_EXAMPLE_EXPERIMENT_ID);
@@ -110,9 +115,9 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Sample Type").asCode("CELL_PLATE");
         final CheckTableCommand childrenTable = checkSample.childrenTable().expectedSize(2);
         childrenTable.expectedRow(new SampleRow("3VRP1A", "REINFECT_PLATE").identifier("CISD",
-                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE));
+                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE_ID, parentId1, parentId2));
         childrenTable.expectedRow(new SampleRow("3VRP1B", "REINFECT_PLATE").identifier("CISD",
-                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE));
+                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE_ID, parentId1, parentId2));
         checkSample.property("Invalidation").by(new IValueAssertion<Invalidation>()
             {
                 public void assertValue(final Invalidation invalidation)
@@ -121,9 +126,9 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     assertEquals("wrong-code", invalidation.getReason());
                 }
             });
-        checkSample.property("Parent 1").asCode("3V-123");
+        checkSample.property("Parent 1").asCode(parentCode1);
         checkSample.property("Parent 1").asInvalidEntity();
-        checkSample.property("Parent 2").asCode("MP001-1");
+        checkSample.property("Parent 2").asCode(parentCode2);
         checkSample.property("Parent 2").asInvalidEntity();
 
         final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(1);
