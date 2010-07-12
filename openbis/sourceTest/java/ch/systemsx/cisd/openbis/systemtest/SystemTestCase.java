@@ -40,11 +40,13 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
 {
     protected ICommonServer commonServer;
     protected ICommonClientService commonClientService;
+    protected MockHttpServletRequest request;
     
     @BeforeSuite
     public void beforeSuite()
     {
         TestInitializer.init();
+        request = new MockHttpServletRequest();
     }
     
     /**
@@ -53,7 +55,7 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
     @Autowired
     public final void setRequestContextProvider(final SpringRequestContextProvider contextProvider)
     {
-        contextProvider.setRequest(new MockHttpServletRequest());
+        contextProvider.setRequest(request);
     }
     
     /**
