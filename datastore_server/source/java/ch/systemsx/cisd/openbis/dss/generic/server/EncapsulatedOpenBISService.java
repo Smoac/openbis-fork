@@ -467,6 +467,20 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
                     + ".");
         }
     }
+    
+    synchronized public void deleteDataSet(String dataSetCode, String reason)
+            throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            service.deleteDataSet(sessionToken, dataSetCode, reason);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            service.deleteDataSet(sessionToken, dataSetCode, reason);
+        }
+    }
 
     synchronized public final void updateDataSet(String code, List<NewProperty> properties,
             SpaceIdentifier space) throws UserFailureException
