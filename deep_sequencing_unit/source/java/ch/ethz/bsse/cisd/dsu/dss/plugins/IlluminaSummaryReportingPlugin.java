@@ -61,22 +61,20 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
         for (DatasetDescription dataset : datasets)
         {
             File originalData = getDataSubDir(dataset);
-            describe(builder, dataset, originalData);
+            File summaryFile = extractSummaryFile(dataset, originalData);
+            describe(builder, dataset, summaryFile);
         }
         return builder.getTableModel();
     }
 
-    private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset,
-            File originalData)
+    private static File extractSummaryFile(DatasetDescription dataset, File originalData)
     {
         List<File> files = new ArrayList<File>();
         FileUtilities.findFiles(originalData, files, createIlluminaSummaryFileFilter());
         int size = files.size();
         if (size == 1)
         {
-            File file = files.get(0);
-            IlluminaSummary summary = new IlluminaSummaryXMLLoader(false).readSummaryXML(file);
-            describeSummary(builder, summary, dataset);
+            return files.get(0);
         } else
         {
             throw new EnvironmentFailureException(String.format(
@@ -85,8 +83,15 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
         }
     }
 
-    private static void describeSummary(SimpleTableModelBuilder builder, IlluminaSummary summary,
-            DatasetDescription dataset)
+    private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset,
+            File summaryFile)
+    {
+        IlluminaSummary summary = new IlluminaSummaryXMLLoader(false).readSummaryXML(summaryFile);
+        describeSummary(builder, dataset, summary);
+    }
+
+    private static void describeSummary(SimpleTableModelBuilder builder,
+            DatasetDescription dataset, IlluminaSummary summary)
     {
         ChipResultsSummary chipResultSummary = summary.getChipResultsSummary();
         List<ISerializableComparable> row =
