@@ -793,6 +793,36 @@ public final class FileUtilities
         }
     }
 
+    /**
+     * Recursively finds files that the specified <var>filter</var> accepts starting from given
+     * <var>path</var>.
+     * 
+     * @param path Path of the directory to search in.
+     * @param files List of the files found so far.
+     * @param filter Filter that contains condition for the file that we are looking for.
+     * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
+     */
+    public static void findFiles(File path, List<File> files, FileFilter filter)
+            throws InterruptedExceptionUnchecked
+
+    {
+        if (filter.accept(path))
+        {
+            files.add(path);
+        }
+        if (path.isDirectory())
+        {
+            for (File child : path.listFiles())
+            {
+                if (Thread.interrupted())
+                {
+                    throw new InterruptedExceptionUnchecked();
+                }
+                findFiles(child, files, filter);
+            }
+        }
+    }
+
     private static final class LastChangedWorker
     {
         private final IActivityObserver observerOrNull;
@@ -1610,7 +1640,8 @@ public final class FileUtilities
         {
             return true;
         }
-        // Workaround for Windows 7: sometimes gives a wrong answer on File.canWrite() for a directory
+        // Workaround for Windows 7: sometimes gives a wrong answer on File.canWrite() for a
+        // directory
         if (OSUtilities.isWindows())
         {
             try
@@ -1627,5 +1658,5 @@ public final class FileUtilities
             return false;
         }
     }
-    
+
 }
