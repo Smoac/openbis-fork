@@ -54,10 +54,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
@@ -102,7 +101,6 @@ public class DatasetDownloadServletTest
 
     private static final String EXAMPLE_SESSION_ID = "AV76CF";
 
-    private static final String SAMPLE_CODE = "SAMPLE-S";
 
     private static final String EXPERIMENT_CODE = "EPERIMENT-E";
 
@@ -189,48 +187,13 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals(
-                "<html><head><title>Data Set Download Service: GROUP-G/PROJECT-P/EPERIMENT-E/SAMPLE-S/1234-1</title><style type=\'text/css\'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><div class=\'wrapper\'><h1>Data Set Download Service</h1><div class=\'div_hd\'>Information about data set</div><table><tr><td class=\'td_hd\'>Space:</td><td>GROUP-G</td></tr><tr><td class=\'td_hd\'>Project:</td><td>PROJECT-P</td></tr><tr><td class=\'td_hd\'>Experiment:</td><td>EPERIMENT-E</td></tr><tr><td class=\'td_hd\'>Sample:</td><td>SAMPLE-S</td></tr><tr><td class=\'td_hd\'>Data Set Code:</td><td>1234-1</td></tr></table> <div class=\'div_hd\'>Files</div><table> "
+                "<html><head><style type='text/css'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><table> "
                         + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class=\'td_file\'><a href=\'/datastore_server/1234-1/%2B+s+%25+%21+%23+%40\'>+ s % ! # @</td><td></td></tr>"
+                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/%2B+s+%25+%21+%23+%40?mode=simpleHtml'>+ s % ! # @</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class=\'td_file\'><a href=\'/datastore_server/1234-1/read+me+%40home.txt\'>read me @home.txt</td><td>12 bytes</td></tr>"
+                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/read+me+%40home.txt?mode=simpleHtml'>read me @home.txt</td><td>12 bytes</td></tr>"
                         + OSUtilities.LINE_SEPARATOR
-                        + "</table> <div class=\'footer\'>Copyright &copy; 2008 ETHZ - <a href=\'http://www.cisd.systemsx.ethz.ch/\'>CISD</a> </div> </div> </body></html>"
-                        + OSUtilities.LINE_SEPARATOR + "", writer.toString());
-        assertEquals(LOG_INFO + "Data set '1234-1' obtained from openBIS server."
-                + OSUtilities.LINE_SEPARATOR + LOG_INFO
-                + "For data set '1234-1' show directory <wd>/db-uuid/0a/28/59/1234-1",
-                getNormalizedLogContent());
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testInitialDoGetNoSample() throws Exception
-    {
-        final StringWriter writer = new StringWriter();
-        final ExternalData externalData = createExternalData(false);
-        prepareParseRequestURL();
-        prepareForObtainingDataSetFromServer(externalData);
-        prepareForGettingDataSetFromSession(externalData, "");
-        prepareForCreatingHTML(writer);
-
-        DatasetDownloadServlet servlet = createServlet();
-        servlet.doGet(request, response);
-        assertEquals(
-                "<html><head><title>Data Set Download Service: GROUP-G/PROJECT-P/EPERIMENT-E/1234-1</title>"
-                        + "<style type=\'text/css\'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head>"
-                        + "<body><div class=\'wrapper\'><h1>Data Set Download Service</h1><div class=\'div_hd\'>Information about data set</div><table><tr><td class=\'td_hd\'>Space:</td>"
-                        + "<td>GROUP-G</td></tr><tr><td class=\'td_hd\'>Project:</td><td>PROJECT-P</td></tr>"
-                        + "<tr><td class=\'td_hd\'>Experiment:</td><td>EPERIMENT-E</td></tr>"
-                        + "<tr><td class=\'td_hd\'>Data Set Code:</td><td>1234-1</td></tr>"
-                        + "</table> <div class=\'div_hd\'>Files</div><table> "
-                        + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class=\'td_file\'><a href=\'/datastore_server/1234-1/%2B+s+%25+%21+%23+%40\'>+ s % ! # @</td><td></td></tr>"
-                        + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class=\'td_file\'><a href=\'/datastore_server/1234-1/read+me+%40home.txt\'>read me @home.txt</td><td>12 bytes</td></tr>"
-                        + OSUtilities.LINE_SEPARATOR
-                        + "</table> <div class=\'footer\'>Copyright &copy; 2008 ETHZ - <a href=\'http://www.cisd.systemsx.ethz.ch/\'>CISD</a> </div> </div> </body></html>"
+                        + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR + "", writer.toString());
         assertEquals(LOG_INFO + "Data set '1234-1' obtained from openBIS server."
                 + OSUtilities.LINE_SEPARATOR + LOG_INFO
@@ -359,18 +322,11 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals(
-                "<html><head><title>Data Set Download Service: GROUP-G/PROJECT-P/EPERIMENT-E/SAMPLE-S/1234-1</title>"
-                        + "<style type=\'text/css\'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head>"
-                        + "<body><div class=\'wrapper\'><h1>Data Set Download Service</h1><div class=\'div_hd\'>Information about data set</div>"
-                        + "<table><tr><td class=\'td_hd\'>Space:</td><td>GROUP-G</td></tr>"
-                        + "<tr><td class=\'td_hd\'>Project:</td><td>PROJECT-P</td></tr>"
-                        + "<tr><td class=\'td_hd\'>Experiment:</td><td>EPERIMENT-E</td></tr>"
-                        + "<tr><td class=\'td_hd\'>Sample:</td><td>SAMPLE-S</td></tr>"
-                        + "<tr><td class=\'td_hd\'>Data Set Code:</td><td>1234-1</td></tr></table> <div class=\'div_hd\'>Files</div><table> <tr><td class=\'td_hd\'>Folder:</td><td>+ s % ! # @</td></tr>"
+                "<html><head><style type='text/css'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><table> <tr><td class='td_hd'>Folder:</td><td>+ s % ! # @</td></tr>"
                         + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class=\'td_file\'><a href=\'/datastore_server/1234-1/\'>..</td><td></td></tr>"
+                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/?mode=simpleHtml'>..</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
-                        + "</table> <div class=\'footer\'>Copyright &copy; 2008 ETHZ - <a href=\'http://www.cisd.systemsx.ethz.ch/\'>CISD</a> </div> </div> </body></html>"
+                        + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR, writer.toString());
         assertEquals(LOG_INFO
                 + "For data set '1234-1' show directory <wd>/db-uuid/0a/28/59/1234-1/"
@@ -729,11 +685,6 @@ public class DatasetDownloadServletTest
 
     private ExternalData createExternalData()
     {
-        return createExternalData(true);
-    }
-
-    private ExternalData createExternalData(boolean withSample)
-    {
         Space space = new Space();
         space.setCode(SPACE_CODE);
         Project project = new Project();
@@ -745,12 +696,6 @@ public class DatasetDownloadServletTest
         final ExternalData externalData = new ExternalData();
         externalData.setExperiment(experiment);
         externalData.setCode(EXAMPLE_DATA_SET_CODE);
-        if (withSample)
-        {
-            Sample sample = new Sample();
-            sample.setCode(SAMPLE_CODE);
-            externalData.setSample(sample);
-        }
         LocatorType locatorType = new LocatorType();
         locatorType.setCode(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
         externalData.setLocatorType(locatorType);
