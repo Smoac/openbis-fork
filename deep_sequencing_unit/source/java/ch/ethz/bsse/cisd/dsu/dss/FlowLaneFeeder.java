@@ -17,6 +17,7 @@
 package ch.ethz.bsse.cisd.dsu.dss;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,9 +27,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -70,9 +71,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
 {
     static final String META_DATA_FILE_TYPE = ".tsv";
-    
+
     static final String SRF_INFO_OUTPUT_FILE = "srf_info.txt";
-    
+
     static final String META_DATA_FILE_PREFIX = "meta-data-file-prefix";
 
     static final String TRANSFER_PREFIX = "transfer.";
@@ -91,13 +92,13 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
 
     static final String FILE_TYPE = ".srf";
 
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FlowLaneFeeder.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FlowLaneFeeder.class);
 
     private final IEncapsulatedOpenBISService service;
 
     private final MessageFormat flowLaneDropBoxTemplate;
-    
+
     private final String metaDataFilePrefix;
 
     private final String entitySepaparator;
@@ -115,9 +116,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         flowLaneDropBoxTemplate =
                 new MessageFormat(PropertyUtils.getMandatoryProperty(properties,
                         FLOW_LANE_DROP_BOX_TEMPLATE));
-        metaDataFilePrefix =
-            PropertyUtils.getMandatoryProperty(properties,
-                    META_DATA_FILE_PREFIX);
+        metaDataFilePrefix = PropertyUtils.getMandatoryProperty(properties, META_DATA_FILE_PREFIX);
         entitySepaparator = properties.getProperty(ENTITY_SEPARATOR_KEY, DEFAULT_ENTITY_SEPARATOR);
         srfInfoPathOrNull = properties.getProperty(SRF_INFO_PATH);
         if (srfInfoPathOrNull != null)
@@ -147,12 +146,13 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         }
     }
 
-    public Status handle(File originalData, DataSetInformation dataSetInformation, Map<String, String> parameterBindings)
+    public Status handle(File originalData, DataSetInformation dataSetInformation,
+            Map<String, String> parameterBindings)
     {
         Map<String, Sample> flowLaneSampleMap = createFlowLaneSampleMap(dataSetInformation);
         String flowcellID = originalData.getName();
         List<File> files = new ArrayList<File>();
-        findFiles(originalData, files);
+        findFiles(originalData, files, createFileFilter());
         if (files.size() < flowLaneSampleMap.size())
         {
             throw new EnvironmentFailureException("Only " + files.size()
@@ -194,7 +194,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             createMetaDataFileAndHartLinkInTransferDropBox(flowLaneDataSet, flowLaneSample,
                     flowLane, srfInfo);
             File srf_infoFile = new File(file.getParentFile(), SRF_INFO_OUTPUT_FILE);
-            for (int i = 0; i < srfInfo.size(); ++i ) 
+            for (int i = 0; i < srfInfo.size(); ++i)
             {
                 FileUtilities.writeToFile(srf_infoFile, srfInfo.get(i));
             }
@@ -297,7 +297,8 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             }
         }
         String sampleCode = flowLaneSample.getCode();
-        String metaFileName = metaDataFilePrefix + escapeSampleCode(sampleCode) + META_DATA_FILE_TYPE;
+        String metaFileName =
+                metaDataFilePrefix + escapeSampleCode(sampleCode) + META_DATA_FILE_TYPE;
         FileUtilities.writeToFile(new File(flowLaneDataSet, metaFileName), builder.toString());
         copyToDropBox(dropBox, flowLaneDataSet);
     }
@@ -371,9 +372,9 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         return flowLane;
     }
 
-    private void findFiles(File file, List<File> files)
+    private void findFiles(File file, List<File> files, FileFilter filter)
     {
-        if (file.isFile() && file.getName().endsWith(FILE_TYPE))
+        if (filter.accept(file))
         {
             files.add(file);
         }
@@ -381,9 +382,20 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         {
             for (File child : file.listFiles())
             {
-                findFiles(child, files);
+                findFiles(child, files, filter);
             }
         }
+    }
+
+    private FileFilter createFileFilter()
+    {
+        return new FileFilter()
+            {
+                public boolean accept(File file)
+                {
+                    return file.isFile() && file.getName().endsWith(FILE_TYPE);
+                }
+            };
     }
 
 }
