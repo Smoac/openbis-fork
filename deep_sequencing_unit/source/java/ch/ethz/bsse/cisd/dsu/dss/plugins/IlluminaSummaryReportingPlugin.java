@@ -53,6 +53,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
     public TableModel createReport(List<DatasetDescription> datasets)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
+        builder.addHeader("Sample Code");
         builder.addHeader("Clusters");
         builder.addHeader("Clusters (PF)");
         builder.addHeader("Yield (kbases)");
@@ -74,7 +75,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
         {
             File file = files.get(0);
             IlluminaSummary summary = new IlluminaSummaryXMLLoader(false).readSummaryXML(file);
-            describeSummary(builder, summary);
+            describeSummary(builder, summary, dataset);
         } else
         {
             throw new EnvironmentFailureException(String.format(
@@ -83,14 +84,16 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
         }
     }
 
-    private static void describeSummary(SimpleTableModelBuilder builder, IlluminaSummary summary)
+    private static void describeSummary(SimpleTableModelBuilder builder, IlluminaSummary summary,
+            DatasetDescription dataset)
     {
         ChipResultsSummary chipResultSummary = summary.getChipResultsSummary();
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(
-                        new StringTableCell(chipResultSummary.getClusterCountPF()),
-                        new StringTableCell(chipResultSummary.getClusterCountRaw()),
-                        new StringTableCell(chipResultSummary.getYield()));
+                        new StringTableCell(dataset.getSampleCode()), new StringTableCell(
+                                chipResultSummary.getClusterCountPF()), new StringTableCell(
+                                chipResultSummary.getClusterCountRaw()), new StringTableCell(
+                                chipResultSummary.getYield()));
         builder.addRow(row);
     }
 
