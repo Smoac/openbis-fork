@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.fx.Draggable;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.SplitBar;
@@ -50,6 +51,10 @@ public class RowLayoutManager
         void setFor(RowData rowData, double newValue);
 
         int getFrameSizeFor(ContentPanel panel);
+        
+        int getSize(Container<?> container);
+        
+        int getPositionFrom(DragEvent dragEvent);
     }
 
     private static final class DynamicRowData
@@ -77,6 +82,16 @@ public class RowLayoutManager
             {
                 return panel.isRendered() ? panel.getFrameHeight() : 0;
             }
+
+            public int getSize(Container<?> container)
+            {
+                return container.getHeight();
+            }
+
+            public int getPositionFrom(DragEvent dragEvent)
+            {
+                return dragEvent.getY();
+            }
         };
 
     private static final IManipulator WIDTH_MANIPULATOR = new IManipulator()
@@ -95,6 +110,17 @@ public class RowLayoutManager
             {
                 return panel.isRendered() ? panel.getFrameWidth() : 0;
             }
+
+            public int getSize(Container<?> container)
+            {
+                return container.getWidth();
+            }
+
+            public int getPositionFrom(DragEvent dragEvent)
+            {
+                return dragEvent.getX();
+            }
+            
         };
 
     private final LayoutContainer container;
@@ -127,15 +153,16 @@ public class RowLayoutManager
     {
         if (container.getItemCount() > 0)
         {
-            Listener<BaseEvent> listener = createListener(contentPanel);
+            Listener<BaseEvent> listener = createListener(contentPanel, dynamicRowDatas.size());
             System.out.println(listener);
-//            contentPanel.addListener(Events.Render, listener);
+            contentPanel.addListener(Events.Render, listener);
         }
         contentPanel.setAnimCollapse(false);
         container.add(contentPanel, rowData);
         double value = manipulator.getFor(rowData);
         if (value < 0 || value > 1)
         {
+            // ignore fixed value sized panels
             return;
         }
         DynamicRowData dynamicRowData = new DynamicRowData();
@@ -180,7 +207,7 @@ public class RowLayoutManager
         container.layout(true);
     }
 
-    private Listener<BaseEvent> createListener(final ContentPanel contentPanel)
+    private Listener<BaseEvent> createListener(final ContentPanel contentPanel, final int indexInDynamicRowDataArray)
     {
         return new Listener<BaseEvent>()
             {
@@ -191,18 +218,19 @@ public class RowLayoutManager
                     draggable.addDragListener(new DragListener()
                         {
 
-                            private int y;
+                            private int position;
 
                             @Override
                             public void dragEnd(DragEvent de)
                             {
-                                handleSplitMovement(contentPanel, de.getY() - y);
+                                handleSplitMovement(contentPanel, manipulator.getPositionFrom(de)
+                                        - position, indexInDynamicRowDataArray);
                             }
 
                             @Override
                             public void dragStart(DragEvent de)
                             {
-                                y = de.getY();
+                                position = manipulator.getPositionFrom(de);
                             }
                         });
                     draggable.setMoveAfterProxyDrag(false);
@@ -211,8 +239,34 @@ public class RowLayoutManager
             };
     }
     
-    private void handleSplitMovement(final ContentPanel contentPanel, int diff)
+    private void handleSplitMovement(final ContentPanel contentPanel, int diff, int indexInDynamicRowDataArray)
     {
+        int indexOfResizablePanelAbove = -1;
+        for (int i = indexInDynamicRowDataArray - 1; i >= 0; i--)
+        {
+            if (dynamicRowDatas.get(i).panel.isCollapsed() == false)
+            {
+                indexOfResizablePanelAbove = i;
+                break;
+            }
+        }
+        if (indexOfResizablePanelAbove < 0)
+        {
+            return;
+        }
+        int indexOfResizablePanelBelow = -1;
+        for (int i = indexInDynamicRowDataArray; i < dynamicRowDatas.size(); i++)
+        {
+            if (dynamicRowDatas.get(i).panel.isCollapsed() == false)
+            {
+                indexOfResizablePanelBelow = i;
+                break;
+            }
+        }
+        if (indexOfResizablePanelBelow < 0)
+        {
+            return;
+        }
         int sum = 0;
         for (int i = 0, n = container.getItemCount(); i < n; i++)
         {
@@ -220,10 +274,24 @@ public class RowLayoutManager
             if (item instanceof ContentPanel)
             {
                 ContentPanel panel = (ContentPanel) item;
-                sum += panel.getFrameHeight();
+                sum += manipulator.getFrameSizeFor(panel);
             }
         }
-        int h = container.getHeight() - sum;
-        System.out.println(contentPanel.getHeading() + " dragged " + diff + " " + h);
+        int h = manipulator.getSize(container) - sum;
+        DynamicRowData above = dynamicRowDatas.get(indexOfResizablePanelAbove);
+        DynamicRowData below = dynamicRowDatas.get(indexOfResizablePanelBelow);
+        double diffRatio = (double) diff / h;
+        diffRatio = Math.max(diffRatio, DELTA - above.originalValue);
+        diffRatio = Math.min(diffRatio, 1 - DELTA - above.originalValue);
+        diffRatio = Math.min(diffRatio, below.originalValue - DELTA);
+        diffRatio = Math.max(diffRatio, below.originalValue - 1 + DELTA);
+        
+        above.originalValue += diffRatio;
+        below.originalValue -= diffRatio;
+        System.out.println("new above:"+above.originalValue);
+        System.out.println("new below:"+below.originalValue);
+        adjustRelative();
     }
+    
+    private static final double DELTA = 0.02;
 }

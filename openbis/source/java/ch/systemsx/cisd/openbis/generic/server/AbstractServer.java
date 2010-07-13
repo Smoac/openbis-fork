@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.IRemoteHostValidator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -63,6 +64,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> implements IServer
 {
+    @Resource(name = ResourceNames.SAMPLE_PLUGIN_REGISTRY)
+    private SampleServerPluginRegistry sampleServerPluginRegistry;
+    
     // For testing purpose.
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
 
@@ -126,7 +130,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         {
             return sampleTypeSlaveServerPlugin;
         }
-        return SampleServerPluginRegistry.getInstance().getPlugin(EntityKind.SAMPLE, sampleType)
+        return sampleServerPluginRegistry.getPlugin(EntityKind.SAMPLE, sampleType)
                 .getSlaveServer();
     }
 

@@ -211,7 +211,6 @@
             expression="org.springframework.stereotype.Controller" />
     </plugins:component-scan>
 
-    <bean class="ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry" factory-method="getInstance" /> 
-    
-    <bean class="ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistry" factory-method="getInstance" /> 
+  <bean id="data-set-plugin-registry" class="ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistry"
+        factory-method="init" /> 
 </beans>

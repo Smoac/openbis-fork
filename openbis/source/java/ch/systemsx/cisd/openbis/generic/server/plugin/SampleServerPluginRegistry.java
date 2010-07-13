@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.plugin;
 
+import org.springframework.stereotype.Component;
+
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+
 
 /**
  * A registry for sample server plug-ins.
@@ -32,22 +36,10 @@ package ch.systemsx.cisd.openbis.generic.server.plugin;
  * 
  * @author Christian Ribeaud
  */
+@Component(ResourceNames.SAMPLE_PLUGIN_REGISTRY)
 public final class SampleServerPluginRegistry extends AbstractPluginRegistry<ISampleServerPlugin>
 {
-    private static final SampleServerPluginRegistry instance = new SampleServerPluginRegistry();
-
-    private SampleServerPluginRegistry()
-    {
-    }
-
-    /**
-     * Returns the unique instance of this class.
-     */
-    public final static synchronized SampleServerPluginRegistry getInstance()
-    {
-        return instance;
-    }
-
+    
     @Override
     protected String getBeanNameOfGenericPlugin()
     {

@@ -34,10 +34,16 @@ package ch.systemsx.cisd.openbis.generic.server.plugin;
  */
 public class DataSetServerPluginRegistry extends AbstractPluginRegistry<IDataSetServerPlugin>
 {
-    private static final DataSetServerPluginRegistry instance = new DataSetServerPluginRegistry();
+    private static DataSetServerPluginRegistry instance = new DataSetServerPluginRegistry();
 
     private DataSetServerPluginRegistry()
     {
+    }
+    
+    public static DataSetServerPluginRegistry init()
+    {
+        instance = new DataSetServerPluginRegistry();
+        return instance;
     }
 
     /**

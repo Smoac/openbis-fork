@@ -18,11 +18,13 @@ package ch.systemsx.cisd.openbis.plugin;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
  * An abstract {@link ISampleServerPlugin} which registers itself to
@@ -35,14 +37,17 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractSampleServerPlugin implements ISampleServerPlugin
+public abstract class AbstractSampleServerPlugin implements ISampleServerPlugin, InitializingBean
 {
-    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
+    @Resource(name = ResourceNames.SAMPLE_PLUGIN_REGISTRY)
+    private SampleServerPluginRegistry sampleServerPluginRegistry;
+    
+    @Resource(name = ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
     private ISampleTypeSlaveServerPlugin genericSampleTypeSlaveServerPlugin;
 
-    protected AbstractSampleServerPlugin()
+    public void afterPropertiesSet() throws Exception
     {
-        SampleServerPluginRegistry.getInstance().registerPlugin(this);
+        sampleServerPluginRegistry.registerPlugin(this);
     }
 
     protected final ISampleTypeSlaveServerPlugin getGenericSampleTypeSlaveServerPlugin()

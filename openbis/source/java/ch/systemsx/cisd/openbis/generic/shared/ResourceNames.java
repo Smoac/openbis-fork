@@ -37,6 +37,10 @@ public final class ResourceNames
             "generic-data-set-type-slave-server-plugin";
 
     public final static String GENERIC_DATA_SET_SERVER_PLUGIN = "generic-data-set-server-plugin";
+    
+    public final static String SAMPLE_PLUGIN_REGISTRY = "sample-plugin-registry";
+    
+    public final static String DATA_SET_PLUGIN_REGISTRY = "data-set-plugin-registry";
 
     private ResourceNames()
     {
