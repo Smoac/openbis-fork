@@ -20,11 +20,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.HCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
 /**
  * @author Tomasz Pylak
@@ -33,8 +30,6 @@ public class HCSImageDatasetLoaderFactory
 {
     private static final Map<String, IContentRepositoryFactory> repositoryFactories =
             createFactories();
-
-    private static final IImagingQueryDAO query = DssScreeningUtils.createQuery();
 
     private static Map<String, IContentRepositoryFactory> createFactories()
     {
@@ -52,7 +47,7 @@ public class HCSImageDatasetLoaderFactory
     private static HCSImageDatasetLoader createImageDBLoader(File datasetRootDir, String datasetCode)
     {
         IContentRepository repository = new ContentRepository(datasetRootDir, repositoryFactories);
-        return new HCSImageDatasetLoader(query, datasetCode, repository);
+        return new HCSImageDatasetLoader(DssScreeningUtils.createQuery(), datasetCode, repository);
     }
 
 }
