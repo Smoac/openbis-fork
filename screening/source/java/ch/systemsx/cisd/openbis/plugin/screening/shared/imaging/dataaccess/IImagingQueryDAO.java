@@ -124,6 +124,10 @@ public interface IImagingQueryDAO extends TransactionQuery
             + "(?{1.name}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}) returning ID")
     public long addChannel(ImgChannelDTO channel);
 
+    @Update("update CONTAINERS " + "set SPOTS_WIDTH = ?{2}, SPOTS_HEIGHT = ?{3} "
+            + "where ID = ?{1}")
+    public void updateContainer(long id, int columns, int rows);
+
     @Select("insert into CONTAINERS (PERM_ID, SPOTS_WIDTH, SPOTS_HEIGHT, EXPE_ID) values "
             + "(?{1.permId}, ?{1.numberOfColumns}, ?{1.numberOfRows}, ?{1.experimentId}) returning ID")
     public long addContainer(ImgContainerDTO container);

@@ -77,7 +77,7 @@ public class ScreeningContainerDatasetInfoHelper
         synchronized (IImagingQueryDAO.class)
         {
             CreatedOrFetchedEntity exp = getOrCreateExperiment(dao, info);
-            CreatedOrFetchedEntity cont = getOrCreateContainer(dao, info, exp.getId());
+            CreatedOrFetchedEntity cont = getOrCreateContainer(dao, info, exp.getId(), true);
             if (exp.hasAlreadyExisted() == false || cont.hasAlreadyExisted() == false)
             {
                 // without this commit other threads will not see the new experiment/sample when the
@@ -104,7 +104,7 @@ public class ScreeningContainerDatasetInfoHelper
         {
             CreatedOrFetchedEntity exp = getOrCreateExperiment(dao, info);
             long expId = exp.getId();
-            CreatedOrFetchedEntity cont = getOrCreateContainer(dao, info, expId);
+            CreatedOrFetchedEntity cont = getOrCreateContainer(dao, info, expId, true);
             Map<String, Long/* (tech id */> channelsMap =
                     helper.getOrCreateChannels(expId, channels);
             if (exp.hasAlreadyExisted() == false || cont.hasAlreadyExisted() == false)
@@ -118,13 +118,18 @@ public class ScreeningContainerDatasetInfoHelper
     }
 
     private static CreatedOrFetchedEntity getOrCreateContainer(IImagingQueryDAO dao,
-            ScreeningContainerDatasetInfo info, long expId)
+            ScreeningContainerDatasetInfo info, long expId, boolean updateContainer)
     {
         String containerPermId = info.getContainerPermId();
         Long containerId = dao.tryGetContainerIdPermId(containerPermId);
         if (containerId != null)
         {
-            return new CreatedOrFetchedEntity(true, containerId);
+            if (updateContainer)
+            {
+                dao.updateContainer(containerId, info.getContainerColumns(), info
+                        .getContainerRows());
+            }
+            return new CreatedOrFetchedEntity(updateContainer == false, containerId);
         } else
         {
             ImgContainerDTO container =
