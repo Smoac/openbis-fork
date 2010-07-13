@@ -19,28 +19,26 @@ package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-import javax.servlet.http.HttpSession;
-
-import org.springframework.mock.web.MockMultipartFile;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
@@ -127,14 +125,10 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
     {
         logIntoCommonClientService();
         
-        HttpSession session = request.getSession();
-        UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
-        String batchSamplesFileContent = "identifier\torganism\n" +
-        		                         "S1001\tfly\n" +
-        	                             "S1002\tdog\n";
-        uploadedFilesBean.addMultipartFile(new MockMultipartFile("samples.txt", 
-                batchSamplesFileContent.getBytes()));
-        session.setAttribute(SAMPLES_SESSION_KEY, uploadedFilesBean);
+        String batchSamplesFileContent = "identifier\torganism\n" 
+                                       + "S1001\tfly\n" 
+                                       + "S1002\tdog\n";
+        addMultiPartFile(SAMPLES_SESSION_KEY, "samples.txt", batchSamplesFileContent.getBytes());
         String experimentCode = commonClientService.generateCode("EXP");
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
@@ -153,15 +147,23 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
 
         assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
-        Sample sample = samples.getResultSet().getList().get(0).getOriginalObject();
+        List<GridRowModel<Sample>> list = new ArrayList<GridRowModel<Sample>>(samples.getResultSet().getList());
+        Collections.sort(list, new Comparator<GridRowModel<Sample>>()
+            {
+                public int compare(GridRowModel<Sample> o1, GridRowModel<Sample> o2)
+                {
+                    return o1.getOriginalObject().getCode().compareTo(o2.getOriginalObject().getCode());
+                }
+            });
+        Sample sample = list.get(0).getOriginalObject();
         assertEquals("S1001", sample.getCode());
         assertEquals("FLY", sample.getProperties().get(0).tryGetAsString());
         assertEquals(experiment.getId(), sample.getExperiment().getId());
-        sample = samples.getResultSet().getList().get(1).getOriginalObject();
+        sample = list.get(1).getOriginalObject();
         assertEquals("S1002", sample.getCode());
         assertEquals("DOG", sample.getProperties().get(0).tryGetAsString());
         assertEquals(experiment.getId(), sample.getExperiment().getId());
-        assertEquals(2, samples.getResultSet().getList().size());
+        assertEquals(2, list.size());
     }
     
     @Test
@@ -169,13 +171,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
     {
         String sessionToken = logIntoCommonClientService().getSessionID();
         
-        HttpSession session = request.getSession();
-        UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
-        MockMultipartFile multipartFile =
-                new MockMultipartFile("hello.txt", "hello.txt", "", "hello world".getBytes());
-        uploadedFilesBean.addMultipartFile(multipartFile);
-        session.setAttribute(ATTACHMENTS_SESSION_KEY, uploadedFilesBean);
-        logIntoCommonClientService();
+        addMultiPartFile(ATTACHMENTS_SESSION_KEY, "hello.txt", "hello world".getBytes());
         String experimentCode = commonClientService.generateCode("EXP");
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
@@ -202,15 +198,5 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         assertEquals("hello", attachment.getTitle());
         assertEquals(1, attachment.getVersion());
         assertEquals("hello world", new String(attachment.getContent()));
-    }
-
-    private IEntityProperty property(String type, String value)
-    {
-        EntityProperty property = new EntityProperty();
-        PropertyType propertyType = new PropertyType();
-        propertyType.setCode(type);
-        property.setPropertyType(propertyType);
-        property.setValue(value);
-        return property;
     }
 }

@@ -16,8 +16,15 @@
 
 package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
+
+import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
@@ -34,4 +41,28 @@ public class GenericSystemTestCase extends SystemTestCase
     
     @Autowired
     protected IGenericServer genericServer;
+    
+    protected void addMultiPartFile(String sessionAttributeKey, String fileName, byte[] data)
+    {
+        HttpSession session = request.getSession();
+        UploadedFilesBean uploadedFilesBean =
+                (UploadedFilesBean) session.getAttribute(sessionAttributeKey);
+        if (uploadedFilesBean == null)
+        {
+            uploadedFilesBean = new UploadedFilesBean();
+            session.setAttribute(sessionAttributeKey, uploadedFilesBean);
+        }
+        MockMultipartFile multipartFile = new MockMultipartFile(fileName, fileName, "", data);
+        uploadedFilesBean.addMultipartFile(multipartFile);
+    }
+
+    protected IEntityProperty property(String type, String value)
+    {
+        EntityProperty property = new EntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(type);
+        property.setPropertyType(propertyType);
+        property.setValue(value);
+        return property;
+    }
 }
