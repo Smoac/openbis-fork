@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
  * 
  * @author Manuel Kohler
  */
-public class ChipResultsSummary
+class ChipResultsSummary
 {
     private Long clusterCountPF;
 
