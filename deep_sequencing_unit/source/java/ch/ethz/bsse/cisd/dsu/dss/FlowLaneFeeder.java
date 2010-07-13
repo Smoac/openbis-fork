@@ -153,11 +153,11 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         String flowcellID = originalData.getName();
         List<File> files = new ArrayList<File>();
         FileUtilities.findFiles(originalData, files, createSrfFileFilter());
-        // if (files.size() < flowLaneSampleMap.size())
-        // {
-        // throw new EnvironmentFailureException("Only " + files.size()
-        // + " flow lane files found instead of " + flowLaneSampleMap.size() + ".");
-        // }
+        if (files.size() < flowLaneSampleMap.size())
+        {
+            throw new EnvironmentFailureException("Only " + files.size()
+                    + " flow lane files found instead of " + flowLaneSampleMap.size() + ".");
+        }
         Set<String> processedFlowLanes = new LinkedHashSet<String>();
         for (File file : files)
         {
