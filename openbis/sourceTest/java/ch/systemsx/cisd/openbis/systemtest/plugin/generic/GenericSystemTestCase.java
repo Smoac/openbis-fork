@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
@@ -30,4 +31,7 @@ public class GenericSystemTestCase extends SystemTestCase
 {
     @Autowired
     protected IGenericClientService genericClientService;
+    
+    @Autowired
+    protected IGenericServer genericServer;
 }

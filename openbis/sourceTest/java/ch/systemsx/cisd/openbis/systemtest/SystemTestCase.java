@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,6 +42,7 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
 {
     protected ICommonServer commonServer;
     protected ICommonClientService commonClientService;
+    protected MockHttpServletRequest request;
     
     @BeforeSuite
     public void beforeSuite()
@@ -53,7 +56,8 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
     @Autowired
     public final void setRequestContextProvider(final SpringRequestContextProvider contextProvider)
     {
-        contextProvider.setRequest(new MockHttpServletRequest());
+        request = new MockHttpServletRequest();
+        contextProvider.setRequest(request);
     }
     
     /**
