@@ -26,9 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * The roles that are allowed to execute an <i>openBIS</i> method.
- * <p>
- * {@link #value()} is additive.
- * </p>
  * 
  * @author Christian Ribeaud
  */
@@ -38,10 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 public @interface RolesAllowed
 {
     /**
-     * The set of roles that are allowed to execute a method.
-     * <p>
-     * Should be the primary choice to specify roles.
-     * </p>
+     * The set of roles that are allowed to execute a method. The method will be accessible by all
+     * users with a role defined in any of {@link RoleWithHierarchy#getRoles()}.
      */
     RoleWithHierarchy[] value() default {};
 
