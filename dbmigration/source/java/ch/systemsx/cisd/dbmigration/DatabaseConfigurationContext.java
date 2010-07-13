@@ -392,6 +392,16 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
+     * The maximum number of milliseconds that the pool will wait (when there are no available
+     * connections) for a connection to be returned before throwing an exception, or -1 (by default)
+     * to wait indefinitely.
+     */
+    public void setMaxWait(long maxWait)
+    {
+        this.dataSourceFactory.setMaxWait(maxWait);
+    }
+
+    /**
      * Sets the maximum number of idle connections in the pool (default is 20).
      */
     public void setMaxIdle(int maxIdle)

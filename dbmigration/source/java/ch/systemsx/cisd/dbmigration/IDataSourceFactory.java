@@ -44,4 +44,10 @@ public interface IDataSourceFactory
      * @see GenericObjectPool#DEFAULT_MAX_ACTIVE
      */
     public void setMaxActive(int maxActive);
+
+    /**
+     * @see BasicDataSource#setMaxWait(long)
+     * @see GenericObjectPool#DEFAULT_MAX_WAIT
+     */
+    public void setMaxWait(long maxWait);
 }

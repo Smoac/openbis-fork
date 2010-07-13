@@ -174,6 +174,10 @@ public final class SqlUnitMigrationTest
             public void setMaxIdle(int maxIdle)
             {
             }
+
+            public void setMaxWait(long maxWait)
+            {
+            }
         };
 
     @BeforeClass(alwaysRun = true)

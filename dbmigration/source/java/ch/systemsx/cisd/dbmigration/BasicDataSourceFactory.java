@@ -33,6 +33,8 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     /** @see GenericObjectPool#DEFAULT_MAX_IDLE */
     private final int DEFAULT_MAX_IDLE = DEFAULT_MAX_ACTIVE;
 
+    private long maxWait = GenericObjectPool.DEFAULT_MAX_WAIT;
+
     private int maxIdle = DEFAULT_MAX_IDLE;
 
     private int maxActive = DEFAULT_MAX_ACTIVE;
@@ -51,7 +53,13 @@ public class BasicDataSourceFactory implements IDataSourceFactory
         dataSource.setPassword(password);
         dataSource.setMaxIdle(maxIdle);
         dataSource.setMaxActive(maxActive);
+        dataSource.setMaxWait(maxWait);
         return dataSource;
+    }
+
+    public void setMaxWait(long maxWait)
+    {
+        this.maxWait = maxWait;
     }
 
     public void setMaxIdle(int maxIdle)
