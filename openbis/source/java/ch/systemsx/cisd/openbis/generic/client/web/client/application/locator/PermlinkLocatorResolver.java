@@ -47,7 +47,7 @@ public class PermlinkLocatorResolver extends AbstractViewLocatorResolver
             throws UserFailureException
     {
         EntityKind entityKind = getEntityKind(entityKindValue);
-        OpenEntityDetailsTabHelper.open(viewContext, entityKind, permIdValue);
+        OpenEntityDetailsTabHelper.open(viewContext, entityKind, permIdValue, false);
     }
 
 }

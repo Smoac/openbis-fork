@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -26,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -53,17 +50,12 @@ class MaterialPropertyColRenderer<T extends IEntityPropertiesHolder> extends
     {
         String value = colDef.getValue(entity);
         final MaterialIdentifier identifier = MaterialIdentifier.tryParseIdentifier(value);
-        if (identifier != null)
+        // TODO 2010-07-13, Piotr Buczek: cannot create link in default mode
+        // listener will not work after calling Widget.toString()
+        if (identifier != null && viewContext.isSimpleMode())
         {
-            final ClickHandler listener = new ClickHandler()
-                {
-                    public void onClick(ClickEvent event)
-                    {
-                        OpenEntityDetailsTabHelper.open(viewContext, identifier);
-                    }
-                };
             String href = LinkExtractor.tryExtract(identifier);
-            final Widget link = LinkRenderer.getLinkWidget(identifier.getCode(), listener, href);
+            final Widget link = LinkRenderer.getLinkWidget(identifier.getCode(), null, href);
 
             FlowPanel panel = new FlowPanel();
             panel.add(link);

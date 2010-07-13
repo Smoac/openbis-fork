@@ -43,27 +43,37 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
  */
 public class OpenEntityDetailsTabHelper
 {
-    public static void open(IViewContext<?> viewContext, EntityKind entityKind, String permId)
+    public static void open(IViewContext<?> viewContext, EntityKind entityKind, String permId,
+            boolean keyPressed)
     {
         viewContext.getCommonService().getEntityInformationHolder(entityKind, permId,
-                new OpenEntityDetailsTabCallback(viewContext));
+                new OpenEntityDetailsTabCallback(viewContext, keyPressed));
 
     }
 
-    public static void open(IViewContext<?> viewContext, MaterialIdentifier identifier)
-            throws UserFailureException
+    public static void open(IViewContext<?> viewContext, MaterialIdentifier identifier,
+            boolean keyPressed) throws UserFailureException
     {
         viewContext.getCommonService().getMaterialInformationHolder(identifier,
-                new OpenEntityDetailsTabCallback(viewContext));
+                new OpenEntityDetailsTabCallback(viewContext, keyPressed));
     }
 
     private static class OpenEntityDetailsTabCallback extends
             AbstractAsyncCallback<IEntityInformationHolder>
     {
 
-        private OpenEntityDetailsTabCallback(final IViewContext<?> viewContext)
+        private final boolean keyPressed;
+
+        private OpenEntityDetailsTabCallback(final IViewContext<?> viewContext,
+                final boolean keyPressed)
         {
             super(viewContext);
+            this.keyPressed = keyPressed;
+        }
+
+        private OpenEntityDetailsTabCallback(final IViewContext<?> viewContext)
+        {
+            this(viewContext, false);
         }
 
         //
@@ -76,7 +86,7 @@ public class OpenEntityDetailsTabHelper
         @Override
         protected final void process(final IEntityInformationHolder result)
         {
-            new OpenEntityDetailsTabAction(result, viewContext).execute();
+            new OpenEntityDetailsTabAction(result, viewContext, keyPressed).execute();
         }
     }
 

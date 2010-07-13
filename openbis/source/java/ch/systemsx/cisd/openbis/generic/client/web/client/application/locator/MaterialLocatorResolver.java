@@ -60,7 +60,7 @@ public class MaterialLocatorResolver extends AbstractViewLocatorResolver
     protected void openInitialMaterialViewer(MaterialIdentifier identifier)
             throws UserFailureException
     {
-        OpenEntityDetailsTabHelper.open(viewContext, identifier);
+        OpenEntityDetailsTabHelper.open(viewContext, identifier, false);
     }
 
 }

@@ -254,7 +254,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
 
     private void showEntityViewer(EntityKind entityKind, String permId)
     {
-        OpenEntityDetailsTabHelper.open(viewContext, entityKind, permId);
+        OpenEntityDetailsTabHelper.open(viewContext, entityKind, permId, false);
     }
 
     private List<ReportColumnUI> createColDefinitions()
