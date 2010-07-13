@@ -412,7 +412,10 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
                 access = true;
             } catch (UserFailureException ex)
             {
-                access = false;
+                operationLog.error(String.format(
+                        "Error when checking access to the data set '%s' at openBIS server: %s",
+                        dataSetCode, ex.getMessage()));
+                return false; // do not save this in cache, try to connect to AS next time
             }
             getDataSetAccess(session).put(dataSetCode, access);
         }
