@@ -126,7 +126,7 @@ public class ScreeningContainerDatasetInfoHelper
         {
             if (updateContainer)
             {
-                dao.updateContainer(containerId, info.getContainerColumns(), info
+                dao.updateContainerEmptySpots(containerId, info.getContainerColumns(), info
                         .getContainerRows());
             }
             return new CreatedOrFetchedEntity(updateContainer == false, containerId);
