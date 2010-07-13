@@ -27,9 +27,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -92,8 +92,8 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
 
     static final String FILE_TYPE = ".srf";
 
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FlowLaneFeeder.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FlowLaneFeeder.class);
 
     private final IEncapsulatedOpenBISService service;
 
@@ -153,11 +153,11 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         String flowcellID = originalData.getName();
         List<File> files = new ArrayList<File>();
         FileUtilities.findFiles(originalData, files, createSrfFileFilter());
-        if (files.size() < flowLaneSampleMap.size())
-        {
-            throw new EnvironmentFailureException("Only " + files.size()
-                    + " flow lane files found instead of " + flowLaneSampleMap.size() + ".");
-        }
+        // if (files.size() < flowLaneSampleMap.size())
+        // {
+        // throw new EnvironmentFailureException("Only " + files.size()
+        // + " flow lane files found instead of " + flowLaneSampleMap.size() + ".");
+        // }
         Set<String> processedFlowLanes = new LinkedHashSet<String>();
         for (File file : files)
         {

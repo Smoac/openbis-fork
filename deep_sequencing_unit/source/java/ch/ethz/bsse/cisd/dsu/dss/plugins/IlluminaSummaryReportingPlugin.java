@@ -58,6 +58,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
         builder.addHeader("Clusters");
         builder.addHeader("Clusters (PF)");
         builder.addHeader("Yield (kbases)");
+        builder.addHeader("Software");
         for (DatasetDescription dataset : datasets)
         {
             File originalData = getDataSubDir(dataset);
@@ -94,12 +95,20 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
             DatasetDescription dataset, IlluminaSummary summary)
     {
         ChipResultsSummary chipResultSummary = summary.getChipResultsSummary();
+
+        String software_version = summary.getSoftware();
+        if (software_version == null)
+        {
+            software_version = "Not available";
+        }
+
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(
                         new StringTableCell(dataset.getSampleCode()), new IntegerTableCell(
-                                chipResultSummary.getClusterCountPF()), new IntegerTableCell(
                                 chipResultSummary.getClusterCountRaw()), new IntegerTableCell(
-                                chipResultSummary.getYield()));
+                                chipResultSummary.getClusterCountPF()), new IntegerTableCell(
+                                chipResultSummary.getYield() / 1000), new StringTableCell(
+                                software_version));
         builder.addRow(row);
     }
 

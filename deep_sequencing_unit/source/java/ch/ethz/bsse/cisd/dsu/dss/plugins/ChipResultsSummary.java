@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlElement;
  *     &lt;clusterCountRaw&gt;158466917&lt;/clusterCountRaw&gt;
  *     &lt;yield&gt;3556528488&lt;/yield&gt;
  *   &lt;/ChipResultsSummary&gt;
+ *   &lt;Software&gt;CASAVA-1.6.0&lt;/Software&gt;
  * </pre>
  * 
  * @author Manuel Kohler

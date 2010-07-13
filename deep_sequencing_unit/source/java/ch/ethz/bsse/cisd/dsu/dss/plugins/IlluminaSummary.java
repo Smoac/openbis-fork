@@ -28,6 +28,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  *       &lt;yield&gt;3556528488&lt;/yield&gt;
  *     &lt;/ChipResultsSummary&gt;
  *     ...
+ *     &lt;Software&gt;CASAVA-1.6.0&lt;/Software&gt;
+ *     ...
  *   &lt;Summary&gt;
  * </pre>
  * 
@@ -37,6 +39,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 class IlluminaSummary
 {
     private ChipResultsSummary chipResultsSummary;
+
+    private String Software;
 
     @XmlElement(name = "ChipResultsSummary")
     public ChipResultsSummary getChipResultsSummary()
@@ -49,4 +53,14 @@ class IlluminaSummary
         this.chipResultsSummary = chipResultsSummary;
     }
 
+    @XmlElement(name = "Software")
+    public String getSoftware()
+    {
+        return Software;
+    }
+
+    public void setSoftware(String software)
+    {
+        Software = software;
+    }
 }
