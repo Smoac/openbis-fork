@@ -16,11 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -126,5 +130,26 @@ abstract public class AbstractSaveDialog extends Window
                             });
         button.setId(SAVE_BUTTON_ID);
         return button;
+    }
+
+    @Override
+    protected void onRender(Element parent, int pos)
+    {
+        super.onRender(parent, pos);
+        setFocusToFirstField(form.getFields());
+    }
+
+    public static void setFocusToFirstField(List<Field<?>> fields)
+    {
+        int fieldNumber = 0;
+        while (fieldNumber < fields.size())
+        {
+            Field<?> field = fields.get(fieldNumber);
+            if (field.isEnabled())
+            {
+                field.focus();
+                return;
+            }
+        }
     }
 }
