@@ -8,7 +8,7 @@
 # Check dependencies to openbis
 
 [dss] = ${dss}.*
-[private_openbis] = ${openbis}.* excluding [dss] ${openbis}.dss.generic.shared.* ${openbis}.generic.shared.*
+[private_openbis] = ${openbis}.* excluding [dss] ${openbis}.dss.generic.shared.* ${openbis}.generic.shared.* ${openbis}.dss.generic.server.plugins.*
 
 check sets [dss]
 
