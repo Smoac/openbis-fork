@@ -42,14 +42,14 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
     })
 @NamedNativeQueries(value =
     {
-            @NamedNativeQuery(name = "space_sample_access", query = "SELECT DISTINCT g.code as groupCode, null as databaseInstanceCode "
+            @NamedNativeQuery(name = "space_sample_access", query = "SELECT DISTINCT g.code as dummyId, g.code as groupCode, null as databaseInstanceCode "
                     + "FROM "
                     + TableNames.SAMPLES_TABLE
                     + " s, "
                     + TableNames.GROUPS_TABLE
                     + " g "
                     + "WHERE s.id in (:ids) and s.grou_id = g.id", resultSetMapping = "implicit1"),
-            @NamedNativeQuery(name = "shared_sample_access", query = "SELECT DISTINCT dbi.code as databaseInstanceCode, null as groupCode "
+            @NamedNativeQuery(name = "shared_sample_access", query = "SELECT DISTINCT dbi.code as dummyId, dbi.code as databaseInstanceCode, null as groupCode "
                     + "FROM "
                     + TableNames.SAMPLES_TABLE
                     + " s, "
@@ -60,6 +60,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
     })
 public class SampleAccessPE
 {
+    private String dummyId;
+
     private String groupCode;
 
     private String databaseInstanceCode;
@@ -82,17 +84,14 @@ public class SampleAccessPE
         return newMe;
     }
 
-    void setGroupCode(String groupCode)
-    {
-        this.groupCode = groupCode;
-    }
-
-    void setDatabaseInstanceCode(String databaseInstanceCode)
-    {
-        this.databaseInstanceCode = databaseInstanceCode;
-    }
-
+    // WORKAROUND we need a dummy id that is not null
+    // otherwise null will be returned instead of entity when listing
     @Id
+    String getDummyId()
+    {
+        return dummyId;
+    }
+
     public String getGroupCode()
     {
         return groupCode;
@@ -101,6 +100,21 @@ public class SampleAccessPE
     public String getDatabaseInstanceCode()
     {
         return databaseInstanceCode;
+    }
+
+    void setDummyId(String dummyId)
+    {
+        this.dummyId = dummyId;
+    }
+
+    void setGroupCode(String groupCode)
+    {
+        this.groupCode = groupCode;
+    }
+
+    void setDatabaseInstanceCode(String databaseInstanceCode)
+    {
+        this.databaseInstanceCode = databaseInstanceCode;
     }
 
     //
