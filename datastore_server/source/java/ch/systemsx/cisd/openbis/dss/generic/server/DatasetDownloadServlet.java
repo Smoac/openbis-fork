@@ -351,9 +351,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             RenderingContext newRenderingContext =
                     new RenderingContext(renderingContext.getRootDir(), renderingContext
                             .getUrlPrefix(), newRelativePath);
-
-            renderPage(rendererFactory, response, dataSetCode, newRenderingContext, requestParams,
-                    session);
+            autoResolveRedirect(response, newRenderingContext);
         } else if (AutoResolveUtils.continueAutoResolving(requestParams.tryGetMainDataSetPattern(),
                 dir))
         {
@@ -366,13 +364,22 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             RenderingContext newRenderingContext =
                     new RenderingContext(renderingContext.getRootDir(), renderingContext
                             .getUrlPrefix(), newRelativePath);
-
-            renderPage(rendererFactory, response, dataSetCode, newRenderingContext, requestParams,
-                    session);
+            autoResolveRedirect(response, newRenderingContext);
         } else
         {
             createPage(rendererFactory, response, dataSet, renderingContext, dir);
         }
+    }
+
+    private static void autoResolveRedirect(HttpServletResponse response,
+            RenderingContext newContext) throws IOException
+    {
+        String newLocation = newContext.getUrlPrefix() + "/" + newContext.getRelativePathOrNull();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Auto resolve redirect: " + newLocation);
+        }
+        response.sendRedirect(response.encodeRedirectURL(newLocation));
     }
 
     private void createPage(IRendererFactory rendererFactory, HttpServletResponse response,
