@@ -8,9 +8,8 @@ function print_result {
 }
 
 echo Testing Screening Workflow
-#./test-screening.sh $@
-#result_hcs=$?
-result_hcs=0
+./test-screening.sh $@
+result_hcs=$?
 print_result $result_hcs
 
 echo Testing YeastX Workflow
