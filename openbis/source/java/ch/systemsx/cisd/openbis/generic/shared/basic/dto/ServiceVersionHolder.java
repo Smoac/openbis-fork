@@ -24,5 +24,5 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 public final class ServiceVersionHolder
 {
 
-    public static final int VERSION = 14; // for S80
+    public static final int VERSION = 15; // for S85
 }
