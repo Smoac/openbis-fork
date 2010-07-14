@@ -52,16 +52,17 @@ public class SampleTechIdCollectionPredicate extends
 
         for (SampleAccessPE accessDatum : accessData)
         {
-            String groupCode = accessDatum.getGroupCode();
-            String dbInstanceCode = accessDatum.getDatabaseInstanceCode();
-            if (groupCode != null)
+            String ownerCode = accessDatum.getOwnerCode();
+            switch (accessDatum.getOwnerType())
             {
-                ownerIds.add(new SampleOwnerIdentifier(new SpaceIdentifier(
-                        DatabaseInstanceIdentifier.createHome(), groupCode)));
-            } else
-            {
-                ownerIds.add(new SampleOwnerIdentifier(new DatabaseInstanceIdentifier(
-                        dbInstanceCode)));
+                case SPACE:
+                    ownerIds.add(new SampleOwnerIdentifier(new SpaceIdentifier(
+                            DatabaseInstanceIdentifier.createHome(), ownerCode)));
+                    break;
+                case DATABASE_INSTANCE:
+                    ownerIds.add(new SampleOwnerIdentifier(
+                            new DatabaseInstanceIdentifier(ownerCode)));
+                    break;
             }
         }
 
@@ -71,7 +72,7 @@ public class SampleTechIdCollectionPredicate extends
     @Override
     public final String getCandidateDescription()
     {
-        return "sample technical ids"; 
+        return "sample technical ids";
     }
 
 }

@@ -26,6 +26,7 @@ import javax.persistence.SqlResultSetMappings;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * A PE for retrieving only the information necessary to determine if a user/person can access a
@@ -42,14 +43,14 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
     })
 @NamedNativeQueries(value =
     {
-            @NamedNativeQuery(name = "space_sample_access", query = "SELECT DISTINCT g.code as dummyId, g.code as groupCode, null as databaseInstanceCode "
+            @NamedNativeQuery(name = "space_sample_access", query = "SELECT DISTINCT g.code as ownerCode, 'SPACE' as ownerType "
                     + "FROM "
                     + TableNames.SAMPLES_TABLE
                     + " s, "
                     + TableNames.GROUPS_TABLE
                     + " g "
                     + "WHERE s.id in (:ids) and s.grou_id = g.id", resultSetMapping = "implicit1"),
-            @NamedNativeQuery(name = "shared_sample_access", query = "SELECT DISTINCT dbi.code as dummyId, dbi.code as databaseInstanceCode, null as groupCode "
+            @NamedNativeQuery(name = "shared_sample_access", query = "SELECT DISTINCT dbi.code as ownerCode, 'DATABASE_INSTANCE' as ownerType "
                     + "FROM "
                     + TableNames.SAMPLES_TABLE
                     + " s, "
@@ -60,11 +61,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
     })
 public class SampleAccessPE
 {
-    private String dummyId;
-
-    private String groupCode;
-
-    private String databaseInstanceCode;
 
     public final static String SPACE_SAMPLE_ACCESS_QUERY_NAME = "space_sample_access";
 
@@ -72,49 +68,58 @@ public class SampleAccessPE
 
     public final static String SAMPLE_IDS_PARAMETER_NAME = "ids";
 
+    public enum SampleOwnerType
+    {
+        SPACE, DATABASE_INSTANCE
+    }
+
+    private String ownerCode;
+
+    private SampleOwnerType ownerType;
+
     /**
      * A factory method that should only be used for testing.
      */
-    public static SampleAccessPE createSampleAccessPEForTest(String dataSetId, String dataSetCode,
-            String groupCode, String databaseInstanceCode)
+    public static SampleAccessPE createSpaceSampleAccessPEForTest(String dataSetId,
+            String dataSetCode, String groupCode)
     {
         SampleAccessPE newMe = new SampleAccessPE();
-        newMe.setGroupCode(groupCode);
-        newMe.setDatabaseInstanceCode(databaseInstanceCode);
+        newMe.setOwnerType(SampleOwnerType.SPACE);
+        newMe.setOwnerCode(groupCode);
         return newMe;
     }
 
-    // WORKAROUND we need a dummy id that is not null
-    // otherwise null will be returned instead of entity when listing
+    /**
+     * A factory method that should only be used for testing.
+     */
+    public static SampleAccessPE createSharedSampleAccessPEForTest(String dataSetId,
+            String dataSetCode, String databaseInstanceCode)
+    {
+        SampleAccessPE newMe = new SampleAccessPE();
+        newMe.setOwnerType(SampleOwnerType.DATABASE_INSTANCE);
+        newMe.setOwnerCode(databaseInstanceCode);
+        return newMe;
+    }
+
     @Id
-    String getDummyId()
+    public String getOwnerCode()
     {
-        return dummyId;
+        return ownerCode;
     }
 
-    public String getGroupCode()
+    public void setOwnerCode(String ownerCode)
     {
-        return groupCode;
+        this.ownerCode = ownerCode;
     }
 
-    public String getDatabaseInstanceCode()
+    public SampleOwnerType getOwnerType()
     {
-        return databaseInstanceCode;
+        return ownerType;
     }
 
-    void setDummyId(String dummyId)
+    public void setOwnerType(SampleOwnerType ownerType)
     {
-        this.dummyId = dummyId;
-    }
-
-    void setGroupCode(String groupCode)
-    {
-        this.groupCode = groupCode;
-    }
-
-    void setDatabaseInstanceCode(String databaseInstanceCode)
-    {
-        this.databaseInstanceCode = databaseInstanceCode;
+        this.ownerType = ownerType;
     }
 
     //
@@ -134,8 +139,8 @@ public class SampleAccessPE
         }
         final SampleAccessPE that = (SampleAccessPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getGroupCode(), that.getGroupCode());
-        builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
+        builder.append(getOwnerType(), that.getOwnerType());
+        builder.append(getOwnerCode(), that.getOwnerCode());
         return builder.isEquals();
     }
 
@@ -143,8 +148,15 @@ public class SampleAccessPE
     public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getGroupCode());
-        builder.append(getDatabaseInstanceCode());
+        builder.append(getOwnerType());
+        builder.append(getOwnerCode());
         return builder.toHashCode();
     }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
 }
