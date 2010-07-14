@@ -231,7 +231,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
                     "Cannot find a sample to which a plate should be (directly or indirectly) connected: "
                             + dataSetInformation);
         }
-        return ScreeningContainerDatasetInfo.createBasicScreeningDatasetInfo(dataSetInformation,
+        return ScreeningContainerDatasetInfo.createScreeningDatasetInfoWithSample(dataSetInformation,
                 sampleOrNull);
     }
 

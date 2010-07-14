@@ -115,7 +115,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
             DataSetInformation dataSetInformation)
     {
         Sample sampleOrNull = tryFindSampleForDataSet(dataSetInformation);
-        return ScreeningContainerDatasetInfo.createBasicScreeningDatasetInfo(dataSetInformation,
+        return ScreeningContainerDatasetInfo.createScreeningDatasetInfoWithSample(dataSetInformation,
                 sampleOrNull);
     }
 

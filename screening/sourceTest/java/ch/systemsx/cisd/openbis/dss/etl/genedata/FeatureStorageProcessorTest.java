@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.genedata;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -88,9 +89,6 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
 
                     one(dao).tryGetContainerIdPermId(CONTAINER_PERM_ID);
                     will(returnValue((long) 1));
-
-                    one(dao).updateContainerEmptySpots(1, 0, 0);
-                    one(dao).commit();
 
                     ImgDatasetDTO dataSetDTO = new ImgDatasetDTO(DATA_SET_PERM_ID, 3, 2, 1);
                     dataSetDTO.setId(1);
@@ -217,6 +215,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         entityProperty.setPropertyType(propertyType);
         entityProperty.setValue("A_2X2");
         properties[0] = entityProperty;
+        sample.setProperties(Arrays.asList(properties));
         dataSetInfo.setProperties(properties);
         return dataSetInfo;
     }

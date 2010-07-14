@@ -114,38 +114,54 @@ public class ScreeningContainerDatasetInfo
     public static ScreeningContainerDatasetInfo createScreeningDatasetInfo(
             DataSetInformation dataSetInformation)
     {
-        Experiment experiment = dataSetInformation.tryToGetExperiment();
-        ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
-        info.setExperimentPermId(experiment.getPermId());
         Sample sample = dataSetInformation.tryToGetSample();
         assert sample != null : "no sample connected to a dataset";
-        info.setContainerPermId(sample.getPermId());
-        info.setDatasetPermId(dataSetInformation.getDataSetCode());
-
         PlateDimension plateGeometry = getPlateGeometry(dataSetInformation);
-        int plateRows = plateGeometry.getRowsNum();
-        int plateCols = plateGeometry.getColsNum();
-        info.setContainerRows(plateRows);
-        info.setContainerColumns(plateCols);
-
+        ScreeningContainerDatasetInfo info =
+                createBasicScreeningDataSetInfo(dataSetInformation, sample, plateGeometry);
         return info;
     }
 
     /**
-     * Create a screening data set info without plate gemometry information.
+     * Create a screening data set info given sample.
      */
-    public static ScreeningContainerDatasetInfo createBasicScreeningDatasetInfo(
+    public static ScreeningContainerDatasetInfo createScreeningDatasetInfoWithSample(
             DataSetInformation dataSetInformation, Sample containingSample)
+    {
+        Sample sample = containingSample;
+        assert sample != null : "no sample connected to a dataset";
+        PlateDimension plateGeometry = getPlateGeometry(sample);
+        ScreeningContainerDatasetInfo info =
+                createBasicScreeningDataSetInfo(dataSetInformation, sample, plateGeometry);
+        return info;
+    }
+
+    private static ScreeningContainerDatasetInfo createBasicScreeningDataSetInfo(
+            DataSetInformation dataSetInformation, Sample sample, PlateDimension plateGeometry)
     {
         Experiment experiment = dataSetInformation.tryToGetExperiment();
         ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
         info.setExperimentPermId(experiment.getPermId());
-        Sample sample = containingSample;
-        assert sample != null : "no sample connected to a dataset";
         info.setContainerPermId(sample.getPermId());
         info.setDatasetPermId(dataSetInformation.getDataSetCode());
-
+        info.setContainerRows(plateGeometry.getRowsNum());
+        info.setContainerColumns(plateGeometry.getColsNum());
         return info;
+    }
+
+    private static PlateDimension getPlateGeometry(Sample sample)
+    {
+        final IEntityProperty[] sampleProperties =
+                (sample.getProperties()).toArray(new IEntityProperty[0]);
+        final PlateDimension plateDimension =
+                PlateDimensionParser.tryToGetPlateDimension(sampleProperties);
+        if (plateDimension == null)
+        {
+            throw new EnvironmentFailureException(
+                    "Missing plate geometry for the plate registered for sample identifier '"
+                            + sample.getIdentifier() + "'.");
+        }
+        return plateDimension;
     }
 
     static PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
