@@ -194,10 +194,8 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             createMetaDataFileAndHartLinkInTransferDropBox(flowLaneDataSet, flowLaneSample,
                     flowLane, srfInfo);
             File srf_infoFile = new File(file.getParentFile(), SRF_INFO_OUTPUT_FILE);
-            for (int i = 0; i < srfInfo.size(); ++i)
-            {
-                FileUtilities.writeToFile(srf_infoFile, srfInfo.get(i));
-            }
+            FileUtilities.writeToFile(srf_infoFile, srfInfo.toString());
+
             File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName);
             addFileForUndo(markerFile);
             FileUtilities.writeToFile(markerFile, "");
