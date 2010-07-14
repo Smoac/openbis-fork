@@ -30,7 +30,10 @@ API_HCS=$WORK/screening_api
 # Prepare template incoming data and some destination data structures
 function prepare_data_first_phase {
 		rm -fr $DSS_INCOMING_PARENT_DIR/incoming*
-		unzip -q $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR -x incoming-analysis*/*
+		mkdir $DSS_INCOMING_PARENT_DIR/incoming-analysis-genedata
+		mkdir $DSS_INCOMING_PARENT_DIR/incoming-images-merged-channels
+		mkdir $DSS_INCOMING_PARENT_DIR/incoming-images-split-channels
+		unzip -q $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR -x incoming-analysis-genedata/* incoming-images*channels/*
 		mkdir -p $DSS_INCOMING_PARENT_DIR/incoming-analysis-genedata
 		mkdir -p $DSS_INCOMING_PARENT_DIR/incoming-analysis
     chmod -R 700 $DSS_INCOMING_PARENT_DIR/incoming*
@@ -38,7 +41,7 @@ function prepare_data_first_phase {
 
 function prepare_data_second_phase {
 		unzip -q $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR incoming-analysis-genedata/*
-		unzip -q $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR incoming-analysis/*
+		unzip -q $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR incoming-images*channels/*
     chmod -R 700 $DSS_INCOMING_PARENT_DIR/incoming*
 }
 
@@ -90,7 +93,7 @@ function install_screening_api {
 		rm -fr $API_HCS
 		mkdir -p $API_HCS
 		# unzip only jar files
-		unzip $INSTALL/screening-api*.zip -x *.zip -d $API_HCS
+		unzip -q $INSTALL/screening-api*.zip -x *.zip -d $API_HCS
 }
 
 function install_screening {
@@ -125,8 +128,9 @@ function integration_tests_screening {
 
     prepare_data_first_phase
     switch_dss "on" datastore_server_screening
-	sleep 30
-	prepare_data_second_phase
+    sleep 30
+    assertSpotSizes "0x0,24x16" 
+    prepare_data_second_phase
   	sleep 15
 	  
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-analysis
@@ -138,12 +142,20 @@ function integration_tests_screening {
     local datasets=`find $DSS_INCOMING_PARENT_DIR/store -name "original" | wc -l | tr -d " "`; 
     assert_equals "Wrong number of registered datasets" 5 $datasets
     
-    # TODO: uncomment and add a check if the results are correct 
+    # TODO: uncomment and add a check if the results are correct
+    assertSpotSizes "24x16,24x16,24x16" 
     test_screening_api
     
     switch_dss "off" datastore_server_screening
     shutdown_openbis_server $OPENBIS_SERVER_HCS
     exit_if_assertion_failed
+}
+
+function assertSpotSizes {
+    answer=`psql -tA --field-separator='x' --record-separator=',' -U postgres -d imaging_integration_tests \
+            -c "select spots_width,spots_height from containers order by spots_width"`
+    
+    assert_equals "spot sizes" "$1" $answer 
 }
 
 # can be called after integration tests are done just to check the API results
