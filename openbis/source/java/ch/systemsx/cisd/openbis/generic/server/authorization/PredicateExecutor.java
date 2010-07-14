@@ -198,6 +198,7 @@ public final class PredicateExecutor
         }
     }
 
+    // TODO 2010-07-14, Piotr Buczek: write tests for nontrivial methods
     private static final class AuthorizationDataProvider implements IAuthorizationDataProvider
     {
         private final IAuthorizationDAOFactory daoFactory;
