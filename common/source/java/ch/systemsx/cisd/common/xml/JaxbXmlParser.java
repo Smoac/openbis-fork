@@ -35,6 +35,8 @@ import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
 /**
  * Loads an XML file to the bean of the specified class. The bean should be annotated with JAXB
  * annotations.
+ * <p>
+ * NOTE: It is not thread safe as it holds {@link Unmarshaller} instance.
  * 
  * @author Tomasz Pylak
  */
@@ -47,11 +49,17 @@ public class JaxbXmlParser<T>
     private static final boolean EXPLICITLY_SET_DESTINATION = false;
 
     /**
+     * NOTE: The implementation is creating an unmarshaller for every file that will be parsed. It
+     * is very inefficient especially when parsing many small files with the same schema at once
+     * (creating unmarshaller can take even 10x more time than parsing a file, not to mention
+     * validation). It is better to create {@link JaxbXmlParser} once and call
+     * {@link JaxbXmlParser#doParse(File)} for every file. On the other hand Unmarshaller is not
+     * thread safe so pooling may be needed in some cases.
+     * 
      * @param validate if true the parsed xml will be validated with the XML Schema. It is expected
      *            that the "schema.xsd" file with XML Schema can be found in the same folder as the
      *            specified bean class.
      */
-    // FIXME 2010-07-12, Piotr Buczek: creating unmarshaller for every file is very inefficient!!!
     public static <T> T parse(Class<T> beanClass, File dataSet, boolean validate)
     {
         JaxbXmlParser<T> parser = new JaxbXmlParser<T>(beanClass, validate);
@@ -68,7 +76,7 @@ public class JaxbXmlParser<T>
 
     private final Class<T> beanClass;
 
-    private JaxbXmlParser(Class<T> beanClass, boolean validate)
+    public JaxbXmlParser(Class<T> beanClass, boolean validate)
     {
         this.beanClass = beanClass;
         this.unmarshaller = createUnmarshaller(beanClass);
@@ -136,7 +144,7 @@ public class JaxbXmlParser<T>
         }
     }
 
-    private T doParse(File file)
+    public T doParse(File file)
     {
         try
         {
@@ -152,7 +160,7 @@ public class JaxbXmlParser<T>
         }
     }
 
-    private T doParseSpecifyingDestinationClass(File file)
+    public T doParseSpecifyingDestinationClass(File file)
     {
         try
         {

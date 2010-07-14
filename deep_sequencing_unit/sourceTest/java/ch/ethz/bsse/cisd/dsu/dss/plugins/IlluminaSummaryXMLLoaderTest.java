@@ -33,7 +33,8 @@ public class IlluminaSummaryXMLLoaderTest extends AbstractFileSystemTestCase
     {
         File file = new File(workingDirectory, "test.xml");
         FileUtilities.writeToFile(file, EXAMPLE);
-        IlluminaSummary summary = IlluminaSummaryXMLLoader.readSummaryXML(file, false);
+        IlluminaSummary summary =
+                IlluminaSummaryReportingPlugin.IlluminaSummaryXMLLoader.readSummaryXML(file);
 
         ChipResultsSummary chipResultsSummary = summary.getChipResultsSummary();
         assertEquals(new Long(98792458L), chipResultsSummary.getClusterCountPF());

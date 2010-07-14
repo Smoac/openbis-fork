@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.xml.JaxbXmlParser;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
@@ -87,7 +88,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
     private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset,
             File summaryFile)
     {
-        IlluminaSummary summary = IlluminaSummaryXMLLoader.readSummaryXML(summaryFile, false);
+        IlluminaSummary summary = IlluminaSummaryXMLLoader.readSummaryXML(summaryFile);
         describeSummary(builder, dataset, summary);
     }
 
@@ -121,6 +122,28 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
                     return file.isFile() && file.getName().equals(SUMMARY_FILE_NAME);
                 }
             };
+    }
+
+    /**
+     * Loader of Illumina summary XML file.
+     * <p>
+     * NOTE: This is not thread safe as it holds {@link JaxbXmlParser} singleton. As long as it is
+     * used only by {@link IlluminaSummaryReportingPlugin} it will work correctly because we only
+     * use a singleto of each reporting plugin.
+     * 
+     * @author Piotr Buczek
+     */
+    static class IlluminaSummaryXMLLoader
+    {
+        // we use one instance
+        private static JaxbXmlParser<IlluminaSummary> PARSER_INSTANCE =
+                new JaxbXmlParser<IlluminaSummary>(IlluminaSummary.class, false);
+
+        public static IlluminaSummary readSummaryXML(File summaryXml)
+        {
+            return PARSER_INSTANCE.doParse(summaryXml);
+        }
+
     }
 
 }
