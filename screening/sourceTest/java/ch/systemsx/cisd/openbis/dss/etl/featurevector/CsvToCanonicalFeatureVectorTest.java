@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.AssertJUnit;
@@ -28,11 +29,14 @@ import org.testng.annotations.Test;
 
 import com.csvreader.CsvReader;
 
+import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -44,11 +48,35 @@ public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
     {
         CsvToCanonicalFeatureVectorConfiguration config =
                 new CsvToCanonicalFeatureVectorConfiguration("WellName", "WellName", true);
-        CsvToCanonicalFeatureVector convertor =
+        CsvToCanonicalFeatureVector converter =
                 new CsvToCanonicalFeatureVector(getDatasetFileLines(), config);
-        ArrayList<CanonicalFeatureVector> fvs = convertor.convert();
-        // Not all the the columns contain numerical data
+        ArrayList<CanonicalFeatureVector> fvs = converter.convert();
+        // Not all the columns contain numerical data
         assertEquals(16, fvs.size());
+        // Check total cells feature
+        CanonicalFeatureVector totalCells = fvs.get(0);
+        ImgFeatureDefDTO def = totalCells.getFeatureDef();
+        assertEquals("TotalCells", def.getName());
+        assertEquals(1, totalCells.getValues().size());
+        ImgFeatureValuesDTO values = totalCells.getValues().get(0);
+        MDDoubleArray darr = values.getValuesDoubleArray();
+        assertTrue("Dimensions are " + Arrays.toString(darr.dimensions()), Arrays.equals(new int[]
+            { 16, 24 }, darr.dimensions()));
+        assertEquals(2825.0, darr.get(0, 0));
+        assertEquals(5544.0, darr.get(0, 1));
+        assertEquals(5701.0, darr.get(1, 0));
+        // Check InfectionIndex
+        CanonicalFeatureVector infectionIndex = fvs.get(2);
+        def = infectionIndex.getFeatureDef();
+        assertEquals("InfectionIndex", def.getName());
+        assertEquals(1, infectionIndex.getValues().size());
+        values = infectionIndex.getValues().get(0);
+        darr = values.getValuesDoubleArray();
+        assertTrue("Dimensions are " + Arrays.toString(darr.dimensions()), Arrays.equals(new int[]
+            { 16, 24 }, darr.dimensions()));
+        assertEquals(0.009558, darr.get(0, 0));
+        assertEquals(0.037157, darr.get(0, 1));
+        assertEquals(0.001052, darr.get(1, 0));
     }
 
     /**

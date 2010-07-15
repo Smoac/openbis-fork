@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
-import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.geometry.ConversionUtils;
 import ch.systemsx.cisd.common.geometry.Point;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
@@ -190,32 +190,22 @@ public class CsvToCanonicalFeatureVector
 
     private Point readPointFromLine(String[] line)
     {
-        int x, y;
         if (configuration.isSplit())
         {
             String xString = line[xColumn];
             String yString = line[yColumn];
             if (configuration.isWellColumnAlphanumeric())
             {
-                Location loc =
-                        Location.tryCreateLocationFromSplitMatrixCoordinate(xString, yString);
-                x = loc.getX();
-                y = loc.getY();
+                return ConversionUtils.parseSpreadsheetLocation(xString + yString);
             } else
             {
-                x = Integer.parseInt(xString);
-                y = Integer.parseInt(yString);
+                // Well-locations are 1-offset; we need 0-offset to put into an matrix
+                return new Point(Integer.parseInt(xString) - 1, Integer.parseInt(yString) - 1);
             }
         } else
         {
-            Location loc = Location.tryCreateLocationFromMatrixCoordinate(line[xColumn]);
-            x = loc.getX();
-            y = loc.getY();
+            return ConversionUtils.parseSpreadsheetLocation(line[xColumn]);
         }
-
-        // Well-locations are 1-offset; we need 0-offset to put into an matrix
-        Point point = new Point(x - 1, y - 1);
-        return point;
     }
 
     private void initializeColumns()
