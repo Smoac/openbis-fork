@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
+import java.net.URLDecoder;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -63,7 +65,13 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
     {
         final int version =
                 Integer.parseInt(request.getParameter(GenericConstants.VERSION_PARAMETER));
-        final String fileName = request.getParameter(GenericConstants.FILE_NAME_PARAMETER);
+        String name = request.getParameter(GenericConstants.FILE_NAME_PARAMETER);
+        String encoding = request.getCharacterEncoding();
+        if (encoding == null)
+        {
+            encoding = "ISO-8859-1";
+        }
+        final String fileName = URLDecoder.decode(name, encoding);
         final String techIdString = request.getParameter(GenericConstants.TECH_ID_PARAMETER);
         final String attachmentHolderKind =
                 request.getParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER);
