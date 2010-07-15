@@ -187,10 +187,15 @@ public class TabSeparatedValueTable
             return null;
         }
         List<String> row = getRowCells(line);
+        // remove trailing empty cells beyond number of headers
+        while (row.size() > headers.size() && row.get(row.size() - 1).length() == 0)
+        {
+            row.remove(row.size() - 1);
+        }
         if (strictRowSize && row.size() != headers.size())
         {
             throw new UserFailureException(rowLineIterator.getCurrentLineNumber() - 1
-                    + ". row has " + row.size() + " instead of " + headers.size() + " cells.");
+                    + ". data row has " + row.size() + " instead of " + headers.size() + " cells.");
         }
         for (int i = row.size(); i < headers.size(); i++)
         {
