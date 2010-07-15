@@ -215,12 +215,12 @@ public class GenedataFormatToCanonicalFeatureVector
             // of columns
             for (int i = 1; i < lines.size(); ++i)
             {
-                pasrseLine(lines.get(i), i);
+                parseLine(lines.get(i), i);
             }
             numberOfRows = rowLetters.size();
         }
 
-        public void pasrseLine(String line, int lineIndex)
+        private void parseLine(String line, int lineIndex)
         {
             StringTokenizer tokenizer = new StringTokenizer(line);
             int countTokens = tokenizer.countTokens();
