@@ -34,7 +34,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * "stronger" role will also be able to access given server method)
  * </ol>
  * </p>
- * <h4>Example:</h4>To annotate an interface method with a new role e.g. <code>SERCRET_AGENT</code>:
+ * <h4>Example:</h4>To annotate an interface method with a new role e.g. <code>SECRET_AGENT</code>:
  * <ol>
  * <li>Add <code>SECRET_AGENT</code> to {@link RoleCode} enumerator.
  * <li>Add <code>SECRET_AGENT</code> to <code>authorization_role</code> domain in the database (and
