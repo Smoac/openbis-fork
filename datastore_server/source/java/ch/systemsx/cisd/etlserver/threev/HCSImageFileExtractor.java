@@ -129,7 +129,7 @@ public final class HCSImageFileExtractor implements IHCSImageFileExtractor
      */
     private final static Location tryGetPlateLocation(final String value)
     {
-        return Location.tryCreateLocationFromMatrixCoordinate(value);
+        return Location.tryCreateLocationFromTransposedMatrixCoordinate(value);
     }
 
     /**

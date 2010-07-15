@@ -69,7 +69,7 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
      */
     protected Location tryGetPlateLocation(final String plateLocation)
     {
-        return Location.tryCreateLocationFromMatrixCoordinate(plateLocation);
+        return Location.tryCreateLocationFromTransposedMatrixCoordinate(plateLocation);
     }
 
     // -------------------------------

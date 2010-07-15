@@ -202,7 +202,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
                 element.y = Integer.parseInt(line[yColumn]);
             } else
             {
-                Location loc = Location.tryCreateLocationFromMatrixCoordinate(line[xColumn]);
+                Location loc = Location.tryCreateLocationFromTransposedMatrixCoordinate(line[xColumn]);
                 // Transpose the x and y
                 element.x = loc.getY();
                 element.y = loc.getX();

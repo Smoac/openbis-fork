@@ -36,7 +36,7 @@ public class ScreeningUtils
 {
     public static WellLocation tryCreateLocationFromMatrixCoordinate(String wellCode)
     {
-        Location loc = Location.tryCreateLocationFromMatrixCoordinate(wellCode);
+        Location loc = Location.tryCreateLocationFromTransposedMatrixCoordinate(wellCode);
         if (loc == null)
         {
             return null;

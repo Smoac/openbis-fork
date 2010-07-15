@@ -94,12 +94,12 @@ public final class LocationTest
     @Test
     public final void testCreateLocationFromMatrixCoordinate()
     {
-        assertNull(Location.tryCreateLocationFromMatrixCoordinate(""));
-        assertNull(Location.tryCreateLocationFromMatrixCoordinate("8"));
-        assertNull(Location.tryCreateLocationFromMatrixCoordinate("M"));
-        assertEquals(new Location(2, 1), Location.tryCreateLocationFromMatrixCoordinate("A02"));
-        assertEquals(new Location(7, 26), Location.tryCreateLocationFromMatrixCoordinate("z7"));
-        assertEquals(new Location(34, 15), Location.tryCreateLocationFromMatrixCoordinate("O34"));
+        assertNull(Location.tryCreateLocationFromTransposedMatrixCoordinate(""));
+        assertNull(Location.tryCreateLocationFromTransposedMatrixCoordinate("8"));
+        assertNull(Location.tryCreateLocationFromTransposedMatrixCoordinate("M"));
+        assertEquals(new Location(2, 1), Location.tryCreateLocationFromTransposedMatrixCoordinate("A02"));
+        assertEquals(new Location(7, 26), Location.tryCreateLocationFromTransposedMatrixCoordinate("z7"));
+        assertEquals(new Location(34, 15), Location.tryCreateLocationFromTransposedMatrixCoordinate("O34"));
     }
 
     @Test

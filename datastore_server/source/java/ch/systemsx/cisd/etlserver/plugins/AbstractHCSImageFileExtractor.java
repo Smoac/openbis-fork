@@ -273,7 +273,7 @@ abstract public class AbstractHCSImageFileExtractor
      */
     protected Location tryGetPlateLocation(final String plateLocation)
     {
-        return Location.tryCreateLocationFromMatrixCoordinate(plateLocation);
+        return Location.tryCreateLocationFromTransposedMatrixCoordinate(plateLocation);
     }
 
 }

@@ -75,12 +75,13 @@ public final class Location
     }
 
     /**
-     * For given matrix <var>coordinate</var> in given <code>geometry</code> returns corresponding
-     * <code>Location</code>.
+     * For given matrix <var>coordinate</var> (<strong>which is given in transposed form</strong>)
+     * returns corresponding <code>Location</code>.
      * 
      * @return <code>null</code> if given <var>coordinate</var> is not a matrix coordinate.
      */
-    public static final Location tryCreateLocationFromMatrixCoordinate(final String coordinate)
+    public static final Location tryCreateLocationFromTransposedMatrixCoordinate(
+            final String coordinate)
     {
         try
         {
@@ -94,14 +95,15 @@ public final class Location
 
     /**
      * Do the matrix coordinate conversion for coordinates that are specified this way, but in two
-     * columns
+     * columns. <strong>Note that first the <var>columnCoord</var> is given and then the
+     * <var>rowCoord</var>.
      * 
      * @return <code>null</code> if given <var>coordinate</var> is not a matrix coordinate.
      */
-    public static final Location tryCreateLocationFromSplitMatrixCoordinate(
+    public static final Location tryCreateLocationFromTransposedSplitMatrixCoordinate(
             final String columnCoord, final String rowCoord)
     {
-        return tryCreateLocationFromMatrixCoordinate(columnCoord + rowCoord);
+        return tryCreateLocationFromTransposedMatrixCoordinate(columnCoord + rowCoord);
     }
 
     /**
