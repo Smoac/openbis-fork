@@ -720,6 +720,7 @@ public class DatasetDownloadServletTest
         properties.setProperty(ConfigParameters.KEYSTORE_PATH_KEY, "/");
         properties.setProperty(ConfigParameters.KEYSTORE_PASSWORD_KEY, "x");
         properties.setProperty(ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY, "y");
+        properties.setProperty(ConfigParameters.DOWNLOAD_URL, "http://localhost:8080");
         ConfigParameters configParameters = new ConfigParameters(properties);
         return new DatasetDownloadServlet(new ApplicationContext(dataSetService, configParameters));
     }

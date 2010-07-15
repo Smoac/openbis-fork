@@ -193,6 +193,7 @@ public class DataStoreServer
         String applicationName = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
         context.addServlet(new ServletHolder(new DataStoreServlet()), "/"
                 + DATA_STORE_SERVER_SERVICE_NAME + "/*");
+        DatasetDownloadServlet.setDownloadUrl(configParameters.getDownloadURL());
         context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
 
         initializeRpcServices(context, applicationContext, configParameters);

@@ -63,6 +63,19 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
 
     static final String MAIN_DATA_SET_PATTERN_KEY = "mdsPattern";
 
+    private static String DOWNLOAD_URL;
+    
+    static void setDownloadUrl(String downloadUrl)
+    {
+        if (downloadUrl.endsWith("/"))
+        {
+            DOWNLOAD_URL = downloadUrl;
+        } else
+        {
+            DOWNLOAD_URL = downloadUrl + "/";
+        }
+    }
+
     private static final Comparator<File> FILE_COMPARATOR = new Comparator<File>()
         {
             public int compare(File file1, File file2)
@@ -374,7 +387,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     private static void autoResolveRedirect(HttpServletResponse response,
             RenderingContext newContext) throws IOException
     {
-        String newLocation = newContext.getUrlPrefix() + "/" + newContext.getRelativePathOrNull();
+        final String newLocation =
+                DOWNLOAD_URL + newContext.getUrlPrefix() + "/" + newContext.getRelativePathOrNull();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Auto resolve redirect: '%s', context: %s",

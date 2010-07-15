@@ -48,6 +48,8 @@ final class ConfigParameters
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
     static final String SESSION_TIMEOUT_KEY = "session-timeout";
+    
+    static final String DOWNLOAD_URL = "download-url";
 
     private static final String KEYSTORE = "keystore.";
 
@@ -72,6 +74,8 @@ final class ConfigParameters
     private final int port;
 
     private final String serverURL;
+    
+    private final String downloadURL;
 
     private final int sessionTimeout;
 
@@ -135,6 +139,7 @@ final class ConfigParameters
         storePath = new File(PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY));
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
         serverURL = PropertyUtils.getMandatoryProperty(properties, SERVER_URL_KEY);
+        downloadURL = PropertyUtils.getMandatoryProperty(properties, DOWNLOAD_URL);
         sessionTimeout = getMandatoryIntegerProperty(properties, SESSION_TIMEOUT_KEY) * 60;
         useSSL = PropertyUtils.getBoolean(properties, USE_SSL, true);
         if (useSSL == true)
@@ -196,6 +201,11 @@ final class ConfigParameters
     public final String getServerURL()
     {
         return serverURL;
+    }
+
+    public String getDownloadURL()
+    {
+        return downloadURL;
     }
 
     public final int getSessionTimeout()
