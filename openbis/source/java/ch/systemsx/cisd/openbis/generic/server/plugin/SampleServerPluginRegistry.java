@@ -23,18 +23,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
  * A registry for sample server plug-ins.
- * <p>
- * Note that this class is instantiated via following <i>Spring</i> configuration entry:
- * 
- * <pre>
- * &lt;bean class=&quot;ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry&quot;
- *   factory-method=&quot;getInstance&quot; /&gt;
- * </pre>
- * 
- * making sure that we have one and only one instance of this class.
- * </p>
- * 
- * @author Christian Ribeaud
  */
 @Component(ResourceNames.SAMPLE_PLUGIN_REGISTRY)
 public final class SampleServerPluginRegistry extends AbstractPluginRegistry<ISampleServerPlugin>

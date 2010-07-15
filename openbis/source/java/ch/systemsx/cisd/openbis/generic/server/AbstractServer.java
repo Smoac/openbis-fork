@@ -67,6 +67,9 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Resource(name = ResourceNames.SAMPLE_PLUGIN_REGISTRY)
     private SampleServerPluginRegistry sampleServerPluginRegistry;
     
+    @Resource(name = ResourceNames.DATA_SET_PLUGIN_REGISTRY)
+    private DataSetServerPluginRegistry dataSetServerPluginRegistry;
+    
     // For testing purpose.
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
 
@@ -141,8 +144,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         {
             return dataSetTypeSlaveServerPlugin;
         }
-        return DataSetServerPluginRegistry.getInstance()
-                .getPlugin(EntityKind.DATA_SET, dataSetType).getSlaveServer();
+        return dataSetServerPluginRegistry.getPlugin(EntityKind.DATA_SET, dataSetType).getSlaveServer();
     }
 
     private final RoleAssignmentPE createInstanceAdminRoleAssigment(final PersonPE registrator,

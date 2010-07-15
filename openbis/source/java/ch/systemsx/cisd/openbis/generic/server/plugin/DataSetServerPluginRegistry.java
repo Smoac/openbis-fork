@@ -16,44 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.server.plugin;
 
+import org.springframework.stereotype.Component;
+
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+
 
 /**
  * A registry for data set server plug-ins.
- * <p>
- * Note that this class is instantiated via following <i>Spring</i> configuration entry:
- * 
- * <pre>
- * &lt;bean class=&quot;ch.systemsx.cisd.openbis.plugin.DataSetServerPluginRegistry&quot;
- *   factory-method=&quot;getInstance&quot; /&gt;
- * </pre>
- * 
- * making sure that we have one and only one instance of this class.
- * </p>
- *
- * @author     Franz-Josef Elmer
  */
+@Component(ResourceNames.DATA_SET_PLUGIN_REGISTRY)
 public class DataSetServerPluginRegistry extends AbstractPluginRegistry<IDataSetServerPlugin>
 {
-    private static DataSetServerPluginRegistry instance = new DataSetServerPluginRegistry();
-
-    private DataSetServerPluginRegistry()
-    {
-    }
-    
-    public static DataSetServerPluginRegistry init()
-    {
-        instance = new DataSetServerPluginRegistry();
-        return instance;
-    }
-
-    /**
-     * Returns the unique instance of this class.
-     */
-    public final static synchronized DataSetServerPluginRegistry getInstance()
-    {
-        return instance;
-    }
-
     @Override
     protected String getBeanNameOfGenericPlugin()
     {
