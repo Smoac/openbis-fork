@@ -377,7 +377,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         String newLocation = newContext.getUrlPrefix() + "/" + newContext.getRelativePathOrNull();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Auto resolve redirect: " + newLocation);
+            operationLog.info(String.format("Auto resolve redirect: '%s', context: %s",
+                    newLocation, newContext));
         }
         response.sendRedirect(response.encodeRedirectURL(newLocation));
     }

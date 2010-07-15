@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 final class RenderingContext
@@ -72,6 +74,12 @@ final class RenderingContext
     public final String getRelativeParentPath()
     {
         return relativeParentPath;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this);
     }
 
 }
