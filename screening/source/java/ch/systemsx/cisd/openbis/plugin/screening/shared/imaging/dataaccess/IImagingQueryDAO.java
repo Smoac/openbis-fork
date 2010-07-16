@@ -75,10 +75,10 @@ public interface IImagingQueryDAO extends TransactionQuery
     @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
     public int countChannelByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
-    @Select("select name from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by name")
+    @Select("select name from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by NAME")
     public String[] getChannelNamesByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
-    @Select(sql = "select id from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by name", fetchSize = FETCH_SIZE)
+    @Select(sql = "select id from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by NAME", fetchSize = FETCH_SIZE)
     public long[] getChannelIdsByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
     @Select(sql = "select * from CHANNELS where EXP_ID = ?{1} order by name", fetchSize = FETCH_SIZE)
@@ -87,10 +87,10 @@ public interface IImagingQueryDAO extends TransactionQuery
     @Select("select * from SPOTS where cont_id = ?{1}")
     public List<ImgSpotDTO> listSpots(long contId);
 
-    @Select("SELECT * from FEATURE_DEFS where DS_ID = ?{1}")
+    @Select("select * from FEATURE_DEFS where DS_ID = ?{1}")
     public List<ImgFeatureDefDTO> listFeatureDefsByDataSetId(long dataSetId);
 
-    @Select(value = "SELECT * from FEATURE_VALUES where FD_ID = ?{1.id}", resultSetBinding = FeatureVectorDataObjectBinding.class)
+    @Select(sql = "select * from FEATURE_VALUES where FD_ID = ?{1.id} order by T_in_SEC, Z_in_M", resultSetBinding = FeatureVectorDataObjectBinding.class)
     public List<ImgFeatureValuesDTO> getFeatureValues(ImgFeatureDefDTO featureDef);
 
     // generate ids
@@ -137,11 +137,11 @@ public interface IImagingQueryDAO extends TransactionQuery
             + "(?{1.column}, ?{1.row}, ?{1.containerId}, ?{1.permId}) returning ID")
     public long addSpot(ImgSpotDTO spot);
 
-    @Select("INSERT into FEATURE_DEFS (NAME, DESCRIPTION, DS_ID) values "
+    @Select("insert into FEATURE_DEFS (NAME, DESCRIPTION, DS_ID) values "
             + "(?{1.name}, ?{1.description}, ?{1.dataSetId}) RETURNING ID")
     public long addFeatureDef(ImgFeatureDefDTO featureDef);
 
-    @Select(value = "INSERT into FEATURE_VALUES (VALUES, Z_in_M, T_in_SEC, FD_ID) values "
+    @Select(sql = "insert into FEATURE_VALUES (VALUES, Z_in_M, T_in_SEC, FD_ID) values "
             + "(?{1.values}, ?{1.z}, ?{1.t}, ?{1.featureDefId}) RETURNING ID", parameterBindings =
         { ByteArrayMapper.class })
     public long addFeatureValues(ImgFeatureValuesDTO featureValues);
