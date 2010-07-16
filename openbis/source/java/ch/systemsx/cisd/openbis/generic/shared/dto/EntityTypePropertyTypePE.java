@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 @MappedSuperclass
 public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistrationHolder
-        implements IEntityTypePropertyType
+        implements IEntityTypePropertyType, Comparable<EntityTypePropertyTypePE>
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -211,6 +211,15 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         builder.append(getPropertyType());
         builder.append(getEntityType());
         return builder.toHashCode();
+    }
+
+    //
+    // Comparable
+    //
+
+    public int compareTo(EntityTypePropertyTypePE o)
+    {
+        return this.getOrdinal().compareTo(o.getOrdinal());
     }
 
 }

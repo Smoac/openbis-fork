@@ -130,13 +130,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -145,7 +145,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -153,7 +152,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -1481,27 +1479,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
                 columns.add(NewSample.PARENT);
                 if (withExperiments)
                     columns.add(NewSample.EXPERIMENT);
-                for (SampleTypePropertyTypePE etpt : ((SampleTypePE) entityType)
-                        .getSampleTypePropertyTypes())
-                {
-                    columns.add(etpt.getPropertyType().getCode());
-                }
+                addProperties(columns, ((SampleTypePE) entityType).getSampleTypePropertyTypes());
                 break;
             case DATA_SET:
                 columns.add(NewDataSet.CODE);
-                for (DataSetTypePropertyTypePE etpt : ((DataSetTypePE) entityType)
-                        .getDataSetTypePropertyTypes())
-                {
-                    columns.add(etpt.getPropertyType().getCode());
-                }
+                addProperties(columns, ((DataSetTypePE) entityType).getDataSetTypePropertyTypes());
                 break;
             case MATERIAL:
                 columns.add(NewMaterial.CODE);
-                for (MaterialTypePropertyTypePE etpt : ((MaterialTypePE) entityType)
-                        .getMaterialTypePropertyTypes())
-                {
-                    columns.add(etpt.getPropertyType().getCode());
-                }
+                addProperties(columns, ((MaterialTypePE) entityType).getMaterialTypePropertyTypes());
                 break;
             default:
                 break;
@@ -1529,6 +1515,23 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             }
         }
         return sb.toString();
+    }
+
+    private <T extends EntityTypePropertyTypePE> void addProperties(List<String> columns,
+            Set<T> propertyTypes)
+    {
+        List<T> sortedPropertyTypes = asSortedList(propertyTypes);
+        for (EntityTypePropertyTypePE etpt : sortedPropertyTypes)
+        {
+            columns.add(etpt.getPropertyType().getCode());
+        }
+    }
+
+    private <T extends EntityTypePropertyTypePE> List<T> asSortedList(Set<T> propertyTypes)
+    {
+        List<T> list = new ArrayList<T>(propertyTypes);
+        Collections.sort(list);
+        return list;
     }
 
     private EntityTypePE findEntityType(EntityKind entityKind, String type)
