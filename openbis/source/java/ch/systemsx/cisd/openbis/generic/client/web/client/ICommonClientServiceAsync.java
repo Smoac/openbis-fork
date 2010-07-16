@@ -81,8 +81,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -137,19 +137,19 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#registerGroupRole(RoleWithHierarchy, String, Grantee) */
-    public void registerGroupRole(RoleWithHierarchy roleSetCode, String group, Grantee grantee,
+    public void registerGroupRole(RoleWithHierarchy role, String group, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteGroupRole(RoleWithHierarchy, String, Grantee) */
-    public void deleteGroupRole(RoleWithHierarchy roleSetCode, String group, Grantee grantee,
+    public void deleteGroupRole(RoleWithHierarchy role, String group, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#registerInstanceRole(RoleWithHierarchy, Grantee) */
-    public void registerInstanceRole(RoleWithHierarchy roleSetCode, Grantee grantee,
+    public void registerInstanceRole(RoleWithHierarchy role, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteInstanceRole(RoleWithHierarchy, Grantee) */
-    public void deleteInstanceRole(RoleWithHierarchy roleSetCode, Grantee grantee,
+    public void deleteInstanceRole(RoleWithHierarchy role, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listSampleTypes() */

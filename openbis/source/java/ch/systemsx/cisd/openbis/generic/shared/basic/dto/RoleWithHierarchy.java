@@ -138,6 +138,7 @@ public enum RoleWithHierarchy implements IsSerializable
 
     static RoleCode figureRoleCode(String roleWithHierarchyName, RoleLevel roleLevel)
     {
+        assert roleWithHierarchyName.startsWith(roleLevel.name() + SEPARATOR);
         for (RoleCode code : RoleCode.values())
         {
             if (code.name().equals(roleWithHierarchyName.substring(roleLevel.name().length() + 1)))

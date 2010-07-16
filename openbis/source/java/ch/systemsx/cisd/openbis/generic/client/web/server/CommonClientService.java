@@ -123,8 +123,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
@@ -317,7 +317,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerGroupRole(final RoleWithHierarchy roleSetCode, final String group,
+    public final void registerGroupRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -326,7 +326,7 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
-            commonServer.registerSpaceRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
+            commonServer.registerSpaceRole(sessionToken, RoleCodeTranslator.translate(role),
                     groupIdentifier, grantee);
         } catch (final UserFailureException e)
         {
@@ -334,21 +334,21 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerInstanceRole(final RoleWithHierarchy roleSetCode, final Grantee grantee)
+    public final void registerInstanceRole(final RoleWithHierarchy role, final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.registerInstanceRole(sessionToken, RoleCodeTranslator
-                    .translate(roleSetCode), grantee);
+            commonServer.registerInstanceRole(sessionToken, RoleCodeTranslator.translate(role),
+                    grantee);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public final void deleteGroupRole(final RoleWithHierarchy roleSetCode, final String group,
+    public final void deleteGroupRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -357,7 +357,7 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
-            commonServer.deleteSpaceRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
+            commonServer.deleteSpaceRole(sessionToken, RoleCodeTranslator.translate(role),
                     groupIdentifier, grantee);
         } catch (final UserFailureException e)
         {
@@ -366,14 +366,14 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public final void deleteInstanceRole(final RoleWithHierarchy roleSetCode, final Grantee grantee)
+    public final void deleteInstanceRole(final RoleWithHierarchy role, final Grantee grantee)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.deleteInstanceRole(sessionToken,
-                    RoleCodeTranslator.translate(roleSetCode), grantee);
+            commonServer.deleteInstanceRole(sessionToken, RoleCodeTranslator.translate(role),
+                    grantee);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

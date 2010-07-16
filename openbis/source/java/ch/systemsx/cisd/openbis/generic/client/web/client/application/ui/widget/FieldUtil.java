@@ -25,12 +25,11 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * Utilities for {@link Field} class.
@@ -145,24 +144,21 @@ public class FieldUtil
                     {
                         ComponentHelper.doAttach(info);
                     }
-                    DeferredCommand.addCommand(new Command()
+                    final IDelegatedAction alignInfo = new IDelegatedAction()
                         {
+
                             public void execute()
                             {
                                 info.el().alignTo(field.getElement(), INFO_LINK_POSITION,
                                         INFO_LINK_FIELD_OFFSETS);
                             }
-                        });
+
+                        };
+                    GWTUtils.executeDelayed(alignInfo);
                     if (GXT.isIE || GXT.isOpera)
                     {
-                        DeferredCommand.addCommand(new Command()
-                            {
-                                public void execute()
-                                {
-                                    info.el().alignTo(field.getElement(), INFO_LINK_POSITION,
-                                            INFO_LINK_FIELD_OFFSETS);
-                                }
-                            });
+                        // TODO 2010-07-13, Piotr Buczek: still needed?
+                        GWTUtils.executeDelayed(alignInfo); 
                     }
                     field.el().repaint();
                 }

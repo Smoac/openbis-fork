@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * Service for retrieving general informations.
@@ -63,7 +64,7 @@ public interface IGeneralInformationService extends IRpcService
      * Returns all named role sets. The name is the key of the returned map.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.INSTANCE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken);
 
     /**
@@ -74,7 +75,7 @@ public interface IGeneralInformationService extends IRpcService
      *            for the home database instance is meant.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.INSTANCE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<SpaceWithProjectsAndRoleAssignments> listSpacesWithProjectsAndRoleAssignments(
             String sessionToken, String databaseInstanceCodeOrNull);
 

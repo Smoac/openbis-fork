@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -78,13 +79,12 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         checkSession(sessionToken);
 
         Map<String, Set<Role>> namedRoleSets = new LinkedHashMap<String, Set<Role>>();
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy[] values =
-                ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.values();
-        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy roleSet : values)
+        RoleWithHierarchy[] values = RoleWithHierarchy.values();
+        for (RoleWithHierarchy roleSet : values)
         {
-            Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy> roles = roleSet.getRoles();
+            Set<RoleWithHierarchy> roles = roleSet.getRoles();
             Set<Role> translatedRoles = new HashSet<Role>();
-            for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy role : roles)
+            for (RoleWithHierarchy role : roles)
             {
                 translatedRoles.add(Translator.translate(role));
             }
