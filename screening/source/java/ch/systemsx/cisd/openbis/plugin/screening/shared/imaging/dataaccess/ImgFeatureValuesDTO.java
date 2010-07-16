@@ -41,6 +41,8 @@ public class ImgFeatureValuesDTO extends AbstractHashable
 
     @ResultColumn("VALUES")
     private byte[] values;
+    
+    private MDDoubleArray valueArray;
 
     @ResultColumn("FD_ID")
     private long featureDefId;
@@ -50,17 +52,13 @@ public class ImgFeatureValuesDTO extends AbstractHashable
         // All Data-Object classes must have a default constructor.
     }
 
-    public ImgFeatureValuesDTO(Double zInM, Double tInSec, byte[] values, long featureDefId)
+    public ImgFeatureValuesDTO(Double zInM, Double tInSec, MDDoubleArray array, long featureDefId)
     {
         this.z = zInM;
         this.t = tInSec;
-        this.values = values;
+        this.valueArray = array;
+        this.values = NativeTaggedArray.toByteArray(array);
         this.featureDefId = featureDefId;
-    }
-
-    public ImgFeatureValuesDTO(Double zInM, Double tInSec, MDDoubleArray array, long featureDefId)
-    {
-        this(zInM, tInSec, NativeTaggedArray.toByteArray(array), featureDefId);
     }
 
     public long getId()
@@ -121,7 +119,11 @@ public class ImgFeatureValuesDTO extends AbstractHashable
 
     public MDDoubleArray getValuesDoubleArray()
     {
-        return NativeTaggedArray.tryToDoubleArray(getValues());
+        if (valueArray == null)
+        {
+            valueArray = NativeTaggedArray.tryToDoubleArray(values); 
+        }
+        return valueArray;
     }
 
 }
