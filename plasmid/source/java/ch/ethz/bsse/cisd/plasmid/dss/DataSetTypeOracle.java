@@ -17,12 +17,17 @@
 package ch.ethz.bsse.cisd.plasmid.dss;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.etlserver.FileTypeExtractor;
 
 /**
  * This oracle knows the extensions of the different types of data files provided by CSB.
@@ -31,6 +36,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 class DataSetTypeOracle
 {
+    public static final String DATASET_TYPES_NAME = "dataset-types";
+
     /**
      * The different kinds of data set types known to the oracle.
      * 
@@ -38,22 +45,14 @@ class DataSetTypeOracle
      */
     static enum DataSetTypeInfo
     {
-        // only GB files are derived, other files are measured
-        GB("gb", false), SEQUENCING("ab1", true), VERIFICATION(null, true), UNKNOWN(null, true);
-
-        private final String fileExtension;
+        // only SEQ_FILE files are derived, other files are measured
+        SEQ_FILE(false), RAW_DATA(true), VERIFICATION(true), UNKNOWN(true);
 
         private final boolean measured;
 
-        DataSetTypeInfo(String fileExtension, boolean measured)
+        DataSetTypeInfo(boolean measured)
         {
-            this.fileExtension = fileExtension;
             this.measured = measured;
-        }
-
-        public String tryGetFileExtension()
-        {
-            return fileExtension;
         }
 
         public String getDataSetTypeCode()
@@ -67,14 +66,30 @@ class DataSetTypeOracle
         }
     }
 
+    private static DataSetTypeInfo getType(final String typeName)
+    {
+        try
+        {
+            return DataSetTypeInfo.valueOf(typeName);
+        } catch (IllegalArgumentException e)
+        {
+            throw ConfigurationFailureException.fromTemplate(
+                    "Wrong dataset type '%s'. Expected one of: '%s'.", typeName, Arrays
+                            .toString(DataSetTypeInfo.values()));
+        }
+    }
+
     private static Map<String, DataSetTypeInfo> typeInfoByExtension =
             new HashMap<String, DataSetTypeInfo>();
 
-    static
+    static void initializeMapping(Properties properties)
     {
-        typeInfoByExtension.put(DataSetTypeInfo.GB.tryGetFileExtension(), DataSetTypeInfo.GB);
-        typeInfoByExtension.put(DataSetTypeInfo.SEQUENCING.tryGetFileExtension(),
-                DataSetTypeInfo.SEQUENCING);
+        Map<String, String> map =
+                FileTypeExtractor.createTypeByFileExtensionMap(properties, DATASET_TYPES_NAME);
+        for (Entry<String, String> entry : map.entrySet())
+        {
+            typeInfoByExtension.put(entry.getKey(), getType(entry.getValue()));
+        }
     }
 
     /**
@@ -93,8 +108,18 @@ class DataSetTypeOracle
         final String fileName = incomingDataSetPath.getName().toLowerCase();
         final String fileExtension = FilenameUtils.getExtension(fileName);
 
-        DataSetTypeInfo result = typeInfoByExtension.get(fileExtension);
+        DataSetTypeInfo result = tryGetMappedType(fileExtension);
         return result == null ? DataSetTypeInfo.VERIFICATION : result;
+    }
+
+    private static DataSetTypeInfo tryGetMappedType(String fileExtension)
+    {
+        return typeInfoByExtension.get(normalizeExtension(fileExtension));
+    }
+
+    private static String normalizeExtension(String extension)
+    {
+        return extension.toUpperCase();
     }
 
 }

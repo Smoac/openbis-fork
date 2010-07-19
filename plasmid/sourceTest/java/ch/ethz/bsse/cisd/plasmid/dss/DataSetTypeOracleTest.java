@@ -17,49 +17,60 @@
 package ch.ethz.bsse.cisd.plasmid.dss;
 
 import java.io.File;
+import java.util.Properties;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.bsse.cisd.plasmid.dss.DataSetTypeOracle.DataSetTypeInfo;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 
 /**
  * @author Piotr Buczek
  */
-public class DataSetTypeOracleTest extends AssertJUnit
+public class DataSetTypeOracleTest extends AbstractFileSystemTestCase
 {
-    private static final String EXAMPLE_DIR = "resource/example/BOX_1:FRP_1/";
+    private static final String MAPPING = "SEQ_FILE: gb fasta xdna, RAW_DATA: ab1";
 
     @DataProvider(name = "files")
     protected Object[][] files()
     {
         return new Object[][]
             {
-                { "PRS316.gb", DataSetTypeInfo.GB },
-                { "PRS316-1.ab1", DataSetTypeInfo.SEQUENCING },
-                { "PRS316-2.ab1", DataSetTypeInfo.SEQUENCING },
-                { "PRS316-3.ab1", DataSetTypeInfo.SEQUENCING },
+                { "PRS316.gb", DataSetTypeInfo.SEQ_FILE },
+                { "PRS316.fasta", DataSetTypeInfo.SEQ_FILE },
+                { "PRS316.xdna", DataSetTypeInfo.SEQ_FILE },
+                { "PRS316-1.ab1", DataSetTypeInfo.RAW_DATA },
+                { "PRS316-2.ab1", DataSetTypeInfo.RAW_DATA },
+                { "PRS316-3.ab1", DataSetTypeInfo.RAW_DATA },
                 { "PRS316.png", DataSetTypeInfo.VERIFICATION },
                 { "PRS316.tiff", DataSetTypeInfo.VERIFICATION }
 
             };
     }
 
+    private static Properties prepareProperties(String typeMapping)
+    {
+        Properties result = new Properties();
+        result.put(DataSetTypeOracle.DATASET_TYPES_NAME, typeMapping);
+        return result;
+    }
+
     @Test(dataProvider = "files")
     public void testFile(String filename, DataSetTypeInfo expectedInfo)
     {
-        File file = new File(EXAMPLE_DIR + filename);
+        File file = new File(workingDirectory, filename);
+        DataSetTypeOracle.initializeMapping(prepareProperties(MAPPING));
+
         DataSetTypeInfo info = DataSetTypeOracle.extractDataSetTypeInfo(file);
         assertEquals(expectedInfo, info);
-        assertEquals(info != DataSetTypeInfo.GB, info.isMeasured());
+        assertEquals(info != DataSetTypeInfo.SEQ_FILE, info.isMeasured());
     }
 
     public void testDirectory()
     {
-        File dir = new File(EXAMPLE_DIR);
-        DataSetTypeOracle.extractDataSetTypeInfo(dir);
-        DataSetTypeInfo info = DataSetTypeOracle.extractDataSetTypeInfo(dir);
+        DataSetTypeInfo info = DataSetTypeOracle.extractDataSetTypeInfo(workingDirectory);
         assertEquals(DataSetTypeInfo.UNKNOWN, info);
     }
+
 }

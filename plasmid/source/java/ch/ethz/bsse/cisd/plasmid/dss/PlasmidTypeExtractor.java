@@ -19,27 +19,29 @@ package ch.ethz.bsse.cisd.plasmid.dss;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.etlserver.FileTypeExtractor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
  * The extractor that recognizes following data set types:
  * <ul>
- * <li>GB -- for a single file with <b>.gb</b> extension
- * <li>SEQUENCING -- for a single file with <b>.ab1</b> extension
+ * <li>SEQ_FILE -- for a single file with one of extensions: <b>gb</b>, <b>fasta</b>, <b>xdna</b>
+ * <li>RAW_DATA -- for a single file with <b>ab1</b> extension
  * <li>VERIFICATION -- for all other single files
  * <li>UNKNOWN -- for directories (they can contain files with arbitrary data)
  * </ul>
  * 
  * @author Piotr Buczek
  */
-public class PlasmidTypeExtractor implements ITypeExtractor
+public class PlasmidTypeExtractor extends FileTypeExtractor implements ITypeExtractor
 {
 
     public PlasmidTypeExtractor(final Properties properties)
     {
+        super(properties);
+        DataSetTypeOracle.initializeMapping(properties);
     }
 
     public DataSetType getDataSetType(File incomingDataSetPath)
@@ -47,11 +49,6 @@ public class PlasmidTypeExtractor implements ITypeExtractor
         final String code =
                 DataSetTypeOracle.extractDataSetTypeInfo(incomingDataSetPath).getDataSetTypeCode();
         return new DataSetType(code);
-    }
-
-    public FileFormatType getFileFormatType(File incomingDataSetPath)
-    {
-        return new FileFormatType(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE);
     }
 
     public LocatorType getLocatorType(File incomingDataSetPath)
