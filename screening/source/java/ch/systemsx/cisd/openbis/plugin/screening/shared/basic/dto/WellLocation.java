@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
-
 /**
  * Describes position of the well on the plate.
  * 
@@ -29,55 +27,9 @@ public class WellLocation implements IsSerializable
 {
     private static final int MAX_LETTER_NUMBER = getLetterNumber('Z');
 
-    static final String NOT_POSITIVE = "Given coordinate '%s' must be > 0 (%d <= 0).";
-
     private int row;
 
     private int column;
-
-    /** Calculates the row from the given cartesian coordinates. */
-    public static int calcRow(Geometry geometry, int x, int y)
-    {
-        assert geometry != null;
-        assert x >= 0 && x < geometry.getWidth() : x;
-        assert y >= 0 && y < geometry.getHeight() : y;
-
-        return geometry.getHeight() - y;
-    }
-
-    /** Calculates the column from the given cartesian coordinates. */
-    public static int calcColumn(Geometry geometry, int x, int y)
-    {
-        assert geometry != null;
-        assert x >= 0 && x < geometry.getWidth() : "X is " + x + " (allowed: (0,"
-                + (geometry.getWidth() - 1) + ")";
-        assert y >= 0 && y < geometry.getHeight() : "Y is " + y + " (allowed: (0,"
-                + (geometry.getHeight() - 1) + ")";
-
-        return x + 1;
-    }
-
-    /** Calculates the cartesian x coordinate. */
-    public static int calcX(Geometry geometry, int row, int col)
-    {
-        assert geometry != null;
-        assert row > 0 && row <= geometry.getHeight() : "Row is " + row + " (allowed: (1,"
-                + geometry.getHeight() + ")";
-        assert col > 0 && col <= geometry.getWidth() : "Col is " + col + " (allowed: (1,"
-                + geometry.getWidth() + ")";
-
-        return col - 1;
-    }
-
-    /** Calculates the cartesian y coordinate. */
-    public static int calcY(Geometry geometry, int row, int col)
-    {
-        assert geometry != null;
-        assert row > 0 && row <= geometry.getHeight() : row;
-        assert col > 0 && col <= geometry.getWidth() : col;
-
-        return geometry.getHeight() - row;
-    }
 
     /**
      * Parses a location given as a string and returns a {@link WellLocation}. The location has to
@@ -232,10 +184,15 @@ public class WellLocation implements IsSerializable
 
     public WellLocation(int row, int column)
     {
-        assert row > 0 : String.format(NOT_POSITIVE, "row", row);
-        assert column > 0 : String.format(NOT_POSITIVE, "column", column);
+        assert row > 0 : createNonPositiveErrorMsg("row", row);
+        assert column > 0 : createNonPositiveErrorMsg("column", column);
         this.row = row;
         this.column = column;
+    }
+
+    private String createNonPositiveErrorMsg(String field, int value)
+    {
+        return "Given coordinate '" + field + "' must be > 0 (" + value + " <= 0).";
     }
 
     /** The row (rowCount - y where y is the cartesian coordinate). Starts with 1. */
@@ -248,18 +205,6 @@ public class WellLocation implements IsSerializable
     public int getColumn()
     {
         return column;
-    }
-
-    /** Calculates the cartesian X coordinate. */
-    public int calcX(Geometry geometry)
-    {
-        return calcX(geometry, row, column);
-    }
-
-    /** Calculates the cartesian y coordinate. */
-    public int calcY(Geometry geometry)
-    {
-        return calcY(geometry, row, column);
     }
 
     //

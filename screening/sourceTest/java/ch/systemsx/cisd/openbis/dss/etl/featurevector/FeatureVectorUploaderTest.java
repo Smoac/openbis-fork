@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateFeatureValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.DBUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;

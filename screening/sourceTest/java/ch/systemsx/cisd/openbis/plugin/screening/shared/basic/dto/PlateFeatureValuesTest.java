@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 
 import static org.testng.AssertJUnit.*;
 

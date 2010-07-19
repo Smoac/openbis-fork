@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.dto;
 
 import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * A class for providing the values of one feature for screening plate. It uses a two-dimensional
- * {@link MDFloatArray} in the back-end and provides access by row and column as well as by
- * 0-based cartesian coordinates.
+ * {@link MDFloatArray} in the back-end and provides access by row and column as well as by 0-based
+ * cartesian coordinates.
  * <p>
  * The row-column coordinates are obtained from the cartesian coordinates by:
+ * 
  * <pre>
  * row = dimY - y
  * col = x + 1
@@ -89,8 +91,8 @@ public final class PlateFeatureValues
      */
     public void setForWellLocation(float value, int row, int col)
     {
-        valueArray.set(value, WellLocation.calcX(geometry, row, col), WellLocation.calcY(geometry,
-                row, col));
+        valueArray.set(value, WellLocationUtils.calcX(geometry, row, col), WellLocationUtils.calcY(
+                geometry, row, col));
     }
 
     /**
@@ -99,8 +101,8 @@ public final class PlateFeatureValues
      */
     public float getForWellLocation(int row, int col)
     {
-        return valueArray.get(WellLocation.calcX(geometry, row, col), WellLocation.calcY(geometry,
-                row, col));
+        return valueArray.get(WellLocationUtils.calcX(geometry, row, col), WellLocationUtils.calcY(
+                geometry, row, col));
     }
 
     /**
@@ -109,7 +111,8 @@ public final class PlateFeatureValues
      */
     public void setForWellLocation(float value, WellLocation wellLocation)
     {
-        valueArray.set(value, wellLocation.calcX(geometry), wellLocation.calcY(geometry));
+        valueArray.set(value, WellLocationUtils.calcX(geometry, wellLocation), WellLocationUtils
+                .calcY(geometry, wellLocation));
     }
 
     /**
@@ -118,7 +121,8 @@ public final class PlateFeatureValues
      */
     public float getForWellLocation(WellLocation wellLocation)
     {
-        return valueArray.get(wellLocation.calcX(geometry), wellLocation.calcY(geometry));
+        return valueArray.get(WellLocationUtils.calcX(geometry, wellLocation), WellLocationUtils
+                .calcY(geometry, wellLocation));
     }
 
     /**
