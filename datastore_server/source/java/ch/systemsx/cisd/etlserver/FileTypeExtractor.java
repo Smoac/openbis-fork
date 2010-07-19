@@ -43,13 +43,13 @@ public class FileTypeExtractor implements IFileFormatTypeExtractor
     private static final String FILE_TYPE_MAPPING_SEPARATOR = " ";
 
     @Private
-    static final String DEFAULT_TYPE_PROPERTY_KEY = "default-type";
+    static final String DEFAULT_TYPE_PROPERTY_KEY = "default-file-type";
 
     @Private
     static final String DEFAULT_FILE_FORMAT_TYPE = "UNKNOWN";
 
     @Private
-    static final String DIRECTORY_TYPE_PROPERTY_KEY = "directory-type";
+    static final String DIRECTORY_TYPE_PROPERTY_KEY = "directory-file-type";
 
     @Private
     static final String DIRECTORY_FILE_FORMAT_TYPE = "UNKNOWN";
