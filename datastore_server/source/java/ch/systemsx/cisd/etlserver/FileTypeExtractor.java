@@ -40,7 +40,9 @@ public class FileTypeExtractor implements IFileFormatTypeExtractor
 {
     public static final String FILE_TYPES_NAME = "file-types";
 
-    private static final String FILE_TYPE_MAPPING_SEPARATOR = " ";
+    private static final String TYPE_MAPPING_SEPARATOR = ":";
+
+    private static final String LIST_MAPPING_SEPARATOR = " ";
 
     @Private
     static final String DEFAULT_TYPE_PROPERTY_KEY = "default-file-type";
@@ -84,20 +86,25 @@ public class FileTypeExtractor implements IFileFormatTypeExtractor
         for (int i = 0; i < mappings.length; i++)
         {
             String mapping = mappings[i];
-            String[] tokens = mapping.split(FILE_TYPE_MAPPING_SEPARATOR);
+            String[] tokens = mapping.split(TYPE_MAPPING_SEPARATOR);
+
             if (tokens.length != 2 || StringUtils.isBlank(tokens[0])
                     || StringUtils.isBlank(tokens[1]))
             {
                 throw ConfigurationFailureException
                         .fromTemplate(
                                 "Wrong value of property '%s = %s'. The item '%s' has incorrect format.\n"
-                                        + "The value should be a comma separated list of pairs: file-extension file-type.\n"
-                                        + "The corresponding file types have to be defined in openBIS as well.\n",
+                                        + "The value should be a comma separated list of mappings from type to extensions, e.g:\n"
+                                        + "file-type1: file-extension1 file-extension2, file-type2: file-extension3",
                                 FILE_TYPES_NAME, typesMapping, mapping);
             }
-            String fileExtension = normalizeExtension(tokens[0]);
-            String fileType = tokens[1].toUpperCase();
-            result.put(fileExtension, fileType);
+
+            String fileType = tokens[0].toUpperCase();
+            String[] fileExtensions = tokens[1].trim().split(LIST_MAPPING_SEPARATOR);
+            for (String extension : fileExtensions)
+            {
+                result.put(normalizeExtension(extension), fileType);
+            }
         }
         return result;
     }
@@ -118,7 +125,7 @@ public class FileTypeExtractor implements IFileFormatTypeExtractor
 
     private String getFileTypeCode(String fileExtension)
     {
-        String fileType = getMappedExtension(fileExtension);
+        String fileType = getMappedType(fileExtension);
         if (fileType == null)
         {
             return (defaultType == null) ? fileExtension : defaultType;
@@ -128,7 +135,7 @@ public class FileTypeExtractor implements IFileFormatTypeExtractor
         }
     }
 
-    protected String getMappedExtension(String fileExtension)
+    protected String getMappedType(String fileExtension)
     {
         return fileTypeMapping.get(fileExtension);
     }

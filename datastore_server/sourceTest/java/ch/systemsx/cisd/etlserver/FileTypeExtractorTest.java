@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 public class FileTypeExtractorTest extends AbstractFileSystemTestCase
 {
     private static final String MAPPING =
-            "pdf pdf, mat matlab, zip archive, eicml xml, fiaml xml, mzxml xml";
+            "PDF: pdf, MATLAB: mat, ARCHIVE: zip, XML: eicml fiaml mzxml";
 
     @DataProvider(name = "mappingTypes")
     protected Object[][] getMappingTypes()
@@ -47,6 +47,11 @@ public class FileTypeExtractorTest extends AbstractFileSystemTestCase
                 { "file.abc", "UNKNOWN" },
 
             };
+    }
+
+    private static Properties preparePropertiesWithNoMapping()
+    {
+        return prepareProperties("");
     }
 
     private static Properties prepareProperties(String typeMapping)
@@ -70,7 +75,7 @@ public class FileTypeExtractorTest extends AbstractFileSystemTestCase
     public void testDefaultMapping()
     {
         File file = new File(workingDirectory, "file.abc");
-        Properties properties = prepareProperties("txt TEXT");
+        Properties properties = preparePropertiesWithNoMapping();
         FileTypeExtractor extractor = new FileTypeExtractor(properties);
         assertEquals(FileTypeExtractor.DEFAULT_FILE_FORMAT_TYPE, extractor.getFileFormatType(file)
                 .getCode());
@@ -86,7 +91,7 @@ public class FileTypeExtractorTest extends AbstractFileSystemTestCase
     {
         File file = new File(workingDirectory, "dir1");
         file.mkdir();
-        Properties properties = prepareProperties("txt TEXT");
+        Properties properties = preparePropertiesWithNoMapping();
         FileTypeExtractor extractor = new FileTypeExtractor(properties);
         assertEquals(FileTypeExtractor.DIRECTORY_FILE_FORMAT_TYPE, extractor
                 .getFileFormatType(file).getCode());

@@ -53,7 +53,7 @@ public class TypeExtractorYeastX extends FileTypeExtractor implements ITypeExtra
     {
         String fileExtension = getExtension(incomingDataSetPath);
         String datasetType;
-        if (getMappedExtension(fileExtension) == null)
+        if (getMappedType(fileExtension) == null)
         {
             datasetType = UNRECOGNIZED_DATA_SET_TYPE;
         } else
