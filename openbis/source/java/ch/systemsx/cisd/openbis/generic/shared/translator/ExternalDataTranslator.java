@@ -69,7 +69,7 @@ public class ExternalDataTranslator
             String defaultDataStoreBaseURL, String baseIndexURL,
             final LoadableFields... withExperimentFields)
     {
-        return translate(externalDataPE, defaultDataStoreBaseURL, baseIndexURL, false,
+        return translate(externalDataPE, defaultDataStoreBaseURL, baseIndexURL, true,
                 withExperimentFields);
     }
 
