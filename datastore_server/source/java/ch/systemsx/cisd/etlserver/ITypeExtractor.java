@@ -19,7 +19,6 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
  * 
  * @author Franz-Josef Elmer
  */
-public interface ITypeExtractor
+public interface ITypeExtractor extends IFileFormatTypeExtractor
 {
     /** Properties key prefix for the type extractor. */
     public static final String TYPE_EXTRACTOR_KEY = "type-extractor";
@@ -36,7 +35,7 @@ public interface ITypeExtractor
      * Returns <code>true</code> if the specified data set contains measured data.
      */
     public boolean isMeasuredData(File incomingDataSetPath);
-    
+
     /**
      * Returns the type of the {@link IProcessor} to be used.
      */
@@ -46,11 +45,6 @@ public interface ITypeExtractor
      * Gets the data set type from the specified path of the incoming data set.
      */
     public DataSetType getDataSetType(File incomingDataSetPath);
-
-    /**
-     * Gets the file format type from the specified path of the incoming data set.
-     */
-    public FileFormatType getFileFormatType(File incomingDataSetPath);
 
     /**
      * Gets the locator type from the specified path of the incoming data set.
