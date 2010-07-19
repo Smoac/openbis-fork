@@ -3,9 +3,8 @@
 # Creates new database version (all sql files) which is identical to the previous version.
 # Assumes that it is called from the directory where it is located.
 
-source common.sh
+source ../../../openbis/resource/scripts/common.sh
 
-copy_db_folder generic
 copy_db_folder postgresql
 copy_migration_file
 print_finish_message
