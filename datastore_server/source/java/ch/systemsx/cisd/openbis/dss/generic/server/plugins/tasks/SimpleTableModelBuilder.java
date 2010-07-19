@@ -171,7 +171,8 @@ public class SimpleTableModelBuilder
         DataTypeCode dataType = getDataTypeCodeFor(value);
         if (StringUtils.isNotBlank(value.toString()))
         {
-            header.setDataType(DataTypeUtils.getCompatibleDataType(headerDataType, dataType));
+            DataTypeCode compatibleDataType = DataTypeUtils.getCompatibleDataType(headerDataType, dataType);
+            header.setDataType(compatibleDataType);
         }
     }
 
