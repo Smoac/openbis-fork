@@ -64,8 +64,7 @@ public class FileTypeExtractor implements IFileFormatTypeExtractor
 
     public FileTypeExtractor(final Properties properties)
     {
-        String typesMapping = PropertyUtils.getProperty(properties, FILE_TYPES_NAME);
-        this.fileTypeMapping = createFileTypeMap(typesMapping);
+        this.fileTypeMapping = createTypeByFileExtensionMap(properties, FILE_TYPES_NAME);
         this.defaultType =
                 normalizeExtension(PropertyUtils.getProperty(properties, DEFAULT_TYPE_PROPERTY_KEY,
                         DEFAULT_FILE_FORMAT_TYPE));
@@ -74,9 +73,11 @@ public class FileTypeExtractor implements IFileFormatTypeExtractor
                         DIRECTORY_TYPE_PROPERTY_KEY, DIRECTORY_FILE_FORMAT_TYPE));
     }
 
-    private static Map<String, String> createFileTypeMap(String typesMapping)
+    public static Map<String, String> createTypeByFileExtensionMap(Properties properties,
+            String itemsListPropertyName)
     {
-        Map<String, String> result = new HashMap<String, String>();
+        final String typesMapping = PropertyUtils.getProperty(properties, itemsListPropertyName);
+        final Map<String, String> result = new HashMap<String, String>();
         if (StringUtils.isBlank(typesMapping))
         {
             return result;
@@ -95,7 +96,7 @@ public class FileTypeExtractor implements IFileFormatTypeExtractor
                         .fromTemplate(
                                 "Wrong value of property '%s = %s'. The item '%s' has incorrect format.\n"
                                         + "The value should be a comma separated list of mappings from type to extensions, e.g:\n"
-                                        + "file-type1: file-extension1 file-extension2, file-type2: file-extension3",
+                                        + "type1: file-extension1 file-extension2, type2: file-extension3",
                                 FILE_TYPES_NAME, typesMapping, mapping);
             }
 
