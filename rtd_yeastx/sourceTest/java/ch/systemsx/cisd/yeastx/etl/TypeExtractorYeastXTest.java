@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.etlserver.FileTypeExtractor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -93,7 +94,7 @@ public class TypeExtractorYeastXTest extends AssertJUnit
     private static ITypeExtractor createExtractor(String fileTypesMappings)
     {
         Properties properties = new Properties();
-        properties.put(TypeExtractorYeastX.FILE_TYPES_NAME, fileTypesMappings);
+        properties.put(FileTypeExtractor.FILE_TYPES_NAME, fileTypesMappings);
         return new TypeExtractorYeastX(properties);
     }
 }
