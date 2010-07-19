@@ -208,7 +208,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         for (FeatureTableRow featureTableRow : featureTableRows)
         {
             featureVectors.add(new FeatureVector(new WellPosition(
-                    featureTableRow.getRowIndex() + 1, featureTableRow.getColumnIndex() + 1),
+                    featureTableRow.getRowIndex(), featureTableRow.getColumnIndex()),
                     featureTableRow.getFeatureValues()));
         }
         return new FeatureVectorDataset(dataset, existingFeatureNames, featureVectors);

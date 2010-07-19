@@ -167,22 +167,11 @@ class PlateDatasetLoader
             PropertyType propertyType = property.getPropertyType();
             if (propertyType.getCode().equals(ScreeningConstants.PLATE_GEOMETRY))
             {
-                String code = property.getVocabularyTerm().getCode();
-                int lastIndexOfUnderscore = code.lastIndexOf('_');
-                int lastIndexOfX = code.lastIndexOf('X');
-                if (lastIndexOfUnderscore < 0 || lastIndexOfX < 0)
-                {
-                    throw new UserFailureException("Invalid property "
-                            + ScreeningConstants.PLATE_GEOMETRY + ": " + code);
-                }
+                final String code = property.getVocabularyTerm().getCode();
                 try
                 {
-                    int width =
-                            Integer.parseInt(code
-                                    .substring(lastIndexOfUnderscore + 1, lastIndexOfX));
-                    int height = Integer.parseInt(code.substring(lastIndexOfX + 1));
-                    return new Geometry(width, height);
-                } catch (NumberFormatException ex)
+                    return Geometry.createFromPlateGeometryString(code);
+                } catch (IllegalArgumentException ex)
                 {
                     throw new UserFailureException("Invalid property "
                             + ScreeningConstants.PLATE_GEOMETRY + ": " + code);

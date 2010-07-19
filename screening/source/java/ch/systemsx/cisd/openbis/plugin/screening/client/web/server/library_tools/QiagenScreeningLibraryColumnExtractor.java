@@ -116,9 +116,9 @@ public class QiagenScreeningLibraryColumnExtractor extends AbstractColumnExtract
         return getUnknownColumnValues(row, columnNames);
     }
 
-    public WellLocation getWellLocation(String[] row)
+    public PlateWellLocation getPlateWellLocation(String[] row)
     {
-        return new WellLocation(getPlateCode(row), getWellRow(row), getWellCol(row));
+        return new PlateWellLocation(getPlateCode(row), getWellRow(row), getWellCol(row));
     }
 
     public GeneDetails getGeneDetails(String[] row)

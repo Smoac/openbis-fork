@@ -58,13 +58,13 @@ public class ImageAnalysisGeneMerger
         File analysisFolder = new File(args[1]);
         // folder where results will be saved
         File outputFolder = new File(args[2]);
-        Map<WellLocation, GeneDetails> geneMap = readGeneMap(libraryReader);
+        Map<PlateWellLocation, GeneDetails> geneMap = readGeneMap(libraryReader);
         libraryReader.close();
         mergeAnalysisDirWithGenes(analysisFolder, outputFolder, geneMap);
     }
 
     private static void mergeAnalysisDirWithGenes(File analysisFolder, File outputFolder,
-            Map<WellLocation, GeneDetails> geneMap) throws Exception
+            Map<PlateWellLocation, GeneDetails> geneMap) throws Exception
     {
         outputFolder.mkdirs();
         for (File plateAnalysisFile : analysisFolder.listFiles())
@@ -75,7 +75,7 @@ public class ImageAnalysisGeneMerger
     }
 
     private static void mergeAnalysisFileWithGenes(File plateAnalysisFile, File outFile,
-            Map<WellLocation, GeneDetails> geneMap) throws Exception
+            Map<PlateWellLocation, GeneDetails> geneMap) throws Exception
     {
         // open file to read
         CsvReader reader = readFile(plateAnalysisFile);
@@ -95,7 +95,7 @@ public class ImageAnalysisGeneMerger
         while (reader.readRecord())
         {
             String[] row = reader.getValues();
-            WellLocation loc = extractor.getWellLocation(row);
+            PlateWellLocation loc = extractor.getPlateWellLocation(row);
             GeneDetails gene = geneMap.get(loc);
             String resultLine = createLine(reader.getRawRecord(), gene);
             writeLine(resultLine, out);
@@ -124,10 +124,10 @@ public class ImageAnalysisGeneMerger
         return "\"" + value + "\"";
     }
 
-    private static Map<WellLocation, GeneDetails> readGeneMap(CsvReader libraryReader)
+    private static Map<PlateWellLocation, GeneDetails> readGeneMap(CsvReader libraryReader)
             throws Exception
     {
-        Map<WellLocation, GeneDetails> map = new HashMap<WellLocation, GeneDetails>();
+        Map<PlateWellLocation, GeneDetails> map = new HashMap<PlateWellLocation, GeneDetails>();
         boolean headerPresent = libraryReader.readRecord();
         if (headerPresent == false)
         {
@@ -139,7 +139,7 @@ public class ImageAnalysisGeneMerger
         while (libraryReader.readRecord())
         {
             String[] row = libraryReader.getValues();
-            WellLocation loc = extractor.getWellLocation(row);
+            PlateWellLocation loc = extractor.getPlateWellLocation(row);
             GeneDetails gene = extractor.getGeneDetails(row);
             map.put(loc, gene);
         }

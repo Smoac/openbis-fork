@@ -97,8 +97,8 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
             List<ISerializableComparable> values = new ArrayList<ISerializableComparable>();
             values.add(new StringTableCell(row.getDataSetCode()));
             values.add(new StringTableCell(row.getPlateIdentifier().toString()));
-            values.add(new StringTableCell(PlateUtils.translateRowNumberIntoLetterCode(row.getRowIndex() + 1)));
-            values.add(new IntegerTableCell(row.getColumnIndex() + 1));
+            values.add(new StringTableCell(PlateUtils.translateRowNumberIntoLetterCode(row.getRowIndex())));
+            values.add(new IntegerTableCell(row.getColumnIndex()));
             double[] featureValues = row.getFeatureValues();
             StringTableCell nullValue = new StringTableCell("");
             for (double value : featureValues)

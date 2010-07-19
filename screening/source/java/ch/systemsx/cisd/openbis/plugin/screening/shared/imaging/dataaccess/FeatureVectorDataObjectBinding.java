@@ -35,7 +35,7 @@ public class FeatureVectorDataObjectBinding extends
         into.setId(row.getLong("ID"));
         into.setZ(row.getDouble("Z_in_M"));
         into.setT(row.getDouble("T_in_SEC"));
-        into.setValues(row.getBytes("VALUES"));
+        into.setByteArray(row.getBytes("VALUES"));
         into.setFeatureDefId(row.getInt("FD_ID"));
     }
 }

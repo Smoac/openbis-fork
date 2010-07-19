@@ -24,7 +24,8 @@ import java.util.List;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -111,36 +112,32 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         assertEquals(0.0, featureValues.getT());
         assertEquals(0.0, featureValues.getZ());
 
-        MDDoubleArray spreadsheet = featureValues.getValuesDoubleArray();
-        int[] dims =
-            { 2, 3 };
-        assertEquals(spreadsheet.dimensions().length, dims.length);
-        assertEquals(spreadsheet.dimensions()[0], dims[0]);
-        assertEquals(spreadsheet.dimensions()[1], dims[1]);
+        PlateFeatureValues spreadsheet = featureValues.getValues();
+        assertEquals(spreadsheet.getGeometry().getHeight(), 2);
+        assertEquals(spreadsheet.getGeometry().getWidth(), 3);
 
-        for (int i = 0; i < 2; ++i)
+        for (int row = 1; row <= 2; ++row)
         {
-            for (int j = 0; j < 3; ++j)
+            for (int col = 1; col <= 3; ++col)
             {
-                assertEquals((double) (i + j), spreadsheet.get(i, j));
+                assertEquals((float) (row + col), spreadsheet.getForWellLocation(row, col));
             }
         }
     }
 
     private long createFeatureValues(ImgFeatureDefDTO featureDef)
     {
-        int[] dims =
-            { 2, 3 };
-        MDDoubleArray array = new MDDoubleArray(dims);
-        for (int i = 0; i < 2; ++i)
+        final PlateFeatureValues values =
+                new PlateFeatureValues(Geometry.createFromRowColDimensions(2, 3));
+        for (int row = 1; row <= 2; ++row)
         {
-            for (int j = 0; j < 3; ++j)
+            for (int col = 1; col <= 3; ++col)
             {
-                array.set(i + j, i, j);
+                values.setForWellLocation(row + col, row, col);
             }
         }
-        ImgFeatureValuesDTO featureValues =
-                new ImgFeatureValuesDTO(0.0, 0.0, array, featureDef.getId());
+        final ImgFeatureValuesDTO featureValues =
+                new ImgFeatureValuesDTO(0.0, 0.0, values, featureDef.getId());
         return dao.addFeatureValues(featureValues);
     }
 

@@ -27,7 +27,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
+import ch.systemsx.cisd.base.convert.NativeTaggedArray;
+import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -123,7 +125,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         List<FeatureVectorDataset> dataSets =
                 screeningService.loadFeatures(SESSION_TOKEN, Arrays.asList(r1, r2), Arrays.asList(
                         "f1", "f2"));
-        
+
         assertSame(r1, dataSets.get(0).getDataset());
         assertEquals("[f1, f2]", dataSets.get(0).getFeatureNames().toString());
         assertFeatureVector(1, 1, dataSets.get(0).getFeatureVectors().get(0), 244.5, 245.5);
@@ -137,16 +139,16 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         assertEquals(2, dataSets.size());
         context.assertIsSatisfied();
     }
-    
+
     private void assertFeatureVector(int expectedRowNumber, int expectedColumnNumber,
             FeatureVector featureVector, double... expectedValues)
     {
         assertEquals(expectedRowNumber, featureVector.getWellPosition().getWellRow());
         assertEquals(expectedColumnNumber, featureVector.getWellPosition().getWellColumn());
-        
+
         assertEquals(asList(expectedValues), asList(featureVector.getValues()));
     }
-    
+
     private List<Double> asList(double[] values)
     {
         List<Double> list = new ArrayList<Double>();
@@ -157,7 +159,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         return list;
     }
 
-    private void prepareCreateFeatureVectorDataSet(final long dataSetID, final String... featureNames)
+    private void prepareCreateFeatureVectorDataSet(final long dataSetID,
+            final String... featureNames)
     {
         prepareGetFeatureDefinitions(dataSetID, featureNames);
         context.checking(new Expectations()
@@ -173,9 +176,12 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     {
                         one(dao).getFeatureValues(new ImgFeatureDefDTO(name, "", 0));
                         int offset = Integer.parseInt(name, 16);
-                        MDDoubleArray array = new MDDoubleArray(new double[][]
-                            {
-                                { 3.5 * dataSetID + offset, 1.25 * dataSetID + offset } });
+                        PlateFeatureValues array =
+                                new PlateFeatureValues(NativeTaggedArray
+                                        .toByteArray(new MDFloatArray(new float[][]
+                                            {
+                                                { 3.5f * dataSetID + offset },
+                                                { 1.25f * dataSetID + offset } })));
                         will(returnValue(Arrays
                                 .asList(new ImgFeatureValuesDTO(0.0, 0.0, array, 0L))));
                     }
@@ -183,8 +189,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
     }
 
-    private void prepareGetFeatureDefinitions(final long dataSetID,
-            final String... featureNames)
+    private void prepareGetFeatureDefinitions(final long dataSetID, final String... featureNames)
     {
         context.checking(new Expectations()
             {

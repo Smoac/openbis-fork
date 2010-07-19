@@ -26,8 +26,9 @@ import java.util.List;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.DBUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
@@ -121,19 +122,15 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
             assertEquals(0.0, featureValues.getT());
             assertEquals(0.0, featureValues.getZ());
 
-            MDDoubleArray spreadsheet = featureValues.getValuesDoubleArray();
-            int[] dims =
-                { 3, 5 };
-            int[] spreadsheetDims = spreadsheet.dimensions();
-            assertEquals(spreadsheetDims.length, dims.length);
-            assertEquals(spreadsheetDims[0], dims[0]);
-            assertEquals(spreadsheetDims[1], dims[1]);
+            PlateFeatureValues spreadsheet = featureValues.getValues();
+            assertEquals(3, spreadsheet.getGeometry().getHeight());
+            assertEquals(5, spreadsheet.getGeometry().getWidth());
 
-            for (int i = 0; i < dims[0]; ++i)
+            for (int row = 1; row <= 3; ++row)
             {
-                for (int j = 0; j < dims[1]; ++j)
+                for (int col = 1; col <= 5; ++col)
                 {
-                    assertEquals((double) (i + j), spreadsheet.get(i, j));
+                    assertEquals((float) (row + col), spreadsheet.getForWellLocation(row, col));
                 }
             }
         }
@@ -163,7 +160,7 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
             String featureDesc = featureName + " desc";
             ImgFeatureDefDTO featureDef = new ImgFeatureDefDTO(featureName, featureDesc, 0);
             fvec.setFeatureDef(featureDef);
-            MDDoubleArray values = createValues(rowCount, columnCount);
+            PlateFeatureValues values = createValues(rowCount, columnCount);
             ImgFeatureValuesDTO featureValues = new ImgFeatureValuesDTO(0.0, 0.0, values, 0);
 
             fvec.setValues(Collections.singletonList(featureValues));
@@ -171,19 +168,19 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
             return fvec;
         }
 
-        private MDDoubleArray createValues(int rowCount, int columnCount)
+        private PlateFeatureValues createValues(int rowCount, int columnCount)
         {
-            int[] dims =
-                { rowCount, columnCount };
-            MDDoubleArray array = new MDDoubleArray(dims);
-            for (int i = 0; i < dims[0]; ++i)
+            PlateFeatureValues values =
+                    new PlateFeatureValues(Geometry.createFromRowColDimensions(rowCount,
+                            columnCount));
+            for (int row = 1; row <= rowCount; ++row)
             {
-                for (int j = 0; j < dims[1]; ++j)
+                for (int col = 1; col <= columnCount; ++col)
                 {
-                    array.set(i + j, i, j);
+                    values.setForWellLocation(row + col, row, col);
                 }
             }
-            return array;
+            return values;
         }
     }
 }

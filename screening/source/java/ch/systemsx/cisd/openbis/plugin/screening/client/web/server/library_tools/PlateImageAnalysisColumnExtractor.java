@@ -57,8 +57,8 @@ public class PlateImageAnalysisColumnExtractor extends AbstractColumnExtractor
         return getValue(row, WELL_ROW);
     }
 
-    public WellLocation getWellLocation(String[] row)
+    public PlateWellLocation getPlateWellLocation(String[] row)
     {
-        return new WellLocation(getPlateCode(row), getWellRow(row), getWellCol(row));
+        return new PlateWellLocation(getPlateCode(row), getWellRow(row), getWellCol(row));
     }
 }

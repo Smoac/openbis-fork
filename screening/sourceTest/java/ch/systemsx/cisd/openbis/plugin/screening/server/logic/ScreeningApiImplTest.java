@@ -86,7 +86,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         List<ImageDatasetReference> dataSets = screeningApi.listImageDatasets(Arrays.asList(pi1));
 
         assertEquals("1", dataSets.get(0).getDatasetCode());
-        assertEquals(new Geometry(16, 24), dataSets.get(0).getPlateGeometry());
+        assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(0).getPlateGeometry());
         assertEquals(new Date(100), dataSets.get(0).getRegistrationDate());
         assertEquals(SERVER_URL, dataSets.get(0).getDatastoreServerUrl());
         assertEquals(pi1, dataSets.get(0).getPlate());

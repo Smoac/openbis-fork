@@ -21,11 +21,11 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.library_tool
  * 
  * @author Tomasz Pylak
  */
-public class WellLocation
+public class PlateWellLocation
 {
     private final String barcode, row, col;
 
-    public WellLocation(String barcode, String row, String col)
+    public PlateWellLocation(String barcode, String row, String col)
     {
         this.barcode = barcode;
         this.row = row;
@@ -50,7 +50,7 @@ public class WellLocation
     @Override
     public boolean equals(Object o)
     {
-        WellLocation loc = (WellLocation) o;
+        PlateWellLocation loc = (PlateWellLocation) o;
         return barcode.equals(loc.barcode) && row.equals(loc.row) && col.equals(loc.col);
     }
 

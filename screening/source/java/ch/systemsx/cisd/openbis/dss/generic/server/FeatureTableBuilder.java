@@ -26,10 +26,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -136,9 +136,9 @@ public class FeatureTableBuilder
             String dataSetCode = bundle.dataSet.getPermId();
             ImgContainerDTO container = dao.getContainerById(bundle.dataSet.getContainerId());
             SampleIdentifier identifier = service.tryToGetSampleIdentifier(container.getPermId());
-            for (int rowIndex = 0; rowIndex < container.getNumberOfRows(); rowIndex++)
+            for (int rowIndex = 1; rowIndex <= container.getNumberOfRows(); rowIndex++)
             {
-                for (int colIndex = 0; colIndex < container.getNumberOfColumns(); colIndex++)
+                for (int colIndex = 1; colIndex <= container.getNumberOfColumns(); colIndex++)
                 {
                     FeatureTableRow row = new FeatureTableRow();
                     rows.add(row);
@@ -146,23 +146,23 @@ public class FeatureTableBuilder
                     row.setPlateIdentifier(identifier);
                     row.setRowIndex(rowIndex);
                     row.setColumnIndex(colIndex);
-                    double[] values = new double[featureNameToIndexMap.size()];
-                    for (int i = 0; i < values.length; i++)
+                    double[] valueArray = new double[featureNameToIndexMap.size()];
+                    for (int i = 0; i < valueArray.length; i++)
                     {
-                        values[i] = Double.NaN;
+                        valueArray[i] = Double.NaN;
                     }
                     for (Entry<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> entry : bundle.featureDefToValuesMap.entrySet())
                     {
                         ImgFeatureDefDTO featureDefinition = entry.getKey();
                         List<ImgFeatureValuesDTO> featureValueSets = entry.getValue();
                         // We take only the first set of feature value sets
-                        ImgFeatureValuesDTO featureValues = featureValueSets.get(0);
-                        MDDoubleArray array = featureValues.getValuesDoubleArray();
+                        ImgFeatureValuesDTO featureValueDTO = featureValueSets.get(0);
+                        PlateFeatureValues featureValues = featureValueDTO.getValues();
                         Integer index = featureNameToIndexMap.get(featureDefinition.getName());
                         assert index != null : "No index for feature " + featureDefinition.getName();
-                        values[index] = array.get(rowIndex, colIndex);
+                        valueArray[index] = featureValues.getForWellLocation(rowIndex, colIndex);
                     }
-                    row.setFeatureValues(values);
+                    row.setFeatureValues(valueArray);
                 }
             }
         }

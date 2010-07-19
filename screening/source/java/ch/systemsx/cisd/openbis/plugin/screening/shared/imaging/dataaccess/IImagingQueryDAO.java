@@ -142,7 +142,7 @@ public interface IImagingQueryDAO extends TransactionQuery
     public long addFeatureDef(ImgFeatureDefDTO featureDef);
 
     @Select(sql = "insert into FEATURE_VALUES (VALUES, Z_in_M, T_in_SEC, FD_ID) values "
-            + "(?{1.values}, ?{1.z}, ?{1.t}, ?{1.featureDefId}) RETURNING ID", parameterBindings =
+            + "(?{1.byteArray}, ?{1.z}, ?{1.t}, ?{1.featureDefId}) RETURNING ID", parameterBindings =
         { ByteArrayMapper.class })
     public long addFeatureValues(ImgFeatureValuesDTO featureValues);
 

@@ -21,7 +21,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.AssertJUnit;
@@ -29,12 +28,11 @@ import org.testng.annotations.Test;
 
 import com.csvreader.CsvReader;
 
-import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
@@ -47,7 +45,7 @@ public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
     public void testConversion() throws IOException
     {
         CsvToCanonicalFeatureVectorConfiguration config =
-                new CsvToCanonicalFeatureVectorConfiguration("WellName", "WellName", true);
+                new CsvToCanonicalFeatureVectorConfiguration("WellName", "WellName");
         CsvToCanonicalFeatureVector converter =
                 new CsvToCanonicalFeatureVector(getDatasetFileLines(), config);
         ArrayList<CanonicalFeatureVector> fvs = converter.convert();
@@ -59,24 +57,24 @@ public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
         assertEquals("TotalCells", def.getName());
         assertEquals(1, totalCells.getValues().size());
         ImgFeatureValuesDTO values = totalCells.getValues().get(0);
-        MDDoubleArray darr = values.getValuesDoubleArray();
-        assertTrue("Dimensions are " + Arrays.toString(darr.dimensions()), Arrays.equals(new int[]
-            { 16, 24 }, darr.dimensions()));
-        assertEquals(2825.0, darr.get(0, 0));
-        assertEquals(5544.0, darr.get(0, 1));
-        assertEquals(5701.0, darr.get(1, 0));
+        PlateFeatureValues darr = values.getValues();
+        assertTrue("Dimensions are " + darr.getGeometry().toPlateGeometryStr(),
+                Geometry.GEOMETRY_384_16X24.equals(darr.getGeometry()));
+        assertEquals(2825.0f, darr.getForWellLocation(1, 1));
+        assertEquals(5544.0f, darr.getForWellLocation(1, 2));
+        assertEquals(5701.0f, darr.getForWellLocation(2, 1));
         // Check InfectionIndex
         CanonicalFeatureVector infectionIndex = fvs.get(2);
         def = infectionIndex.getFeatureDef();
         assertEquals("InfectionIndex", def.getName());
         assertEquals(1, infectionIndex.getValues().size());
         values = infectionIndex.getValues().get(0);
-        darr = values.getValuesDoubleArray();
-        assertTrue("Dimensions are " + Arrays.toString(darr.dimensions()), Arrays.equals(new int[]
-            { 16, 24 }, darr.dimensions()));
-        assertEquals(0.009558, darr.get(0, 0));
-        assertEquals(0.037157, darr.get(0, 1));
-        assertEquals(0.001052, darr.get(1, 0));
+        darr = values.getValues();
+        assertTrue("Dimensions are " + darr.getGeometry().toPlateGeometryStr(),
+                Geometry.GEOMETRY_384_16X24.equals(darr.getGeometry()));
+        assertEquals(0.009558f, darr.getForWellLocation(1, 1));
+        assertEquals(0.037157f, darr.getForWellLocation(1, 2));
+        assertEquals(0.001052f, darr.getForWellLocation(2, 1));
     }
 
     /**

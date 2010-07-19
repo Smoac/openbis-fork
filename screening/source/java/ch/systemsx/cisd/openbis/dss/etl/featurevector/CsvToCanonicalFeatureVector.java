@@ -21,10 +21,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
-import ch.systemsx.cisd.common.geometry.ConversionUtils;
-import ch.systemsx.cisd.common.geometry.Point;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateFeatureValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
@@ -41,16 +41,12 @@ public class CsvToCanonicalFeatureVector
 
         private final String wellColumnColumn;
 
-        private final boolean isWellColumnAlphanumeric;
-
         private final boolean isSplit;
 
-        public CsvToCanonicalFeatureVectorConfiguration(String wellRow, String wellColumn,
-                boolean wellColumnIsAlphanumeric)
+        public CsvToCanonicalFeatureVectorConfiguration(String wellRow, String wellColumn)
         {
             this.wellRowColumn = wellRow;
             this.wellColumnColumn = wellColumn;
-            this.isWellColumnAlphanumeric = wellColumnIsAlphanumeric;
 
             isSplit = (false == wellRow.equals(wellColumn));
         }
@@ -63,11 +59,6 @@ public class CsvToCanonicalFeatureVector
         public String getWellColumnColumn()
         {
             return wellColumnColumn;
-        }
-
-        public boolean isWellColumnAlphanumeric()
-        {
-            return isWellColumnAlphanumeric;
         }
 
         public boolean isSplit()
@@ -89,9 +80,9 @@ public class CsvToCanonicalFeatureVector
 
     private int yColumn = -1;
 
-    private int maxX = 0;
+    private int maxRow = 0;
 
-    private int maxY = 0;
+    private int maxCol = 0;
 
     public CsvToCanonicalFeatureVector(DatasetFileLines fileLines,
             CsvToCanonicalFeatureVectorConfiguration config)
@@ -111,8 +102,7 @@ public class CsvToCanonicalFeatureVector
 
     private ArrayList<CanonicalFeatureVector> convertColumnsToFeatureVectors()
     {
-        int[] dims =
-            { maxX + 1, maxY + 1 };
+        final Geometry geometry = Geometry.createFromRowColDimensions(maxRow, maxCol);
 
         ArrayList<CanonicalFeatureVector> result = new ArrayList<CanonicalFeatureVector>();
         for (FeatureColumn column : columns)
@@ -121,33 +111,34 @@ public class CsvToCanonicalFeatureVector
             {
                 continue;
             }
-            CanonicalFeatureVector featureVector = convertColumnToFeatureVector(dims, column);
+            CanonicalFeatureVector featureVector = convertColumnToFeatureVector(geometry, column);
             result.add(featureVector);
         }
 
         return result;
     }
 
-    private CanonicalFeatureVector convertColumnToFeatureVector(int[] dims, FeatureColumn column)
+    private CanonicalFeatureVector convertColumnToFeatureVector(Geometry geometry,
+            FeatureColumn column)
     {
         CanonicalFeatureVector featureVector = new CanonicalFeatureVector();
         featureVector.setFeatureDef(new ImgFeatureDefDTO(column.name, column.name, 0));
-        MDDoubleArray valuesValues = convertColumnToByteArray(dims, column);
+        final PlateFeatureValues valuesValues = convertColumnToByteArray(geometry, column);
         ImgFeatureValuesDTO values = new ImgFeatureValuesDTO(0., 0., valuesValues, 0);
         featureVector.setValues(Collections.singletonList(values));
         return featureVector;
     }
 
-    private MDDoubleArray convertColumnToByteArray(int[] dims, FeatureColumn column)
+    private PlateFeatureValues convertColumnToByteArray(Geometry geometry, FeatureColumn column)
     {
-        MDDoubleArray doubleArray = new MDDoubleArray(dims);
-        for (Point loc : column.values.keySet())
+        final PlateFeatureValues featureValues = new PlateFeatureValues(geometry);
+        for (WellLocation loc : column.values.keySet())
         {
-            Double value = column.values.get(loc);
-            doubleArray.set(value, loc.getX(), loc.getY());
+            final Float value = column.values.get(loc);
+            featureValues.setForWellLocation(value, loc);
         }
 
-        return doubleArray;
+        return featureValues;
     }
 
     private void readLines()
@@ -160,7 +151,7 @@ public class CsvToCanonicalFeatureVector
 
     private void readLine(String[] line)
     {
-        Point point = readPointFromLine(line);
+        final WellLocation well = readWellLocationFromLine(line);
         for (FeatureColumn column : columns)
         {
             if ((true == column.isWellName) || (false == column.isNumeric))
@@ -169,7 +160,7 @@ public class CsvToCanonicalFeatureVector
             }
             try
             {
-                column.values.put(point, Double.parseDouble(line[column.index]));
+                column.values.put(well, Float.parseFloat(line[column.index]));
             } catch (NumberFormatException ex)
             {
                 // skip this column in the future
@@ -177,34 +168,27 @@ public class CsvToCanonicalFeatureVector
             }
         }
 
-        if (point.getX() > maxX)
+        if (well.getRow() > maxRow)
         {
-            maxX = point.getX();
+            maxRow = well.getRow();
         }
 
-        if (point.getY() > maxY)
+        if (well.getColumn() > maxCol)
         {
-            maxY = point.getY();
+            maxCol = well.getColumn();
         }
     }
 
-    private Point readPointFromLine(String[] line)
+    private WellLocation readWellLocationFromLine(String[] line)
     {
         if (configuration.isSplit())
         {
-            String xString = line[xColumn];
-            String yString = line[yColumn];
-            if (configuration.isWellColumnAlphanumeric())
-            {
-                return ConversionUtils.parseSpreadsheetLocation(xString + yString);
-            } else
-            {
-                // Well-locations are 1-offset; we need 0-offset to put into an matrix
-                return new Point(Integer.parseInt(xString) - 1, Integer.parseInt(yString) - 1);
-            }
+            String rowString = line[xColumn];
+            String colString = line[yColumn];
+            return WellLocation.parseLocationStr(rowString, colString);
         } else
         {
-            return ConversionUtils.parseSpreadsheetLocation(line[xColumn]);
+            return WellLocation.parseLocationStr(line[xColumn]);
         }
     }
 
@@ -249,7 +233,7 @@ public class CsvToCanonicalFeatureVector
 
         private final boolean isWellName;
 
-        private final HashMap<Point, Double> values;
+        private final HashMap<WellLocation, Float> values;
 
         // this may change during the course of reading the file
         private boolean isNumeric = true;
@@ -259,7 +243,7 @@ public class CsvToCanonicalFeatureVector
             this.index = index;
             this.name = name;
             this.isWellName = isWellName;
-            values = new HashMap<Point, Double>();
+            values = new HashMap<WellLocation, Float>();
         }
     }
 }

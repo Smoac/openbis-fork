@@ -50,7 +50,7 @@ public class CsvFeatureVectorMigrator extends AbstractFeatureVectorMigrator
         this.configuration = new FeatureVectorStorageProcessorConfiguration(properties);
         convertorConfig =
                 new CsvToCanonicalFeatureVectorConfiguration(configuration.getWellRow(),
-                        configuration.getWellColumn(), configuration.isWellColAlphanumeric());
+                        configuration.getWellColumn());
     }
 
     @Override

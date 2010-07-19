@@ -32,16 +32,11 @@ class FeatureVectorStorageProcessorConfiguration implements
 
     private static final String WELL_NAME_COL_PROPERTY_KEY = "well-name-col";
 
-    private static final String WELL_NAME_COL_ALPHA_NUM_PROPERTY_KEY =
-            "well-name-col-is-alphanum";
-
     private static final char DEFAULT_DELIMITER = ';';
 
     private static final String DEFAULT_WELL_ROW = "WellName";
 
     private static final String DEFAULT_WELL_COL = "WellName";
-
-    private static final boolean DEFAULT_WELL_ROW_ALPHANUM = true;
 
     private final char columnDelimiter;
 
@@ -52,8 +47,6 @@ class FeatureVectorStorageProcessorConfiguration implements
     private final String wellRow;
 
     private final String wellColumn;
-
-    private final boolean isWellColAlphanumeric;
 
     FeatureVectorStorageProcessorConfiguration(Properties properties)
     {
@@ -67,10 +60,6 @@ class FeatureVectorStorageProcessorConfiguration implements
         this.wellRow = properties.getProperty(WELL_NAME_ROW_PROPERTY_KEY, DEFAULT_WELL_ROW);
 
         this.wellColumn = properties.getProperty(WELL_NAME_COL_PROPERTY_KEY, DEFAULT_WELL_COL);
-
-        this.isWellColAlphanumeric =
-                PropertyUtils.getBoolean(properties, WELL_NAME_COL_ALPHA_NUM_PROPERTY_KEY,
-                        DEFAULT_WELL_ROW_ALPHANUM);
     }
 
     public char getColumnDelimiter()
@@ -101,10 +90,5 @@ class FeatureVectorStorageProcessorConfiguration implements
     public String getWellColumn()
     {
         return wellColumn;
-    }
-
-    public boolean isWellColAlphanumeric()
-    {
-        return isWellColAlphanumeric;
     }
 }

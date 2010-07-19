@@ -24,10 +24,11 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.geometry.Point;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateFeatureValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
@@ -72,24 +73,24 @@ public class GenedataFormatToCanonicalFeatureVector
 
     private CanonicalFeatureVector convertFeatureToFeatureVector(FeatureParser feature)
     {
-        int[] dims =
-            { feature.numberOfRows, feature.numberOfColumns };
+        final Geometry geometry =
+                Geometry.createFromRowColDimensions(feature.numberOfRows, feature.numberOfColumns);
 
         CanonicalFeatureVector featureVector = new CanonicalFeatureVector();
         featureVector.setFeatureDef(new ImgFeatureDefDTO(feature.name, feature.name, 0));
-        MDDoubleArray valuesValues = convertColumnToByteArray(dims, feature);
+        PlateFeatureValues valuesValues = convertColumnToValues(geometry, feature);
         ImgFeatureValuesDTO values = new ImgFeatureValuesDTO(0., 0., valuesValues, 0);
         featureVector.setValues(Collections.singletonList(values));
         return featureVector;
     }
 
-    private MDDoubleArray convertColumnToByteArray(int[] dims, FeatureParser feature)
+    private PlateFeatureValues convertColumnToValues(Geometry geometry, FeatureParser feature)
     {
-        MDDoubleArray doubleArray = new MDDoubleArray(dims);
-        for (Point loc : feature.values.keySet())
+        PlateFeatureValues doubleArray = new PlateFeatureValues(geometry);
+        for (WellLocation loc : feature.values.keySet())
         {
-            Double value = feature.values.get(loc);
-            doubleArray.set(value, loc.getX(), loc.getY());
+            Float value = feature.values.get(loc);
+            doubleArray.setForWellLocation(value, loc);
         }
 
         return doubleArray;
@@ -186,7 +187,7 @@ public class GenedataFormatToCanonicalFeatureVector
 
         private final int numberOfColumns;
 
-        private final HashMap<Point, Double> values;
+        private final HashMap<WellLocation, Float> values;
 
         // this is not known until we complete processing
         private int numberOfRows = 0;
@@ -196,7 +197,7 @@ public class GenedataFormatToCanonicalFeatureVector
             this.name = name;
             this.lines = lines;
             this.numberOfColumns = computeNumberOfColumns(lines);
-            values = new HashMap<Point, Double>();
+            values = new HashMap<WellLocation, Float>();
             rowLetters = new ArrayList<String>();
         }
 
@@ -238,13 +239,14 @@ public class GenedataFormatToCanonicalFeatureVector
 
             for (int i = 0; tokenizer.hasMoreTokens(); ++i)
             {
-                String token = tokenizer.nextToken();
-                Point point = new Point(rowLetters.size() - 1, i);
+                final String token = tokenizer.nextToken();
+                final WellLocation wellLocation = WellLocation.parseLocationStr(rowLetter, i + 1);
                 try
                 {
-                    values.put(point, Double.parseDouble(token));
+                    values.put(wellLocation, Float.parseFloat(token));
                 } catch (NumberFormatException ex)
                 {
+                    values.put(wellLocation, Float.NaN);
                 }
             }
         }

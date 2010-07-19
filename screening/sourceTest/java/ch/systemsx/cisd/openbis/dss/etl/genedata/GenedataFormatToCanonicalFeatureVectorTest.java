@@ -22,10 +22,10 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
@@ -55,15 +55,15 @@ public class GenedataFormatToCanonicalFeatureVectorTest extends AbstractFileSyst
 
         assertEquals(2, features.size());
 
-        double[] feature1Values =
-            { 4.5, 4.6, 3.5, 5.6, 3.3, 5.7 };
+        float[] feature1Values =
+            { 4.5f, 4.6f, 3.5f, 5.6f, 3.3f, 5.7f };
         verifyFeature(features.get(0), "alpha", feature1Values);
-        double[] feature2Values =
-            { 14.5, 14.6, 13.5, 15.6, 13.3, 15.7 };
+        float[] feature2Values =
+            { 14.5f, 14.6f, 13.5f, 15.6f, 13.3f, 15.7f };
         verifyFeature(features.get(1), "beta", feature2Values);
     }
 
-    private void verifyFeature(CanonicalFeatureVector feature, String featureName, double[] values)
+    private void verifyFeature(CanonicalFeatureVector feature, String featureName, float[] values)
     {
         ImgFeatureDefDTO featureDef = feature.getFeatureDef();
         assertEquals(featureName, featureDef.getName());
@@ -72,12 +72,11 @@ public class GenedataFormatToCanonicalFeatureVectorTest extends AbstractFileSyst
         ImgFeatureValuesDTO featureValue = featureValues.get(0);
         assertEquals(0., featureValue.getT());
         assertEquals(0., featureValue.getZ());
-        MDDoubleArray array = featureValue.getValuesDoubleArray();
-        assertEquals(values[0], array.get(0, 0));
-        assertEquals(values[1], array.get(0, 1));
-        assertEquals(values[2], array.get(1, 0));
-        assertEquals(values[3], array.get(1, 1));
-        assertEquals(values[4], array.get(2, 0));
-        assertEquals(values[5], array.get(2, 1));
+        PlateFeatureValues array = featureValue.getValues();
+        assertEquals(values[0], array.getForWellLocation(1, 1));
+        assertEquals(values[1], array.getForWellLocation(1, 2));
+        assertEquals(values[2], array.getForWellLocation(2, 1));
+        assertEquals(values[3], array.getForWellLocation(2, 2));
+        assertEquals(values[4], array.getForWellLocation(3, 1));
     }
 }
