@@ -64,15 +64,15 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     static final String MAIN_DATA_SET_PATTERN_KEY = "mdsPattern";
 
     private static String DOWNLOAD_URL;
-    
+
     static void setDownloadUrl(String downloadUrl)
     {
         if (downloadUrl.endsWith("/"))
         {
-            DOWNLOAD_URL = downloadUrl;
+            DOWNLOAD_URL = downloadUrl.substring(0, downloadUrl.length() - 1);
         } else
         {
-            DOWNLOAD_URL = downloadUrl + "/";
+            DOWNLOAD_URL = downloadUrl;
         }
     }
 
