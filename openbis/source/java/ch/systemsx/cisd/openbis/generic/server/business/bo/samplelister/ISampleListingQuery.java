@@ -230,7 +230,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.dbin_id, "
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
-            + "   from samples s where s.saty_id=?{1} and id s.in ("
+            + "   from samples s where s.saty_id=?{1} and s.id in ("
             + "       select samp_id from sample_properties sp where sp.stpt_id in ("
             + "              select id from sample_type_property_types stpt where stpt.prty_id = "
             + "                     (select id from property_types where code=?{2})"
