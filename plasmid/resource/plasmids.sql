@@ -2078,8 +2078,8 @@ COPY data_set_type_property_types (id, dsty_id, prty_id, is_mandatory, is_manage
 
 COPY data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) FROM stdin;
 1	UNKNOWN	\N	1	2010-05-26 17:41:21.272491+02	\N	\N
-2	GB	\N	1	2010-05-26 17:41:21.272491+02	\N	\N
-3	SEQUENCING	\N	1	2010-05-26 17:41:58.696032+02	\N	\N
+2	SEQ_FILE	\N	1	2010-05-26 17:41:21.272491+02	\N	\N
+3	RAW_DATA	\N	1	2010-05-26 17:41:58.696032+02	\N	\N
 4	VERIFICATION	\N	1	2010-05-26 17:42:07.328466+02	*.*	\N
 \.
 
@@ -2201,7 +2201,12 @@ COPY external_data (data_id, location, ffty_id, loty_id, cvte_id_stor_fmt, is_co
 --
 
 COPY file_format_types (id, code, description, dbin_id) FROM stdin;
-2	PROPRIETARY	Proprietary Format File	1
+1	PROPRIETARY	Proprietary File Format	1
+2	DIRECTORY		1
+3	GB		1
+4	FASTA		1
+5	XDNA		1
+6	AB1		1
 \.
 
 
