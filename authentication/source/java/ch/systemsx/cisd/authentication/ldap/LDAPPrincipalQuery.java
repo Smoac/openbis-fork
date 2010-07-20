@@ -258,7 +258,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
 
     private DirContext createContext() throws NamingException
     {
-        if (config.isUserIdAsDistinguishedName())
+        if (Boolean.parseBoolean(config.getUserIdAsDistinguishedName()))
         {
             return createContextForDistinguishedName(config.getUserId(), config.getPassword());
         } else

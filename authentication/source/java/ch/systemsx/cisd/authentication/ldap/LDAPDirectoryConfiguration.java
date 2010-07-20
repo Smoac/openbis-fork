@@ -268,9 +268,9 @@ public final class LDAPDirectoryConfiguration
         this.userId = userId;
     }
 
-    public boolean isUserIdAsDistinguishedName()
+    public String getUserIdAsDistinguishedName()
     {
-        return userIdAsDistinguishedName;
+        return Boolean.toString(userIdAsDistinguishedName);
     }
 
     /**
