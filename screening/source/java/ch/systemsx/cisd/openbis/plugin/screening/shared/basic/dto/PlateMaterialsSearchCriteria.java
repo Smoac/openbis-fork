@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -62,7 +61,21 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
     @Override
     public String toString()
     {
-        return "Experiment id: " + experimentId + ", gene symbols: " + Arrays.toString(geneSymbols);
+        return "Experiment id: " + experimentId + ", gene symbols: " + printGenes();
+    }
+
+    private String printGenes()
+    {
+        StringBuffer sb = new StringBuffer();
+        for (String gene : geneSymbols)
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(",");
+            }
+            sb.append(gene);
+        }
+        return sb.toString();
     }
 
 }
