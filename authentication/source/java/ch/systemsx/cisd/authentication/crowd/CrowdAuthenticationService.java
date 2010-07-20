@@ -19,6 +19,7 @@ package ch.systemsx.cisd.authentication.crowd;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -431,6 +432,36 @@ public class CrowdAuthenticationService implements IAuthenticationService
         }
         final int index = matcher.start(1);
         return index;
+    }
+
+    public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean supportsListingByEmail()
+    {
+        return false;
+    }
+
+    public boolean supportsListingByLastName()
+    {
+        return false;
+    }
+
+    public boolean supportsListingByUserId()
+    {
+        return false;
     }
 
 }

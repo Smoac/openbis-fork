@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.authentication;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
@@ -47,6 +49,36 @@ public class NullAuthenticationService implements IAuthenticationService
     }
 
     public boolean isRemote()
+    {
+        return false;
+    }
+
+    public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean supportsListingByEmail()
+    {
+        return false;
+    }
+
+    public boolean supportsListingByLastName()
+    {
+        return false;
+    }
+
+    public boolean supportsListingByUserId()
     {
         return false;
     }

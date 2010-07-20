@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.authentication;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 
 /**
@@ -32,8 +34,8 @@ public interface IAuthenticationService extends ISelfTestable
      * application could register itself successfully or not.
      * <p>
      * The returned application token can then be used to authenticate an user (via
-     * {@link #authenticateUser(String, String, String)}) or to retrieve additional details about
-     * an user (via {@link #getPrincipal(String, String)})
+     * {@link #authenticateUser(String, String, String)}) or to retrieve additional details about an
+     * user (via {@link #getPrincipal(String, String)})
      * </p>
      * 
      * @return the application token if the application has been successfully authenticated,
@@ -66,4 +68,54 @@ public interface IAuthenticationService extends ISelfTestable
      */
     public Principal getPrincipal(String applicationToken, String user)
             throws IllegalArgumentException;
+
+    /**
+     * Returns <code>true</code> if this authentication service supports listing of principals by
+     * user id.
+     */
+    public boolean supportsListingByUserId();
+
+    /**
+     * Returns a list of all users that match the <var>userIdQuery</var>.
+     * 
+     * @param userIdQuery The query for user ids to list. As user ids are unique, it can only
+     *            ever return more than one user if it contains one or more wildcard characters (
+     *            <code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this
+     *             operation.
+     */
+    public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery);
+
+    /**
+     * Returns <code>true</code> if this authentication service supports listing of principals by
+     * email address.
+     */
+    public boolean supportsListingByEmail();
+
+    /**
+     * Returns a list of all users that match the <var>emailQuery</var>.
+     * 
+     * @param emailQuery The query for email addresses to list. May contain one or more wildcard
+     *            characters (<code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this
+     *             operation.
+     */
+    public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery);
+
+    /**
+     * Returns <code>true</code> if this authentication service supports listing of principals by
+     * last name.
+     */
+    public boolean supportsListingByLastName();
+
+    /**
+     * Returns a list of all users that match the <var>lastNameQuery</var>.
+     * 
+     * @param lastNameQuery The query for last names to list. May contain one or more wildcard
+     *            characters (<code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this
+     *             operation.
+     */
+    public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery);
+
 }

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.authentication;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -63,13 +65,44 @@ public final class DummyAuthenticationService implements IAuthenticationService
         return new Principal(user, firstName, lastName, "franz-josef.elmer@systemsx.ch");
     }
 
+    public boolean isRemote()
+    {
+        return false;
+    }
+
+    public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean supportsListingByEmail()
+    {
+        return false;
+    }
+
+    public boolean supportsListingByLastName()
+    {
+        return false;
+    }
+
+    public boolean supportsListingByUserId()
+    {
+        return false;
+    }
+
     public final void check()
     {
         // Always available.
     }
 
-    public boolean isRemote()
-    {
-        return false;
-    }
 }

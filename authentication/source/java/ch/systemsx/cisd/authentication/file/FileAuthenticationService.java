@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.authentication.file;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -108,6 +109,36 @@ public class FileAuthenticationService implements IAuthenticationService
             throw new IllegalArgumentException("Cannot find user '" + user + "'.");
         }
         return userOrNull.asPrincipal();
+    }
+
+    public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean supportsListingByEmail()
+    {
+        return false;
+    }
+
+    public boolean supportsListingByLastName()
+    {
+        return false;
+    }
+
+    public boolean supportsListingByUserId()
+    {
+        return false;
     }
 
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
