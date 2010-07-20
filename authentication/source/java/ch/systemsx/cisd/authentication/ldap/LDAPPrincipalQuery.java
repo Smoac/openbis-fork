@@ -175,7 +175,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         DirContext context = null;
         try
         {
-            context = createContext(config.getUserId(), config.getPassword());
+            context = createContext();
             try
             {
                 final SearchControls ctrl = new SearchControls();
@@ -224,7 +224,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         DirContext context = null;
         try
         {
-            context = createContext(config.getUserId(), config.getPassword());
+            context = createContext();
             try
             {
                 final SearchControls ctrl = new SearchControls();
@@ -256,6 +256,17 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         }
     }
 
+    private DirContext createContext() throws NamingException
+    {
+        if (config.isUserIdAsDistinguishedName())
+        {
+            return createContextForDistinguishedName(config.getUserId(), config.getPassword());
+        } else
+        {
+            return createContext(config.getUserId(), config.getPassword());
+        }
+    }
+    
     private DirContext createContext(String userId, String password) throws NamingException
     {
         return createContextForDistinguishedName(createDistinguishedName(userId), password);
@@ -263,7 +274,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
 
     private String createDistinguishedName(String userId)
     {
-        return String.format(config.getSecurityPrincipalTemplate(), userId);
+        return String.format(config.getSecurityPrincipalDistinguishedNameTemplate(), userId);
     }
 
     private DirContext createContextForDistinguishedName(String dn, String password)
@@ -304,7 +315,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
     {
         try
         {
-            createContext(config.getUserId(), config.getPassword());
+            createContext();
         } catch (AuthenticationException ex)
         {
             throw ConfigurationFailureException.fromTemplate(ex, AUTHENTICATION_FAILURE_TEMPLATE,

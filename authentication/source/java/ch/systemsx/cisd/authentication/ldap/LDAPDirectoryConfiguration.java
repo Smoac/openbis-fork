@@ -18,6 +18,8 @@ package ch.systemsx.cisd.authentication.ldap;
 
 import javax.naming.Context;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * The configuration for an LDAP directory server. Example:
  * 
@@ -53,9 +55,11 @@ public final class LDAPDirectoryConfiguration
             "(&(objectClass=organizationalPerson)(objectCategory=person)"
                     + "(objectClass=user)(%s))";
 
-    private String securityPrincipalTemplate;
+    private String securityPrincipalDistinguishedNameTemplate;
 
     private String serverUrl;
+
+    private boolean userIdAsDistinguishedName;
 
     private String userId;
 
@@ -71,7 +75,10 @@ public final class LDAPDirectoryConfiguration
 
     public void setUserIdAttributeName(String userIdAttributeName)
     {
-        this.userIdAttributeName = userIdAttributeName;
+        if (StringUtils.isNotBlank(userIdAttributeName))
+        {
+            this.userIdAttributeName = userIdAttributeName;
+        }
     }
 
     /**
@@ -84,7 +91,10 @@ public final class LDAPDirectoryConfiguration
 
     public void setLastNameAttributeName(String lastNameAttributeName)
     {
-        this.lastNameAttributeName = lastNameAttributeName;
+        if (StringUtils.isNotBlank(lastNameAttributeName))
+        {
+            this.lastNameAttributeName = lastNameAttributeName;
+        }
     }
 
     /**
@@ -97,7 +107,10 @@ public final class LDAPDirectoryConfiguration
 
     public void setFirstNameAttributeName(String firstNameAttributeName)
     {
-        this.firstNameAttributeName = firstNameAttributeName;
+        if (StringUtils.isNotBlank(firstNameAttributeName))
+        {
+            this.firstNameAttributeName = firstNameAttributeName;
+        }
     }
 
     /**
@@ -110,7 +123,10 @@ public final class LDAPDirectoryConfiguration
 
     public void setEmailAttributeName(String emailAttributeName)
     {
-        this.emailAttributeName = emailAttributeName;
+        if (StringUtils.isNotBlank(emailAttributeName))
+        {
+            this.emailAttributeName = emailAttributeName;
+        }
     }
 
     /**
@@ -130,15 +146,18 @@ public final class LDAPDirectoryConfiguration
      */
     public void setSecurityProtocol(String securityProtocol)
     {
-        this.securityProtocol = securityProtocol;
+        if (StringUtils.isNotBlank(securityProtocol))
+        {
+            this.securityProtocol = securityProtocol;
+        }
     }
 
     /**
      * @see Context#SECURITY_PRINCIPAL
      */
-    public String getSecurityPrincipalTemplate()
+    public String getSecurityPrincipalDistinguishedNameTemplate()
     {
-        return securityPrincipalTemplate;
+        return securityPrincipalDistinguishedNameTemplate;
     }
 
     /**
@@ -151,9 +170,9 @@ public final class LDAPDirectoryConfiguration
      * 
      * @see Context#SECURITY_PRINCIPAL
      */
-    public void setSecurityPrincipalTemplate(String securityPrincipalTemplate)
+    public void setSecurityPrincipalDistinguishedNameTemplate(String securityPrincipalTemplate)
     {
-        this.securityPrincipalTemplate = securityPrincipalTemplate;
+        this.securityPrincipalDistinguishedNameTemplate = securityPrincipalTemplate;
     }
 
     /**
@@ -171,7 +190,10 @@ public final class LDAPDirectoryConfiguration
      */
     public void setSecurityAuthenticationMethod(String securityAuthenticationMethod)
     {
-        this.securityAuthenticationMethod = securityAuthenticationMethod;
+        if (StringUtils.isNotBlank(securityAuthenticationMethod))
+        {
+            this.securityAuthenticationMethod = securityAuthenticationMethod;
+        }
     }
 
     /**
@@ -189,7 +211,10 @@ public final class LDAPDirectoryConfiguration
      */
     public void setReferral(String referral)
     {
-        this.referral = referral;
+        if (StringUtils.isNotBlank(referral))
+        {
+            this.referral = referral;
+        }
     }
 
     /**
@@ -207,7 +232,10 @@ public final class LDAPDirectoryConfiguration
      */
     public void setQueryTemplate(String queryTemplate)
     {
-        this.queryTemplate = queryTemplate;
+        if (StringUtils.isNotBlank(queryTemplate))
+        {
+            this.queryTemplate = queryTemplate;
+        }
     }
 
     public String getServerUrl()
@@ -238,6 +266,21 @@ public final class LDAPDirectoryConfiguration
     public void setUserId(String userId)
     {
         this.userId = userId;
+    }
+
+    public boolean isUserIdAsDistinguishedName()
+    {
+        return userIdAsDistinguishedName;
+    }
+
+    /**
+     * If set to <code>true</code>, the <code>userId</code> will be interpreted as a distinguished
+     * name and <code>securityPrincipalDistinguishedNameTemplate</code> will not be used for the
+     * login.
+     */
+    public void setUserIdAsDistinguishedName(boolean userIdIsDistinguishedName)
+    {
+        this.userIdAsDistinguishedName = userIdIsDistinguishedName;
     }
 
     public String getPassword()
