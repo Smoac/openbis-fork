@@ -36,6 +36,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
+ * Headless sample listing tests counterpart to {@link SampleBrowserTest}. Not included tests:
+ * <ul>
+ * <li>testChangeColumnSettings()
+ * <li>testExportMasterPlates()
+ * <li>testExportCellPlates()
+ * </ul>
+ * 
  * @see SampleBrowserTest
  * @author Piotr Buczek
  */
