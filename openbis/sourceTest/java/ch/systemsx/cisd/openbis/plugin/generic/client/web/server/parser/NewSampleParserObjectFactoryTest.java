@@ -55,7 +55,7 @@ public final class NewSampleParserObjectFactoryTest
     private final static IPropertyMapper createPropertyMapper()
     {
         final String[] properties = new String[]
-            { "identifier", "container", "parent", "prop1", "prop2" };
+            { "!toBeIgnored", "identifier", "container", "parent", "prop1", "prop2" };
         final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(properties);
         return propertyMapper;
     }
@@ -116,9 +116,9 @@ public final class NewSampleParserObjectFactoryTest
         return new Object[][]
             {
                 { new String[]
-                    { "", "", "", "", "" }, 0 },
+                    { "", "", "", "", "", "" }, 0 },
                 { new String[]
-                    { "id1", "cont1", "par1", "1", "hello" }, 2 },
+                    { "ignoreMe", "id1", "cont1", "par1", "1", "hello" }, 2 },
 
             };
     }
@@ -187,14 +187,14 @@ public final class NewSampleParserObjectFactoryTest
         final NewSampleParserObjectFactory parserObjectFactory =
                 createNewSampleParserObjectFactory(createPropertyMapper(), true);
         final NewSample objectCreated = parserObjectFactory.createObject(lineTokens);
-        assertEquals(objectCreated.getIdentifier(), lineTokens[0]);
+        assertEquals(objectCreated.getIdentifier(), lineTokens[1]);
         assertEquals(objectCreated.getContainerIdentifier(),
-                StringUtils.isEmpty(lineTokens[1]) ? null : lineTokens[1]);
-        assertEquals(objectCreated.getParentIdentifier(), StringUtils.isEmpty(lineTokens[2]) ? null
-                : lineTokens[2]);
+                StringUtils.isEmpty(lineTokens[2]) ? null : lineTokens[2]);
+        assertEquals(objectCreated.getParentIdentifier(), StringUtils.isEmpty(lineTokens[3]) ? null
+                : lineTokens[3]);
         final IEntityProperty[] properties = objectCreated.getProperties();
         assertEquals(numberOfProperties, properties.length);
-        int index = 3;
+        int index = 4;
         for (final IEntityProperty sampleProperty : properties)
         {
             sampleProperty.getValue().equals(lineTokens[index++]);

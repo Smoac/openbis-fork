@@ -33,6 +33,9 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public class DefaultPropertyMapper implements IPropertyMapper
 {
+
+    private static final String IGNORE_COLUMN_TOKEN = "!";
+
     private final TableMap<String, IPropertyModel> propertyModels;
 
     public DefaultPropertyMapper(final String[] properties) throws IllegalArgumentException
@@ -66,7 +69,10 @@ public class DefaultPropertyMapper implements IPropertyMapper
                 throw new IllegalArgumentException(String.format("%s token of %s is blank.",
                         StringUtilities.getOrdinal(i), Arrays.asList(properties)));
             }
-            propertyModels.add(new MappedProperty(i, token));
+            if (token.startsWith(IGNORE_COLUMN_TOKEN) == false)
+            {
+                propertyModels.add(new MappedProperty(i, token));
+            }
         }
     }
 
