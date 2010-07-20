@@ -82,8 +82,6 @@ public final class ETLDaemon
 
     public static final File updaterQueueFile = new File(".updater");
 
-    static final String STOREROOT_DIR_KEY = "storeroot-dir";
-
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
 
     private static final Logger operationLog =
@@ -231,12 +229,6 @@ public final class ETLDaemon
         mailClient.sendTestEmail();
     }
 
-    private final static File getStoreRootDir(final Properties properties)
-    {
-        return FileUtilities.normalizeFile(new File(PropertyUtils.getMandatoryProperty(properties,
-                STOREROOT_DIR_KEY)));
-    }
-
     @Private
     final static void migrateStoreRootDir(final File storeRootDir,
             final DatabaseInstance databaseInstance)
@@ -312,7 +304,7 @@ public final class ETLDaemon
             final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
         final IETLServerPlugin plugin = threadParameters.getPlugin();
-        final File storeRootDir = getStoreRootDir(properties);
+        final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
         plugin.getStorageProcessor().setStoreRootDirectory(storeRootDir);
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);

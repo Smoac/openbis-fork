@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
+import java.io.File;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
@@ -31,6 +33,9 @@ public class DssPropertyParametersUtil
 {
     @Private
     static final String DSS_CODE_KEY = "data-store-server-code";
+
+    @Private
+    public static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
@@ -49,6 +54,12 @@ public class DssPropertyParametersUtil
     public static String getDataStoreCode(Properties serviceProperties)
     {
         return PropertyUtils.getMandatoryProperty(serviceProperties, DSS_CODE_KEY);
+    }
+
+    public final static File getStoreRootDir(final Properties properties)
+    {
+        return FileUtilities.normalizeFile(new File(PropertyUtils.getMandatoryProperty(properties,
+                STOREROOT_DIR_KEY)));
     }
 
 }

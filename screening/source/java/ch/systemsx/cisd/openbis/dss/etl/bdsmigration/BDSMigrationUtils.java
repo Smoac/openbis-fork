@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * Constants and utility methods usful to migrate BDS datasets.
@@ -41,7 +42,7 @@ public class BDSMigrationUtils
 
     static final String VERSION_DIR = "version";
 
-    static final String ORIGINAL_DIR = "original";
+    static final String ORIGINAL_DIR = ScreeningConstants.ORIGINAL_DATA_DIR;
 
     static final String DIR_SEP = "/";
 

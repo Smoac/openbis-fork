@@ -93,6 +93,29 @@ public class ChainedDataSetMigrationTask implements IMaintenanceTask
 
     public void execute()
     {
+        File dbInstanceDir = tryGetDatabaseInstanceDir(storeRoot);
+        if (dbInstanceDir == null)
+        {
+            operationLog.warn("Store is empty, there is nothing to migrate");
+            return;
+        }
+        for (IMigrator migrator : migrators)
+        {
+            boolean success = migrate(dbInstanceDir, migrator);
+            if (success == false)
+            {
+                operationLog.error("Migration stopped at: " + migrator.getDescription());
+                break;
+            }
+        }
+    }
+
+    /**
+     * For a given datastore store directory returns the instance directory inside or null if it
+     * does not exist.
+     */
+    public static File tryGetDatabaseInstanceDir(File storeRoot)
+    {
         File[] files = storeRoot.listFiles(new FileFilter()
             {
                 public boolean accept(File pathname)
@@ -103,8 +126,7 @@ public class ChainedDataSetMigrationTask implements IMaintenanceTask
             });
         if (files == null || files.length == 0)
         {
-            operationLog.warn("Store is empty, there is nothing to migrate");
-            return;
+            return null;
         }
         if (files.length > 1)
         {
@@ -112,15 +134,7 @@ public class ChainedDataSetMigrationTask implements IMaintenanceTask
                     + storeRoot);
         }
         File dbInstanceDir = files[0];
-        for (IMigrator migrator : migrators)
-        {
-            boolean success = migrate(dbInstanceDir, migrator);
-            if (success == false)
-            {
-                operationLog.error("Migration stopped at: " + migrator.getDescription());
-                break;
-            }
-        }
+        return dbInstanceDir;
     }
 
     private boolean migrate(File dbInstanceDir, IMigrator migrator)

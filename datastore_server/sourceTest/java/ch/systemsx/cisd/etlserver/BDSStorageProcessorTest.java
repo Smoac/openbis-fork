@@ -33,6 +33,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.bds.DataSet;
 import ch.systemsx.cisd.bds.DataStructureLoader;
@@ -59,16 +60,17 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
@@ -76,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * 
  * @author Christian Ribeaud
  */
+@Friend(toClasses = DssPropertyParametersUtil.class)
 public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
 {
     private static final String EXAMPLE_EMAIL = "j@d";
@@ -134,7 +137,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     private final static Properties createProperties(final Format format)
     {
         final Properties props = createPropertiesWithVersion();
-        props.setProperty(ETLDaemon.STOREROOT_DIR_KEY, "store");
+        props.setProperty(DssPropertyParametersUtil.STOREROOT_DIR_KEY, "store");
         props.setProperty(SAMPLE_TYPE_DESCRIPTION_KEY, EXAMPLE_TYPE_DESCRIPTION);
         props.setProperty(SAMPLE_TYPE_CODE_KEY, "CELL_PLATE");
         props.setProperty(FORMAT_KEY, format.getCode() + " " + format.getVersion());
@@ -283,7 +286,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     public final void testCheckVersionInProperties()
     {
         final Properties props = new Properties();
-        props.setProperty(ETLDaemon.STOREROOT_DIR_KEY, "store");
+        props.setProperty(DssPropertyParametersUtil.STOREROOT_DIR_KEY, "store");
         final String version = "ae";
         props.setProperty(VERSION_PROPERTY_KEY, version);
         try
@@ -301,7 +304,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     public final void testCheckVersionCompatible()
     {
         final Properties props = new Properties();
-        props.setProperty(ETLDaemon.STOREROOT_DIR_KEY, "store");
+        props.setProperty(DssPropertyParametersUtil.STOREROOT_DIR_KEY, "store");
         props.setProperty(VERSION_PROPERTY_KEY, "1.2");
         try
         {

@@ -27,6 +27,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
  */
 public class ScreeningConstants
 {
+    // name of the directory inside the dataset where files in original form are stored
+    public static final String ORIGINAL_DATA_DIR = "original";
+
     // name of the data source (configured in service.properties) which allows to access imaging db
     public static final String IMAGING_DATA_SOURCE = "imaging-db";
 
@@ -48,8 +51,6 @@ public class ScreeningConstants
     public static final String IMAGE_ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA";
 
     public static final String OLIGO_WELL_TYPE_CODE = "OLIGO_WELL";
-
-    public static final String CONTROL_WELL_TYPE_CODE = "CONTROL_WELL";
 
     public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
 

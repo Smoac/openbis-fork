@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.etl.featurevector;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -39,6 +38,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper;
 
@@ -49,7 +49,7 @@ import ch.systemsx.cisd.utils.CsvFileReaderHelper;
  */
 public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProcessor
 {
-    private static final String ORIGINAL_DIR = "original";
+    private static final String ORIGINAL_DIR = ScreeningConstants.ORIGINAL_DATA_DIR;
 
     private final FeatureVectorStorageProcessorConfiguration configuration;
 
@@ -102,7 +102,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         DatasetFileLines fileLines = getDatasetFileLines(dataSet);
         CsvToCanonicalFeatureVector convertor =
                 new CsvToCanonicalFeatureVector(fileLines, convertorConfig);
-        ArrayList<CanonicalFeatureVector> fvecs = convertor.convert();
+        List<CanonicalFeatureVector> fvecs = convertor.convert();
 
         dataAccessObject = createDAO();
         FeatureVectorUploader uploader =
@@ -115,8 +115,8 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
             DataSetInformation dataSetInformation)
     {
         Sample sampleOrNull = tryFindSampleForDataSet(dataSetInformation);
-        return ScreeningContainerDatasetInfo.createScreeningDatasetInfoWithSample(dataSetInformation,
-                sampleOrNull);
+        return ScreeningContainerDatasetInfo.createScreeningDatasetInfoWithSample(
+                dataSetInformation, sampleOrNull);
     }
 
     private Sample tryFindSampleForDataSet(DataSetInformation dataSetInformation)

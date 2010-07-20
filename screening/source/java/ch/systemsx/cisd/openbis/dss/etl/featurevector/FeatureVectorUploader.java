@@ -41,16 +41,24 @@ public class FeatureVectorUploader
         this.info = info;
     }
 
+    /** creates a dataset and uploads feature vectors, creates experiment and container if needed */
     public void uploadFeatureVectors(List<CanonicalFeatureVector> fvecs)
     {
         ScreeningContainerDatasetInfoHelper helper = new ScreeningContainerDatasetInfoHelper(dao);
         long contId = helper.getOrCreateExperimentAndContainer(info).getContainerId();
         long dataSetId = helper.createDataset(contId, info);
 
+        uploadFeatureVectors(dao, fvecs, dataSetId);
+    }
+
+    /** uploads feature vectors for a given dataset id */
+    public static void uploadFeatureVectors(IImagingQueryDAO dao,
+            List<CanonicalFeatureVector> fvecs, long dataSetId)
+    {
         for (CanonicalFeatureVector fvec : fvecs)
         {
             FeatureVectorUploaderHelper fvecUploader =
-                    new FeatureVectorUploaderHelper(dao, info, dataSetId, fvec);
+                    new FeatureVectorUploaderHelper(dao, dataSetId, fvec);
             fvecUploader.createFeatureDef();
             fvecUploader.createFeatureValues();
         }
@@ -64,8 +72,8 @@ public class FeatureVectorUploader
 
         private final CanonicalFeatureVector fvec;
 
-        FeatureVectorUploaderHelper(IImagingQueryDAO dao, ScreeningContainerDatasetInfo info,
-                long dataSetId, CanonicalFeatureVector fvec)
+        FeatureVectorUploaderHelper(IImagingQueryDAO dao, long dataSetId,
+                CanonicalFeatureVector fvec)
         {
             this.dao = dao;
             this.dataSetId = dataSetId;

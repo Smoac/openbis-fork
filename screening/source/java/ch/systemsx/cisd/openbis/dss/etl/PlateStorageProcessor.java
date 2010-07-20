@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 
 /**
@@ -78,8 +79,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
  * or 'false', 'false' is the default value
  * <li>thumbnail-max-width, thumbnail-max-height - thumbnails size in pixels
  * <li>channel-names - names of the channels in which images have been acquired
- * <li>well_geometry - format: [width]>x[height], e.g. 3x4. Specifies the grid into which a microscope
- * divided the well to acquire images.
+ * <li>well_geometry - format: [width]>x[height], e.g. 3x4. Specifies the grid into which a
+ * microscope divided the well to acquire images.
  * <li>file-extractor - implementation of the {@link IHCSImageFileExtractor} interface which maps
  * images to the location on the plate and particular channel
  * <li>data-source - specification of the imaging db
@@ -94,7 +95,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 {
 
     /** The directory where <i>original</i> data could be found. */
-    private static final String DIR_ORIGINAL = "original";
+    private static final String DIR_ORIGINAL = ScreeningConstants.ORIGINAL_DATA_DIR;
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PlateStorageProcessor.class);
