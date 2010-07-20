@@ -78,13 +78,15 @@ public interface IAuthenticationService extends ISelfTestable
     /**
      * Returns a list of all users that match the <var>userIdQuery</var>.
      * 
-     * @param userIdQuery The query for user ids to list. As user ids are unique, it can only
-     *            ever return more than one user if it contains one or more wildcard characters (
+     * @param userIdQuery The query for user ids to list. As user ids are unique, it can only ever
+     *            return more than one user if it contains one or more wildcard characters (
      *            <code>*</code>).
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
+     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      */
-    public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery);
+    public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
+            throws IllegalArgumentException;
 
     /**
      * Returns <code>true</code> if this authentication service supports listing of principals by
@@ -99,8 +101,10 @@ public interface IAuthenticationService extends ISelfTestable
      *            characters (<code>*</code>).
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
+     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      */
-    public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery);
+    public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
+            throws IllegalArgumentException;
 
     /**
      * Returns <code>true</code> if this authentication service supports listing of principals by
@@ -115,7 +119,9 @@ public interface IAuthenticationService extends ISelfTestable
      *            characters (<code>*</code>).
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
+     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      */
-    public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery);
+    public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
+            throws IllegalArgumentException;
 
 }
