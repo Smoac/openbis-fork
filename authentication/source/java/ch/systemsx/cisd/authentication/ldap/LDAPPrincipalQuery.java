@@ -31,10 +31,14 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 
 /**
@@ -44,6 +48,13 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
  */
 public final class LDAPPrincipalQuery implements ISelfTestable
 {
+    private static final String LOGIN_DN_MSG_TEMPLATE = "User '%s' <DN='%s'>: authentication %s";
+
+    private static final String REGULAR_LOGIN_MSG_TEMPLATE = "User '%s' (regular DN): authentication %s";
+
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, LDAPPrincipalQuery.class);
+
     private static final String LDAP_CONTEXT_FACTORY_CLASSNAME = "com.sun.jndi.ldap.LdapCtxFactory";
 
     private static final String QUERY_TEMPLATE = "%s=%s";
@@ -77,28 +88,62 @@ public final class LDAPPrincipalQuery implements ISelfTestable
 
     public List<Principal> listPrincipalsByUserId(String userId)
     {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("listPrincipalsByUserId(%s)", userId));
+        }
         return listPrincipalsKeyValue(config.getUserIdAttributeName(), userId);
     }
 
     public List<Principal> listPrincipalsByEmail(String email)
     {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("listPrincipalsByEmail(%s)", email));
+        }
         return listPrincipalsKeyValue(config.getEmailAttributeName(), email);
     }
 
     public List<Principal> listPrincipalsByLastName(String lastName)
     {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("listPrincipalsByLastName(%s)", lastName));
+        }
         return listPrincipalsKeyValue(config.getLastNameAttributeName(), lastName);
     }
 
     public boolean authenticateUser(String userId, String password)
     {
         // Regular case: userID used as CN in distinguishedName
-        if (authenticateUserByDistinguishedName(createDistinguishedName(userId), password))
+        final boolean regularAuthentication =
+                authenticateUserByDistinguishedName(createDistinguishedName(userId), password);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(REGULAR_LOGIN_MSG_TEMPLATE, userId,
+                    getStatus(regularAuthentication)));
+        }
+        if (regularAuthentication)
         {
             return true;
         }
-        // There can be a mis-configuration where distinguishedName is not regularly formed, get it explicitly.
-        return authenticateUserByDistinguishedName(tryGetAttribute(userId, "distinguishedName"), password);
+        // There can be a mis-configuration where distinguishedName is not regularly formed, get it
+        // explicitly.
+        final String distinguishedName = tryGetAttribute(userId, "distinguishedName");
+        final boolean authenticated =
+                authenticateUserByDistinguishedName(distinguishedName, password);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(LOGIN_DN_MSG_TEMPLATE, userId, distinguishedName,
+                    getStatus(authenticated)));
+        }
+
+        return authenticated;
+    }
+
+    private String getStatus(final boolean status)
+    {
+        return status ? "OK" : "FAILURE";
     }
 
     private boolean authenticateUserByDistinguishedName(String dn, String password)
