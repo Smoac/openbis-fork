@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -329,7 +330,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             checkCreateUserAllowed(user);
             ensureCodeIsValid(user.getUserCode());
             final IUserManager userManager = domainModel.getUserManager();
-    
+
             final UserDTO userFromExternalAuthServiceOrNull =
                     tryCreateUserFromExternalAuthenticationService(user);
             if (userFromExternalAuthServiceOrNull != null)
@@ -343,7 +344,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
                 throw new UserFailureException(
                         "No email address but user not found in external authentication service!");
             }
-    
+
             try
             {
                 final UserDTO createdUser =
@@ -748,16 +749,22 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
-        userManager.createExternalUsers(Arrays.asList(userCode), userActionLog);
-        final UserDTO userDTO = userManager.tryFindUserByCode(userCode);
-        return BeanUtils.createBean(UserInfoDTO.class, userDTO);
+        final Collection<UserDTO> users =
+                userManager.getUsers(Arrays.asList(userCode), null, userActionLog);
+        if (users.isEmpty())
+        {
+            return null;
+        }
+        assert users.size() == 1; // A user code is unique in the database.
+        return BeanUtils.createBean(UserInfoDTO.class, users.iterator().next());
     }
 
     public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
-        final List<UserDTO> users = userManager.findUserByEmail(email);
+        final Collection<UserDTO> users =
+                userManager.getUsers(null, Arrays.asList(email), userActionLog);
         return BeanUtils.createBeanList(UserInfoDTO.class, users);
     }
 

@@ -106,18 +106,22 @@ final class FileManager extends AbstractManager implements IFileManager
 
     private final ITriggerManager triggerManager;
 
+    private final IUserManager userManager;
+
     FileManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
-            final IBusinessContext businessContext, ITriggerManager triggerManager)
+            final IUserManager userManager, final IBusinessContext businessContext,
+            ITriggerManager triggerManager)
     {
-        this(daoFactory, boFactory, businessContext, triggerManager,
+        this(daoFactory, boFactory, userManager, businessContext, triggerManager,
                 SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
     FileManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
-            final IBusinessContext businessContext, ITriggerManager triggerManager,
-            ITimeProvider timeProvider)
+            final IUserManager userManager, final IBusinessContext businessContext,
+            ITriggerManager triggerManager, ITimeProvider timeProvider)
     {
         super(daoFactory, boFactory, businessContext);
+        this.userManager = userManager;
         this.timeProvider = timeProvider;
         this.triggerManager = triggerManager;
     }
@@ -698,7 +702,9 @@ final class FileManager extends AbstractManager implements IFileManager
             final List<String> emailAddresses = new ArrayList<String>();
             extractUserCodesAndEmailAddresses(userIdentifiers, userCodes, emailAddresses,
                     invalidIdentifiers);
-            final Collection<UserDTO> relevantUsers = getRelevantUsers(userCodes, emailAddresses);
+            // This call creates unknown users which the external authentication service knows about.
+            final Collection<UserDTO> relevantUsers =
+                    userManager.getUsers(userCodes, emailAddresses, logOrNull);
             final TableMapNonUniqueKey<String, UserDTO> existingUsers =
                     UserUtils.createTableMapOfExistingUsersWithEmailAsKey(relevantUsers);
             final TableMap<String, UserDTO> existingUniqueUsers =
@@ -728,24 +734,6 @@ final class FileManager extends AbstractManager implements IFileManager
                 logOrNull.logShareFiles(files, users, userIdentifiers, invalidIdentifiers, success);
             }
         }
-    }
-
-    private Collection<UserDTO> getRelevantUsers(final List<String> userCodes,
-            final List<String> emailAddresses)
-    {
-        final LinkedHashSet<UserDTO> result =
-                new LinkedHashSet<UserDTO>(userCodes.size() + emailAddresses.size());
-        if (userCodes.isEmpty() == false)
-        {
-            result.addAll(daoFactory.getUserDAO().listUsersByCode(
-                    userCodes.toArray(new String[userCodes.size()])));
-        }
-        if (emailAddresses.isEmpty() == false)
-        {
-            result.addAll(daoFactory.getUserDAO().listUsersByEmail(
-                    emailAddresses.toArray(new String[emailAddresses.size()])));
-        }
-        return result;
     }
 
     private void extractUserCodesAndEmailAddresses(final Collection<String> identifiers,

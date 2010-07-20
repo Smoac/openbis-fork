@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -178,12 +179,19 @@ public interface IUserManager
     public List<UserDTO> listUsersFileSharedWith(long fileId) throws UserFailureException;
 
     /**
-     * Creates users with specified user ids, that don't exist in CIFEX but are known to external
-     * authentication service.
+     * Returns a list of all known users which either have a user code in <var>userCodesOrNull</var>
+     * or an email that is in <var>emailsOrNull</var>. If CIFEX is configured to use an external
+     * authentication service, this users will query the external authentication service for users
+     * matching these conditions and create the users in the internal CIFEX user database if so.
      * 
-     * @param userIdentifiers - list of emails (user@domain.net) and user ids (id:userId)
+     * @param userCodesOrNull list of user codes to get the users for or <code>null</code> if it
+     *            should be ignored
+     * @param emailsOrNull list of email addresses to get the users for or <code>null</code> if it
+     *            should be ignored
+     * @return The list of known users matching the given criteria
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void createExternalUsers(List<String> userIdentifiers, final IUserActionLog logOrNull);
+    public Collection<UserDTO> getUsers(List<String> userCodesOrNull, List<String> emailsOrNull,
+            final IUserActionLog logOrNull);
 
 }

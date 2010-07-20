@@ -18,10 +18,15 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterMethod;
@@ -454,112 +459,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testCreateOneExternalUser() throws Exception
-    {
-        final boolean active = true;
-        final String userId = "newuser";
-        final String firstName = "New";
-        final String lastName = "User";
-        final String email = "new@users.com";
-        context.checking(new Expectations()
-            {
-                {
-                    one(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-
-                    one(userDAO).tryFindUserByCode(userId);
-                    will(returnValue(null));
-
-                    one(externalAuthService).authenticateApplication();
-                    will(returnValue(TOKEN));
-
-                    one(externalAuthService).getPrincipal(TOKEN, userId);
-                    will(returnValue(new Principal(userId, firstName, lastName, email)));
-
-                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
-                    will(returnValue(active));
-
-                    // create user
-                    one(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    one(userDAO).createUser(
-                            UserManager.createExternalUser(userId, firstName + " " + lastName,
-                                    email, active));
-                }
-            });
-        userManager.createExternalUsers(Arrays.asList(userId), null);
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testCreateManyExternalUser() throws Exception
-    {
-        final boolean active = true;
-        final String userId = "newuser";
-        final String firstName = "New";
-        final String lastName = "User";
-        final String email = "new@users.com";
-        final String userId2 = "newuser2";
-        context.checking(new Expectations()
-            {
-                {
-                    one(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-
-                    one(userDAO).listUsers();
-                    will(returnValue(new ArrayList<UserDTO>()));
-
-                    one(externalAuthService).authenticateApplication();
-                    will(returnValue(TOKEN));
-
-                    one(externalAuthService).getPrincipal(TOKEN, userId);
-                    will(returnValue(new Principal(userId, firstName, lastName, email)));
-
-                    one(externalAuthService).getPrincipal(TOKEN, userId2);
-                    will(returnValue(new Principal(userId2, firstName, lastName, email)));
-
-                    exactly(2).of(businessContext).isNewExternallyAuthenticatedUserStartActive();
-                    will(returnValue(active));
-
-                    // create user
-                    one(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    one(userDAO).createUser(
-                            UserManager.createExternalUser(userId, firstName + " " + lastName,
-                                    email, active));
-
-                    // create user
-                    one(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    one(userDAO).createUser(
-                            UserManager.createExternalUser(userId2, firstName + " " + lastName,
-                                    email, active));
-                }
-            });
-        userManager.createExternalUsers(Arrays.asList(userId, userId2), null);
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testCreateExternalUsersNoAuthenticationService() throws Exception
-    {
-        final String userId = "newuser";
-        new UserManager(daoFactory, boFactory, businessContext, null).createExternalUsers(Arrays
-                .asList(userId), null);
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testCreateExternalUsersNullAuthenticationService() throws Exception
-    {
-        final String userId = "newuser";
-        new UserManager(daoFactory, boFactory, businessContext, new NullAuthenticationService())
-                .createExternalUsers(Arrays.asList(userId), null);
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testCreateExternalUsersUserExists() throws Exception
+    public void testGetUsersCreateOneExternalUser() throws Exception
     {
         final boolean active = true;
         final String userId = "newuser";
@@ -571,29 +471,325 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getUserDAO();
+                    allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
 
-                    one(userDAO).tryFindUserByCode(userId);
-                    will(returnValue(user));
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(Collections.emptyList()));
+
+                    one(externalAuthService).authenticateApplication();
+                    will(returnValue(TOKEN));
+
+                    one(externalAuthService).getPrincipal(TOKEN, userId);
+                    will(returnValue(new Principal(userId, firstName, lastName, email)));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
+                    // create user
+                    one(userDAO).createUser(user);
                 }
             });
-        userManager.createExternalUsers(Arrays.asList(userId), null);
+        final Collection<UserDTO> users = userManager.getUsers(Arrays.asList(userId), null, null);
+        assertEquals(1, users.size());
+        assertEquals(user, users.iterator().next());
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testCreateExternalUsersUserNotFoundInExtAuth() throws Exception
+    public void testGetUsersCreateOneExternalUserByEmail() throws Exception
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+        final String firstName = "New";
+        final String lastName = "User";
+        final String email = "new@users.com";
+        final UserDTO user =
+                UserManager.createExternalUser(userId, firstName + " " + lastName, email, active);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(email);
+                    will(returnValue(Collections.emptyList()));
+
+                    one(externalAuthService).authenticateApplication();
+                    will(returnValue(TOKEN));
+
+                    one(externalAuthService).supportsListingByEmail();
+                    will(returnValue(true));
+
+                    one(externalAuthService).listPrincipalsByEmail(TOKEN, email);
+                    will(returnValue(Arrays
+                            .asList(new Principal(userId, firstName, lastName, email))));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
+                    // create user
+                    one(userDAO).createUser(user);
+                }
+            });
+        final Collection<UserDTO> users = userManager.getUsers(null, Arrays.asList(email), null);
+        assertEquals(1, users.size());
+        assertEquals(user, users.iterator().next());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersUnknownUserByEmailExternalServiceCannotListByEmail() throws Exception
+    {
+        final String email = "new@users.com";
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(email);
+                    will(returnValue(Collections.emptyList()));
+
+                    one(externalAuthService).supportsListingByEmail();
+                    will(returnValue(false));
+                }
+            });
+        assertTrue(userManager.getUsers(null, Arrays.asList(email), null).isEmpty());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersCreateManyExternalUser() throws Exception
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+        final String firstName = "New";
+        final String lastName = "User";
+        final String email = "new@users.com";
+        final String userId2 = "newuser2";
+        final String email2 = "new2@users.com";
+        final String lastName2 = "User2";
+        final String userId3 = "newuser3";
+        final String email3 = "new3@users.com";
+        final String lastName3 = "User3";
+        final UserDTO user1 =
+                UserManager.createExternalUser(userId, firstName + " " + lastName, email, active);
+        final UserDTO user2 =
+                UserManager
+                        .createExternalUser(userId2, firstName + " " + lastName2, email2, active);
+        final UserDTO user3 =
+                UserManager
+                        .createExternalUser(userId3, firstName + " " + lastName3, email3, active);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByCode(userId, userId2);
+                    will(returnValue(new ArrayList<UserDTO>()));
+
+                    one(userDAO).listUsersByEmail(email3);
+                    will(returnValue(new ArrayList<UserDTO>()));
+
+                    one(externalAuthService).authenticateApplication();
+                    will(returnValue(TOKEN));
+
+                    one(externalAuthService).getPrincipal(TOKEN, userId);
+                    will(returnValue(new Principal(userId, firstName, lastName, email)));
+
+                    one(externalAuthService).getPrincipal(TOKEN, userId2);
+                    will(returnValue(new Principal(userId2, firstName, lastName2, email2)));
+
+                    one(externalAuthService).supportsListingByEmail();
+                    will(returnValue(true));
+
+                    one(externalAuthService).listPrincipalsByEmail(TOKEN, email3);
+                    will(returnValue(Arrays.asList(new Principal(userId3, firstName, lastName3,
+                            email3))));
+
+                    exactly(3).of(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
+                    // create user
+                    one(userDAO).createUser(user1);
+                    will(new CustomAction("set technical user id")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                ((UserDTO) invocation.getParameter(0)).setID(1L);
+                                return null;
+                            }
+                        });
+
+                    // create user
+                    one(userDAO).createUser(user2);
+                    will(new CustomAction("set technical user id")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                ((UserDTO) invocation.getParameter(0)).setID(2L);
+                                return null;
+                            }
+                        });
+
+                    // create user
+                    one(userDAO).createUser(user3);
+                    will(new CustomAction("set technical user id")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                ((UserDTO) invocation.getParameter(0)).setID(3L);
+                                return null;
+                            }
+                        });
+                }
+            });
+        final Collection<UserDTO> users =
+                userManager.getUsers(Arrays.asList(userId, userId2), Arrays.asList(email3), null);
+        assertEquals(3, users.size());
+        final Iterator<UserDTO> it = users.iterator();
+        user1.setID(1L);
+        assertEquals(user1, it.next());
+        user2.setID(2L);
+        assertEquals(user2, it.next());
+        user3.setID(3L);
+        assertEquals(user3, it.next());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersNoAuthenticationService() throws Exception
     {
         final String userId = "newuser";
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getUserDAO();
+                    allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
 
-                    one(userDAO).tryFindUserByCode(userId);
-                    will(returnValue(null));
+                    one(userDAO).listUsersByCode(userId);
+                }
+            });
+        assertTrue(new UserManager(daoFactory, boFactory, businessContext, null).getUsers(
+                Arrays.asList(userId), null, null).isEmpty());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersNullAuthenticationService() throws Exception
+    {
+        final String userId = "newuser";
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByCode(userId);
+                }
+            });
+        assertTrue(new UserManager(daoFactory, boFactory, businessContext,
+                new NullAuthenticationService()).getUsers(Arrays.asList(userId), null, null)
+                .isEmpty());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersUserIsKnown() throws Exception
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+        final String firstName = "New";
+        final String lastName = "User";
+        final String email = "new@users.com";
+        final UserDTO user =
+                UserManager.createExternalUser(userId, firstName + " " + lastName, email, active);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(Arrays.asList(user)));
+                }
+            });
+        final Collection<UserDTO> users = userManager.getUsers(Arrays.asList(userId), null, null);
+        assertEquals(1, users.size());
+        assertEquals(user, users.iterator().next());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersUserForEmailIsKnown() throws Exception
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+        final String firstName = "New";
+        final String lastName = "User";
+        final String email = "new@users.com";
+        final UserDTO user =
+                UserManager.createExternalUser(userId, firstName + " " + lastName, email, active);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(email);
+                    will(returnValue(Arrays.asList(user)));
+                }
+            });
+        final Collection<UserDTO> users = userManager.getUsers(null, Arrays.asList(email), null);
+        assertEquals(1, users.size());
+        assertEquals(user, users.iterator().next());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersUserForIdAndEmailIsKnownAndIdentical() throws Exception
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+        final String firstName = "New";
+        final String lastName = "User";
+        final String email = "new@users.com";
+        final UserDTO user =
+                UserManager.createExternalUser(userId, firstName + " " + lastName, email, active);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(Arrays.asList(user)));
+
+                    one(userDAO).listUsersByEmail(email);
+                    will(returnValue(Arrays.asList(user)));
+                }
+            });
+        final Collection<UserDTO> users =
+                userManager.getUsers(Arrays.asList(userId), Arrays.asList(email), null);
+        assertEquals(1, users.size());
+        assertEquals(user, users.iterator().next());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersUnknownUserNotFoundInExtAuth() throws Exception
+    {
+        final String userId = "newuser";
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(Collections.emptyList()));
 
                     one(externalAuthService).authenticateApplication();
                     will(returnValue(TOKEN));
@@ -602,28 +798,29 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(null));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList(userId), null);
+        assertTrue(userManager.getUsers(Arrays.asList(userId), null, null).isEmpty());
         context.assertIsSatisfied();
     }
 
     @Test(expectedExceptions = EnvironmentFailureException.class)
-    public void testCreateExternalUsersAuthenticationFails() throws Exception
+    public void testGetUsersExternalAuthenticationFails() throws Exception
     {
         final String userId = "newuser";
+        final String otherUserId = "other";
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getUserDAO();
+                    allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
 
-                    one(userDAO).listUsers();
+                    one(userDAO).listUsersByCode(userId, otherUserId);
                     will(returnValue(new ArrayList<UserDTO>()));
 
                     one(externalAuthService).authenticateApplication();
                     will(returnValue(null));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList(userId, "other"), null);
+        assertTrue(userManager.getUsers(Arrays.asList(userId, otherUserId), null, null).isEmpty());
         context.assertIsSatisfied();
     }
 

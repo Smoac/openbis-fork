@@ -125,7 +125,7 @@ public final class DomainModel implements IDomainModel
     {
         businessContext.setSessionTimeoutMin(sessionTimeoutMin);
     }
-    
+
     /**
      * Sets the file retention time in days.
      * <p>
@@ -290,8 +290,8 @@ public final class DomainModel implements IDomainModel
         if (fileManager == null)
         {
             fileManager =
-                    createLoggingProxy(new FileManager(daoFactory, boFactory, businessContext,
-                            getTriggerManager()));
+                    createLoggingProxy(new FileManager(daoFactory, boFactory, getUserManager(),
+                            businessContext, getTriggerManager()));
         }
         return fileManager;
     }

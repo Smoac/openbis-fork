@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -36,6 +39,7 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -43,7 +47,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
- * The only <code>IUserManager</code> implementation.
+ * The (only) <code>IUserManager</code> implementation.
  * 
  * @author Franz-Josef Elmer
  */
@@ -448,87 +452,188 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public void createExternalUsers(List<String> userCodes, final IUserActionLog logOrNull)
+    public Collection<UserDTO> getUsers(List<String> userCodesOrNull,
+            List<String> emailAddressesOrNull, final IUserActionLog logOrNull)
     {
-        if (userCodes.isEmpty())
-        {
-            return;
-        }
+        final Collection<UserDTO> users = getUsersInDB(userCodesOrNull, emailAddressesOrNull);
         if (authenticationServiceOrNull != null
                 && authenticationServiceOrNull instanceof NullAuthenticationService == false)
         {
-            List<String> nonexistentUserCodes = listUnexistentUsers(userCodes);
-            if (nonexistentUserCodes.isEmpty() == false)
+            final List<String> unknownUserCodes = findUnknownUserCodes(users, userCodesOrNull);
+            final String tokenOrNull =
+                    createUsersInExternalAuthenticationRepositoryByUserCode(users,
+                            unknownUserCodes, logOrNull);
+            final List<String> unknownEmails =
+                    findUnknownEmailAddresses(users, emailAddressesOrNull);
+            createUsersInExternalAuthenticationRepositoryByEmail(tokenOrNull, users, unknownEmails,
+                    logOrNull);
+        }
+        return users;
+    }
+
+    private String createUsersInExternalAuthenticationRepositoryByUserCode(
+            final Collection<UserDTO> users, final List<String> userCodes,
+            final IUserActionLog logOrNull)
+    {
+        if (userCodes.isEmpty())
+        {
+            return null;
+        }
+        String token = authenticationServiceOrNull.authenticateApplication();
+        if (token == null)
+        {
+            String message =
+                    "Authentication of application in external authentication service failed.";
+            operationLog.error(message);
+            throw new EnvironmentFailureException(message);
+        }
+        for (String userCode : userCodes)
+        {
+            Principal principal;
+            try
             {
-                String token = authenticationServiceOrNull.authenticateApplication();
-                if (token == null)
+                principal = authenticationServiceOrNull.getPrincipal(token, userCode);
+            } catch (IllegalArgumentException ex)
+            {
+                principal = null;
+            }
+            if (principal != null)
+            {
+                final UserDTO userDTO =
+                        createExternalUser(principal.getUserId(), UserUtils
+                                .extractDisplayName(principal), principal.getEmail(),
+                                businessContext.isNewExternallyAuthenticatedUserStartActive());
+                boolean success = false;
+                try
                 {
-                    String message =
-                            "Authentication of application in external authentocation service failed";
-                    operationLog.error(message);
-                    throw new EnvironmentFailureException(message);
-                }
-                for (String userId : nonexistentUserCodes)
+                    createUser(userDTO, null);
+                    users.add(userDTO);
+                    success = true;
+                } finally
                 {
-                    Principal userDetails;
-                    try
+                    if (logOrNull != null)
                     {
-                        userDetails = authenticationServiceOrNull.getPrincipal(token, userId);
-                    } catch (IllegalArgumentException ex)
-                    {
-                        userDetails = null;
+                        logOrNull.logCreateUser(userDTO, success);
                     }
-                    if (userDetails != null)
+                }
+            }
+        }
+        return token;
+    }
+
+    private void createUsersInExternalAuthenticationRepositoryByEmail(final String tokenOrNull,
+            final Collection<UserDTO> users, final List<String> emailAddresses,
+            final IUserActionLog logOrNull)
+    {
+        if (emailAddresses.isEmpty()
+                || authenticationServiceOrNull.supportsListingByEmail() == false)
+        {
+            return;
+        }
+        String token =
+                (tokenOrNull != null) ? tokenOrNull : authenticationServiceOrNull
+                        .authenticateApplication();
+        if (token == null)
+        {
+            String message =
+                    "Authentication of application in external authentication service failed.";
+            operationLog.error(message);
+            throw new EnvironmentFailureException(message);
+        }
+        for (String emailAddress : emailAddresses)
+        {
+            List<Principal> principals;
+            try
+            {
+                principals = authenticationServiceOrNull.listPrincipalsByEmail(token, emailAddress);
+            } catch (IllegalArgumentException ex)
+            {
+                principals = null;
+            }
+            for (Principal principal : principals)
+            {
+                final UserDTO userDTO =
+                        createExternalUser(principal.getUserId(), UserUtils
+                                .extractDisplayName(principal), principal.getEmail(),
+                                businessContext.isNewExternallyAuthenticatedUserStartActive());
+                boolean success = false;
+                try
+                {
+                    createUser(userDTO, null);
+                    users.add(userDTO);
+                    success = true;
+                } finally
+                {
+                    if (logOrNull != null)
                     {
-                        final UserDTO userDTO =
-                                createExternalUser(userDetails.getUserId(), UserUtils
-                                        .extractDisplayName(userDetails), userDetails.getEmail(),
-                                        businessContext
-                                                .isNewExternallyAuthenticatedUserStartActive());
-                        boolean success = false;
-                        try
-                        {
-                            createUser(userDTO, null);
-                            success = true;
-                        } finally
-                        {
-                            if (logOrNull != null)
-                            {
-                                logOrNull.logCreateUser(userDTO, success);
-                            }
-                        }
+                        logOrNull.logCreateUser(userDTO, success);
                     }
                 }
             }
         }
     }
 
-    private List<String> listUnexistentUsers(List<String> userCodes)
+    private List<String> findUnknownUserCodes(Collection<UserDTO> relevantUsers,
+            Collection<String> userCodesOrNull)
     {
-        List<UserDTO> users = new ArrayList<UserDTO>();
-        if (userCodes.size() == 1)
+        final List<String> unknownUserCodes = new ArrayList<String>();
+        if (userCodesOrNull == null || userCodesOrNull.isEmpty())
         {
-            UserDTO userOrNull = daoFactory.getUserDAO().tryFindUserByCode(userCodes.get(0));
-            if (userOrNull != null)
-            {
-                users.add(userOrNull);
-            }
-        } else if (userCodes.size() > 1)
-        {
-            users.addAll(daoFactory.getUserDAO().listUsers());
+            return unknownUserCodes;
         }
-        TableMap<String, UserDTO> existingUsers =
-                UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(users);
-        List<String> nonexistentUserCodes = new ArrayList<String>();
-        for (String userCode : userCodes)
+        final TableMap<String, UserDTO> existingUsers =
+                UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(relevantUsers);
+        for (String userCode : userCodesOrNull)
         {
             final UserDTO userOrNull = existingUsers.tryGet(userCode);
             if (userOrNull == null)
             {
-                nonexistentUserCodes.add(userCode);
+                unknownUserCodes.add(userCode);
             }
         }
-        return nonexistentUserCodes;
+        return unknownUserCodes;
+    }
+
+    private List<String> findUnknownEmailAddresses(Collection<UserDTO> relevantUsers,
+            List<String> emailAddressesOrNull)
+    {
+        final List<String> unknownEmailAddresses = new ArrayList<String>();
+        if (emailAddressesOrNull == null || emailAddressesOrNull.isEmpty())
+        {
+            return unknownEmailAddresses;
+        }
+        final TableMapNonUniqueKey<String, UserDTO> existingUsers =
+                UserUtils.createTableMapOfExistingUsersWithEmailAsKey(relevantUsers);
+        for (String emailAddress : emailAddressesOrNull)
+        {
+            final Set<UserDTO> usersOrNull = existingUsers.tryGet(emailAddress);
+            if (usersOrNull == null || usersOrNull.isEmpty())
+            {
+                unknownEmailAddresses.add(emailAddress);
+            }
+        }
+        return unknownEmailAddresses;
+    }
+
+    private Collection<UserDTO> getUsersInDB(final List<String> userCodesOrNull,
+            final List<String> emailAddressesOrNull)
+    {
+        final int numberOfUserCodes = (userCodesOrNull != null) ? userCodesOrNull.size() : 0;
+        final int numberOfEmailAddresses =
+                (emailAddressesOrNull != null) ? emailAddressesOrNull.size() : 0;
+        final LinkedHashSet<UserDTO> users =
+                new LinkedHashSet<UserDTO>(numberOfUserCodes + numberOfEmailAddresses);
+        if (numberOfUserCodes > 0)
+        {
+            users.addAll(daoFactory.getUserDAO().listUsersByCode(
+                    userCodesOrNull.toArray(new String[userCodesOrNull.size()])));
+        }
+        if (numberOfEmailAddresses > 0)
+        {
+            users.addAll(daoFactory.getUserDAO().listUsersByEmail(
+                    emailAddressesOrNull.toArray(new String[emailAddressesOrNull.size()])));
+        }
+        return users;
     }
 
     @Private

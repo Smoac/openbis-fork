@@ -36,7 +36,6 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.rpc.QuotaExceededException;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
-import ch.systemsx.cisd.cifex.server.business.UserUtils;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
@@ -121,9 +120,6 @@ public final class FileUploadServlet extends AbstractFileUploadDownloadServlet
                     comment).execute();
             final String url = getURLForEmail(request);
             final IFileManager fileManager = domainModel.getFileManager();
-            domainModel.getUserManager().createExternalUsers(
-                    UserUtils.extractUserCodes(userIdentifiers),
-                    domainModel.getBusinessContext().getUserActionLogHttp());
             final List<String> invalidUserIdentifiers =
                     fileManager.shareFilesWith(url, requestUser, userIdentifiers, files, comment
                             .toString(), domainModel.getBusinessContext().getUserActionLogHttp());

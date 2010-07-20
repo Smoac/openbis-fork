@@ -44,7 +44,6 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
-import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -77,9 +76,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     private IFileDAO fileDAO;
 
-    private IUserDAO userDAO;
-
     private IMailClient mailClient;
+
+    private IUserManager userManager;
 
     private IFileManager fileManager;
 
@@ -108,7 +107,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context = new Mockery();
         daoFactory = context.mock(IDAOFactory.class);
         fileDAO = context.mock(IFileDAO.class);
-        userDAO = context.mock(IUserDAO.class);
         boFactory = context.mock(IBusinessObjectFactory.class);
         fileStore = workingDirectory;
         businessContext = new BusinessContext();
@@ -147,9 +145,10 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         // will(returnValue(false));
         // }
         // });
+        userManager = context.mock(IUserManager.class);
         fileManager =
-                new FileManager(daoFactory, boFactory, businessContext, triggerManager,
-                        timeProvider);
+                new FileManager(daoFactory, boFactory, userManager, businessContext,
+                        triggerManager, timeProvider);
 
     }
 
@@ -376,9 +375,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    one(userDAO).listUsersByEmail(emailOfUserToShareWith);
+                    one(userManager).getUsers(Collections.<String> emptyList(),
+                            Arrays.asList(emailOfUserToShareWith), null);
                     will(returnValue(Arrays.asList(receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     context.checking(new Expectations()
@@ -435,9 +433,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    one(userDAO).listUsersByCode(receivingUserCode);
+                    one(userManager).getUsers(Arrays.asList(receivingUserCode),
+                            Collections.<String> emptyList(), null);
                     will(returnValue(Arrays.asList(receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     context.checking(new Expectations()
@@ -629,12 +626,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    one(userDAO).listUsersByCode(firstReceivingUserCode);
-                    will(returnValue(Arrays.asList(firstReceivingUser)));
-                    allowing(userDAO).listUsersByEmail(emailOfSecondUserToShareWith);
-                    will(returnValue(Arrays.asList(secondReceivingUser)));
+                    one(userManager).getUsers(Arrays.asList(firstReceivingUserCode),
+                            Arrays.asList(emailOfSecondUserToShareWith), null);
+                    will(returnValue(Arrays.asList(firstReceivingUser, secondReceivingUser)));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     context.checking(new Expectations()
@@ -702,11 +696,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    one(userDAO).listUsersByCode(firstReceivingUserCode);
-                    will(returnValue(Arrays.asList(firstReceivingUser)));
-                    allowing(userDAO).listUsersByEmail(emailOfFirstUserToShareWith);
+                    one(userManager).getUsers(Arrays.<String> asList(firstReceivingUserCode),
+                            Arrays.<String> asList(emailOfFirstUserToShareWith), null);
                     will(returnValue(Arrays.asList(firstReceivingUser)));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
@@ -766,10 +757,11 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    allowing(userDAO).listUsersByEmail(emailOfFirstUserToShareWith,
-                            emailOfFirstUserToShareWith);
+                    one(userManager)
+                            .getUsers(
+                                    Collections.<String> emptyList(),
+                                    Arrays.asList(emailOfFirstUserToShareWith,
+                                            emailOfFirstUserToShareWith), null);
                     will(returnValue(Arrays.asList(firstReceivingUser)));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
@@ -829,9 +821,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    one(userDAO).listUsersByCode(firstReceivingUserCode, firstReceivingUserCode);
+                    one(userManager).getUsers(
+                            Arrays.asList(firstReceivingUserCode, firstReceivingUserCode),
+                            Collections.<String> emptyList(), null);
                     will(returnValue(Arrays.asList(firstReceivingUser)));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
@@ -893,9 +885,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    one(userDAO).listUsersByEmail(emailOfReceivingUserLowerCase);
+                    one(userManager).getUsers(Collections.<String> emptyList(),
+                            Arrays.asList(emailOfReceivingUserLowerCase), null);
                     will(returnValue(Arrays.asList(receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
@@ -935,11 +926,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-
-                    allowing(userDAO).listUsers();
-                    will(returnValue(Arrays.asList(requestUser)));
+                    one(userManager).getUsers(Collections.<String> emptyList(),
+                            Collections.<String> emptyList(), null);
+                    will(returnValue(Collections.emptyList()));
                 }
             });
 
@@ -1160,9 +1149,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-                    one(userDAO).listUsersByEmail(emailOfUserToShareWith);
+                    one(userManager).getUsers(Collections.<String> emptyList(),
+                            Arrays.asList(emailOfUserToShareWith), null);
                     will(returnValue(Arrays.asList(receivingUser)));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));

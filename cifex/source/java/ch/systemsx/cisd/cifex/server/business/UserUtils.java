@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.authentication.Principal;
@@ -107,24 +105,6 @@ public class UserUtils
             displayName = principal.getFirstName() + " " + principal.getLastName();
         }
         return displayName;
-    }
-
-    /**
-     * From a list of user identifiers ('id:code' or 'e@mail.com') extract user codes. Emails are
-     * skipped and "id:" prefix removed.
-     */
-    static public List<String> extractUserCodes(List<String> userIdentifiers)
-    {
-        List<String> userCodes = new ArrayList<String>();
-        for (String identifier : userIdentifiers)
-        {
-            String lowerCaseIdentifier = identifier.toLowerCase();
-            if (isUserCodeWithIdPrefix(lowerCaseIdentifier))
-            {
-                userCodes.add(extractUserCode(lowerCaseIdentifier));
-            }
-        }
-        return userCodes;
     }
 
 }
