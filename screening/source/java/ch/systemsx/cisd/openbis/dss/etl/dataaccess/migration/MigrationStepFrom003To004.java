@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.migration;
+package ch.systemsx.cisd.openbis.dss.etl.dataaccess.migration;
 
 import java.io.File;
 import java.io.IOException;
