@@ -40,7 +40,7 @@ public class TypeExtractorYeastXTest extends AssertJUnit
     @Test
     public void testHappyCase()
     {
-        ITypeExtractor extractor = createExtractor("zzz matlab, xxx xml");
+        ITypeExtractor extractor = createExtractor("MATLAB: zzz, XML: xxx");
         assertTypes(extractor, new File("file.xxx"), "XML", "XXX");
         assertTypes(extractor, new File("file.zzz"), "MATLAB", "ZZZ");
     }
@@ -64,13 +64,13 @@ public class TypeExtractorYeastXTest extends AssertJUnit
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testIncorrectSyntaxNoCommaFails()
     {
-        createExtractor("zzz matlab xxx xml");
+        createExtractor("MATLAB: zzz XML: xxx");
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
-    public void testIncorrectSyntaxToManyTokensFails()
+    public void testIncorrectSyntaxNoColonFails()
     {
-        createExtractor("mat lab matlab, a b");
+        createExtractor("MATLAB zzz, XML xxx");
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
@@ -88,7 +88,7 @@ public class TypeExtractorYeastXTest extends AssertJUnit
     @Test
     public void testOneMappingCorrect()
     {
-        createExtractor("mat matlab");
+        createExtractor("MATLAB: mat");
     }
 
     private static ITypeExtractor createExtractor(String fileTypesMappings)
