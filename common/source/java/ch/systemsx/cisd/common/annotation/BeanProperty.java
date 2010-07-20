@@ -34,7 +34,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface BeanProperty
 {
-
     /**
      * Whether this bean property is optional or not.
      * <p>
@@ -50,5 +49,4 @@ public @interface BeanProperty
      * </p>
      */
     public String label() default "";
-
 }
