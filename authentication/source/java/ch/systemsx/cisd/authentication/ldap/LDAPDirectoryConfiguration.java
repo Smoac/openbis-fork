@@ -278,9 +278,12 @@ public final class LDAPDirectoryConfiguration
      * name and <code>securityPrincipalDistinguishedNameTemplate</code> will not be used for the
      * login.
      */
-    public void setUserIdAsDistinguishedName(boolean userIdIsDistinguishedName)
+    public void setUserIdAsDistinguishedName(String userIdIsDistinguishedName)
     {
-        this.userIdAsDistinguishedName = userIdIsDistinguishedName;
+        if (StringUtils.isNotBlank(userIdIsDistinguishedName))
+        {
+            this.userIdAsDistinguishedName = Boolean.parseBoolean(userIdIsDistinguishedName);
+        }
     }
 
     public String getPassword()
