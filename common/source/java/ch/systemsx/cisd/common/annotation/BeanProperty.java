@@ -50,4 +50,5 @@ public @interface BeanProperty
      * </p>
      */
     public String label() default "";
+
 }
