@@ -92,9 +92,20 @@ public final class LDAPPrincipalQuery implements ISelfTestable
 
     public boolean authenticateUser(String userId, String password)
     {
+        // Regular case: userID used as CN in distinguishedName
+        if (authenticateUserByDistinguishedName(createDistinguishedName(userId), password))
+        {
+            return true;
+        }
+        // There can be a mis-configuration where distinguishedName is not regularly formed, get it explicitly.
+        return authenticateUserByDistinguishedName(tryGetAttribute(userId, "distinguishedName"), password);
+    }
+
+    private boolean authenticateUserByDistinguishedName(String dn, String password)
+    {
         try
         {
-            final DirContext context = createContext(userId, password);
+            final DirContext context = createContextForDistinguishedName(dn, password);
             context.close();
             return true;
         } catch (AuthenticationException ex)
@@ -110,7 +121,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
     {
         return listPrincipalsParameterized(QUERY_TEMPLATE, key, value);
     }
-    
+
     private List<Principal> listPrincipalsParameterized(String filterTemplate, Object... params)
     {
         final List<Principal> principals = new ArrayList<Principal>();
@@ -160,7 +171,58 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         }
     }
 
+    private String tryGetAttribute(String userId, String attributeName)
+    {
+        final String query =
+                String.format(config.getQueryTemplate(), String.format("%s=%s", config
+                        .getUserIdAttributeName(), userId));
+        DirContext context = null;
+        try
+        {
+            context = createContext(config.getUserId(), config.getPassword());
+            try
+            {
+                final SearchControls ctrl = new SearchControls();
+                ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                final NamingEnumeration<SearchResult> enumeration = context.search("", query, ctrl);
+                if (enumeration.hasMore())
+                {
+                    final SearchResult result = enumeration.next();
+                    final Attributes attributes = result.getAttributes();
+                    return tryGetAttribute(attributes, attributeName, null);
+                } else
+                {
+                    return null;
+                }
+            } finally
+            {
+                if (context != null)
+                {
+                    context.close();
+                }
+            }
+        } catch (AuthenticationException ex)
+        {
+            throw ConfigurationFailureException.fromTemplate(ex, AUTHENTICATION_FAILURE_TEMPLATE,
+                    config.getServerUrl());
+        } catch (NamingException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
     private DirContext createContext(String userId, String password) throws NamingException
+    {
+        return createContextForDistinguishedName(createDistinguishedName(userId), password);
+    }
+
+    private String createDistinguishedName(String userId)
+    {
+        return String.format(config.getSecurityPrincipalTemplate(), userId);
+    }
+
+    private DirContext createContextForDistinguishedName(String dn, String password)
+            throws NamingException
     {
         final Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY_CLASSNAME);
@@ -168,8 +230,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         env.put(Context.SECURITY_PROTOCOL, config.getSecurityProtocol());
         env.put(Context.SECURITY_AUTHENTICATION, config.getSecurityAuthenticationMethod());
         env.put(Context.REFERRAL, config.getReferral());
-        env.put(Context.SECURITY_PRINCIPAL, String.format(config.getSecurityPrincipalTemplate(),
-                userId));
+        env.put(Context.SECURITY_PRINCIPAL, dn);
         env.put(Context.SECURITY_CREDENTIALS, password);
         return new InitialDirContext(env);
     }
