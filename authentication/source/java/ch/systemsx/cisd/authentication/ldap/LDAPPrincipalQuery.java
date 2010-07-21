@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.authentication.ldap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -96,7 +97,8 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             operationLog.debug(String.format("listPrincipalsByUserId(%s)", userId));
         }
-        return listPrincipalsKeyValue(config.getUserIdAttributeName(), userId, Integer.MAX_VALUE);
+        return listPrincipalsByKeyValue(config.getUserIdAttributeName(), userId, null,
+                Integer.MAX_VALUE);
     }
 
     private List<Principal> listPrincipalsByUserId(String userId, int limit)
@@ -105,7 +107,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             operationLog.debug(String.format("listPrincipalsByUserId(%s,%s)", userId, limit));
         }
-        return listPrincipalsKeyValue(config.getUserIdAttributeName(), userId, limit);
+        return listPrincipalsByKeyValue(config.getUserIdAttributeName(), userId, null, limit);
     }
 
     public List<Principal> listPrincipalsByEmail(String email)
@@ -114,7 +116,8 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             operationLog.debug(String.format("listPrincipalsByEmail(%s)", email));
         }
-        return listPrincipalsKeyValue(config.getEmailAttributeName(), email, Integer.MAX_VALUE);
+        return listPrincipalsByKeyValue(config.getEmailAttributeName(), email, null,
+                Integer.MAX_VALUE);
     }
 
     public List<Principal> listPrincipalsByLastName(String lastName)
@@ -123,7 +126,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             operationLog.debug(String.format("listPrincipalsByLastName(%s)", lastName));
         }
-        return listPrincipalsKeyValue(config.getLastNameAttributeName(), lastName,
+        return listPrincipalsByKeyValue(config.getLastNameAttributeName(), lastName, null,
                 Integer.MAX_VALUE);
     }
 
@@ -173,7 +176,13 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         }
     }
 
-    private List<Principal> listPrincipalsKeyValue(String key, String value, int limit)
+    public List<Principal> listPrincipalsByKeyValue(String key, String value)
+    {
+        return listPrincipalsByKeyValue(key, value, null, Integer.MAX_VALUE);
+    }
+
+    public List<Principal> listPrincipalsByKeyValue(String key, String value,
+            Collection<String> additionalAttributesOrNull, int limit)
     {
         final List<Principal> principals = new ArrayList<Principal>();
         final String filter = String.format("%s=%s", key, value);
@@ -208,6 +217,17 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                     if (uidNumber != null)
                     {
                         principal.getProperties().put(UID_NUMBER_ATTRIBUTE_NAME, uidNumber);
+                    }
+                    if (additionalAttributesOrNull != null)
+                    {
+                        for (String attributeName : additionalAttributesOrNull)
+                        {
+                            final String attributeValue = tryGetAttribute(attributes, attributeName);
+                            if (attributeValue != null)
+                            {
+                                principal.getProperties().put(attributeName, attributeValue);
+                            }
+                        }
                     }
                     principals.add(principal);
                 }
