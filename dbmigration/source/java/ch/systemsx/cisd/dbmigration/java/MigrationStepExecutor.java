@@ -78,12 +78,12 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
         }
         final ParserUtilities.LineSplitter splitter =
                 new ParserUtilities.LineSplitter(content, new ILineFilter()
-                {
-                    public boolean acceptLine(String line, int lineNumber)
                     {
-                        return StringUtils.isNotBlank(line) && line.startsWith("--");
-                    }
-                });
+                        public boolean acceptLine(String line, int lineNumber)
+                        {
+                            return StringUtils.isNotBlank(line) && line.startsWith("--");
+                        }
+                    });
         IMigrationStep stepOrNull = null;
         Line lineOrNull;
         while (stepOrNull == null && (lineOrNull = splitter.tryNextLine()) != null)
@@ -151,7 +151,7 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
         assert inited : "Executor not initialized.";
         if (migrationStep != null)
         {
-            migrationStep.performPreMigration(getSimpleJdbcTemplate());
+            migrationStep.performPreMigration(getSimpleJdbcTemplate(), getDataSource());
         }
     }
 
@@ -160,7 +160,7 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
         assert inited : "Executor not initialized.";
         if (migrationStep != null)
         {
-            migrationStep.performPostMigration(getSimpleJdbcTemplate());
+            migrationStep.performPostMigration(getSimpleJdbcTemplate(), getDataSource());
         }
     }
 

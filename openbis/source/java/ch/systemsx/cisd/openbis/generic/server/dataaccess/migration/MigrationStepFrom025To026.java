@@ -21,6 +21,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
@@ -89,8 +91,8 @@ public final class MigrationStepFrom025To026 extends MigrationStepAdapter
     //
 
     @Override
-    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException
+    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            DataSource dataSource) throws DataAccessException
     {
 
         final List<ExternalData> externalDatas =

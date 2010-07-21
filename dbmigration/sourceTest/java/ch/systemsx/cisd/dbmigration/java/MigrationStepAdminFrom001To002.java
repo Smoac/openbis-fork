@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration.java;
 
+import javax.sql.DataSource;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.AssertJUnit;
@@ -33,9 +35,9 @@ public final class MigrationStepAdminFrom001To002 implements IMigrationStep
     public static MigrationStepAdminFrom001To002 instance;
 
     public final DatabaseConfigurationContext context;
-    
+
     public boolean preMigrationPerformed;
-    
+
     public boolean postMigrationPerformed;
 
     public MigrationStepAdminFrom001To002(DatabaseConfigurationContext context)
@@ -50,14 +52,14 @@ public final class MigrationStepAdminFrom001To002 implements IMigrationStep
     // IMigrationStep
     //
 
-    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException
+    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            DataSource dataSource) throws DataAccessException
     {
         postMigrationPerformed = true;
     }
 
-    public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException
+    public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            DataSource dataSource) throws DataAccessException
     {
         preMigrationPerformed = true;
     }

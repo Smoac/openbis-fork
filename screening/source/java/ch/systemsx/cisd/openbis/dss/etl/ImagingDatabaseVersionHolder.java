@@ -20,7 +20,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
 
 /**
  * Version holder for imaging database.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
@@ -28,7 +28,7 @@ public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
 
     public String getDatabaseVersion()
     {
-        return "003"; // S83
+        return "004"; // changed in S86
     }
 
 }

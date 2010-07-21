@@ -41,7 +41,10 @@ public class FeatureVectorUploader
         this.info = info;
     }
 
-    /** creates a dataset and uploads feature vectors, creates experiment and container if needed */
+    /**
+     * Creates a dataset and uploads feature vectors, creates experiment and container if needed.
+     * Commit on the dao is NOT performed.
+     */
     public void uploadFeatureVectors(List<CanonicalFeatureVector> fvecs)
     {
         ScreeningContainerDatasetInfoHelper helper = new ScreeningContainerDatasetInfoHelper(dao);
@@ -51,7 +54,7 @@ public class FeatureVectorUploader
         uploadFeatureVectors(dao, fvecs, dataSetId);
     }
 
-    /** uploads feature vectors for a given dataset id */
+    /** Uploads feature vectors for a given dataset id. Commit on the dao is NOT performed. */
     public static void uploadFeatureVectors(IImagingQueryDAO dao,
             List<CanonicalFeatureVector> fvecs, long dataSetId)
     {

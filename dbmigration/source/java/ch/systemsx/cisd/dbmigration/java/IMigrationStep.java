@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration.java;
 
+import javax.sql.DataSource;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -43,12 +45,12 @@ public interface IMigrationStep
     /**
      * Called before the SQL migration is performed.
      */
-    public void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException;
+    public void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            DataSource dataSource) throws DataAccessException;
 
     /**
      * Called after the SQL migration has been performed.
      */
-    public void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException;
+    public void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            DataSource dataSource) throws DataAccessException;
 }

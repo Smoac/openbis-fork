@@ -20,6 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -77,8 +79,8 @@ public final class MigrationStepFrom046To047 extends MigrationStepAdapter
     //
 
     @Override
-    public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException
+    public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            DataSource dataSource) throws DataAccessException
     {
         final List<PersonWithDisplaySettings> persons =
                 simpleJdbcTemplate.query(String.format(SELECT_PERSON_WITH_DISPLAY_SETTINGS_QUERY,

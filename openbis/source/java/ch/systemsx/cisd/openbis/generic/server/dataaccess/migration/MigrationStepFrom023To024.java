@@ -38,8 +38,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 /**
  * A migration step from database version <code>v23</code> to version <code>v24</code>.
  * <p>
- * This migration step does the following: it migrate the dataset locations in the database (<code>Instance_&lt;instance code&gt;</code>
- * renamed Instance_&lt;UUID&gt; when &lt;instance code&gt; is the original source).
+ * This migration step does the following: it migrate the dataset locations in the database (
+ * <code>Instance_&lt;instance code&gt;</code> renamed Instance_&lt;UUID&gt; when &lt;instance
+ * code&gt; is the original source).
  * </p>
  * 
  * @author Christian Ribeaud
@@ -112,8 +113,8 @@ public final class MigrationStepFrom023To024 extends MigrationStepAdapter
     //
 
     @Override
-    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException
+    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            javax.sql.DataSource dataSource) throws DataAccessException
     {
         final DatabaseInstance databaseInstance = getDatabaseInstance(simpleJdbcTemplate);
         final List<ExternalData> externalDatas =

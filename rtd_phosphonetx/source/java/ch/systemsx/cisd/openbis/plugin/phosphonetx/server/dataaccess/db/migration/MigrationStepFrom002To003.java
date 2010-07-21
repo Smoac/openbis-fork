@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.sql.DataSource;
+
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -38,25 +40,25 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Occurrence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.OccurrenceUtil;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class MigrationStepFrom002To003 extends MigrationStepAdapter
 {
     private static final long MB = 1024 * 1024;
+
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, MigrationStepFrom002To003.class);
-    
+            LogFactory.getLogger(LogCategory.OPERATION, MigrationStepFrom002To003.class);
+
     @Override
-    public void performPostMigration(SimpleJdbcTemplate simpleJdbcTemplate)
+    public void performPostMigration(SimpleJdbcTemplate simpleJdbcTemplate, DataSource dataSource)
             throws DataAccessException
     {
         List<Object[]> coverageValues = calculateCoverageValues(simpleJdbcTemplate);
         operationLog.info("update " + coverageValues.size() + " identified proteins");
-        simpleJdbcTemplate.batchUpdate("update identified_proteins set coverage = ? where id = ?", coverageValues);
+        simpleJdbcTemplate.batchUpdate("update identified_proteins set coverage = ? where id = ?",
+                coverageValues);
     }
-    
+
     private List<Object[]> calculateCoverageValues(SimpleJdbcTemplate simpleJdbcTemplate)
     {
         logMemory();
@@ -64,31 +66,31 @@ public class MigrationStepFrom002To003 extends MigrationStepAdapter
         final Map<Long, List<String>> peptides = getPeptides(jdbcOperations);
         logMemory();
         final List<Object[]> values = new ArrayList<Object[]>();
-        jdbcOperations.query(
-                "select ip.id, ip.prot_id, s.amino_acid_sequence " +
-                "from identified_proteins as ip " +
-                "join sequences as s on ip.sequ_id = s.id where coverage is null",
+        jdbcOperations.query("select ip.id, ip.prot_id, s.amino_acid_sequence "
+                + "from identified_proteins as ip "
+                + "join sequences as s on ip.sequ_id = s.id where coverage is null",
                 new ResultSetExtractor()
-                {
-                    public Object extractData(ResultSet rs) throws SQLException,
-                    DataAccessException
                     {
-                        while (rs.next())
+                        public Object extractData(ResultSet rs) throws SQLException,
+                                DataAccessException
                         {
-                            long id = rs.getLong(1);
-                            long proteinID = rs.getLong(2);
-                            String sequence = rs.getString(3);
-                            List<String> peptideSequences = peptides.get(proteinID);
-                            double coverage = calculateCoverage(sequence, peptideSequences);
-                            values.add(new Object[] { coverage, id });
+                            while (rs.next())
+                            {
+                                long id = rs.getLong(1);
+                                long proteinID = rs.getLong(2);
+                                String sequence = rs.getString(3);
+                                List<String> peptideSequences = peptides.get(proteinID);
+                                double coverage = calculateCoverage(sequence, peptideSequences);
+                                values.add(new Object[]
+                                    { coverage, id });
+                            }
+                            return null;
                         }
-                        return null;
-                    }
-                });
+                    });
         logMemory();
         return values;
     }
-    
+
     private Map<Long, List<String>> getPeptides(JdbcOperations jdbcOperations)
     {
         final Map<Long, List<String>> peptides = new HashMap<Long, List<String>>();
@@ -140,4 +142,3 @@ public class MigrationStepFrom002To003 extends MigrationStepAdapter
         operationLog.info(usedMemory + " MB used, " + runtime.totalMemory() / MB + " MB total");
     }
 }
-

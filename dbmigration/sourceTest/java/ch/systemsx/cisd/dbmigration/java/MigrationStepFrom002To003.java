@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration.java;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -36,19 +38,19 @@ public final class MigrationStepFrom002To003 implements IMigrationStep
     {
         AssertJUnit.assertNotNull(context);
     }
-    
+
     //
     // IMigrationStep
     //
 
-    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException
+    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            DataSource dataSource) throws DataAccessException
     {
         throw new EmptyResultDataAccessException(1);
     }
 
-    public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException
+    public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            DataSource dataSource) throws DataAccessException
     {
         throw new DataIntegrityViolationException(StringUtils.EMPTY);
     }

@@ -25,6 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.sql.DataSource;
+
+import net.lemnik.eodsql.QueryTool;
+
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
@@ -44,7 +48,6 @@ import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVecto
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper;
@@ -58,8 +61,6 @@ import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
  */
 public class MigrationStepFrom003To004 implements IMigrationStep
 {
-    private static final char DEFAULT_COLUMNS_SEPARATOR = ',';
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, MigrationStepFrom003To004.class);
 
@@ -119,8 +120,10 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         }
     }
 
-    public void performPostMigration(SimpleJdbcTemplate jdbc) throws DataAccessException
+    public void performPostMigration(SimpleJdbcTemplate jdbc, DataSource dataSource)
+            throws DataAccessException
     {
+        IImagingQueryDAO dao = QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
         File storeRootDir = getStoreRootDir();
         String dbUUID = tryGetDatabaseInstanceUUID(storeRootDir);
         if (dbUUID == null)
@@ -131,52 +134,58 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         List<MigrationDatasetRef> datasets = fetchImagingDatasets(jdbc);
         Map<MigrationDatasetRef, DatasetFileLines> fileMap =
                 createFileMap(datasets, storeRootDir, dbUUID);
-        boolean ok = migrateDatasets(fileMap, jdbc);
+        boolean ok = migrateDatasets(fileMap, jdbc, dao);
+        dao.commit();
+        dao.close();
         if (ok == false)
         {
-            throw new EnvironmentFailureException("Feature vector migration failed!");
+            operationLog.warn("There were some error during feature vector migration!");
         }
     }
 
     private boolean migrateDatasets(Map<MigrationDatasetRef, DatasetFileLines> fileMap,
-            SimpleJdbcTemplate jdbc)
+            SimpleJdbcTemplate jdbc, IImagingQueryDAO dao)
     {
         boolean wholeMigrationOk = true;
         for (Entry<MigrationDatasetRef, DatasetFileLines> entry : fileMap.entrySet())
         {
             long datasetId = entry.getKey().getId();
+            String permId = entry.getKey().getPermId();
             DatasetFileLines featureVectorLines = entry.getValue();
             try
             {
-                migrateDataset(jdbc, datasetId, featureVectorLines);
+                operationLog.info("Migrating dataset: " + permId);
+                migrateDataset(jdbc, dao, datasetId, featureVectorLines);
             } catch (Exception ex)
             {
-                operationLog.error("Cannot migrate dataset " + entry.getKey().getPermId() + ": "
-                        + ex.getMessage());
+                operationLog.error("Cannot migrate dataset " + permId + ": " + ex.getMessage());
+                if (ex instanceof IllegalArgumentException == false)
+                {
+                    ex.printStackTrace();
+                }
                 wholeMigrationOk = false;
             }
         }
         return wholeMigrationOk;
     }
 
-    private void migrateDataset(SimpleJdbcTemplate jdbc, long datasetId,
+    private void migrateDataset(SimpleJdbcTemplate jdbc, IImagingQueryDAO dao, long datasetId,
             DatasetFileLines featureVectorLines)
     {
         List<CanonicalFeatureVector> fvecs = extractFeatureVectors(featureVectorLines);
-        deleteFeatureVectors(datasetId, jdbc);
-        uploadFeatureVectors(datasetId, fvecs);
+        int deleted = deleteFeatureVectors(datasetId, jdbc);
+        if (deleted != fvecs.size())
+        {
+            operationLog.error(String.format(
+                    "Dataset techId(%d) had %d features, but now it has %d.", datasetId, deleted,
+                    fvecs.size()));
+        }
+        uploadFeatureVectors(datasetId, fvecs, dao);
     }
 
-    private void deleteFeatureVectors(long datasetId, SimpleJdbcTemplate jdbc)
+    private void uploadFeatureVectors(long datasetId, List<CanonicalFeatureVector> fvecs,
+            IImagingQueryDAO dao)
     {
-        int deleted = jdbc.update("delete from feature_defs defs where defs.ds_id = ?", datasetId);
-        operationLog.info(String.format("%d features deleted for the dataset %d.", deleted,
-                datasetId));
-    }
-
-    private void uploadFeatureVectors(long datasetId, List<CanonicalFeatureVector> fvecs)
-    {
-        IImagingQueryDAO dao = DssScreeningUtils.createQuery();
         FeatureVectorUploader.uploadFeatureVectors(dao, fvecs, datasetId);
     }
 
@@ -187,24 +196,31 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         return new CsvToCanonicalFeatureVector(featureVectorLines, convertorConfig).convert();
     }
 
-    private static DatasetFileLines getDatasetFileLines(File file) throws IOException
+    private static DatasetFileLines getDatasetFileLines(File file, final char separator)
+            throws IOException
     {
         ICsvFileReaderConfiguration configuration = new DefaultCsvFileReaderConfiguration()
             {
                 @Override
                 public char getColumnDelimiter()
                 {
-                    return DEFAULT_COLUMNS_SEPARATOR;
+                    return separator;
                 }
             };
         return CsvFileReaderHelper.getDatasetFileLines(file, configuration);
     }
 
+    private int deleteFeatureVectors(long datasetId, SimpleJdbcTemplate jdbc)
+    {
+        return jdbc.update("delete from feature_defs defs where defs.ds_id = ?", datasetId);
+    }
+
     private List<MigrationDatasetRef> fetchImagingDatasets(SimpleJdbcTemplate simpleJdbcTemplate)
     {
-        return simpleJdbcTemplate.query(
-                "select id, perm_id from feature_defs defs, data_sets d where d.if = defs.ds_id",
-                DATASET_ROW_MAPPER);
+        return simpleJdbcTemplate
+                .query(
+                        "select distinct d.id, d.perm_id from feature_defs defs, data_sets d where d.id = defs.ds_id",
+                        DATASET_ROW_MAPPER);
     }
 
     private String tryGetDatabaseInstanceUUID(File storeRootDir)
@@ -244,13 +260,18 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         File[] datasetFiles = origDir.listFiles();
         if (datasetFiles == null || datasetFiles.length == 0)
         {
+            operationLog.warn("Empty dataset dir: " + datasetDir);
             return null;
         }
 
         for (File datasetFile : datasetFiles)
         {
-            DatasetFileLines fileLines = tryReadFeatureVectors(datasetFile);
-            if (fileLines != null)
+            DatasetFileLines fileLines = tryReadFeatureVectors(datasetFile, ',');
+            if (fileLines == null || fileLines.getHeaderTokens().length <= 2)
+            {
+                fileLines = tryReadFeatureVectors(datasetFile, ';');
+            }
+            if (fileLines != null && fileLines.getHeaderTokens().length > 2)
             {
                 return fileLines;
             }
@@ -258,15 +279,15 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         throw new EnvironmentFailureException(
                 "Cannot find the file with feature vectors for the dataset. "
                         + "Delete this dataset from openBIS and restart the server to perform migration again. Dataset: "
-                        + datasetDir.getName() + ". Diretcory: " + datasetDir);
+                        + datasetDir.getName() + ". Directory: " + datasetDir);
     }
 
-    private static DatasetFileLines tryReadFeatureVectors(File datasetFile)
+    private static DatasetFileLines tryReadFeatureVectors(File datasetFile, char separator)
     {
         try
         {
-            return getDatasetFileLines(datasetFile);
-        } catch (IOException ex)
+            return getDatasetFileLines(datasetFile, separator);
+        } catch (Exception ex)
         {
             operationLog.warn("Cannot read the file or file has the wrong format: " + datasetFile
                     + ": " + ex.getMessage());
@@ -274,7 +295,7 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         }
     }
 
-    public void performPreMigration(SimpleJdbcTemplate simpleJdbcTemplate)
+    public void performPreMigration(SimpleJdbcTemplate simpleJdbcTemplate, DataSource dataSource)
             throws DataAccessException
     {
         // do nothing

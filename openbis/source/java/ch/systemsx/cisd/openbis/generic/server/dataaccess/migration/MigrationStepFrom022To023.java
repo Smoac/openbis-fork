@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.migration;
 
+import javax.sql.DataSource;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -40,8 +42,8 @@ public final class MigrationStepFrom022To023 implements IMigrationStep
     // IMigrationStep
     //
 
-    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException
+    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            DataSource dataSource) throws DataAccessException
     {
         final String uuid = UuidUtil.generateUUID();
         final int count =
@@ -57,8 +59,8 @@ public final class MigrationStepFrom022To023 implements IMigrationStep
         }
     }
 
-    public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
-            throws DataAccessException
+    public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
+            DataSource dataSource) throws DataAccessException
     {
     }
 

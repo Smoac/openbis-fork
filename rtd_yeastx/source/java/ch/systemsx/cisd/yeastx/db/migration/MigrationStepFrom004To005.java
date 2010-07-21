@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.yeastx.db.migration;
 
+import javax.sql.DataSource;
+
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -25,8 +27,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.java.MigrationStepAdapter;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class MigrationStepFrom004To005 extends MigrationStepAdapter
@@ -35,7 +35,7 @@ public class MigrationStepFrom004To005 extends MigrationStepAdapter
             LogFactory.getLogger(LogCategory.OPERATION, MigrationStepFrom004To005.class);
 
     @Override
-    public void performPostMigration(SimpleJdbcTemplate simpleJdbcTemplate)
+    public void performPostMigration(SimpleJdbcTemplate simpleJdbcTemplate, DataSource dataSource)
             throws DataAccessException
     {
         operationLog.warn("!!!!!!!! METABOL DATABASE MIGRATED WITH OUT MIGRATING TABLE MZ_PEAKS. "
@@ -43,5 +43,4 @@ public class MigrationStepFrom004To005 extends MigrationStepAdapter
                 + "Please, delete MZ_PEAKS manually if it no longer needed.");
     }
 
-    
 }
