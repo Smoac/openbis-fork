@@ -74,6 +74,20 @@ public final class Principal extends AbstractHashable implements Serializable
      * @param firstName can not be <code>null</code>.
      * @param lastName can not be <code>null</code>.
      * @param email can not be <code>null</code>.
+     */
+    public Principal(final String userId, final String firstName, final String lastName,
+            final String email)
+    {
+        this(userId, firstName, lastName, email, false, new HashMap<String, String>());
+    }
+
+    /**
+     * Constructor which accepts mandatory parameters but no properties
+     * 
+     * @param userId Must not be <code>null</code>.
+     * @param firstName can not be <code>null</code>.
+     * @param lastName can not be <code>null</code>.
+     * @param email can not be <code>null</code>.
      * @param authenticated <code>true</code> if this principal has been authenticated in the operation.
      */
     public Principal(final String userId, final String firstName, final String lastName,
