@@ -47,7 +47,7 @@ public class DefaultSessionManagerTest
     /** Kind of dummy <code>Principal</code> to point out that the login was successful. */
     private static final Principal principal =
             new Principal(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY,
-                    StringUtils.EMPTY, false);
+                    StringUtils.EMPTY, true);
 
     private static final int SESSION_EXPIRATION_PERIOD_MINUTES = 1;
 
@@ -136,14 +136,12 @@ public class DefaultSessionManagerTest
         context.checking(new Expectations()
             {
                 {
-                    one(authenticationService).authenticateUser(applicationToken, user, "blub");
-                    will(returnValue(true));
+                    one(authenticationService).tryGetAndAuthenticateUser(applicationToken, user,
+                            "blub");
+                    will(returnValue(principal));
 
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
-
-                    one(authenticationService).getPrincipal(applicationToken, user);
-                    will(returnValue(principal));
                 }
             });
 
@@ -169,8 +167,8 @@ public class DefaultSessionManagerTest
         context.checking(new Expectations()
             {
                 {
-                    one(authenticationService).authenticateUser("ole", user, "blub");
-                    will(returnValue(false));
+                    one(authenticationService).tryGetAndAuthenticateUser("ole", user, "blub");
+                    will(returnValue(null));
 
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
@@ -226,10 +224,8 @@ public class DefaultSessionManagerTest
                 {
                     one(authenticationService).check();
 
-                    one(authenticationService).authenticateUser(applicationToken, user, "blub");
-                    will(returnValue(true));
-
-                    one(authenticationService).getPrincipal(applicationToken, user);
+                    one(authenticationService).tryGetAndAuthenticateUser(applicationToken, user,
+                            "blub");
                     will(returnValue(principal));
 
                     one(authenticationService).authenticateApplication();
@@ -278,14 +274,12 @@ public class DefaultSessionManagerTest
         context.checking(new Expectations()
             {
                 {
-                    one(authenticationService).authenticateUser(applicationToken, user, password);
-                    will(returnValue(true));
+                    one(authenticationService).tryGetAndAuthenticateUser(applicationToken, user,
+                            password);
+                    will(returnValue(principal));
 
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
-
-                    one(authenticationService).getPrincipal(applicationToken, user);
-                    will(returnValue(principal));
                 }
             });
 
