@@ -49,6 +49,8 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
  */
 public final class LDAPPrincipalQuery implements ISelfTestable
 {
+    private static final int MAX_RETRIES = 10;
+
     private static final String DISTINGUISHED_NAME_ATTRIBUTE_NAME = "distinguishedName";
 
     private static final String UID_NUMBER_ATTRIBUTE_NAME = "uidNumber";
@@ -181,16 +183,43 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         return listPrincipalsByKeyValue(key, value, null, Integer.MAX_VALUE);
     }
 
+    @SuppressWarnings("null")
     public List<Principal> listPrincipalsByKeyValue(String key, String value,
+            Collection<String> additionalAttributesOrNull, int limit)
+    {
+        RuntimeException firstException = null;
+        // See bug 
+        // http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=b399a5ff102b13d178b4c703df19?bug_id=6924489
+        // on Solaris with SSL connections
+        for (int i = 0; i < MAX_RETRIES; ++i)
+        {
+            try
+            {
+                return primListPrincipalsByKeyValue(key, value, additionalAttributesOrNull, limit);
+            } catch (RuntimeException ex)
+            {
+                if (firstException != null)
+                {
+                    firstException = ex;
+                }
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug("Exception in SSL protocol, retrying.");
+                }
+            }
+        }
+        throw firstException;
+    }
+    
+    private List<Principal> primListPrincipalsByKeyValue(String key, String value,
             Collection<String> additionalAttributesOrNull, int limit)
     {
         final List<Principal> principals = new ArrayList<Principal>();
         final String filter = String.format("%s=%s", key, value);
         final String query = String.format(config.getQueryTemplate(), filter);
-        DirContext context = null;
         try
         {
-            context = createContext();
+            final DirContext context = createContext();
             final SearchControls ctrl = new SearchControls();
             ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
             final NamingEnumeration<SearchResult> enumeration = context.search("", query, ctrl);
@@ -249,6 +278,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                 config.getSecurityPrincipalPassword(), true);
     }
 
+    @SuppressWarnings("null")
     private DirContext createContextForDistinguishedName(String dn, String password,
             boolean useThreadContext) throws NamingException
     {
@@ -270,12 +300,29 @@ public final class LDAPPrincipalQuery implements ISelfTestable
             operationLog.debug(String.format("Try to login to %s with dn=%s",
                     config.getServerUrl(), dn));
         }
-        final InitialDirContext initialDirContext = new InitialDirContext(env);
-        if (useThreadContext)
+        RuntimeException firstException = null;
+        // See bug 
+        // http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=b399a5ff102b13d178b4c703df19?bug_id=6924489
+        // on Solaris with SSL connections
+        for (int i = 0; i < MAX_RETRIES; ++i)
         {
-            contextHolder.set(initialDirContext);
+            try
+            {
+                final InitialDirContext initialDirContext = new InitialDirContext(env);
+                if (useThreadContext)
+                {
+                    contextHolder.set(initialDirContext);
+                }
+                return initialDirContext;
+            } catch (RuntimeException ex)
+            {
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug("");
+                }
+            }
         }
-        return initialDirContext;
+        throw firstException;
     }
 
     private static String tryGetAttribute(Attributes attributes, String attributeName)
