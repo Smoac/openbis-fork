@@ -133,7 +133,6 @@ public class HelpRedirectServletTest
     public final void testGenericHelpPageRequest() throws Exception
     {
         final String urlForRedirect = String.format(GENERIC_PAGE_TEMPLATE, PAGE_TITLE);
-        System.err.println("expected: " + urlForRedirect);
 
         context.checking(new Expectations()
             {
