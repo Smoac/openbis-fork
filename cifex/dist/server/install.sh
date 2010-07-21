@@ -67,8 +67,11 @@ war_classes=WEB-INF/classes
 mkdir -p "$war_classes"/etc
 # Replace 'service.properties' and 'log.xml' files in war
 test -f "$properties_file" && cp -p "$properties_file" "$war_classes/"
+test -f genericCommonContext.xml && cp -p genericCommonContext.xml "$war_classes/"
+test -f applicationContext.xml && cp -p applicationContext.xml "$war_classes/"
+test -f dbConfigurationContext.xml && cp -p dbConfigurationContext.xml "$war_classes/"
 test -f "$logconf_file" && cp -p "$logconf_file" "$war_classes/etc/"
-zip "$installation_folder"/cifex.war "$war_classes"/service.properties "$war_classes"/etc/log.xml *.js *.html images/*
+zip "$installation_folder"/cifex.war "$war_classes"/* "$war_classes"/etc/* *.js *.html images/*
 cp -p "$installation_folder"/cifex.war "$jetty_folder"/webapps
 rm -rf WEB-INF
 
@@ -97,6 +100,8 @@ echo "JETTY_STOP_PORT=8079" >> "$JETTY_PROPERTIES"
 echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
 # Here goes the path of the JVM in case you need to set it hard
 echo "JVM=\"java\"" >> "$JETTY_PROPERTIES"
+# Some additional parameters
+echo "JVM_PARAMS=\"-server\"" >> "$JETTY_PROPERTIES"
 # The default memory of the JVM at start up.
 echo "VM_STARTUP_MEM=\"256M\"" >> "$JETTY_PROPERTIES"
 # The maximum memory for the JVM

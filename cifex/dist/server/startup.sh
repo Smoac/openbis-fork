@@ -14,7 +14,7 @@ cd "$JETTY_BIN_DIR"/..
 $JVM -DSTOP.PORT=$JETTY_STOP_PORT \
      -DSTOP.KEY=$JETTY_STOP_KEY \
      -Djetty.port=$JETTY_PORT \
-     -server \
+     ${JVM_PARAMS} \
      -Xms${VM_STARTUP_MEM} \
      -Xmx${VM_MAX_MEM} \
      -jar start.jar etc/jetty.xml >> logs/jetty.out 2>&1 &

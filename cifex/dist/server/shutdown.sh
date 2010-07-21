@@ -13,6 +13,7 @@ cd "$JETTY_BIN_DIR"/..
 
 $JVM -DSTOP.PORT=$JETTY_STOP_PORT \
      -DSTOP.KEY=$JETTY_STOP_KEY \
+     ${JVM_PARAMS} \
      -Xms${VM_STARTUP_MEM} \
      -Xmx${VM_MAX_MEM} \
      -jar start.jar --stop
