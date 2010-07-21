@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  */
 public abstract class AbstractDataSetInfoExtractor implements IDataSetInfoExtractor
 {
-
     /** The name of the property to get the experiment separator from. */
     @Private
     static final String ENTITY_SEPARATOR_PROPERTY_NAME = "entity-separator";
