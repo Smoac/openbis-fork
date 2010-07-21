@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
- * Headless sample listing tests counterpart to {@link SampleBrowserTest}. Not included tests:
+ * Headless system test counterpart to {@link SampleBrowserTest}. Not included tests:
  * <ul>
  * <li>testChangeColumnSettings()
  * <li>testExportMasterPlates()
@@ -67,7 +67,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
 
         ResultSetWithEntityTypes<Sample> samples =
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
-        assertEquals(40, samples.getResultSet().getTotalLength());
+        assertEquals(42, samples.getResultSet().getTotalLength());
         assertEquals("[DILUTION_PLATE, REINFECT_PLATE, MASTER_PLATE, CONTROL_LAYOUT, CELL_PLATE]",
                 samples.getAvailableEntityTypes().toString());
 
@@ -160,7 +160,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
 
         ResultSetWithEntityTypes<Sample> samples =
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
-        assertEquals(15, samples.getResultSet().getTotalLength());
+        assertEquals(17, samples.getResultSet().getTotalLength());
         assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
 
         GridRowModels<Sample> list = samples.getResultSet().getList();

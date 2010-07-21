@@ -72,7 +72,7 @@ public class RoleWithHierarchyTest extends AssertJUnit
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testFigureRoleCodeNotMatchingConvention() throws Exception
     {
-        RoleWithHierarchy.figureRoleCode("INSTANCE_ADMIN", RoleLevel.SPACE);
+        RoleWithHierarchy.figureRoleCode("INSTANCE_MANAGER", RoleLevel.INSTANCE);
     }
 
     @Test

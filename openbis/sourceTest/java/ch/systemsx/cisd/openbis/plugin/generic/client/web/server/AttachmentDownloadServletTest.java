@@ -91,6 +91,8 @@ public final class AttachmentDownloadServletTest
                     will(returnValue(CommonTestUtils.VERSION_22 + ""));
                     one(servletRequest).getParameter(GenericConstants.FILE_NAME_PARAMETER);
                     will(returnValue(CommonTestUtils.FILENAME));
+                    one(servletRequest).getCharacterEncoding();
+                    will(returnValue(null));
                     one(servletRequest).getParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER);
                     will(returnValue(AttachmentHolderKind.EXPERIMENT.name()));
                     one(servletRequest).getParameter(GenericConstants.TECH_ID_PARAMETER);
