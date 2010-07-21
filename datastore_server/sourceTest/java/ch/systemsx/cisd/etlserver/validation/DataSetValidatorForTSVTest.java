@@ -348,7 +348,7 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("2. row has 2 instead of 1 cells.", ex.getMessage());
+            assertEquals("2. data row has 2 instead of 1 cells.", ex.getMessage());
         }
         
         MockValidatorFactory.assertSatisfied();
