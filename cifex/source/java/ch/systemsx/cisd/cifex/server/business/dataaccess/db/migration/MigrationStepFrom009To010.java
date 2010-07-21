@@ -20,6 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -85,7 +87,7 @@ public class MigrationStepFrom009To010 implements IMigrationStep
             } else
             {
                 return new IdFileRentionHolder(rs.getLong("id"), fileRetention);
-                
+
             }
         }
     }
@@ -97,12 +99,12 @@ public class MigrationStepFrom009To010 implements IMigrationStep
         isPostgreSQL = DatabaseEngine.POSTGRESQL.getCode().equals(context.getDatabaseEngineCode());
     }
 
-    public void performPreMigration(SimpleJdbcTemplate simpleJdbcTemplate)
+    public void performPreMigration(SimpleJdbcTemplate simpleJdbcTemplate, DataSource dataSource)
             throws DataAccessException
     {
     }
 
-    public void performPostMigration(SimpleJdbcTemplate simpleJdbcTemplate)
+    public void performPostMigration(SimpleJdbcTemplate simpleJdbcTemplate, DataSource dataSource)
             throws DataAccessException
     {
         // Rename column USERS.USER_ID to USER_CODE and domain USER_ID to USER_CODE
