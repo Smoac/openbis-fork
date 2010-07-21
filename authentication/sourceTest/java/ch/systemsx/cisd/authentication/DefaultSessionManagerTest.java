@@ -47,7 +47,7 @@ public class DefaultSessionManagerTest
     /** Kind of dummy <code>Principal</code> to point out that the login was successful. */
     private static final Principal principal =
             new Principal(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY,
-                    StringUtils.EMPTY);
+                    StringUtils.EMPTY, false);
 
     private static final int SESSION_EXPIRATION_PERIOD_MINUTES = 1;
 

@@ -25,15 +25,15 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * A {@link IAuthenticationService} for LDAP servers.
- *
+ * 
  * @author Bernd Rinn
  */
 public class LDAPAuthenticationService implements IAuthenticationService
 {
     private static final String DUMMY_TOKEN_STR = "DUMMY-TOKEN";
-    
+
     private final LDAPPrincipalQuery query;
-    
+
     public LDAPAuthenticationService(LDAPDirectoryConfiguration config)
     {
         query = new LDAPPrincipalQuery(config);
@@ -49,13 +49,19 @@ public class LDAPAuthenticationService implements IAuthenticationService
         return query.authenticateUser(user, password);
     }
 
+    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
+            String passwordOrNull)
+    {
+        return query.tryGetAndAuthenticatePrincipal(user, passwordOrNull);
+    }
+
     public Principal getPrincipal(String applicationToken, String user)
             throws IllegalArgumentException
     {
-        final Principal principalOrNull = query.tryGetPrincipalByUserId(user);
+        final Principal principalOrNull = query.tryGetPrincipal(user);
         if (principalOrNull == null)
         {
-            throw new IllegalArgumentException("User '" + user + "' does not exist.");
+            throw new IllegalArgumentException("Cannot find user '" + user + "'.");
         }
         return principalOrNull;
     }

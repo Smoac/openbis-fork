@@ -87,7 +87,7 @@ class UserEntry extends AbstractHashable
      */
     Principal asPrincipal()
     {
-        return new Principal(getUserId(), getFirstName(), getLastName(), getEmail());
+        return new Principal(getUserId(), getFirstName(), getLastName(), getEmail(), false);
     }
 
     /**

@@ -55,6 +55,23 @@ public interface IAuthenticationService extends ISelfTestable
     public boolean authenticateUser(String applicationToken, String user, String password);
 
     /**
+     * Returns the user details for the given <var>userId</var>, optionally trying to authenticating
+     * the user with the given <var>passwordOrNull</var>.
+     * 
+     * @param applicationToken The token to authenticate the application towards the authentication
+     *            system.
+     * @param user The user id to get the details for.
+     * @param passwordOrNull The password to use for the authentication request. If
+     *            <code>null</code>, the user will not be authenticated.
+     * @return The Principal object, if a user with this <var>userId</var> exist, <code>null</code>
+     *         otherwise. You can check with {@link Principal#isAuthenticated()} or
+     *         {@link Principal#isAuthenticated(Principal)} whether the authentication request has
+     *         been successful.
+     */
+    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
+            String passwordOrNull);
+
+    /**
      * For a given user name returns additional details encapsulated in returned
      * <code>Principal</code>.
      * <p>

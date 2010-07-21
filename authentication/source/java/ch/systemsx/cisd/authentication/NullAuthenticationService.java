@@ -39,6 +39,12 @@ public class NullAuthenticationService implements IAuthenticationService
         throw new UnsupportedOperationException();
     }
 
+    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
+            String passwordOrNull)
+    {
+        throw new UnsupportedOperationException();
+    }
+
     public Principal getPrincipal(String applicationToken, String user)
     {
         throw new UnsupportedOperationException();

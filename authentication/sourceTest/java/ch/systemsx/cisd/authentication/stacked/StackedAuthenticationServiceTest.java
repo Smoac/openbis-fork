@@ -258,8 +258,8 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(token1));
                     one(authService2).authenticateApplication();
                     will(returnValue(token2));
-                    one(authService1).authenticateUser(token1, user, password);
-                    one(authService2).authenticateUser(token2, user, password);
+                    one(authService1).tryGetAndAuthenticateUser(token1, user, password);
+                    one(authService2).tryGetAndAuthenticateUser(token2, user, password);
                 }
             });
         assertNotNull(stackedAuthService.authenticateApplication());
@@ -274,6 +274,7 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String user = "user";
         final String password = "password";
+        final Principal principal = new Principal(user, "", "", "", true);
 
         context.checking(new Expectations()
             {
@@ -282,8 +283,8 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(token1));
                     one(authService2).authenticateApplication();
                     will(returnValue(token2));
-                    one(authService1).authenticateUser(token1, user, password);
-                    will(returnValue(true));
+                    one(authService1).tryGetAndAuthenticateUser(token1, user, password);
+                    will(returnValue(principal));
                 }
             });
         assertNotNull(stackedAuthService.authenticateApplication());
@@ -298,6 +299,7 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String user = "user";
         final String password = "password";
+        final Principal principal = new Principal(user, "", "", "", true);
 
         context.checking(new Expectations()
             {
@@ -306,9 +308,9 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(token1));
                     one(authService2).authenticateApplication();
                     will(returnValue(token2));
-                    one(authService1).authenticateUser(token1, user, password);
-                    one(authService2).authenticateUser(token2, user, password);
-                    will(returnValue(true));
+                    one(authService1).tryGetAndAuthenticateUser(token1, user, password);
+                    one(authService2).tryGetAndAuthenticateUser(token2, user, password);
+                    will(returnValue(principal));
                 }
             });
         assertNotNull(stackedAuthService.authenticateApplication());
@@ -325,7 +327,7 @@ public class StackedAuthenticationServiceTest
         final String firstName = "first name";
         final String lastName = "last name";
         final String email = "email address";
-        final Principal principal = new Principal(user, firstName, lastName, email);
+        final Principal principal = new Principal(user, firstName, lastName, email, false);
 
         context.checking(new Expectations()
             {
@@ -334,7 +336,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(token1));
                     one(authService2).authenticateApplication();
                     will(returnValue(token2));
-                    one(authService1).getPrincipal(token1, user);
+                    one(authService1).tryGetAndAuthenticateUser(token1, user, null);
                     will(returnValue(principal));
                 }
             });
@@ -352,7 +354,7 @@ public class StackedAuthenticationServiceTest
         final String firstName = "first name";
         final String lastName = "last name";
         final String email = "email address";
-        final Principal principal = new Principal(user, firstName, lastName, email);
+        final Principal principal = new Principal(user, firstName, lastName, email, false);
 
         context.checking(new Expectations()
             {
@@ -361,8 +363,8 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(token1));
                     one(authService2).authenticateApplication();
                     will(returnValue(token2));
-                    one(authService1).getPrincipal(token1, user);
-                    one(authService2).getPrincipal(token2, user);
+                    one(authService1).tryGetAndAuthenticateUser(token1, user, null);
+                    one(authService2).tryGetAndAuthenticateUser(token2, user, null);
                     will(returnValue(principal));
                 }
             });
@@ -393,8 +395,8 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(token1));
                     one(authService2).authenticateApplication();
                     will(returnValue(token2));
-                    one(authService1).getPrincipal(token1, user);
-                    one(authService2).getPrincipal(token2, user);
+                    one(authService1).tryGetAndAuthenticateUser(token1, user, null);
+                    one(authService2).tryGetAndAuthenticateUser(token2, user, null);
                 }
             });
         assertNotNull(stackedAuthService.authenticateApplication());
@@ -411,9 +413,9 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String emailQuery = "some email with *";
         final Principal principal1 =
-                new Principal("user1", "first name 1", "last name 1", "email 1");
+                new Principal("user1", "first name 1", "last name 1", "email 1", false);
         final Principal principal2 =
-                new Principal("user2", "first name 2", "last name 2", "email 2");
+                new Principal("user2", "first name 2", "last name 2", "email 2", false);
 
         context.checking(new Expectations()
             {
@@ -457,7 +459,7 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String emailQuery = "some email with *";
         final Principal principal =
-                new Principal("user3", "first name 3", "last name 3", "email 3");
+                new Principal("user3", "first name 3", "last name 3", "email 3", false);
 
         context.checking(new Expectations()
             {
@@ -500,11 +502,11 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String emailQuery = "some email with *";
         final Principal principal1 =
-                new Principal("user1", "first name 1", "last name 1", "email 1");
+                new Principal("user1", "first name 1", "last name 1", "email 1", false);
         final Principal principal2 =
-                new Principal("user2", "first name 2", "last name 2", "email 2");
+                new Principal("user2", "first name 2", "last name 2", "email 2", false);
         final Principal principal3 =
-                new Principal("user3", "first name 3", "last name 3", "email 3");
+                new Principal("user3", "first name 3", "last name 3", "email 3", false);
 
         context.checking(new Expectations()
             {
@@ -552,9 +554,9 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String userIdQuery = "some user id with *";
         final Principal principal1 =
-                new Principal("user1", "first name 1", "last name 1", "email 1");
+                new Principal("user1", "first name 1", "last name 1", "email 1", false);
         final Principal principal2 =
-                new Principal("user2", "first name 2", "last name 2", "email 2");
+                new Principal("user2", "first name 2", "last name 2", "email 2", false);
 
         context.checking(new Expectations()
             {
@@ -598,7 +600,7 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String userIdQuery = "some user id with *";
         final Principal principal =
-                new Principal("user3", "first name 3", "last name 3", "email 3");
+                new Principal("user3", "first name 3", "last name 3", "email 3", false);
 
         context.checking(new Expectations()
             {
@@ -641,11 +643,11 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String userIdQuery = "some user id with *";
         final Principal principal1 =
-                new Principal("user1", "first name 1", "last name 1", "email 1");
+                new Principal("user1", "first name 1", "last name 1", "email 1", false);
         final Principal principal2 =
-                new Principal("user2", "first name 2", "last name 2", "email 2");
+                new Principal("user2", "first name 2", "last name 2", "email 2", false);
         final Principal principal3 =
-                new Principal("user3", "first name 3", "last name 3", "email 3");
+                new Principal("user3", "first name 3", "last name 3", "email 3", false);
 
         context.checking(new Expectations()
             {
@@ -693,9 +695,9 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String lastNameQuery = "some user id with *";
         final Principal principal1 =
-                new Principal("user1", "first name 1", "last name 1", "email 1");
+                new Principal("user1", "first name 1", "last name 1", "email 1", false);
         final Principal principal2 =
-                new Principal("user2", "first name 2", "last name 2", "email 2");
+                new Principal("user2", "first name 2", "last name 2", "email 2", false);
 
         context.checking(new Expectations()
             {
@@ -739,7 +741,7 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String lastNameQuery = "some user id with *";
         final Principal principal =
-                new Principal("user3", "first name 3", "last name 3", "email 3");
+                new Principal("user3", "first name 3", "last name 3", "email 3", false);
 
         context.checking(new Expectations()
             {
@@ -782,11 +784,11 @@ public class StackedAuthenticationServiceTest
         final String token2 = "token2";
         final String lastNameQuery = "some user id with *";
         final Principal principal1 =
-                new Principal("user1", "first name 1", "last name 1", "email 1");
+                new Principal("user1", "first name 1", "last name 1", "email 1", false);
         final Principal principal2 =
-                new Principal("user2", "first name 2", "last name 2", "email 2");
+                new Principal("user2", "first name 2", "last name 2", "email 2", false);
         final Principal principal3 =
-                new Principal("user3", "first name 3", "last name 3", "email 3");
+                new Principal("user3", "first name 3", "last name 3", "email 3", false);
 
         context.checking(new Expectations()
             {

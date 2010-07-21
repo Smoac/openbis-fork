@@ -32,7 +32,8 @@ public final class DummyAuthenticationService implements IAuthenticationService
         { "St\u00e9phane", "G\u00fcnter", "Elfriede", "Ryszard", "Karel", "Claude" };
 
     final String[] lastNames =
-        { "Mallarm\u00e9", "Grass", "Jelinek", "Kapu\u015Bci\u0144ski", "\u010Capek", "L\u00e9vi-Strauss" };
+                { "Mallarm\u00e9", "Grass", "Jelinek", "Kapu\u015Bci\u0144ski", "\u010Capek",
+                        "L\u00e9vi-Strauss" };
 
     //
     // IAuthenticationService
@@ -62,7 +63,15 @@ public final class DummyAuthenticationService implements IAuthenticationService
         firstName = firstNames[idx];
         idx = (int) Math.floor(Math.random() * lastNames.length);
         lastName = lastNames[idx];
-        return new Principal(user, firstName, lastName, "franz-josef.elmer@systemsx.ch");
+        return new Principal(user, firstName, lastName, "franz-josef.elmer@systemsx.ch", false);
+    }
+
+    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
+            String passwordOrNull)
+    {
+        final Principal principal = getPrincipal(applicationToken, user);
+        principal.setAuthenticated(true);
+        return principal;
     }
 
     public boolean isRemote()

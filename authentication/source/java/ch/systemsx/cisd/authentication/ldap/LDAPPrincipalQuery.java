@@ -48,16 +48,16 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
  */
 public final class LDAPPrincipalQuery implements ISelfTestable
 {
-    private static final String LOGIN_DN_MSG_TEMPLATE = "User '%s' <DN='%s'>: authentication %s";
+    private static final String DISTINGUISHED_NAME_ATTRIBUTE_NAME = "distinguishedName";
 
-    private static final String REGULAR_LOGIN_MSG_TEMPLATE = "User '%s' (regular DN): authentication %s";
+    private static final String UID_NUMBER_ATTRIBUTE_NAME = "uidNumber";
+
+    private static final String LOGIN_DN_MSG_TEMPLATE = "User '%s' <DN='%s'>: authentication %s";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, LDAPPrincipalQuery.class);
 
     private static final String LDAP_CONTEXT_FACTORY_CLASSNAME = "com.sun.jndi.ldap.LdapCtxFactory";
-
-    private static final String QUERY_TEMPLATE = "%s=%s";
 
     private static final String AUTHENTICATION_FAILURE_TEMPLATE =
             "Authentication failure connecting to LDAP server '%s'.";
@@ -66,14 +66,17 @@ public final class LDAPPrincipalQuery implements ISelfTestable
 
     private final LDAPDirectoryConfiguration config;
 
+    private final ThreadLocal<DirContext> contextHolder;
+
     public LDAPPrincipalQuery(LDAPDirectoryConfiguration config)
     {
         this.config = config;
+        this.contextHolder = new ThreadLocal<DirContext>();
     }
 
-    public Principal tryGetPrincipalByUserId(String userId) throws IllegalArgumentException
+    public Principal tryGetPrincipal(String userId) throws IllegalArgumentException
     {
-        final List<Principal> principals = listPrincipalsByUserId(userId);
+        final List<Principal> principals = listPrincipalsByUserId(userId, 1);
         if (principals.size() == 0)
         {
             return null;
@@ -82,6 +85,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
             return principals.get(0);
         } else
         {
+            // Cannot happen - we have limited the search to 1
             throw new IllegalArgumentException("User '" + userId + "' is not unique.");
         }
     }
@@ -92,7 +96,16 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             operationLog.debug(String.format("listPrincipalsByUserId(%s)", userId));
         }
-        return listPrincipalsKeyValue(config.getUserIdAttributeName(), userId);
+        return listPrincipalsKeyValue(config.getUserIdAttributeName(), userId, Integer.MAX_VALUE);
+    }
+
+    private List<Principal> listPrincipalsByUserId(String userId, int limit)
+    {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("listPrincipalsByUserId(%s,%s)", userId, limit));
+        }
+        return listPrincipalsKeyValue(config.getUserIdAttributeName(), userId, limit);
     }
 
     public List<Principal> listPrincipalsByEmail(String email)
@@ -101,7 +114,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             operationLog.debug(String.format("listPrincipalsByEmail(%s)", email));
         }
-        return listPrincipalsKeyValue(config.getEmailAttributeName(), email);
+        return listPrincipalsKeyValue(config.getEmailAttributeName(), email, Integer.MAX_VALUE);
     }
 
     public List<Principal> listPrincipalsByLastName(String lastName)
@@ -110,35 +123,34 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             operationLog.debug(String.format("listPrincipalsByLastName(%s)", lastName));
         }
-        return listPrincipalsKeyValue(config.getLastNameAttributeName(), lastName);
+        return listPrincipalsKeyValue(config.getLastNameAttributeName(), lastName,
+                Integer.MAX_VALUE);
     }
 
     public boolean authenticateUser(String userId, String password)
     {
-        // Regular case: userID used as CN in distinguishedName
-        final boolean regularAuthentication =
-                authenticateUserByDistinguishedName(createDistinguishedName(userId), password);
-        if (operationLog.isDebugEnabled())
+        final Principal principal = tryGetAndAuthenticatePrincipal(userId, password);
+        return (principal == null) ? false : principal.isAuthenticated();
+    }
+
+    public Principal tryGetAndAuthenticatePrincipal(String userId, String passwordOrNull)
+    {
+        final Principal principal = tryGetPrincipal(userId);
+        if (principal == null)
         {
-            operationLog.debug(String.format(REGULAR_LOGIN_MSG_TEMPLATE, userId,
-                    getStatus(regularAuthentication)));
+            return null;
         }
-        if (regularAuthentication)
-        {
-            return true;
-        }
-        // There can be a mis-configuration where distinguishedName is not regularly formed, get it
-        // explicitly.
-        final String distinguishedName = tryGetAttribute(userId, "distinguishedName");
+        final String distinguishedName = principal.getProperty(DISTINGUISHED_NAME_ATTRIBUTE_NAME);
         final boolean authenticated =
-                authenticateUserByDistinguishedName(distinguishedName, password);
+                (passwordOrNull == null) ? false : authenticateUserByDistinguishedName(
+                        distinguishedName, passwordOrNull);
+        principal.setAuthenticated(authenticated);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(LOGIN_DN_MSG_TEMPLATE, userId, distinguishedName,
                     getStatus(authenticated)));
         }
-
-        return authenticated;
+        return principal;
     }
 
     private String getStatus(final boolean status)
@@ -150,8 +162,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
     {
         try
         {
-            final DirContext context = createContextForDistinguishedName(dn, password);
-            context.close();
+            createContextForDistinguishedName(dn, password, false);
             return true;
         } catch (AuthenticationException ex)
         {
@@ -162,90 +173,46 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         }
     }
 
-    private List<Principal> listPrincipalsKeyValue(String key, String value)
-    {
-        return listPrincipalsParameterized(QUERY_TEMPLATE, key, value);
-    }
-
-    private List<Principal> listPrincipalsParameterized(String filterTemplate, Object... params)
+    private List<Principal> listPrincipalsKeyValue(String key, String value, int limit)
     {
         final List<Principal> principals = new ArrayList<Principal>();
-        final String query =
-                String.format(config.getQueryTemplate(), String.format(filterTemplate, params));
+        final String filter = String.format("%s=%s", key, value);
+        final String query = String.format(config.getQueryTemplate(), filter);
         DirContext context = null;
         try
         {
             context = createContext();
-            try
+            final SearchControls ctrl = new SearchControls();
+            ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            final NamingEnumeration<SearchResult> enumeration = context.search("", query, ctrl);
+            int count = 0;
+            while (count++ < limit && enumeration.hasMore())
             {
-                final SearchControls ctrl = new SearchControls();
-                ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                final NamingEnumeration<SearchResult> enumeration = context.search("", query, ctrl);
-                while (enumeration.hasMore())
+                final SearchResult result = enumeration.next();
+                final Attributes attributes = result.getAttributes();
+                final String userId = tryGetAttribute(attributes, config.getUserIdAttributeName());
+                final String email = tryGetAttribute(attributes, config.getEmailAttributeName());
+                final String distinguishedName =
+                        tryGetAttribute(attributes, DISTINGUISHED_NAME_ATTRIBUTE_NAME);
+                if (userId != null && email != null && distinguishedName != null)
                 {
-                    final SearchResult result = enumeration.next();
-                    final Attributes attributes = result.getAttributes();
-                    final String userId =
-                            tryGetAttribute(attributes, config.getUserIdAttributeName(), null);
-                    final String email =
-                            tryGetAttribute(attributes, config.getEmailAttributeName(), null);
                     final String firstName =
                             tryGetAttribute(attributes, config.getFirstNameAttributeName(), "?");
                     final String lastName =
                             tryGetAttribute(attributes, config.getLastNameAttributeName(), "?");
-                    if (userId != null && email != null)
+                    final String uidNumber = tryGetAttribute(attributes, UID_NUMBER_ATTRIBUTE_NAME);
+                    final Principal principal =
+                            new Principal(userId, firstName, lastName, email, false);
+                    principal.getProperties().put(DISTINGUISHED_NAME_ATTRIBUTE_NAME,
+                            distinguishedName);
+                    if (uidNumber != null)
                     {
-                        principals.add(new Principal(userId, firstName, lastName, email));
+                        principal.getProperties().put(UID_NUMBER_ATTRIBUTE_NAME, uidNumber);
                     }
-                }
-                return principals;
-            } finally
-            {
-                if (context != null)
-                {
-                    context.close();
+                    principals.add(principal);
                 }
             }
-        } catch (AuthenticationException ex)
-        {
-            throw ConfigurationFailureException.fromTemplate(ex, AUTHENTICATION_FAILURE_TEMPLATE,
-                    config.getServerUrl());
-        } catch (NamingException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
-    private String tryGetAttribute(String userId, String attributeName)
-    {
-        final String query =
-                String.format(config.getQueryTemplate(), String.format("%s=%s", config
-                        .getUserIdAttributeName(), userId));
-        DirContext context = null;
-        try
-        {
-            context = createContext();
-            try
-            {
-                final SearchControls ctrl = new SearchControls();
-                ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                final NamingEnumeration<SearchResult> enumeration = context.search("", query, ctrl);
-                if (enumeration.hasMore())
-                {
-                    final SearchResult result = enumeration.next();
-                    final Attributes attributes = result.getAttributes();
-                    return tryGetAttribute(attributes, attributeName, null);
-                } else
-                {
-                    return null;
-                }
-            } finally
-            {
-                if (context != null)
-                {
-                    context.close();
-                }
-            }
+            return principals;
         } catch (AuthenticationException ex)
         {
             throw ConfigurationFailureException.fromTemplate(ex, AUTHENTICATION_FAILURE_TEMPLATE,
@@ -260,16 +227,19 @@ public final class LDAPPrincipalQuery implements ISelfTestable
     {
         if (Boolean.parseBoolean(config.getUserIdAsDistinguishedName()))
         {
-            return createContextForDistinguishedName(config.getUserId(), config.getPassword());
+            return createContextForDistinguishedName(config.getUserId(), config.getPassword(),
+                    true);
         } else
         {
-            return createContext(config.getUserId(), config.getPassword());
+            return createContext(config.getUserId(), config.getPassword(), true);
         }
     }
-    
-    private DirContext createContext(String userId, String password) throws NamingException
+
+    private DirContext createContext(String userId, String password, boolean useThreadContext)
+            throws NamingException
     {
-        return createContextForDistinguishedName(createDistinguishedName(userId), password);
+        return createContextForDistinguishedName(createDistinguishedName(userId), password,
+                useThreadContext);
     }
 
     private String createDistinguishedName(String userId)
@@ -277,9 +247,14 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         return String.format(config.getSecurityPrincipalDistinguishedNameTemplate(), userId);
     }
 
-    private DirContext createContextForDistinguishedName(String dn, String password)
-            throws NamingException
+    private DirContext createContextForDistinguishedName(String dn, String password,
+            boolean useThreadContext) throws NamingException
     {
+        final DirContext threadContext = useThreadContext ? contextHolder.get() : null;
+        if (threadContext != null)
+        {
+            return threadContext;
+        }
         final Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY_CLASSNAME);
         env.put(Context.PROVIDER_URL, config.getServerUrl());
@@ -288,7 +263,18 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         env.put(Context.REFERRAL, config.getReferral());
         env.put(Context.SECURITY_PRINCIPAL, dn);
         env.put(Context.SECURITY_CREDENTIALS, password);
-        return new InitialDirContext(env);
+        final InitialDirContext initialDirContext = new InitialDirContext(env);
+        if (useThreadContext)
+        {
+            contextHolder.set(initialDirContext);
+        }
+        return initialDirContext;
+    }
+
+    private static String tryGetAttribute(Attributes attributes, String attributeName)
+            throws NamingException
+    {
+        return tryGetAttribute(attributes, attributeName, null);
     }
 
     private static String tryGetAttribute(Attributes attributes, String attributeName,

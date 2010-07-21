@@ -95,7 +95,8 @@ public class FileAuthenticationService implements IAuthenticationService
         return userStore.isPasswordCorrect(user, password);
     }
 
-    public Principal getPrincipal(String applicationToken, String user)
+    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
+            String passwordOrNull)
     {
         final String token = getToken();
         if (token.equals(applicationToken) == false)
@@ -104,11 +105,29 @@ public class FileAuthenticationService implements IAuthenticationService
             return null;
         }
         final UserEntry userOrNull = userStore.tryGetUser(user);
-        if (userOrNull == null)
+        if (userOrNull != null)
+        {
+            final Principal principal = userOrNull.asPrincipal();
+            if (passwordOrNull != null)
+            {
+                principal
+                        .setAuthenticated(authenticateUser(applicationToken, user, passwordOrNull));
+            }
+            return principal;
+        } else
+        {
+            return null;
+        }
+    }
+
+    public Principal getPrincipal(String applicationToken, String user)
+    {
+        final Principal principalOrNull = tryGetAndAuthenticateUser(applicationToken, user, null);
+        if (principalOrNull == null)
         {
             throw new IllegalArgumentException("Cannot find user '" + user + "'.");
         }
-        return userOrNull.asPrincipal();
+        return principalOrNull;
     }
 
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)

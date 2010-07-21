@@ -33,19 +33,19 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 public class StackedAuthenticationService implements IAuthenticationService
 {
     private static final String DUMMY_TOKEN_STR = "DUMMY-TOKEN";
-    
+
     private final List<IAuthenticationService> delegates;
-    
+
     private final List<String> tokens;
-    
+
     private final boolean remote;
-    
+
     private final boolean supportsListingByUserId;
 
     private final boolean supportsListingByEmail;
-    
+
     private final boolean supportsListingByLastName;
-    
+
     public StackedAuthenticationService(List<IAuthenticationService> authenticationServices)
     {
         this.delegates = authenticationServices;
@@ -85,43 +85,39 @@ public class StackedAuthenticationService implements IAuthenticationService
 
     public boolean authenticateUser(String applicationToken, String user, String password)
     {
-        checkAuthenticatedApplication();
-        int i = 0;
-        for (IAuthenticationService service : delegates)
-        {
-            final String token = tokens.get(i);
-            final boolean authenticated = service.authenticateUser(token, user, password);
-            if (authenticated)
-            {
-                return true;
-            }
-            ++i;
-        }
-        return false;
+        final Principal principalOrNull =
+                tryGetAndAuthenticateUser(applicationToken, user, password);
+        return Principal.isAuthenticated(principalOrNull);
     }
 
     public Principal getPrincipal(String applicationToken, String user)
             throws IllegalArgumentException
+    {
+        final Principal principalOrNull = tryGetAndAuthenticateUser(applicationToken, user, null);
+        if (principalOrNull == null)
+        {
+            throw new IllegalArgumentException("Cannot find user '" + user + "'.");
+        }
+        return principalOrNull;
+    }
+
+    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
+            String passwordOrNull)
     {
         checkAuthenticatedApplication();
         int i = 0;
         for (IAuthenticationService service : delegates)
         {
             final String token = tokens.get(i);
-            try
+            final Principal principal =
+                    service.tryGetAndAuthenticateUser(token, user, passwordOrNull);
+            if (principal != null)
             {
-                final Principal principal = service.getPrincipal(token, user);
-                if (principal != null)
-                {
-                    return principal;
-                }
-            } catch (IllegalArgumentException ex)
-            {
-                // Ignore - we try the next one.
+                return principal;
             }
             ++i;
         }
-        throw new IllegalArgumentException("User '" + user + "' does not exist.");
+        return null;
     }
 
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
@@ -214,7 +210,7 @@ public class StackedAuthenticationService implements IAuthenticationService
     {
         return remote;
     }
-    
+
     private void checkAuthenticatedApplication()
     {
         if (tokens.isEmpty())

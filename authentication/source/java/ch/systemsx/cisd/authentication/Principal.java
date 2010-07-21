@@ -18,6 +18,7 @@ package ch.systemsx.cisd.authentication;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,11 +47,22 @@ public final class Principal extends AbstractHashable implements Serializable
     private String lastName;
 
     private String email;
+    
+    private boolean authenticated;
 
     private Map<String, String> properties;
 
-    // for serialization only
-    @Deprecated
+    /**
+     * Returns <code>true</code>, if <var>principalOrNull</var> is not <code>null</code> and has been successfully authenticated.
+     */
+    public static boolean isAuthenticated(Principal principalOrNull)
+    {
+        return (principalOrNull == null) ? false : principalOrNull.isAuthenticated();
+    }
+    
+    /**
+     * For bean operations only.
+     */
     public Principal()
     {
     }
@@ -62,11 +74,12 @@ public final class Principal extends AbstractHashable implements Serializable
      * @param firstName can not be <code>null</code>.
      * @param lastName can not be <code>null</code>.
      * @param email can not be <code>null</code>.
+     * @param authenticated <code>true</code> if this principal has been authenticated in the operation.
      */
     public Principal(final String userId, final String firstName, final String lastName,
-            final String email)
+            final String email, boolean authenticated)
     {
-        this(userId, firstName, lastName, email, Collections.<String, String> emptyMap());
+        this(userId, firstName, lastName, email, authenticated, new HashMap<String, String>());
     }
 
     /**
@@ -76,10 +89,11 @@ public final class Principal extends AbstractHashable implements Serializable
      * @param firstName can not be <code>null</code>.
      * @param lastName can not be <code>null</code>.
      * @param email can not be <code>null</code>.
+     * @param authenticated <code>true</code> if this principal has been authenticated in the operation.
      * @param properties can not be <code>null</code>.
      */
     public Principal(final String userId, final String firstName, final String lastName,
-            final String email, final Map<String, String> properties)
+            final String email, boolean authenticated, final Map<String, String> properties)
     {
         assert userId != null;
         assert firstName != null;
@@ -91,6 +105,7 @@ public final class Principal extends AbstractHashable implements Serializable
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.authenticated = authenticated;
         this.properties = properties;
     }
 
@@ -141,37 +156,65 @@ public final class Principal extends AbstractHashable implements Serializable
         return Collections.unmodifiableSet(properties.keySet());
     }
 
-    @Deprecated
+    /**
+     * Returns <code>true</code> if this principal has been successfully authenticated.
+     */
+    public boolean isAuthenticated()
+    {
+        return authenticated;
+    }
+
+    /**
+     * Returns the property map for this principal.
+     */
     public Map<String, String> getProperties()
     {
         return properties;
     }
 
-    @Deprecated
+    /**
+     * For bean operations only.
+     */
     public void setUserId(String userId)
     {
         this.userId = userId;
     }
 
-    @Deprecated
+    /**
+     * For bean operations only.
+     */
     public void setFirstName(String firstName)
     {
         this.firstName = firstName;
     }
 
-    @Deprecated
+    /**
+     * For bean operations only.
+     */
     public void setLastName(String lastName)
     {
         this.lastName = lastName;
     }
 
-    @Deprecated
+    /**
+     * For bean operations only.
+     */
     public void setEmail(String email)
     {
         this.email = email;
     }
 
-    @Deprecated
+    /**
+     * For bean operations only.
+     */
+    public void setAuthenticated(boolean authenticated)
+    {
+        this.authenticated = authenticated;
+    }
+
+    /**
+     * For bean operations only.
+     */
     public void setProperties(Map<String, String> properties)
     {
         this.properties = properties;

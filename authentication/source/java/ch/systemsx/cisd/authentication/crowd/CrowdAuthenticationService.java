@@ -285,7 +285,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
         return userToken != null;
     }
 
-    public final Principal getPrincipal(final String applicationToken, final String user)
+    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
+            String passwordOrNull)
     {
         String xmlResponse = null;
         try
@@ -304,20 +305,28 @@ public class CrowdAuthenticationService implements IAuthenticationService
                             .debug("No SOAPAttribute element could be found in the SOAP XML response.");
                 }
             }
-            if (principal == null)
+            if (principal != null && passwordOrNull != null)
             {
-                throw new IllegalArgumentException("Cannot find user '" + user + "'.");
+                principal
+                        .setAuthenticated(authenticateUser(applicationToken, user, passwordOrNull));
             }
             return principal;
-        } catch (final IllegalArgumentException ex)
-        {
-            throw ex;
         } catch (final Exception ex) // SAXException, IOException
         {
             final String message =
                     "Parsing XML response '" + xmlResponse + "' throws an Exception.";
             throw new EnvironmentFailureException(message, ex);
         }
+    }
+
+    public final Principal getPrincipal(final String applicationToken, final String user)
+    {
+        final Principal principalOrNull = tryGetAndAuthenticateUser(applicationToken, user, null);
+        if (principalOrNull == null)
+        {
+            throw new IllegalArgumentException("Cannot find user '" + user + "'.");
+        }
+        return principalOrNull;
     }
 
     /**
@@ -346,7 +355,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
         final String firstName = soapAttributes.get(FIRST_NAME_PROPERTY_KEY);
         final String lastName = soapAttributes.get(LAST_NAME_PROPERTY_KEY);
         final String email = soapAttributes.get(EMAIL_PROPERTY_KEY);
-        return new Principal(user, firstName, lastName, email, soapAttributes);
+        return new Principal(user, firstName, lastName, email, false, soapAttributes);
     }
 
     /**
