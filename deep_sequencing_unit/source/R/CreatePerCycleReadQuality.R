@@ -1,3 +1,4 @@
+library(multicore)
 library(ShortRead)
 args <- commandArgs(TRUE)
 reads <- readFastq(args[1])
