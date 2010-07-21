@@ -150,7 +150,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                 (passwordOrNull == null) ? false : authenticateUserByDistinguishedName(
                         distinguishedName, passwordOrNull);
         principal.setAuthenticated(authenticated);
-        if (operationLog.isDebugEnabled())
+        if (operationLog.isDebugEnabled() && passwordOrNull != null)
         {
             operationLog.debug(String.format(LOGIN_DN_MSG_TEMPLATE, userId, distinguishedName,
                     getStatus(authenticated)));
