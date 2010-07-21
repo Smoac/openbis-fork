@@ -225,26 +225,8 @@ public final class LDAPPrincipalQuery implements ISelfTestable
 
     private DirContext createContext() throws NamingException
     {
-        if (Boolean.parseBoolean(config.getUserIdAsDistinguishedName()))
-        {
-            return createContextForDistinguishedName(config.getUserId(), config.getPassword(),
-                    true);
-        } else
-        {
-            return createContext(config.getUserId(), config.getPassword(), true);
-        }
-    }
-
-    private DirContext createContext(String userId, String password, boolean useThreadContext)
-            throws NamingException
-    {
-        return createContextForDistinguishedName(createDistinguishedName(userId), password,
-                useThreadContext);
-    }
-
-    private String createDistinguishedName(String userId)
-    {
-        return String.format(config.getSecurityPrincipalDistinguishedNameTemplate(), userId);
+        return createContextForDistinguishedName(config.getSecurityPrincipalDistinguishedName(),
+                config.getSecurityPrincipalPassword(), true);
     }
 
     private DirContext createContextForDistinguishedName(String dn, String password,
@@ -263,6 +245,11 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         env.put(Context.REFERRAL, config.getReferral());
         env.put(Context.SECURITY_PRINCIPAL, dn);
         env.put(Context.SECURITY_CREDENTIALS, password);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("Try to login to %s with dn=%s",
+                    config.getServerUrl(), dn));
+        }
         final InitialDirContext initialDirContext = new InitialDirContext(env);
         if (useThreadContext)
         {

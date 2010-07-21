@@ -55,15 +55,11 @@ public final class LDAPDirectoryConfiguration
             "(&(objectClass=organizationalPerson)(objectCategory=person)"
                     + "(objectClass=user)(%s))";
 
-    private String securityPrincipalDistinguishedNameTemplate;
+    private String securityPrincipalDistinguishedName;
 
     private String serverUrl;
 
-    private boolean userIdAsDistinguishedName;
-
-    private String userId;
-
-    private String password;
+    private String securityPrincipalPassword;
 
     /**
      * Default value: <code>uid</code>
@@ -155,24 +151,38 @@ public final class LDAPDirectoryConfiguration
     /**
      * @see Context#SECURITY_PRINCIPAL
      */
-    public String getSecurityPrincipalDistinguishedNameTemplate()
+    public String getSecurityPrincipalDistinguishedName()
     {
-        return securityPrincipalDistinguishedNameTemplate;
+        return securityPrincipalDistinguishedName;
     }
 
     /**
-     * Needs to contain exactly one '<code>%s</code>' which will be replaced with the user id which
-     * is used to authenticate the application towards the LDAP server.
+     * The distinguished name for login of the application to the LDAP server.
      * <p>
-     * Example: <code>CN=%s,OU=EthUsers,DC=d,DC=ethz,DC=ch</code>.
+     * Example: <code>CN=carl,OU=EthUsers,DC=d,DC=ethz,DC=ch</code>.
      * <p>
      * <strong>Mandatory.</strong>
      * 
      * @see Context#SECURITY_PRINCIPAL
      */
-    public void setSecurityPrincipalDistinguishedNameTemplate(String securityPrincipalTemplate)
+    public void setSecurityPrincipalDistinguishedName(String securityPrincipal)
     {
-        this.securityPrincipalDistinguishedNameTemplate = securityPrincipalTemplate;
+        this.securityPrincipalDistinguishedName = securityPrincipal;
+    }
+
+    public String getSecurityPrincipalPassword()
+    {
+        return securityPrincipalPassword;
+    }
+
+    /**
+     * The password for login of the application to the LDAP server.
+     * <p>
+     * <strong>Mandatory.</strong>
+     */
+    public void setSecurityPrincipalPassword(String password)
+    {
+        this.securityPrincipalPassword = password;
     }
 
     /**
@@ -251,54 +261,6 @@ public final class LDAPDirectoryConfiguration
     public void setServerUrl(String ldapUrl)
     {
         this.serverUrl = ldapUrl;
-    }
-
-    public String getUserId()
-    {
-        return userId;
-    }
-
-    /**
-     * The user id for login of the application to the LDAP server.
-     * <p>
-     * <strong>Mandatory.</strong>
-     */
-    public void setUserId(String userId)
-    {
-        this.userId = userId;
-    }
-
-    public String getUserIdAsDistinguishedName()
-    {
-        return Boolean.toString(userIdAsDistinguishedName);
-    }
-
-    /**
-     * If set to <code>true</code>, the <code>userId</code> will be interpreted as a distinguished
-     * name and <code>securityPrincipalDistinguishedNameTemplate</code> will not be used for the
-     * login.
-     */
-    public void setUserIdAsDistinguishedName(String userIdIsDistinguishedName)
-    {
-        if (StringUtils.isNotBlank(userIdIsDistinguishedName))
-        {
-            this.userIdAsDistinguishedName = Boolean.parseBoolean(userIdIsDistinguishedName);
-        }
-    }
-
-    public String getPassword()
-    {
-        return password;
-    }
-
-    /**
-     * The password for login of the application to the LDAP server.
-     * <p>
-     * <strong>Mandatory.</strong>
-     */
-    public void setPassword(String password)
-    {
-        this.password = password;
     }
 
 }

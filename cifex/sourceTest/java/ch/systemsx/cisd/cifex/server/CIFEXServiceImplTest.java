@@ -673,33 +673,6 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testLoginWithExternalServiceFailedBecausePrincipalNotFound() throws Exception
-    {
-        final String userName = "u";
-        final String password = "p";
-        prepareForDBEmptyCheck();
-        prepareForExternalAuthentication(userName, password, null);
-        context.checking(new Expectations()
-            {
-                {
-                    one(userManager).tryFindUserByCode(userName);
-                    will(returnValue(null));
-                }
-            });
-        final ICIFEXService service = createService(authenticationService);
-        try
-        {
-            service.tryLogin(userName, password);
-            fail("UserFailureException expected.");
-        } catch (final EnvironmentFailureException ex)
-        {
-            assertEquals("Cannot find user 'u'.", ex.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testTrySwichToExternalAuthenticationNoServisAvailable()
             throws InvalidSessionException, InsufficientPrivilegesException,
             EnvironmentFailureException
@@ -793,9 +766,9 @@ public class CIFEXServiceImplTest
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
-                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE,
+                    one(authenticationService).tryGetAndAuthenticateUser(APPLICATION_TOKEN_EXAMPLE,
                             DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
-                    will(returnValue(false));
+                    will(returnValue(null));
                 }
             });
 
@@ -849,7 +822,7 @@ public class CIFEXServiceImplTest
 
         final Principal principal =
                 new Principal(DEFAULT_USER_CODE, DEFAULT_USER_FIRST_NAME, DEFAULT_USER_LAST_NAME,
-                        DEFAULT_USER_EMAIL);
+                        DEFAULT_USER_EMAIL, true);
         context.checking(new Expectations()
             {
                 {
@@ -861,11 +834,8 @@ public class CIFEXServiceImplTest
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
-                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE,
+                    one(authenticationService).tryGetAndAuthenticateUser(APPLICATION_TOKEN_EXAMPLE,
                             DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
-                    will(returnValue(true));
-                    one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE,
-                            DEFAULT_USER_CODE);
                     will(returnValue(principal));
 
                     one(userManager).updateUser(with(equal(externalyUpdatedUser)),
@@ -1144,20 +1114,13 @@ public class CIFEXServiceImplTest
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
 
-                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE,
+                    one(authenticationService).tryGetAndAuthenticateUser(APPLICATION_TOKEN_EXAMPLE,
                             userName, password);
-                    will(returnValue(true));
-
-                    one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE, userName);
                     if (principal != null)
                     {
-                        will(returnValue(principal));
-                    } else
-                    {
-                        will(throwException(new IllegalArgumentException("Cannot find user '"
-                                + userName + "'.")));
+                        principal.setAuthenticated(true);
                     }
-
+                    will(returnValue(principal));
                 }
             });
     }

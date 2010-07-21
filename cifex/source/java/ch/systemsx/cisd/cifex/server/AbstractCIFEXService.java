@@ -262,7 +262,7 @@ abstract public class AbstractCIFEXService
         return userDTO;
     }
 
-    protected UserDTO tryExternalAuthenticationServiceLogin(final String userOrEmail,
+    protected UserDTO tryExternalAuthenticationServiceLogin(final String userId,
             final String password) throws EnvironmentFailureException
     {
         if (hasExternalAuthenticationService() == false)
@@ -272,32 +272,23 @@ abstract public class AbstractCIFEXService
         final String applicationToken = externalAuthenticationService.authenticateApplication();
         if (applicationToken == null)
         {
-            userActionLog.logFailedLoginAttempt(userOrEmail);
+            userActionLog.logFailedLoginAttempt(userId);
             final String msg =
-                    "User '" + userOrEmail
-                            + "' couldn't be authenticated because authentication of "
+                    "User '" + userId + "' couldn't be authenticated because authentication of "
                             + "the application at the external authentication service failed.";
             operationLog.error(msg);
             throw new EnvironmentFailureException(msg);
         }
-        final boolean authenticated =
-                externalAuthenticationService.authenticateUser(applicationToken, userOrEmail,
+        final Principal principalOrNull =
+                externalAuthenticationService.tryGetAndAuthenticateUser(applicationToken, userId,
                         password);
+        final boolean authenticated = Principal.isAuthenticated(principalOrNull);
         if (authenticated == false)
         {
             return null;
         }
-        final Principal principal;
-        try
-        {
-            principal = externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
-        } catch (final IllegalArgumentException ex)
-        {
-            operationLog.error(ex.getMessage());
-            throw new EnvironmentFailureException(ex.getMessage());
-        }
         final UserDTO userDTO =
-                createOrUpdateUserFromExternalAuthenticationService(principal, null);
+                createOrUpdateUserFromExternalAuthenticationService(principalOrNull, null);
         if (userDTO.isActive() == false)
         {
             return null;

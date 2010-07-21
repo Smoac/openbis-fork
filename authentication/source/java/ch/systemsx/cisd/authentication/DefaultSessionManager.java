@@ -351,15 +351,15 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             }
             String sessionToken = null;
             final long now = System.currentTimeMillis();
-            final boolean isAuthenticated =
-                    authenticationService.authenticateUser(applicationToken, user, password);
+            final Principal principalOrNull =
+                    authenticationService.tryGetAndAuthenticateUser(applicationToken, user,
+                            password);
+            final boolean isAuthenticated = Principal.isAuthenticated(principalOrNull);
             if (isAuthenticated)
             {
                 try
                 {
-                    final Principal principal =
-                            authenticationService.getPrincipal(applicationToken, user);
-                    final T session = createAndStoreSession(user, principal, now);
+                    final T session = createAndStoreSession(user, principalOrNull, now);
                     sessionToken = session.getSessionToken();
                     logAuthenticed(session);
                 } catch (final IllegalArgumentException ex)
