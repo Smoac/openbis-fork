@@ -18,8 +18,10 @@ package ch.systemsx.cisd.authentication.ldap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -183,12 +185,25 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         return listPrincipalsByKeyValue(key, value, null, Integer.MAX_VALUE);
     }
 
+    /**
+     * Returns a list of principals matching a search query given as <var>key</var> and
+     * <var>value</var> where value may contain <code>*</code> as a wildcard character.
+     * 
+     * @param key The key to search for, e.g. <code>uid</code>
+     * @param value The value to query for, e.g. <code>may*</code>
+     * @param additionalAttributesOrNull If not <code>null</code>, include the attributes with the
+     *            given attribute names. If <var>additionalAttributesOrNull</var> is an empty
+     *            collection, include all properties that the principal has in LDAP
+     * @param limit The limit of users to return at most. Note that limiting the search to 1 gives
+     *            usually a big performance boost.
+     * @return The list of principals matching the query
+     */
     @SuppressWarnings("null")
     public List<Principal> listPrincipalsByKeyValue(String key, String value,
             Collection<String> additionalAttributesOrNull, int limit)
     {
         RuntimeException firstException = null;
-        // See bug 
+        // See bug
         // http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=b399a5ff102b13d178b4c703df19?bug_id=6924489
         // on Solaris with SSL connections
         for (int i = 0; i < MAX_RETRIES; ++i)
@@ -211,7 +226,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         }
         throw firstException;
     }
-    
+
     private List<Principal> primListPrincipalsByKeyValue(String key, String value,
             Collection<String> additionalAttributesOrNull, int limit)
     {
@@ -250,12 +265,19 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                     }
                     if (additionalAttributesOrNull != null)
                     {
-                        for (String attributeName : additionalAttributesOrNull)
+                        if (additionalAttributesOrNull.isEmpty())
                         {
-                            final String attributeValue = tryGetAttribute(attributes, attributeName);
-                            if (attributeValue != null)
+                            principal.setProperties(getAllAttributes(attributes));
+                        } else
+                        {
+                            for (String attributeName : additionalAttributesOrNull)
                             {
-                                principal.getProperties().put(attributeName, attributeValue);
+                                final String attributeValue =
+                                        tryGetAttribute(attributes, attributeName);
+                                if (attributeValue != null)
+                                {
+                                    principal.getProperties().put(attributeName, attributeValue);
+                                }
                             }
                         }
                     }
@@ -302,7 +324,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                     config.getServerUrl(), dn));
         }
         RuntimeException firstException = null;
-        // See bug 
+        // See bug
         // http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=b399a5ff102b13d178b4c703df19?bug_id=6924489
         // on Solaris with SSL connections
         for (int i = 0; i < MAX_RETRIES; ++i)
@@ -345,11 +367,51 @@ public final class LDAPPrincipalQuery implements ISelfTestable
             return defaultValue;
         }
         final NamingEnumeration<?> values = basicAttribute.getAll();
+        final StringBuilder builder = new StringBuilder();
         while (values.hasMore())
         {
-            return values.next().toString();
+            builder.append(values.next().toString());
+            builder.append("::");
         }
-        return defaultValue;
+        if (builder.length() == 0)
+        {
+            return defaultValue;
+        } else
+        {
+            builder.setLength(builder.length() - 2);
+            return builder.toString();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, String> getAllAttributes(Attributes attributes)
+            throws NamingException
+    {
+        final Map<String, String> result = new HashMap<String, String>();
+        final NamingEnumeration<BasicAttribute> attributeEnum =
+                (NamingEnumeration<BasicAttribute>) attributes.getAll();
+        if (attributeEnum == null)
+        {
+            return result;
+        }
+        while (attributeEnum.hasMore())
+        {
+            final BasicAttribute attribute = attributeEnum.next();
+            String attributeName = attribute.getID();
+            final NamingEnumeration<?> values = attribute.getAll();
+            final StringBuilder builder = new StringBuilder();
+            while (values.hasMore())
+            {
+                builder.append(values.next().toString());
+                builder.append("::");
+            }
+            if (builder.length() > 2)
+            {
+                builder.setLength(builder.length() - 2);
+                result.put(attributeName, builder.toString());
+            }
+        }
+        return result;
     }
 
     //
