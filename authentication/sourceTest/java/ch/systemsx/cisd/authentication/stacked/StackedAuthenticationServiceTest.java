@@ -37,6 +37,8 @@ import ch.systemsx.cisd.authentication.Principal;
  */
 public class StackedAuthenticationServiceTest
 {
+    private static final String DUMMY_TOKEN_STR = "DUMMY-TOKEN";
+
     private Mockery context;
 
     private IAuthenticationService authService1;
@@ -193,76 +195,18 @@ public class StackedAuthenticationServiceTest
     }
 
     @Test
-    public void testAuthenticateApplicationOK()
-    {
-        final String token1 = "token1";
-        final String token2 = "token2";
-
-        context.checking(new Expectations()
-            {
-                {
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
-                }
-            });
-        assertNotNull(stackedAuthService.authenticateApplication());
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testAuthenticateApplicationServiceOneFails()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(authService1).authenticateApplication();
-                    will(returnValue(null));
-                }
-            });
-        assertNull(stackedAuthService.authenticateApplication());
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testAuthenticateApplicationServiceTwoFails()
-    {
-        final String token1 = "token1";
-
-        context.checking(new Expectations()
-            {
-                {
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(null));
-                }
-            });
-        assertNull(stackedAuthService.authenticateApplication());
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testAuthenticateUserFalse()
     {
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String user = "user";
         final String password = "password";
 
         context.checking(new Expectations()
             {
                 {
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
-                    one(authService1).tryGetAndAuthenticateUser(token1, user, password);
-                    one(authService2).tryGetAndAuthenticateUser(token2, user, password);
+                    one(authService1).tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, password);
+                    one(authService2).tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, password);
                 }
             });
-        assertNotNull(stackedAuthService.authenticateApplication());
         assertFalse(stackedAuthService.authenticateUser("doesntmatter", user, password));
         context.assertIsSatisfied();
     }
@@ -270,8 +214,6 @@ public class StackedAuthenticationServiceTest
     @Test
     public void testAuthenticateUserFirstServiceTrue()
     {
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String user = "user";
         final String password = "password";
         final Principal principal = new Principal(user, "", "", "", true);
@@ -279,15 +221,10 @@ public class StackedAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
-                    one(authService1).tryGetAndAuthenticateUser(token1, user, password);
+                    one(authService1).tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, password);
                     will(returnValue(principal));
                 }
             });
-        assertNotNull(stackedAuthService.authenticateApplication());
         assertTrue(stackedAuthService.authenticateUser("doesntmatter", user, password));
         context.assertIsSatisfied();
     }
@@ -295,8 +232,6 @@ public class StackedAuthenticationServiceTest
     @Test
     public void testAuthenticateUserSecondServiceTrue()
     {
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String user = "user";
         final String password = "password";
         final Principal principal = new Principal(user, "", "", "", true);
@@ -304,16 +239,11 @@ public class StackedAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
-                    one(authService1).tryGetAndAuthenticateUser(token1, user, password);
-                    one(authService2).tryGetAndAuthenticateUser(token2, user, password);
+                    one(authService1).tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, password);
+                    one(authService2).tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, password);
                     will(returnValue(principal));
                 }
             });
-        assertNotNull(stackedAuthService.authenticateApplication());
         assertTrue(stackedAuthService.authenticateUser("doesntmatter", user, password));
         context.assertIsSatisfied();
     }
@@ -321,8 +251,6 @@ public class StackedAuthenticationServiceTest
     @Test
     public void testGetPrincipalFirstService()
     {
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String user = "user";
         final String firstName = "first name";
         final String lastName = "last name";
@@ -332,15 +260,10 @@ public class StackedAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
-                    one(authService1).tryGetAndAuthenticateUser(token1, user, null);
+                    one(authService1).tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, null);
                     will(returnValue(principal));
                 }
             });
-        assertNotNull(stackedAuthService.authenticateApplication());
         assertEquals(principal, stackedAuthService.getPrincipal("doesntmatter", user));
         context.assertIsSatisfied();
     }
@@ -348,8 +271,6 @@ public class StackedAuthenticationServiceTest
     @Test
     public void testGetPrincipalSecondService()
     {
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String user = "user";
         final String firstName = "first name";
         final String lastName = "last name";
@@ -359,47 +280,27 @@ public class StackedAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
-                    one(authService1).tryGetAndAuthenticateUser(token1, user, null);
-                    one(authService2).tryGetAndAuthenticateUser(token2, user, null);
+                    one(authService1).tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, null);
+                    one(authService2).tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, null);
                     will(returnValue(principal));
                 }
             });
-        assertNotNull(stackedAuthService.authenticateApplication());
         assertEquals(principal, stackedAuthService.getPrincipal("doesntmatter", user));
         context.assertIsSatisfied();
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testGetPrincipalApplicationNotAuthenticated()
-    {
-        final String user = "user";
-
-        stackedAuthService.getPrincipal("doesntmatter", user);
-    }
-
-    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testGetPrincipalNoService()
     {
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String user = "user";
 
         context.checking(new Expectations()
             {
                 {
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
-                    one(authService1).tryGetAndAuthenticateUser(token1, user, null);
-                    one(authService2).tryGetAndAuthenticateUser(token2, user, null);
+                    one(authService1).tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, null);
+                    one(authService2).tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, null);
                 }
             });
-        assertNotNull(stackedAuthService.authenticateApplication());
         stackedAuthService.getPrincipal("doesntmatter", user);
     }
 
@@ -409,8 +310,6 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String emailQuery = "some email with *";
         final Principal principal1 =
                 new Principal("user1", "first name 1", "last name 1", "email 1", false);
@@ -429,18 +328,13 @@ public class StackedAuthenticationServiceTest
                     one(authService2).supportsListingByUserId();
                     exactly(2).of(authService2).supportsListingByEmail();
                     one(authService2).supportsListingByLastName();
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
 
-                    one(authService1).listPrincipalsByEmail(token1, emailQuery);
+                    one(authService1).listPrincipalsByEmail(DUMMY_TOKEN_STR, emailQuery);
                     will(returnValue(Arrays.asList(principal1, principal2)));
                 }
             });
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
-        assertNotNull(stackedAuthService.authenticateApplication());
         final List<Principal> result =
                 stackedAuthService.listPrincipalsByEmail("doesntmatter", emailQuery);
         assertEquals(2, result.size());
@@ -455,8 +349,6 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String emailQuery = "some email with *";
         final Principal principal =
                 new Principal("user3", "first name 3", "last name 3", "email 3", false);
@@ -473,18 +365,13 @@ public class StackedAuthenticationServiceTest
                     exactly(2).of(authService2).supportsListingByEmail();
                     will(returnValue(true));
                     one(authService2).supportsListingByLastName();
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
 
-                    one(authService2).listPrincipalsByEmail(token2, emailQuery);
+                    one(authService2).listPrincipalsByEmail(DUMMY_TOKEN_STR, emailQuery);
                     will(returnValue(Arrays.asList(principal)));
                 }
             });
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
-        assertNotNull(stackedAuthService.authenticateApplication());
         final List<Principal> result =
                 stackedAuthService.listPrincipalsByEmail("doesntmatter", emailQuery);
         assertEquals(1, result.size());
@@ -498,8 +385,6 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String emailQuery = "some email with *";
         final Principal principal1 =
                 new Principal("user1", "first name 1", "last name 1", "email 1", false);
@@ -521,20 +406,15 @@ public class StackedAuthenticationServiceTest
                     exactly(2).of(authService2).supportsListingByEmail();
                     will(returnValue(true));
                     one(authService2).supportsListingByLastName();
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
 
-                    one(authService1).listPrincipalsByEmail(token1, emailQuery);
+                    one(authService1).listPrincipalsByEmail(DUMMY_TOKEN_STR, emailQuery);
                     will(returnValue(Arrays.asList(principal1, principal2)));
-                    one(authService2).listPrincipalsByEmail(token2, emailQuery);
+                    one(authService2).listPrincipalsByEmail(DUMMY_TOKEN_STR, emailQuery);
                     will(returnValue(Arrays.asList(principal3)));
                 }
             });
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
-        assertNotNull(stackedAuthService.authenticateApplication());
         final List<Principal> result =
                 stackedAuthService.listPrincipalsByEmail("doesntmatter", emailQuery);
         assertEquals(3, result.size());
@@ -550,8 +430,6 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String userIdQuery = "some user id with *";
         final Principal principal1 =
                 new Principal("user1", "first name 1", "last name 1", "email 1", false);
@@ -570,18 +448,13 @@ public class StackedAuthenticationServiceTest
                     exactly(2).of(authService2).supportsListingByUserId();
                     one(authService2).supportsListingByEmail();
                     one(authService2).supportsListingByLastName();
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
 
-                    one(authService1).listPrincipalsByUserId(token1, userIdQuery);
+                    one(authService1).listPrincipalsByUserId(DUMMY_TOKEN_STR, userIdQuery);
                     will(returnValue(Arrays.asList(principal1, principal2)));
                 }
             });
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
-        assertNotNull(stackedAuthService.authenticateApplication());
         final List<Principal> result =
                 stackedAuthService.listPrincipalsByUserId("doesntmatter", userIdQuery);
         assertEquals(2, result.size());
@@ -596,8 +469,6 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String userIdQuery = "some user id with *";
         final Principal principal =
                 new Principal("user3", "first name 3", "last name 3", "email 3", false);
@@ -614,18 +485,13 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(true));
                     one(authService2).supportsListingByEmail();
                     one(authService2).supportsListingByLastName();
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
 
-                    one(authService2).listPrincipalsByUserId(token2, userIdQuery);
+                    one(authService2).listPrincipalsByUserId(DUMMY_TOKEN_STR, userIdQuery);
                     will(returnValue(Arrays.asList(principal)));
                 }
             });
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
-        assertNotNull(stackedAuthService.authenticateApplication());
         final List<Principal> result =
                 stackedAuthService.listPrincipalsByUserId("doesntmatter", userIdQuery);
         assertEquals(1, result.size());
@@ -639,8 +505,6 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String userIdQuery = "some user id with *";
         final Principal principal1 =
                 new Principal("user1", "first name 1", "last name 1", "email 1", false);
@@ -662,20 +526,15 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(true));
                     one(authService2).supportsListingByEmail();
                     one(authService2).supportsListingByLastName();
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
 
-                    one(authService1).listPrincipalsByUserId(token1, userIdQuery);
+                    one(authService1).listPrincipalsByUserId(DUMMY_TOKEN_STR, userIdQuery);
                     will(returnValue(Arrays.asList(principal1, principal2)));
-                    one(authService2).listPrincipalsByUserId(token2, userIdQuery);
+                    one(authService2).listPrincipalsByUserId(DUMMY_TOKEN_STR, userIdQuery);
                     will(returnValue(Arrays.asList(principal3)));
                 }
             });
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
-        assertNotNull(stackedAuthService.authenticateApplication());
         final List<Principal> result =
                 stackedAuthService.listPrincipalsByUserId("doesntmatter", userIdQuery);
         assertEquals(3, result.size());
@@ -691,8 +550,6 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String lastNameQuery = "some user id with *";
         final Principal principal1 =
                 new Principal("user1", "first name 1", "last name 1", "email 1", false);
@@ -711,18 +568,13 @@ public class StackedAuthenticationServiceTest
                     one(authService2).supportsListingByUserId();
                     one(authService2).supportsListingByEmail();
                     exactly(2).of(authService2).supportsListingByLastName();
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
 
-                    one(authService1).listPrincipalsByLastName(token1, lastNameQuery);
+                    one(authService1).listPrincipalsByLastName(DUMMY_TOKEN_STR, lastNameQuery);
                     will(returnValue(Arrays.asList(principal1, principal2)));
                 }
             });
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
-        assertNotNull(stackedAuthService.authenticateApplication());
         final List<Principal> result =
                 stackedAuthService.listPrincipalsByLastName("doesntmatter", lastNameQuery);
         assertEquals(2, result.size());
@@ -737,8 +589,6 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String lastNameQuery = "some user id with *";
         final Principal principal =
                 new Principal("user3", "first name 3", "last name 3", "email 3", false);
@@ -755,18 +605,13 @@ public class StackedAuthenticationServiceTest
                     one(authService2).supportsListingByEmail();
                     exactly(2).of(authService2).supportsListingByLastName();
                     will(returnValue(true));
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
 
-                    one(authService2).listPrincipalsByLastName(token2, lastNameQuery);
+                    one(authService2).listPrincipalsByLastName(DUMMY_TOKEN_STR, lastNameQuery);
                     will(returnValue(Arrays.asList(principal)));
                 }
             });
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
-        assertNotNull(stackedAuthService.authenticateApplication());
         final List<Principal> result =
                 stackedAuthService.listPrincipalsByLastName("doesntmatter", lastNameQuery);
         assertEquals(1, result.size());
@@ -780,8 +625,6 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
-        final String token1 = "token1";
-        final String token2 = "token2";
         final String lastNameQuery = "some user id with *";
         final Principal principal1 =
                 new Principal("user1", "first name 1", "last name 1", "email 1", false);
@@ -803,20 +646,15 @@ public class StackedAuthenticationServiceTest
                     one(authService2).supportsListingByEmail();
                     exactly(2).of(authService2).supportsListingByLastName();
                     will(returnValue(true));
-                    one(authService1).authenticateApplication();
-                    will(returnValue(token1));
-                    one(authService2).authenticateApplication();
-                    will(returnValue(token2));
 
-                    one(authService1).listPrincipalsByLastName(token1, lastNameQuery);
+                    one(authService1).listPrincipalsByLastName(DUMMY_TOKEN_STR, lastNameQuery);
                     will(returnValue(Arrays.asList(principal1, principal2)));
-                    one(authService2).listPrincipalsByLastName(token2, lastNameQuery);
+                    one(authService2).listPrincipalsByLastName(DUMMY_TOKEN_STR, lastNameQuery);
                     will(returnValue(Arrays.asList(principal3)));
                 }
             });
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
-        assertNotNull(stackedAuthService.authenticateApplication());
         final List<Principal> result =
                 stackedAuthService.listPrincipalsByLastName("doesntmatter", lastNameQuery);
         assertEquals(3, result.size());

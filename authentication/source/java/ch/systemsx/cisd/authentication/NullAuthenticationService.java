@@ -94,4 +94,41 @@ public class NullAuthenticationService implements IAuthenticationService
         return false;
     }
 
+    public boolean authenticateUser(String user, String password)
+    {
+        return false;
+    }
+
+    public Principal getPrincipal(String user) throws IllegalArgumentException
+    {
+        return null;
+    }
+
+    public List<Principal> listPrincipalsByEmail(String emailQuery) throws IllegalArgumentException
+    {
+        return null;
+    }
+
+    public List<Principal> listPrincipalsByLastName(String lastNameQuery)
+            throws IllegalArgumentException
+    {
+        return null;
+    }
+
+    public List<Principal> listPrincipalsByUserId(String userIdQuery)
+            throws IllegalArgumentException
+    {
+        return null;
+    }
+
+    public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
+    {
+        return null;
+    }
+
+    public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
+    {
+        return null;
+    }
+
 }

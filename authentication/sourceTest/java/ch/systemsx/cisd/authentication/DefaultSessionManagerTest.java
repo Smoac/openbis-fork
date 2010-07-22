@@ -130,18 +130,14 @@ public class DefaultSessionManagerTest
     @Test
     public void testSuccessfulAuthentication()
     {
-        final String applicationToken = "ole";
         final String user = "bla";
         prepareRemoteHostSessionFactoryAndPrefixGenerator(user);
         context.checking(new Expectations()
             {
                 {
-                    one(authenticationService).tryGetAndAuthenticateUser(applicationToken, user,
+                    one(authenticationService).tryGetAndAuthenticateUser(null, user,
                             "blub");
                     will(returnValue(principal));
-
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(applicationToken));
                 }
             });
 
@@ -162,16 +158,12 @@ public class DefaultSessionManagerTest
     @Test
     public void testFailedAuthentication()
     {
-        final String applicationToken = "ole";
         final String user = "bla";
         context.checking(new Expectations()
             {
                 {
-                    one(authenticationService).tryGetAndAuthenticateUser("ole", user, "blub");
+                    one(authenticationService).tryGetAndAuthenticateUser(null, user, "blub");
                     will(returnValue(null));
-
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(applicationToken));
 
                     allowing(remoteHostProvider).getRemoteHost();
                     will(returnValue(REMOTE_HOST));
@@ -216,7 +208,6 @@ public class DefaultSessionManagerTest
     @Test
     public void testExpirationOfSession()
     {
-        final String applicationToken = "ole";
         final String user = "bla";
         prepareRemoteHostSessionFactoryAndPrefixGenerator(user);
         context.checking(new Expectations()
@@ -224,12 +215,9 @@ public class DefaultSessionManagerTest
                 {
                     one(authenticationService).check();
 
-                    one(authenticationService).tryGetAndAuthenticateUser(applicationToken, user,
+                    one(authenticationService).tryGetAndAuthenticateUser(null, user,
                             "blub");
                     will(returnValue(principal));
-
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(applicationToken));
                 }
             });
 
@@ -267,19 +255,15 @@ public class DefaultSessionManagerTest
     @Test
     public void testSessionRemoval()
     {
-        final String applicationToken = "ole";
         final String user = "bla";
         final String password = "blub";
         prepareRemoteHostSessionFactoryAndPrefixGenerator(user);
         context.checking(new Expectations()
             {
                 {
-                    one(authenticationService).tryGetAndAuthenticateUser(applicationToken, user,
+                    one(authenticationService).tryGetAndAuthenticateUser(null, user,
                             password);
                     will(returnValue(principal));
-
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(applicationToken));
                 }
             });
 

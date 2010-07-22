@@ -53,94 +53,67 @@ public class FileAuthenticationServiceTest
     }
 
     @Test
-    public void testAuthenticateApplication()
-    {
-        final String token = "Some Token";
-        context.checking(new Expectations()
-        {
-            {
-                one(userStore).getId();
-                will(returnValue(token));
-            }
-        });
-        assertEquals(token, authService.authenticateApplication());
-        context.assertIsSatisfied();
-    }
-    
-    @Test
     public void testAuthenticateUserSuccess()
     {
-        final String token = "Some Token";
         final String user = "User";
         final String password = "passw0rd";
         context.checking(new Expectations()
         {
             {
-                one(userStore).getId();
-                will(returnValue(token));
                 one(userStore).isPasswordCorrect(user, password);
                 will(returnValue(true));
             }
         });
-        assertTrue(authService.authenticateUser(token, user, password));
+        assertTrue(authService.authenticateUser("doesntmatter", user, password));
         context.assertIsSatisfied();
     }
     
     @Test
     public void testAuthenticateUserFailure()
     {
-        final String token = "Some Token";
         final String user = "User";
         final String password = "passw0rd";
         context.checking(new Expectations()
         {
             {
-                one(userStore).getId();
-                will(returnValue(token));
                 one(userStore).isPasswordCorrect(user, password);
                 will(returnValue(false));
             }
         });
-        assertFalse(authService.authenticateUser(token, user, password));
+        assertFalse(authService.authenticateUser("doesntmatter", user, password));
         context.assertIsSatisfied();
     }
     
     @Test
     public void testGetPrincipalSuccess()
     {
-        final String token = "Some Token";
         final String uid = "uid";
         final UserEntry user = new UserEntry(uid, "email", "first", "last", "pwd");
         context.checking(new Expectations()
         {
             {
-                one(userStore).getId();
-                will(returnValue(token));
                 one(userStore).tryGetUser(uid);
                 will(returnValue(user));
             }
         });
-        assertEquals(user.asPrincipal(), authService.getPrincipal(token, uid));
+        assertEquals(user.asPrincipal(), authService.getPrincipal("doesntmatter", uid));
         context.assertIsSatisfied();
     }
     
     @Test
     public void testGetPrincipalFailure()
     {
-        final String token = "Some Token";
         final String uid = "uid";
         context.checking(new Expectations()
         {
             {
-                one(userStore).getId();
-                will(returnValue(token));
                 one(userStore).tryGetUser(uid);
                 will(returnValue(null));
             }
         });
         try
         {
-            authService.getPrincipal(token, uid);
+            authService.getPrincipal("doesntmatter", uid);
             fail("Unknown user went undetected.");
         } catch (IllegalArgumentException ex)
         {

@@ -342,18 +342,10 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         checkIfNotBlank(password, "password");
         try
         {
-            final String applicationToken = authenticationService.authenticateApplication();
-            if (applicationToken == null)
-            {
-                operationLog.error("User '" + user
-                        + "' failed to authenticate: application not authenticated.");
-                return null;
-            }
             String sessionToken = null;
             final long now = System.currentTimeMillis();
             final Principal principalOrNull =
-                    authenticationService.tryGetAndAuthenticateUser(applicationToken, user,
-                            password);
+                    authenticationService.tryGetAndAuthenticateUser(null, user, password);
             final boolean isAuthenticated = Principal.isAuthenticated(principalOrNull);
             if (isAuthenticated)
             {

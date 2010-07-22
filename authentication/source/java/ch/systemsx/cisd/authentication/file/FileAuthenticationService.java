@@ -19,14 +19,10 @@ package ch.systemsx.cisd.authentication.file;
 import java.io.File;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * An implementation of {@link IAuthenticationService} that gets the authentication information from
@@ -46,11 +42,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public class FileAuthenticationService implements IAuthenticationService
 {
 
-    private static final String TOKEN_FAILURE_MSG_TEMPLATE =
-            "Wrong application token provided, expected '%s', got '%s'";
-
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FileAuthenticationService.class);
+    private static final String DUMMY_TOKEN_STR = "DUMMY-TOKEN";
 
     private final IUserStore userStore;
 
@@ -71,39 +63,33 @@ public class FileAuthenticationService implements IAuthenticationService
         this.userStore = userStore;
     }
 
-    private String getToken()
-    {
-        return userStore.getId();
-    }
-
     /**
      * Returns the id of the password store, which we consider to be the token.
      */
     public String authenticateApplication()
     {
-        return getToken();
+        return DUMMY_TOKEN_STR;
     }
 
-    public boolean authenticateUser(String applicationToken, String user, String password)
+    public boolean authenticateUser(String dummyToken, String user, String password)
     {
-        final String token = getToken();
-        if (token.equals(applicationToken) == false)
-        {
-            operationLog.warn(String.format(TOKEN_FAILURE_MSG_TEMPLATE, token, applicationToken));
-            return false;
-        }
         return userStore.isPasswordCorrect(user, password);
     }
 
-    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
+    public boolean authenticateUser(String user, String password)
+    {
+        return userStore.isPasswordCorrect(user, password);
+    }
+
+    public Principal tryGetAndAuthenticateUser(String dummyToken, String user,
             String passwordOrNull)
     {
-        final String token = getToken();
-        if (token.equals(applicationToken) == false)
-        {
-            operationLog.warn(String.format(TOKEN_FAILURE_MSG_TEMPLATE, token, applicationToken));
-            return null;
-        }
+        return tryGetAndAuthenticateUser(user, passwordOrNull);
+    }
+    
+    public Principal tryGetAndAuthenticateUser(String user,
+            String passwordOrNull)
+    {
         final UserEntry userOrNull = userStore.tryGetUser(user);
         if (userOrNull != null)
         {
@@ -111,7 +97,7 @@ public class FileAuthenticationService implements IAuthenticationService
             if (passwordOrNull != null)
             {
                 principal
-                        .setAuthenticated(authenticateUser(applicationToken, user, passwordOrNull));
+                        .setAuthenticated(authenticateUser(user, passwordOrNull));
             }
             return principal;
         } else
@@ -122,7 +108,12 @@ public class FileAuthenticationService implements IAuthenticationService
 
     public Principal getPrincipal(String applicationToken, String user)
     {
-        final Principal principalOrNull = tryGetAndAuthenticateUser(applicationToken, user, null);
+        return getPrincipal(user);
+    }
+    
+    public Principal getPrincipal(String user)
+    {
+        final Principal principalOrNull = tryGetAndAuthenticateUser(user, null);
         if (principalOrNull == null)
         {
             throw new IllegalArgumentException("Cannot find user '" + user + "'.");
@@ -135,7 +126,17 @@ public class FileAuthenticationService implements IAuthenticationService
         throw new UnsupportedOperationException();
     }
 
+    public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
+    {
+        throw new UnsupportedOperationException();
+    }
+
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByEmail(String emailQuery)
     {
         throw new UnsupportedOperationException();
     }
@@ -145,7 +146,17 @@ public class FileAuthenticationService implements IAuthenticationService
         throw new UnsupportedOperationException();
     }
 
-    public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
+    public List<Principal> listPrincipalsByLastName(String lastNameQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByUserId(String dummyToken, String userIdQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
         throw new UnsupportedOperationException();
     }

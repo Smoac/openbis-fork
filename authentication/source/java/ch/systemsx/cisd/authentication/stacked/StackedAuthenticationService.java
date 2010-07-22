@@ -36,8 +36,6 @@ public class StackedAuthenticationService implements IAuthenticationService
 
     private final List<IAuthenticationService> delegates;
 
-    private final List<String> tokens;
-
     private final boolean remote;
 
     private final boolean supportsListingByUserId;
@@ -49,7 +47,6 @@ public class StackedAuthenticationService implements IAuthenticationService
     public StackedAuthenticationService(List<IAuthenticationService> authenticationServices)
     {
         this.delegates = authenticationServices;
-        this.tokens = new ArrayList<String>(delegates.size());
         boolean foundRemote = false;
         boolean foundSupportsListingByUserId = false;
         boolean foundSupportsListingByEmail = false;
@@ -69,31 +66,28 @@ public class StackedAuthenticationService implements IAuthenticationService
 
     public String authenticateApplication()
     {
-        tokens.clear();
-        for (IAuthenticationService service : delegates)
-        {
-            final String token = service.authenticateApplication();
-            if (token == null)
-            {
-                tokens.clear();
-                return null;
-            }
-            tokens.add(token);
-        }
         return DUMMY_TOKEN_STR;
     }
 
-    public boolean authenticateUser(String applicationToken, String user, String password)
+    public boolean authenticateUser(String dummyToken, String user, String password)
     {
-        final Principal principalOrNull =
-                tryGetAndAuthenticateUser(applicationToken, user, password);
+        return authenticateUser(user, password);
+    }
+    
+    public boolean authenticateUser(String user, String password)
+    {
+        final Principal principalOrNull = tryGetAndAuthenticateUser(user, password);
         return Principal.isAuthenticated(principalOrNull);
     }
 
-    public Principal getPrincipal(String applicationToken, String user)
-            throws IllegalArgumentException
+    public Principal getPrincipal(String dummyToken, String user) throws IllegalArgumentException
     {
-        final Principal principalOrNull = tryGetAndAuthenticateUser(applicationToken, user, null);
+        return getPrincipal(user);
+    }
+    
+    public Principal getPrincipal(String user) throws IllegalArgumentException
+    {
+        final Principal principalOrNull = tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, null);
         if (principalOrNull == null)
         {
             throw new IllegalArgumentException("Cannot find user '" + user + "'.");
@@ -101,101 +95,110 @@ public class StackedAuthenticationService implements IAuthenticationService
         return principalOrNull;
     }
 
-    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
-            String passwordOrNull)
+    public Principal tryGetAndAuthenticateUser(String dummyToken, String user, String passwordOrNull)
     {
-        checkAuthenticatedApplication();
-        int i = 0;
+        return tryGetAndAuthenticateUser(user, passwordOrNull);
+    }
+    
+    public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
+    {
         for (IAuthenticationService service : delegates)
         {
-            final String token = tokens.get(i);
             final Principal principal =
-                    service.tryGetAndAuthenticateUser(token, user, passwordOrNull);
+                    service.tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, passwordOrNull);
             if (principal != null)
             {
                 return principal;
             }
-            ++i;
         }
         return null;
     }
 
-    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
+            String passwordOrNull)
     {
-        checkAuthenticatedApplication();
-        int i = 0;
+        return tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
+    }
+    
+    public Principal tryGetAndAuthenticateUserByEmail(String email,
+            String passwordOrNull)
+    {
         for (IAuthenticationService service : delegates)
         {
-            final String token = tokens.get(i);
-            final Principal principal = service.tryGetAndAuthenticateUserByEmail(token, email, passwordOrNull);
+            final Principal principal =
+                    service
+                            .tryGetAndAuthenticateUserByEmail(DUMMY_TOKEN_STR, email,
+                                    passwordOrNull);
             if (principal != null)
             {
                 return principal;
             }
-            ++i;
         }
         return null;
     }
 
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
+        return listPrincipalsByEmail(emailQuery);
+    }
+    
+    public List<Principal> listPrincipalsByEmail(String emailQuery)
+    {
         if (supportsListingByEmail == false)
         {
             throw new UnsupportedOperationException();
         }
-        checkAuthenticatedApplication();
         final List<Principal> principals = new ArrayList<Principal>();
-        int i = 0;
         for (IAuthenticationService service : delegates)
         {
-            final String token = tokens.get(i);
             if (service.supportsListingByEmail())
             {
-                principals.addAll(service.listPrincipalsByEmail(token, emailQuery));
+                principals.addAll(service.listPrincipalsByEmail(DUMMY_TOKEN_STR, emailQuery));
             }
-            ++i;
         }
         return principals;
     }
 
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
     {
+        return listPrincipalsByLastName(lastNameQuery);
+    }
+    
+    public List<Principal> listPrincipalsByLastName(String lastNameQuery)
+    {
         if (supportsListingByLastName == false)
         {
             throw new UnsupportedOperationException();
         }
-        checkAuthenticatedApplication();
         final List<Principal> principals = new ArrayList<Principal>();
-        int i = 0;
         for (IAuthenticationService service : delegates)
         {
-            final String token = tokens.get(i);
             if (service.supportsListingByLastName())
             {
-                principals.addAll(service.listPrincipalsByLastName(token, lastNameQuery));
+                principals.addAll(service.listPrincipalsByLastName(DUMMY_TOKEN_STR, lastNameQuery));
             }
-            ++i;
         }
         return principals;
     }
 
     public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
     {
+        return listPrincipalsByUserId(userIdQuery);
+    }
+    
+    public List<Principal> listPrincipalsByUserId(String userIdQuery)
+    {
         if (supportsListingByUserId == false)
         {
             throw new UnsupportedOperationException();
         }
-        checkAuthenticatedApplication();
         final List<Principal> principals = new ArrayList<Principal>();
-        int i = 0;
         for (IAuthenticationService service : delegates)
         {
-            final String token = tokens.get(i);
             if (service.supportsListingByUserId())
             {
-                principals.addAll(service.listPrincipalsByUserId(token, userIdQuery));
+                principals.addAll(service.listPrincipalsByUserId(DUMMY_TOKEN_STR, userIdQuery));
             }
-            ++i;
         }
         return principals;
     }
@@ -226,14 +229,6 @@ public class StackedAuthenticationService implements IAuthenticationService
     public boolean isRemote()
     {
         return remote;
-    }
-
-    private void checkAuthenticatedApplication()
-    {
-        if (tokens.isEmpty())
-        {
-            throw new IllegalArgumentException("Application not authenticated.");
-        }
     }
 
 }

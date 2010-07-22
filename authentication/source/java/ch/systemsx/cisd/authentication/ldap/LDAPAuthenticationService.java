@@ -46,16 +46,32 @@ public class LDAPAuthenticationService implements IAuthenticationService
 
     public boolean authenticateUser(String applicationToken, String user, String password)
     {
+        return authenticateUser(user, password);
+    }
+
+    public boolean authenticateUser(String user, String password)
+    {
         return query.authenticateUser(user, password);
     }
 
     public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
             String passwordOrNull)
     {
+        return tryGetAndAuthenticateUser(user, passwordOrNull);
+    }
+
+    public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
+    {
         return query.tryGetAndAuthenticatePrincipal(user, passwordOrNull);
     }
 
     public Principal getPrincipal(String applicationToken, String user)
+            throws IllegalArgumentException
+    {
+        return getPrincipal(user);
+    }
+
+    public Principal getPrincipal(String user)
             throws IllegalArgumentException
     {
         final Principal principalOrNull = query.tryGetPrincipal(user);
@@ -68,20 +84,42 @@ public class LDAPAuthenticationService implements IAuthenticationService
 
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
+        return listPrincipalsByEmail(emailQuery);
+    }
+    
+    public List<Principal> listPrincipalsByEmail(String emailQuery)
+    {
         return query.listPrincipalsByEmail(emailQuery);
     }
 
-    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
+            String passwordOrNull)
+    {
+        return tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
+    }
+    
+    public Principal tryGetAndAuthenticateUserByEmail(String email,
+            String passwordOrNull)
     {
         return query.tryGetAndAuthenticatePrincipalByEmail(email, passwordOrNull);
     }
 
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
     {
+        return listPrincipalsByLastName(lastNameQuery);
+    }
+    
+    public List<Principal> listPrincipalsByLastName(String lastNameQuery)
+    {
         return query.listPrincipalsByLastName(lastNameQuery);
     }
 
     public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
+    {
+        return listPrincipalsByUserId(userIdQuery);
+    }
+    
+    public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
         return query.listPrincipalsByUserId(userIdQuery);
     }

@@ -51,7 +51,7 @@ public class CrowdAuthenticationServiceTest
 
     private static final String APPLICATION_PASSWORD_ESCAPED = "&lt;password&gt;";
 
-    private static final String APPLICATION_TOKEN = "application<&>token";
+    private static final String APPLICATION_TOKEN = "DUMMY-TOKEN";
 
     private static final String APPLICATION_TOKEN_ESACPED = "application&lt;&amp;&gt;token";
 
@@ -91,66 +91,24 @@ public class CrowdAuthenticationServiceTest
     }
 
     @Test
-    public void testSuccessfullApplicationAuthentication()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    final Object[] parameters = new Object[]
-                        { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
-                    final String message =
-                            CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
-                    one(executor).execute(URL, message);
-                    will(returnValue(createXMLElement(CrowdSoapElements.TOKEN,
-                            APPLICATION_TOKEN_ESACPED)));
-                }
-
-            });
-        final String result = authenticationService.authenticateApplication();
-        assertEquals(APPLICATION_TOKEN, result);
-        assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION
-                + "' successfully authenticated."), logRecorder.getLogContent());
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testFailedApplicationAuthentication()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    final Object[] parameters = new Object[]
-                        { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
-                    final String message =
-                            CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
-                    one(executor).execute(URL, message);
-                    will(returnValue("error"));
-                }
-            });
-        final String result = authenticationService.authenticateApplication();
-        assertEquals(null, result);
-        assertEquals(createDebugLogEntry("Element '" + CrowdSoapElements.TOKEN
-                + "' could not be found in 'error'.")
-                + OSUtilities.LINE_SEPARATOR
-                + createErrorLogEntry("CROWD: application '" + APPLICATION
-                        + "' failed to authenticate."), logRecorder.getLogContent());
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testSuccessfullUserAuthentication()
     {
         context.checking(new Expectations()
             {
                 {
-                    final Object[] parameters =
+                    Object[] parameters = new Object[]
+                        { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
+                    String message =
+                            CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
+                    one(executor).execute(URL, message);
+                    will(returnValue(createXMLElement(CrowdSoapElements.TOKEN,
+                            APPLICATION_TOKEN_ESACPED)));
+
+                    parameters =
                             new Object[]
                                 { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED,
                                         USER_PASSWORD_ESCAPED };
-                    final String message =
-                            CrowdAuthenticationService.AUTHENTICATE_USER.format(parameters);
+                    message = CrowdAuthenticationService.AUTHENTICATE_USER.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue(createXMLElement("n:" + CrowdSoapElements.OUT,
                             APPLICATION_TOKEN_ESACPED)));
@@ -159,8 +117,11 @@ public class CrowdAuthenticationServiceTest
         final boolean result =
                 authenticationService.authenticateUser(APPLICATION_TOKEN, USER, USER_PASSWORD);
         assertEquals(true, result);
-        assertEquals(createInfoLogEntry("CROWD: authentication of user '" + USER
-                + "', application '" + APPLICATION + "': SUCCESS."), logRecorder.getLogContent());
+        assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION
+                + "' successfully authenticated.")
+                + OSUtilities.LINE_SEPARATOR
+                + createInfoLogEntry("CROWD: authentication of user '" + USER + "', application '"
+                        + APPLICATION + "': SUCCESS."), logRecorder.getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -171,12 +132,19 @@ public class CrowdAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    final Object[] parameters =
+                    Object[] parameters = new Object[]
+                        { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
+                    String message =
+                            CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
+                    one(executor).execute(URL, message);
+                    will(returnValue(createXMLElement(CrowdSoapElements.TOKEN,
+                            APPLICATION_TOKEN_ESACPED)));
+
+                    parameters =
                             new Object[]
                                 { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED,
                                         USER_PASSWORD_ESCAPED };
-                    final String message =
-                            CrowdAuthenticationService.AUTHENTICATE_USER.format(parameters);
+                    message = CrowdAuthenticationService.AUTHENTICATE_USER.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue("error"));
                 }
@@ -184,8 +152,11 @@ public class CrowdAuthenticationServiceTest
         final boolean result =
                 authenticationService.authenticateUser(APPLICATION_TOKEN, USER, USER_PASSWORD);
         assertEquals(false, result);
-        assertEquals(createDebugLogEntry("Element '" + CrowdSoapElements.OUT
-                + "' could not be found in 'error'.")
+        assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION
+                + "' successfully authenticated.")
+                + OSUtilities.LINE_SEPARATOR
+                + createDebugLogEntry("Element '" + CrowdSoapElements.OUT
+                        + "' could not be found in 'error'.")
                 + OSUtilities.LINE_SEPARATOR
                 + createInfoLogEntry("CROWD: authentication of user '" + USER + "', application '"
                         + APPLICATION + "': FAILED."), logRecorder.getLogContent());
@@ -199,10 +170,17 @@ public class CrowdAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    final Object[] parameters = new Object[]
+                    Object[] parameters = new Object[]
+                        { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
+                    String message =
+                            CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
+                    one(executor).execute(URL, message);
+                    will(returnValue(createXMLElement(CrowdSoapElements.TOKEN,
+                            APPLICATION_TOKEN_ESACPED)));
+
+                    parameters = new Object[]
                         { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED };
-                    final String message =
-                            CrowdAuthenticationService.FIND_PRINCIPAL_BY_NAME.format(parameters);
+                    message = CrowdAuthenticationService.FIND_PRINCIPAL_BY_NAME.format(parameters);
                     one(executor).execute(URL, message);
                     String element = createSOAPAttribute("sn", "Stepka");
                     element += createSOAPAttribute("invalidPasswordAttempts", "0");
@@ -229,7 +207,8 @@ public class CrowdAuthenticationServiceTest
         assertEquals("false", result.getProperty("requiresPasswordChange"));
         assertEquals("1169440408520", result.getProperty("lastAuthenticated"));
         assertEquals("1168995491407", result.getProperty("passwordLastChanged"));
-        assertEquals("", logRecorder.getLogContent());
+        assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION
+                + "' successfully authenticated."), logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
 
@@ -239,10 +218,17 @@ public class CrowdAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    final Object[] parameters = new Object[]
+                    Object[] parameters = new Object[]
+                        { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
+                    String message =
+                            CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
+                    one(executor).execute(URL, message);
+                    will(returnValue(createXMLElement(CrowdSoapElements.TOKEN,
+                            APPLICATION_TOKEN_ESACPED)));
+
+                    parameters = new Object[]
                         { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED };
-                    final String message =
-                            CrowdAuthenticationService.FIND_PRINCIPAL_BY_NAME.format(parameters);
+                    message = CrowdAuthenticationService.FIND_PRINCIPAL_BY_NAME.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue("<a></a>"));
                 }
@@ -257,7 +243,10 @@ public class CrowdAuthenticationServiceTest
         }
 
         assertEquals(
-                createDebugLogEntry("No SOAPAttribute element could be found in the SOAP XML response."),
+                createDebugLogEntry("CROWD: application '" + APPLICATION
+                        + "' successfully authenticated.")
+                        + OSUtilities.LINE_SEPARATOR
+                        + createDebugLogEntry("No SOAPAttribute element could be found in the SOAP XML response."),
                 logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -271,11 +260,6 @@ public class CrowdAuthenticationServiceTest
     private String createInfoLogEntry(final String message)
     {
         return createLogEntry("INFO ", message);
-    }
-
-    private String createErrorLogEntry(final String message)
-    {
-        return createLogEntry("ERROR", message);
     }
 
     private String createLogEntry(final String level, final String message)

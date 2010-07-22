@@ -27,39 +27,17 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
  */
 public interface IAuthenticationService extends ISelfTestable
 {
-
-    /**
-     * Attempts authentication of the application with credentials passed in the constructor and
-     * returns the application token. Implementations should log what is going on, whether the
-     * application could register itself successfully or not.
-     * <p>
-     * The returned application token can then be used to authenticate an user (via
-     * {@link #authenticateUser(String, String, String)}) or to retrieve additional details about an
-     * user (via {@link #getPrincipal(String, String)})
-     * </p>
-     * 
-     * @return the application token if the application has been successfully authenticated,
-     *         <code>null</code> otherwise.
-     */
-    public String authenticateApplication();
-
     /**
      * Attempts authentication for the given user credentials.
-     * <p>
-     * Note that the application must be authenticated (meaning that <var>applicationToken</var> is
-     * not <code>null</code>) to perform this lookup.
-     * </p>
      * 
      * @return <code>true</code> if the <var>user</var> has been successfully authenticated.
      */
-    public boolean authenticateUser(String applicationToken, String user, String password);
+    public boolean authenticateUser(String user, String password);
 
     /**
      * Returns the user details for the given <var>userId</var>, optionally trying to authenticating
      * the user with the given <var>passwordOrNull</var>.
      * 
-     * @param applicationToken The token to authenticate the application towards the authentication
-     *            system.
      * @param user The user id to get the details for.
      * @param passwordOrNull The password to use for the authentication request. If
      *            <code>null</code>, the user will not be authenticated.
@@ -68,26 +46,23 @@ public interface IAuthenticationService extends ISelfTestable
      *         {@link Principal#isAuthenticated(Principal)} whether the authentication request has
      *         been successful.
      */
-    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
-            String passwordOrNull);
+    public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull);
 
     /**
      * For a given user name returns additional details encapsulated in returned
      * <code>Principal</code>.
-     * <p>
-     * Note that the application must be authenticated (meaning that <var>applicationToken</var> is
-     * not <code>null</code>) to perform this lookup.
-     * </p>
      * 
      * @return The <code>Principal</code> object for the given <var>user</var>.
      * @throws IllegalArgumentException If the <var>user</var> cannot be found.
      */
-    public Principal getPrincipal(String applicationToken, String user)
-            throws IllegalArgumentException;
+    public Principal getPrincipal(String user) throws IllegalArgumentException;
 
     /**
      * Returns <code>true</code> if this authentication service supports listing of principals by
      * user id.
+     * <p>
+     * Note that this does not refer to the methods that return only one principal like
+     * {@link #getPrincipal(String)} or {@link #tryGetAndAuthenticateUser(String, String)}.
      */
     public boolean supportsListingByUserId();
 
@@ -100,12 +75,15 @@ public interface IAuthenticationService extends ISelfTestable
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
      */
-    public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
+    public List<Principal> listPrincipalsByUserId(String userIdQuery)
             throws IllegalArgumentException;
 
     /**
      * Returns <code>true</code> if this authentication service supports listing of principals by
      * email address.
+     * <p>
+     * Note that this also refers to the method
+     * {@link #tryGetAndAuthenticateUserByEmail(String, String)}.
      */
     public boolean supportsListingByEmail();
 
@@ -116,8 +94,6 @@ public interface IAuthenticationService extends ISelfTestable
      * <b>Note: if multiple users with this email address exist in the authentication repository,
      * the first one regarding an arbitrary (repository determined) order will be returned.</b>
      * 
-     * @param applicationToken The token to authenticate the application towards the authentication
-     *            system.
      * @param email The email of the user to get the details for.
      * @param passwordOrNull The password to use for the authentication request. If
      *            <code>null</code>, the user will not be authenticated.
@@ -129,8 +105,7 @@ public interface IAuthenticationService extends ISelfTestable
      *             operation.
      * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      */
-    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
-            String passwordOrNull);
+    public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull);
 
     /**
      * Returns a list of all users that match the <var>emailQuery</var>.
@@ -141,8 +116,7 @@ public interface IAuthenticationService extends ISelfTestable
      *             operation.
      * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      */
-    public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
-            throws IllegalArgumentException;
+    public List<Principal> listPrincipalsByEmail(String emailQuery) throws IllegalArgumentException;
 
     /**
      * Returns <code>true</code> if this authentication service supports listing of principals by
@@ -159,7 +133,108 @@ public interface IAuthenticationService extends ISelfTestable
      *             operation.
      * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      */
-    public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
+    public List<Principal> listPrincipalsByLastName(String lastNameQuery)
+            throws IllegalArgumentException;
+
+    //
+    // Deprecated methods
+    //
+
+    /**
+     * Dummy operation, kept for backward compatibility. Don't use.
+     */
+    public String authenticateApplication();
+
+    /**
+     * Attempts authentication for the given user credentials.
+     * 
+     * @return <code>true</code> if the <var>user</var> has been successfully authenticated.
+     */
+    public boolean authenticateUser(String dummyToken, String user, String password);
+
+    /**
+     * Returns the user details for the given <var>userId</var>, optionally trying to authenticating
+     * the user with the given <var>passwordOrNull</var>.
+     * 
+     * @param dummyToken Some string that is ignored. Can be <code>null</code>.
+     * @param user The user id to get the details for.
+     * @param passwordOrNull The password to use for the authentication request. If
+     *            <code>null</code>, the user will not be authenticated.
+     * @return The Principal object, if a user with this <var>userId</var> exist, <code>null</code>
+     *         otherwise. You can check with {@link Principal#isAuthenticated()} or
+     *         {@link Principal#isAuthenticated(Principal)} whether the authentication request has
+     *         been successful.
+     */
+    public Principal tryGetAndAuthenticateUser(String dummyToken, String user, String passwordOrNull);
+
+    /**
+     * For a given user name returns additional details encapsulated in returned
+     * <code>Principal</code>.
+     * 
+     * @return The <code>Principal</code> object for the given <var>user</var>.
+     * @throws IllegalArgumentException If the <var>user</var> cannot be found.
+     */
+    public Principal getPrincipal(String dummyToken, String user) throws IllegalArgumentException;
+
+    /**
+     * Returns a list of all users that match the <var>userIdQuery</var>.
+     * 
+     * @param dummyToken Some string that is ignored. Can be <code>null</code>.
+     * @param userIdQuery The query for user ids to list. As user ids are unique, it can only ever
+     *            return more than one user if it contains one or more wildcard characters (
+     *            <code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this
+     *             operation.
+     */
+    public List<Principal> listPrincipalsByUserId(String dummyToken, String userIdQuery)
+            throws IllegalArgumentException;
+
+    /**
+     * Returns the user details for the given <var>email</var>, optionally trying to authenticating
+     * the user with the given <var>passwordOrNull</var>.
+     * <p>
+     * <b>Note: if multiple users with this email address exist in the authentication repository,
+     * the first one regarding an arbitrary (repository determined) order will be returned.</b>
+     * 
+     * @param dummyToken Some string that is ignored. Can be <code>null</code>.
+     * @param email The email of the user to get the details for.
+     * @param passwordOrNull The password to use for the authentication request. If
+     *            <code>null</code>, the user will not be authenticated.
+     * @return The Principal object, if a user with this <var>email</var> exist, <code>null</code>
+     *         otherwise. You can check with {@link Principal#isAuthenticated()} or
+     *         {@link Principal#isAuthenticated(Principal)} whether the authentication request has
+     *         been successful.
+     * @throws UnsupportedOperationException if this authentication service does not support this
+     *             operation.
+     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
+     */
+    public Principal tryGetAndAuthenticateUserByEmail(String dummyToken, String email,
+            String passwordOrNull);
+
+    /**
+     * Returns a list of all users that match the <var>emailQuery</var>.
+     * 
+     * @param dummyToken Some string that is ignored. Can be <code>null</code>.
+     * @param emailQuery The query for email addresses to list. May contain one or more wildcard
+     *            characters (<code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this
+     *             operation.
+     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
+     */
+    public List<Principal> listPrincipalsByEmail(String dummyToken, String emailQuery)
+            throws IllegalArgumentException;
+
+    /**
+     * Returns a list of all users that match the <var>lastNameQuery</var>.
+     * 
+     * @param dummyToken Some string that is ignored. Can be <code>null</code>.
+     * @param lastNameQuery The query for last names to list. May contain one or more wildcard
+     *            characters (<code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this
+     *             operation.
+     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
+     */
+    public List<Principal> listPrincipalsByLastName(String dummyToken, String lastNameQuery)
             throws IllegalArgumentException;
 
 }

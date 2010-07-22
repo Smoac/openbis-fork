@@ -21,6 +21,7 @@ import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,11 +58,16 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class CrowdAuthenticationService implements IAuthenticationService
 {
+    private static final String DUMMY_TOKEN_STR = "DUMMY-TOKEN";
+
     private static final String EMAIL_PROPERTY_KEY = "mail";
 
     private static final String LAST_NAME_PROPERTY_KEY = "sn";
 
     private static final String FIRST_NAME_PROPERTY_KEY = "givenName";
+
+    private static final String ERROR_MSG_WITH_INVALID_APPLICATION_TOKEN =
+            "The application.name or application.password in the crowd.properties file does not match the password in Crowd.";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CrowdAuthenticationService.class);
@@ -169,6 +175,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     private final IRequestExecutor requestExecutor;
 
+    private final AtomicReference<String> applicationTokenHolder = new AtomicReference<String>();
+
     public CrowdAuthenticationService(final String host, final String port,
             final String application, final String applicationPassword)
     {
@@ -224,11 +232,15 @@ public class CrowdAuthenticationService implements IAuthenticationService
     {
         try
         {
-            final String response = execute(AUTHENTICATE_APPL, application, applicationPassword);
-            if (pickElementContent(response, CrowdSoapElements.TOKEN) == null)
+            final String xmlResponse = execute(AUTHENTICATE_APPL, application, applicationPassword);
+            final String applicationToken =
+                    StringEscapeUtils.unescapeXml(pickElementContent(xmlResponse,
+                            CrowdSoapElements.TOKEN));
+            applicationTokenHolder.set(applicationToken);
+            if (applicationToken == null)
             {
                 throw new EnvironmentFailureException("Application '" + application
-                        + "' couldn't be authenticated: " + response);
+                        + "' couldn't be authenticated: " + xmlResponse);
             }
         } catch (final EnvironmentFailureException ex)
         {
@@ -249,66 +261,154 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     public final String authenticateApplication()
     {
-        final String applicationToken =
-                StringEscapeUtils.unescapeXml(execute(CrowdSoapElements.TOKEN, AUTHENTICATE_APPL,
-                        application, applicationPassword));
-        if (applicationToken == null)
-        {
-            operationLog.error("CROWD: application '" + application + "' failed to authenticate.");
-        } else
-        {
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("CROWD: application '" + application
-                        + "' successfully authenticated.");
-            }
-        }
-        return applicationToken;
+        return DUMMY_TOKEN_STR;
     }
 
-    public final boolean authenticateUser(final String applicationToken, final String user,
+    public final boolean authenticateUser(final String dummyToken, final String user,
             final String password)
     {
-        assert applicationToken != null;
+        return authenticateUser(user, password);
+    }
+
+    public final boolean authenticateUser(final String user, final String password)
+    {
         assert user != null;
 
-        final String userToken =
-                StringEscapeUtils.unescapeXml(execute(CrowdSoapElements.OUT, AUTHENTICATE_USER,
-                        application, applicationToken, user, password));
+        String userToken = null;
+        while (true)
+        {
+            final String xmlResponse =
+                    execute(AUTHENTICATE_USER, application, getApplicationToken(false), user,
+                            password);
+            userToken = extractUserToken(xmlResponse, user);
+            if (userToken == null)
+            {
+                if (isApplicationNotAuthenticated(xmlResponse))
+                {
+                    if (getApplicationToken(true) == null)
+                    {
+                        // We couldn't authenticate the application.
+                        break;
+                    }
+                } else
+                {
+                    // The application is authenticated but the user credentials are not right.
+                    break;
+                }
+            } else
+            {
+                // Everything is fine.
+                break;
+            }
+        }
+        logAuthentication(user, userToken != null);
+        return userToken != null;
+    }
+
+    private void logAuthentication(final String user, final boolean authenticated)
+    {
         if (operationLog.isInfoEnabled())
         {
             final String msg =
                     "CROWD: authentication of user '" + user + "', application '" + application
                             + "': ";
-            operationLog.info(msg + (userToken == null ? "FAILED." : "SUCCESS."));
+            operationLog.info(msg + (authenticated ? "SUCCESS." : "FAILED."));
         }
-        return userToken != null;
     }
 
-    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
-            String passwordOrNull)
+    private String getApplicationToken(boolean forceNewToken)
     {
-        String xmlResponse = null;
-        try
+        String applicationToken = applicationTokenHolder.get();
+        if (applicationToken == null || forceNewToken)
         {
-            xmlResponse = execute(FIND_PRINCIPAL_BY_NAME, application, applicationToken, user);
-            final Map<String, String> parseXmlResponse = parseXmlResponse(xmlResponse);
-            Principal principal = null;
-            if (parseXmlResponse.size() >= 1)
+            final String xmlResponse = execute(AUTHENTICATE_APPL, application, applicationPassword);
+            applicationToken =
+                    StringEscapeUtils.unescapeXml(pickElementContent(xmlResponse,
+                            CrowdSoapElements.TOKEN));
+            if (applicationToken == null)
             {
-                principal = createPrincipal(user, parseXmlResponse);
+                operationLog.error("CROWD: application '" + application
+                        + "' failed to authenticate.");
             } else
             {
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog
-                            .debug("No SOAPAttribute element could be found in the SOAP XML response.");
+                    operationLog.debug("CROWD: application '" + application
+                            + "' successfully authenticated.");
                 }
             }
-            if (principal != null && passwordOrNull != null)
+            applicationTokenHolder.set(applicationToken);
+        }
+        return applicationToken;
+    }
+
+    private boolean isApplicationNotAuthenticated(final String xmlResponse)
+    {
+        return xmlResponse.indexOf(ERROR_MSG_WITH_INVALID_APPLICATION_TOKEN) >= 0;
+    }
+
+    private final String extractUserToken(String xmlResponse, String user)
+    {
+        final String userToken =
+                StringEscapeUtils
+                        .unescapeXml(pickElementContent(xmlResponse, CrowdSoapElements.OUT));
+        return userToken;
+
+    }
+
+    public Principal tryGetAndAuthenticateUser(String dummyToken, String user, String passwordOrNull)
+    {
+        return tryGetAndAuthenticateUser(user, passwordOrNull);
+    }
+
+    public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
+    {
+        String xmlResponse = null;
+        try
+        {
+            Principal principal = null;
+            while (true)
             {
-                principal
-                        .setAuthenticated(authenticateUser(applicationToken, user, passwordOrNull));
+                xmlResponse =
+                        execute(FIND_PRINCIPAL_BY_NAME, application, getApplicationToken(false),
+                                user);
+                final Map<String, String> parseXmlResponse = parseXmlResponse(xmlResponse);
+                if (parseXmlResponse.size() >= 1)
+                {
+                    principal = createPrincipal(user, parseXmlResponse);
+                } else
+                {
+                    if (isApplicationNotAuthenticated(xmlResponse))
+                    {
+                        if (getApplicationToken(true) == null)
+                        {
+                            // We couldn't authenticate the application.
+                            break;
+                        }
+                    } else
+                    {
+                        // The application is authenticated, but the principal does not exist.
+                        if (operationLog.isDebugEnabled())
+                        {
+                            operationLog
+                                    .debug("No SOAPAttribute element could be found in the SOAP XML response.");
+                        }
+                        break;
+                    }
+                }
+                if (principal != null && passwordOrNull != null)
+                {
+                    principal.setAuthenticated(authenticateUser(getApplicationToken(false), user,
+                            passwordOrNull));
+                }
+                if (principal != null)
+                {
+                    break;
+                }
+            }
+            if (passwordOrNull != null)
+            {
+                logAuthentication(user, Principal.isAuthenticated(principal));
             }
             return principal;
         } catch (final Exception ex) // SAXException, IOException
@@ -321,7 +421,12 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     public final Principal getPrincipal(final String applicationToken, final String user)
     {
-        final Principal principalOrNull = tryGetAndAuthenticateUser(applicationToken, user, null);
+        return getPrincipal(user);
+    }
+
+    public final Principal getPrincipal(final String user)
+    {
+        final Principal principalOrNull = tryGetAndAuthenticateUser(user, null);
         if (principalOrNull == null)
         {
             throw new IllegalArgumentException("Cannot find user '" + user + "'.");
@@ -359,18 +464,10 @@ public class CrowdAuthenticationService implements IAuthenticationService
     }
 
     /**
-     * Constructs the POST message, does the HTTP request and picks the given
-     * <code>responseElement</code> in the server's response.
+     * Constructs the POST message and does the HTTP request.
      * 
      * @return The <var>responseElement</var> in the server's response.
      */
-    private final String execute(final String responseElement, final MessageFormat template,
-            final String... args)
-    {
-        final String response = execute(template, args);
-        return pickElementContent(response, responseElement);
-    }
-
     private final String execute(final MessageFormat template, final String... args)
     {
         final Object[] decodedArguments = new Object[args.length];
@@ -384,7 +481,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
     /**
      * Tries to find given <code>element</code> in <code>xmlString</code>.
      * <p>
-     * Note that this is a special-perpose method not suitable for putting it into general utility
+     * Note that this is a special-purpose method not suitable for putting it into general utility
      * classes. For example it does not find empty elements.
      * 
      * @return The requested element, or <code>null</code> if it could not be found.
@@ -443,17 +540,38 @@ public class CrowdAuthenticationService implements IAuthenticationService
         return index;
     }
 
+    public List<Principal> listPrincipalsByEmail(String emailQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
         throw new UnsupportedOperationException();
     }
 
-    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
+    public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
+            String passwordOrNull)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByLastName(String lastNameQuery)
     {
         throw new UnsupportedOperationException();
     }
 
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
         throw new UnsupportedOperationException();
     }

@@ -48,13 +48,21 @@ public final class DummyAuthenticationService implements IAuthenticationService
     /**
      * Always returns <code>true</code>, meaning that the login was successful.
      */
+    public final boolean authenticateUser(final String user, final String password)
+    {
+        return true;
+    }
+
+    /**
+     * Always returns <code>true</code>, meaning that the login was successful.
+     */
     public final boolean authenticateUser(final String applicationToken, final String user,
             final String password)
     {
         return true;
     }
 
-    public final Principal getPrincipal(final String applicationToken, final String user)
+    public final Principal getPrincipal(final String user)
     {
         // Generate a random first and last name combination
         final String firstName;
@@ -66,19 +74,35 @@ public final class DummyAuthenticationService implements IAuthenticationService
         return new Principal(user, firstName, lastName, "franz-josef.elmer@systemsx.ch", false);
     }
 
-    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
-            String passwordOrNull)
+    public final Principal getPrincipal(final String applicationToken, final String user)
     {
-        final Principal principal = getPrincipal(applicationToken, user);
+        return getPrincipal(user);
+    }
+
+    public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
+    {
+        final Principal principal = getPrincipal(user);
         principal.setAuthenticated(true);
         return principal;
     }
 
-    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
+    public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
+            String passwordOrNull)
     {
-        final Principal principal = getPrincipal(applicationToken, email);
+        return tryGetAndAuthenticateUser(user, passwordOrNull);
+    }
+
+    public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
+    {
+        final Principal principal = getPrincipal(email);
         principal.setAuthenticated(true);
         return principal;
+    }
+
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
+            String passwordOrNull)
+    {
+        return tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
     }
 
     public boolean isRemote()
@@ -86,12 +110,27 @@ public final class DummyAuthenticationService implements IAuthenticationService
         return false;
     }
 
+    public List<Principal> listPrincipalsByEmail(String emailQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    public List<Principal> listPrincipalsByLastName(String lastNameQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
         throw new UnsupportedOperationException();
     }
