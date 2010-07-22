@@ -101,6 +101,9 @@
         <delete dir="${output.test}" />
         <testng classpath="${ecp}" workingDir="." outputdir="${output.test}" haltonfailure="true">
             <xmlfileset dir="${sources.test}" includes="${test.suite}" />
+        		<reporter classname="org.testng.reporters.XMLReporter">
+							<property name="fileFragmentationLevel" value="2"/>
+        		</reporter>
         </testng>
     </target>
 
