@@ -19,17 +19,13 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.asList;
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findCode;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.testng.annotations.AfterClass;
@@ -88,7 +84,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
 
     private SampleTypePE masterPlateType;
 
-    private SamplePE firstMasterPlate;
+    private SamplePE sharedMasterPlate;
 
     private ISampleListingQuery query;
 
@@ -104,9 +100,9 @@ public class SampleListingQueryTest extends AbstractDAOTest
         masterPlateType =
                 daoFactory.getSampleTypeDAO()
                         .tryFindSampleTypeByCode(SAMPLE_TYPE_CODE_MASTER_PLATE);
-        firstMasterPlate =
-                daoFactory.getSampleDAO().listSamplesWithPropertiesByTypeAndDatabaseInstance(
-                        masterPlateType, dbInstance).get(0);
+        sharedMasterPlate =
+                daoFactory.getSampleDAO().tryFindByCodeAndDatabaseInstance(
+                        SHARED_MASTER_PLATE_CODE, dbInstance);
         query = sampleListerDAO.getQuery();
     }
 
@@ -124,20 +120,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
         ISampleListingQuery query =
                 EntityListingTestUtils.createQuery(daoFactory, ISampleListingQuery.class);
         return SampleListerDAO.create(daoFactory, query);
-    }
-
-    private Map<Long, SamplePE> createIdMap(final List<SamplePE> sampleList, boolean dropNonListable)
-    {
-        final Map<Long, SamplePE> sampleMap = new HashMap<Long, SamplePE>();
-        for (SamplePE sample : sampleList)
-        {
-            if (dropNonListable && sample.getSampleType().isListable() == false)
-            {
-                continue;
-            }
-            sampleMap.put(sample.getId(), sample);
-        }
-        return sampleMap;
     }
 
     @Test(groups = "slow")
@@ -202,26 +184,16 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testQueryGroupSamples()
     {
-        final Map<Long, SamplePE> sampleMap =
-                createIdMap(daoFactory.getSampleDAO().listSamplesWithPropertiesByGroup(group), true);
-        assertFalse(sampleMap.isEmpty());
-
         int sampleCount = 0;
         for (SampleRecord sample : query.getGroupSamples(dbInstanceId, groupCode))
         {
-            // Note: query.getGroupSamples() doesn't query for grou_id as it is not used by the
-            // business code
-            sample.grou_id = groupId;
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
+            assertEquals(msg, groupId, sample.grou_id.longValue());
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
-            // We have to go the d-tour via samplePE as the sample doesn't contain the group id,
-            // and no, we don't want to add it just for the test
-            final SamplePE samplePE = sampleMap.get(sample.id);
-            assertEquals(msg, groupId, samplePE.getGroup().getId().longValue());
             ++sampleCount;
         }
-        assertEquals(sampleMap.size(), sampleCount);
+        assertEquals(40, sampleCount);
     }
 
     @Test
@@ -255,84 +227,48 @@ public class SampleListingQueryTest extends AbstractDAOTest
     {
         final ExperimentPE experiment = daoFactory.getExperimentDAO().listExperiments().get(0);
         final long experimentId = experiment.getId();
-        final Map<Long, SamplePE> sampleMap =
-                createIdMap(daoFactory.getSampleDAO().listSamplesWithPropertiesByExperiment(
-                        experiment), false);
-        assertFalse(sampleMap.isEmpty());
 
         int sampleCount = 0;
         for (SampleRecord sample : query.getSamplesForExperiment(experimentId))
         {
-            // Note: getSamplesForExperiment() doesn't query for grou_id as it is not used by the
-            // business code
-            sample.grou_id = groupId;
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
             assertEquals(msg, experimentId, sample.expe_id.longValue());
             ++sampleCount;
         }
-        assertEquals(sampleMap.size(), sampleCount);
+        assertEquals(3, sampleCount);
     }
 
     @Test
     public void testQueryGroupWithExperimentSamples()
     {
-        final Map<Long, SamplePE> sampleMap =
-                createIdMap(daoFactory.getSampleDAO().listSamplesWithPropertiesByGroup(group), true);
-        removeSamplesWithoutExperiments(sampleMap);
-        assertFalse(sampleMap.isEmpty());
-
         int sampleCount = 0;
         for (SampleRecord sample : query.getGroupSamplesWithExperiment(dbInstanceId, groupCode))
         {
-            // Note: getGroupSamplesWithExperiment() doesn't query for grou_id as it is not used by
-            // the business code
-            sample.grou_id = groupId;
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
-            // We have to go the d-tour via samplePE as the sample doesn't contain the group id,
-            // and no, we don't want to add it just for the test
-            final SamplePE samplePE = sampleMap.get(sample.id);
-            assertEquals(msg, groupId, samplePE.getGroup().getId().longValue());
+            assertEquals(msg, groupId, sample.grou_id.longValue());
             assertNotNull(msg, sample.expe_id);
             ++sampleCount;
         }
-        assertEquals(sampleMap.size(), sampleCount);
-    }
-
-    private void removeSamplesWithoutExperiments(final Map<Long, SamplePE> sampleMap)
-    {
-        for (final Iterator<Map.Entry<Long, SamplePE>> it = sampleMap.entrySet().iterator(); it
-                .hasNext(); /**/)
-        {
-            final Map.Entry<Long, SamplePE> entry = it.next();
-            if (entry.getValue().getExperiment() == null)
-            {
-                it.remove();
-            }
-        }
+        assertEquals(15, sampleCount);
     }
 
     @Test
     public void testQueryContainedSamples()
     {
-        final Map<Long, SamplePE> sampleMap =
-                createIdMap(daoFactory.getSampleDAO().listSamplesWithPropertiesByContainer(
-                        firstMasterPlate), false);
-        assertFalse(sampleMap.isEmpty());
-
         int sampleCount = 0;
-        for (SampleRecord sample : query.getSamplesForContainer(firstMasterPlate.getId()))
+        for (SampleRecord sample : query.getSamplesForContainer(sharedMasterPlate.getId()))
         {
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
-            assertEquals(msg, firstMasterPlate.getId(), sample.samp_id_part_of);
+            assertEquals(msg, sharedMasterPlate.getId(), sample.samp_id_part_of);
             ++sampleCount;
         }
-        assertEquals(sampleMap.size(), sampleCount);
+        assertEquals(320, sampleCount);
     }
 
     @Test
