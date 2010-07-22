@@ -40,7 +40,6 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
             IInvocationLoggerContext context)
     {
         super(sessionManager, context);
-        // TODO Auto-generated constructor stub
     }
 
     public String tryToAuthenticateForAllServices(String userID, String userPassword)
