@@ -44,6 +44,8 @@ public final class LDAPDirectoryConfiguration
     private String firstNameAttributeName = "givenName";
 
     private String emailAttributeName = "mail";
+    
+    private String emailAttributePrefix = "";
 
     private String securityProtocol = "ssl";
 
@@ -123,6 +125,21 @@ public final class LDAPDirectoryConfiguration
         {
             this.emailAttributeName = emailAttributeName;
         }
+    }
+
+    public String getEmailAttributePrefix()
+    {
+        return emailAttributePrefix;
+    }
+
+    /**
+     * The prefix of email values that is used when doing a search.
+     * <p>
+     * Default value: empty
+     */
+    public void setEmailAttributePrefix(String emailAttributePrefix)
+    {
+        this.emailAttributePrefix = emailAttributePrefix;
     }
 
     /**

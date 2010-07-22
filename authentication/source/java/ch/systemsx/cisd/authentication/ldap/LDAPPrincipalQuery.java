@@ -82,6 +82,18 @@ public final class LDAPPrincipalQuery implements ISelfTestable
     public Principal tryGetPrincipal(String userId) throws IllegalArgumentException
     {
         final List<Principal> principals = listPrincipalsByUserId(userId, 1);
+        return tryGetPrincipal(principals, "User '%s' is not unique.", userId);
+    }
+
+    public Principal tryGetPrincipalByEmail(String email)
+    {
+        final List<Principal> principals = listPrincipalsByEmail(email, 1);
+        return tryGetPrincipal(principals, "Email '%s' is not unique.", email);
+    }
+
+    private Principal tryGetPrincipal(final List<Principal> principals, final String msgTemplate,
+            final String user)
+    {
         if (principals.size() == 0)
         {
             return null;
@@ -91,7 +103,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         } else
         {
             // Cannot happen - we have limited the search to 1
-            throw new IllegalArgumentException("User '" + userId + "' is not unique.");
+            throw new IllegalArgumentException(String.format(msgTemplate, user));
         }
     }
 
@@ -114,14 +126,35 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         return listPrincipalsByKeyValue(config.getUserIdAttributeName(), userId, null, limit);
     }
 
+    public List<Principal> listPrincipalsByEmail(String email, int limit)
+    {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("listPrincipalsByEmail(%s,%s)", email, limit));
+        }
+        return listPrincipalsByKeyValue(config.getEmailAttributeName(), config
+                .getEmailAttributePrefix()
+                + email, null, limit);
+    }
+
     public List<Principal> listPrincipalsByEmail(String email)
     {
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("listPrincipalsByEmail(%s)", email));
         }
-        return listPrincipalsByKeyValue(config.getEmailAttributeName(), email, null,
-                Integer.MAX_VALUE);
+        return listPrincipalsByKeyValue(config.getEmailAttributeName(), config
+                .getEmailAttributePrefix()
+                + email, null, Integer.MAX_VALUE);
+    }
+
+    public List<Principal> listPrincipalsByLastName(String lastName, int limit)
+    {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("listPrincipalsByLastName(%s,%s)", lastName, limit));
+        }
+        return listPrincipalsByKeyValue(config.getLastNameAttributeName(), lastName, null, limit);
     }
 
     public List<Principal> listPrincipalsByLastName(String lastName)
