@@ -28,15 +28,15 @@ public class DataSetUploadInfo
 
     private static final String SEPARATOR = ",";
 
-    String sample; // may be null
+    private String sample; // may be null
 
-    String experiment; // may be null
+    private String experiment; // may be null
 
-    String[] parents; // may be null
+    private String[] parents; // may be null
 
-    String dataSetType;
+    private String dataSetType;
 
-    String fileType;
+    private String fileType;
 
     public DataSetUploadInfo()
     {
@@ -106,7 +106,6 @@ public class DataSetUploadInfo
     @Override
     public String toString()
     {
-        // TODO Auto-generated method stub
         StringBuilder builder = new StringBuilder();
         if (sample != null)
         {
