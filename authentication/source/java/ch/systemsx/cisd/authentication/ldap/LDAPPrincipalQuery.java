@@ -198,7 +198,8 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                 return primListPrincipalsByKeyValue(key, value, additionalAttributesOrNull, limit);
             } catch (RuntimeException ex)
             {
-                if (firstException != null)
+                contextHolder.set(null);
+                if (firstException == null)
                 {
                     firstException = ex;
                 }
@@ -316,9 +317,13 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                 return initialDirContext;
             } catch (RuntimeException ex)
             {
+                if (firstException == null)
+                {
+                    firstException = ex;
+                }
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug("");
+                    operationLog.debug("Exception in SSL protocol, retrying.");
                 }
             }
         }
