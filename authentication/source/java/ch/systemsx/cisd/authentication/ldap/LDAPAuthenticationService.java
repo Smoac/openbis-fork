@@ -71,6 +71,11 @@ public class LDAPAuthenticationService implements IAuthenticationService
         return query.listPrincipalsByEmail(emailQuery);
     }
 
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
+    {
+        return query.tryGetAndAuthenticatePrincipalByEmail(email, passwordOrNull);
+    }
+
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
     {
         return query.listPrincipalsByLastName(lastNameQuery);

@@ -120,6 +120,23 @@ public class StackedAuthenticationService implements IAuthenticationService
         return null;
     }
 
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
+    {
+        checkAuthenticatedApplication();
+        int i = 0;
+        for (IAuthenticationService service : delegates)
+        {
+            final String token = tokens.get(i);
+            final Principal principal = service.tryGetAndAuthenticateUserByEmail(token, email, passwordOrNull);
+            if (principal != null)
+            {
+                return principal;
+            }
+            ++i;
+        }
+        return null;
+    }
+
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
         if (supportsListingByEmail == false)

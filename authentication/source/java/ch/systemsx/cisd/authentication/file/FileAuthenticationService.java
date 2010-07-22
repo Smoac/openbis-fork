@@ -130,6 +130,11 @@ public class FileAuthenticationService implements IAuthenticationService
         return principalOrNull;
     }
 
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
+    {
+        throw new UnsupportedOperationException();
+    }
+
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
         throw new UnsupportedOperationException();

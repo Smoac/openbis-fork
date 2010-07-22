@@ -448,6 +448,11 @@ public class CrowdAuthenticationService implements IAuthenticationService
         throw new UnsupportedOperationException();
     }
 
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
+    {
+        throw new UnsupportedOperationException();
+    }
+
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
     {
         throw new UnsupportedOperationException();

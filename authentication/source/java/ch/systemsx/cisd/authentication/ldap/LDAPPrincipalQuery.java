@@ -180,6 +180,23 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             return null;
         }
+        authenticatePrincipal(principal, passwordOrNull);
+        return principal;
+    }
+
+    public Principal tryGetAndAuthenticatePrincipalByEmail(String email, String passwordOrNull)
+    {
+        final Principal principal = tryGetPrincipalByEmail(email);
+        if (principal == null)
+        {
+            return null;
+        }
+        authenticatePrincipal(principal, passwordOrNull);
+        return principal;
+    }
+
+    private void authenticatePrincipal(final Principal principal, String passwordOrNull)
+    {
         final String distinguishedName = principal.getProperty(DISTINGUISHED_NAME_ATTRIBUTE_NAME);
         final boolean authenticated =
                 (passwordOrNull == null) ? false : authenticateUserByDistinguishedName(
@@ -187,10 +204,9 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         principal.setAuthenticated(authenticated);
         if (operationLog.isDebugEnabled() && passwordOrNull != null)
         {
-            operationLog.debug(String.format(LOGIN_DN_MSG_TEMPLATE, userId, distinguishedName,
-                    getStatus(authenticated)));
+            operationLog.debug(String.format(LOGIN_DN_MSG_TEMPLATE, principal.getUserId(),
+                    distinguishedName, getStatus(authenticated)));
         }
-        return principal;
     }
 
     private String getStatus(final boolean status)

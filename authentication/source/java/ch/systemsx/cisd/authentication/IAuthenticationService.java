@@ -80,8 +80,7 @@ public interface IAuthenticationService extends ISelfTestable
      * </p>
      * 
      * @return The <code>Principal</code> object for the given <var>user</var>.
-     * @throws IllegalArgumentException If either the <var>applicationToken</var> is invalid or the
-     *             <var>user</var> cannot be found.
+     * @throws IllegalArgumentException If the <var>user</var> cannot be found.
      */
     public Principal getPrincipal(String applicationToken, String user)
             throws IllegalArgumentException;
@@ -100,7 +99,6 @@ public interface IAuthenticationService extends ISelfTestable
      *            <code>*</code>).
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
-     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      */
     public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
             throws IllegalArgumentException;
@@ -110,6 +108,29 @@ public interface IAuthenticationService extends ISelfTestable
      * email address.
      */
     public boolean supportsListingByEmail();
+
+    /**
+     * Returns the user details for the given <var>email</var>, optionally trying to authenticating
+     * the user with the given <var>passwordOrNull</var>.
+     * <p>
+     * <b>Note: if multiple users with this email address exist in the authentication repository,
+     * the first one regarding an arbitrary (repository determined) order will be returned.</b>
+     * 
+     * @param applicationToken The token to authenticate the application towards the authentication
+     *            system.
+     * @param email The email of the user to get the details for.
+     * @param passwordOrNull The password to use for the authentication request. If
+     *            <code>null</code>, the user will not be authenticated.
+     * @return The Principal object, if a user with this <var>email</var> exist, <code>null</code>
+     *         otherwise. You can check with {@link Principal#isAuthenticated()} or
+     *         {@link Principal#isAuthenticated(Principal)} whether the authentication request has
+     *         been successful.
+     * @throws UnsupportedOperationException if this authentication service does not support this
+     *             operation.
+     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
+     */
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
+            String passwordOrNull);
 
     /**
      * Returns a list of all users that match the <var>emailQuery</var>.

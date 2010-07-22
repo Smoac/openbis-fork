@@ -74,6 +74,13 @@ public final class DummyAuthenticationService implements IAuthenticationService
         return principal;
     }
 
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
+    {
+        final Principal principal = getPrincipal(applicationToken, email);
+        principal.setAuthenticated(true);
+        return principal;
+    }
+
     public boolean isRemote()
     {
         return false;
