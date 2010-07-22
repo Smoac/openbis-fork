@@ -445,16 +445,11 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(personDAO).listByCodes(Arrays.asList(CommonTestUtils.USER_ID));
                     will(returnValue(new ArrayList<PersonPE>()));
 
-                    final String applicationToken = "application-token";
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(applicationToken));
-
                     final PersonPE systemPerson = createSystemUser();
                     one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
                     will(returnValue(systemPerson));
 
-                    one(authenticationService).getPrincipal(applicationToken,
-                            CommonTestUtils.USER_ID);
+                    one(authenticationService).getPrincipal(CommonTestUtils.USER_ID);
                     will(throwException(new IllegalArgumentException()));
                 }
             });

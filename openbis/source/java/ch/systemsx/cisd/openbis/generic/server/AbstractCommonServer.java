@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
@@ -63,11 +62,6 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
             throw UserFailureException.fromTemplate("Following persons already exist: [%s]",
                     StringUtils.join(userIDs, ","));
         }
-        final String applicationToken = authenticationService.authenticateApplication();
-        if (applicationToken == null)
-        {
-            throw new EnvironmentFailureException("Authentication service cannot be accessed.");
-        }
         List<String> unknownUsers = new ArrayList<String>();
         final DisplaySettings defaultDisplaySettings = getDefaultDisplaySettings(sessionToken);
         List<PersonPE> newPersons = new ArrayList<PersonPE>();
@@ -75,8 +69,7 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
         {
             try
             {
-                final Principal principal =
-                        authenticationService.getPrincipal(applicationToken, userID);
+                final Principal principal = authenticationService.getPrincipal(userID);
                 newPersons.add(createPerson(principal, session.tryGetPerson(),
                         defaultDisplaySettings));
             } catch (final IllegalArgumentException e)
