@@ -100,11 +100,14 @@
     <target name="run-tests" depends="compile-tests">
         <delete dir="${output.test}" />
         <testng classpath="${ecp}" workingDir="." outputdir="${output.test}" haltonfailure="true">
-            <xmlfileset dir="${sources.test}" includes="${test.suite}" />
-        		<reporter classname="org.testng.reporters.XMLReporter">
-							<property name="fileFragmentationLevel" value="2"/>
-        		</reporter>
+           <xmlfileset dir="${sources.test}" includes="${test.suite}" />
         </testng>
+        <junitreport todir="${output.test}">
+           <fileset dir="${output.test}">
+              <include name="*/*.xml"/>
+    			 </fileset>
+           <report format="noframes" todir="${output.test}"/>
+        </junitreport>
     </target>
 
     <target name="ci">
