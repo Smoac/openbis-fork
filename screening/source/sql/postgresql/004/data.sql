@@ -1,4 +1,5 @@
 -- Note that these data has to be loaded manually into the openBIS Core database.
+
 -- TODO: this sql should be converted to a generic sql without refering to technical ids. 
 -- Now the ids should be updated if some new records will be added in the generic data.
 
@@ -173,6 +174,50 @@ COPY sample_type_property_types (id, saty_id, prty_id, is_mandatory, is_managed_
 10	3	6	f	f	1	2009-11-30 01:28:20.972263+01	t	\N	1
 \.
 
+--
+-- PostgreSQL database dump complete
+--
+
+--------------------------------------------------
+-- create a gene property and assign it to oligo well
+--------------------------------------------------
+
+insert into property_types(
+	id, 
+	code, description, label, 
+	daty_id,
+	pers_id_registerer,
+	dbin_id,
+	maty_prop_id) 
+values(
+		nextval('PROPERTY_TYPE_ID_SEQ'), 
+		'GENE','Inhibited gene','Gene',
+		(select id from data_types where code = 'MATERIAL'), 
+		(select id from persons where user_id ='system'), 
+		(select id from database_instances where code = 'SYSTEM_DEFAULT'), 
+		(select id from material_types where code = 'GENE')
+	);
+	
+insert into sample_type_property_types( 
+  id,
+  saty_id,
+  prty_id,
+  is_mandatory,
+  pers_id_registerer,
+  ordinal
+) values(
+		nextval('stpt_id_seq'), 
+		(select id from sample_types where code = 'OLIGO_WELL'),
+		(select id from property_types where code = 'GENE'),
+		false,
+		(select id from persons where user_id ='system'),
+		(select max(ordinal)+1 from sample_type_property_types 
+			where saty_id = (select id from sample_types where code = 'OLIGO_WELL'))
+	);
+
+--------------------------------------------------
+-- update sequences values
+--------------------------------------------------
 
 select setval('controlled_vocabulary_id_seq', 100);
 select setval('cvte_id_seq', 100);
@@ -186,8 +231,4 @@ select setval('material_type_id_seq', 100);
 select setval('etpt_id_seq', 100);
 select setval('stpt_id_seq', 100);
 select setval('mtpt_id_seq', 100);
-
---
--- PostgreSQL database dump complete
---
 
