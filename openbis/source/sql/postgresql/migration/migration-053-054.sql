@@ -86,7 +86,116 @@ ALTER TABLE SAMPLES DROP COLUMN SAMP_ID_TOP;
 ALTER TABLE SAMPLES DROP COLUMN SAMP_ID_GENERATED_FROM;
 ALTER TABLE SAMPLES DROP COLUMN SAMP_ID_CONTROL_LAYOUT;
 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+-- This is a screening specific migration. Nothing will be performed on openBIS databases 
+-- which are not screening specific.
+-- 
+-- This migration for each existing connection between oligo well, oligo material and gene material
+-- creates a direct connection between the well and the gene. 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+ 
+	
+CREATE OR REPLACE FUNCTION CONNECT_WELLS_WITH_GENES() RETURNS void AS $$
+DECLARE
+	counter  int;
+BEGIN
+	select 	count(*)
+	into counter
+	from
+		samples well, sample_types well_type, sample_properties well_props, 
+		materials well_material, material_properties well_material_props,
+		materials nested_well_material
+	where
+		well_type.code = 'OLIGO_WELL' and
+		-- find 'well_material' assigned to the well
+		well_props.samp_id = well.id and well_material.id = well_props.mate_prop_id and 
+		-- additional joins to entity type tables
+		well_type.id = well.saty_id and
+		-- well content material property
+		well_material_props.mate_id = well_material.id and 
+		-- material connected to the material in the well (e.g. gene)
+		well_material_props.mate_prop_id = nested_well_material.id and
+		nested_well_material.maty_id = (select id from material_types where code = 'GENE');
+	
+	if counter = 0 then 
+		-- skip migration if there are no genes indirectly connected to oligo wells
+		return;
+	end if;   
 
+	--------------------------------------------------
+	-- create a gene property and assign it to oligo well
+	--------------------------------------------------
+
+	insert into property_types(
+		id, 
+		code, description, label, 
+		daty_id,
+		pers_id_registerer,
+		dbin_id,
+		maty_prop_id) 
+	values(
+			nextval('PROPERTY_TYPE_ID_SEQ'), 
+			'GENE','Inhibited gene','Gene',
+			(select id from data_types where code = 'MATERIAL'), 
+			(select id from persons where user_id ='system'), 
+			(select id from database_instances where code = 'SYSTEM_DEFAULT'), 
+			(select id from material_types where code = 'GENE')
+		);
+		
+	insert into sample_type_property_types( 
+	  id,
+	  saty_id,
+	  prty_id,
+	  is_mandatory,
+	  pers_id_regis	terer,
+	  ordinal
+	) values(
+			nextval('stpt_id_seq'), 
+			(select id from sample_types where code = 'OLIGO_WELL'),
+			(select id from property_types where code = 'GENE'),
+			false,
+			(select id from persons where user_id ='system'),
+			(select max(ordinal)+1 from sample_type_property_types 
+				where saty_id = (select id from sample_types where code = 'OLIGO_WELL'))
+		);
+
+	--------------------------------------------------
+	-- create a gene material property for each oligo well
+	--------------------------------------------------
+
+	insert into sample_properties(id, samp_id, stpt_id, mate_prop_id, pers_id_registerer) (
+		select 	nextval('sample_id_seq') id, 
+			well.id samp_id, 
+			(select stpt.id from sample_type_property_types stpt, property_types props where stpt.prty_id = props.id and props.code='GENE') stpt_id,
+			nested_well_material.id mate_prop_id,
+			(select id from persons where user_id ='system') pers_id_registerer 
+		from
+			samples well, sample_types well_type, sample_properties well_props, 
+			materials well_material, material_properties well_material_props,
+			materials nested_well_material
+		where
+			well_type.code = 'OLIGO_WELL' and
+			-- find 'well_material' assigned to the well
+			well_props.samp_id = well.id and well_material.id = well_props.mate_prop_id and 
+			-- additional joins to entity type tables
+			well_type.id = well.saty_id and
+			-- well content material property
+			well_material_props.mate_id = well_material.id and 
+			-- material connected to the material in the well (e.g. gene)
+			well_material_props.mate_prop_id = nested_well_material.id and
+			nested_well_material.maty_id = (select id from material_types where code = 'GENE')
+	);
+
+END;
+$$ LANGUAGE 'plpgsql';
+
+select CONNECT_WELLS_WITH_GENES();
+drop function CONNECT_WELLS_WITH_GENES();
+
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
 
 
 
