@@ -99,7 +99,7 @@
       -->
     <target name="run-tests" depends="compile-tests">
         <delete dir="${output.test}" />
-        <testng classpath="${ecp}" workingDir="." outputdir="${output.test}" haltonfailure="true">
+        <testng classpath="${ecp}" workingDir="." outputdir="${output.test}" failureproperty="tests.failed">
            <xmlfileset dir="${sources.test}" includes="${test.suite}" />
         </testng>
         <junitreport todir="${output.test}">
@@ -108,6 +108,7 @@
     			 </fileset>
            <report format="noframes" todir="${output.test}"/>
         </junitreport>
+        <fail if="tests.failed" message="At least one test failed."/>    
     </target>
 
     <target name="ci">
