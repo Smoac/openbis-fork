@@ -20,14 +20,13 @@ export DSS_PRODUCTIVE=~openbis/sprint/datastore_server/etc/service.properties
 export MAIL_LIST="manuel.kohler@bsse.ethz.ch"
 export BOX=`uname -n`
 export PLATFORM=`uname -s`
-export LN=/usr/bin/ln
 
-#if [ $PLATFORM = "SunOS" ];
-#then
-#  export MAILX="/usr/bin/mailx"
-#else 
-#  export MAILX="/bin/mail"
-#fi
+if [ $PLATFORM = "SunOS" ];
+then
+  export LN=/usr/bin/ln
+else 
+  export LN=/bin/ln
+fi
 
 umask 077
 
