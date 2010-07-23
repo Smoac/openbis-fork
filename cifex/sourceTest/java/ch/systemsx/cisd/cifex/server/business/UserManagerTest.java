@@ -44,7 +44,6 @@ import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -55,8 +54,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 @Friend(toClasses = UserManager.class)
 public class UserManagerTest extends AbstractFileSystemTestCase
 {
-
-    private static final String TOKEN = "token";
 
     private Mockery context;
 
@@ -477,10 +474,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).listUsersByCode(userId);
                     will(returnValue(Collections.emptyList()));
 
-                    one(externalAuthService).authenticateApplication();
-                    will(returnValue(TOKEN));
-
-                    one(externalAuthService).getPrincipal(TOKEN, userId);
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
                     will(returnValue(new Principal(userId, firstName, lastName, email)));
 
                     one(businessContext).isNewExternallyAuthenticatedUserStartActive();
@@ -515,15 +509,11 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).listUsersByEmail(email);
                     will(returnValue(Collections.emptyList()));
 
-                    one(externalAuthService).authenticateApplication();
-                    will(returnValue(TOKEN));
-
                     one(externalAuthService).supportsListingByEmail();
                     will(returnValue(true));
 
-                    one(externalAuthService).listPrincipalsByEmail(TOKEN, email);
-                    will(returnValue(Arrays
-                            .asList(new Principal(userId, firstName, lastName, email))));
+                    one(externalAuthService).tryGetAndAuthenticateUserByEmail(email, null);
+                    will(returnValue(new Principal(userId, firstName, lastName, email)));
 
                     one(businessContext).isNewExternallyAuthenticatedUserStartActive();
                     will(returnValue(active));
@@ -593,21 +583,17 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).listUsersByEmail(email3);
                     will(returnValue(new ArrayList<UserDTO>()));
 
-                    one(externalAuthService).authenticateApplication();
-                    will(returnValue(TOKEN));
-
-                    one(externalAuthService).getPrincipal(TOKEN, userId);
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
                     will(returnValue(new Principal(userId, firstName, lastName, email)));
 
-                    one(externalAuthService).getPrincipal(TOKEN, userId2);
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId2, null);
                     will(returnValue(new Principal(userId2, firstName, lastName2, email2)));
 
                     one(externalAuthService).supportsListingByEmail();
                     will(returnValue(true));
 
-                    one(externalAuthService).listPrincipalsByEmail(TOKEN, email3);
-                    will(returnValue(Arrays.asList(new Principal(userId3, firstName, lastName3,
-                            email3))));
+                    one(externalAuthService).tryGetAndAuthenticateUserByEmail(email3, null);
+                    will(returnValue(new Principal(userId3, firstName, lastName3, email3)));
 
                     exactly(3).of(businessContext).isNewExternallyAuthenticatedUserStartActive();
                     will(returnValue(active));
@@ -791,36 +777,11 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).listUsersByCode(userId);
                     will(returnValue(Collections.emptyList()));
 
-                    one(externalAuthService).authenticateApplication();
-                    will(returnValue(TOKEN));
-
-                    one(externalAuthService).getPrincipal(TOKEN, userId);
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
                     will(returnValue(null));
                 }
             });
         assertTrue(userManager.getUsers(Arrays.asList(userId), null, null).isEmpty());
-        context.assertIsSatisfied();
-    }
-
-    @Test(expectedExceptions = EnvironmentFailureException.class)
-    public void testGetUsersExternalAuthenticationFails() throws Exception
-    {
-        final String userId = "newuser";
-        final String otherUserId = "other";
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-
-                    one(userDAO).listUsersByCode(userId, otherUserId);
-                    will(returnValue(new ArrayList<UserDTO>()));
-
-                    one(externalAuthService).authenticateApplication();
-                    will(returnValue(null));
-                }
-            });
-        assertTrue(userManager.getUsers(Arrays.asList(userId, otherUserId), null, null).isEmpty());
         context.assertIsSatisfied();
     }
 
