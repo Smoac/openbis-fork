@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropert
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -54,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -138,13 +141,17 @@ final class SampleListingWorker
 
     private final Long2ObjectMap<Experiment> experiments = new Long2ObjectOpenHashMap<Experiment>();
 
+    private final LongSet idsOfSamplesAwaitingParentResolution = new LongOpenHashSet();
+
     private final Long2ObjectMap<RelatedSampleRecord> samplesAwaitingParentResolution =
             new Long2ObjectOpenHashMap<RelatedSampleRecord>();
 
     private final Long2ObjectMap<RelatedSampleRecord> samplesAwaitingContainerResolution =
             new Long2ObjectOpenHashMap<RelatedSampleRecord>();
 
-    private final Long2IntMap requestedSamples = new Long2IntOpenHashMap();
+    private final Long2IntMap requestedContainerSamples = new Long2IntOpenHashMap();
+
+    private final Long2IntMap requestedParentSamples = new Long2IntOpenHashMap();
 
     private boolean singleSampleTypeMode;
 
@@ -155,6 +162,8 @@ final class SampleListingWorker
     private final Long2ObjectMap<Sample> sampleMap = new Long2ObjectOpenHashMap<Sample>();
 
     private final Long2ObjectMap<Space> spaceMap = new Long2ObjectOpenHashMap<Space>();
+
+    private final long parentRelationhipTypeId;
 
     public static SampleListingWorker create(ListOrSearchSampleCriteria criteria,
             String baseIndexURL, SampleListerDAO dao, SecondaryEntityDAO referencedEntityDAO)
@@ -190,6 +199,14 @@ final class SampleListingWorker
         this.samplePropertiesEnricherOrNull = samplePropertiesEnricherOrNull;
         this.enrichDependentSamples = criteria.isEnrichDependentSamplesWithProperties();
         this.referencedEntityDAO = referencedEntityDAO;
+        this.parentRelationhipTypeId =
+                getRelationId(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+    }
+
+    private long getRelationId(String fullRelationCode)
+    {
+        return query.getRelationshipTypeId(CodeConverter.tryToDatabase(fullRelationCode),
+                CodeConverter.isInternalNamespace(fullRelationCode));
     }
 
     //
@@ -227,7 +244,7 @@ final class SampleListingWorker
             // only 'primary' samples were retrieved up to this point
             enrichRetrievedSamplesWithProperties(watch);
         }
-        retrieveDependentSamplesRecursively();
+        retrieveDependentSamplesRecursively(true);
         resolveParents();
         resolveContainers();
         if (enrichDependentSamples)
@@ -373,9 +390,9 @@ final class SampleListingWorker
         String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
-            return query.getAllGroupSamples(databaseInstanceId);
+            return query.getAllListableGroupSamples(databaseInstanceId);
         }
-        return query.getGroupSamples(databaseInstanceId, groupCode);
+        return query.getListableGroupSamples(databaseInstanceId, groupCode);
     }
 
     private Iterable<SampleRecord> getGroupSamplesForSampleType()
@@ -439,7 +456,7 @@ final class SampleListingWorker
         {
             return null;
         }
-        return query.getSamplesForParent(parentTechId.getId());
+        return query.getChildrenSamplesForParent(parentRelationhipTypeId, parentTechId.getId());
     }
 
     private Iterable<SampleRecord> tryGetIteratorForSharedSamples()
@@ -454,7 +471,7 @@ final class SampleListingWorker
             return query.getSharedSamplesForSampleType(databaseInstanceId, sampleTypeId);
         } else
         {
-            return query.getSharedSamples(databaseInstanceId);
+            return query.getListableSharedSamples(databaseInstanceId);
         }
     }
 
@@ -560,15 +577,12 @@ final class SampleListingWorker
             }
         }
         // prepare loading related samples
-        if (row.samp_id_generated_from != null & maxSampleParentResolutionDepth > 0)
+        if (maxSampleParentResolutionDepth > 0)
         {
-            if (samplesAwaitingParentResolution.containsKey(row.id) == false)
+            if (idsOfSamplesAwaitingParentResolution.contains(row.id) == false)
             {
-                samplesAwaitingParentResolution.put(row.id, new RelatedSampleRecord(sample,
-                        row.samp_id_generated_from));
+                idsOfSamplesAwaitingParentResolution.add(row.id);
             }
-            addRelatedParentSampleToRequested(row.samp_id_generated_from, row.id,
-                    maxSampleParentResolutionDepth, primarySample);
         }
         // even though sample container resolution depth may be 0 we still need to load container
         // to create a 'full' code with container code part
@@ -600,33 +614,40 @@ final class SampleListingWorker
         sample.setIdentifier(new SampleIdentifier(dbId, sample.getCode()).toString());
     }
 
-    private void addRelatedContainerSampleToRequested(long relatedSampleId)
+    private void addRelatedContainerSampleToRequested(long containerId)
     {
         // for containers we need to load only their codes - connected samples are not needed
-        addOrUpdateRequestedSample(relatedSampleId, 0);
+        addOrUpdateRequestedContainerSample(containerId, 0);
     }
 
-    private void addRelatedParentSampleToRequested(long relatedSampleId, long oldSampleId,
+    private void addOrUpdateRequestedContainerSample(long sampleId, int newDepth)
+    {
+        // if sample was already requested update depth to maximum of old and new depth
+        int oldDepth = requestedContainerSamples.get(sampleId);
+        requestedContainerSamples.put(sampleId, Math.max(oldDepth, newDepth));
+    }
+
+    private void addRelatedParentSampleToRequested(long parentId, long oldSampleId,
             int initialDepth, boolean primarySample)
     {
         if (primarySample)
         {
-            addOrUpdateRequestedSample(relatedSampleId, initialDepth);
+            addOrUpdateRequestedParentSample(parentId, initialDepth);
         } else
         {
-            final int depthLeft = requestedSamples.get(oldSampleId) - 1;
+            final int depthLeft = requestedParentSamples.get(oldSampleId) - 1;
             if (depthLeft > 0)
             {
-                addOrUpdateRequestedSample(relatedSampleId, depthLeft);
+                addOrUpdateRequestedParentSample(parentId, depthLeft);
             }
         }
     }
 
-    private void addOrUpdateRequestedSample(long sampleId, int newDepth)
+    private void addOrUpdateRequestedParentSample(long sampleId, int newDepth)
     {
         // if sample was already requested update depth to maximum of old and new depth
-        int oldDepth = requestedSamples.get(sampleId);
-        requestedSamples.put(sampleId, Math.max(oldDepth, newDepth));
+        int oldDepth = requestedParentSamples.get(sampleId);
+        requestedParentSamples.put(sampleId, Math.max(oldDepth, newDepth));
     }
 
     private Experiment getOrCreateExperiment(SampleRecord row)
@@ -655,15 +676,27 @@ final class SampleListingWorker
         return registrator;
     }
 
-    private void retrieveDependentSamplesRecursively()
+    private void retrieveDependentSamplesRecursively(boolean primary)
     {
-        if (requestedSamples.size() == 0)
+        Iterable<SampleRelationRecord> parentRelations =
+                query.getParentRelations(parentRelationhipTypeId,
+                        idsOfSamplesAwaitingParentResolution);
+        for (SampleRelationRecord relation : parentRelations)
+        {
+            samplesAwaitingParentResolution.put(relation.sample_id_child, new RelatedSampleRecord(
+                    sampleMap.get(relation.sample_id_child), relation.sample_id_parent));
+            addRelatedParentSampleToRequested(relation.sample_id_parent, relation.sample_id_child,
+                    maxSampleParentResolutionDepth, primary);
+        }
+        requestedContainerSamples.keySet().removeAll(sampleMap.keySet());
+        requestedParentSamples.keySet().removeAll(sampleMap.keySet());
+        if (requestedContainerSamples.size() + requestedParentSamples.size() == 0)
         {
             return;
         }
-        requestedSamples.keySet().removeAll(sampleMap.keySet());
-        retrieveDependentBasicSamples(query.getSamples(requestedSamples.keySet()));
-        retrieveDependentSamplesRecursively();
+        retrieveDependentBasicSamples(query.getSamples(requestedContainerSamples.keySet()));
+        retrieveDependentBasicSamples(query.getSamples(requestedParentSamples.keySet()));
+        retrieveDependentSamplesRecursively(false);
     }
 
     private void resolveParents()

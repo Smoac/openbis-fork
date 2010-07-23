@@ -106,6 +106,10 @@ public final class TableNames
 
     public static final String SAMPLES_TABLE = "samples";
 
+    public static final String SAMPLE_RELATIONSHIPS_TABLE = "sample_relationships";
+
+    public static final String RELATIONSHIP_TYPES_TABLE = "relationship_types";
+
     public static final String EVENTS_TABLE = "events";
 
     public static final String AUTHORIZATION_GROUPS_TABLE = "authorization_groups";

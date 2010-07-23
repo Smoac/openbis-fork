@@ -394,7 +394,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             operationLog.info(String.format("Auto resolve redirect: '%s', context: %s",
                     newLocation, newContext));
         }
-        response.sendRedirect(response.encodeRedirectURL(newLocation));
+        response.sendRedirect(newLocation);
     }
 
     private void createPage(IRendererFactory rendererFactory, HttpServletResponse response,

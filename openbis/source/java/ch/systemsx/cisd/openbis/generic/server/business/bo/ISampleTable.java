@@ -19,10 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -34,15 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 public interface ISampleTable
 {
-    /**
-     * Use {@link ISampleLister} instead.<br>
-     * Lists sample of a particular type.
-     * <p>
-     * Container and generator fields will be initialized up to the specified nesting level.
-     * </p>
-     */
-    @Deprecated
-    void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria);
 
     /**
      * Lists samples filtered by specified criteria, see {@link ListSamplesByPropertyCriteria} to

@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -183,6 +187,26 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
     public List<T> listAllEntities() throws DataAccessException
     {
         return cast(getHibernateTemplate().loadAll(getEntityClass()));
+    }
+
+    protected static List<Long> transformTechIds2Longs(Collection<TechId> techIds)
+    {
+        final List<Long> result = new ArrayList<Long>(techIds.size());
+        for (TechId techId : techIds)
+        {
+            result.add(techId.getId());
+        }
+        return result;
+    }
+
+    protected static Set<TechId> transformNumbers2TechIds(Collection<? extends Number> numbers)
+    {
+        final Set<TechId> result = new HashSet<TechId>();
+        for (Number number : numbers)
+        {
+            result.add(new TechId(number));
+        }
+        return result;
     }
 
 }

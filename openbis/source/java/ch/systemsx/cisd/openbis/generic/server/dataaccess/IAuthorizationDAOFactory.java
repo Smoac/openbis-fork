@@ -70,4 +70,6 @@ public interface IAuthorizationDAOFactory
     public IGridCustomColumnDAO getGridCustomColumnDAO();
 
     public IQueryDAO getQueryDAO();
+
+    public IRelationshipTypeDAO getRelationshipTypeDAO();
 }

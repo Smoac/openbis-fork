@@ -12,8 +12,8 @@ ALTER TABLE relationship_types ADD CONSTRAINT rety_pk PRIMARY KEY (id);
 ALTER TABLE relationship_types ADD CONSTRAINT rety_uk UNIQUE(code,dbin_id);
 ALTER TABLE sample_relationships ADD CONSTRAINT sare_pk PRIMARY KEY (id);
 ALTER TABLE sample_relationships ADD CONSTRAINT sare_bk_uk UNIQUE(sample_id_child,sample_id_parent,relationship_id);
-ALTER TABLE sample_relationships ADD CONSTRAINT sare_data_fk_child FOREIGN KEY (sample_id_child) REFERENCES samples(id);
-ALTER TABLE sample_relationships ADD CONSTRAINT sare_data_fk_parent FOREIGN KEY (sample_id_parent) REFERENCES samples(id);
+ALTER TABLE sample_relationships ADD CONSTRAINT sare_data_fk_child FOREIGN KEY (sample_id_child) REFERENCES samples(id) ON DELETE CASCADE;
+ALTER TABLE sample_relationships ADD CONSTRAINT sare_data_fk_parent FOREIGN KEY (sample_id_parent) REFERENCES samples(id) ON DELETE CASCADE;
 ALTER TABLE sample_relationships ADD CONSTRAINT sare_data_fk_relationship FOREIGN KEY (relationship_id) REFERENCES relationship_types(id);
 
 -- Create index
@@ -23,7 +23,7 @@ CREATE INDEX sare_data_fk_i_relationship ON sample_relationships (relationship_i
 
 -- Create sequence for RELATIONSHIP_TYPES
 CREATE SEQUENCE RELATIONSHIP_TYPE_ID_SEQ;
-CREATE SEQUENCE SAMPLE_RELATIONSHIPS_ID_SEQ;
+CREATE SEQUENCE SAMPLE_RELATIONSHIP_ID_SEQ;
 
 -- Create initial relationships
 insert into relationship_types
@@ -78,8 +78,8 @@ nextval('RELATIONSHIP_TYPE_ID_SEQ'),
 
 
 -- Migrate sample relationships to new schema
-INSERT INTO sample_relationships (id, sample_id_parent,sample_id_child,relationship_id) (select distinct nextval('SAMPLE_RELATIONSHIPS_ID_SEQ') as id, s.SAMP_ID_GENERATED_FROM as parent_id, s.ID as child_id, rt.id as relationship_id from samples s, relationship_types rt  WHERE rt.code = 'PARENT_CHILD' and s.SAMP_ID_GENERATED_FROM is not null); 
-INSERT INTO sample_relationships (id, sample_id_parent,sample_id_child,relationship_id) (select distinct nextval('SAMPLE_RELATIONSHIPS_ID_SEQ') as id, s.SAMP_ID_CONTROL_LAYOUT as parent_id, s.ID as child_id, rt.id as relationship_id from samples s, relationship_types rt  WHERE rt.code = 'PLATE_CONTROL_LAYOUT' and s.SAMP_ID_CONTROL_LAYOUT is not null);
+INSERT INTO sample_relationships (id, sample_id_parent,sample_id_child,relationship_id) (select distinct nextval('SAMPLE_RELATIONSHIP_ID_SEQ') as id, s.SAMP_ID_GENERATED_FROM as parent_id, s.ID as child_id, rt.id as relationship_id from samples s, relationship_types rt  WHERE rt.code = 'PARENT_CHILD' and s.SAMP_ID_GENERATED_FROM is not null); 
+INSERT INTO sample_relationships (id, sample_id_parent,sample_id_child,relationship_id) (select distinct nextval('SAMPLE_RELATIONSHIP_ID_SEQ') as id, s.SAMP_ID_CONTROL_LAYOUT as parent_id, s.ID as child_id, rt.id as relationship_id from samples s, relationship_types rt  WHERE rt.code = 'PLATE_CONTROL_LAYOUT' and s.SAMP_ID_CONTROL_LAYOUT is not null);
 
 -- Drop old sample relations
 ALTER TABLE SAMPLES DROP COLUMN SAMP_ID_TOP;

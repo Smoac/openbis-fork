@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
@@ -58,6 +59,8 @@ public abstract class AbstractBOTest extends AssertJUnit
     IDAOFactory daoFactory;
 
     IGroupDAO groupDAO;
+
+    IRelationshipTypeDAO relationshipTypeDAO;
 
     IExperimentDAO experimentDAO;
 
@@ -109,6 +112,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         context = new Mockery();
         daoFactory = context.mock(IDAOFactory.class);
         groupDAO = context.mock(IGroupDAO.class);
+        relationshipTypeDAO = context.mock(IRelationshipTypeDAO.class);
         experimentDAO = context.mock(IExperimentDAO.class);
         projectDAO = context.mock(IProjectDAO.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);

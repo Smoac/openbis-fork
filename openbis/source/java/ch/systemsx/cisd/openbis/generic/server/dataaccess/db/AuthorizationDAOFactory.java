@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
@@ -82,6 +83,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     private final PersistencyResources persistencyResources;
 
+    private final IRelationshipTypeDAO relationshipTypeDAO;
+
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory,
             final IFullTextIndexUpdateScheduler indexUpdateScheduler)
@@ -99,6 +102,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory, homeDatabaseInstance);
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, homeDatabaseInstance);
         queryDAO = new QueryDAO(sessionFactory, homeDatabaseInstance);
+        relationshipTypeDAO = new RelationshipTypeDAO(sessionFactory, homeDatabaseInstance);
     }
 
     public final PersistencyResources getPersistencyResources()
@@ -228,6 +232,11 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public IQueryDAO getQueryDAO()
     {
         return queryDAO;
+    }
+
+    public IRelationshipTypeDAO getRelationshipTypeDAO()
+    {
+        return relationshipTypeDAO;
     }
 
     /**

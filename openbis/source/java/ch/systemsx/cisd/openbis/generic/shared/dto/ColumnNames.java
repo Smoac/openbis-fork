@@ -138,6 +138,10 @@ public final class ColumnNames
 
     public static final String LABEL_COLUMN = "label";
 
+    public static final String PARENT_LABEL_COLUMN = "parent_label";
+
+    public static final String CHILD_LABEL_COLUMN = "child_label";
+
     public final static String LAST_NAME_COLUMN = "last_name";
 
     public static final String LOCATION_COLUMN = "location";
@@ -147,6 +151,12 @@ public final class ColumnNames
     public static final String MATERIAL_BATCH_COLUMN = "maba_id";
 
     public static final String MATERIAL_COLUMN = "mate_id";
+
+    public static final String PARENT_SAMPLE_COLUMN = "sample_id_parent";
+
+    public static final String CHILD_SAMPLE_COLUMN = "sample_id_child";
+
+    public static final String RELATIONSHIP_COLUMN = "relationship_id";
 
     public static final String MATERIAL_TYPE_COLUMN = "maty_id";
 

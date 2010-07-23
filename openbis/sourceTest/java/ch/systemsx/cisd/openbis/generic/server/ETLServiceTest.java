@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -56,8 +57,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -319,12 +322,14 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(sample));
                 }
             });
-        
-        SampleIdentifier identifier = createService().tryToGetSampleIdentifier(SESSION_TOKEN, "abc");
-        
+
+        SampleIdentifier identifier =
+                createService().tryToGetSampleIdentifier(SESSION_TOKEN, "abc");
+
         assertEquals("s42", identifier.toString());
         context.assertIsSatisfied();
     }
+
     @Test
     public void testGetSampleType()
     {
@@ -390,8 +395,14 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
-        SamplePE sample = new SamplePE();
-        sample.setTop(new SamplePE());
+        SamplePE sample = createSample("s1");
+        SamplePE top = createSample("s2");
+        SamplePE parent = createSample("s3");
+        parent.addParentRelationship(new SampleRelationshipPE(top, parent,
+                createParentChildRelation()));
+        sample.addParentRelationship(new SampleRelationshipPE(parent, sample,
+                createParentChildRelation()));
+
         prepareLoadSample(sampleIdentifier, sample);
 
         IEntityProperty[] properties =
@@ -407,10 +418,14 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
-        SamplePE sample = new SamplePE();
-        SamplePE top = new SamplePE();
+        SamplePE sample = createSample("s1");
+        SamplePE top = createSample("s2");
+        SamplePE parent = createSample("s3");
+        parent.addParentRelationship(new SampleRelationshipPE(top, parent,
+                createParentChildRelation()));
+        sample.addParentRelationship(new SampleRelationshipPE(parent, sample,
+                createParentChildRelation()));
         SamplePropertyPE property = setAnyProperty(top);
-        sample.setTop(top);
         prepareLoadSample(sampleIdentifier, sample);
 
         IEntityProperty[] properties =
@@ -420,6 +435,20 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals(1, properties.length);
         assertEquals(property.getValue(), properties[0].getValue());
         context.assertIsSatisfied();
+    }
+
+    private SamplePE createSample(String code)
+    {
+        SamplePE sample = new SamplePE();
+        sample.setCode(code);
+        return sample;
+    }
+
+    private RelationshipTypePE createParentChildRelation()
+    {
+        RelationshipTypePE relationship2 = new RelationshipTypePE();
+        relationship2.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        return relationship2;
     }
 
     private SamplePropertyPE setAnyProperty(SamplePE top)

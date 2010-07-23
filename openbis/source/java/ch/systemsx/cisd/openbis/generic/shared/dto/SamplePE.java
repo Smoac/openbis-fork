@@ -20,8 +20,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -63,6 +65,7 @@ import org.hibernate.validator.Pattern;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -103,17 +106,130 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private SampleIdentifier sampleIdentifier;
 
-    private SamplePE controlLayout;
-
     private SamplePE container;
-
-    private SamplePE top;
-
-    private SamplePE generatedFrom;
 
     private ExperimentPE experiment;
 
     private String permId;
+
+    private Set<SampleRelationshipPE> parentRelationships = new HashSet<SampleRelationshipPE>();
+
+    private Set<SampleRelationshipPE> childRelationships = new HashSet<SampleRelationshipPE>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSample")
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<SampleRelationshipPE> getSampleChildRelationships()
+    {
+        return childRelationships;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setSampleChildRelationships(final Set<SampleRelationshipPE> childRelationships)
+    {
+        this.childRelationships = childRelationships;
+    }
+
+    @Transient
+    public Set<SampleRelationshipPE> getChildRelationships()
+    {
+
+        return new UnmodifiableSetDecorator<SampleRelationshipPE>(getSampleChildRelationships());
+    }
+
+    /**
+     * Returns <code>true</code>, if and only if the relationships have been initialized.
+     */
+    @Transient
+    public boolean isChildRelationshipsInitialized()
+    {
+        return HibernateUtils.isInitialized(getSampleChildRelationships());
+    }
+
+    public void setChildRelationships(final Set<SampleRelationshipPE> childRelationships)
+    {
+        getSampleChildRelationships().clear();
+        for (final SampleRelationshipPE untypedRelationship : childRelationships)
+        {
+            SampleRelationshipPE sampleRelationship = untypedRelationship;
+            final SamplePE p = sampleRelationship.getParentSample();
+            if (p != null)
+            {
+                p.getSampleChildRelationships().remove(sampleRelationship);
+            }
+            addChildRelationship(sampleRelationship);
+        }
+    }
+
+    public void addChildRelationship(final SampleRelationshipPE relationship)
+    {
+        relationship.setParentSample(this);
+        getSampleChildRelationships().add(relationship);
+    }
+
+    public void removeChildRelationship(final SampleRelationshipPE relationship)
+    {
+        getSampleChildRelationships().remove(relationship);
+        relationship.setParentSample(null);
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "childSample")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<SampleRelationshipPE> getSampleParentRelationships()
+    {
+        return parentRelationships;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setSampleParentRelationships(final Set<SampleRelationshipPE> parentRelationships)
+    {
+        this.parentRelationships = parentRelationships;
+    }
+
+    @Transient
+    public Set<SampleRelationshipPE> getParentRelationships()
+    {
+
+        return new UnmodifiableSetDecorator<SampleRelationshipPE>(getSampleParentRelationships());
+    }
+
+    /**
+     * Returns <code>true</code>, if and only if the relationships have been initialized.
+     */
+    @Transient
+    public boolean isParentRelationshipsInitialized()
+    {
+        return HibernateUtils.isInitialized(getSampleParentRelationships());
+    }
+
+    public void setParentRelationships(final Set<SampleRelationshipPE> parentRelationships)
+    {
+        getSampleParentRelationships().clear();
+        for (final SampleRelationshipPE untypedRelationship : parentRelationships)
+        {
+            SampleRelationshipPE sampleRelationship = untypedRelationship;
+            final SamplePE parent = sampleRelationship.getChildSample();
+            if (parent != null)
+            {
+                parent.getSampleParentRelationships().remove(sampleRelationship);
+            }
+            addParentRelationship(sampleRelationship);
+        }
+    }
+
+    public void addParentRelationship(final SampleRelationshipPE relationship)
+    {
+        relationship.setChildSample(this);
+        getSampleParentRelationships().add(relationship);
+    }
+
+    public void removeParentRelationship(final SampleRelationshipPE relationship)
+    {
+        getSampleParentRelationships().remove(relationship);
+        relationship.setChildSample(null);
+    }
 
     /**
      * Invalidation information.
@@ -273,18 +389,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         this.properties = properties;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.CONTROL_LAYOUT_SAMPLE_COLUMN, updatable = false)
-    public SamplePE getControlLayout()
-    {
-        return controlLayout;
-    }
-
-    public void setControlLayout(final SamplePE controlLayout)
-    {
-        this.controlLayout = controlLayout;
-    }
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PART_OF_SAMPLE_COLUMN, updatable = true)
     public SamplePE getContainer()
@@ -297,28 +401,31 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         this.container = container;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.TOP_SAMPLE_COLUMN)
+    @Transient
     public SamplePE getTop()
     {
-        return top;
+        SamplePE parentPE = getGeneratedFrom();
+        if (parentPE != null)
+        {
+            return parentPE.getTop() == null ? parentPE : parentPE.getTop();
+        }
+        return null;
     }
 
-    public void setTop(final SamplePE top)
-    {
-        this.top = top;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.GENERATED_FROM_SAMPLE_COLUMN, updatable = true)
+    @Transient
     public SamplePE getGeneratedFrom()
     {
-        return generatedFrom;
-    }
-
-    public void setGeneratedFrom(final SamplePE generatedFrom)
-    {
-        this.generatedFrom = generatedFrom;
+        Set<SampleRelationshipPE> relationships = getParentRelationships();
+        for (SampleRelationshipPE r : relationships)
+        {
+            assert r.getChildSample().equals(this);
+            if (r.getRelationship().getCode().equals(
+                    BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP))
+            {
+                return r.getParentSample();
+            }
+        }
+        return null;
     }
 
     public void setExperiment(final ExperimentPE experiment)
@@ -586,9 +693,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     /** children of container hierarchy - added only to simplify testing */
     private List<SamplePE> contained = new ArrayList<SamplePE>();
 
-    /** children of generatedFrom hierarchy - added only to simplify testing */
-    private List<SamplePE> generated = new ArrayList<SamplePE>();
-
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "container")
     public List<SamplePE> getContained()
     {
@@ -601,16 +705,38 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         this.contained = contained;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "generatedFrom")
+    @Transient
     public List<SamplePE> getGenerated()
     {
-        return generated;
+        Set<SampleRelationshipPE> relationships = getChildRelationships();
+        List<SamplePE> samples = new ArrayList<SamplePE>();
+        for (SampleRelationshipPE r : relationships)
+        {
+            assert r.getParentSample().equals(this);
+            if (r.getRelationship().getCode().equals(
+                    BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP))
+            {
+                samples.add(r.getChildSample());
+            }
+        }
+        return samples;
     }
 
-    @SuppressWarnings("unused")
-    private void setGenerated(List<SamplePE> generated)
+    @Transient
+    public Map<RelationshipTypePE, Set<SamplePE>> getParentsMap()
     {
-        this.generated = generated;
+        Map<RelationshipTypePE, Set<SamplePE>> map =
+                new HashMap<RelationshipTypePE, Set<SamplePE>>();
+        for (SampleRelationshipPE r : getParentRelationships())
+        {
+            RelationshipTypePE type = r.getRelationship();
+            if (map.get(type) == null)
+            {
+                map.put(type, new HashSet<SamplePE>());
+            }
+            map.get(type).add(r.getParentSample());
+        }
+        return map;
     }
 
 }

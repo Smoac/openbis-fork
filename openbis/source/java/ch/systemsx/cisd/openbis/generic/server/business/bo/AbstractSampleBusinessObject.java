@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -33,8 +37,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -186,15 +192,27 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     protected void setGeneratedFrom(final SampleIdentifier sampleIdentifier,
             final SamplePE samplePE, String parentIdentifier)
     {
+        for (SampleRelationshipPE r : samplePE.getParentRelationships())
+        {
+            if (r.getRelationship().getCode().equals(
+                    BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP))
+            {
+                samplePE.removeParentRelationship(r);
+            }
+        }
         final SamplePE parentPE = tryGetValidSample(parentIdentifier, sampleIdentifier);
         if (parentPE != null)
         {
-            samplePE.setGeneratedFrom(parentPE);
-            samplePE.setTop(parentPE.getTop() == null ? parentPE : parentPE.getTop());
-        } else
-        {
-            samplePE.setGeneratedFrom(null);
-            samplePE.setTop(null);
+            RelationshipTypePE relationship =
+                    getRelationshipTypeDAO().tryFindRelationshipTypeByCode(
+                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+            if (relationship == null)
+            {
+                throw new UserFailureException(
+                        "'Parent - Child' relationship definition could not be found.");
+            }
+            samplePE.addParentRelationship(new SampleRelationshipPE(parentPE, samplePE,
+                    relationship));
         }
     }
 
@@ -402,5 +420,58 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     {
         return experimentOrNull == null ? newExperimentOrNull == null : experimentOrNull
                 .equals(newExperimentOrNull);
+    }
+
+    /**
+     * Throws {@link UserFailureException} if adding specified parents to this data set will create
+     * a cycle in data set relationships.
+     */
+    protected void validateRelationshipGraph(Collection<SamplePE> parents, TechId relationship,
+            SamplePE sample)
+    {
+        // DFS from new parents that are to be added to this business object going in direction
+        // of parent relationship until:
+        // - all related ancestors are visited == graph has no cycles
+        // - we get to this business object == cycle is found
+        // NOTE: The assumption is that there were no cycles in the graph of relationship before.
+        // This algorithm will not find cycles that don't include this business object,
+        // although such cycles shouldn't cause it to loop forever.
+
+        // Algorithm operates only on data set ids to make it perform better
+        // - there is no need to join DB tables.
+        // To be able to inform user about the exact data set that cannot be connected as a parent
+        // we need start seeking cycles starting from each parent to be added separately. Otherwise
+        // we would need to get invoke more queries to DB (not going layer by layer of graph depth
+        // per query) or use BFS instead (which would also be slower in a general case).
+
+        for (SamplePE parentToAdd : parents)
+        {
+            validateRelationshipGraph(parentToAdd, relationship, sample);
+        }
+    }
+
+    private void validateRelationshipGraph(SamplePE parentToAdd, TechId relationship,
+            SamplePE sample)
+    {
+        final TechId sampleId = TechId.create(sample);
+        final Set<TechId> visited = new HashSet<TechId>();
+        Set<TechId> toVisit = new HashSet<TechId>();
+        toVisit.add(TechId.create(parentToAdd));
+        while (toVisit.isEmpty() == false)
+        {
+            if (toVisit.contains(sampleId))
+            {
+                throw UserFailureException.fromTemplate(
+                        "Sample '%s' is an ancestor of Sample '%s' "
+                                + "and cannot be at the same time set as its child.", sample
+                                .getIdentifier(), parentToAdd.getIdentifier());
+            } else
+            {
+                final Set<TechId> nextToVisit = getSampleDAO().listParents(toVisit, relationship);
+                visited.addAll(toVisit);
+                nextToVisit.removeAll(visited);
+                toVisit = nextToVisit;
+            }
+        }
     }
 }

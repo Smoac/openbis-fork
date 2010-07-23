@@ -62,7 +62,7 @@ public final class SampleHierarchyFiller
         while (generatedFromHierarchyDepth-- > 0 && generatedFrom != null)
         {
             generatedFrom = generatedFrom.getGeneratedFrom();
-            initialize(generatedFrom);
+            initialize(generatedFrom);// FIXME
         }
     }
 

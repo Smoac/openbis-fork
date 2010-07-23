@@ -62,6 +62,8 @@ public final class SequenceNames
 
     public static final String FILE_FORMAT_TYPE_SEQUENCE = "FILE_FORMAT_TYPE_ID_SEQ";
 
+    public static final String RELATIONSHIP_TYPE_SEQUENCE = "RELATIONSHIP_TYPE_ID_SEQ";
+
     public static final String GROUP_SEQUENCE = "GROUP_ID_SEQ";
 
     public static final String FILTER_SEQUENCE = "FILTER_ID_SEQ";
@@ -73,6 +75,8 @@ public final class SequenceNames
     public static final String MATERIAL_BATCH_SEQUENCE = "MATERIAL_BATCH_ID_SEQ";
 
     public static final String MATERIAL_PROPERTY_SEQUENCE = "MATERIAL_PROPERTY_ID_SEQ";
+
+    public static final String SAMPLE_RELATIONSHIPS_SEQUENCE = "SAMPLE_RELATIONSHIP_ID_SEQ";
 
     public static final String MATERIAL_SEQUENCE = "MATERIAL_ID_SEQ";
 

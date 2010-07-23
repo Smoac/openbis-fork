@@ -27,9 +27,7 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
@@ -37,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -70,53 +67,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     {
         super(daoFactory, session);
     }
-
-    private final List<SamplePE> listSamples(final SampleTypePE sampleType, final SampleOwner owner)
-    {
-        final ISampleDAO sampleDAO = getSampleDAO();
-        if (owner.isGroupLevel())
-        {
-            return sampleDAO.listSamplesWithPropertiesByTypeAndGroup(sampleType, owner
-                    .tryGetGroup());
-        } else
-        {
-            return sampleDAO.listSamplesWithPropertiesByTypeAndDatabaseInstance(sampleType, owner
-                    .tryGetDatabaseInstance());
-        }
-    }
-
-    private final List<SamplePE> listSamples(final SampleOwner owner)
-    {
-        final ISampleDAO sampleDAO = getSampleDAO();
-        List<SamplePE> allSamples;
-        if (owner.isGroupLevel())
-        {
-            allSamples = sampleDAO.listSamplesWithPropertiesByGroup(owner.tryGetGroup());
-        } else
-        {
-            allSamples =
-                    sampleDAO.listSamplesWithPropertiesByDatabaseInstance(owner
-                            .tryGetDatabaseInstance());
-        }
-        return filterUnlistable(allSamples);
-    }
-
-    private List<SamplePE> filterUnlistable(List<SamplePE> allSamples)
-    {
-        List<SamplePE> result = new ArrayList<SamplePE>();
-        for (SamplePE sample : allSamples)
-        {
-            if (sample.getSampleType().isListable())
-            {
-                result.add(sample);
-            }
-        }
-        return result;
-    }
-
-    //
-    // ISampleTable
-    //
 
     public final void loadSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
     {
@@ -205,54 +155,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                     .fromTemplate("No group with the name '%s' found!", groupCode);
         }
         return group;
-    }
-
-    public final void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria)
-    {
-        onlyNewSamples = false;
-        final TechId containerSampleId = criteria.getContainerSampleId();
-        final TechId experimentId = criteria.getExperimentId();
-        if (experimentId != null)
-        {
-            ExperimentPE experiment = getExperimentDAO().getByTechId(experimentId);
-            samples = getSampleDAO().listSamplesWithPropertiesByExperiment(experiment);
-        } else if (containerSampleId != null)
-        {
-            final SamplePE container = getSampleByTechId(containerSampleId);
-            samples = getSampleDAO().listSamplesWithPropertiesByContainer(container);
-        } else
-        {
-            final SampleTypePE criteriaTypePE = criteria.getSampleType();
-            assert criteriaTypePE != null : "criteria not set";
-            if (EntityType.isAllTypesCode(criteriaTypePE.getCode()))
-            {
-                samples = new ArrayList<SamplePE>();
-                for (final SampleOwnerIdentifier sampleOwnerIdentifier : criteria
-                        .getOwnerIdentifiers())
-                {
-                    final SampleOwner owner =
-                            getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
-                    samples.addAll(listSamples(owner));
-                }
-            } else
-            {
-                final SampleTypePE sampleType =
-                        getSampleTypeDAO().tryFindSampleTypeByExample(criteria.getSampleType());
-                if (sampleType == null)
-                {
-                    throw new UserFailureException("Cannot find a sample type matching to "
-                            + criteria.getSampleType());
-                }
-                samples = new ArrayList<SamplePE>();
-                for (final SampleOwnerIdentifier sampleOwnerIdentifier : criteria
-                        .getOwnerIdentifiers())
-                {
-                    final SampleOwner owner =
-                            getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
-                    samples.addAll(listSamples(sampleType, owner));
-                }
-            }
-        }
     }
 
     public final List<SamplePE> getSamples()

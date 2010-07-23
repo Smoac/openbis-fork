@@ -39,6 +39,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -74,17 +76,6 @@ public final class SampleDAOTest extends AbstractDAOTest
     }
 
     @Test
-    public final void testListGroupSamples()
-    {
-        final SamplePE sample = createGroupSample();
-        final List<SamplePE> samples =
-                daoFactory.getSampleDAO().listSamplesWithPropertiesByTypeAndGroup(
-                        sample.getSampleType(), sample.getGroup());
-        assertEquals(1, samples.size());
-        assertEquals(sample, samples.get(0));
-    }
-
-    @Test
     public final void testListSamplesFetchRelations()
     {
         final SampleTypePE type1 = getSampleType("MASTER_PLATE");
@@ -92,29 +83,44 @@ public final class SampleDAOTest extends AbstractDAOTest
         final SampleTypePE type3 = getSampleType("CELL_PLATE");
         type3.setContainerHierarchyDepth(1);
         type3.setGeneratedFromHierarchyDepth(1);
-        final SamplePE sampleA = createSample(type1, "grandParent");
-        final SamplePE sampleB = createDerivedSample(type2, "parent", sampleA);
-        SamplePE sampleC = createDerivedSample(type3, "child", sampleB);
-        save(sampleA, sampleB, sampleC);
-        final SamplePE superContainer = createSample(type2, "superContainer");
-        final SamplePE container = createContainedSample(type2, "container", superContainer);
-        final SamplePE well = createContainedSample(type3, "well", container);
-        save(superContainer, container, well);
+        SamplePE grandParent = createSample(type1, "grandParent");
+        save(grandParent);
+        SamplePE parent = createDerivedSample(type2, "parent", grandParent);
+        save(parent);
+        SamplePE child1 = createDerivedSample(type3, "child1", parent);
+        save(child1);
+        SamplePE child2 = createDerivedSample(type3, "child2", parent);
+        save(child2);
+        final SamplePE container = createSample(type2, "container");
+        save(container);
+        parent.setContainer(container);
 
         // clear session to avoid using samples from first level cache
         final Session currentSession = sessionFactory.getCurrentSession();
         currentSession.flush();
         currentSession.clear();
 
-        final List<SamplePE> samples = listSamplesFromHomeDatabase(type3);
-        final SamplePE foundWell = findSample(well, samples);
-        assertTrue(HibernateUtils.isInitialized(foundWell.getContainer()));
-        // final SamplePE foundContainer = foundWell.getContainer();
-        // assertFalse(HibernateUtils.isInitialized(foundContainer.getContainer()));
-        sampleC = findSample(sampleC, samples);
-        assertTrue(HibernateUtils.isInitialized(sampleC.getGeneratedFrom()));
-        final SamplePE parent = sampleC.getGeneratedFrom();
-        assertFalse(HibernateUtils.isInitialized(parent.getGeneratedFrom()));
+        final List<SamplePE> children =
+                daoFactory.getSampleDAO().listSamplesByGeneratedFrom(parent);
+        child1 = findSample(child1, children);
+        child2 = findSample(child2, children);
+        assertTrue(HibernateUtils.isInitialized(child1.getGeneratedFrom()));
+        assertTrue(HibernateUtils.isInitialized(child2.getGeneratedFrom()));
+        assertEquals(child1.getGeneratedFrom(), child2.getGeneratedFrom());
+
+        assertEquals(parent, child1.getGeneratedFrom());
+        parent = child1.getGeneratedFrom();
+        assertTrue(HibernateUtils.isInitialized(parent.getGeneratedFrom()));
+        assertEquals(grandParent, parent.getGeneratedFrom());
+        assertTrue(HibernateUtils.isInitialized(parent.getContainer()));
+        assertEquals(container, parent.getContainer());
+    }
+
+    private final SamplePE findSample(final SamplePE sample, final List<SamplePE> samples)
+    {
+        final int sampleIx = samples.indexOf(sample);
+        assert sampleIx != -1 : "sample not found " + sample;
+        return samples.get(sampleIx);
     }
 
     @Test
@@ -237,10 +243,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     @Test
     public final void testTryFindByCodeAndDatabaseInstance()
     {
-        final SampleTypePE sampleType = getSampleType(MASTER_PLATE);
-        final List<SamplePE> samples = listSamplesFromHomeDatabase(sampleType);
         final DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        final SamplePE sample = samples.get(0);
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         boolean fail = true;
         try
@@ -251,8 +254,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             fail = false;
         }
         assertFalse(fail);
-        assertEquals(sample, sampleDAO.tryFindByCodeAndDatabaseInstance(sample.getCode(),
-                homeDatabaseInstance));
+        assertNotNull(sampleDAO.tryFindByCodeAndDatabaseInstance("MP", homeDatabaseInstance));
         assertNull(sampleDAO.tryFindByCodeAndDatabaseInstance("", homeDatabaseInstance));
     }
 
@@ -272,28 +274,6 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertFalse(fail);
         assertEquals(sample, sampleDAO.tryFindByCodeAndGroup(sample.getCode(), sample.getGroup()));
         assertNull(sampleDAO.tryFindByCodeAndGroup("", sample.getGroup()));
-    }
-
-    @Test
-    public final void testListSamplesByContainer()
-    {
-        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        boolean fail = true;
-        try
-        {
-            sampleDAO.listSamplesWithPropertiesByContainer(null);
-        } catch (final AssertionError e)
-        {
-            fail = false;
-        }
-        assertFalse(fail);
-        final String masterPlateCode = "MP";
-        final DatabaseInstancePE homeInstance = daoFactory.getHomeDatabaseInstance();
-        final SamplePE sample =
-                sampleDAO.tryFindByCodeAndDatabaseInstance(masterPlateCode, homeInstance);
-        assertNotNull(sample);
-        final List<SamplePE> samples = sampleDAO.listSamplesWithPropertiesByContainer(sample);
-        assertEquals(320, samples.size());
     }
 
     private final SamplePE findSample(String code, String groupCode)
@@ -425,8 +405,8 @@ public final class SampleDAOTest extends AbstractDAOTest
         deleteSample(deletedSample);
     }
 
-    @Test(expectedExceptions = DataIntegrityViolationException.class)
-    public final void testDeleteFailWithGeneratedSamples()
+   
+    public final void testDeleteWithGeneratedSamples()
     {
         final SamplePE deletedSample = findSample("3VCP2", "CISD");
 
@@ -455,30 +435,6 @@ public final class SampleDAOTest extends AbstractDAOTest
 
         // delete
         deleteSample(deletedSample);
-    }
-
-    @Test
-    public final void testListSamplesBySimpleProperty()
-    {
-        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        GroupPE group = findGroup("CISD");
-
-        List<SamplePE> samples = sampleDAO.listSamplesByGroupAndProperty("SIZE", "321", group);
-
-        assertEquals(1, samples.size());
-        assertEquals("CP-TEST-2", samples.get(0).getCode());
-    }
-
-    @Test
-    public final void testListSamplesByVocabularyTermProperty()
-    {
-        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        GroupPE group = findGroup("CISD");
-
-        List<SamplePE> samples =
-                sampleDAO.listSamplesByGroupAndProperty("ORGANISM", "HUMAN", group);
-        assertEquals(1, samples.size());
-        assertEquals("CP-TEST-1", samples.get(0).getCode());
     }
 
     private GroupPE findGroup(String groupCode)
@@ -511,20 +467,6 @@ public final class SampleDAOTest extends AbstractDAOTest
     //
     // Private methods
     //
-
-    private final List<SamplePE> listSamplesFromHomeDatabase(final SampleTypePE sampleType)
-    {
-        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        return sampleDAO.listSamplesWithPropertiesByTypeAndDatabaseInstance(sampleType, daoFactory
-                .getHomeDatabaseInstance());
-    }
-
-    private final SamplePE findSample(final SamplePE sample, final List<SamplePE> samples)
-    {
-        final int sampleIx = samples.indexOf(sample);
-        assert sampleIx != -1 : "sample not found " + sample;
-        return samples.get(sampleIx);
-    }
 
     private final void save(final SamplePE... samples)
     {
@@ -596,7 +538,12 @@ public final class SampleDAOTest extends AbstractDAOTest
         sample.setSampleType(type);
         sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         sample.setGroup(sampleOwner.tryGetGroup());
-        sample.setGeneratedFrom(generatorOrNull);
+        if (generatorOrNull != null)
+        {
+            sample.addParentRelationship(new SampleRelationshipPE(generatorOrNull, sample,
+                    daoFactory.getRelationshipTypeDAO().tryFindRelationshipTypeByCode(
+                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP)));
+        }
         sample.setContainer(containerOrNull);
         return sample;
     }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -23,11 +24,9 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
  * An interface that contains all data access operations on {@link SamplePE}s.
@@ -75,44 +74,16 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample) throws DataAccessException;
 
     /**
-     * Lists {@link SamplePE}s belonging to given <code>experiment</code>. Fetches also properties.
+     * @return Unique set of ids of parents of data sets specified by ids.
+     *         <p>
+     *         NOTE: does not check if specified ids are proper data set ids.
      */
-    public List<SamplePE> listSamplesWithPropertiesByExperiment(final ExperimentPE experiment)
-            throws DataAccessException;
 
     /**
-     * Lists all {@link SamplePE}s which are part of the specified <var>container</var>. Fetches
-     * also properties and experiment.
+     * Returns ids of parents of samples specified by given ids and connected by chosen relationship
+     * type.
      */
-    List<SamplePE> listSamplesWithPropertiesByContainer(final SamplePE container)
-            throws DataAccessException;
-
-    /**
-     * Lists {@link SamplePE}s of given group. Fetches also properties and experiment.
-     */
-    List<SamplePE> listSamplesWithPropertiesByGroup(final GroupPE group) throws DataAccessException;
-
-    /**
-     * The same as {@link #listSamplesWithPropertiesByGroup(GroupPE)}, but lists samples from the
-     * database instance instead of the group.
-     */
-    List<SamplePE> listSamplesWithPropertiesByDatabaseInstance(
-            final DatabaseInstancePE databaseInstance) throws DataAccessException;
-
-    /**
-     * Lists {@link SamplePE}s of given type from the given group. Fetches also properties and
-     * experiment.
-     */
-    List<SamplePE> listSamplesWithPropertiesByTypeAndGroup(final SampleTypePE sampleType,
-            final GroupPE group) throws DataAccessException;
-
-    /**
-     * The same as {@link #listSamplesWithPropertiesByTypeAndGroup(SampleTypePE, GroupPE)}, but
-     * lists samples from the database instance instead of the group.
-     */
-    List<SamplePE> listSamplesWithPropertiesByTypeAndDatabaseInstance(
-            final SampleTypePE sampleType, final DatabaseInstancePE databaseInstance)
-            throws DataAccessException;
+    public Set<TechId> listParents(Collection<TechId> children, TechId relationship);
 
     /**
      * Lists samples (with minimal additional information) belonging to the given <code>group</code>
@@ -121,13 +92,15 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     List<SamplePE> listSamplesByGroupAndProperty(final String propertyCode,
             final String propertyValue, final GroupPE group) throws DataAccessException;
 
-	/**
-     * Lists samples (with minimal additional information) with permanent identifier in given set of values.
+    /**
+     * Lists samples (with minimal additional information) with permanent identifier in given set of
+     * values.
      */
     List<SamplePE> listByPermID(Set<String> values);
 
     /**
      * Delete samples with given by specified registrator with specified reason.
      */
-    void delete(List<TechId> sampleIds, PersonPE registrator, String reason) throws DataAccessException;
+    void delete(List<TechId> sampleIds, PersonPE registrator, String reason)
+            throws DataAccessException;
 }

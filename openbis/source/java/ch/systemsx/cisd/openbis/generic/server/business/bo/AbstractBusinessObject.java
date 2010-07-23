@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -304,5 +305,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IQueryDAO getQueryDAO()
     {
         return daoFactory.getQueryDAO();
+    }
+
+    public IRelationshipTypeDAO getRelationshipTypeDAO()
+    {
+        return daoFactory.getRelationshipTypeDAO();
     }
 }

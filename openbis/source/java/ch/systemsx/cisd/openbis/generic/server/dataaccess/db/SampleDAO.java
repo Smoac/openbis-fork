@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SQLQuery;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Criterion;
@@ -35,6 +37,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.support.JdbcAccessor;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -47,12 +50,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -81,88 +82,6 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     {
         super(sessionFactory, databaseInstance, SamplePE.class);
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
-    }
-
-    private final Criteria createListAllSamplesCriteria()
-    {
-        return getSession().createCriteria(ENTITY_CLASS);
-    }
-
-    private final Criteria createListSampleForTypeCriteria(final SampleTypePE sampleType)
-    {
-        final Criteria criteria = createListAllSamplesCriteria();
-        criteria.add(Restrictions.eq("sampleType", sampleType));
-        fetchRelations(criteria, "container", sampleType.getContainerHierarchyDepth());
-        fetchRelations(criteria, "generatedFrom", sampleType.getGeneratedFromHierarchyDepth());
-
-        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-
-        return criteria;
-    }
-
-    private final void fetchRelations(final Criteria criteria, final String relationName,
-            final int relationDepth)
-    {
-        String relationPath = relationName;
-        for (int i = 0; i < relationDepth; i++)
-        {
-            criteria.setFetchMode(relationPath, FetchMode.JOIN);
-            relationPath += "." + relationName;
-        }
-    }
-
-    private List<SamplePE> listSamplesByCriteria(final Criteria basicCriteria,
-            boolean withExperimentAndProperties, Criterion... additionalCriterions)
-            throws DataAccessException
-    {
-        for (Criterion criterion : additionalCriterions)
-        {
-            basicCriteria.add(criterion);
-        }
-        final int count = DAOUtils.getCount(basicCriteria);
-        if (withExperimentAndProperties)
-        {
-            basicCriteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-            if (count <= DAOUtils.MAX_COUNT_FOR_PROPERTIES)
-            {
-                basicCriteria.setFetchMode("sampleProperties", FetchMode.JOIN);
-            } else
-            {
-                operationLog.info(String.format("Found %d samples, disable properties loading.",
-                        count));
-            }
-        }
-        basicCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        return cast(basicCriteria.list());
-    }
-
-    private List<SamplePE> listSamplesByCriteria(boolean withExperimentAndProperties,
-            Criterion... criterions) throws DataAccessException
-    {
-        return listSamplesByCriteria(createListAllSamplesCriteria(), withExperimentAndProperties,
-                criterions);
-    }
-
-    private List<SamplePE> listSamplesWithPropertiesByCriteria(Criterion... criterions)
-            throws DataAccessException
-    {
-        return listSamplesByCriteria(true, criterions);
-    }
-
-    private List<SamplePE> listSamplesWithPropertiesByCriterion(String propertyName, Object value)
-            throws DataAccessException
-    {
-        assert propertyName != null : "Unspecified property name.";
-        assert value != null : "Unspecified value.";
-
-        final Criterion criterion = Restrictions.eq(propertyName, value);
-        final List<SamplePE> list = listSamplesWithPropertiesByCriteria(criterion);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format("%d samples have been found for \"%s\" '%s'.", list
-                    .size(), propertyName, value));
-        }
-        return list;
     }
 
     // LockSampleModificationsInterceptor automatically obtains lock
@@ -196,96 +115,9 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         flushWithSqlExceptionHandling(hibernateTemplate);
     }
 
-    public List<SamplePE> listSamplesWithPropertiesByExperiment(final ExperimentPE experiment)
-            throws DataAccessException
-    {
-        assert experiment != null : "Unspecified experiment.";
-
-        final Criteria criteria = createListAllSamplesCriteria();
-        fetchRelations(criteria, "container", 1);
-        final Criterion criterion = Restrictions.eq("experimentInternal", experiment);
-        final List<SamplePE> list = listSamplesByCriteria(criteria, true, criterion);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format("%d samples have been found for \"%s\" '%s'.", list
-                    .size(), "experimentItnernal", experiment));
-        }
-        return list;
-    }
-
-    public List<SamplePE> listSamplesWithPropertiesByContainer(final SamplePE container)
-            throws DataAccessException
-    {
-        return listSamplesWithPropertiesByCriterion("container", container);
-    }
-
-    public final List<SamplePE> listSamplesWithPropertiesByGeneratedFrom(
-            final SamplePE generatedFrom) throws DataAccessException
-    {
-        return listSamplesWithPropertiesByCriterion("generatedFrom", generatedFrom);
-    }
-
-    public final List<SamplePE> listSamplesWithPropertiesByGroup(final GroupPE group)
-            throws DataAccessException
-    {
-        return listSamplesWithPropertiesByCriterion("group", group);
-    }
-
-    public final List<SamplePE> listSamplesWithPropertiesByDatabaseInstance(
-            final DatabaseInstancePE databaseInstance) throws DataAccessException
-    {
-        return listSamplesWithPropertiesByCriterion("databaseInstance", databaseInstance);
-    }
-
-    public final List<SamplePE> listSamplesWithPropertiesByTypeAndGroup(
-            final SampleTypePE sampleType, final GroupPE group) throws DataAccessException
-    {
-        assert sampleType != null : "Unspecified sample type.";
-        assert group != null : "Unspecified space.";
-
-        final Criteria criteria = createListSampleForTypeCriteria(sampleType);
-        final Criterion criterion = Restrictions.eq("group", group);
-        final List<SamplePE> list = listSamplesByCriteria(criteria, true, criterion);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format(
-                    "%d samples have been found for sample type '%s' and space '%s'.", list.size(),
-                    sampleType, group));
-        }
-        return list;
-    }
-
-    public final List<SamplePE> listSamplesWithPropertiesByTypeAndDatabaseInstance(
-            final SampleTypePE sampleType, final DatabaseInstancePE databaseInstance)
-    {
-        assert sampleType != null : "Unspecified sample type.";
-        assert databaseInstance != null : "Unspecified database instance.";
-
-        final Criteria criteria = createListSampleForTypeCriteria(sampleType);
-        final Criterion criterion = Restrictions.eq("databaseInstance", databaseInstance);
-        final List<SamplePE> list = listSamplesByCriteria(criteria, true, criterion);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format(
-                    "%d samples have been found for sample type '%s' and database instance '%s'.",
-                    list.size(), sampleType, databaseInstance));
-        }
-        return list;
-    }
-
     public final List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample)
     {
-        assert sample != null : "Unspecified sample.";
-
-        final Criterion criterion = Restrictions.eq("generatedFrom", sample);
-        final List<SamplePE> list = listSamplesByCriteria(false, criterion);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format(
-                    "%d sample(s) have been found for \"generatedFrom\" sample '%s'.", list.size(),
-                    sample));
-        }
-        return list;
+        return sample.getGenerated();
     }
 
     public final List<SamplePE> listSamplesByGroupAndProperty(final String propertyCode,
@@ -599,6 +431,33 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         }
         fullTextIndexUpdateScheduler.scheduleUpdate(IndexUpdateOperation
                 .remove(SamplePE.class, ids));
+    }
+
+    @SuppressWarnings("unchecked")
+    // TODO 2010-07-22, IA: Merge with ExternalDataDAO after data set relationships migration
+    public Set<TechId> listParents(final Collection<TechId> children, final TechId relationship)
+    {
+        final String query =
+
+                "select sample_id_parent from sample_relationships where sample_id_child in (:ids) and relationship_id = :r ";
+        final List<? extends Number> results =
+                (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
+                    {
+
+                        public final Object doInHibernate(final Session session)
+                        {
+                            final List<Long> longIds = transformTechIds2Longs(children);
+                            return session.createSQLQuery(query).setParameterList("ids", longIds)
+                                    .setParameter("r", relationship.getId()).list();
+                        }
+                    });
+        Set<TechId> result = transformNumbers2TechIds(results);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d sample parents(s) have been found.", results
+                    .size()));
+        }
+        return result;
     }
 
 }

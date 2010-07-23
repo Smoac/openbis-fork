@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -258,6 +260,15 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    allowing(daoFactory).getRelationshipTypeDAO();
+                    will(returnValue(relationshipTypeDAO));
+
+                    one(relationshipTypeDAO).tryFindRelationshipTypeByCode(
+                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+                    RelationshipTypePE result = new RelationshipTypePE();
+                    result.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+                    will(returnValue(result));
+
                     allowing(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
 
@@ -468,6 +479,14 @@ public final class SampleBOTest extends AbstractBOTest
             {
                 {
 
+                    allowing(daoFactory).getRelationshipTypeDAO();
+                    will(returnValue(relationshipTypeDAO));
+
+                    exactly(1).of(relationshipTypeDAO).tryFindRelationshipTypeByCode(
+                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+                    RelationshipTypePE relationship = new RelationshipTypePE();
+                    relationship.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+                    will(returnValue(relationship));
                     allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
                             EXAMPLE_DATABASE_INSTANCE.getCode());
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));

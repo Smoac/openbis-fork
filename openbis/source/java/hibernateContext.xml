@@ -79,6 +79,9 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE</value>
+                
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE</value>
             </list>
         </property>
         <!-- 

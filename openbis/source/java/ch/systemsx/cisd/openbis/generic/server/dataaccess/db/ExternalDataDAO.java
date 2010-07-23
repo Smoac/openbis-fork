@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -412,26 +411,6 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
     }
 
     // data set relationship helper methods
-
-    private List<Long> transformTechIds2Longs(Collection<TechId> techIds)
-    {
-        final List<Long> result = new ArrayList<Long>(techIds.size());
-        for (TechId techId : techIds)
-        {
-            result.add(techId.getId());
-        }
-        return result;
-    }
-
-    private Set<TechId> transformNumbers2TechIds(Collection<? extends Number> numbers)
-    {
-        final Set<TechId> result = new HashSet<TechId>();
-        for (Number number : numbers)
-        {
-            result.add(new TechId(number));
-        }
-        return result;
-    }
 
     public List<ExternalDataPE> listByCode(Set<String> values)
     {

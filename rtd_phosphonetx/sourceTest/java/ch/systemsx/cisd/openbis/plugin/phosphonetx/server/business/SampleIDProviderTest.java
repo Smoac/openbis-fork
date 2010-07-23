@@ -22,19 +22,22 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SampleIDProviderTest extends AbstractServerTestCase
 {
     private static final String PERM_ID = "abc-1";
+
     private static final Long ID = 42L;
+
     private SampleIDProvider sampleIDProvider;
-    
+
     @BeforeMethod
     @Override
     public void setUp()
@@ -62,52 +65,57 @@ public class SampleIDProviderTest extends AbstractServerTestCase
         {
             assertEquals("No sample found for permID " + PERM_ID, e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetSampleIDTwice()
     {
         context.checking(new Expectations()
-        {
             {
-                one(sampleDAO).tryToFindByPermID(PERM_ID);
-                SamplePE sample = new SamplePE();
-                sample.setId(ID);
-                will(returnValue(sample));
-            }
-        });
-        
+                {
+                    one(sampleDAO).tryToFindByPermID(PERM_ID);
+                    SamplePE sample = new SamplePE();
+                    sample.setId(ID);
+                    will(returnValue(sample));
+                }
+            });
+
         long s1 = sampleIDProvider.getSampleIDOrParentSampleID(PERM_ID);
         long s2 = sampleIDProvider.getSampleIDOrParentSampleID(PERM_ID);
         assertEquals(ID.longValue(), s1);
         assertEquals(ID.longValue(), s2);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetParentSampleIDTwice()
     {
         context.checking(new Expectations()
-        {
             {
-                one(sampleDAO).tryToFindByPermID(PERM_ID);
-                SamplePE parentSample = new SamplePE();
-                parentSample.setId(ID);
-                SamplePE sample = new SamplePE();
-                sample.setId(2 * ID);
-                sample.setGeneratedFrom(parentSample);
-                will(returnValue(sample));
-            }
-        });
-        
+                {
+                    one(sampleDAO).tryToFindByPermID(PERM_ID);
+                    SamplePE parentSample = new SamplePE();
+                    parentSample.setCode("s1");
+                    parentSample.setId(ID);
+                    SamplePE sample = new SamplePE();
+                    sample.setCode("s1");
+                    sample.setId(2 * ID);
+                    RelationshipTypePE relationship = new RelationshipTypePE();
+                    relationship.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+                    sample.addParentRelationship(new SampleRelationshipPE(parentSample, sample,
+                            relationship));
+                    will(returnValue(sample));
+                }
+            });
+
         long s1 = sampleIDProvider.getSampleIDOrParentSampleID(PERM_ID);
         long s2 = sampleIDProvider.getSampleIDOrParentSampleID(PERM_ID);
         assertEquals(ID.longValue(), s1);
         assertEquals(ID.longValue(), s2);
-        
+
         context.assertIsSatisfied();
     }
 }

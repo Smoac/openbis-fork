@@ -20,9 +20,12 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 
 /**
  * Test cases for corresponding {@link SampleGenericBusinessRules} class.
@@ -172,15 +175,24 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
             SamplePE containerOrNull)
     {
         child.setContainer(containerOrNull);
-        child.setGeneratedFrom(generatorOrNull);
         if (generatorOrNull != null)
         {
-            generatorOrNull.getGenerated().add(child);
+            SampleRelationshipPE relationship =
+                    new SampleRelationshipPE(generatorOrNull, child, createRelationshipType());
+            child.addParentRelationship(relationship);
+            generatorOrNull.addChildRelationship(relationship);// FIXME: needed?
         }
         if (containerOrNull != null)
         {
             containerOrNull.getContained().add(child);
         }
+    }
+
+    private RelationshipTypePE createRelationshipType()
+    {
+        RelationshipTypePE type = new RelationshipTypePE();
+        type.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        return type;
     }
 
     private void checkBusinessRules(SamplePE child)

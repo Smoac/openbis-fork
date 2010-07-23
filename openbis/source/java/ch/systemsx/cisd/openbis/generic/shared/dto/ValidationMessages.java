@@ -161,6 +161,12 @@ public final class ValidationMessages
 
     public static final String MATERIAL_NOT_NULL_MESSAGE = "Material" + CAN_NOT_BE_NULL;
 
+    public static final String PARENT_NOT_NULL_MESSAGE = "Parent" + CAN_NOT_BE_NULL;
+
+    public static final String RELATIONSHIP_NOT_NULL_MESSAGE = "Relationship" + CAN_NOT_BE_NULL;
+
+    public static final String CHILD_NOT_NULL_MESSAGE = "Child" + CAN_NOT_BE_NULL;
+
     public static final String MATERIAL_TYPE_NOT_NULL_MESSAGE = "Material type" + CAN_NOT_BE_NULL;
 
     public static final String MATERIAL_TYPE_PROPERTY_TYPE_NOT_NULL_MESSAGE =
