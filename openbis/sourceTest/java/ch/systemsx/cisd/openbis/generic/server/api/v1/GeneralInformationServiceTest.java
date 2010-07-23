@@ -82,8 +82,8 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         assertNamedRoles("SPACE_ADMIN", "[ADMIN(instance), ADMIN(space)]", entries.get(3));
         assertNamedRoles("SPACE_ETL_SERVER", "[ADMIN(instance), "
                 + "ETL_SERVER(instance), ETL_SERVER(space)]", entries.get(4));
-        assertNamedRoles("SPACE_OBSERVER", "[ADMIN(instance), ADMIN(space), OBSERVER(space), "
-                + "POWER_USER(space), USER(space)]", entries.get(5));
+        assertNamedRoles("SPACE_OBSERVER", "[ADMIN(instance), ADMIN(space), OBSERVER(instance), "
+                + "OBSERVER(space), POWER_USER(space), USER(space)]", entries.get(5));
         assertNamedRoles("SPACE_POWER_USER", "[ADMIN(instance), ADMIN(space), POWER_USER(space)]",
                 entries.get(6));
         assertNamedRoles("SPACE_USER",
@@ -104,7 +104,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     return r1.toString().compareTo(r2.toString());
                 }
             });
-        assertEquals(expectedRoles, roles.toString());
+        assertEquals(expectedName, expectedRoles, roles.toString());
     }
 
     @Test
