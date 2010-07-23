@@ -53,15 +53,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private final IScreeningApiServer openbisScreeningServer;
 
     private final DataStoreMultiplexer<PlateImageReference> plateImageReferencesMultiplexer;
-    
-    private final DataStoreMultiplexer<IFeatureVectorDatasetIdentifier> featureVectorDataSetIdentifierMultiplexer;
-    
-    private final DataStoreMultiplexer<FeatureVectorDatasetReference> featureVectorDataSetReferenceMultiplexer;
-    
-    private final DataStoreMultiplexer<IImageDatasetIdentifier> metaDataMultiplexer;
-    
-    private final String sessionToken;
 
+    private final DataStoreMultiplexer<IFeatureVectorDatasetIdentifier> featureVectorDataSetIdentifierMultiplexer;
+
+    private final DataStoreMultiplexer<FeatureVectorDatasetReference> featureVectorDataSetReferenceMultiplexer;
+
+    private final DataStoreMultiplexer<IImageDatasetIdentifier> metaDataMultiplexer;
+
+    private final String sessionToken;
 
     /**
      * Creates a service facade which communicates with the openBIS server at the specified URL.
@@ -99,9 +98,9 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         ServiceFinder serviceFinder = new ServiceFinder("openbis", OPENBIS_SCREENING_API);
         return serviceFinder.createService(IScreeningApiServer.class, serverUrl);
     }
-    
-    ScreeningOpenbisServiceFacade(String sessionToken,
-            IScreeningApiServer screeningServer, final IDssServiceFactory dssServiceFactory)
+
+    ScreeningOpenbisServiceFacade(String sessionToken, IScreeningApiServer screeningServer,
+            final IDssServiceFactory dssServiceFactory)
     {
         this.openbisScreeningServer = screeningServer;
         this.sessionToken = sessionToken;
@@ -205,6 +204,9 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     /**
      * For a given set of data sets and a set of features (given by their name), provide all the
      * feature vectors.
+     * 
+     * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
+     *         <var>featureDatasets</var>.
      */
     public List<FeatureVectorDataset> loadFeatures(
             List<FeatureVectorDatasetReference> featureDatasets, final List<String> featureNames)
@@ -299,7 +301,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             throw ex.getIoException();
         }
     }
-    
+
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and
      * the available (natural) image size(s).
@@ -308,24 +310,23 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
         final List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
-        metaDataMultiplexer.process(imageDatasets,
-                new IReferenceHandler<IImageDatasetIdentifier>()
-                    {
-                        public void handle(IDssServiceRpcScreening dssService,
-                                List<IImageDatasetIdentifier> references)
-                        {
-                            result.addAll(dssService.listImageMetadata(sessionToken, references));
-                        }
-                    });
+        metaDataMultiplexer.process(imageDatasets, new IReferenceHandler<IImageDatasetIdentifier>()
+            {
+                public void handle(IDssServiceRpcScreening dssService,
+                        List<IImageDatasetIdentifier> references)
+                {
+                    result.addAll(dssService.listImageMetadata(sessionToken, references));
+                }
+            });
         return result;
     }
-    
+
     // --------- helpers -----------
 
     private static final class WrappedIOException extends RuntimeException
     {
         private static final long serialVersionUID = 1L;
-        
+
         private final IOException ioException;
 
         WrappedIOException(IOException cause)
@@ -338,42 +339,43 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         {
             return ioException;
         }
-        
+
     }
-    
+
     private static interface IReferenceHandler<R extends IDatasetIdentifier>
     {
         public void handle(IDssServiceRpcScreening dssService, List<R> references);
     }
-    
+
     private static final class DataStoreMultiplexer<R extends IDatasetIdentifier>
     {
         private final IDssServiceFactory dssServiceFactory;
-        
+
         public DataStoreMultiplexer(IDssServiceFactory dssServiceFactory)
         {
             this.dssServiceFactory = dssServiceFactory;
         }
-        
+
         public void process(List<? extends R> references, IReferenceHandler<R> handler)
         {
             Map<String, List<R>> referencesPerDss = getReferencesPerDss(cast(references));
             Set<Entry<String, List<R>>> entrySet = referencesPerDss.entrySet();
             for (Entry<String, List<R>> entry : entrySet)
             {
-                IDssServiceRpcScreening dssService = dssServiceFactory.createDssService(entry.getKey());
+                IDssServiceRpcScreening dssService =
+                        dssServiceFactory.createDssService(entry.getKey());
                 handler.handle(dssService, entry.getValue());
             }
         }
-        
+
         @SuppressWarnings("unchecked")
         private List<R> cast(List<? extends R> references)
         {
             return (List<R>) references;
         }
-        
+
     }
-    
+
     private static <R extends IDatasetIdentifier> Map<String, List<R>> getReferencesPerDss(
             List<R> references)
     {
