@@ -47,7 +47,7 @@ public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
         CsvToCanonicalFeatureVectorConfiguration config =
                 new CsvToCanonicalFeatureVectorConfiguration("WellName", "WellName");
         CsvToCanonicalFeatureVector converter =
-                new CsvToCanonicalFeatureVector(getDatasetFileLines(), config);
+                new CsvToCanonicalFeatureVector(getDatasetFileLines(), config, 16, 24);
         ArrayList<CanonicalFeatureVector> fvs = converter.convert();
         // Not all the columns contain numerical data
         assertEquals(16, fvs.size());

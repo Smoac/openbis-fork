@@ -80,16 +80,22 @@ public class CsvToCanonicalFeatureVector
 
     private int yColumn = -1;
 
-    private int maxRow = 0;
+    private int maxRowFound = 0;
 
-    private int maxCol = 0;
+    private int maxColFound = 0;
+
+    private final int maxPlateGeometryRow;
+
+    private final int maxPlateGeometryCol;
 
     public CsvToCanonicalFeatureVector(DatasetFileLines fileLines,
-            CsvToCanonicalFeatureVectorConfiguration config)
+            CsvToCanonicalFeatureVectorConfiguration config, int maxRow, int maxCol)
     {
         this.configuration = config;
         this.header = fileLines.getHeaderTokens();
         this.lines = fileLines.getDataLines();
+        this.maxPlateGeometryRow = maxRow;
+        this.maxPlateGeometryCol = maxCol;
     }
 
     public ArrayList<CanonicalFeatureVector> convert()
@@ -102,7 +108,8 @@ public class CsvToCanonicalFeatureVector
 
     private ArrayList<CanonicalFeatureVector> convertColumnsToFeatureVectors()
     {
-        final Geometry geometry = Geometry.createFromRowColDimensions(maxRow, maxCol);
+        final Geometry geometry =
+                Geometry.createFromRowColDimensions(maxPlateGeometryRow, maxPlateGeometryCol);
 
         ArrayList<CanonicalFeatureVector> result = new ArrayList<CanonicalFeatureVector>();
         for (FeatureColumn column : columns)
@@ -147,6 +154,13 @@ public class CsvToCanonicalFeatureVector
         {
             readLine(line);
         }
+        if (maxColFound > maxPlateGeometryCol || maxRowFound > maxPlateGeometryRow)
+        {
+            throw new IllegalStateException(String.format(
+                    "Feature vector has values outside the plate geometry. "
+                            + "Plate geometry: (%d, %d), well: (%d, %d).", maxPlateGeometryRow,
+                    maxPlateGeometryCol, maxRowFound, maxColFound));
+        }
     }
 
     private void readLine(String[] line)
@@ -168,14 +182,14 @@ public class CsvToCanonicalFeatureVector
             }
         }
 
-        if (well.getRow() > maxRow)
+        if (well.getRow() > maxRowFound)
         {
-            maxRow = well.getRow();
+            maxRowFound = well.getRow();
         }
 
-        if (well.getColumn() > maxCol)
+        if (well.getColumn() > maxColFound)
         {
-            maxCol = well.getColumn();
+            maxColFound = well.getColumn();
         }
     }
 

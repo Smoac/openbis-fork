@@ -138,7 +138,9 @@ public class CsvFeatureVectorMigrator extends AbstractFeatureVectorMigrator
             {
                 fileLines = getDatasetFileLines(fileToMigrate);
                 CsvToCanonicalFeatureVector convertor =
-                        new CsvToCanonicalFeatureVector(fileLines, convertorConfig);
+                        new CsvToCanonicalFeatureVector(fileLines, convertorConfig,
+                                screeningDataSetInfo.getContainerRows(), screeningDataSetInfo
+                                        .getContainerColumns());
                 ArrayList<CanonicalFeatureVector> fvecs = convertor.convert();
 
                 FeatureVectorUploader uploader =

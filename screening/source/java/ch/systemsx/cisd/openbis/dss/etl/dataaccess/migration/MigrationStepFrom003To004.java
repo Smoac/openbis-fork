@@ -93,7 +93,10 @@ public class MigrationStepFrom003To004 implements IMigrationStep
                     {
                         long id = rs.getLong("id");
                         String permId = rs.getString("perm_id");
-                        return new MigrationDatasetRef(id, permId);
+                        int plateWidth = rs.getInt("plate_width");
+                        int plateHeight = rs.getInt("plate_height");
+                        return new MigrationDatasetRef(id, permId, plateWidth, plateHeight);
+
                     }
                 };
 
@@ -103,10 +106,16 @@ public class MigrationStepFrom003To004 implements IMigrationStep
 
         final private String permId;
 
-        public MigrationDatasetRef(long id, String permId)
+        final private int plateWidth;
+
+        final private int plateHeight;
+
+        public MigrationDatasetRef(long id, String permId, int plateWidth, int plateHeight)
         {
             this.id = id;
             this.permId = permId;
+            this.plateWidth = plateWidth;
+            this.plateHeight = plateHeight;
         }
 
         public long getId()
@@ -117,6 +126,16 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         public String getPermId()
         {
             return permId;
+        }
+
+        public int getPlateWidth()
+        {
+            return plateWidth;
+        }
+
+        public int getPlateHeight()
+        {
+            return plateHeight;
         }
     }
 
@@ -149,13 +168,13 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         boolean wholeMigrationOk = true;
         for (Entry<MigrationDatasetRef, DatasetFileLines> entry : fileMap.entrySet())
         {
-            long datasetId = entry.getKey().getId();
-            String permId = entry.getKey().getPermId();
+            MigrationDatasetRef datasetRef = entry.getKey();
+            String permId = datasetRef.getPermId();
             DatasetFileLines featureVectorLines = entry.getValue();
             try
             {
                 operationLog.info("Migrating dataset: " + permId);
-                migrateDataset(jdbc, dao, datasetId, featureVectorLines);
+                migrateDataset(jdbc, dao, datasetRef, featureVectorLines);
             } catch (Exception ex)
             {
                 operationLog.error("Cannot migrate dataset " + permId + ": " + ex.getMessage());
@@ -169,10 +188,11 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         return wholeMigrationOk;
     }
 
-    private void migrateDataset(SimpleJdbcTemplate jdbc, IImagingQueryDAO dao, long datasetId,
-            DatasetFileLines featureVectorLines)
+    private void migrateDataset(SimpleJdbcTemplate jdbc, IImagingQueryDAO dao,
+            MigrationDatasetRef datasetRef, DatasetFileLines featureVectorLines)
     {
-        List<CanonicalFeatureVector> fvecs = extractFeatureVectors(featureVectorLines);
+        long datasetId = datasetRef.getId();
+        List<CanonicalFeatureVector> fvecs = extractFeatureVectors(featureVectorLines, datasetRef);
         int deleted = deleteFeatureVectors(datasetId, jdbc);
         if (deleted != fvecs.size())
         {
@@ -189,11 +209,13 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         FeatureVectorUploader.uploadFeatureVectors(dao, fvecs, datasetId);
     }
 
-    private List<CanonicalFeatureVector> extractFeatureVectors(DatasetFileLines featureVectorLines)
+    private List<CanonicalFeatureVector> extractFeatureVectors(DatasetFileLines featureVectorLines,
+            MigrationDatasetRef datasetRef)
 
     {
         CsvToCanonicalFeatureVectorConfiguration convertorConfig = createCsvConfig();
-        return new CsvToCanonicalFeatureVector(featureVectorLines, convertorConfig).convert();
+        return new CsvToCanonicalFeatureVector(featureVectorLines, convertorConfig, datasetRef
+                .getPlateHeight(), datasetRef.getPlateWidth()).convert();
     }
 
     private static DatasetFileLines getDatasetFileLines(File file, final char separator)
@@ -217,10 +239,10 @@ public class MigrationStepFrom003To004 implements IMigrationStep
 
     private List<MigrationDatasetRef> fetchImagingDatasets(SimpleJdbcTemplate simpleJdbcTemplate)
     {
-        return simpleJdbcTemplate
-                .query(
-                        "select distinct d.id, d.perm_id from feature_defs defs, data_sets d where d.id = defs.ds_id",
-                        DATASET_ROW_MAPPER);
+        return simpleJdbcTemplate.query(
+                "select distinct d.id, d.perm_id, c.spots_width plate_width, c.spots_height plate_height "
+                        + "   from feature_defs defs, data_sets d, containers c "
+                        + "   where d.id = defs.ds_id and c.id = d.cont_id;", DATASET_ROW_MAPPER);
     }
 
     private String tryGetDatabaseInstanceUUID(File storeRootDir)

@@ -14,9 +14,9 @@ public class FeatureVector implements Serializable
 
     private final WellPosition wellPosition;
 
-    private final double[] values;
+    private final float[] values;
 
-    public FeatureVector(WellPosition well, double[] values)
+    public FeatureVector(WellPosition well, float[] values)
     {
         this.wellPosition = well;
         this.values = values;
@@ -29,7 +29,7 @@ public class FeatureVector implements Serializable
     }
 
     /** feature vector values */
-    public double[] getValues()
+    public float[] getValues()
     {
         return values;
     }

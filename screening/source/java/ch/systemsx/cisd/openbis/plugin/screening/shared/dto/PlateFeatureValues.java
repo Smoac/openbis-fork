@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.dto;
 
+import java.util.Arrays;
+
 import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
@@ -50,6 +52,7 @@ public final class PlateFeatureValues
     {
         this.geometry = geometry;
         this.valueArray = new MDFloatArray(geometry.getCartesianDimensions());
+        Arrays.fill(valueArray.getAsFlatArray(), Float.NaN);
     }
 
     /**

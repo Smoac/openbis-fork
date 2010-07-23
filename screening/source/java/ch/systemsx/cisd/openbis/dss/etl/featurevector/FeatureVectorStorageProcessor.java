@@ -99,15 +99,15 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     private void loadDataSetIntoDatabase(File dataSet, DataSetInformation dataSetInformation)
             throws IOException
     {
+        ScreeningContainerDatasetInfo datasetInfo = createScreeningDatasetInfo(dataSetInformation);
         DatasetFileLines fileLines = getDatasetFileLines(dataSet);
         CsvToCanonicalFeatureVector convertor =
-                new CsvToCanonicalFeatureVector(fileLines, convertorConfig);
+                new CsvToCanonicalFeatureVector(fileLines, convertorConfig, datasetInfo
+                        .getContainerRows(), datasetInfo.getContainerColumns());
         List<CanonicalFeatureVector> fvecs = convertor.convert();
 
         dataAccessObject = createDAO();
-        FeatureVectorUploader uploader =
-                new FeatureVectorUploader(dataAccessObject,
-                        createScreeningDatasetInfo(dataSetInformation));
+        FeatureVectorUploader uploader = new FeatureVectorUploader(dataAccessObject, datasetInfo);
         uploader.uploadFeatureVectors(fvecs);
     }
 

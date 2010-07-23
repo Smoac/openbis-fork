@@ -35,7 +35,7 @@ public class FeatureTableRow
 
     private int columnIndex;
 
-    private double[] featureValues;
+    private float[] featureValues;
 
     public final String getDataSetCode()
     {
@@ -77,12 +77,12 @@ public class FeatureTableRow
         this.columnIndex = columnIndex;
     }
 
-    public final double[] getFeatureValues()
+    public final float[] getFeatureValues()
     {
         return featureValues;
     }
 
-    public final void setFeatureValues(double[] featureValues)
+    public final void setFeatureValues(float[] featureValues)
     {
         this.featureValues = featureValues;
     }

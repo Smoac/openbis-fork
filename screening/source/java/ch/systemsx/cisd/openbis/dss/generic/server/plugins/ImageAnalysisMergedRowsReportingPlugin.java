@@ -99,11 +99,11 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
             values.add(new StringTableCell(row.getPlateIdentifier().toString()));
             values.add(new StringTableCell(PlateUtils.translateRowNumberIntoLetterCode(row.getRowIndex())));
             values.add(new IntegerTableCell(row.getColumnIndex()));
-            double[] featureValues = row.getFeatureValues();
+            float[] featureValues = row.getFeatureValues();
             StringTableCell nullValue = new StringTableCell("");
-            for (double value : featureValues)
+            for (float value : featureValues)
             {
-                if (Double.isNaN(value))
+                if (Float.isNaN(value))
                 {
                     values.add(nullValue);
                 } else
