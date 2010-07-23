@@ -45,7 +45,11 @@ public final class LDAPDirectoryConfiguration
 
     private String emailAttributeName = "mail";
     
-    private String emailAttributePrefix = "";
+    private String emailAliasesAttributeName = "proxyAddresses";
+    
+    private String emailAttributePrefix = "smtp:";
+    
+    private String queryEmailForAliases = "false";
 
     private String securityProtocol = "ssl";
 
@@ -127,6 +131,40 @@ public final class LDAPDirectoryConfiguration
         }
     }
 
+    public String getEmailAliasesAttributeName()
+    {
+        return emailAliasesAttributeName;
+    }
+
+    /**
+     * Default value: <code>proxyAddresses</code>
+     */
+    public void setEmailAliasesAttributeName(String emailAliasesAttributeName)
+    {
+        if (StringUtils.isNotBlank(emailAliasesAttributeName))
+        {
+            this.emailAliasesAttributeName = emailAliasesAttributeName;
+        }
+    }
+
+    public String getQueryEmailForAliases()
+    {
+        return queryEmailForAliases;
+    }
+
+    /**
+     * If the query for emails should use the email aliases instead of the canonical email addresses.
+     * 
+     * Default: <code>false</code>.
+     */
+    public void setQueryEmailForAliases(String queryEmailForAliases)
+    {
+        if (StringUtils.isNotBlank(queryEmailForAliases))
+        {
+            this.queryEmailForAliases = queryEmailForAliases;
+        }
+    }
+
     public String getEmailAttributePrefix()
     {
         return emailAttributePrefix;
@@ -135,11 +173,14 @@ public final class LDAPDirectoryConfiguration
     /**
      * The prefix of email values that is used when doing a search.
      * <p>
-     * Default value: empty
+     * Default value: <code>smtp:</code>
      */
     public void setEmailAttributePrefix(String emailAttributePrefix)
     {
-        this.emailAttributePrefix = emailAttributePrefix;
+        if (StringUtils.isNotBlank(emailAttributePrefix))
+        {
+            this.emailAttributePrefix = emailAttributePrefix;
+        }
     }
 
     /**

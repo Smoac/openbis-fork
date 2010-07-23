@@ -132,9 +132,30 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             operationLog.debug(String.format("listPrincipalsByEmail(%s,%s)", email, limit));
         }
-        return listPrincipalsByKeyValue(config.getEmailAttributeName(), config
-                .getEmailAttributePrefix()
-                + email, null, limit);
+        return listPrincipalsByKeyValue(getEmailAttributeForQueries(),
+                getEmailKeyForQueries(email), null, limit);
+    }
+
+    private String getEmailAttributeForQueries()
+    {
+        if (Boolean.parseBoolean(config.getQueryEmailForAliases()))
+        {
+            return config.getEmailAliasesAttributeName();
+        } else
+        {
+            return config.getEmailAttributeName();
+        }
+    }
+
+    private String getEmailKeyForQueries(String emailQuery)
+    {
+        if (Boolean.parseBoolean(config.getQueryEmailForAliases()))
+        {
+            return config.getEmailAttributePrefix() + emailQuery;
+        } else
+        {
+            return emailQuery;
+        }
     }
 
     public List<Principal> listPrincipalsByEmail(String email)
@@ -143,9 +164,8 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             operationLog.debug(String.format("listPrincipalsByEmail(%s)", email));
         }
-        return listPrincipalsByKeyValue(config.getEmailAttributeName(), config
-                .getEmailAttributePrefix()
-                + email, null, Integer.MAX_VALUE);
+        return listPrincipalsByKeyValue(getEmailAttributeForQueries(),
+                getEmailKeyForQueries(email), null, Integer.MAX_VALUE);
     }
 
     public List<Principal> listPrincipalsByLastName(String lastName, int limit)
@@ -398,6 +418,8 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                 }
             }
         }
+        operationLog.error("Error connecting to LDAP service: cannot open a context for dn=<" + dn
+                + ">.");
         throw firstException;
     }
 

@@ -287,7 +287,9 @@ public class CrowdAuthenticationService implements IAuthenticationService
                 {
                     if (getApplicationToken(true) == null)
                     {
-                        // We couldn't authenticate the application.
+                        operationLog.error("Cannot authenticate user '" + user
+                                + "' because authentication of the application with the "
+                                + "CROWD service failed.");
                         break;
                     }
                 } else
@@ -382,7 +384,17 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     {
                         if (getApplicationToken(true) == null)
                         {
-                            // We couldn't authenticate the application.
+                            if (passwordOrNull != null)
+                            {
+                                operationLog.error("Cannot authenticate user '" + user
+                                        + "' because authentication of the application with the "
+                                        + "CROWD service failed.");
+                            } else
+                            {
+                                operationLog.error("Cannot obtain details for user '" + user
+                                        + "' because authentication of the application with the "
+                                        + "CROWD service failed.");
+                            }
                             break;
                         }
                     } else
