@@ -269,19 +269,8 @@ abstract public class AbstractCIFEXService
         {
             return null;
         }
-        final String applicationToken = externalAuthenticationService.authenticateApplication();
-        if (applicationToken == null)
-        {
-            userActionLog.logFailedLoginAttempt(userId);
-            final String msg =
-                    "User '" + userId + "' couldn't be authenticated because authentication of "
-                            + "the application at the external authentication service failed.";
-            operationLog.error(msg);
-            throw new EnvironmentFailureException(msg);
-        }
         final Principal principalOrNull =
-                externalAuthenticationService.tryGetAndAuthenticateUser(applicationToken, userId,
-                        password);
+                externalAuthenticationService.tryGetAndAuthenticateUser(userId, password);
         final boolean authenticated = Principal.isAuthenticated(principalOrNull);
         if (authenticated == false)
         {

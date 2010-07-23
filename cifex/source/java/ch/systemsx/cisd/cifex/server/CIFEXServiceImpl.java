@@ -383,33 +383,14 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         {
             return null;
         }
-        final String applicationToken = externalAuthenticationService.authenticateApplication();
         final String userOrEmail = user.getUserCode();
-        if (applicationToken == null)
-        {
-            final String msg =
-                    "Authentication of the application at the external authentication service failed.";
-            throw new EnvironmentFailureException(msg);
-        }
 
         final Principal principalOrNull =
-                tryGetUserFromExternalService(applicationToken, userOrEmail);
+                externalAuthenticationService.tryGetAndAuthenticateUser(userOrEmail, null);
         if (principalOrNull != null)
         {
             return createOrUpdateUserFromExternalAuthenticationService(principalOrNull, user);
         } else
-        {
-            return null;
-        }
-    }
-
-    private Principal tryGetUserFromExternalService(final String applicationToken,
-            final String userOrEmail)
-    {
-        try
-        {
-            return externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
-        } catch (final IllegalArgumentException e)
         {
             return null;
         }

@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,8 +72,6 @@ public class CIFEXServiceImplTest
 {
     private static final String ERROR_MSG_FILE_FOUND_IN_THE_DATABASE =
             "File [id=%s] not found in the database. Try to refresh the page.";
-
-    private static final String APPLICATION_TOKEN_EXAMPLE = "application-token";
 
     private static final String SESSION_TOKEN_EXAMPLE = "session-token42";
 
@@ -329,11 +326,8 @@ public class CIFEXServiceImplTest
                 {
                     one(authenticationService).check();
 
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(APPLICATION_TOKEN_EXAMPLE));
-
-                    one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE,
-                            userToCreate.getUserCode());
+                    one(authenticationService).tryGetAndAuthenticateUser(
+                            userToCreate.getUserCode(), null);
                     final Principal principal =
                             new Principal(userToCreate.getUserCode(), "First", "Last",
                                     "email@dot.com");
@@ -392,12 +386,9 @@ public class CIFEXServiceImplTest
                 {
                     one(authenticationService).check();
 
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(APPLICATION_TOKEN_EXAMPLE));
-
-                    one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE,
-                            userToCreate.getUserCode());
-                    will(throwException(new IllegalArgumentException()));
+                    one(authenticationService).tryGetAndAuthenticateUser(
+                            userToCreate.getUserCode(), null);
+                    will(returnValue(null));
 
                     prepareForBasicURL(this);
 
@@ -635,44 +626,6 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testLoginWithExternalServiceFailedBecauseApplicationAuthenticationFailed()
-            throws Exception
-    {
-        final String userCode = "u";
-        prepareForDBEmptyCheck();
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(requestContextProvider).getHttpServletRequest();
-                    will(returnValue(httpServletRequest));
-                    allowing(httpServletRequest).getRemoteHost();
-                    will(returnValue("someRemoteHost"));
-                    allowing(httpServletRequest).getRemoteAddr();
-                    will(returnValue("someRemoteAddress"));
-                    one(authenticationService).check();
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(null));
-                    one(userManager).tryFindUserByCode(userCode);
-                    will(returnValue(null));
-                }
-            });
-
-        final ICIFEXService service = createService(authenticationService);
-        try
-        {
-            service.tryLogin(userCode, "p");
-            fail("UserFailureException expected.");
-        } catch (final EnvironmentFailureException ex)
-        {
-            assertEquals(
-                    "User \'u\' couldn\'t be authenticated because authentication of the application at the "
-                            + "external authentication service failed.", ex.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testTrySwichToExternalAuthenticationNoServisAvailable()
             throws InvalidSessionException, InsufficientPrivilegesException,
             EnvironmentFailureException
@@ -764,10 +717,8 @@ public class CIFEXServiceImplTest
                     will(returnValue(userDTO));
 
                     one(authenticationService).check();
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(APPLICATION_TOKEN_EXAMPLE));
-                    one(authenticationService).tryGetAndAuthenticateUser(APPLICATION_TOKEN_EXAMPLE,
-                            DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
+                    one(authenticationService).tryGetAndAuthenticateUser(DEFAULT_USER_CODE,
+                            DEFAULT_PLAIN_PASSWORD);
                     will(returnValue(null));
                 }
             });
@@ -832,18 +783,15 @@ public class CIFEXServiceImplTest
                     will(returnValue(oldUser));
 
                     one(authenticationService).check();
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(APPLICATION_TOKEN_EXAMPLE));
-                    one(authenticationService).tryGetAndAuthenticateUser(APPLICATION_TOKEN_EXAMPLE,
-                            DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
+                    one(authenticationService).tryGetAndAuthenticateUser(DEFAULT_USER_CODE,
+                            DEFAULT_PLAIN_PASSWORD);
                     will(returnValue(principal));
 
                     one(userManager).updateUser(with(equal(externalyUpdatedUser)),
                             with(equal((Password) null)), with(equal((UserDTO) null)),
                             with(any(IUserActionLog.class)));
-                    one(userManager).updateUser(with(equal(newUser)),
-                            with(equal((Password) null)), with(equal(newUser)),
-                            with(any(IUserActionLog.class)));
+                    one(userManager).updateUser(with(equal(newUser)), with(equal((Password) null)),
+                            with(equal(newUser)), with(any(IUserActionLog.class)));
 
                     allowing(requestContextProvider).getHttpServletRequest();
                     will(returnValue(httpServletRequest));
@@ -1111,11 +1059,8 @@ public class CIFEXServiceImplTest
                     will(returnValue(userManager));
 
                     one(authenticationService).check();
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(APPLICATION_TOKEN_EXAMPLE));
 
-                    one(authenticationService).tryGetAndAuthenticateUser(APPLICATION_TOKEN_EXAMPLE,
-                            userName, password);
+                    one(authenticationService).tryGetAndAuthenticateUser(userName, password);
                     if (principal != null)
                     {
                         principal.setAuthenticated(true);
@@ -1177,11 +1122,6 @@ public class CIFEXServiceImplTest
                     }
                 }
             });
-    }
-
-    private void prepareForDBEmptyCheck()
-    {
-        prepareForDBEmptyCheck(false);
     }
 
     private void prepareForDBEmptyCheck(final boolean dbEmpty)
