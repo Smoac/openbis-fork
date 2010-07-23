@@ -131,6 +131,26 @@ public final class Geometry implements Serializable
     }
 
     /**
+     * Returns the number of columns.
+     * 
+     * @return a non-negative number.
+     */
+    public final int getNumberOfColumns()
+    {
+        return width;
+    }
+
+    /**
+     * Returns the number of rows.
+     * 
+     * @return a non-negative number.
+     */
+    public final int getNumberOfRows()
+    {
+        return height;
+    }
+
+    /**
      * Returns the dimension on the x-axis.
      * 
      * @return a non-negative number.
