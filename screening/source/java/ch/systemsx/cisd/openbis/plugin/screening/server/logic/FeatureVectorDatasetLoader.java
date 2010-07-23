@@ -46,7 +46,9 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
             IScreeningBusinessObjectFactory businessObjectFactory, String dataStoreBaseURL,
             List<? extends PlateIdentifier> plates)
     {
-        super(session, businessObjectFactory, dataStoreBaseURL, plates);
+        super(session, businessObjectFactory, dataStoreBaseURL, plates,
+                ScreeningConstants.IMAGE_DATASET_TYPE,
+                ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
         featureVectorDatasetTypeCode = ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE;
     }
 
@@ -69,15 +71,21 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
 
         for (ExternalData data : getDatasets())
         {
-            List<ExternalData> children =
-                    datasetLister.listByParentTechId(new TechId(data.getId()));
-            ArrayList<ExternalData> parentList = new ArrayList<ExternalData>();
-            parentList.add(data);
-            for (ExternalData child : children)
+            if (ScreeningUtils.isTypeEqual(data, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE))
             {
-                child.setParents(parentList);
+                featureVectorDatasets.add(data);
+            } else 
+            {
+                List<ExternalData> children =
+                        datasetLister.listByParentTechId(new TechId(data.getId()));
+                ArrayList<ExternalData> parentList = new ArrayList<ExternalData>();
+                parentList.add(data);
+                for (ExternalData child : children)
+                {
+                    child.setParents(parentList);
+                }
+                featureVectorDatasets.addAll(children);
             }
-            featureVectorDatasets.addAll(children);
         }
 
         featureVectorDatasets =
@@ -98,11 +106,22 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
     protected FeatureVectorDatasetReference asFeatureVectorDataset(ExternalData externalData)
     {
         DataStore dataStore = externalData.getDataStore();
-        ExternalData parentDataset = externalData.getParents().iterator().next();
-        return new FeatureVectorDatasetReference(externalData.getCode(),
-                getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(parentDataset),
-                extractPlateGeometry(parentDataset), externalData.getRegistrationDate(),
+        if (externalData.getParents() == null || externalData.getParents().size() == 0)
+        {
+            return new FeatureVectorDatasetReference(externalData.getCode(),
+                    getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
+                    extractPlateGeometry(externalData), externalData.getRegistrationDate(),
+                    null);
+        } else
+        {
+            // Note: this only works reliably because this class sets the parents of the feature 
+            // vector data sets itself and sets it to a list with exactly one entry!
+            // (see loadFeatureVectorDatasets() above)
+            final ExternalData parentDataset = externalData.getParents().iterator().next();
+            return new FeatureVectorDatasetReference(externalData.getCode(),
+                    getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(parentDataset),
+                    extractPlateGeometry(parentDataset), externalData.getRegistrationDate(), 
                 asImageDataset(parentDataset));
+        }
     }
-
 }

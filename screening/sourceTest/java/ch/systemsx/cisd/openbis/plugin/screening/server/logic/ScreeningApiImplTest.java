@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
@@ -78,15 +80,16 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     one(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
-                    will(returnValue(Arrays.asList(imageDataSet(p1, "1"), imageAnalysisDataSet(p1,
-                            "2"))));
+                    will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1), imageAnalysisDataSet(
+                            p1, "2", 2))));
                 }
             });
 
         List<ImageDatasetReference> dataSets = screeningApi.listImageDatasets(Arrays.asList(pi1));
 
         assertEquals("1", dataSets.get(0).getDatasetCode());
-        assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(0).getPlateGeometry());
+        assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(0)
+                .getPlateGeometry());
         assertEquals(new Date(100), dataSets.get(0).getRegistrationDate());
         assertEquals(SERVER_URL, dataSets.get(0).getDatastoreServerUrl());
         assertEquals(pi1, dataSets.get(0).getPlate());
@@ -110,7 +113,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     one(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
-                    will(returnValue(Arrays.asList(imageDataSet(p1, "1"))));
+                    will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1))));
                 }
             });
 
@@ -154,6 +157,49 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testListFeatureVectorDatasets()
+    {
+        final PlateIdentifier pi1 = new PlateIdentifier("p1", null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningBOFactory).createSampleLister(SESSION);
+                    will(returnValue(sampleLister));
+                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    Sample p1 = plateSample(pi1, "384_WELLS_16X24");
+                    will(returnValue(Arrays.asList(p1)));
+
+                    exactly(2).of(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
+                    will(returnValue(datasetLister));
+                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
+                    will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1), imageAnalysisDataSet(
+                            p1, "2", 2))));
+
+                    one(datasetLister).listByParentTechId(new TechId(1));
+                    will(returnValue(Arrays.asList(imageAnalysisDataSet(null, "3", 3))));
+                }
+            });
+
+        List<FeatureVectorDatasetReference> dataSets =
+                screeningApi.listFeatureVectorDatasets(Arrays.asList(pi1));
+
+        assertEquals(2, dataSets.size());
+        assertEquals("3", dataSets.get(0).getDatasetCode());
+        assertEquals("2", dataSets.get(1).getDatasetCode());
+        assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(0)
+                .getPlateGeometry());
+        assertEquals(new Date(300), dataSets.get(0).getRegistrationDate());
+        assertEquals(SERVER_URL, dataSets.get(0).getDatastoreServerUrl());
+        assertEquals(pi1, dataSets.get(0).getPlate());
+        assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(1)
+                .getPlateGeometry());
+        assertEquals(new Date(200), dataSets.get(1).getRegistrationDate());
+        assertEquals(SERVER_URL, dataSets.get(1).getDatastoreServerUrl());
+        assertEquals(pi1, dataSets.get(1).getPlate());
+        context.assertIsSatisfied();
+    }
+
     private void assertListImageDatasetsFailsFor(final String plateGeometry)
     {
         final PlateIdentifier pi1 = new PlateIdentifier("p1", null);
@@ -169,7 +215,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     one(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
-                    will(returnValue(Arrays.asList(imageDataSet(p1, "1"))));
+                    will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1))));
                 }
             });
 
@@ -207,23 +253,24 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         return sample;
     }
 
-    private ExternalData imageDataSet(Sample sample, String code)
+    private ExternalData imageDataSet(Sample sample, String code, long id)
     {
-        ExternalData dataSet = createDataSet(sample, code);
+        ExternalData dataSet = createDataSet(sample, code, id);
         dataSet.setDataSetType(dataSetType(ScreeningConstants.IMAGE_DATASET_TYPE));
         return dataSet;
     }
 
-    private ExternalData imageAnalysisDataSet(Sample sample, String code)
+    private ExternalData imageAnalysisDataSet(Sample sample, String code, long id)
     {
-        ExternalData dataSet = createDataSet(sample, code);
+        ExternalData dataSet = createDataSet(sample, code, id);
         dataSet.setDataSetType(dataSetType(ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE));
         return dataSet;
     }
 
-    private ExternalData createDataSet(Sample sample, String code)
+    private ExternalData createDataSet(Sample sample, String code, long id)
     {
         ExternalData dataSet = new ExternalData();
+        dataSet.setId(id);
         dataSet.setCode(code);
         dataSet.setSample(sample);
         DataStore dataStore = new DataStore();

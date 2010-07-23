@@ -38,7 +38,10 @@ public class FeatureVectorDatasetReference extends DatasetReference implements
         this.imageDatasetIdentifier = imageDatasetIdentifier;
     }
 
-    /** parent image dataset which has been analyzed to obtain the feature vectors */
+    /**
+     * Parent image dataset which has been analyzed to obtain the feature vectors, or
+     * <code>null</code>, if the data set has no parent image dataset.
+     */
     public IImageDatasetIdentifier getParentImageDataset()
     {
         return imageDatasetIdentifier;

@@ -46,7 +46,7 @@ class PlateDatasetLoader
     // Parameter state
     private final List<? extends PlateIdentifier> plates;
 
-    private final String datasetTypeCode;
+    private final String[] datasetTypeCodes;
 
     // Running state
     private List<Sample> samples;
@@ -58,13 +58,14 @@ class PlateDatasetLoader
     private HashMap<Long, Sample> samplesById;
 
     PlateDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            String dataStoreBaseURL, List<? extends PlateIdentifier> plates, String datasetTypeCode)
+            String dataStoreBaseURL, List<? extends PlateIdentifier> plates,
+            String... datasetTypeCodes)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.dataStoreBaseURL = dataStoreBaseURL;
         this.plates = plates;
-        this.datasetTypeCode = datasetTypeCode;
+        this.datasetTypeCodes = datasetTypeCodes;
     }
 
     protected List<ExternalData> getDatasets()
@@ -99,7 +100,7 @@ class PlateDatasetLoader
         IDatasetLister datasetLister =
                 businessObjectFactory.createDatasetLister(session, dataStoreBaseURL);
         datasets = datasetLister.listBySampleIds(sampleIds);
-        datasets = ScreeningUtils.filterExternalDataByType(datasets, datasetTypeCode);
+        datasets = ScreeningUtils.filterExternalDataByType(datasets, datasetTypeCodes);
     }
 
     private void initializeSampleMaps()

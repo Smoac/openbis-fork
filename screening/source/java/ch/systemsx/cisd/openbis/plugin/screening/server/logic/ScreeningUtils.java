@@ -85,12 +85,12 @@ public class ScreeningUtils
     }
 
     public static List<ExternalData> filterExternalDataByType(List<ExternalData> datasets,
-            String datasetTypeCode)
+            String... datasetTypeCodes)
     {
         List<ExternalData> chosenDatasets = new ArrayList<ExternalData>();
         for (ExternalData dataset : datasets)
         {
-            if (isTypeEqual(dataset, datasetTypeCode))
+            if (isTypeEqual(dataset, datasetTypeCodes))
             {
                 chosenDatasets.add(dataset);
             }
@@ -98,9 +98,16 @@ public class ScreeningUtils
         return chosenDatasets;
     }
 
-    private static boolean isTypeEqual(ExternalData dataset, String datasetType)
+    public static boolean isTypeEqual(ExternalData dataset, String... datasetTypeCodes)
     {
-        return dataset.getDataSetType().getCode().equals(datasetType);
+        for (String datasetTypeCode : datasetTypeCodes)
+        {
+            if (dataset.getDataSetType().getCode().equals(datasetTypeCode))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
