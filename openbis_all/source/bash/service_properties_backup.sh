@@ -20,6 +20,7 @@ export DSS_PRODUCTIVE=~openbis/sprint/datastore_server/etc/service.properties
 export MAIL_LIST="manuel.kohler@bsse.ethz.ch"
 export BOX=`uname -n`
 export PLATFORM=`uname -s`
+export LN=/usr/bin/ln
 
 #if [ $PLATFORM = "SunOS" ];
 #then
@@ -37,9 +38,9 @@ if [ $? -ne 0 ]; then
         echo -e "* creating a backup of $PRODUCTIVE at $DATE *"
         cp $PRODUCTIVE $BACKUP_DIR/${SP}_${BOX}_${DATE} 
         cp $PRODUCTIVE $CONFIG_DIR/$SP
-        export LATEST_FILE=`ls -1rt ${SP}* | tail -1`     
         rm $BACKUP_DIR/$SP
-        ln -s $LATEST_FILE $BACKUP_DIR/$SP
+        export LATEST_FILE=`ls -1rt ${SP}_* | tail -1`     
+        $LN -s $BACKUP_DIR/$LATEST_FILE $BACKUP_DIR/$SP
 fi
 
 # openBIS DSS
@@ -49,9 +50,9 @@ if [ $? -ne 0 ]; then
         echo -e "* creating a backup of $DSS_PRODUCTIVE at $DATE "
         cp $DSS_PRODUCTIVE $BACKUP_DIR/${DSS_SP}_${BOX}_${DATE}
         cp $DSS_PRODUCTIVE $CONFIG_DIR/$DSS_SP
-        export LATEST_FILE=`ls -1rt ${DSS_SP}* | tail -1`     
         rm $BACKUP_DIR/$DSS_SP
-        ln -s $LATEST_FILE $BACKUP_DIR/$DSS_SP
+        export LATEST_FILE=`ls -1rt ${DSS_SP}_* | tail -1`     
+        $LN -s $BACKUP_DIR/$LATEST_FILE $BACKUP_DIR/$DSS_SP
 fi
 
 #/usr/bin/find $BACKUP_DIR -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
