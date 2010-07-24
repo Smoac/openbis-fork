@@ -149,7 +149,7 @@ BEGIN
 	  saty_id,
 	  prty_id,
 	  is_mandatory,
-	  pers_id_regis	terer,
+	  pers_id_registerer,
 	  ordinal
 	) values(
 			nextval('stpt_id_seq'), 
