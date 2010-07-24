@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * Experiment section panel which allows to find wells were selected genes have been inhibited.
@@ -109,7 +110,7 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
                 @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
-                    return HelpPageIdentifier.createSpecific("Plate Material Reviewer");
+                    return HelpPageIdentifier.createSpecific("Well Reviewing Panel");
                 }
 
                 @Override
@@ -129,7 +130,12 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
         if (materialItemList == null || materialItemList.length == 0)
         {
             return null;
+
         }
-        return PlateMaterialReviewer.create(screeningViewContext, experiment, materialItemList);
+        // TODO 2010-07-23, Tomasz Pylak: allow user to choose the types
+        String[] materialTypeCodes = new String[]
+            { ScreeningConstants.GENE_PLUGIN_TYPE_CODE, "CONTROL" };
+        return PlateMaterialReviewer.create(screeningViewContext, experiment, materialItemList,
+                materialTypeCodes);
     }
 }

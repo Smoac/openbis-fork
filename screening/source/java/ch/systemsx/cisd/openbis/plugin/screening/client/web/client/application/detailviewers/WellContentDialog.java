@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
@@ -66,6 +66,7 @@ public class WellContentDialog extends Dialog
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
+        container.setScrollMode(Scroll.AUTO);
 
         final WellContentDialog contentDialog =
                 new WellContentDialog(wellData.tryGetMetadata(), wellData.getExperiment(),
@@ -92,7 +93,7 @@ public class WellContentDialog extends Dialog
             dialogWidth = 300;
             dialogHeight = 160;
         }
-        String title = "Well Content: " + wellData.getWellContentDescription();
+        String title = "Well Content: " + wellData.getWellDescription();
         setupContentAndShow(contentDialog, container, dialogWidth, dialogHeight, title);
     }
 
@@ -138,27 +139,50 @@ public class WellContentDialog extends Dialog
             container.add(new Text("Well: "), cellLayout);
             container.add(createEntityLink(metadataOrNull.getWellSample()));
 
-            Material content = metadataOrNull.tryGetContent();
-            if (content != null)
-            {
-                Material gene = metadataOrNull.tryGetGene();
-                if (gene != null)
-                {
-                    container.add(new Text("Inhibited gene: "), cellLayout);
-                    container.add(createGeneViewerLink(gene));
-
-                    container.add(new Text("Gene details: "), cellLayout);
-                    container.add(createEntityExternalLink(gene));
-                }
-
-                container.add(new Text("Content: "), cellLayout);
-                container.add(createEntityLink(content));
-            }
+            addProperties(container, cellLayout, metadataOrNull.getWellSample().getProperties());
         } else
         {
             container.add(new Text("No metadata available."));
         }
         return container;
+    }
+
+    private void addProperties(LayoutContainer container, TableData cellLayout,
+            List<IEntityProperty> properties)
+    {
+        for (IEntityProperty property : properties)
+        {
+            addProperty(container, cellLayout, property);
+        }
+    }
+
+    private void addProperty(LayoutContainer container, TableData cellLayout,
+            IEntityProperty property)
+    {
+        String propertyLabel = property.getPropertyType().getLabel();
+        String propertyValue = property.tryGetAsString();
+
+        container.add(new Text(propertyLabel + ": "), cellLayout);
+        Material material = property.getMaterial();
+        if (material != null)
+        {
+            if (material.getMaterialType().getCode().equalsIgnoreCase(
+                    ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
+            {
+                container.add(createGeneViewerLink(material));
+
+                container.add(new Text("Gene details: "), cellLayout);
+                container.add(createEntityExternalLink(material));
+            } else
+            {
+                // TODO 2010-07-22, Tomasz Pylak: link to detail view able to display images
+                container.add(createEntityLink(material));
+            }
+        } else
+        {
+            container.add(new Text(propertyValue), cellLayout);
+        }
+
     }
 
     private Widget createEntityExternalLink(Material gene)
@@ -242,15 +266,7 @@ public class WellContentDialog extends Dialog
 
     private static String createDialogTitle(WellContent wellContent)
     {
-        String content;
-        EntityReference nestedMaterial = wellContent.tryGetNestedMaterialContent();
-        if (nestedMaterial != null)
-        {
-            content = nestedMaterial.getCode();
-        } else
-        {
-            content = wellContent.getMaterialContent().getCode();
-        }
+        String content = wellContent.getMaterialContent().getCode();
         return "Plate: " + wellContent.getPlate().getCode() + ", well: "
                 + wellContent.getWell().getCode() + ", content: " + content;
     }

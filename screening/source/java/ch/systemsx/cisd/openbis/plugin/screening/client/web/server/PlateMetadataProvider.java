@@ -26,10 +26,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -98,70 +96,23 @@ class PlateMetadataProvider implements IOriginalDataProvider<GenericTableRow>
                                 .getColumnId()));
         columns.add(typeColumn);
 
-        Column contentColumn =
-                new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
-                        PlateMetadataStaticColumns.CONTENT.ordinal(),
-                        PlateMetadataStaticColumns.CONTENT.getColumnId()));
-        columns.add(contentColumn);
-
-        Column contentTypeColumn =
-                new Column(GenericTableColumnHeader.untitledStringHeader(
-                        PlateMetadataStaticColumns.CONTENT_TYPE.ordinal(),
-                        PlateMetadataStaticColumns.CONTENT_TYPE.getColumnId()));
-        columns.add(contentTypeColumn);
-
-        Column geneCodeColumn =
-                new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
-                        PlateMetadataStaticColumns.INHIBITED_GENE.ordinal(),
-                        PlateMetadataStaticColumns.INHIBITED_GENE.getColumnId()));
-        columns.add(geneCodeColumn);
-
-        Column showGeneColumn =
-                new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
-                        PlateMetadataStaticColumns.GENE_DETAILS.ordinal(),
-                        PlateMetadataStaticColumns.GENE_DETAILS.getColumnId()));
-        columns.add(showGeneColumn);
         int fixedColumns = columns.size();
-        PropertyColumns contentPropertyColumns = new PropertyColumns();
-        PropertyColumns genePropertyColumns = new PropertyColumns();
+        PropertyColumns propertyColumns = new PropertyColumns();
         for (int i = 0; i < wells.size(); i++)
         {
             WellMetadata metadata = wells.get(i);
             Sample well = metadata.getWellSample();
             codeColumn.addStringWithID(i, well.getCode(), well.getId());
             typeColumn.addString(i, well.getSampleType().getCode());
-            Material content = metadata.tryGetContent();
-            if (content != null)
-            {
-                contentColumn.addStringWithID(i, content.getCode(), content.getId());
-                contentTypeColumn.addString(i, content.getMaterialType().getCode());
-                addPropertyTypes(contentPropertyColumns, i, content);
-            }
-            Material gene = metadata.tryGetGene();
-            if (gene != null)
-            {
-                geneCodeColumn.addStringWithID(i, gene.getCode(), gene.getId());
-                // NOTE: If we want to include the gene library url in exported data,
-                // we must configure it outside the dictionary (see PlateMetadataBrowser).
-                showGeneColumn.addString(i, "Show");
-                addPropertyTypes(genePropertyColumns, i, gene);
-            }
-        }
-        int nextIndex = contentPropertyColumns.reindexColumns(fixedColumns);
-        contentPropertyColumns.addPrefixToColumnHeaderCodes("CONTENT_PROPERTY__");
-        columns.addAll(contentPropertyColumns.getColumns());
-        genePropertyColumns.reindexColumns(nextIndex);
-        genePropertyColumns.addPrefixToColumnHeaderCodes("GENE_PROPERTY__");
-        columns.addAll(genePropertyColumns.getColumns());
-        return columns;
-    }
 
-    private static void addPropertyTypes(PropertyColumns columns, int index,
-            IEntityPropertiesHolder propertiesHolder)
-    {
-        for (IEntityProperty property : propertiesHolder.getProperties())
-        {
-            columns.add(index, property);
+            for (IEntityProperty wellProperty : well.getProperties())
+            {
+                propertyColumns.add(i, wellProperty);
+            }
         }
+        propertyColumns.reindexColumns(fixedColumns);
+        propertyColumns.addPrefixToColumnHeaderCodes("CONTENT_PROPERTY__");
+        columns.addAll(propertyColumns.getColumns());
+        return columns;
     }
 }

@@ -23,13 +23,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -43,7 +39,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
@@ -235,15 +230,8 @@ public class PlateContentLoader
     private List<WellMetadata> loadWells(TechId plateId)
     {
         ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-        IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
 
         List<Sample> wells = sampleLister.list(createSamplesForContainerCriteria(plateId));
-        List<Material> containedMaterials = getReferencedMaterials(wells);
-        materialLister.enrichWithProperties(containedMaterials);
-        List<Material> genes =
-                getInhibitedMaterials(containedMaterials,
-                        ScreeningConstants.INHIBITOR_PROPERTY_CODE);
-        materialLister.enrichWithProperties(genes);
         return createWells(wells);
     }
 
@@ -272,8 +260,7 @@ public class PlateContentLoader
     private PlateImageParameters loadImageParams(ExternalDataPE dataset,
             IExternalDataTable externalDataTable)
     {
-        final IHCSDatasetLoader loader =
-                businessObjectFactory.createHCSDatasetLoader(dataset);
+        final IHCSDatasetLoader loader = businessObjectFactory.createHCSDatasetLoader(dataset);
         return PlateImageParametersFactory.create(loader);
     }
 
@@ -292,89 +279,12 @@ public class PlateContentLoader
         WellMetadata well = new WellMetadata();
         WellLocation locationOrNull = tryGetLocation(wellSample);
         well.setWellSample(wellSample, locationOrNull);
-        Material content = tryFindMaterialProperty(wellSample.getProperties());
-        well.setContent(content);
-        if (content != null)
-        {
-            Material inhibited = tryFindInhibitedMaterial(content);
-            well.setGene(inhibited);
-        }
         return well;
     }
 
     private static WellLocation tryGetLocation(Sample wellSample)
     {
         return ScreeningUtils.tryCreateLocationFromMatrixCoordinate(wellSample.getSubCode());
-    }
-
-    private static Material tryFindInhibitedMaterial(Material content)
-    {
-        IEntityProperty property =
-                tryFindProperty(content.getProperties(), ScreeningConstants.INHIBITOR_PROPERTY_CODE);
-        if (property != null)
-        {
-            Material material = property.getMaterial();
-            assert material != null : "Material property expected, but got: " + property;
-            return material;
-        } else
-        {
-            return null;
-        }
-    }
-
-    private static List<Material> getInhibitedMaterials(List<Material> materials,
-            String propertyCode)
-    {
-        List<Material> inhibitedMaterials = new ArrayList<Material>();
-        for (Material material : materials)
-        {
-            Material inhibitedMaterial = tryFindInhibitedMaterial(material);
-            if (inhibitedMaterial != null)
-            {
-                inhibitedMaterials.add(inhibitedMaterial);
-            }
-        }
-        return inhibitedMaterials;
-    }
-
-    private static IEntityProperty tryFindProperty(List<IEntityProperty> properties,
-            String propertyCode)
-    {
-        for (IEntityProperty prop : properties)
-        {
-            if (prop.getPropertyType().getCode().equals(propertyCode))
-            {
-                return prop;
-            }
-        }
-        return null;
-    }
-
-    private static Material tryFindMaterialProperty(List<IEntityProperty> properties)
-    {
-        for (IEntityProperty prop : properties)
-        {
-            if (prop.getMaterial() != null)
-            {
-                return prop.getMaterial();
-            }
-        }
-        return null;
-    }
-
-    private static List<Material> getReferencedMaterials(
-            List<? extends IEntityPropertiesHolder> entities)
-    {
-        List<Material> materials = new ArrayList<Material>();
-        for (IEntityPropertiesHolder entity : entities)
-        {
-            Material material = tryFindMaterialProperty(entity.getProperties());
-            if (material != null)
-            {
-                materials.add(material);
-            }
-        }
-        return materials;
     }
 
     private static ListOrSearchSampleCriteria createSamplesForContainerCriteria(TechId plateId)

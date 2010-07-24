@@ -33,9 +33,6 @@ public class ScreeningConstants
     // name of the data source (configured in service.properties) which allows to access imaging db
     public static final String IMAGING_DATA_SOURCE = "imaging-db";
 
-    // name of the property which stores material (gene) inhibited by the material stored in a well
-    public static final String INHIBITOR_PROPERTY_CODE = "INHIBITOR_OF";
-
     // ---- required DSS plugins
 
     // id of the DSS screening reporting plugin to get the images of the plate
@@ -51,6 +48,8 @@ public class ScreeningConstants
     public static final String IMAGE_ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA";
 
     public static final String OLIGO_WELL_TYPE_CODE = "OLIGO_WELL";
+
+    public static final String CONTROL_WELL_TYPE_CODE = "CONTROL_WELL";
 
     public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
 

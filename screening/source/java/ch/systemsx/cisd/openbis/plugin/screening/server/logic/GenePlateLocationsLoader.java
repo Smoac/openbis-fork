@@ -203,13 +203,12 @@ public class GenePlateLocationsLoader
         List<ExternalDataPE> distinctDataSets = getDistinctDataSets(usedDataSets);
         for (ExternalDataPE dataSet : distinctDataSets)
         {
-            final IHCSDatasetLoader loader =
-                    businessObjectFactory.createHCSDatasetLoader(dataSet);
+            final IHCSDatasetLoader loader = businessObjectFactory.createHCSDatasetLoader(dataSet);
             imageParameters.add(PlateImageParametersFactory.create(loader));
         }
         return asDatasetToParamsMap(imageParameters);
     }
-    
+
     private List<ExternalDataPE> getDistinctDataSets(List<ExternalDataPE> usedDataSets)
     {
         List<ExternalDataPE> result = new ArrayList<ExternalDataPE>();
@@ -288,15 +287,11 @@ public class GenePlateLocationsLoader
 
     private List<WellContent> loadLocations(PlateMaterialsSearchCriteria materialCriteria)
     {
-        String[] materialCodes = materialCriteria.getGeneSymbols();
-        String[] materialCodesInUpperCase = new String[materialCodes.length];
-        for (int i = 0; i < materialCodes.length; i++)
-        {
-            materialCodesInUpperCase[i] = materialCodes[i].toUpperCase();
-        }
+        String[] materialCodes = materialCriteria.getMaterialCodes();
         DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations =
-                createDAO(daoFactory).getPlateLocationsForNestedMaterialCodes(
-                        materialCriteria.getExperimentId().getId(), materialCodesInUpperCase);
+                createDAO(daoFactory).getPlateLocationsForMaterialCodes(
+                        materialCriteria.getExperimentId().getId(), materialCodes,
+                        materialCriteria.getMaterialTypeCodes());
 
         return convert(locations);
     }
@@ -307,7 +302,7 @@ public class GenePlateLocationsLoader
         long experimentId = loadExperimentId(experimentIdentifier);
 
         DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations =
-                createDAO(daoFactory).getPlateLocationsForNestedMaterialId(geneMaterialId.getId(),
+                createDAO(daoFactory).getPlateLocationsForMaterialId(geneMaterialId.getId(),
                         experimentId);
 
         return convert(locations);
@@ -331,13 +326,8 @@ public class GenePlateLocationsLoader
             {
                 public int compare(WellContent o1, WellContent o2)
                 {
-                    EntityReference m1 = o1.tryGetNestedMaterialContent();
-                    EntityReference m2 = o2.tryGetNestedMaterialContent();
-                    if (m1 == null || m2 == null)
-                    {
-                        m1 = o1.getMaterialContent();
-                        m2 = o2.getMaterialContent();
-                    }
+                    EntityReference m1 = o1.getMaterialContent();
+                    EntityReference m2 = o2.getMaterialContent();
                     return m1.getCode().compareTo(m2.getCode());
                 }
             });
@@ -356,14 +346,7 @@ public class GenePlateLocationsLoader
         EntityReference materialContent =
                 new EntityReference(loc.material_content_id, loc.material_content_code,
                         loc.material_content_type_code, EntityKind.MATERIAL, null);
-        EntityReference nestedMaterialContentOrNull = null;
-        if (loc.nested_well_material_id != null)
-        {
-            nestedMaterialContentOrNull =
-                    new EntityReference(loc.nested_well_material_id, loc.nested_well_material_code,
-                            loc.nested_well_material_type_code, EntityKind.MATERIAL, null);
-        }
-        return new WellContent(location, well, plate, materialContent, nestedMaterialContentOrNull);
+        return new WellContent(location, well, plate, materialContent);
     }
 
     private static IScreeningQuery createDAO(IDAOFactory daoFactory)

@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
@@ -51,6 +52,12 @@ class ChannelChooser
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
+
+        if (channelsNames.size() == 0)
+        {
+            container.add(new Label("No images available"));
+            return container;
+        }
         String initialChannel = channelState.getDefaultChannel(channelsNames);
         if (channelsNames.size() > 1)
         {

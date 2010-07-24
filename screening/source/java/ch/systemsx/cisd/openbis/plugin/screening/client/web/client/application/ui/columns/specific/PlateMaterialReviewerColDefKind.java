@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -32,22 +31,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<WellContent>
 {
-    WELL_NESTED_MATERIAL(new AbstractColumnDefinitionKind<WellContent>(Dict.WELL_NESTED_MATERIAL)
-        {
-            @Override
-            public String tryGetValue(WellContent entity)
-            {
-                EntityReference nestedMaterial = entity.tryGetNestedMaterialContent();
-                return nestedMaterial != null ? nestedMaterial.getCode() : null;
-            }
-
-            @Override
-            public String tryGetLink(WellContent entity)
-            {
-                return LinkExtractor.tryExtract(entity.tryGetNestedMaterialContent());
-            }
-        }),
-
     WELL_CONTENT_MATERIAL(new AbstractColumnDefinitionKind<WellContent>(Dict.WELL_CONTENT_MATERIAL,
             true)
         {
@@ -148,7 +131,7 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             }
         }),
 
-    IMAGE(new AbstractColumnDefinitionKind<WellContent>(Dict.WELL_IMAGES, 250)
+    IMAGE(new AbstractColumnDefinitionKind<WellContent>(Dict.WELL_IMAGES, 500)
         {
             @Override
             public String tryGetValue(WellContent entity)

@@ -46,13 +46,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -63,8 +64,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 public class PlateLayouter
 {
-    private static final String CONTROL_MATERIAL_TYPE = "CONTROL";
-
     /** @return widget with plate visualization - all the wells and possibility to browse images. */
     public static Widget createVisualization(PlateImages plateImages,
             ScreeningViewContext viewContext)
@@ -170,7 +169,8 @@ public class PlateLayouter
         verticalSeparator.setHeight("10");
         legend.add(verticalSeparator, mergedColumns);
 
-        legend.add(new Text("Hold the mouse cursor over a well or click on it to get the details."),
+        legend.add(
+                new Text("Hold the mouse cursor over a well or click on it to get the details."),
                 mergedColumns);
 
         legend.add(createNonEmptyWell(false));
@@ -248,8 +248,8 @@ public class PlateLayouter
 
     private static boolean isControlWell(WellMetadata metadata)
     {
-        Material content = metadata.tryGetContent();
-        return content != null && content.getEntityType().getCode().equals(CONTROL_MATERIAL_TYPE);
+        String sampleTypeCode = metadata.getWellSample().getSampleType().getCode();
+        return sampleTypeCode.equalsIgnoreCase(ScreeningConstants.CONTROL_WELL_TYPE_CODE);
     }
 
     private static void setWellDescription(final WellData wellData, Component widget)
@@ -259,18 +259,18 @@ public class PlateLayouter
         {
             return;
         }
-        Material content = metadata.tryGetContent();
-        if (content != null)
+        List<IEntityProperty> properties = metadata.getWellSample().getProperties();
+
+        String tooltip = "Well: " + wellData.getWellDescription();
+
+        for (IEntityProperty property : properties)
         {
-            String tooltip = "Well: " + wellData.getWellContentDescription();
-            Material gene = metadata.tryGetGene();
-            if (gene != null)
-            {
-                tooltip += "<br>Inhibited gene: " + gene.getCode();
-            }
-            tooltip += "<br>Content: " + content.getIdentifier();
-            GWTUtils.setToolTip(widget, tooltip);
+            tooltip +=
+                    "<br>" + property.getPropertyType().getLabel() + ": "
+                            + property.tryGetAsString();
         }
+        GWTUtils.setToolTip(widget, tooltip);
+
     }
 
     // Elements will not contain null even if well is empty.

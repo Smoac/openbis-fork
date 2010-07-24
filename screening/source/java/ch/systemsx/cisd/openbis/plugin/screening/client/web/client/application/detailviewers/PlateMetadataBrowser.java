@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.GenericTableBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -37,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SerializableComparableIDDecorator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataStaticColumns;
 
@@ -85,38 +83,6 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
                             showEntityViewer(rowItem, false, keyPressed);
                         }
                     });
-        registerLinkClickListenerFor(PlateMetadataStaticColumns.CONTENT.getColumnId(),
-                new ICellListener<GenericTableRow>()
-                    {
-                        public void handle(GenericTableRow rowItem, boolean keyPressed)
-                        {
-                            showMaterialViewer(rowItem, false, keyPressed);
-                        }
-                    });
-        registerLinkClickListenerFor(PlateMetadataStaticColumns.INHIBITED_GENE.getColumnId(),
-                new ICellListener<GenericTableRow>()
-                    {
-                        public void handle(GenericTableRow rowItem, boolean keyPressed)
-                        {
-                            showGeneViewer(rowItem, false, keyPressed);
-                        }
-                    });
-        registerLinkClickListenerFor(PlateMetadataStaticColumns.GENE_DETAILS.getColumnId(),
-                new ICellListener<GenericTableRow>()
-                    {
-
-                        public void handle(GenericTableRow rowItem, boolean keyPressed)
-                        {
-                            String geneCode =
-                                    getColumnAsString(rowItem,
-                                            PlateMetadataStaticColumns.INHIBITED_GENE);
-                            // NOTE: If we want to include the gene library url in
-                            // exported data we must configure it outside the dictionary
-                            // (PlateMetadataProvider).
-                            WindowUtils.openWindow(screeningViewContext.getMessage(
-                                    Dict.GENE_LIBRARY_URL, geneCode));
-                        }
-                    });
     }
 
     @Override
@@ -152,18 +118,6 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
     {
         showEntityInformationHolderViewer(entity, PlateMetadataStaticColumns.WELL, "UNDEFINED",
                 EntityKind.SAMPLE, editMode, active);
-    }
-
-    protected void showMaterialViewer(final GenericTableRow entity, boolean editMode, boolean active)
-    {
-        showEntityInformationHolderViewer(entity, PlateMetadataStaticColumns.CONTENT, "UNDEFINED",
-                EntityKind.MATERIAL, editMode, active);
-    }
-
-    protected void showGeneViewer(final GenericTableRow entity, boolean editMode, boolean active)
-    {
-        showEntityInformationHolderViewer(entity, PlateMetadataStaticColumns.INHIBITED_GENE,
-                "GENE", EntityKind.MATERIAL, editMode, active);
     }
 
     private static ISerializableComparable getColumn(final GenericTableRow entity,

@@ -198,8 +198,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
         Widget wellLink = createLabel(wellContent.getWell());
         container.add(withLabel(wellLink, "Well: ", margin));
 
-        Widget contentLink = createEntityLink(wellContent.getMaterialContent());
-        container.add(withLabel(contentLink, "Content: ", margin));
+        // TODO 2010-07-22, Tomasz Pylak: show other well properties, like siRNA
 
         DatasetImagesReference images = wellContent.tryGetImages();
         if (images != null)

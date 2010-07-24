@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -32,7 +33,9 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String[] geneSymbols;
+    private String[] materialCodes;
+
+    private String[] materialTypeCodes;
 
     private long experimentId;
 
@@ -42,15 +45,31 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
     {
     }
 
-    public PlateMaterialsSearchCriteria(long experimentId, String[] geneSymbols)
+    /**
+     * We look for wells containing materials which have a code contained in the specified list of
+     * codes and type contained in the specified list of types. Additionally all wells should belong
+     * to the plate in the specified experiment.
+     */
+    public PlateMaterialsSearchCriteria(long experimentId, String[] materialCodes,
+            String[] materialTypeCodes)
     {
-        this.geneSymbols = geneSymbols;
+        this.materialCodes = materialCodes;
+        this.materialTypeCodes = materialTypeCodes;
         this.experimentId = experimentId;
+        for (int i = 0; i < materialCodes.length; i++)
+        {
+            materialCodes[i] = materialCodes[i].toUpperCase();
+        }
     }
 
-    public String[] getGeneSymbols()
+    public String[] getMaterialCodes()
     {
-        return geneSymbols;
+        return materialCodes;
+    }
+
+    public String[] getMaterialTypeCodes()
+    {
+        return materialTypeCodes;
     }
 
     public TechId getExperimentId()
@@ -61,13 +80,14 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
     @Override
     public String toString()
     {
-        return "Experiment id: " + experimentId + ", gene symbols: " + printGenes();
+        return "Experiment id: " + experimentId + ", material types: "
+                + Arrays.toString(materialTypeCodes) + ", material codes: " + printMaterialCodes();
     }
 
-    private String printGenes()
+    private String printMaterialCodes()
     {
         StringBuffer sb = new StringBuffer();
-        for (String gene : geneSymbols)
+        for (String gene : materialCodes)
         {
             if (sb.length() > 0)
             {

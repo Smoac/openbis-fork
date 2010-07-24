@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -29,14 +28,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class WellMetadata implements IsSerializable
 {
-    private Sample wellSample;
+    private Sample wellSample; // with fetched properties
 
     private WellLocation locationOrNull;
-
-    private Material contentOrNull; // with fetched properties
-
-    // if the well content is connected to a gene material, this field is filled
-    private Material geneOrNull;
 
     public Sample getWellSample()
     {
@@ -52,28 +46,6 @@ public class WellMetadata implements IsSerializable
     {
         this.wellSample = wellSample;
         this.locationOrNull = locationOrNull;
-    }
-
-    /** can be null */
-    public Material tryGetContent()
-    {
-        return contentOrNull;
-    }
-
-    public void setContent(Material contentOrNull)
-    {
-        this.contentOrNull = contentOrNull;
-    }
-
-    /** can be null */
-    public Material tryGetGene()
-    {
-        return geneOrNull;
-    }
-
-    public void setGene(Material geneOrNull)
-    {
-        this.geneOrNull = geneOrNull;
     }
 
 }

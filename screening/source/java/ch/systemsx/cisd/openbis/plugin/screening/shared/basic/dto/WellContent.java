@@ -34,10 +34,8 @@ public class WellContent implements IsSerializable
 
     private EntityReference plate;
 
+    // a pointer to a material which was being searched for inside a well
     private EntityReference materialContent;
-
-    // material nested in material content (e.g. gene material property)
-    private EntityReference nestedMaterialContentOrNull;
 
     // contains only images for this well, null if no images have been acquired
     private DatasetImagesReference imagesOrNull;
@@ -49,13 +47,12 @@ public class WellContent implements IsSerializable
     }
 
     public WellContent(WellLocation locationOrNull, EntityReference well, EntityReference plate,
-            EntityReference materialContent, EntityReference nestedMaterialContentOrNull)
+            EntityReference materialContent)
     {
         this.locationOrNull = locationOrNull;
         this.well = well;
         this.plate = plate;
         this.materialContent = materialContent;
-        this.nestedMaterialContentOrNull = nestedMaterialContentOrNull;
     }
 
     public WellLocation tryGetLocation()
@@ -78,11 +75,6 @@ public class WellContent implements IsSerializable
         return materialContent;
     }
 
-    public EntityReference tryGetNestedMaterialContent()
-    {
-        return nestedMaterialContentOrNull;
-    }
-
     public DatasetImagesReference tryGetImages()
     {
         return imagesOrNull;
@@ -90,9 +82,7 @@ public class WellContent implements IsSerializable
 
     public WellContent cloneWithImages(DatasetImagesReference images)
     {
-        WellContent clone =
-                new WellContent(locationOrNull, well, plate, materialContent,
-                        nestedMaterialContentOrNull);
+        WellContent clone = new WellContent(locationOrNull, well, plate, materialContent);
         clone.imagesOrNull = images;
         return clone;
     }
@@ -101,7 +91,6 @@ public class WellContent implements IsSerializable
     public String toString()
     {
         return "location = " + locationOrNull + ", plate = " + plate + ", well = " + well
-                + ", content = " + materialContent + ", nestedMaterialContent = "
-                + (nestedMaterialContentOrNull == null ? "null" : nestedMaterialContentOrNull);
+                + ", content = " + materialContent;
     }
 }

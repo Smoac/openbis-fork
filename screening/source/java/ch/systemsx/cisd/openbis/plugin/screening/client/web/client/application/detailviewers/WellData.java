@@ -85,7 +85,7 @@ class WellData
         return experimentIdentifier;
     }
 
-    public String getWellContentDescription()
+    public String getWellDescription()
     {
         if (metadataOrNull != null)
         {

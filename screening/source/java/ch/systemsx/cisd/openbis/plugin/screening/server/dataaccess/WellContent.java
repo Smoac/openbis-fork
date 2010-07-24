@@ -31,7 +31,7 @@ public class WellContent
     public String well_code;
 
     public String well_type_code;
-    
+
     public String well_perm_id;
 
     // pointer to a plate to which a well belongs
@@ -44,21 +44,12 @@ public class WellContent
 
     public String plate_perm_id;
 
-    // pointer to a material (oligo/control) inside a well
+    // a pointer to a material which was being searched for inside a well
 
     public long material_content_id;
 
     public String material_content_code;
 
     public String material_content_type_code;
-
-    // optional pointer to a material (gene) which is connected to a material inside a well (oligo)
-    // All fields can be null.
-
-    public Long nested_well_material_id;
-
-    public String nested_well_material_code;
-
-    public String nested_well_material_type_code;
 
 }

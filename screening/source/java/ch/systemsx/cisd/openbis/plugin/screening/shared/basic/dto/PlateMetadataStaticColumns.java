@@ -27,14 +27,6 @@ public enum PlateMetadataStaticColumns
 
     TYPE("TYPE"),
 
-    CONTENT("CONTENT"),
-
-    CONTENT_TYPE("CONTENT_TYPE"),
-
-    INHIBITED_GENE("INHIBITED_GENE"),
-
-    GENE_DETAILS("GENE_DETAILS"),
-
     THUMBNAIL("THUMBNAIL");
 
     private final String id;

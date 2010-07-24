@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.PlateMaterialReviewerColDefKind;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -72,10 +73,12 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
 
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
-            IEntityInformationHolderWithIdentifier experiment, String[] materialItemList)
+            IEntityInformationHolderWithIdentifier experiment, String[] materialItemList,
+            String[] materialTypeCodes)
     {
         PlateMaterialsSearchCriteria materialCriteria =
-                new PlateMaterialsSearchCriteria(experiment.getId(), materialItemList);
+                new PlateMaterialsSearchCriteria(experiment.getId(), materialItemList,
+                        materialTypeCodes);
         return create(viewContext, materialCriteria, experiment);
     }
 
@@ -115,23 +118,24 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
 
     private void registerClickListeners()
     {
-        registerLinkClickListenerFor(PlateMaterialReviewerColDefKind.WELL_NESTED_MATERIAL.id(),
-                new ICellListener<WellContent>()
-                    {
-                        public void handle(WellContent wellContent, boolean specialKeyPressed)
-                        {
-                            EntityReference nestedMaterial =
-                                    wellContent.tryGetNestedMaterialContent();
-                            ClientPluginFactory.openGeneMaterialViewer(nestedMaterial, experiment,
-                                    viewContext);
-                        }
-                    });
         registerLinkClickListenerFor(PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL.id(),
                 new ICellListener<WellContent>()
                     {
                         public void handle(WellContent wellContent, boolean specialKeyPressed)
                         {
-                            showEntityViewer(wellContent.getMaterialContent(), specialKeyPressed);
+                            EntityReference contentMaterial = wellContent.getMaterialContent();
+                            if (contentMaterial.getEntityType().getCode().equals(
+                                    ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
+                            {
+
+                                ClientPluginFactory.openGeneMaterialViewer(contentMaterial,
+                                        experiment, viewContext);
+                            } else
+                            {
+                                // TODO 2010-07-22, Tomasz Pylak: allow to see non-gene images
+                                showEntityViewer(wellContent.getMaterialContent(),
+                                        specialKeyPressed);
+                            }
                         }
                     });
         registerLinkClickListenerFor(PlateMaterialReviewerColDefKind.PLATE.id(),
@@ -179,8 +183,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
     {
         ColumnDefsAndConfigs<WellContent> schema = super.createColumnsDefinition();
         setLinksRenderer(schema, new PlateMaterialReviewerColDefKind[]
-            { PlateMaterialReviewerColDefKind.WELL_NESTED_MATERIAL,
-                    PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
+            { PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
                     PlateMaterialReviewerColDefKind.PLATE, PlateMaterialReviewerColDefKind.WELL,
                     PlateMaterialReviewerColDefKind.DATASET });
         setImageRenderer(schema);
@@ -257,7 +260,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
     protected List<IColumnDefinition<WellContent>> getInitialFilters()
     {
         return asColumnFilters(new PlateMaterialReviewerColDefKind[]
-            { PlateMaterialReviewerColDefKind.WELL_NESTED_MATERIAL,
+            { PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
                     PlateMaterialReviewerColDefKind.WELL });
     }
 

@@ -29,6 +29,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOWithoutContextTest;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * Tests for {@link IScreeningQuery}.
@@ -70,17 +71,21 @@ public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
     public void testGetPlateLocationsForOneMaterial()
     {
         // it just tests if the sql is correct
-        List<WellContent> locations = EntityListingTestUtils.asList(query.getPlateLocationsForNestedMaterialId(1, 1));
+        List<WellContent> locations =
+                EntityListingTestUtils.asList(query.getPlateLocationsForMaterialId(1, 1));
         AssertJUnit.assertEquals(0, locations.size());
     }
 
     @Test
     public void testGetPlateLocationsForManyMaterials()
     {
+        String[] materialTypeCodes = new String[]
+            { ScreeningConstants.GENE_PLUGIN_TYPE_CODE };
         // it just tests if the sql is correct
         List<WellContent> locations =
-                EntityListingTestUtils.asList(query.getPlateLocationsForNestedMaterialCodes(1, new String[]
-                    { "grs", "abc" }));
+                EntityListingTestUtils.asList(query.getPlateLocationsForMaterialCodes(1,
+                        new String[]
+                            { "grs", "abc" }, materialTypeCodes));
         AssertJUnit.assertEquals(0, locations.size());
     }
 
