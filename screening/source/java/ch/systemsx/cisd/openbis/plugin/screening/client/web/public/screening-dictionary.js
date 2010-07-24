@@ -6,8 +6,6 @@ var screening = {
   // 
   // General
   // 
-  WELL_NESTED_MATERIAL: "Gene",
-  WELL_CONTENT_MATERIAL: "Well Content",
   PLATE: "Plate",
   WELL_ROW: "Well Row",
   WELL_COLUMN: "Well Column",
@@ -25,12 +23,7 @@ var screening = {
   generated_samples: "Children Samples",
   openbis_plate_metadata_browser_CODE: "Code",
   openbis_plate_metadata_browser_TYPE: "Type",
-  openbis_plate_metadata_browser_CONTENT: "Content",
-  openbis_plate_metadata_browser_CONTENT_TYPE: "Content type",
-  openbis_plate_metadata_browser_INHIBITED_GENE: "Inhibited Gene",
-  openbis_plate_metadata_browser_GENE_DETAILS: "Gene Details",
   openbis_plate_metadata_browser_THUMBNAIL: "Thumbnail",
-
 
 	//
 	// Sample import
@@ -48,11 +41,11 @@ var screening = {
 	//    
     SCREENING_MODULE_TITLE: "Screening",
     
-    PLATE_MATERIAL_REVIEWER_TITLE: "Genes Reviewing Panel",
-    PLATE_MATERIAL_REVIEWER_HELP_INFO: "Specify a list of gene symbols and press the search button to find all the wells in this experiment where the specified genes have been suppressed.",
-    PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "List of gene symbols separated by commas (\",\") or one gene symbol per line.",
+    PLATE_MATERIAL_REVIEWER_TITLE: "Wells Reviewing Panel",
+    PLATE_MATERIAL_REVIEWER_HELP_INFO: "Specify a list of material codes contained in the wells (e.g. gene symbols, control names or compound names). Press the search button. The content of all wells in this experiment will be checked and wells containing specified materials will be shown.",
+    PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "List of material codes contained in the wells (e.g. gene symbols, control names or compound names) separated by commas (\",\") or one code per line.",
 
-    EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Genes Reviewing Panel",
+    EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Wells Reviewing Panel",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
