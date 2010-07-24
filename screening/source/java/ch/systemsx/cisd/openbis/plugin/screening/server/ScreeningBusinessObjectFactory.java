@@ -56,7 +56,8 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     public IHCSDatasetLoader createHCSDatasetLoader(ExternalDataPE dataSet)
     {
         String dssCode = dataSet.getDataStore().getCode();
-        return new HCSDatasetLoader(specificDAOFactory.getImagingQueryDAO(dssCode), dataSet.getCode());
+        String dataSetCode = dataSet.getCode();
+        return new HCSDatasetLoader(specificDAOFactory.getImagingQueryDAO(dssCode), dataSetCode);
     }
 
     public final ISampleBO createSampleBO(final Session session)
