@@ -226,7 +226,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
 
     /**
      * In the plate metadata query, the result set does not define which columns are available --
-     * the provider does. This method informs the result set about the columns availible in the
+     * the provider does. This method informs the result set about the columns available in the
      * provider.
      */
     private void updateResultSetColumnsFromProvider(
