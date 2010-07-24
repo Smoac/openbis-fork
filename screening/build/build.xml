@@ -103,7 +103,7 @@
     </antcall>
   </target>
   
-  <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxx API xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+  <!-- ++++++++++++++++++++++++++++++ API ++++++++++++++++++++++++++++++ -->
     
   <target name="screening-api-doc">
     <javadoc 
@@ -181,9 +181,9 @@
     <delete dir="${dist.screening-api}" />
   </target>
   
-  <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxx END API xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+  <!-- ++++++++++++++++++++++++++++++ END API ++++++++++++++++++++++++++++++ -->
   
-  <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxx ECLIPSE TEST MODE xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+  <!-- ++++++++++++++++++++++++++++++ ECLIPSE TEST MODE ++++++++++++++++++++++++++++++ -->
 
   <!-- This is a copy of the openBIS version, the only difference is the value of ecp.gwt variable  -->
   
@@ -260,6 +260,6 @@
     </antcall>
   </target>
   
-  <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxx END ECLIPSE TEST MODE xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+  <!-- ++++++++++++++++++++++++++++++ END ECLIPSE TEST MODE ++++++++++++++++++++++++++++++ -->
   
 </project>
