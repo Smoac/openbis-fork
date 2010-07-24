@@ -163,8 +163,8 @@ public class FeatureTableBuilder
                         // We take only the first set of feature value sets
                         ImgFeatureValuesDTO featureValueDTO = featureValueSets.get(0);
                         PlateFeatureValues featureValues = featureValueDTO.getValues();
-                        if (rowIndex > featureValues.getGeometry().getHeight()
-                                || colIndex > featureValues.getGeometry().getWidth())
+                        if (rowIndex > featureValues.getGeometry().getNumberOfRows()
+                                || colIndex > featureValues.getGeometry().getNumberOfColumns())
                         {
                             break;
                         }

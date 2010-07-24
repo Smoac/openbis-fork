@@ -123,8 +123,8 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
             assertEquals(0.0, featureValues.getZ());
 
             PlateFeatureValues spreadsheet = featureValues.getValues();
-            assertEquals(3, spreadsheet.getGeometry().getHeight());
-            assertEquals(5, spreadsheet.getGeometry().getWidth());
+            assertEquals(3, spreadsheet.getGeometry().getNumberOfRows());
+            assertEquals(5, spreadsheet.getGeometry().getNumberOfColumns());
 
             for (int row = 1; row <= 3; ++row)
             {

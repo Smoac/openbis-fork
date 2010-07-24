@@ -31,8 +31,8 @@ public class GeometryTest
     @Test
     public void testFactoryMethods()
     {
-        assertEquals(16, Geometry.createFromRowColDimensions(16, 24).getHeight());
-        assertEquals(24, Geometry.createFromRowColDimensions(16, 24).getWidth());
+        assertEquals(16, Geometry.createFromRowColDimensions(16, 24).getNumberOfRows());
+        assertEquals(24, Geometry.createFromRowColDimensions(16, 24).getNumberOfColumns());
         assertEquals(Geometry.GEOMETRY_384_16X24, Geometry.createFromRowColDimensions(16, 24));
         assertEquals(Geometry.createFromCartesianDimensions(24, 16), Geometry
                 .createFromRowColDimensions(16, 24));

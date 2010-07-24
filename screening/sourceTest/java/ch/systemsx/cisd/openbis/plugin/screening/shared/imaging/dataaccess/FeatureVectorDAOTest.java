@@ -113,8 +113,8 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         assertEquals(0.0, featureValues.getZ());
 
         PlateFeatureValues spreadsheet = featureValues.getValues();
-        assertEquals(spreadsheet.getGeometry().getHeight(), 2);
-        assertEquals(spreadsheet.getGeometry().getWidth(), 3);
+        assertEquals(2, spreadsheet.getGeometry().getNumberOfRows());
+        assertEquals(3, spreadsheet.getGeometry().getNumberOfColumns());
 
         for (int row = 1; row <= 2; ++row)
         {

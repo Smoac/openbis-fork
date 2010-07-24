@@ -30,20 +30,20 @@ public class WellLocationUtils
     public static int calcRow(Geometry geometry, int x, int y)
     {
         assert geometry != null;
-        assert x >= 0 && x < geometry.getWidth() : x;
-        assert y >= 0 && y < geometry.getHeight() : y;
+        assert x >= 0 && x < geometry.getDimX() : x;
+        assert y >= 0 && y < geometry.getDimY() : y;
 
-        return geometry.getHeight() - y;
+        return geometry.getDimY() - y;
     }
 
     /** Calculates the column from the given Cartesian coordinates. */
     public static int calcColumn(Geometry geometry, int x, int y)
     {
         assert geometry != null;
-        assert x >= 0 && x < geometry.getWidth() : "X is " + x + " (allowed: (0,"
-                + (geometry.getWidth() - 1) + ")";
-        assert y >= 0 && y < geometry.getHeight() : "Y is " + y + " (allowed: (0,"
-                + (geometry.getHeight() - 1) + ")";
+        assert x >= 0 && x < geometry.getDimX() : "X is " + x + " (allowed: (0,"
+                + (geometry.getDimX() - 1) + ")";
+        assert y >= 0 && y < geometry.getDimY() : "Y is " + y + " (allowed: (0,"
+                + (geometry.getDimY() - 1) + ")";
 
         return x + 1;
     }
@@ -52,10 +52,10 @@ public class WellLocationUtils
     public static int calcX(Geometry geometry, int row, int col)
     {
         assert geometry != null;
-        assert row > 0 && row <= geometry.getHeight() : "Row is " + row + " (allowed: (1,"
-                + geometry.getHeight() + ")";
-        assert col > 0 && col <= geometry.getWidth() : "Col is " + col + " (allowed: (1,"
-                + geometry.getWidth() + ")";
+        assert row > 0 && row <= geometry.getNumberOfRows() : "Row is " + row + " (allowed: (1,"
+                + geometry.getNumberOfRows() + ")";
+        assert col > 0 && col <= geometry.getNumberOfColumns() : "Col is " + col + " (allowed: (1,"
+                + geometry.getNumberOfColumns() + ")";
 
         return col - 1;
     }
@@ -76,9 +76,9 @@ public class WellLocationUtils
     public static int calcY(Geometry geometry, int row, int col)
     {
         assert geometry != null;
-        assert row > 0 && row <= geometry.getHeight() : row;
-        assert col > 0 && col <= geometry.getWidth() : col;
+        assert row > 0 && row <= geometry.getNumberOfRows() : row;
+        assert col > 0 && col <= geometry.getNumberOfColumns() : col;
 
-        return geometry.getHeight() - row;
+        return geometry.getNumberOfRows() - row;
     }
 }
