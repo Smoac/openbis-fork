@@ -39,7 +39,7 @@ check [screening_web_client] independentOf [screening_server]
 
 # -------- check screening public API dependencies
 
-[openbis_authorization] = ${screening}.shared.api.authorization.* ${root}.generic.shared.basic.dto.RoleWithHierarchy* ${root}.generic.shared.authorization.** ${root}.generic.shared.dto.**
+[openbis_authorization] = ${screening}.shared.api.authorization.* ${root}.generic.shared.basic.dto.RoleWithHierarchy* ${root}.generic.shared.authorization.** ${root}.generic.shared.dto.** ${root}.generic.shared.util.SpaceCodeHelper
 [api_openbis] = ${screening}.shared.api.** 
 [api_dss] = ${root}.dss.screening.shared.api.v1.**
 [api_client_facade] =	${screening}.client.api.v1.**
