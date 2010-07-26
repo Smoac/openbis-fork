@@ -22,7 +22,6 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
@@ -53,7 +52,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test
     public final void testExceptionBecauseGroupDoesNotExist()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
@@ -62,7 +61,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSpaceCode(SPACE_CODE);
         criteria.setIncludeSpace(true);
-        predicate.doEvaluation(createPerson(), createRoles(false), criteria);
+        assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), criteria).isError());
         context.assertIsSatisfied();
     }
 

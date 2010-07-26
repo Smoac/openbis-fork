@@ -23,7 +23,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
@@ -65,13 +64,13 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test
     public final void testExceptionBecauseGroupDoesNotExist()
     {
         final AbstractTechIdPredicate predicate = createPredicate();
         prepareProvider(Collections.<GroupPE> emptyList(), createGroup(), ENTITY_KIND, TECH_ID);
         predicate.init(provider);
-        predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
+        assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID).isError());
         context.assertIsSatisfied();
     }
 
@@ -111,9 +110,8 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
-        assertEquals(
-                "User 'megapixel' does not have enough privileges to access data in the space 'DB2:/G2'.",
-                evaluation.tryGetErrorMessage());
+        assertEquals("User 'megapixel' does not have enough privileges.", evaluation
+                .tryGetErrorMessage());
         context.assertIsSatisfied();
     }
 
@@ -130,9 +128,8 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
-        assertEquals(
-                "User 'megapixel' does not have enough privileges to access data in the space 'DB1:/G2'.",
-                evaluation.tryGetErrorMessage());
+        assertEquals("User 'megapixel' does not have enough privileges.", evaluation
+                .tryGetErrorMessage());
         context.assertIsSatisfied();
     }
 

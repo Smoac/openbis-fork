@@ -61,18 +61,18 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
         prepareProvider(INSTANCE_CODE, null, Collections.<GroupPE> emptyList());
         predicate.init(provider);
         predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
-                INSTANCE_CODE, SPACE_CODE));
+                INSTANCE_CODE, SPACE_CODE)).isError();
         context.assertIsSatisfied();
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test
     public final void testExceptionBecauseGroupDoesNotExist()
     {
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), Collections.<GroupPE> emptyList());
         predicate.init(provider);
-        predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
-                INSTANCE_CODE, SPACE_CODE));
+        assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
+                INSTANCE_CODE, SPACE_CODE)).isError());
         context.assertIsSatisfied();
     }
 
@@ -115,9 +115,8 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
                 predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
                         ANOTHER_INSTANCE_CODE, ANOTHER_GROUP_CODE));
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
-        assertEquals(
-                "User 'megapixel' does not have enough privileges to access data in the space 'DB2:/G2'.",
-                evaluation.tryGetErrorMessage());
+        assertEquals("User 'megapixel' does not have enough privileges.", evaluation
+                .tryGetErrorMessage());
         context.assertIsSatisfied();
     }
 
@@ -134,9 +133,8 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
                 predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
                         INSTANCE_CODE, ANOTHER_GROUP_CODE));
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
-        assertEquals(
-                "User 'megapixel' does not have enough privileges to access data in the space 'DB1:/G2'.",
-                evaluation.tryGetErrorMessage());
+        assertEquals("User 'megapixel' does not have enough privileges.", evaluation
+                .tryGetErrorMessage());
         context.assertIsSatisfied();
     }
 }

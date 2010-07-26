@@ -107,8 +107,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         Status status = predicate.evaluate(createPerson(), createRoles(false), sample);
 
         assertEquals(true, status.isError());
-        assertEquals("User 'megapixel' does not have enough privileges to access "
-                + "data in the space 'DB1:/G2'.", status.tryGetErrorMessage());
+        assertEquals("User 'megapixel' does not have enough privileges.", status.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
 }

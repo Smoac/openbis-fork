@@ -72,7 +72,7 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
         Status evaluation = predicate.doEvaluation(createPerson(), createRoles(false), "d1");
 
         assertEquals(
-                "User 'megapixel' does not have enough privileges to access data in the space 'DB2:/G2'.",
+                "User 'megapixel' does not have enough privileges.",
                 evaluation.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
