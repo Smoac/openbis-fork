@@ -93,4 +93,29 @@ public class SpaceCodeHelper
         }
     }
 
+    /**
+     * Tries to find out the space.
+     * <p>
+     * If given <var>spaceCode</var> is a home space, the real space must be specified as
+     * <var>homeSpaceCode</var>.
+     * </p>
+     * 
+     * @throws UndefinedSpaceException if no space could be found.
+     */
+    public final static String getSpaceCode(final String homeSpaceCode, final String spaceCode)
+            throws UndefinedSpaceException
+    {
+        if (isHomeSpace(spaceCode))
+        {
+            if (homeSpaceCode == null)
+            {
+                throw new UndefinedSpaceException();
+            }
+            return homeSpaceCode;
+        } else
+        {
+            return spaceCode;
+        }
+    }
+
 }
