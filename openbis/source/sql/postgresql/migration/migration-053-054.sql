@@ -140,7 +140,7 @@ BEGIN
 			'GENE','Inhibited gene','Gene',
 			(select id from data_types where code = 'MATERIAL'), 
 			(select id from persons where user_id ='system'), 
-			(select id from database_instances where code = 'SYSTEM_DEFAULT'), 
+			(select id from database_instances where is_original_source = 'T'), 
 			(select id from material_types where code = 'GENE')
 		);
 		
