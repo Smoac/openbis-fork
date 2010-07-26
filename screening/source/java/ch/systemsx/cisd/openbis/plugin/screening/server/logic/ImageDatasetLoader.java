@@ -38,10 +38,10 @@ class ImageDatasetLoader extends PlateDatasetLoader
     // TODO 2010-05-27, CR : See PlateDatasetLoader todo comment
 
     ImageDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            String dataStoreBaseURL, Collection<? extends PlateIdentifier> plates,
-            String... datasetTypeCodes)
+            String dataStoreBaseURL, String homeSpaceOrNull,
+            Collection<? extends PlateIdentifier> plates, String... datasetTypeCodes)
     {
-        super(session, businessObjectFactory, dataStoreBaseURL, plates,
+        super(session, businessObjectFactory, dataStoreBaseURL, homeSpaceOrNull, plates,
                 (datasetTypeCodes.length == 0) ? new String[]
                     { ScreeningConstants.IMAGE_DATASET_TYPE } : datasetTypeCodes);
     }

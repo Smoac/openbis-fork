@@ -49,9 +49,9 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
 
     FeatureVectorDatasetLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, String dataStoreBaseURL,
-            Collection<? extends PlateIdentifier> plates)
+            String homeSpaceOrNull, Collection<? extends PlateIdentifier> plates)
     {
-        super(session, businessObjectFactory, dataStoreBaseURL, plates,
+        super(session, businessObjectFactory, dataStoreBaseURL, homeSpaceOrNull, plates,
                 ScreeningConstants.IMAGE_DATASET_TYPE,
                 ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
         featureVectorDatasetTypeCode = ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE;

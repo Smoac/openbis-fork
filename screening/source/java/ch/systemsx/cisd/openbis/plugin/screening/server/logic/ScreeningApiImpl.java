@@ -43,10 +43,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
@@ -90,7 +91,7 @@ public class ScreeningApiImpl
     {
         FeatureVectorDatasetLoader datasetRetriever =
                 new FeatureVectorDatasetLoader(session, businessObjectFactory, dataStoreBaseURL,
-                        plates);
+                        session.tryGetHomeGroupCode(), plates);
         List<FeatureVectorDatasetReference> result = datasetRetriever.getFeatureVectorDatasets();
 
         return result;
@@ -98,8 +99,8 @@ public class ScreeningApiImpl
 
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
     {
-        return new ImageDatasetLoader(session, businessObjectFactory, dataStoreBaseURL, plates)
-                .getImageDatasets();
+        return new ImageDatasetLoader(session, businessObjectFactory, dataStoreBaseURL, session
+                .tryGetHomeGroupCode(), plates).getImageDatasets();
     }
 
     public List<Plate> listPlates()
@@ -219,7 +220,7 @@ public class ScreeningApiImpl
     }
 
     public List<PlateWellReferenceWithDatasets> listPlateWells(
-            ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
+            ExperimentIdentifier experimentIdentifier, MaterialIdentifier materialIdentifier,
             boolean findDatasets)
     {
         final MaterialPE materialOrNull =
@@ -233,50 +234,81 @@ public class ScreeningApiImpl
                     materialIdentifier.getAugmentedCode());
         }
         final List<WellContent> wellContent;
-        if (experimentIdentifer.getPermId() != null)
-        {
-            wellContent =
-                    GenePlateLocationsLoader.load(session, businessObjectFactory, daoFactory,
-                            new TechId(materialOrNull.getId()), experimentIdentifer.getPermId(),
-                            false);
-        } else
-        {
-            final String spaceCode =
-                    StringUtils.isBlank(experimentIdentifer.getSpaceCode()) ? session
-                            .tryGetHomeGroupCode() : experimentIdentifer.getSpaceCode();
-            if (spaceCode == null)
-            {
-                throw new UserFailureException("No space given and user has no home space.");
-            }
-            final ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier experimentId =
-                    new ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier(
-                            DatabaseInstanceIdentifier.HOME, spaceCode, experimentIdentifer
-                                    .getProjectCode(), experimentIdentifer.getExperimentCode());
-            wellContent =
-                    GenePlateLocationsLoader.load(session, businessObjectFactory, daoFactory,
-                            new TechId(materialOrNull.getId()), experimentId, false);
-        }
+        final ExperimentIdentifier fullExperimentIdentifier =
+                getExperimentIdentifierFromDB(experimentIdentifier);
+        wellContent =
+                GenePlateLocationsLoader.load(session, businessObjectFactory, daoFactory,
+                        new TechId(materialOrNull.getId()), fullExperimentIdentifier.getPermId(),
+                        false);
         if (findDatasets)
         {
             final Set<Plate> plates = new HashSet<Plate>(wellContent.size());
             for (WellContent w : wellContent)
             {
-                plates.add(asPlate(experimentIdentifer, w));
+                plates.add(asPlate(fullExperimentIdentifier, w));
             }
             final FeatureVectorDatasetLoader datasetRetriever =
                     new FeatureVectorDatasetLoader(session, businessObjectFactory,
-                            dataStoreBaseURL, plates);
+                            dataStoreBaseURL, session.tryGetHomeGroupCode(), plates);
             final List<ImageDatasetReference> imageDatasets = datasetRetriever.getImageDatasets();
             final List<FeatureVectorDatasetReference> featureVectorDatasets =
                     datasetRetriever.getFeatureVectorDatasets();
 
-            return asPlateWellReferences(experimentIdentifer, wellContent,
+            return asPlateWellReferences(fullExperimentIdentifier, wellContent,
                     createPlateToDatasetsMap(imageDatasets, featureVectorDatasets));
         } else
         {
-            return asPlateWellReferences(experimentIdentifer, wellContent, Collections
+            return asPlateWellReferences(fullExperimentIdentifier, wellContent, Collections
                     .<String, DatasetReferenceHolder> emptyMap());
         }
+    }
+
+    private ExperimentIdentifier getExperimentIdentifierFromDB(
+            ExperimentIdentifier experimentIdentifierFromUser)
+    {
+        if (experimentIdentifierFromUser.getPermId() != null)
+        {
+            final ExperimentPE experimentPE =
+                    daoFactory.getExperimentDAO().tryGetByPermID(
+                            experimentIdentifierFromUser.getPermId());
+            if (experimentPE == null)
+            {
+                throw UserFailureException.fromTemplate("Experiment '%s' not found",
+                        experimentIdentifierFromUser.getPermId());
+            }
+            return asExperimentIdentifier(experimentPE);
+        } else
+        {
+            final String spaceCode =
+                    SpaceCodeHelper.getSpaceCode(session.tryGetHomeGroupCode(),
+                            experimentIdentifierFromUser.getSpaceCode());
+            if (StringUtils.isEmpty(spaceCode))
+            {
+                throw new UserFailureException(
+                        "Space code is null but there are no experiments outside a space, "
+                                + "use null to denote your home space.");
+            }
+            final ProjectPE projectPE =
+                    daoFactory.getProjectDAO().tryFindProject(null, spaceCode,
+                            experimentIdentifierFromUser.getProjectCode());
+            if (projectPE == null)
+            {
+                throw UserFailureException.fromTemplate("Project '%s' in space '%s' not found",
+                        experimentIdentifierFromUser.getProjectCode(), spaceCode);
+            }
+            final ExperimentPE experimentPE =
+                    daoFactory.getExperimentDAO().tryFindByCodeAndProject(projectPE,
+                            experimentIdentifierFromUser.getExperimentCode());
+            if (experimentPE == null)
+            {
+                throw UserFailureException.fromTemplate(
+                        "Experiment '%s' in project '%s', space '%s' not found",
+                        experimentIdentifierFromUser.getExperimentCode(),
+                        experimentIdentifierFromUser.getProjectCode(), spaceCode);
+            }
+            return asExperimentIdentifier(experimentPE);
+        }
+
     }
 
     private static Map<String, DatasetReferenceHolder> createPlateToDatasetsMap(
@@ -287,7 +319,7 @@ public class ScreeningApiImpl
                 new HashMap<String, DatasetReferenceHolder>();
         for (ImageDatasetReference dataset : imageDatasets)
         {
-            DatasetReferenceHolder reference = map.get(dataset.getPlate());
+            DatasetReferenceHolder reference = map.get(dataset.getPlate().getPermId());
             if (reference == null)
             {
                 reference = new DatasetReferenceHolder();
@@ -297,7 +329,7 @@ public class ScreeningApiImpl
         }
         for (FeatureVectorDatasetReference dataset : featureVectorDatasets)
         {
-            DatasetReferenceHolder reference = map.get(dataset.getPlate());
+            DatasetReferenceHolder reference = map.get(dataset.getPlate().getPermId());
             if (reference == null)
             {
                 reference = new DatasetReferenceHolder();
@@ -344,6 +376,17 @@ public class ScreeningApiImpl
             plateWellReferences.add(asPlateWellReference(experimentIdentifer, wellContent,
                     plateToDatasetsMap));
         }
+        Collections.sort(plateWellReferences, new Comparator<PlateWellReferenceWithDatasets>()
+            {
+                public int compare(PlateWellReferenceWithDatasets o1,
+                        PlateWellReferenceWithDatasets o2)
+                {
+                    return (o1.getExperimentPlateIdentifier().getAugmentedCode() + ":" + o1
+                            .getWellPosition()).compareTo(o2.getExperimentPlateIdentifier()
+                            .getAugmentedCode()
+                            + ":" + o2.getWellPosition());
+                }
+            });
         return plateWellReferences;
     }
 

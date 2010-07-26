@@ -31,15 +31,6 @@ public class ExperimentIdentifier extends PermanentIdentifier
 
     private final String experimentCode;
 
-    public ExperimentIdentifier(String experimentCode, String projectCode, String spaceCode,
-            String permId)
-    {
-        super(permId);
-        this.spaceCode = spaceCode;
-        this.projectCode = projectCode;
-        this.experimentCode = experimentCode;
-    }
-
     /**
      * Creates an {@link ExperimentIdentifier} from the given <var>augmentedCode</code>.
      * 
@@ -48,18 +39,48 @@ public class ExperimentIdentifier extends PermanentIdentifier
      * @return An experiment identifer corresponding to <var>augmentedCode</code>. Note that this
      *         experiment identifier has no perm id set.
      * @throws IllegalArgumentException If the <var>augmentedCode</code> is not in the form
-     *             <code>/SPACE/PROJECT/EXPERIMENT</code>.
+     *             <code>/SPACE/PROJECT/EXPERIMENT</code> or <code>PROJECT/EXPERIMENT</code>.
      */
     public static ExperimentIdentifier createFromAugmentedCode(String augmentedCode)
             throws IllegalArgumentException
     {
         final String[] splitted = augmentedCode.split("/");
-        if (splitted.length != 3)
+        if (splitted.length == 2 && splitted[0].length() > 0) // Experiment in home space
+        {
+            return new ExperimentIdentifier(splitted[1], splitted[0], null, null);
+        }
+        if (splitted.length != 4 || splitted[0].length() != 0)
         {
             throw new IllegalArgumentException("Augmented code '" + augmentedCode
-                    + "' needs to be of the form '/SPACE/PROJECT/EXPERIMENT'.");
+                    + "' needs to be either of the form '/SPACE/PROJECT/EXPERIMENT' "
+                    + "or 'PROJECT/EXPERIMENT'.");
         }
-        return new ExperimentIdentifier(splitted[2], splitted[1], splitted[0], null);
+        return new ExperimentIdentifier(splitted[3], splitted[2], splitted[1], null);
+    }
+
+    /**
+     * Creates an {@link ExperimentIdentifier} from the given <var>permId</code>.
+     * 
+     * @param permId The <var>permId</code>
+     * @return An experiment identifer corresponding to <var>permId</code>. Note that this
+     *         experiment identifier has no code, project or space information.
+     */
+    public static ExperimentIdentifier createFromPermId(String permId)
+            throws IllegalArgumentException
+    {
+        return new ExperimentIdentifier(null, null, null, permId);
+    }
+
+    /**
+     * An <code>spaceCode == null</code> is interpreted as the home space.
+     */
+    public ExperimentIdentifier(String experimentCode, String projectCode, String spaceCode,
+            String permId)
+    {
+        super(permId);
+        this.spaceCode = spaceCode;
+        this.projectCode = projectCode;
+        this.experimentCode = experimentCode;
     }
 
     /**
@@ -88,13 +109,25 @@ public class ExperimentIdentifier extends PermanentIdentifier
      */
     public String getAugmentedCode()
     {
-        return "/" + spaceCode + "/" + projectCode + "/" + experimentCode;
+        if (spaceCode != null)
+        {
+            return "/" + spaceCode + "/" + projectCode + "/" + experimentCode;
+        } else
+        {
+            return projectCode + "/" + experimentCode;
+        }
     }
-    
+
     @Override
     public String toString()
     {
-        return getAugmentedCode() + " [" + getPermId() + "]";
+        if (getPermId() == null)
+        {
+            return getAugmentedCode();
+        } else
+        {
+            return getAugmentedCode() + " [" + getPermId() + "]";
+        }
     }
 
 }

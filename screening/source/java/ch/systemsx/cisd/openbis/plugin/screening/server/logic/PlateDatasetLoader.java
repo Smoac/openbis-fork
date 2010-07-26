@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
@@ -54,6 +55,8 @@ class PlateDatasetLoader
 
     private final String[] datasetTypeCodes;
 
+    private String homeSpaceOrNull;
+
     // Running state
     private List<Sample> samples;
 
@@ -63,13 +66,16 @@ class PlateDatasetLoader
 
     private HashMap<Long, Sample> samplesById;
 
+    private boolean loaded = false;
+
     PlateDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            String dataStoreBaseURL, Collection<? extends PlateIdentifier> plates,
-            String... datasetTypeCodes)
+            String dataStoreBaseURL, String homeSpaceOrNull,
+            Collection<? extends PlateIdentifier> plates, String... datasetTypeCodes)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.dataStoreBaseURL = dataStoreBaseURL;
+        this.homeSpaceOrNull = (homeSpaceOrNull != null) ? ("/" + homeSpaceOrNull + "/") : null;
         this.plates = plates;
         this.datasetTypeCodes = datasetTypeCodes;
     }
@@ -84,8 +90,12 @@ class PlateDatasetLoader
      */
     protected void load()
     {
-        loadSamples();
-        loadDatasets();
+        if (loaded == false)
+        {
+            loadSamples();
+            loadDatasets();
+            loaded = true;
+        }
     }
 
     private void loadSamples()
@@ -129,7 +139,19 @@ class PlateDatasetLoader
         final Set<String> augmentedCodeSet = new HashSet<String>(plates.size());
         for (PlateIdentifier plate : plates)
         {
-            augmentedCodeSet.add(plate.getAugmentedCode());
+            if (SpaceCodeHelper.isHomeSpace(plate.tryGetSpaceCode()))
+            {
+                if (homeSpaceOrNull == null)
+                {
+                    throw UserFailureException.fromTemplate(
+                            "Plate '%s' is in home space, but user has no home space defined.",
+                            plate);
+                }
+                augmentedCodeSet.add(homeSpaceOrNull + plate.getAugmentedCode());
+            } else
+            {
+                augmentedCodeSet.add(plate.getAugmentedCode());
+            }
         }
         for (Iterator<Sample> it = samples.iterator(); it.hasNext(); /**/)
         {

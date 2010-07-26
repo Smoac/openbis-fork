@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import java.io.Serializable;
+
 /**
  * A unique identifier for a material like e.g. a gene. 
  *
  * @author Bernd Rinn
  */
-public class MaterialIdentifier
+public class MaterialIdentifier implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private MaterialTypeIdentifier materialTypeIdentifier;
     
     private String materialCode;
