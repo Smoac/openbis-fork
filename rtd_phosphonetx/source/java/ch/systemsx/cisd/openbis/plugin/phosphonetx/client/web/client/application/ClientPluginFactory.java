@@ -21,6 +21,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -135,7 +136,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
 
         @Override
         public DatabaseModificationAwareWidget createRegistrationForEntityType(
-                ExperimentType entityType)
+                ExperimentType entityType, ActionContext context)
         {
             GenericExperimentRegistrationForm form =
                     new GenericExperimentRegistrationForm(getGenericViewContext(), entityType);

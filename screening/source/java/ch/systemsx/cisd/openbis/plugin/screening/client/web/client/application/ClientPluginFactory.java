@@ -23,6 +23,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
@@ -338,9 +339,10 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             return delegator.createEntityEditor(identifiable);
         }
 
-        public DatabaseModificationAwareWidget createRegistrationForEntityType(T entityType)
+        public DatabaseModificationAwareWidget createRegistrationForEntityType(T entityType,
+                ActionContext context)
         {
-            return delegator.createRegistrationForEntityType(entityType);
+            return delegator.createRegistrationForEntityType(entityType, context);
         }
     }
 
