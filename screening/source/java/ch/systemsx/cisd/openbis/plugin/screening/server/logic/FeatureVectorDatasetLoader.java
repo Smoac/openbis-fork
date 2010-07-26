@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectSortedMap;
+
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
@@ -44,7 +49,7 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
 
     FeatureVectorDatasetLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, String dataStoreBaseURL,
-            List<? extends PlateIdentifier> plates)
+            Collection<? extends PlateIdentifier> plates)
     {
         super(session, businessObjectFactory, dataStoreBaseURL, plates,
                 ScreeningConstants.IMAGE_DATASET_TYPE,
@@ -62,10 +67,8 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
 
     private void loadFeatureVectorDatasets()
     {
-        // TODO 2010-05-26, CR, : This is slow if there are a large number of image data sets
-        // Need to add a query to the dataset lister that returns, for a collection of tech ids, a
-        // child datasets and their parents.
-        featureVectorDatasets = new ArrayList<ExternalData>();
+        final Long2ObjectSortedMap<ExternalData> featureVectorDatasetSet =
+                new Long2ObjectLinkedOpenHashMap<ExternalData>();
         IDatasetLister datasetLister =
                 businessObjectFactory.createDatasetLister(session, dataStoreBaseURL);
 
@@ -73,23 +76,33 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
         {
             if (ScreeningUtils.isTypeEqual(data, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE))
             {
-                featureVectorDatasets.add(data);
-            } else 
+                featureVectorDatasetSet.put(data.getId(), data);
+            }
+        }
+
+        // Implementation note: some data sets in this loop may overwrite data from the first loop.
+        // This is intended as we want to keep the parent relationship of the feature vector data
+        // sets, if they exist.
+        for (ExternalData data : getDatasets())
+        {
+            if (ScreeningUtils.isTypeEqual(data, ScreeningConstants.IMAGE_DATASET_TYPE))
             {
-                List<ExternalData> children =
+                // TODO 2010-05-26, CR, : This way to access the database one by one is slow if
+                // there are a large number of image data sets
+                // Need to add a query to the dataset lister that returns, for a collection of tech
+                // ids, a child datasets and their parents.
+                final List<ExternalData> children =
                         datasetLister.listByParentTechId(new TechId(data.getId()));
-                ArrayList<ExternalData> parentList = new ArrayList<ExternalData>();
-                parentList.add(data);
                 for (ExternalData child : children)
                 {
-                    child.setParents(parentList);
+                    child.setParents(Collections.singleton(data));
+                    featureVectorDatasetSet.put(child.getId(), child);
                 }
-                featureVectorDatasets.addAll(children);
             }
         }
 
         featureVectorDatasets =
-                ScreeningUtils.filterExternalDataByType(featureVectorDatasets,
+                ScreeningUtils.filterExternalDataByType(featureVectorDatasetSet.values(),
                         featureVectorDatasetTypeCode);
     }
 
@@ -106,22 +119,21 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
     protected FeatureVectorDatasetReference asFeatureVectorDataset(ExternalData externalData)
     {
         DataStore dataStore = externalData.getDataStore();
-        if (externalData.getParents() == null || externalData.getParents().size() == 0)
+        if (externalData.getParents() == null || externalData.getParents().isEmpty())
         {
             return new FeatureVectorDatasetReference(externalData.getCode(),
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
-                    extractPlateGeometry(externalData), externalData.getRegistrationDate(),
-                    null);
+                    extractPlateGeometry(externalData), externalData.getRegistrationDate(), null);
         } else
         {
-            // Note: this only works reliably because this class sets the parents of the feature 
+            // Note: this only works reliably because this class sets the parents of the feature
             // vector data sets itself and sets it to a list with exactly one entry!
             // (see loadFeatureVectorDatasets() above)
             final ExternalData parentDataset = externalData.getParents().iterator().next();
             return new FeatureVectorDatasetReference(externalData.getCode(),
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(parentDataset),
-                    extractPlateGeometry(parentDataset), externalData.getRegistrationDate(), 
-                asImageDataset(parentDataset));
+                    extractPlateGeometry(parentDataset), externalData.getRegistrationDate(),
+                    asImageDataset(parentDataset));
         }
     }
 }

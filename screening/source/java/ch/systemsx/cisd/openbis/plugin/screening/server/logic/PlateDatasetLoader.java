@@ -3,8 +3,11 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
@@ -44,7 +47,7 @@ class PlateDatasetLoader
     protected final String dataStoreBaseURL;
 
     // Parameter state
-    private final List<? extends PlateIdentifier> plates;
+    private final Collection<? extends PlateIdentifier> plates;
 
     private final String[] datasetTypeCodes;
 
@@ -58,7 +61,7 @@ class PlateDatasetLoader
     private HashMap<Long, Sample> samplesById;
 
     PlateDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            String dataStoreBaseURL, List<? extends PlateIdentifier> plates,
+            String dataStoreBaseURL, Collection<? extends PlateIdentifier> plates,
             String... datasetTypeCodes)
     {
         this.session = session;
@@ -122,7 +125,9 @@ class PlateDatasetLoader
     {
         for (PlateIdentifier plate : plates)
         {
-            Sample sample = samplesByIdentifier.get(createSampleIdentifier(plate));
+            Sample sample =
+                    samplesByIdentifier.get(createSampleIdentifier(plate, session
+                            .tryGetHomeGroupCode()));
             // Make sure the sample and plate have the same *identifier* not just code
             String plateSpaceCodeOrNull = plate.tryGetSpaceCode();
             Space sampleSpaceOrNull = sample.getSpace();
@@ -180,7 +185,7 @@ class PlateDatasetLoader
 
             }
         }
-        throw new UserFailureException("Sample " + sample.getIdentifier() + " has no property "
+        throw new UserFailureException("Sample '" + sample.getIdentifier() + "' has no property "
                 + ScreeningConstants.PLATE_GEOMETRY);
     }
 
@@ -210,7 +215,7 @@ class PlateDatasetLoader
 
     private List<Long> extractSampleIds()
     {
-        ArrayList<Long> sampleIds = new ArrayList<Long>();
+        ArrayList<Long> sampleIds = new ArrayList<Long>(samples.size());
         for (Sample sample : samples)
         {
             sampleIds.add(sample.getId());
@@ -237,17 +242,31 @@ class PlateDatasetLoader
         return datastoreUrl;
     }
 
-    protected static SampleIdentifier createSampleIdentifier(PlateIdentifier plate)
+    protected static SampleIdentifier createSampleIdentifier(PlateIdentifier plate,
+            String homeSpaceCodeOrNull)
     {
         SampleOwnerIdentifier owner;
         String spaceCode = plate.tryGetSpaceCode();
-        if (spaceCode != null)
+        if (StringUtils.isNotBlank(spaceCode))
         {
-            SpaceIdentifier space = new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, spaceCode);
+            final SpaceIdentifier space =
+                    new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, spaceCode);
             owner = new SampleOwnerIdentifier(space);
         } else
         {
-            owner = new SampleOwnerIdentifier(DatabaseInstanceIdentifier.createHome());
+            if (spaceCode == null)
+            {
+                owner = new SampleOwnerIdentifier(DatabaseInstanceIdentifier.createHome());
+            } else
+            {
+                if (homeSpaceCodeOrNull == null)
+                {
+                    throw new UserFailureException("No space given and user has no home space.");
+                }
+                final SpaceIdentifier space =
+                        new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, homeSpaceCodeOrNull);
+                owner = new SampleOwnerIdentifier(space);
+            }
         }
         return SampleIdentifier.createOwnedBy(owner, plate.getPlateCode());
     }

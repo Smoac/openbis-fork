@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -37,7 +38,7 @@ class ImageDatasetLoader extends PlateDatasetLoader
     // TODO 2010-05-27, CR : See PlateDatasetLoader todo comment
 
     ImageDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            String dataStoreBaseURL, List<? extends PlateIdentifier> plates,
+            String dataStoreBaseURL, Collection<? extends PlateIdentifier> plates,
             String... datasetTypeCodes)
     {
         super(session, businessObjectFactory, dataStoreBaseURL, plates,
@@ -51,15 +52,18 @@ class ImageDatasetLoader extends PlateDatasetLoader
     public List<ImageDatasetReference> getImageDatasets()
     {
         load();
-        return asImageDatasets();
+        return filterImageDatasets();
     }
 
-    private List<ImageDatasetReference> asImageDatasets()
+    private List<ImageDatasetReference> filterImageDatasets()
     {
         List<ImageDatasetReference> result = new ArrayList<ImageDatasetReference>();
         for (ExternalData externalData : getDatasets())
         {
-            result.add(asImageDataset(externalData));
+            if (ScreeningUtils.isTypeEqual(externalData, ScreeningConstants.IMAGE_DATASET_TYPE))
+            {
+                result.add(asImageDataset(externalData));
+            }
         }
         return result;
     }
