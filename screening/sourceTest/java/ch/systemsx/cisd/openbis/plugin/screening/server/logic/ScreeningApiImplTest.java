@@ -100,7 +100,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     @Test
     public void testListImageDatasetsWithMissingPlateGeometry()
     {
-        final PlateIdentifier pi1 = new PlateIdentifier("p1", null);
+        final PlateIdentifier pi1 = new PlateIdentifier("p1", null, "permId");
         context.checking(new Expectations()
             {
                 {
@@ -123,7 +123,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Sample /p1 has no property " + ScreeningConstants.PLATE_GEOMETRY, ex
+            assertEquals("Sample 'permId' has no property " + ScreeningConstants.PLATE_GEOMETRY, ex
                     .getMessage());
         }
         context.assertIsSatisfied();
@@ -185,16 +185,18 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                 screeningApi.listFeatureVectorDatasets(Arrays.asList(pi1));
 
         assertEquals(2, dataSets.size());
-        assertEquals("3", dataSets.get(0).getDatasetCode());
-        assertEquals("2", dataSets.get(1).getDatasetCode());
+        
+        assertEquals("2", dataSets.get(0).getDatasetCode());
         assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(0)
                 .getPlateGeometry());
-        assertEquals(new Date(300), dataSets.get(0).getRegistrationDate());
+        assertEquals(new Date(200), dataSets.get(0).getRegistrationDate());
         assertEquals(SERVER_URL, dataSets.get(0).getDatastoreServerUrl());
         assertEquals(pi1, dataSets.get(0).getPlate());
+
+        assertEquals("3", dataSets.get(1).getDatasetCode());
         assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(1)
                 .getPlateGeometry());
-        assertEquals(new Date(200), dataSets.get(1).getRegistrationDate());
+        assertEquals(new Date(300), dataSets.get(1).getRegistrationDate());
         assertEquals(SERVER_URL, dataSets.get(1).getDatastoreServerUrl());
         assertEquals(pi1, dataSets.get(1).getPlate());
         context.assertIsSatisfied();
