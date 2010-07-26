@@ -70,4 +70,11 @@ public class Plate extends PlateIdentifier
                     new ExperimentIdentifier(experimentCode, projectCode, tryGetSpaceCode(), null);
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return super.toString() + " { Experiment: "
+                + experimentIdentifier.getAugmentedCode() + " }";
+    }
 }

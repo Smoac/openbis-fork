@@ -53,4 +53,10 @@ public class PlateIdentifier extends PermanentIdentifier
         }
     }
 
+    @Override
+    public String toString()
+    {
+        return getAugmentedCode() + " [" + super.toString() + "]";
+    }
+
 }
