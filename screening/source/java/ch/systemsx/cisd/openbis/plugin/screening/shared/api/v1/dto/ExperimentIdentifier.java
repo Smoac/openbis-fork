@@ -90,5 +90,11 @@ public class ExperimentIdentifier extends PermanentIdentifier
     {
         return "/" + spaceCode + "/" + projectCode + "/" + experimentCode;
     }
+    
+    @Override
+    public String toString()
+    {
+        return getAugmentedCode() + " [" + getPermId() + "]";
+    }
 
 }
