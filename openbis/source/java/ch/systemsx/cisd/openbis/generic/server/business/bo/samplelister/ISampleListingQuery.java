@@ -314,6 +314,13 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
         { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamplesForCodes(String[] sampleCodes);
 
+    /**
+     * Returns the samples for the given <var>permIds</var>.
+     */
+    @Select(sql = SELECT_FROM_SAMPLES_S + " where s.perm_id = any(?{1})", parameterBindings =
+        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamplesForPermIds(String[] permIds);
+
     //
     // Sample Properties
     //

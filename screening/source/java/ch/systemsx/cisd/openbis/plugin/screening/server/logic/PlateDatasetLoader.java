@@ -101,7 +101,9 @@ class PlateDatasetLoader
     private void loadSamples()
     {
         String[] sampleCodesArray = extractSampleCodes();
-        ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(sampleCodesArray);
+        String[] samplePermIdArray = extractPermIds();
+        ListOrSearchSampleCriteria criteria =
+                new ListOrSearchSampleCriteria(sampleCodesArray, samplePermIdArray);
         ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
         samples = sampleLister.list(criteria);
         // After loading the samples, we need to initialize the maps because other methods rely
@@ -137,20 +139,27 @@ class PlateDatasetLoader
     private void filterSamplesByPlateIdentifiers()
     {
         final Set<String> augmentedCodeSet = new HashSet<String>(plates.size());
+        final Set<String> permIdSet = new HashSet<String>(plates.size());
         for (PlateIdentifier plate : plates)
         {
-            if (SpaceCodeHelper.isHomeSpace(plate.tryGetSpaceCode()))
+            if (plate.getPermId() != null)
             {
-                if (homeSpaceOrNull == null)
-                {
-                    throw UserFailureException.fromTemplate(
-                            "Plate '%s' is in home space, but user has no home space defined.",
-                            plate);
-                }
-                augmentedCodeSet.add(homeSpaceOrNull + plate.getAugmentedCode());
+                permIdSet.add(plate.getPermId());
             } else
             {
-                augmentedCodeSet.add(plate.getAugmentedCode());
+                if (SpaceCodeHelper.isHomeSpace(plate.tryGetSpaceCode()))
+                {
+                    if (homeSpaceOrNull == null)
+                    {
+                        throw UserFailureException.fromTemplate(
+                                "Plate '%s' is in home space, but user has no home space defined.",
+                                plate);
+                    }
+                    augmentedCodeSet.add(homeSpaceOrNull + plate.getAugmentedCode());
+                } else
+                {
+                    augmentedCodeSet.add(plate.getAugmentedCode());
+                }
             }
         }
         for (Iterator<Sample> it = samples.iterator(); it.hasNext(); /**/)
@@ -161,7 +170,8 @@ class PlateDatasetLoader
             final String augmentedCode =
                     (sampleSpaceCodeOrNull == null) ? ("/" + sample.getCode()) : ("/"
                             + sampleSpaceCodeOrNull + "/" + sample.getCode());
-            if (augmentedCodeSet.contains(augmentedCode) == false)
+            if (permIdSet.contains(sample.getPermId()) == false
+                    && augmentedCodeSet.contains(augmentedCode) == false)
             {
                 it.remove();
                 samplesByIdentifier.remove(createSampleIdentifier(sample));
@@ -219,11 +229,31 @@ class PlateDatasetLoader
         ArrayList<String> sampleCodes = new ArrayList<String>();
         for (PlateIdentifier plate : plates)
         {
-            sampleCodes.add(plate.getPlateCode());
+            if (plate.getPlateCode() != null && plate.getPermId() == null)
+            {
+                sampleCodes.add(plate.getPlateCode());
+            }
         }
 
         String[] sampleCodesArray = new String[sampleCodes.size()];
         sampleCodes.toArray(sampleCodesArray);
+
+        return sampleCodesArray;
+    }
+
+    private String[] extractPermIds()
+    {
+        ArrayList<String> samplePermIds = new ArrayList<String>();
+        for (PlateIdentifier plate : plates)
+        {
+            if (plate.getPermId() != null)
+            {
+                samplePermIds.add(plate.getPermId());
+            }
+        }
+
+        String[] sampleCodesArray = new String[samplePermIds.size()];
+        samplePermIds.toArray(sampleCodesArray);
 
         return sampleCodesArray;
     }

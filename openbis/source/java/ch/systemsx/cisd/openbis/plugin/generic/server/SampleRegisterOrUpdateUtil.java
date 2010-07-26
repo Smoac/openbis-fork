@@ -62,7 +62,7 @@ public class SampleRegisterOrUpdateUtil
     static ListOrSearchSampleCriteria createListSamplesByCodeCriteria(List<String> codes)
     {
         String[] codesAsArray = codes.toArray(new String[0]);
-        ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(codesAsArray);
+        ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(codesAsArray, false);
         return criteria;
     }
 

@@ -226,6 +226,7 @@ final class SampleListingWorker
         loadSampleTypes();
         retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds());
         retrievePrimaryBasicSamples(tryGetIteratorForSamplesByCodes());
+        retrievePrimaryBasicSamples(tryGetIteratorForSamplesByPermIds());
         retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples());
@@ -357,6 +358,16 @@ final class SampleListingWorker
             return null;
         }
         return query.getSamplesForCodes(codes);
+    }
+
+    private Iterable<SampleRecord> tryGetIteratorForSamplesByPermIds()
+    {
+        String[] permIds = criteria.trySamplePermIds();
+        if (permIds == null)
+        {
+            return null;
+        }
+        return query.getSamplesForPermIds(permIds);
     }
 
     private Iterable<SampleRecord> tryGetIteratorForGroupSamples()

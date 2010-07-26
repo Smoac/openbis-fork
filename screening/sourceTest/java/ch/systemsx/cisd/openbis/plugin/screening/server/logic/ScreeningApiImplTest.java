@@ -67,7 +67,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     @Test
     public void testListImageDatasets()
     {
-        final PlateIdentifier pi1 = new PlateIdentifier("p1", null);
+        final PlateIdentifier pi1 = new PlateIdentifier("p1", "");
         context.checking(new Expectations()
             {
                 {
@@ -100,7 +100,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     @Test
     public void testListImageDatasetsWithMissingPlateGeometry()
     {
-        final PlateIdentifier pi1 = new PlateIdentifier("p1", null, "permId");
+        final PlateIdentifier pi1 = new PlateIdentifier("p1", "");
         context.checking(new Expectations()
             {
                 {
@@ -123,7 +123,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Sample '/p1 [permId]' has no property " + ScreeningConstants.PLATE_GEOMETRY, ex
+            assertEquals("Sample '/p1' has no property " + ScreeningConstants.PLATE_GEOMETRY, ex
                     .getMessage());
         }
         context.assertIsSatisfied();
@@ -160,7 +160,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     @Test
     public void testListFeatureVectorDatasets()
     {
-        final PlateIdentifier pi1 = new PlateIdentifier("p1", null);
+        final PlateIdentifier pi1 = new PlateIdentifier("p1", "");
         context.checking(new Expectations()
             {
                 {
@@ -204,7 +204,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
     private void assertListImageDatasetsFailsFor(final String plateGeometry)
     {
-        final PlateIdentifier pi1 = new PlateIdentifier("p1", null);
+        final PlateIdentifier pi1 = new PlateIdentifier("p1", "");
         context.checking(new Expectations()
             {
                 {

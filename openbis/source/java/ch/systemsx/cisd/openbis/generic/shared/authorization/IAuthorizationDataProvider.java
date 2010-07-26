@@ -58,6 +58,12 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public ExperimentPE tryGetExperimentByPermId(String permId);
 
     /**
+     * Returns the sample for the given <var>permId</var> or <code>null</code>, if it does not
+     * exist.
+     */
+    public SamplePE tryGetSampleByPermId(String permId);
+
+    /**
      * Returns the project of the experiment to which the specified data set belongs.
      * 
      * @return <code>null</code> if no data set found.

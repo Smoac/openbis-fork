@@ -27,9 +27,9 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ExperimentIdentifierPredicate;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningPlateValidator;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreenerReadonlyPlatePredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningExperimentValidator;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningPlateListReadOnlyPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningPlateValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
@@ -108,7 +108,7 @@ public interface IScreeningApiServer extends IRpcService
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             String sessionToken,
-            @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<? extends PlateIdentifier> plates)
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
             throws IllegalArgumentException;
 
     /**
@@ -119,7 +119,7 @@ public interface IScreeningApiServer extends IRpcService
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     List<ImageDatasetReference> listImageDatasets(
             String sessionToken,
-            @AuthorizationGuard(guardClass = ScreenerReadonlyPlatePredicate.class) List<? extends PlateIdentifier> plates)
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
             throws IllegalArgumentException;
 
     /**

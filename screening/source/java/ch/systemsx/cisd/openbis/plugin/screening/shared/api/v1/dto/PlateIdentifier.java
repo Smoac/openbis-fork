@@ -94,7 +94,7 @@ public class PlateIdentifier extends PermanentIdentifier
     {
         if (spaceCodeOrNull != null)
         {
-            if ("".equals(spaceCodeOrNull))
+            if (isSharedPlate())
             {
                 return "/" + plateCode;
             } else
@@ -107,6 +107,11 @@ public class PlateIdentifier extends PermanentIdentifier
         }
     }
 
+    public boolean isSharedPlate()
+    {
+        return "".equals(spaceCodeOrNull);
+    }
+    
     @Override
     public String toString()
     {

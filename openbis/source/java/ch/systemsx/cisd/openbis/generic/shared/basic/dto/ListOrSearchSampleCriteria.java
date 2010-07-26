@@ -44,6 +44,8 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     private Collection<Long> sampleIds;
 
     private final String[] sampleCodes;
+    
+    private final String[] permIds;
 
     private boolean enrichDependentSamplesWithProperties = false;
 
@@ -53,6 +55,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         assert listCriteria != null;
         this.listCriteria = listCriteria;
         this.sampleCodes = null;
+        this.permIds = null;
     }
 
     /** Creates criteria that delegates to given {@link TrackingSampleCriteria}. */
@@ -61,6 +64,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         assert newTrackingCriteria != null;
         this.newTrackingCriteria = newTrackingCriteria;
         this.sampleCodes = null;
+        this.permIds = null;
     }
 
     /** Creates criteria for detailed search of samples with given ids. */
@@ -69,15 +73,36 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         assert sampleIds != null;
         this.sampleIds = sampleIds;
         this.sampleCodes = null;
+        this.permIds = null;
     }
 
     /** Creates criteria for detailed search of samples with codes. */
-    public ListOrSearchSampleCriteria(final String[] sampleCodes)
+    public ListOrSearchSampleCriteria(final String[] codes, final boolean codesArePermIds)
     {
         // Need to add the type to disambiguate method signatures for erased generic types.
-        assert sampleCodes != null;
+        assert codes != null;
 
-        this.sampleCodes = sampleCodes;
+        if (codesArePermIds)
+        {
+            this.sampleCodes = null;
+            this.permIds = codes;
+            
+        } else
+        {
+            this.sampleCodes = codes;
+            this.permIds = null;
+        }
+    }
+
+    /** Creates criteria for detailed search of samples with codes. */
+    public ListOrSearchSampleCriteria(final String[] codes, final String[] permIds)
+    {
+        // Need to add the type to disambiguate method signatures for erased generic types.
+        assert codes != null;
+        assert permIds != null;
+
+        this.sampleCodes = codes;
+        this.permIds = permIds;
     }
 
     // search
@@ -90,6 +115,11 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     public String[] trySampleCodes()
     {
         return sampleCodes;
+    }
+
+    public String[] trySamplePermIds()
+    {
+        return permIds;
     }
 
     // delegation to NewTrackingSampleCriteria

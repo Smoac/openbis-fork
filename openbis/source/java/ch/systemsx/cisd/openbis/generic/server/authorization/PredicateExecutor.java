@@ -245,6 +245,11 @@ public final class PredicateExecutor
             return daoFactory.getExperimentDAO().tryGetByPermID(permId);
         }
         
+        public SamplePE tryGetSampleByPermId(String permId)
+        {
+            return daoFactory.getSampleDAO().tryToFindByPermID(permId);
+        }
+
         public DatabaseInstancePE getHomeDatabaseInstance()
         {
             return homeDatabaseInstance;
