@@ -157,6 +157,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
@@ -1259,6 +1260,38 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     {
         checkSession(sessionToken);
         return lastModificationState;
+    }
+
+    public Experiment getExperimentInfo(final String sessionToken,
+            final ExperimentIdentifier identifier)
+    {
+        final Session session = getSession(sessionToken);
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.loadByExperimentIdentifier(identifier);
+        experimentBO.enrichWithProperties();
+        experimentBO.enrichWithAttachments();
+        final ExperimentPE experiment = experimentBO.getExperiment();
+        if (experiment == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No experiment could be found with given identifier '%s'.", identifier);
+        }
+        return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
+                ExperimentTranslator.LoadableFields.PROPERTIES,
+                ExperimentTranslator.LoadableFields.ATTACHMENTS);
+    }
+
+    public Experiment getExperimentInfo(final String sessionToken, final TechId experimentId)
+    {
+        final Session session = getSession(sessionToken);
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.loadDataByTechId(experimentId);
+        experimentBO.enrichWithProperties();
+        experimentBO.enrichWithAttachments();
+        final ExperimentPE experiment = experimentBO.getExperiment();
+        return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
+                ExperimentTranslator.LoadableFields.PROPERTIES,
+                ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
 
     public Project getProjectInfo(String sessionToken, TechId projectId)

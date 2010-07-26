@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
@@ -36,17 +37,18 @@ public final class SampleRegistrationPanel extends
     public static final String ID = EntityRegistrationPanel.createId(EntityKind.SAMPLE);
 
     public static final DatabaseModificationAwareComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, final ActionContext context)
     {
-        SampleRegistrationPanel panel = new SampleRegistrationPanel(viewContext);
+        SampleRegistrationPanel panel = new SampleRegistrationPanel(viewContext, context);
         return new DatabaseModificationAwareComponent(panel, panel);
     }
 
-    private SampleRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
+    private SampleRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final ActionContext context)
     {
         super(viewContext, EntityKind.SAMPLE, new SampleTypeSelectionWidget(viewContext,
                 EntityRegistrationPanel.createId(EntityKind.SAMPLE), false,
-                SampleTypeDisplayID.SAMPLE_REGISTRATION));
+                SampleTypeDisplayID.SAMPLE_REGISTRATION), context);
     }
 
 }

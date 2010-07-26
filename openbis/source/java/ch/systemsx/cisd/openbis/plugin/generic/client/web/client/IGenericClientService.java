@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -87,17 +86,6 @@ public interface IGenericClientService extends IClientService
      */
     public List<BatchRegistrationResult> updateSamples(final SampleType sampleType,
             final String sessionKey, String defaultGroupIdentifier) throws UserFailureException;
-
-    /**
-     * For given <var>experimentIdentifier</var> returns corresponding {@link Experiment}.
-     */
-    public Experiment getExperimentInfo(final String experimentIdentifier)
-            throws UserFailureException;
-
-    /**
-     * For given {@link TechId} returns corresponding {@link Experiment}.
-     */
-    public Experiment getExperimentInfo(final TechId experimentId) throws UserFailureException;
 
     /**
      * For given {@link TechId} returns corresponding {@link Material}.

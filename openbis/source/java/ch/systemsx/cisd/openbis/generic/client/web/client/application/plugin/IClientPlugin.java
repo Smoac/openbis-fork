@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -43,11 +44,12 @@ public interface IClientPlugin<T extends BasicEntityType, I extends IIdAndCodeHo
     // NOTE: BasicEntityType is used here to allow viewing entities from MatchingEntitiesPanel
     public AbstractTabItemFactory createEntityViewer(final BasicEntityType entityType,
             final IIdAndCodeHolder identifiable);
-            
+
     /**
      * Shows a registration form for entities of given <var>entityType</var>.
      */
-    public DatabaseModificationAwareWidget createRegistrationForEntityType(final T entityType);
+    public DatabaseModificationAwareWidget createRegistrationForEntityType(final T entityType,
+            final ActionContext context);
 
     /**
      * Shows a batch registration form for entities of given <var>entityType</var>.

@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -265,7 +266,7 @@ public final class ComponentProvider
             };
     }
 
-    public final AbstractTabItemFactory getSampleRegistration()
+    public final AbstractTabItemFactory getSampleRegistration(final ActionContext context)
     {
         return new AbstractTabItemFactory()
             {
@@ -273,7 +274,7 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
-                            SampleRegistrationPanel.create(viewContext);
+                            SampleRegistrationPanel.create(viewContext, context);
                     return createRegistrationTab(Dict.SAMPLE_REGISTRATION, component);
                 }
 
@@ -291,6 +292,11 @@ public final class ComponentProvider
             };
     }
 
+    public final AbstractTabItemFactory getSampleRegistration()
+    {
+        return getSampleRegistration(new ActionContext());
+    }
+
     public final AbstractTabItemFactory getExperimentRegistration()
     {
         return new AbstractTabItemFactory()
@@ -299,7 +305,7 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
-                            ExperimentRegistrationPanel.create(viewContext);
+                            ExperimentRegistrationPanel.create(viewContext, new ActionContext());
                     return createRegistrationTab(Dict.EXPERIMENT_REGISTRATION, component);
                 }
 

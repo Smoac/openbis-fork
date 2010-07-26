@@ -542,6 +542,18 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void getLastModificationState(AsyncCallback<LastModificationState> asyncCallback);
 
     /**
+     * @see ICommonClientService#getExperimentInfo(TechId)
+     */
+    public void getExperimentInfo(String experimentIdentifier,
+            final AsyncCallback<Experiment> experimentInfoCallback);
+
+    /**
+     * @see ICommonClientService#getExperimentInfo(TechId)
+     */
+    public void getExperimentInfo(TechId experimentId,
+            final AsyncCallback<Experiment> experimentInfoCallback);
+
+    /**
      * @see ICommonClientService#getProjectInfo(TechId)
      */
     public void getProjectInfo(TechId projectId, AsyncCallback<Project> projectInfoCallback);

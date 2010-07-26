@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -185,37 +184,6 @@ public class GenericClientService extends AbstractClientService implements IGene
             throw UserFailureExceptionTranslator.translate(e);
         }
 
-    }
-
-    public final Experiment getExperimentInfo(final String experimentIdentifier)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final ExperimentIdentifier identifier =
-                    new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
-            final Experiment experiment = genericServer.getExperimentInfo(sessionToken, identifier);
-            return experiment;
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    public final Experiment getExperimentInfo(final TechId experimentId)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final Experiment experiment =
-                    genericServer.getExperimentInfo(sessionToken, experimentId);
-            return experiment;
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
     }
 
     public final Material getMaterialInfo(final TechId materialId)

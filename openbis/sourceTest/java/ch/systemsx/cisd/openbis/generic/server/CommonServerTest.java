@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -79,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -1438,6 +1440,35 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         assertNull(person.getHomeGroup());
 
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetExperimentInfo() throws Exception
+    {
+        prepareGetSession();
+        final ExperimentIdentifier experimentIdentifier =
+                CommonTestUtils.createExperimentIdentifier();
+        final ExperimentPE experimentPE = CommonTestUtils.createExperiment(experimentIdentifier);
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createExperimentBO(SESSION);
+                    will(returnValue(experimentBO));
+
+                    one(experimentBO).loadByExperimentIdentifier(experimentIdentifier);
+                    one(experimentBO).enrichWithProperties();
+                    one(experimentBO).enrichWithAttachments();
+
+                    one(experimentBO).getExperiment();
+                    will(returnValue(experimentPE));
+                }
+            });
+        final Experiment experiment =
+                createServer().getExperimentInfo(SESSION_TOKEN, experimentIdentifier);
+        assertEquals(experimentPE.getCode(), experiment.getCode());
+        assertEquals(experimentPE.getExperimentType().getCode(), experiment.getExperimentType()
+                .getCode());
         context.assertIsSatisfied();
     }
 }

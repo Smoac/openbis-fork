@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 public class ExperimentRegistrationTest extends GenericSystemTestCase
 {
     private static final String ATTACHMENTS_SESSION_KEY = "attachments";
+
     private static final String SAMPLES_SESSION_KEY = "samples";
 
     @Test
@@ -82,9 +83,10 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
             { property("DESCRIPTION", "my experiment") });
-        genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY, newExperiment);
+        genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
+                newExperiment);
 
-        Experiment experiment = genericClientService.getExperimentInfo(experimentIdentifier);
+        Experiment experiment = commonClientService.getExperimentInfo(experimentIdentifier);
         assertEquals(experimentCode, experiment.getCode());
         assertEquals(experimentIdentifier.toUpperCase(), experiment.getIdentifier());
         assertEquals("SIRNA_HCS", experiment.getExperimentType().getCode());
@@ -105,9 +107,10 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
             { property("DESCRIPTION", "my experiment") });
         newExperiment.setSamples(new String[]
             { "3vcp8" });
-        genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY, newExperiment);
+        genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
+                newExperiment);
 
-        Experiment experiment = genericClientService.getExperimentInfo(experimentIdentifier);
+        Experiment experiment = commonClientService.getExperimentInfo(experimentIdentifier);
         TechId experimentId = new TechId(experiment.getId());
         ListSampleCriteria listCriteria = ListSampleCriteria.createForExperiment(experimentId);
         ResultSetWithEntityTypes<Sample> samples =
@@ -124,10 +127,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
     public void testRegisterExperimentAndSamples()
     {
         logIntoCommonClientService();
-        
-        String batchSamplesFileContent = "identifier\torganism\n" 
-                                       + "S1001\tfly\n" 
-                                       + "S1002\tdog\n";
+
+        String batchSamplesFileContent = "identifier\torganism\n" + "S1001\tfly\n" + "S1002\tdog\n";
         addMultiPartFile(SAMPLES_SESSION_KEY, "samples.txt", batchSamplesFileContent.getBytes());
         String experimentCode = commonClientService.generateCode("EXP");
         String experimentIdentifier = "/cisd/default/" + experimentCode;
@@ -138,21 +139,24 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         SampleType sampleType = new SampleType();
         sampleType.setCode("CELL_PLATE");
         newExperiment.setSampleType(sampleType);
-        genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY, newExperiment);
+        genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
+                newExperiment);
 
-        Experiment experiment = genericClientService.getExperimentInfo(experimentIdentifier);
+        Experiment experiment = commonClientService.getExperimentInfo(experimentIdentifier);
         TechId experimentId = new TechId(experiment.getId());
         ListSampleCriteria listCriteria = ListSampleCriteria.createForExperiment(experimentId);
         ResultSetWithEntityTypes<Sample> samples =
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
 
         assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
-        List<GridRowModel<Sample>> list = new ArrayList<GridRowModel<Sample>>(samples.getResultSet().getList());
+        List<GridRowModel<Sample>> list =
+                new ArrayList<GridRowModel<Sample>>(samples.getResultSet().getList());
         Collections.sort(list, new Comparator<GridRowModel<Sample>>()
             {
                 public int compare(GridRowModel<Sample> o1, GridRowModel<Sample> o2)
                 {
-                    return o1.getOriginalObject().getCode().compareTo(o2.getOriginalObject().getCode());
+                    return o1.getOriginalObject().getCode().compareTo(
+                            o2.getOriginalObject().getCode());
                 }
             });
         Sample sample = list.get(0).getOriginalObject();
@@ -165,22 +169,24 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         assertEquals(experiment.getId(), sample.getExperiment().getId());
         assertEquals(2, list.size());
     }
-    
+
     @Test
     public void testRegisterExperimentAndAttachments()
     {
         String sessionToken = logIntoCommonClientService().getSessionID();
-        
+
         addMultiPartFile(ATTACHMENTS_SESSION_KEY, "hello.txt", "hello world".getBytes());
         String experimentCode = commonClientService.generateCode("EXP");
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
             { property("DESCRIPTION", "my experiment") });
-        newExperiment.setAttachments(Arrays.asList(new NewAttachment("hello.txt", "hello", "test attachment")));
-        genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY, newExperiment);
+        newExperiment.setAttachments(Arrays.asList(new NewAttachment("hello.txt", "hello",
+                "test attachment")));
+        genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
+                newExperiment);
 
-        Experiment experiment = genericClientService.getExperimentInfo(experimentIdentifier);
+        Experiment experiment = commonClientService.getExperimentInfo(experimentIdentifier);
         assertEquals(experimentCode, experiment.getCode());
         List<Attachment> attachments = experiment.getAttachments();
         assertEquals("hello.txt", attachments.get(0).getFileName());
@@ -188,7 +194,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         assertEquals("hello", attachments.get(0).getTitle());
         assertEquals(1, attachments.get(0).getVersion());
         assertEquals(1, attachments.size());
-        
+
         TechId experimentID = new TechId(experiment.getId());
         AttachmentWithContent attachment =
                 genericServer.getExperimentFileAttachment(sessionToken, experimentID, "hello.txt",

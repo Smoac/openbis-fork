@@ -104,6 +104,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -754,6 +755,23 @@ public interface ICommonServer extends IServer
      */
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public LastModificationState getLastModificationState(String sessionToken);
+
+    /**
+     * For given {@link ExperimentIdentifier} returns the corresponding {@link Experiment}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public Experiment getExperimentInfo(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier identifier);
+
+    /**
+     * For given {@link TechId} returns the corresponding {@link Experiment}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public Experiment getExperimentInfo(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
     /**
      * For given {@link TechId} returns the corresponding {@link Project}.

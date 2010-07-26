@@ -637,6 +637,17 @@ public interface ICommonClientService extends IClientService
     public LastModificationState getLastModificationState() throws UserFailureException;
 
     /**
+     * For given <var>experimentIdentifier</var> returns corresponding {@link Experiment}.
+     */
+    public Experiment getExperimentInfo(final String experimentIdentifier)
+            throws UserFailureException;
+
+    /**
+     * For given {@link TechId} returns corresponding {@link Experiment}.
+     */
+    public Experiment getExperimentInfo(final TechId experimentId) throws UserFailureException;
+
+    /**
      * For given {@link TechId} returns corresponding {@link Project}.
      */
     public Project getProjectInfo(final TechId projectId) throws UserFailureException;

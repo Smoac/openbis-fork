@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -81,18 +80,6 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             String defaultGroupIdentifier,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
-
-    /**
-     * @see IGenericClientService#getExperimentInfo(String)
-     */
-    public void getExperimentInfo(String experimentIdentifier,
-            final AsyncCallback<Experiment> experimentInfoCallback);
-
-    /**
-     * @see IGenericClientService#getExperimentInfo(TechId)
-     */
-    public void getExperimentInfo(TechId experimentId,
-            final AsyncCallback<Experiment> experimentInfoCallback);
 
     /**
      * @see IGenericClientService#getMaterialInfo(TechId)

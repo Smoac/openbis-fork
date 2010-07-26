@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
@@ -35,15 +36,16 @@ public final class ExperimentRegistrationPanel extends
     public static final String ID = EntityRegistrationPanel.createId(EntityKind.EXPERIMENT);
 
     public static final DatabaseModificationAwareComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, final ActionContext context)
     {
-        ExperimentRegistrationPanel panel = new ExperimentRegistrationPanel(viewContext);
+        ExperimentRegistrationPanel panel = new ExperimentRegistrationPanel(viewContext, context);
         return new DatabaseModificationAwareComponent(panel, panel);
     }
 
-    private ExperimentRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
+    private ExperimentRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
+            ActionContext context)
     {
         super(viewContext, EntityKind.EXPERIMENT, new ExperimentTypeSelectionWidget(viewContext,
-                EntityRegistrationPanel.createId(EntityKind.EXPERIMENT)));
+                EntityRegistrationPanel.createId(EntityKind.EXPERIMENT)), context);
     }
 }

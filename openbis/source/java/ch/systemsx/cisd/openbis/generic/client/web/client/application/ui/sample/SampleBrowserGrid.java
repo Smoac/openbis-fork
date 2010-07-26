@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -71,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -185,6 +187,7 @@ public class SampleBrowserGrid extends
         final SampleBrowserGrid browserGrid =
                 createGridAsComponent(viewContext, browserId, criteria, entityTypeCode,
                         DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
+        browserGrid.experimentIdOrNull = experimentId;
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();
@@ -312,6 +315,8 @@ public class SampleBrowserGrid extends
     // criteria to filter samples
     private final ISampleCriteriaProvider propertyTypesAndCriteriaProvider;
 
+    private TechId experimentIdOrNull;
+
     protected SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             ISampleCriteriaProvider criteriaProvider, String browserId,
             boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
@@ -397,17 +402,9 @@ public class SampleBrowserGrid extends
 
     protected void addEntityOperationButtons()
     {
+
         final Button addButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Sample"),
-                        new SelectionListener<ButtonEvent>()
-                            {
-                                @Override
-                                public void componentSelected(ButtonEvent ce)
-                                {
-                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
-                                            viewContext).getSampleRegistration());
-                                }
-                            });
+                createAddSampleButton();
         addButton(addButton);
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
@@ -437,6 +434,48 @@ public class SampleBrowserGrid extends
         changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
         addButton(deleteButton);
         allowMultipleSelection(); // we allow deletion of multiple samples
+    }
+
+    private Button createAddSampleButton()
+    {
+        return new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Sample"),
+                new SelectionListener<ButtonEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            if (experimentIdOrNull == null)
+                            {
+                                DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
+                                        viewContext).getSampleRegistration());
+                            } else
+                            {
+                                viewContext.getService().getExperimentInfo(
+                                        experimentIdOrNull,
+                                        new ExperimentInfoCallback(viewContext));
+                            }
+
+                        }
+
+                        final class ExperimentInfoCallback extends
+                                AbstractAsyncCallback<Experiment>
+                        {
+                            public ExperimentInfoCallback(
+                                    IViewContext<ICommonClientServiceAsync> viewContext)
+                            {
+                                super(viewContext);
+                            }
+
+                            @Override
+                            protected void process(Experiment result)
+                            {
+                                ActionContext context = new ActionContext(result);
+                                DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
+                                        viewContext.getCommonViewContext())
+                                        .getSampleRegistration(context));
+                            }
+                        }
+                    });
     }
 
     private void addGridRefreshListener(SampleBrowserToolbar topToolbar)

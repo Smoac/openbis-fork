@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -46,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -90,19 +88,6 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     {
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S) ATTACHMENTS(%S)",
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
-    }
-
-    public Experiment getExperimentInfo(final String sessionToken,
-            final ExperimentIdentifier identifier)
-    {
-        logAccess(sessionToken, "get_experiment_info", "IDENTIFIER(%s)", identifier);
-        return null;
-    }
-
-    public Experiment getExperimentInfo(final String sessionToken, final TechId experimentId)
-    {
-        logAccess(sessionToken, "get_experiment_info", "ID(%s)", experimentId);
-        return null;
     }
 
     public Material getMaterialInfo(final String sessionToken, final TechId materialId)

@@ -33,11 +33,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericExperimentViewer}.
@@ -96,9 +94,9 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     /**
      * Tests that authorization annotations of
-     * {@link IGenericServer#getExperimentInfo(String, ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier)}
+     * {@link ICommonServer#getExperimentInfo(String, ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier)}
      * are obeyed. This is done by a direct invocation of
-     * {@link IGenericClientServiceAsync#getExperimentInfo(String,com.google.gwt.user.client.rpc.AsyncCallback)}
+     * {@link ICommonClientServiceAsync#getExperimentInfo(String,com.google.gwt.user.client.rpc.AsyncCallback)}
      * because the normal GUI only list experiments which are accessible by the user.
      */
     public final void testDirectInvocationOfGetExperimentInfoByAnUnauthorizedUser()
@@ -110,9 +108,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 {
                     IViewContext<ICommonClientServiceAsync> viewContext =
                             client.tryToGetViewContext();
-                    IGenericClientServiceAsync service =
-                            new GenericViewContext(viewContext).getService();
-                    service.getExperimentInfo(CISD_CISD_NEMO + "/" + EXP1,
+                    viewContext.getService().getExperimentInfo(CISD_CISD_NEMO + "/" + EXP1,
                             new GetExperimentInfoCallback(viewContext));
                 }
             });

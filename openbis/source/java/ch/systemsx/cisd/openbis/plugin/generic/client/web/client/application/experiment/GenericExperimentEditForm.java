@@ -151,7 +151,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     @Override
     protected void loadForm()
     {
-        viewContext.getService().getExperimentInfo(techIdOrNull,
+        viewContext.getCommonService().getExperimentInfo(techIdOrNull,
                 new ExperimentInfoCallback(viewContext));
     }
 

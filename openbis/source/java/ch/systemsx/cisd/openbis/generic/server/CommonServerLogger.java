@@ -86,6 +86,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -598,6 +599,19 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public LastModificationState getLastModificationState(String sessionToken)
     {
+        return null;
+    }
+
+    public Experiment getExperimentInfo(final String sessionToken,
+            final ExperimentIdentifier identifier)
+    {
+        logAccess(sessionToken, "get_experiment_info", "IDENTIFIER(%s)", identifier);
+        return null;
+    }
+
+    public Experiment getExperimentInfo(final String sessionToken, final TechId experimentId)
+    {
+        logAccess(sessionToken, "get_experiment_info", "ID(%s)", experimentId);
         return null;
     }
 

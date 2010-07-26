@@ -30,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -61,17 +62,20 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
 
     private final PreviousSelection previousSelection = new PreviousSelection();
 
+    private final ActionContext actionContext;
+
     protected static String createId(EntityKind entityKind)
     {
         return GenericConstants.ID_PREFIX + entityKind.name().toLowerCase() + "-registration";
     }
 
     public EntityRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
-            EntityKind entityKind, S entityTypeSelection)
+            EntityKind entityKind, S entityTypeSelection, ActionContext context)
     {
         this.entityTypeSelection = entityTypeSelection;
         this.viewContext = viewContext;
         this.entityKind = entityKind;
+        this.actionContext = context;
 
         setHeaderVisible(false);
         setId(createId(entityKind));
@@ -139,7 +143,8 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
         final IClientPlugin<EntityType, IIdAndCodeHolder> clientPlugin =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         entityType).createClientPlugin(entityKind);
-        registrationWidget = clientPlugin.createRegistrationForEntityType(entityType);
+        registrationWidget =
+                clientPlugin.createRegistrationForEntityType(entityType, actionContext);
         add(registrationWidget.get());
         layout();
     }

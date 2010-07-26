@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -172,7 +173,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
 
         public final DatabaseModificationAwareWidget createRegistrationForEntityType(
-                final SampleType sampleType)
+                final SampleType sampleType, final ActionContext context)
         {
             GenericSampleRegistrationForm form =
                     new GenericSampleRegistrationForm(getViewContext(), sampleType);
@@ -329,7 +330,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
 
         @Override
         public DatabaseModificationAwareWidget createRegistrationForEntityType(
-                ExperimentType entityType)
+                ExperimentType entityType, ActionContext context)
         {
             GenericExperimentRegistrationForm form =
                     new GenericExperimentRegistrationForm(getViewContext(), entityType);

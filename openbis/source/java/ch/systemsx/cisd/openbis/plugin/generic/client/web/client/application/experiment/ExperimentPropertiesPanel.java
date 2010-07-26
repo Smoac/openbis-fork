@@ -156,7 +156,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
 
     private void reloadData(AbstractAsyncCallback<Experiment> callback)
     {
-        viewContext.getService().getExperimentInfo(experimentId, callback);
+        viewContext.getCommonService().getExperimentInfo(experimentId, callback);
     }
 
     public IDatabaseModificationObserverWithCallback getDatabaseModificationObserver()

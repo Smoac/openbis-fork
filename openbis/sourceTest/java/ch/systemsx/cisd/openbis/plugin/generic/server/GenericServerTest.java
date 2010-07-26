@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -52,7 +51,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -131,35 +129,6 @@ public final class GenericServerTest extends AbstractServerTestCase
             });
         createServer().registerSample(SESSION_TOKEN, newSample,
                 Collections.<NewAttachment> emptyList());
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testGetExperimentInfo() throws Exception
-    {
-        prepareGetSession();
-        final ExperimentIdentifier experimentIdentifier =
-                CommonTestUtils.createExperimentIdentifier();
-        final ExperimentPE experimentPE = CommonTestUtils.createExperiment(experimentIdentifier);
-        context.checking(new Expectations()
-            {
-                {
-                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
-                    will(returnValue(experimentBO));
-
-                    one(experimentBO).loadByExperimentIdentifier(experimentIdentifier);
-                    one(experimentBO).enrichWithProperties();
-                    one(experimentBO).enrichWithAttachments();
-
-                    one(experimentBO).getExperiment();
-                    will(returnValue(experimentPE));
-                }
-            });
-        final Experiment experiment =
-                createServer().getExperimentInfo(SESSION_TOKEN, experimentIdentifier);
-        assertEquals(experimentPE.getCode(), experiment.getCode());
-        assertEquals(experimentPE.getExperimentType().getCode(), experiment.getExperimentType()
-                .getCode());
         context.assertIsSatisfied();
     }
 
