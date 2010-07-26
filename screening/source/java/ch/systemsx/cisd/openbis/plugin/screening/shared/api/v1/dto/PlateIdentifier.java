@@ -1,13 +1,11 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
-import java.io.Serializable;
-
 /**
- * Contains data which uniquely define a plate
+ * Contains data which uniquely define a plate.
  * 
  * @author Tomasz Pylak
  */
-public class PlateIdentifier implements Serializable
+public class PlateIdentifier extends PermanentIdentifier
 {
     private static final long serialVersionUID = 1L;
 
@@ -15,47 +13,44 @@ public class PlateIdentifier implements Serializable
 
     public PlateIdentifier(String plateCode, String spaceCodeOrNull)
     {
+        this(plateCode, spaceCodeOrNull, null);
+    }
+
+    public PlateIdentifier(String plateCode, String spaceCodeOrNull, String permId)
+    {
+        super(permId);
         this.plateCode = plateCode;
         this.spaceCodeOrNull = spaceCodeOrNull;
     }
 
-    /** a code of the plate */
+    /**
+     * A code of the plate.
+     */
     public String getPlateCode()
     {
         return plateCode;
     }
 
-    /** a code of the space to which the plate belongs or null if it is a shared plate */
+    /**
+     * A code of the space to which the plate belongs or <code>null</code> if it is a shared plate.
+     */
     public String tryGetSpaceCode()
     {
         return spaceCodeOrNull;
     }
 
-    @Override
-    public String toString()
+    /**
+     * Returns the augmented (full) code of this plate.
+     */
+    public String getAugmentedCode()
     {
-        return (spaceCodeOrNull != null ? "/" + spaceCodeOrNull : "") + "/" + plateCode;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = prime + plateCode.hashCode();
-        return prime * result + ((spaceCodeOrNull == null) ? 0 : spaceCodeOrNull.hashCode());
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (obj == null || obj instanceof PlateIdentifier == false)
+        if (spaceCodeOrNull != null)
         {
-            return false;
+            return "/" + spaceCodeOrNull + "/" + plateCode;
+        } else
+        {
+            return "/" + plateCode;
         }
-        PlateIdentifier that = (PlateIdentifier) obj;
-        return plateCode.equals(that.getPlateCode())
-                && ((spaceCodeOrNull != null && spaceCodeOrNull.equals(that.tryGetSpaceCode())) || (spaceCodeOrNull == null && that
-                        .tryGetSpaceCode() == null));
     }
 
 }
