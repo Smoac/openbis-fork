@@ -31,8 +31,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
     public static final String WELL_COLUMN = "WELL_COLUMN";
 
     public static final String WELL_CONTENT_MATERIAL = "WELL_CONTENT_MATERIAL";
-
-    public static final String WELL_NESTED_MATERIAL = "WELL_NESTED_MATERIAL";
+ 
+    public static final String WELL_CONTENT_MATERIAL_TYPE = "WELL_CONTENT_MATERIAL_TYPE";
 
     public static final String PLATE = "PLATE";
 

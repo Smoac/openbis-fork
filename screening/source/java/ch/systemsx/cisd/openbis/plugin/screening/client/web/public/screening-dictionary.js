@@ -41,6 +41,8 @@ var screening = {
 	//    
     SCREENING_MODULE_TITLE: "Screening",
     
+    WELL_CONTENT_MATERIAL: "Content",
+    WELL_CONTENT_MATERIAL_TYPE: "Content Type",
     PLATE_MATERIAL_REVIEWER_TITLE: "Wells Reviewing Panel",
     PLATE_MATERIAL_REVIEWER_HELP_INFO: "Specify a list of material codes contained in the wells (e.g. gene symbols, control names or compound names). Press the search button. The content of all wells in this experiment will be checked and wells containing specified materials will be shown.",
     PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "List of material codes contained in the wells (e.g. gene symbols, control names or compound names) separated by commas (\",\") or one code per line.",
