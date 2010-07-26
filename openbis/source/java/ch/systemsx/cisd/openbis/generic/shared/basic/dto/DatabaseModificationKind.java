@@ -37,7 +37,8 @@ public class DatabaseModificationKind implements IsSerializable
         MATERIAL_TYPE, DATASET_TYPE, FILE_FORMAT_TYPE, PROJECT, SPACE, PROPERTY_TYPE,
         PROPERTY_TYPE_ASSIGNMENT, VOCABULARY, VOCABULARY_TERM, ROLE_ASSIGNMENT, PERSON,
         GRID_CUSTOM_FILTER, GRID_CUSTOM_COLUMN,
-        // FIXME no easy way to extend current modification notification solution in modules
+        // TODO 2010-02-19, PTR: no easy way to extend current modification notification solution in
+        // modules
         QUERY
     }
 

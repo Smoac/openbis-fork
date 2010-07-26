@@ -180,7 +180,7 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
             SampleRelationshipPE relationship =
                     new SampleRelationshipPE(generatorOrNull, child, createRelationshipType());
             child.addParentRelationship(relationship);
-            generatorOrNull.addChildRelationship(relationship);// FIXME: needed?
+            generatorOrNull.addChildRelationship(relationship);
         }
         if (containerOrNull != null)
         {
