@@ -26,13 +26,18 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreenerPlateValidator;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ExperimentIdentifierPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningPlateValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreenerReadonlyPlatePredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningExperimentValidator;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 
 /**
  * This interface is a part of the official public screening API. It is forbidden to change it in a
@@ -46,7 +51,17 @@ public interface IScreeningApiServer extends IRpcService
      * Name of this service for which it is registered at the RPC name server.
      */
     public static final String SERVICE_NAME = "screening";
-    
+
+    /**
+     * The major version of this service.
+     */
+    public static final int MAJOR_VERSION = 1;
+
+    /**
+     * The minor version of this service.
+     */
+    public static final int MINOR_VERSION = 1;
+
     /**
      * Service part of the URL to access this service remotely.
      */
@@ -55,7 +70,7 @@ public interface IScreeningApiServer extends IRpcService
     /**
      * Authenticates the user with a given password.
      * 
-     *@return sessionToken if authentication suceeded, null otherwise
+     *@return sessionToken if authentication succeeded, <code>null</code> otherwise.
      */
     @Transactional
     // this is not a readOnly transaction - it can create new users
@@ -73,8 +88,17 @@ public interface IScreeningApiServer extends IRpcService
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = ScreenerPlateValidator.class)
+    @ReturnValueFilter(validatorClass = ScreeningPlateValidator.class)
     List<Plate> listPlates(String sessionToken) throws IllegalArgumentException;
+
+    /**
+     * Return the list of all visible experiments, along with their hierarchical context (space,
+     * project).
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ScreeningExperimentValidator.class)
+    List<ExperimentIdentifier> listExperiments(String sessionToken);
 
     /**
      * For a given set of plates (given by space / plate bar code), provide the list of all data
@@ -106,4 +130,17 @@ public interface IScreeningApiServer extends IRpcService
     List<IDatasetIdentifier> getDatasetIdentifiers(
             String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
+
+    /**
+     * For the given <var>experimentIdentifier</var> find all plate locations that are connected to
+     * the specified <var>materialIdentifier</var>. If <code>findDatasets == true</code>, find also
+     * the connected image and image analysis data sets for the relevant plates.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    List<PlateWellReferenceWithDatasets> listPlateWells(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experimentIdentifer,
+            MaterialIdentifier materialIdentifier, boolean findDatasets);
+
 }

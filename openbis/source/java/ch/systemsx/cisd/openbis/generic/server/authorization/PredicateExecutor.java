@@ -234,6 +234,17 @@ public final class PredicateExecutor
             return daoFactory.getGroupDAO().listGroups();
         }
 
+        public GroupPE tryGetSpace(DatabaseInstancePE databaseInstance, String spaceCode)
+        {
+            return daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(spaceCode,
+                    homeDatabaseInstance);
+        }
+
+        public ExperimentPE tryGetExperimentByPermId(String permId)
+        {
+            return daoFactory.getExperimentDAO().tryGetByPermID(permId);
+        }
+        
         public DatabaseInstancePE getHomeDatabaseInstance()
         {
             return homeDatabaseInstance;

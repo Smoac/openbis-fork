@@ -66,6 +66,7 @@ public final class SampleOwnerIdentifierCollectionPredicate extends
     }
 
     @Override
+    protected
     final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final List<SampleOwnerIdentifier> values)
     {

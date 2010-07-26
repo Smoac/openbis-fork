@@ -37,8 +37,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServ
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
@@ -151,9 +153,25 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    public List<PlateWellReferenceWithDatasets> listPlateWells(
+            String sessionToken,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
+            MaterialIdentifier materialIdentifier, boolean findDatasets)
+    {
+        logAccess(sessionToken, "listPlateWells");
+        return null;
+    }
+
     public List<Plate> listPlates(String sessionToken)
     {
         logAccess(sessionToken, "listPlates");
+        return null;
+    }
+
+    public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier> listExperiments(
+            String sessionToken)
+    {
+        logAccess(sessionToken, "listExperiments");
         return null;
     }
 
@@ -166,11 +184,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
 
     public int getMajorVersion()
     {
-        return 1;
+        return MAJOR_VERSION;
     }
 
     public int getMinorVersion()
     {
-        return 0;
+        return MINOR_VERSION;
     }
+
 }

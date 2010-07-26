@@ -198,14 +198,28 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         }
     }
 
-    public List<ExperimentPE> listByPermID(Set<String> values)
+    public ExperimentPE tryGetByPermID(String permId)
     {
-        if (values == null || values.isEmpty())
+        final Criteria criteria = getSession().createCriteria(getEntityClass());
+        criteria.add(Restrictions.eq("permId", permId));
+        final ExperimentPE experimentOrNull = (ExperimentPE) criteria.uniqueResult();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "Following experiment '%s' has been found for permId '%s'.", experimentOrNull,
+                    permId));
+        }
+        return experimentOrNull;
+    }
+
+    public List<ExperimentPE> listByPermID(Set<String> permIds)
+    {
+        if (permIds == null || permIds.isEmpty())
         {
             return new ArrayList<ExperimentPE>();
         }
         final DetachedCriteria criteria = DetachedCriteria.forClass(ExperimentPE.class);
-        criteria.add(Restrictions.in("permId", values));
+        criteria.add(Restrictions.in("permId", permIds));
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
@@ -213,4 +227,5 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         }
         return list;
     }
+
 }

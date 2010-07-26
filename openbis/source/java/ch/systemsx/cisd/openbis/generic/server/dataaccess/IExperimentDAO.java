@@ -77,6 +77,12 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
      */
     public void deleteZombiePlaceholders(ExperimentPE experiment) throws DataAccessException;
 
-    public List<ExperimentPE> listByPermID(Set<String> values);
+    /**
+     * Try to obtain the experiment for the given <var>permId</var>. Returns <code>null</code>, if
+     * no experiment with the given perm id exists.
+     */
+    public ExperimentPE tryGetByPermID(String permId);
+
+    public List<ExperimentPE> listByPermID(Set<String> permId);
 
 }

@@ -40,6 +40,7 @@ public class DataSetCodeCollectionPredicate extends AbstractGroupPredicate<List<
     }
 
     @Override
+    protected
     Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             List<String> dataSetCodes)
     {

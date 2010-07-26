@@ -63,6 +63,7 @@ public class SamplePermIdPredicate extends AbstractDatabaseInstancePredicate<Per
     }
 
     @Override
+    protected
     final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final PermId id)
     {

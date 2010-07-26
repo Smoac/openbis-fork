@@ -55,6 +55,7 @@ public final class CollectionPredicate<T> extends AbstractPredicate<Collection<T
     }
 
     @Override
+    protected
     final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final Collection<T> value)
     {

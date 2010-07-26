@@ -37,6 +37,7 @@ public class DataSetCodePredicate extends AbstractGroupPredicate<String>
     }
 
     @Override
+    protected
     Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, String dataSetCode)
     {
         assert initialized : "Predicate has not been initialized";

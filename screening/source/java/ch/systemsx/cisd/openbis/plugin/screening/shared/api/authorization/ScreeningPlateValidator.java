@@ -14,7 +14,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
  * 
  * @author Tomasz Pylak
  */
-public final class ScreenerPlateValidator extends AbstractValidator<Plate>
+public final class ScreeningPlateValidator extends AbstractValidator<Plate>
 {
     @Override
     public final boolean doValidation(final PersonPE person, final Plate value)
@@ -27,8 +27,8 @@ public final class ScreenerPlateValidator extends AbstractValidator<Plate>
             {
                 if (roleAssignment.getDatabaseInstance() != null)
                 {
-                    // all roles on db level allow full access (we assume that we operate on home db
-                    // always)
+                    // all roles on db level allow full read access (we assume that we operate on
+                    // home db always)
                     return true;
                 }
                 final GroupPE group = roleAssignment.getGroup();

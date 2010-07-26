@@ -54,8 +54,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServ
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
@@ -135,7 +137,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         Session session = getSession(sessionToken);
         return GenePlateLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
-                geneMaterialId, experimentIdentifier);
+                geneMaterialId, experimentIdentifier, true);
     }
 
     public List<WellContent> listPlateLocations(String sessionToken,
@@ -143,7 +145,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         Session session = getSession(sessionToken);
         return GenePlateLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
-                materialCriteria);
+                materialCriteria, true);
     }
 
     public TableModel loadImageAnalysisForExperiment(String sessionToken, TechId experimentId)
@@ -187,9 +189,24 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return createScreeningApiImpl(sessionToken).listImageDatasets(plates);
     }
 
+    public List<PlateWellReferenceWithDatasets> listPlateWells(
+            String sessionToken,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
+            MaterialIdentifier materialIdentifier, boolean findDatasets)
+    {
+        return createScreeningApiImpl(sessionToken).listPlateWells(experimentIdentifer,
+                materialIdentifier, findDatasets);
+    }
+
     public List<Plate> listPlates(String sessionToken)
     {
         return createScreeningApiImpl(sessionToken).listPlates();
+    }
+
+    public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier> listExperiments(
+            String sessionToken)
+    {
+        return createScreeningApiImpl(sessionToken).listExperiments();
     }
 
     public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
@@ -224,11 +241,12 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     public int getMajorVersion()
     {
-        return 1;
+        return MAJOR_VERSION;
     }
 
     public int getMinorVersion()
     {
-        return 0;
+        return MINOR_VERSION;
     }
+
 }

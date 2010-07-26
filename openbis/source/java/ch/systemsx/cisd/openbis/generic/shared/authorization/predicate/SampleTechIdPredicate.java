@@ -63,6 +63,7 @@ public class SampleTechIdPredicate extends AbstractDatabaseInstancePredicate<Tec
     }
 
     @Override
+    protected
     final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final TechId techId)
     {

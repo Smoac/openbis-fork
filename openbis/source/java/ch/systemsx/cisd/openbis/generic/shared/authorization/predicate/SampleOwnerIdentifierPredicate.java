@@ -63,6 +63,7 @@ public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<Samp
     }
 
     @Override
+    protected
     final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final SampleOwnerIdentifier value)
     {

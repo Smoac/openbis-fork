@@ -16,6 +16,7 @@ import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
@@ -23,9 +24,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVecto
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 
 /**
  * A client side facade of openBIS and Datastore Server API.
@@ -152,6 +155,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return openbisScreeningServer.listPlates(sessionToken);
     }
 
+    public List<ExperimentIdentifier> listExperiments()
+    {
+        return openbisScreeningServer.listExperiments(sessionToken);
+    }
+
     /**
      * For a given set of plates provides the list of all connected data sets containing feature
      * vectors.
@@ -168,6 +176,19 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
     {
         return openbisScreeningServer.listImageDatasets(sessionToken, plates);
+    }
+
+    /**
+     * For the given <var>experimentIdentifier</var> find all plate locations that are connected to
+     * the specified <var>materialIdentifier</var>. If <code>findDatasets == true</code>, find also
+     * the connected image and image analysis data sets for the relevant plates.
+     */
+    public List<PlateWellReferenceWithDatasets> listPlateWells(
+            ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
+            boolean findDatasets)
+    {
+        return openbisScreeningServer.listPlateWells(sessionToken, experimentIdentifer,
+                materialIdentifier, findDatasets);
     }
 
     /**
@@ -222,7 +243,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         public void handle(IDssServiceRpcScreening dssService,
                                 List<FeatureVectorDatasetReference> references)
                         {
-
                             result.addAll(dssService.loadFeatures(sessionToken, references,
                                     featureNames));
                         }

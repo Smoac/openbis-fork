@@ -57,6 +57,7 @@ public class ExperimentUpdatesPredicate extends AbstractPredicate<ExperimentUpda
     }
 
     @Override
+    protected
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final ExperimentUpdatesDTO updates)
     {

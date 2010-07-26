@@ -55,6 +55,11 @@ public class PlateImageReferenceTest extends AssertJUnit
                     return "9834598723-9834";
                 }
 
+                public String getPermId()
+                {
+                    return getDatasetCode();
+                }
+
                 public String getDatastoreServerUrl()
                 {
                     return "http://localhost:8888";

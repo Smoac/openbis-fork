@@ -58,6 +58,7 @@ public class DataSetUpdatesPredicate extends AbstractPredicate<DataSetUpdatesDTO
     }
 
     @Override
+    protected
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final DataSetUpdatesDTO updates)
     {

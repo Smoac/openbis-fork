@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -33,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * 
  * @author Franz-Josef Elmer
  */
-abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredicate<T>
+public abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredicate<T>
 {
 
     protected List<GroupPE> groups;
@@ -57,9 +56,12 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
             final String databaseInstanceUUID, final String databaseInstanceCode,
             final String groupCodeOrNull)
     {
-        final GroupIdentifier fullGroupIdentifier =
-                new GroupIdentifier(databaseInstanceCode, groupCodeOrNull);
-        ensureGroupExists(fullGroupIdentifier, databaseInstanceUUID, groupCodeOrNull);
+        if (tryFindGroup(databaseInstanceUUID, groupCodeOrNull) == null)
+        {
+            return Status.createError(String.format(
+                    "User '%s' does not have enough privileges to access data in the space '%s'.",
+                    person.getUserId(), new GroupIdentifier(databaseInstanceCode, groupCodeOrNull)));
+        }
         final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, groupCodeOrNull);
         if (matching)
         {
@@ -68,16 +70,6 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
         return Status.createError(String.format(
                 "User '%s' does not have enough privileges to access data in the space '%s'.",
                 person.getUserId(), new GroupIdentifier(databaseInstanceCode, groupCodeOrNull)));
-    }
-
-    private void ensureGroupExists(final GroupIdentifier groupIdentifier,
-            final String databaseInstanceUUID, final String groupCodeOrNull)
-    {
-        if (groupCodeOrNull != null && tryFindGroup(databaseInstanceUUID, groupCodeOrNull) == null)
-        {
-            throw UserFailureException.fromTemplate("No space could be found for identifier '%s'.",
-                    groupIdentifier);
-        }
     }
 
     private GroupPE tryFindGroup(final String databaseInstanceUUID, final String groupCode)

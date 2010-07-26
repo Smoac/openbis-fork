@@ -31,6 +31,7 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -62,18 +64,27 @@ public class GenePlateLocationsLoader
 {
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId geneMaterialId, ExperimentIdentifier experimentIdentifier)
+            TechId geneMaterialId, ExperimentIdentifier experimentIdentifier,
+            boolean enrichWithImages)
     {
         return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
-                .getPlateLocations(geneMaterialId, experimentIdentifier);
+                .getPlateLocations(geneMaterialId, experimentIdentifier, enrichWithImages);
     }
 
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            PlateMaterialsSearchCriteria materialCriteria)
+            TechId geneMaterialId, String eperimentPermId, boolean enrichWithImages)
     {
         return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
-                .getPlateLocations(materialCriteria);
+                .getPlateLocations(geneMaterialId, eperimentPermId, enrichWithImages);
+    }
+
+    public static List<WellContent> load(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            PlateMaterialsSearchCriteria materialCriteria, boolean enrichWithImages)
+    {
+        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
+                .getPlateLocations(materialCriteria, enrichWithImages);
     }
 
     private final Session session;
@@ -93,24 +104,51 @@ public class GenePlateLocationsLoader
         this.externalDataTable = businessObjectFactory.createExternalDataTable(session);
     }
 
-    private List<WellContent> getPlateLocations(PlateMaterialsSearchCriteria materialCriteria)
+    private List<WellContent> getPlateLocations(PlateMaterialsSearchCriteria materialCriteria,
+            boolean enrichWithImages)
     {
         List<WellContent> locations = loadLocations(materialCriteria);
-        externalDataTable.loadByExperimentTechId(materialCriteria.getExperimentId());
-        List<ExternalDataPE> datasets = externalDataTable.getExternalData();
-        List<ExternalDataPE> imageDatasets = filterImageDatasets(datasets);
-        return enrichPlateLocationsWithImages(locations, imageDatasets);
+        if (enrichWithImages)
+        {
+            externalDataTable.loadByExperimentTechId(materialCriteria.getExperimentId());
+            List<ExternalDataPE> datasets = externalDataTable.getExternalData();
+            List<ExternalDataPE> imageDatasets = filterImageDatasets(datasets);
+            return enrichWithImages(locations, imageDatasets);
+        } else
+        {
+            return locations;
+        }
+    }
+
+    private List<WellContent> getPlateLocations(TechId geneMaterialId, String experimentPermId,
+            boolean enrichWithImages)
+    {
+        List<WellContent> locations = loadLocations(geneMaterialId, experimentPermId);
+        if (enrichWithImages)
+        {
+            List<ExternalDataPE> imageDatasets = loadImageDatasets(locations, externalDataTable);
+            return enrichWithImages(locations, imageDatasets);
+        } else
+        {
+            return locations;
+        }
     }
 
     private List<WellContent> getPlateLocations(TechId geneMaterialId,
-            ExperimentIdentifier experimentIdentifier)
+            ExperimentIdentifier experimentIdentifier, boolean enrichWithImages)
     {
         List<WellContent> locations = loadLocations(geneMaterialId, experimentIdentifier);
-        List<ExternalDataPE> imageDatasets = loadImageDatasets(locations, externalDataTable);
-        return enrichPlateLocationsWithImages(locations, imageDatasets);
+        if (enrichWithImages)
+        {
+            List<ExternalDataPE> imageDatasets = loadImageDatasets(locations, externalDataTable);
+            return enrichWithImages(locations, imageDatasets);
+        } else
+        {
+            return locations;
+        }
     }
 
-    private List<WellContent> enrichPlateLocationsWithImages(List<WellContent> locations,
+    private List<WellContent> enrichWithImages(List<WellContent> locations,
             List<ExternalDataPE> imageDatasets)
     {
         Map<Long/* plate id */, List<ExternalDataPE>> plateToDatasetMap =
@@ -296,10 +334,21 @@ public class GenePlateLocationsLoader
         return convert(locations);
     }
 
+    private List<WellContent> loadLocations(TechId geneMaterialId, String experimentPermId)
+    {
+        final long experimentId = loadExperimentIdByPermId(experimentPermId);
+
+        DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations =
+                createDAO(daoFactory).getPlateLocationsForMaterialId(geneMaterialId.getId(),
+                        experimentId);
+
+        return convert(locations);
+    }
+
     private List<WellContent> loadLocations(TechId geneMaterialId,
             ExperimentIdentifier experimentIdentifier)
     {
-        long experimentId = loadExperimentId(experimentIdentifier);
+        final long experimentId = loadExperimentId(experimentIdentifier);
 
         DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations =
                 createDAO(daoFactory).getPlateLocationsForMaterialId(geneMaterialId.getId(),
@@ -360,5 +409,17 @@ public class GenePlateLocationsLoader
         IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.loadByExperimentIdentifier(experimentIdentifier);
         return experimentBO.getExperiment().getId();
+    }
+
+    private long loadExperimentIdByPermId(String experimentPermId)
+    {
+        final ExperimentPE experiment =
+                daoFactory.getExperimentDAO().tryGetByPermID(experimentPermId);
+        if (experiment == null)
+        {
+            throw new UserFailureException("Unkown experiment for permId '" + experimentPermId
+                    + "'.");
+        }
+        return experiment.getId();
     }
 }

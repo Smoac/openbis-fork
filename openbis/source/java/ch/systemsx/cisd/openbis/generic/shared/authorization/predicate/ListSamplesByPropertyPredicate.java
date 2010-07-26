@@ -53,6 +53,7 @@ public class ListSamplesByPropertyPredicate extends
     }
 
     @Override
+    protected
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final ListSamplesByPropertyCriteria criteria)
     {

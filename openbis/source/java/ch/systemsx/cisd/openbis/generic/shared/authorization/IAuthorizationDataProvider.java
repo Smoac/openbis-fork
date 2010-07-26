@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -42,6 +44,18 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * Returns a list of all groups.
      */
     public List<GroupPE> listGroups();
+
+    /**
+     * Returns the space for the given <var>spaceCode</var> or <code>null</code>, if it does not
+     * exist.
+     */
+    public GroupPE tryGetSpace(DatabaseInstancePE databaseInstance, String spaceCode);
+
+    /**
+     * Returns the experiment for the given <var>permId</var> or <code>null</code>, if it does not
+     * exist.
+     */
+    public ExperimentPE tryGetExperimentByPermId(String permId);
 
     /**
      * Returns the project of the experiment to which the specified data set belongs.

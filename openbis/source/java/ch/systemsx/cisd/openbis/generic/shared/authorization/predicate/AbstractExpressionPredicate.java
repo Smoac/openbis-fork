@@ -131,6 +131,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
     }
 
     @Override
+    protected
     final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final T value)
     {

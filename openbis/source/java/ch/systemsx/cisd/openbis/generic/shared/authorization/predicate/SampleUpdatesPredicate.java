@@ -60,6 +60,7 @@ public class SampleUpdatesPredicate extends AbstractPredicate<SampleUpdatesDTO>
     }
 
     @Override
+    protected
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final SampleUpdatesDTO updates)
     {// TODO 2009-07-27, IA: tests needed

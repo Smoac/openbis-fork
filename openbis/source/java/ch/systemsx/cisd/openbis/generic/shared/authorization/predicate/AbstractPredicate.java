@@ -44,7 +44,7 @@ abstract class AbstractPredicate<T> implements IPredicate<T>
      * Must be implemented by subclasses.
      * </p>
      */
-    abstract Status doEvaluation(final PersonPE person,
+    protected abstract Status doEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final T value);
 
     /** 

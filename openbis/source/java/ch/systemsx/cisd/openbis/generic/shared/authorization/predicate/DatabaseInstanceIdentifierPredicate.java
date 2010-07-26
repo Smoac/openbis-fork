@@ -76,6 +76,7 @@ public final class DatabaseInstanceIdentifierPredicate extends
     }
 
     @Override
+    protected
     final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final DatabaseInstanceIdentifier databaseInstanceIdentifier)
     {

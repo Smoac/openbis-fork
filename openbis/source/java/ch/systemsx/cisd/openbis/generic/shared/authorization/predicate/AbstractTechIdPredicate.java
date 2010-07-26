@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedSpaceException;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 
 /**
@@ -102,6 +101,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     }
 
     @Override
+    protected
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final TechId techId)
     {
@@ -110,7 +110,9 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
         GroupPE groupOrNull = authorizationDataProvider.tryToGetGroup(entityKind, techId);
         if (groupOrNull == null)
         {
-            throw new UndefinedSpaceException();
+            return Status.createError(String.format(
+                    "User '%s' does not have enough privileges to access experiment with id=",
+                    person.getUserId(), techId.getId()));
         }
 
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, groupOrNull);

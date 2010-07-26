@@ -76,7 +76,7 @@ public class SpaceCodeHelper
      * 
      * @throws UndefinedSpaceException if no space could be found.
      */
-    private final static String getSpaceCode(final PersonPE person, final String spaceCode)
+    public final static String getSpaceCode(final PersonPE person, final String spaceCode)
             throws UndefinedSpaceException
     {
         if (isHomeSpace(spaceCode))

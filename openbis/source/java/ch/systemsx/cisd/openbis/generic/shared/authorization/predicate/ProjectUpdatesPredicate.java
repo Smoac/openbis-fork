@@ -59,6 +59,7 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
     }
 
     @Override
+    protected
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final ProjectUpdatesDTO updates)
     {

@@ -47,6 +47,7 @@ public class SpaceIdentifierPredicate extends AbstractGroupPredicate<SpaceIdenti
     }
 
     @Override
+    protected
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final SpaceIdentifier groupIdentifierOrNull)
     {

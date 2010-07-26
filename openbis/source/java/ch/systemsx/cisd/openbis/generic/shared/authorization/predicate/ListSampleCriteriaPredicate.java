@@ -57,6 +57,7 @@ public class ListSampleCriteriaPredicate extends AbstractGroupPredicate<ListSamp
     }
 
     @Override
+    protected
     Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             ListSampleCriteria value)
     {
