@@ -5,7 +5,10 @@ import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DAT
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -30,7 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
- * A helper class for retrieving data sets assocaiated with plates.
+ * A helper class for retrieving data sets associated with plates.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -123,36 +126,26 @@ class PlateDatasetLoader
      */
     private void filterSamplesByPlateIdentifiers()
     {
+        final Set<String> augmentedCodeSet = new HashSet<String>(plates.size());
         for (PlateIdentifier plate : plates)
         {
-            Sample sample =
-                    samplesByIdentifier.get(createSampleIdentifier(plate, session
-                            .tryGetHomeGroupCode()));
-            // Make sure the sample and plate have the same *identifier* not just code
-            String plateSpaceCodeOrNull = plate.tryGetSpaceCode();
-            Space sampleSpaceOrNull = sample.getSpace();
-            String sampleSpaceCodeOrNull =
-                    (null == sampleSpaceOrNull) ? null : sampleSpaceOrNull.getCode();
-
-            // Remove the sample if they don't match
-            if (plateSpaceCodeOrNull == null)
+            augmentedCodeSet.add(plate.getAugmentedCode());
+        }
+        for (Iterator<Sample> it = samples.iterator(); it.hasNext(); /**/)
+        {
+            final Sample sample = it.next();
+            final String sampleSpaceCodeOrNull =
+                    (null == sample.getSpace()) ? null : sample.getSpace().getCode();
+            final String augmentedCode =
+                    (sampleSpaceCodeOrNull == null) ? ("/" + sample.getCode()) : ("/"
+                            + sampleSpaceCodeOrNull + "/" + sample.getCode());
+            if (augmentedCodeSet.contains(augmentedCode) == false)
             {
-                if (sampleSpaceCodeOrNull != null)
-                {
-                    removeSample(sample);
-                }
-            } else if (false == plateSpaceCodeOrNull.equals(sampleSpaceCodeOrNull))
-            {
-                removeSample(sample);
+                it.remove();
+                samplesByIdentifier.remove(createSampleIdentifier(sample));
+                samplesById.remove(sample.getId());
             }
         }
-    }
-
-    private void removeSample(Sample sample)
-    {
-        samplesByIdentifier.remove(createSampleIdentifier(sample));
-        samplesById.remove(sample.getId());
-        samples.remove(sample);
     }
 
     protected PlateIdentifier createPlateIdentifier(ExternalData parentDataset)
@@ -161,7 +154,7 @@ class PlateDatasetLoader
         final String plateCode = sample.getCode();
         Space space = sample.getSpace();
         final String spaceCodeOrNull = (space != null) ? space.getCode() : null;
-        return new PlateIdentifier(plateCode, spaceCodeOrNull);
+        return new PlateIdentifier(plateCode, spaceCodeOrNull, sample.getPermId());
     }
 
     protected Geometry extractPlateGeometry(ExternalData dataSet)
