@@ -26,6 +26,8 @@ import ch.rinn.restrictions.Private;
 @Private
 public class SampleRelationRecord
 {
+    public long relationship_id;
+
     public long sample_id_parent;
 
     public long sample_id_child;

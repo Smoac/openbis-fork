@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -38,11 +40,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  * Test cases for the {@link SampleListingWorker}.
  * 
  * @author Bernd Rinn
+ * @author Piotr Buczek
  */
 public class SampleListingWorkerTest extends AbstractDAOTest
 {
 
     private final String BASE_INDEX_URL = "baseIndexURL";
+
+    private final String SPACE_CODE = "CISD";
+
+    private final long CONTAINER_ID = 997L;
+
+    private final long PARENT_ID = 979L;
+
+    private final Long[] CHILDREN_IDS =
+        { 984L, 985L, 986L, 987L, 988L, 989L };
 
     private SampleListerDAO sampleListerDAO;
 
@@ -56,27 +68,49 @@ public class SampleListingWorkerTest extends AbstractDAOTest
     }
 
     @Test
-    public void testListSamplesByIdGroupNotNull()
+    public void testListSamplesBySpace()
+    {
+        final ListSampleCriteria baseCriteria = new ListSampleCriteria();
+        baseCriteria.setSpaceCode(SPACE_CODE);
+        baseCriteria.setIncludeSpace(true);
+        final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
+        final SampleListingWorker worker =
+                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+        final List<Sample> list = worker.load();
+        assertTrue(list.size() > 0);
+        for (Sample s : list)
+        {
+            checkSpace(s);
+            if (Arrays.binarySearch(CHILDREN_IDS, s.getId()) >= 0)
+            {
+                checkGeneratedFrom(s);
+            }
+        }
+    }
+
+    @Test
+    public void testListSamplesById()
     {
         final LongSet sampleIds = new LongOpenHashSet();
-        sampleIds.addAll(Arrays.asList(1L, 2L, 3L));
+        sampleIds.addAll(Arrays.asList(CHILDREN_IDS));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(sampleIds);
         final SampleListingWorker worker =
                 SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
         final List<Sample> list = worker.load();
-        assertTrue(list.size() > 0);
+        assertEquals(CHILDREN_IDS.length, list.size());
         for (Sample s : list)
         {
-            assertNotNull("ID:" + s.getId(), s.getSpace());
-            assertNotNull("ID:" + s.getId(), s.getSpace().getInstance());
+            assertTrue(Arrays.binarySearch(CHILDREN_IDS, s.getId()) >= 0);
+            checkSpace(s);
+            checkGeneratedFrom(s);
         }
     }
 
     @Test
-    public void testListSamplesForContainerGroupNotNull()
+    public void testListSamplesForContainer()
     {
         final ListSampleCriteria baseCriteria =
-                ListSampleCriteria.createForContainer(new TechId(997L));
+                ListSampleCriteria.createForContainer(new TechId(CONTAINER_ID));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
         final SampleListingWorker worker =
                 SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
@@ -84,16 +118,36 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         assertTrue(list.size() > 0);
         for (Sample s : list)
         {
-            assertNotNull("ID:" + s.getId(), s.getSpace());
-            assertNotNull("ID:" + s.getId(), s.getSpace().getInstance());
+            checkSpace(s);
+            assertNotNull("ID:" + s.getId(), s.getContainer());
+            assertEquals("ID:" + s.getId(), CONTAINER_ID, s.getContainer().getId().longValue());
         }
     }
 
     @Test
-    public void testListSamplesForExperimentGroupNotNull()
+    public void testListSamplesForParent()
     {
         final ListSampleCriteria baseCriteria =
-                ListSampleCriteria.createForExperiment(new TechId(2L));
+                ListSampleCriteria.createForParent(new TechId(PARENT_ID));
+        final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
+        final SampleListingWorker worker =
+                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+        final List<Sample> list = worker.load();
+        assertEquals(CHILDREN_IDS.length, list.size());
+        for (Sample s : list)
+        {
+            assertTrue(Arrays.binarySearch(CHILDREN_IDS, s.getId()) >= 0);
+            checkSpace(s);
+            checkGeneratedFrom(s);
+        }
+    }
+
+    @Test
+    public void testListSamplesForExperiment()
+    {
+        final long expId = 2L;
+        final ListSampleCriteria baseCriteria =
+                ListSampleCriteria.createForExperiment(new TechId(expId));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
         final SampleListingWorker worker =
                 SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
@@ -101,8 +155,24 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         assertTrue(list.size() > 0);
         for (Sample s : list)
         {
-            assertNotNull("ID:" + s.getId(), s.getSpace());
-            assertNotNull("ID:" + s.getId(), s.getSpace().getInstance());
+            checkSpace(s);
+            assertNotNull("ID:" + s.getId(), s.getExperiment());
+            assertEquals("ID:" + s.getId(), expId, s.getExperiment().getId().longValue());
         }
+    }
+
+    private void checkSpace(Sample s)
+    {
+        assertNotNull("ID:" + s.getId(), s.getSpace());
+        assertNotNull("ID:" + s.getId(), s.getSpace().getInstance());
+        assertEquals("ID:" + s.getId(), SPACE_CODE, s.getSpace().getCode());
+    }
+
+    private void checkGeneratedFrom(Sample s)
+    {
+        assertNotNull("ID:" + s.getId(), s.getGeneratedFrom());
+        assertEquals("ID:" + s.getId(), PARENT_ID, s.getGeneratedFrom().getId().longValue());
+        assertNotNull("ID:" + s.getId(), s.getGeneratedFrom().getGeneratedFrom());
+        assertNull("ID:" + s.getId(), s.getGeneratedFrom().getGeneratedFrom().getGeneratedFrom());
     }
 }

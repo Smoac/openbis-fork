@@ -29,8 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRo
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class GeneralInformationServiceLogger extends AbstractServerLogger implements
@@ -46,7 +44,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     {
         return null;
     }
-    
+
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken)
     {
         logAccess(sessionToken, "list-role-sets");

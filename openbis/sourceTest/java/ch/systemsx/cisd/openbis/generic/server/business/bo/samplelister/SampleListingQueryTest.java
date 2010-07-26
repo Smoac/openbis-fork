@@ -22,6 +22,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -71,6 +74,12 @@ public class SampleListingQueryTest extends AbstractDAOTest
 
     private static final String SAMPLE_TYPE_CODE_CELL_PLATE = "CELL_PLATE";
 
+    private static final String DEFAULT_SPACE_CODE = "CISD";
+
+    private static final String DILUTION_PLATE_CODE_1 = "3V-123";
+
+    private static final String DILUTION_PLATE_CODE_2 = "3V-125";
+
     private long dbInstanceId;
 
     private DatabaseInstancePE dbInstance;
@@ -85,6 +94,12 @@ public class SampleListingQueryTest extends AbstractDAOTest
 
     private SamplePE sharedMasterPlate;
 
+    private SamplePE dilutionPlate1;
+
+    private SamplePE dilutionPlate2;
+
+    private long parentChildRelationshipTypeId;
+
     private ISampleListingQuery query;
 
     @BeforeClass(alwaysRun = true)
@@ -93,7 +108,9 @@ public class SampleListingQueryTest extends AbstractDAOTest
         SampleListerDAO sampleListerDAO = createSampleListerDAO(daoFactory);
         dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
-        group = daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance("CISD", dbInstance);
+        group =
+                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(DEFAULT_SPACE_CODE,
+                        dbInstance);
         groupId = group.getId();
         groupCode = group.getCode();
         masterPlateType =
@@ -102,7 +119,9 @@ public class SampleListingQueryTest extends AbstractDAOTest
         sharedMasterPlate =
                 daoFactory.getSampleDAO().tryFindByCodeAndDatabaseInstance(
                         SHARED_MASTER_PLATE_CODE, dbInstance);
+        assertEquals(SHARED_MASTER_PLATE_ID, sharedMasterPlate.getId().longValue());
         query = sampleListerDAO.getQuery();
+        parentChildRelationshipTypeId = query.getRelationshipTypeId("PARENT_CHILD", true);
     }
 
     @AfterClass(alwaysRun = true)
@@ -119,6 +138,74 @@ public class SampleListingQueryTest extends AbstractDAOTest
         ISampleListingQuery query =
                 EntityListingTestUtils.createQuery(daoFactory, ISampleListingQuery.class);
         return SampleListerDAO.create(daoFactory, query);
+    }
+
+    @Test
+    public void testSampleCount()
+    {
+        assertEquals(1020, query.getSampleCount(dbInstanceId));
+    }
+
+    @Test
+    public void testGetRelationshipTypeId()
+    {
+        assertEquals(1, query.getRelationshipTypeId("PARENT_CHILD", true));
+        assertEquals(2, query.getRelationshipTypeId("PLATE_CONTROL_LAYOUT", true));
+        assertRelationshipTypeNotExists("FAKE_RELATIONSHIP", true);
+        assertRelationshipTypeNotExists("PARENT_CHILD", false);
+        assertRelationshipTypeNotExists("PLATE_CONTROL_LAYOUT", false);
+        assertRelationshipTypeNotExists("FAKE_RELATIONSHIP", false);
+    }
+
+    private void assertRelationshipTypeNotExists(String code, boolean internalNamespace)
+    {
+        try
+        {
+            long id = query.getRelationshipTypeId(code, internalNamespace);
+            fail("unexpected " + (internalNamespace ? "internal" : "user defined")
+                    + " relationship found with code " + code + " and id " + id);
+        } catch (NullPointerException e)
+        {
+        }
+    }
+
+    @Test
+    public void testGetParentRelations()
+    {
+        dilutionPlate1 =
+                daoFactory.getSampleDAO().tryFindByCodeAndGroup(DILUTION_PLATE_CODE_1, group);
+        dilutionPlate2 =
+                daoFactory.getSampleDAO().tryFindByCodeAndGroup(DILUTION_PLATE_CODE_2, group);
+        final int children1 = 2;
+        final int children2 = 6;
+        assertEquals(children1, dilutionPlate1.getGenerated().size());
+        assertEquals(children2, dilutionPlate2.getGenerated().size());
+        LongSet dilutionPlateIdSet = new LongOpenHashSet(new long[]
+            { dilutionPlate1.getId(), dilutionPlate2.getId() });
+        LongSet childrenIds =
+                new LongOpenHashSet(query.getChildrenIds(parentChildRelationshipTypeId,
+                        dilutionPlateIdSet));
+        assertEquals(8, childrenIds.size());
+        int sampleCount1 = 0;
+        int sampleCount2 = 0;
+        for (SampleRelationRecord sample : query.getParentRelations(parentChildRelationshipTypeId,
+                childrenIds))
+        {
+            assertEquals(parentChildRelationshipTypeId, sample.relationship_id);
+            if (dilutionPlate1.getId().equals(sample.sample_id_parent))
+            {
+                sampleCount1++;
+            } else if (dilutionPlate2.getId().equals(sample.sample_id_parent))
+            {
+                sampleCount2++;
+            } else
+            {
+                fail("unexpected sample parent id: " + sample.sample_id_parent + " for child id: "
+                        + sample.sample_id_child);
+            }
+        }
+        assertEquals(children1, sampleCount1);
+        assertEquals(children2, sampleCount2);
     }
 
     @Test(groups = "slow")
@@ -153,20 +240,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
             {
                 assertEquals(msg, samplePE.getInvalidation().getId(), sample.inva_id);
             }
-            // FIXME
-            // if (samplePE.getGeneratedFrom() == null)
-            // {
-            // assertNull(msg, sample.samp_id_generated_from);
-            // } else
-            // {
-            // // Work around Hibernate peculiarity
-            // Long idGeneratedFrom = samplePE.getGeneratedFrom().getId();
-            // if (idGeneratedFrom == null)
-            // {
-            // idGeneratedFrom = HibernateUtils.getId(samplePE.getGeneratedFrom());
-            // }
-            // assertEquals(msg, idGeneratedFrom, sample.samp_id_generated_from);
-            // }
             if (samplePE.getContainer() == null)
             {
                 assertNull(msg, sample.samp_id_part_of);
@@ -208,11 +281,9 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertEquals(2, sample.pers_id_registerer);
         assertEquals(sampleTypeId, sample.saty_id);
         assertNotNull(sample.perm_id);
-        // assertNull(sample.samp_id_generated_from); FIXME
         assertNull(sample.samp_id_part_of);
 
         SampleRecord sample2 = findCode(samples, "3VCP1");
-        // assertNotNull(sample2.samp_id_generated_from); FIXME
         assertNull(sample2.samp_id_part_of);
     }
 

@@ -96,7 +96,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     /**
      * Returns the parent sample ids of the specified children sample ids in specified relationship.
      */
-    @Select(sql = "SELECT sample_id_child, sample_id_parent FROM sample_relationships "
+    @Select(sql = "SELECT * FROM sample_relationships "
             + "    WHERE relationship_id=?{1} AND sample_id_child = any(?{2})", parameterBindings =
         { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRelationRecord> getParentRelations(long relationshipId,
