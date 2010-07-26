@@ -166,7 +166,7 @@ BEGIN
 	--------------------------------------------------
 
 	insert into sample_properties(id, samp_id, stpt_id, mate_prop_id, pers_id_registerer) (
-		select 	nextval('sample_id_seq') id, 
+		select 	nextval('sample_property_id_seq') id, 
 			well.id samp_id, 
 			(select stpt.id from sample_type_property_types stpt, property_types props where stpt.prty_id = props.id and props.code='GENE') stpt_id,
 			nested_well_material.id mate_prop_id,
