@@ -142,14 +142,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
-        logAccess(sessionToken, "listFeatureVectorDatasets", "plates(%s)", plates);
+        logAccess(sessionToken, "listFeatureVectorDatasets", "#plates: %s", plates.size());
         return null;
     }
 
     public List<ImageDatasetReference> listImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
-        logAccess(sessionToken, "listImageDatasets", "plates(%s)", plates);
+        logAccess(sessionToken, "listImageDatasets", "#plates: %s", plates.size());
         return null;
     }
 
@@ -158,7 +158,8 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
             ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
             MaterialIdentifier materialIdentifier, boolean findDatasets)
     {
-        logAccess(sessionToken, "listPlateWells");
+        logAccess(sessionToken, "listPlateWells", "experiment: %s, material: %s",
+                experimentIdentifer, materialIdentifier);
         return null;
     }
 
