@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -55,7 +56,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
     private GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             IIdAndCodeHolder identifiable)
     {
-        super(viewContext, identifiable);
+        super(viewContext, new ActionContext(), identifiable);
     }
 
     @Override

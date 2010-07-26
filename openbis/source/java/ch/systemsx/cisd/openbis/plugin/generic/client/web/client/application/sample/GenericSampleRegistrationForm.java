@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 import java.util.List;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
@@ -36,9 +37,10 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 public final class GenericSampleRegistrationForm extends AbstractGenericSampleRegisterEditForm
 {
     public GenericSampleRegistrationForm(
-            final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
+            final IViewContext<IGenericClientServiceAsync> viewContext,
+            final SampleType sampleType, ActionContext actionContext)
     {
-        super(viewContext);
+        super(viewContext, actionContext);
         this.sampleType = sampleType;
     }
 

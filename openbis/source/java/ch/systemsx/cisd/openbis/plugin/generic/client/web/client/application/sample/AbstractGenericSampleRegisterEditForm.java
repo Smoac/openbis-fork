@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.E
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -72,35 +74,57 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected ExperimentChooserFieldAdaptor experimentField;
 
+    private ExperimentIdentifier initialExperimentIdentifierOrNull;
+
     protected GroupSelectionWidget groupSelectionWidget;
+
+    private String initialGroupCodeOrNull;
 
     protected SampleChooserFieldAdaptor container;
 
     protected SampleChooserFieldAdaptor parent;
 
     protected AbstractGenericSampleRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext)
+            IViewContext<IGenericClientServiceAsync> viewContext, ActionContext actionContext)
     {
-        this(viewContext, null);
+        this(viewContext, actionContext, null);
     }
 
     protected AbstractGenericSampleRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext, IIdAndCodeHolder identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext, ActionContext actionContext,
+            IIdAndCodeHolder identifiable)
     {
         super(viewContext, identifiable, EntityKind.SAMPLE);
-
-        simpleId = createSimpleId(identifiable, EntityKind.SAMPLE);
-        attachmentsSessionKey = simpleId + "_attachments";
+        this.simpleId = createSimpleId(identifiable, EntityKind.SAMPLE);
+        this.attachmentsSessionKey = simpleId + "_attachments";
         List<String> sesionKeys = new ArrayList<String>();
         sesionKeys.add(attachmentsSessionKey);
         addUploadFeatures(sesionKeys);
+        extractInitialValues(actionContext);
+    }
+
+    private void extractInitialValues(ActionContext context)
+    {
+        this.initialExperimentIdentifierOrNull = tryGetExperimentIdentifier(context);
+        this.initialGroupCodeOrNull = tryGetSpaceCode(context);
+    }
+
+    private ExperimentIdentifier tryGetExperimentIdentifier(ActionContext context)
+    {
+        return (context.tryGetExperiment() == null) ? null : ExperimentIdentifier
+                .createIdentifier(context.tryGetExperiment());
+    }
+
+    private String tryGetSpaceCode(ActionContext context)
+    {
+        return (context.tryGetSpace() == null) ? null : context.tryGetSpace().getCode();
     }
 
     private ExperimentChooserFieldAdaptor createExperimentField()
     {
         String label = viewContext.getMessage(Dict.EXPERIMENT);
-        return ExperimentChooserField
-                .create(label, false, null, viewContext.getCommonViewContext());
+        return ExperimentChooserField.create(label, false, initialExperimentIdentifierOrNull,
+                viewContext.getCommonViewContext());
     }
 
     private void redefineSaveListeners()
@@ -177,7 +201,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     @Override
     protected void createEntitySpecificFormFields()
     {
-        groupSelectionWidget = new GroupSelectionWidget(viewContext, getId(), true, false);
+        groupSelectionWidget =
+                new GroupSelectionWidget(viewContext, getId(), true, false, initialGroupCodeOrNull);
         FieldUtil.markAsMandatory(groupSelectionWidget);
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         parent =

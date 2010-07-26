@@ -147,7 +147,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         {
             GenericSampleRegistrationForm form =
                     new GenericSampleRegistrationForm(new GenericViewContext(getViewContext()
-                            .getCommonViewContext()), sampleType);
+                            .getCommonViewContext()), sampleType, context);
             return new DatabaseModificationAwareWidget(form, form);
         }
 
