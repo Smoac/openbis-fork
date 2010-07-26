@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  */
 @Friend(toClasses =
     { SampleRecord.class, ExperimentProjectGroupCodeRecord.class, ISampleListingQuery.class,
-            SampleListerDAO.class })
+            SampleListerDAO.class, SampleRelationRecord.class })
 @Test(groups =
     { "db", "sample" })
 public class SampleListingQueryTest extends AbstractDAOTest
