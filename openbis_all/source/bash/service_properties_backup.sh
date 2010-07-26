@@ -38,8 +38,8 @@ if [ $? -ne 0 ]; then
         cp $PRODUCTIVE $BACKUP_DIR/${SP}_${BOX}_${DATE} 
         cp $PRODUCTIVE $CONFIG_DIR/$SP
         rm $BACKUP_DIR/$SP
-        export LATEST_FILE=`ls -1rt ${SP}_* | tail -1`     
-        $LN -s $BACKUP_DIR/$LATEST_FILE $BACKUP_DIR/$SP
+        export LATEST_FILE=`ls -1rt $BACKUP_DIR/${SP}_* | tail -1`     
+        $LN -s $LATEST_FILE $BACKUP_DIR/$SP
 fi
 
 # openBIS DSS
@@ -50,8 +50,8 @@ if [ $? -ne 0 ]; then
         cp $DSS_PRODUCTIVE $BACKUP_DIR/${DSS_SP}_${BOX}_${DATE}
         cp $DSS_PRODUCTIVE $CONFIG_DIR/$DSS_SP
         rm $BACKUP_DIR/$DSS_SP
-        export LATEST_FILE=`ls -1rt ${DSS_SP}_* | tail -1`     
-        $LN -s $BACKUP_DIR/$LATEST_FILE $BACKUP_DIR/$DSS_SP
+        export LATEST_FILE=`ls -1rt  $BACKUP_DIR/${DSS_SP}_* | tail -1`     
+        $LN -s $LATEST_FILE $BACKUP_DIR/$DSS_SP
 fi
 
 #/usr/bin/find $BACKUP_DIR -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
