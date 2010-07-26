@@ -30,6 +30,8 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+
 /**
  * Creates files to register genes, oligos and plate with wells.
  * <p>
@@ -70,7 +72,7 @@ public class LibraryEntityRegistrator
         {
             String oligoId = oligoRegistrator.register(extractor, row, geneId);
             String plateId = plateRegistrator.registerPlate(extractor, row);
-            plateRegistrator.registerWell(extractor, row, plateId, oligoId);
+            plateRegistrator.registerWell(extractor, row, plateId, oligoId, geneId);
         }
     }
 
@@ -127,7 +129,7 @@ public class LibraryEntityRegistrator
                 "[PLATE]\n" + join("identifier", "experiment", "$PLATE_GEOMETRY");
 
         private static final String HEADER_OLIGOS =
-                "[OLIGO_WELL]\n" + join("identifier", "container", "OLIGO");
+                "[OLIGO_WELL]\n" + join("identifier", "container", "OLIGO", "GENE");
 
         private final Set<String/* plate code */> registeredPlates;
 
@@ -171,12 +173,15 @@ public class LibraryEntityRegistrator
         }
 
         public void registerWell(QiagenScreeningLibraryColumnExtractor extractor, String[] row,
-                String plateId, String oligoId) throws IOException
+                String plateId, String oligoId, String geneId) throws IOException
         {
             String wellCode = extractor.getWellCode(row);
             String wellIdentifier = plateId + ":" + wellCode;
-            String oligoMaterialProperty = oligoId + " (OLIGO)";
-            saveWell(wellIdentifier, plateId, oligoMaterialProperty);
+            String oligoMaterialProperty =
+                    oligoId + " (" + ScreeningConstants.OLIGO_PLUGIN_TYPE_NAME + ")";
+            String geneMaterialProperty =
+                    geneId + " (" + ScreeningConstants.GENE_PLUGIN_TYPE_CODE + ")";
+            saveWell(wellIdentifier, plateId, oligoMaterialProperty, geneMaterialProperty);
         }
 
         private void saveWell(String... tokens)
