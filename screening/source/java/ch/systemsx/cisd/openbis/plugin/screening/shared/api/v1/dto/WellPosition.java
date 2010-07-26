@@ -3,7 +3,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.Serializable;
 
 /**
- * Point to the well on a plate, contains row and column number.
+ * Identifier of a well on a screening plate, contains row and column number.
  * 
  * @author Tomasz Pylak
  */
@@ -40,8 +40,10 @@ public class WellPosition implements Serializable
     @Override
     public int hashCode()
     {
-        int result = 313 + wellColumn;
-        result = 313 * result + wellRow;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + wellColumn;
+        result = prime * result + wellRow;
         return result;
     }
 
@@ -49,16 +51,26 @@ public class WellPosition implements Serializable
     public boolean equals(Object obj)
     {
         if (this == obj)
+        {
             return true;
+        }
         if (obj == null)
+        {
             return false;
+        }
         if (getClass() != obj.getClass())
+        {
             return false;
-        WellPosition other = (WellPosition) obj;
+        }
+        final WellPosition other = (WellPosition) obj;
         if (wellColumn != other.wellColumn)
+        {
             return false;
+        }
         if (wellRow != other.wellRow)
+        {
             return false;
+        }
         return true;
     }
 

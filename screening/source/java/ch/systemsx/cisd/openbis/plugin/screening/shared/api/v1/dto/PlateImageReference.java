@@ -1,13 +1,11 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
-import java.io.Serializable;
-
 /**
- * Identifies one well in a dataset containing images.
+ * Identifies one image acquired in a screening context.
  * 
  * @author Tomasz Pylak
  */
-public class PlateImageReference extends DatasetIdentifier implements Serializable
+public class PlateImageReference extends DatasetIdentifier
 {
     private static final long serialVersionUID = 1L;
 
@@ -74,21 +72,31 @@ public class PlateImageReference extends DatasetIdentifier implements Serializab
     public boolean equals(Object obj)
     {
         if (this == obj)
+        {
             return true;
-        if (!super.equals(obj))
-            return false;
+        }
         if (getClass() != obj.getClass())
+        {
             return false;
+        }
         if (super.equals(obj) == false)
+        {
             return false;
+        }
 
-        PlateImageReference other = (PlateImageReference) obj;
+        final PlateImageReference other = (PlateImageReference) obj;
         if (channel.equals(other.channel) == false)
+        {
             return false;
+        }
         if (tile != other.tile)
+        {
             return false;
+        }
         if (wellPosition.equals(other.wellPosition) == false)
+        {
             return false;
+        }
         return true;
     }
 

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Description of one dataset.
+ * Description of one plate-based screening dataset.
  * 
  * @author Tomasz Pylak
  */
@@ -49,7 +49,9 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
         return registrationDate;
     }
 
-    /** a pointer to a plate to which the dataset belongs */
+    /** 
+     * Returns the identifier of the plate that this dataset belongs to.
+     */
     public PlateIdentifier getPlate()
     {
         return plate;

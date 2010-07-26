@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
  * 
  * @author Tomasz Pylak
  */
-public interface IDatasetIdentifier
+public interface IDatasetIdentifier extends IPermanentIdentifier
 {
     /** a code of the dataset */
     public String getDatasetCode();

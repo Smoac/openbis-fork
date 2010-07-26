@@ -22,12 +22,19 @@ public class DatasetIdentifier implements Serializable, IDatasetIdentifier
         this.datastoreServerUrl = datastoreServerUrl;
     }
 
-    /** a code of the dataset */
+    /** 
+     *  The code of this dataset. 
+     */
     public String getDatasetCode()
     {
         return datasetCode;
     }
 
+    public String getPermId()
+    {
+        return datasetCode;
+    }
+    
     public String getDatastoreServerUrl()
     {
         return datastoreServerUrl;
@@ -42,6 +49,10 @@ public class DatasetIdentifier implements Serializable, IDatasetIdentifier
     @Override
     public boolean equals(Object obj)
     {
+        if (this == obj)
+        {
+            return true;
+        }
         if (obj == null || obj instanceof DatasetIdentifier == false)
         {
             return false;
@@ -55,4 +66,5 @@ public class DatasetIdentifier implements Serializable, IDatasetIdentifier
     {
         return datasetCode.hashCode();
     }
+
 }
