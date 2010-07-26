@@ -67,7 +67,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleCodeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
@@ -326,8 +325,8 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
-            commonServer.registerSpaceRole(sessionToken, RoleCodeTranslator.translate(role),
-                    groupIdentifier, grantee);
+            commonServer.registerSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier,
+                    grantee);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -340,8 +339,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.registerInstanceRole(sessionToken, RoleCodeTranslator.translate(role),
-                    grantee);
+            commonServer.registerInstanceRole(sessionToken, role.getRoleCode(), grantee);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -357,8 +355,8 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
-            commonServer.deleteSpaceRole(sessionToken, RoleCodeTranslator.translate(role),
-                    groupIdentifier, grantee);
+            commonServer
+                    .deleteSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier, grantee);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -372,8 +370,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.deleteInstanceRole(sessionToken, RoleCodeTranslator.translate(role),
-                    grantee);
+            commonServer.deleteInstanceRole(sessionToken, role.getRoleCode(), grantee);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
