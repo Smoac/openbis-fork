@@ -74,7 +74,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         assertEquals(1, queryClientService.initDatabases());
     }
 
-    @Test
+    @Test(dependsOnMethods = "testInitDatabases")
     public void testGetQueryDatabases()
     {
         logIntoCommonClientService();
@@ -82,7 +82,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         assertEquals("openBIS meta data", queryClientService.listQueryDatabases().get(0).getLabel());
     }
 
-    @Test
+    @Test(dependsOnMethods = "testInitDatabases")
     public void testRegisterEditAndDeleteQueryDefinition()
     {
         logIntoCommonClientService();
@@ -117,7 +117,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         assertEquals(0, queryClientService.listQueries(QueryType.GENERIC).size());
     }
 
-    @Test
+    @Test(dependsOnMethods = "testInitDatabases")
     public void testRegisterQueryDefinitionsWithSameName()
     {
         logIntoCommonClientService();
@@ -138,7 +138,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         }
     }
 
-    @Test
+    @Test(dependsOnMethods = "testInitDatabases")
     public void testChangeNameOfQueryDefinitionsToAnExistingOne()
     {
         logIntoCommonClientService();
@@ -176,7 +176,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         }
     }
 
-    @Test
+    @Test(dependsOnMethods = "testInitDatabases")
     public void testCreateQueryResult()
     {
         logIntoCommonClientService();
@@ -190,7 +190,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         checkTable(table);
     }
 
-    @Test
+    @Test(dependsOnMethods = "testInitDatabases")
     public void testRegisterQueryAndExecuteIt()
     {
         logIntoCommonClientService();
