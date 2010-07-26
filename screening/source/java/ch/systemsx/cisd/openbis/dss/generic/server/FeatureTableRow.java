@@ -82,6 +82,16 @@ public class FeatureTableRow
         return featureValues;
     }
 
+    public final double[] getFeatureValuesAsDouble()
+    {
+        final double[] doubleValues = new double[featureValues.length];
+        for (int i = 0; i < featureValues.length; ++i)
+        {
+            doubleValues[i] = featureValues[i];
+        }
+        return doubleValues;
+    }
+
     public final void setFeatureValues(float[] featureValues)
     {
         this.featureValues = featureValues;

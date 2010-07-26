@@ -128,20 +128,20 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
         assertSame(r1, dataSets.get(0).getDataset());
         assertEquals("[f1, f2]", dataSets.get(0).getFeatureNames().toString());
-        assertFeatureVector(1, 1, dataSets.get(0).getFeatureVectors().get(0), 244.5f, 245.5f);
-        assertFeatureVector(1, 2, dataSets.get(0).getFeatureVectors().get(1), 242.25f, 243.25f);
+        assertFeatureVector(1, 1, dataSets.get(0).getFeatureVectors().get(0), 244.5, 245.5);
+        assertFeatureVector(1, 2, dataSets.get(0).getFeatureVectors().get(1), 242.25, 243.25);
         assertEquals(2, dataSets.get(0).getFeatureVectors().size());
         assertSame(r2, dataSets.get(1).getDataset());
         assertEquals("[f2]", dataSets.get(1).getFeatureNames().toString());
-        assertFeatureVector(1, 1, dataSets.get(1).getFeatureVectors().get(0), 249.0f);
-        assertFeatureVector(1, 2, dataSets.get(1).getFeatureVectors().get(1), 244.5f);
+        assertFeatureVector(1, 1, dataSets.get(1).getFeatureVectors().get(0), 249.0);
+        assertFeatureVector(1, 2, dataSets.get(1).getFeatureVectors().get(1), 244.5);
         assertEquals(2, dataSets.get(1).getFeatureVectors().size());
         assertEquals(2, dataSets.size());
         context.assertIsSatisfied();
     }
 
     private void assertFeatureVector(int expectedRowNumber, int expectedColumnNumber,
-            FeatureVector featureVector, float... expectedValues)
+            FeatureVector featureVector, double... expectedValues)
     {
         assertEquals(expectedRowNumber, featureVector.getWellPosition().getWellRow());
         assertEquals(expectedColumnNumber, featureVector.getWellPosition().getWellColumn());
@@ -149,10 +149,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         assertEquals(asList(expectedValues), asList(featureVector.getValues()));
     }
 
-    private List<Float> asList(float[] values)
+    private List<Double> asList(double[] values)
     {
-        List<Float> list = new ArrayList<Float>();
-        for (float value : values)
+        List<Double> list = new ArrayList<Double>();
+        for (double value : values)
         {
             list.add(value);
         }
