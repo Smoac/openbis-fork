@@ -123,7 +123,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Sample 'permId' has no property " + ScreeningConstants.PLATE_GEOMETRY, ex
+            assertEquals("Sample '/p1 [permId]' has no property " + ScreeningConstants.PLATE_GEOMETRY, ex
                     .getMessage());
         }
         context.assertIsSatisfied();
