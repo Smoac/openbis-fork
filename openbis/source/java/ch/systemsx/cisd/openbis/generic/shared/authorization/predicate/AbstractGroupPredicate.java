@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleL
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * Abstract super class of predicates based on groups.
@@ -58,18 +57,16 @@ public abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstance
     {
         if (tryFindGroup(databaseInstanceUUID, groupCodeOrNull) == null)
         {
-            return Status.createError(String.format(
-                    "User '%s' does not have enough privileges to access data in the space '%s'.",
-                    person.getUserId(), new GroupIdentifier(databaseInstanceCode, groupCodeOrNull)));
+            return Status.createError(String.format("User '%s' does not have enough privileges.",
+                    person.getUserId()));
         }
         final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, groupCodeOrNull);
         if (matching)
         {
             return Status.OK;
         }
-        return Status.createError(String.format(
-                "User '%s' does not have enough privileges to access data in the space '%s'.",
-                person.getUserId(), new GroupIdentifier(databaseInstanceCode, groupCodeOrNull)));
+        return Status.createError(String.format("User '%s' does not have enough privileges.",
+                person.getUserId()));
     }
 
     private GroupPE tryFindGroup(final String databaseInstanceUUID, final String groupCode)

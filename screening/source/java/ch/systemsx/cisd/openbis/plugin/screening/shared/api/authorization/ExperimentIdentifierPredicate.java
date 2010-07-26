@@ -52,9 +52,7 @@ public class ExperimentIdentifierPredicate extends AbstractGroupPredicate<Experi
             if (experimentOrNull == null)
             {
                 return Status.createError(String.format(
-                        "User '%s' does not have enough privileges to "
-                                + "access experiment with permId='%s'", person.getUserId(), value
-                                .getPermId()));
+                        "User '%s' does not have enough privileges.", person.getUserId()));
             }
             final GroupPE space = experimentOrNull.getProject().getGroup();
             return evaluate(person, allowedRoles, space.getDatabaseInstance(), space.getCode());

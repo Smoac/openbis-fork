@@ -101,18 +101,16 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     }
 
     @Override
-    protected
-    Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final TechId techId)
+    protected Status doEvaluation(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles, final TechId techId)
     {
         assert initialized : "Predicate has not been initialized";
 
         GroupPE groupOrNull = authorizationDataProvider.tryToGetGroup(entityKind, techId);
         if (groupOrNull == null)
         {
-            return Status.createError(String.format(
-                    "User '%s' does not have enough privileges to access experiment with id=",
-                    person.getUserId(), techId.getId()));
+            return Status.createError(String.format("User '%s' does not have enough privileges.",
+                    person.getUserId()));
         }
 
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, groupOrNull);
