@@ -123,6 +123,13 @@ public class ScreeningApiImpl
         {
             plates.add(asPlate(sample));
         }
+        Collections.sort(plates, new Comparator<Plate>()
+            {
+                public int compare(Plate o1, Plate o2)
+                {
+                    return o1.getAugmentedCode().compareTo(o2.getAugmentedCode());
+                }
+            });
         return plates;
     }
 
