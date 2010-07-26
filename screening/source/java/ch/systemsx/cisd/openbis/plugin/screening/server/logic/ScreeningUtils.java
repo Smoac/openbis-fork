@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.Location;
@@ -84,7 +85,7 @@ public class ScreeningUtils
         return dataset.getDataSetType().getCode().equals(datasetType);
     }
 
-    public static List<ExternalData> filterExternalDataByType(List<ExternalData> datasets,
+    public static List<ExternalData> filterExternalDataByType(Collection<ExternalData> datasets,
             String... datasetTypeCodes)
     {
         List<ExternalData> chosenDatasets = new ArrayList<ExternalData>();
