@@ -50,6 +50,13 @@ public class FeatureVectorDatasetReference extends DatasetReference implements
     @Override
     public String toString()
     {
-        return super.toString() + " from image dataset " + imageDatasetIdentifier.getDatasetCode();
+        if (imageDatasetIdentifier == null)
+        {
+            return super.toString() + " (no image data set)";
+        } else
+        {
+            return super.toString() + " from image dataset "
+                    + imageDatasetIdentifier.getDatasetCode();
+        }
     }
 }
