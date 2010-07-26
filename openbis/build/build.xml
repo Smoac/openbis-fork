@@ -387,12 +387,17 @@
         <include name="jython.jar" />
       </fileset>
     </copy>
-  	<copy todir="${targets.www.web-inf}/classes">
-    	<fileset dir="../common/${sources}">
-    		<include name="ch/systemsx/cisd/common/shared/basic/**/*.java" />
-    	</fileset>
-    </copy>
+  	<antcall target="prepare-gwt.copy-common-source" />
   </target>
+	
+	<target name="prepare-gwt.copy-common-source">
+		<copy todir="${targets.www.web-inf}/classes">
+	  	<fileset dir="../common/${sources}">
+	  		<include name="ch/systemsx/cisd/common/shared/basic/**/*.java" />
+	  	</fileset>
+	  </copy>
+	</target>
+	
   <!--
     // Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.
   -->
