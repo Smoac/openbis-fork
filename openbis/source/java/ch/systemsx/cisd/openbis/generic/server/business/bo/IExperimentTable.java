@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 public interface IExperimentTable
 {
     /**
-     * Loads all experiments of given type and from given project.
+     * Loads all experiments of given type and from given project together with all their properties.
      * 
      * @param experimentTypeCodeOrNull the experiment type code or <code>null</code>.
      * @param projectIdentifier identifier of the project to which we restrict the load.
