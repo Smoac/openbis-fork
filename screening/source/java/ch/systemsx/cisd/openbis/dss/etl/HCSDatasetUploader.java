@@ -139,7 +139,7 @@ public class HCSDatasetUploader
     {
         long spotId = getSpotId(image, spotIds);
         return new ImgChannelStackDTO(dao.createChannelStackId(), image.getTileRow(), image
-                .getTileColumn(), datasetId, spotId);
+                .getTileColumn(), datasetId, spotId, image.tryGetTimePoint(), image.tryGetDepth());
     }
 
     private static long getSpotId(AcquiredPlateImage image, Long[][] spotIds)

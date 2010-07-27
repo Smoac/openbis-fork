@@ -78,6 +78,10 @@ public class ImagingQueryDAOTest extends AbstractDBTest
 
     private static final String EXP_CHANNEL = "expChannel";
 
+    private static final Float TIMEPOINT = 1.3F;
+
+    private static final Float DEPTH = null;
+
     private IImagingQueryDAO dao;
 
     @BeforeClass(alwaysRun = true)
@@ -246,7 +250,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     {
         final ImgChannelStackDTO channelStack =
                 new ImgChannelStackDTO(dao.createChannelStackId(), Y_TILE_ROW, X_TILE_COLUMN,
-                        datasetId, spotId);
+                        datasetId, spotId, TIMEPOINT, DEPTH);
         dao.addChannelStacks(Arrays.asList(channelStack));
         return channelStack.getId();
     }

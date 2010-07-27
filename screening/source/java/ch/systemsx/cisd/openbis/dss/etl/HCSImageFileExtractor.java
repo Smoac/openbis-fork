@@ -26,10 +26,8 @@ import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.filesystem.FileOperations;
-import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor;
-import ch.systemsx.cisd.openbis.dss.etl.AcquiredPlateImage;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -48,9 +46,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  */
 public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 {
-    public static final String[] IMAGE_EXTENSIONS = new String[]
-        { "tif", "tiff", "jpg", "jpeg", "gif", "png" };
-
     private final List<String> channelNames;
 
     private final List<ColorComponent> channelColorComponentsOrNull;
@@ -106,14 +101,8 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     }
 
     @Override
-    protected final List<File> listImageFiles(final File directory)
-    {
-        return FileOperations.getInstance().listFiles(directory, IMAGE_EXTENSIONS, true);
-    }
-
-    @Override
     protected final List<AcquiredPlateImage> getImages(String channelToken, Location plateLocation,
-            Location wellLocation, String imageRelativePath)
+            Location wellLocation, Float timepointOrNull, String imageRelativePath)
     {
         List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
         checkChannelsAndColorComponents();
@@ -125,14 +114,14 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
                 ColorComponent colorComponent = channelColorComponentsOrNull.get(i);
                 String channelName = channelNames.get(i);
                 images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelName,
-                        colorComponent));
+                        timepointOrNull, colorComponent));
             }
         } else
         {
             String channelName = channelToken.toUpperCase();
             ensureChannelExist(channelName);
             images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelName,
-                    null));
+                    timepointOrNull, null));
         }
         return images;
     }
@@ -151,5 +140,11 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     protected Set<Channel> getAllChannels()
     {
         return createChannels(channelNames);
+    }
+
+    @Override
+    protected ImageFileInfo tryExtractImageInfo(File imageFile, SampleIdentifier datasetSample)
+    {
+        return tryExtractDefaultImageInfo(imageFile, datasetSample);
     }
 }

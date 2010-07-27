@@ -57,13 +57,16 @@ public class ImgChannelStackDTO extends AbstractHashable
         // All Data-Object classes must have a default constructor.
     }
 
-    public ImgChannelStackDTO(long id, int row, int column, long datasetId, long spotId)
+    public ImgChannelStackDTO(long id, int row, int column, long datasetId, long spotId,
+            Float tOrNull, Float zOrNull)
     {
         this.id = id;
         this.row = row;
         this.column = column;
         this.datasetId = datasetId;
         this.spotId = spotId;
+        this.t = tOrNull;
+        this.z = zOrNull;
     }
 
     public long getId()
