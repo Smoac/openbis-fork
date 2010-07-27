@@ -34,43 +34,6 @@ CREATE DOMAIN time_stamp AS timestamp with time zone;
 CREATE DOMAIN time_stamp_dfl AS timestamp with time zone NOT NULL DEFAULT now();
 CREATE DOMAIN title_100 AS character varying(100);
 CREATE DOMAIN user_id AS character varying(50);
-CREATE FUNCTION check_dataset_relationships_on_data_table_modification() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	counter	INTEGER;
-BEGIN
-	-- if there is a connection with a Sample there should not be any connection with a parent Data Set
-	IF (NEW.samp_id IS NOT NULL) THEN
-		-- count number of parents
-		SELECT count(*) INTO counter 
-			FROM data_set_relationships 
-			WHERE data_id_child = NEW.id;
-		IF (counter > 0) THEN
-			RAISE EXCEPTION 'Insert/Update of Data Set (Code: %) failed because it cannot be connected with a Sample and a parent Data Set at the same time.', NEW.code;
-		END IF;
-	END IF;
-  RETURN NEW;
-END;
-$$;
-CREATE FUNCTION check_dataset_relationships_on_relationships_table_modification() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	counter	INTEGER;
-	sample_id	TECH_ID;
-	data_code	CODE;
-BEGIN
-	-- child will have a parent added so it should not be connected with any sample
-	SELECT samp_id, code INTO sample_id, data_code 
-		FROM data 
-		WHERE id = NEW.data_id_child;
-	IF (sample_id IS NOT NULL) THEN
-		RAISE EXCEPTION 'Insert/Update of Data Set (Code: %) failed because it cannot be connected to a Sample and to a parent Data Set at the same time.', data_code;
-	END IF;
-	RETURN NEW;
-END;
-$$;
 CREATE FUNCTION controlled_vocabulary_check() RETURNS trigger
     LANGUAGE plpgsql
     AS $$

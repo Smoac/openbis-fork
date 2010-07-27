@@ -208,6 +208,13 @@ drop function CONNECT_WELLS_WITH_GENES();
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 
+-- drop dataset triggers
+
+DROP TRIGGER check_dataset_relationships_on_data_table_modification ON data;
+DROP FUNCTION check_dataset_relationships_on_data_table_modification();
+DROP TRIGGER check_dataset_relationships_on_relationships_table_modification ON data_set_relationships;
+DROP FUNCTION check_dataset_relationships_on_relationships_table_modification();
+ 
 
 
 

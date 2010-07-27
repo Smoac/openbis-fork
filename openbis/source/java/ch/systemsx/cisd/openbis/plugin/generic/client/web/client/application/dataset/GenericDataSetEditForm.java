@@ -83,9 +83,9 @@ public final class GenericDataSetEditForm extends
     // 2. not connected with sample
     private ExperimentChooserFieldAdaptor experimentChooser;
 
-    private DataSetParentsArea parentsArea;
-
     // 
+
+    private DataSetParentsArea parentsArea;
 
     private ExternalData originalDataSet;
 
@@ -128,8 +128,8 @@ public final class GenericDataSetEditForm extends
         } else
         {
             result.setExperimentIdentifierOrNull(extractExperimentIdentifier());
-            result.setModifiedParentDatasetCodesOrNull(extractParentDatasetCodes());
         }
+        result.setModifiedParentDatasetCodesOrNull(extractParentDatasetCodes());
         return result;
     }
 
@@ -298,8 +298,7 @@ public final class GenericDataSetEditForm extends
     {
         boolean connectedWithSample = isConnectedWithSample();
         FieldUtil.setVisibility(connectedWithSample, sampleChooser.getField());
-        FieldUtil.setVisibility(connectedWithSample == false, experimentChooser.getField(),
-                parentsArea);
+        FieldUtil.setVisibility(connectedWithSample == false, experimentChooser.getField());
     }
 
     private void setOriginalData(ExternalData data)

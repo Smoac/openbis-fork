@@ -150,18 +150,28 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         assert sample != null : "Undefined sample.";
         assert data.getParentDataSetCodes() == null || data.getParentDataSetCodes().isEmpty();
 
-        define(data, sourceType);
+        final DataStorePE dataStore = define(data, sourceType);
+        final ExperimentPE experiment = sample.getExperiment();
 
         externalData.setSample(sample);
-        externalData.setExperiment(sample.getExperiment());
+        externalData.setExperiment(experiment);
+
+        setParentDataSets(dataStore, experiment, data);
     }
 
     public void define(NewExternalData data, ExperimentPE experiment, SourceType sourceType)
     {
         assert experiment != null : "Undefined experiment.";
-        DataStorePE dataStore = define(data, sourceType);
+
+        final DataStorePE dataStore = define(data, sourceType);
 
         externalData.setExperiment(experiment);
+        setParentDataSets(dataStore, experiment, data);
+    }
+
+    private void setParentDataSets(DataStorePE dataStore, ExperimentPE experiment,
+            NewExternalData data)
+    {
         final List<String> parentDataSetCodes = data.getParentDataSetCodes();
         if (parentDataSetCodes != null)
         {
@@ -367,16 +377,13 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         {
             // update sample and indirectly experiment
             updateSample(updates.getSampleIdentifierOrNull());
-            // remove connections with parents
-            // (new colelction is needed bacause old one will be removed)
-            removeParents(new ArrayList<DataPE>(externalData.getParents()));
         } else
         {
             updateExperiment(updates.getExperimentIdentifierOrNull());
-            updateParents(updates.getModifiedParentDatasetCodesOrNull());
             // remove connection with sample
             externalData.setSample(null);
         }
+        updateParents(updates.getModifiedParentDatasetCodesOrNull());
         updateFileFormatType(updates.getFileFormatTypeCode());
         updateProperties(externalData, updates.getProperties());
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
