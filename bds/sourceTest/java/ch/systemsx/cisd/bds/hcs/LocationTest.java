@@ -105,9 +105,9 @@ public final class LocationTest
     @Test
     public final void testCreateMatrixCoordinateFromLocation()
     {
-        assertEquals("A1", Location.tryCreateMatrixCoordinateFromLocation(new Location(1, 1)));
-        assertEquals("A2", Location.tryCreateMatrixCoordinateFromLocation(new Location(2, 1)));
-        assertEquals("Z7", Location.tryCreateMatrixCoordinateFromLocation(new Location(7, 26)));
+        assertEquals("A01", Location.tryCreateMatrixCoordinateFromLocation(new Location(1, 1)));
+        assertEquals("A02", Location.tryCreateMatrixCoordinateFromLocation(new Location(2, 1)));
+        assertEquals("Z07", Location.tryCreateMatrixCoordinateFromLocation(new Location(7, 26)));
         assertEquals("O34", Location.tryCreateMatrixCoordinateFromLocation(new Location(34, 15)));
     }
 
