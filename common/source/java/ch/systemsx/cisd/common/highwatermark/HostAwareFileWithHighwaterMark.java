@@ -115,14 +115,14 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
         assert StringUtils.isNotBlank(hostFilePropertyKey) : "Host-file property key is blank";
         final String hostFile = PropertyUtils.getMandatoryProperty(properties, hostFilePropertyKey);
         final long highwaterMarkInKb =
-            PropertyUtils.getLong(properties, hostFilePropertyKey.concat(SEP).concat(
-                    HIGHWATER_MARK_PROPERTY_KEY), -1L);
+                PropertyUtils.getLong(properties, hostFilePropertyKey.concat(SEP).concat(
+                        HIGHWATER_MARK_PROPERTY_KEY), -1L);
         return create(hostFile, highwaterMarkInKb);
     }
 
     /**
-     * Instantiates a new <code>FileWithHighwaterMark</code> from specified host file and
-     * high-water mark.
+     * Instantiates a new <code>FileWithHighwaterMark</code> from specified host file and high-water
+     * mark.
      * 
      * @param hostFile Either a local file or remote file in SSH notation (i.e. <host>:<path>).
      * @param highwaterMarkInKb -1 means no checking for high water.
@@ -134,7 +134,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
         String hostNameOrNull = null;
         final int index = hostFile.indexOf(HOST_FILE_SEP);
         final String rsyncModuleOrNull;
-        if (index > -1)
+        if (index > -1 && isWindowsDriveLetter(hostFile, index) == false)
         {
             hostNameOrNull = hostFile.substring(0, index);
             final int index2 = hostFile.indexOf(HOST_FILE_SEP, index + 1);
@@ -154,6 +154,12 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
         }
         return new HostAwareFileWithHighwaterMark(hostNameOrNull, file, rsyncModuleOrNull,
                 highwaterMarkInKb);
+    }
+
+    private static boolean isWindowsDriveLetter(String hostFile, int colonIndex)
+    {
+        // e.g. c:\
+        return colonIndex == 1 && hostFile.length() >= 3 && hostFile.charAt(2) == '\\';
     }
 
     private static File getCanonicalFile(final String hostFile)

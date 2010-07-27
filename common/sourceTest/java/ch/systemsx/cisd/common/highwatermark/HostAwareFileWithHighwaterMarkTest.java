@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import org.testng.annotations.Test;
@@ -95,6 +96,18 @@ public final class HostAwareFileWithHighwaterMarkTest
         assertEquals("localhost", fileWithHighwaterMark.tryGetHost());
         assertNull(fileWithHighwaterMark.tryGetRsyncModule());
         assertEquals(new File("/my/path"), fileWithHighwaterMark.getFile());
+    }
+
+    @Test
+    public final void testWindowsDrive() throws IOException
+    {
+        final String hostFilePath = "c:\\my\\path";
+        final HostAwareFileWithHighwaterMark file =
+                HostAwareFileWithHighwaterMark.create(hostFilePath, 123);
+        assertEquals(123L, file.getHighwaterMark());
+        assertNull(file.tryGetHost());
+        assertNull(file.tryGetRsyncModule());
+        assertEquals(new File(hostFilePath).getCanonicalFile(), file.getFile());
     }
 
     @Test
