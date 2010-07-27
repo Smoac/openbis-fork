@@ -117,7 +117,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     private String tryGetSpaceCode(ActionContext context)
     {
-        return (context.tryGetSpace() == null) ? null : context.tryGetSpace().getCode();
+        return (context.tryGetSpaceCode() == null) ? null : context.tryGetSpaceCode();
     }
 
     private ExperimentChooserFieldAdaptor createExperimentField()

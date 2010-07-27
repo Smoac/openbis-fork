@@ -48,7 +48,7 @@ public final class SampleRegistrationPanel extends
     {
         super(viewContext, EntityKind.SAMPLE, new SampleTypeSelectionWidget(viewContext,
                 EntityRegistrationPanel.createId(EntityKind.SAMPLE), false,
-                SampleTypeDisplayID.SAMPLE_REGISTRATION), context);
+                SampleTypeDisplayID.SAMPLE_REGISTRATION, context.tryGetSampleTypeCode()), context);
     }
 
 }

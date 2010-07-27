@@ -74,7 +74,7 @@ public final class SampleBatchRegisterUpdatePanel extends LayoutContainer
         setScrollMode(Scroll.AUTO);
         sampleTypeSelection =
                 new SampleTypeSelectionWidget(viewContext, ID_SUFFIX, false, false, true,
-                        createDisplayID(update));
+                        createDisplayID(update), null);
         final ToolBar toolBar = createToolBar();
         add(toolBar);
         sampleTypeSelection

@@ -18,11 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * Context of the last action performed by the user.
- *
+ * 
  * @author Piotr Buczek
  */
 public class ActionContext
@@ -31,7 +31,9 @@ public class ActionContext
 
     private Project projectOrNull;
 
-    private Space spaceOrNull;
+    private String spaceCodeOrNull;
+
+    private SampleType sampleTypeOrNull;
 
     public ActionContext()
     {
@@ -41,7 +43,8 @@ public class ActionContext
     {
         this.experimentOrNull = experiment;
         this.projectOrNull = experiment.getProject();
-        this.spaceOrNull = projectOrNull.getSpace();
+        // this.spaceOrNull = projectOrNull.getSpace();
+        this.spaceCodeOrNull = projectOrNull.getSpace().getCode();
     }
 
     public Experiment tryGetExperiment()
@@ -49,9 +52,9 @@ public class ActionContext
         return experimentOrNull;
     }
 
-    public void setExperimentOrNull(Experiment experimentOrNull)
+    public void setExperiment(Experiment experiment)
     {
-        this.experimentOrNull = experimentOrNull;
+        this.experimentOrNull = experiment;
     }
 
     public Project tryGetProject()
@@ -59,19 +62,34 @@ public class ActionContext
         return projectOrNull;
     }
 
-    public void setProjectOrNull(Project projectOrNull)
+    public void setProject(Project project)
     {
-        this.projectOrNull = projectOrNull;
+        this.projectOrNull = project;
     }
 
-    public Space tryGetSpace()
+    public SampleType tryGetSampleType()
     {
-        return spaceOrNull;
+        return sampleTypeOrNull;
     }
 
-    public void setSpaceOrNull(Space spaceOrNull)
+    public String tryGetSampleTypeCode()
     {
-        this.spaceOrNull = spaceOrNull;
+        return sampleTypeOrNull == null ? null : sampleTypeOrNull.getCode();
+    }
+
+    public void setSampleType(SampleType sampleType)
+    {
+        this.sampleTypeOrNull = sampleType;
+    }
+
+    public String tryGetSpaceCode()
+    {
+        return spaceCodeOrNull;
+    }
+
+    public void setSpaceCode(String spaceCode)
+    {
+        this.spaceCodeOrNull = spaceCode;
     }
 
 }

@@ -102,15 +102,18 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
 
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             final boolean onlyListable, final boolean withAll, final boolean withTypeInFile,
-            final SampleTypeDisplayID displayTypeID)
+            final SampleTypeDisplayID displayTypeID, final String initialCodeOrNullParameter)
     {
-        this(viewContext, idSuffix, onlyListable, withAll, withTypeInFile, null, displayTypeID);
+        this(viewContext, idSuffix, onlyListable, withAll, withTypeInFile,
+                initialCodeOrNullParameter, displayTypeID);
     }
 
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            final boolean onlyListable, final SampleTypeDisplayID displayTypeID)
+            final boolean onlyListable, final SampleTypeDisplayID displayTypeID,
+            final String initialCodeOrNullParameter)
     {
-        this(viewContext, idSuffix, onlyListable, false, false, displayTypeID);
+        this(viewContext, idSuffix, onlyListable, false, false, displayTypeID,
+                initialCodeOrNullParameter);
     }
 
     /**

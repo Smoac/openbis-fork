@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityDisplayCriteriaKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
@@ -403,8 +404,7 @@ public class SampleBrowserGrid extends
     protected void addEntityOperationButtons()
     {
 
-        final Button addButton =
-                createAddSampleButton();
+        final Button addButton = createAddSampleButton();
         addButton(addButton);
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
@@ -444,38 +444,54 @@ public class SampleBrowserGrid extends
                         @Override
                         public void componentSelected(ButtonEvent ce)
                         {
-                            if (experimentIdOrNull == null)
-                            {
-                                DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
-                                        viewContext).getSampleRegistration());
-                            } else
-                            {
-                                viewContext.getService().getExperimentInfo(
-                                        experimentIdOrNull,
-                                        new ExperimentInfoCallback(viewContext));
-                            }
-
-                        }
-
-                        final class ExperimentInfoCallback extends
-                                AbstractAsyncCallback<Experiment>
-                        {
-                            public ExperimentInfoCallback(
-                                    IViewContext<ICommonClientServiceAsync> viewContext)
-                            {
-                                super(viewContext);
-                            }
-
-                            @Override
-                            protected void process(Experiment result)
-                            {
-                                ActionContext context = new ActionContext(result);
-                                DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
-                                        viewContext.getCommonViewContext())
-                                        .getSampleRegistration(context));
-                            }
+                            openSampleRegistrationTab();
                         }
                     });
+    }
+
+    private void openSampleRegistrationTab()
+    {
+        if (experimentIdOrNull != null)
+        {
+            viewContext.getService().getExperimentInfo(experimentIdOrNull,
+                    new SampleRegistrationWithExperimentInfoCallback(viewContext));
+        } else
+        {
+            final ActionContext context = new ActionContext();
+            final ListSampleDisplayCriteria criteriaOrNull = getCriteriaProvider().tryGetCriteria();
+            if (criteriaOrNull != null
+                    && criteriaOrNull.getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE)
+            {
+                final ListSampleCriteria browseCriteria = criteriaOrNull.getBrowseCriteria();
+                final SampleType sampleType = browseCriteria.getSampleType();
+                if (sampleType.isAllTypesCode() == false)
+                {
+                    context.setSampleType(sampleType);
+                }
+                final String spaceCode = browseCriteria.getSpaceCode();
+                context.setSpaceCode(spaceCode);
+            }
+            DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext)
+                    .getSampleRegistration(context));
+        }
+    }
+
+    private final class SampleRegistrationWithExperimentInfoCallback extends
+            AbstractAsyncCallback<Experiment>
+    {
+        public SampleRegistrationWithExperimentInfoCallback(
+                IViewContext<ICommonClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(Experiment result)
+        {
+            ActionContext experimentContext = new ActionContext(result);
+            DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext
+                    .getCommonViewContext()).getSampleRegistration(experimentContext));
+        }
     }
 
     private void addGridRefreshListener(SampleBrowserToolbar topToolbar)

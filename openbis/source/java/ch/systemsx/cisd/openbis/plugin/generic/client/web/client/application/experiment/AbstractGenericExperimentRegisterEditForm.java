@@ -270,7 +270,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         importSamplesFileManager.setMandatory();
         importSampleTypeSelection =
                 new SampleTypeSelectionWidget(viewContext, simpleId, false, false, true,
-                        SampleTypeDisplayID.EXPERIMENT_REGISTRATION);
+                        SampleTypeDisplayID.EXPERIMENT_REGISTRATION, null);
         FieldUtil.markAsMandatory(importSampleTypeSelection);
 
         existingSamplesRadio = cerateExistingSamplesRadio();

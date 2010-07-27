@@ -208,7 +208,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 {
                     sampleTypeSelectionWidget =
                             new SampleTypeSelectionWidget(viewContext, SAMPLE_TYPE_ID_SUFFIX,
-                                    false, SampleTypeDisplayID.PROPERTY_ASSIGNMENT);
+                                    false, SampleTypeDisplayID.PROPERTY_ASSIGNMENT, null);
                     created = true;
                 }
                 result = sampleTypeSelectionWidget;
