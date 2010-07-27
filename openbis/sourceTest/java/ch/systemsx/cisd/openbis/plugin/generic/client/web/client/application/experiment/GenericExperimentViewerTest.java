@@ -113,8 +113,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 }
             });
         remoteConsole.prepare(new FailureExpectation(GetExperimentInfoCallback.class)
-                .with("Authorization failure: User 'observer' does not have enough privileges"
-                        + " to access data in the space 'CISD:/CISD'."));
+                .with("Authorization failure: User 'observer' does not have enough privileges."));
 
         launchTest();
     }
