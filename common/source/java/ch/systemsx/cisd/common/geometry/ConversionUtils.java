@@ -96,13 +96,15 @@ public class ConversionUtils
         {
             throw new IllegalArgumentException("Unspecified point.");
         }
+        // TODO 2010-07-26, Tomasz Pylak: support double-letter coordinates
         if (p.getX() >= 26 || p.getX() < 0)
         {
             throw new IllegalArgumentException("Unsupported value: " + p.getX());
         }
-        char x = (char) (p.getX() + 'A');
+        String xText = "" + (char) (p.getX() + 'A');
         int y = p.getY() + 1;
-        return String.format("%s%s", x, y);
+        String yText = (y < 10 ? "0" + y : "" + y);
+        return String.format("%s%s", xText, yText);
     }
 
     private static int getLetterNumber(final char ch)
