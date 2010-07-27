@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import com.extjs.gxt.ui.client.widget.Component;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
@@ -297,7 +297,7 @@ public final class ComponentProvider
         return getSampleRegistration(new ActionContext());
     }
 
-    public final AbstractTabItemFactory getExperimentRegistration()
+    public final AbstractTabItemFactory getExperimentRegistration(final ActionContext context)
     {
         return new AbstractTabItemFactory()
             {
@@ -305,7 +305,7 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
-                            ExperimentRegistrationPanel.create(viewContext, new ActionContext());
+                            ExperimentRegistrationPanel.create(viewContext, context);
                     return createRegistrationTab(Dict.EXPERIMENT_REGISTRATION, component);
                 }
 
@@ -322,6 +322,11 @@ public final class ComponentProvider
                             HelpPageAction.REGISTER);
                 }
             };
+    }
+
+    public final AbstractTabItemFactory getExperimentRegistration()
+    {
+        return getExperimentRegistration(new ActionContext());
     }
 
     public final AbstractTabItemFactory getSampleBatchRegistration()

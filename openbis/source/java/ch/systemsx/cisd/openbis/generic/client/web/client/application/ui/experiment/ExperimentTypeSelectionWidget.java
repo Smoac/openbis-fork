@@ -66,9 +66,9 @@ public final class ExperimentTypeSelectionWidget extends
     }
 
     public ExperimentTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String idSuffix)
+            final String idSuffix, final String initialCodeOrNull)
     {
-        this(viewContext, idSuffix, false, null);
+        this(viewContext, idSuffix, false, initialCodeOrNull);
     }
 
     /**

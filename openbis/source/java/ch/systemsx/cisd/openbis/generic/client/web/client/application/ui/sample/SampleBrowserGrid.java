@@ -404,7 +404,16 @@ public class SampleBrowserGrid extends
     protected void addEntityOperationButtons()
     {
 
-        final Button addButton = createAddSampleButton();
+        final Button addButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Sample"),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    openSampleRegistrationTab();
+                                }
+                            });
         addButton(addButton);
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
@@ -436,19 +445,6 @@ public class SampleBrowserGrid extends
         allowMultipleSelection(); // we allow deletion of multiple samples
     }
 
-    private Button createAddSampleButton()
-    {
-        return new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Sample"),
-                new SelectionListener<ButtonEvent>()
-                    {
-                        @Override
-                        public void componentSelected(ButtonEvent ce)
-                        {
-                            openSampleRegistrationTab();
-                        }
-                    });
-    }
-
     private void openSampleRegistrationTab()
     {
         if (experimentIdOrNull != null)
@@ -464,10 +460,7 @@ public class SampleBrowserGrid extends
             {
                 final ListSampleCriteria browseCriteria = criteriaOrNull.getBrowseCriteria();
                 final SampleType sampleType = browseCriteria.getSampleType();
-                if (sampleType.isAllTypesCode() == false)
-                {
-                    context.setSampleType(sampleType);
-                }
+                context.setSampleType(sampleType);
                 final String spaceCode = browseCriteria.getSpaceCode();
                 context.setSpaceCode(spaceCode);
             }

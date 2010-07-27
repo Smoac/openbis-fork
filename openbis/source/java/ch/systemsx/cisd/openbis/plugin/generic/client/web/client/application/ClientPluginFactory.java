@@ -333,7 +333,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                 ExperimentType entityType, ActionContext context)
         {
             GenericExperimentRegistrationForm form =
-                    new GenericExperimentRegistrationForm(getViewContext(), entityType);
+                    new GenericExperimentRegistrationForm(getViewContext(), context, entityType);
             return new DatabaseModificationAwareWidget(form, form);
         }
 

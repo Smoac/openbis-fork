@@ -38,6 +38,7 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -76,6 +77,8 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
 
     protected ProjectSelectionWidget projectChooser;
 
+    private String initialProjectIdentifierOrNull;
+
     protected ExperimentSamplesArea samplesArea;
 
     protected final String samplesSessionKey;
@@ -95,13 +98,14 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
     private LabelField templateField;
 
     protected AbstractGenericExperimentRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext)
+            IViewContext<IGenericClientServiceAsync> viewContext, ActionContext context)
     {
-        this(viewContext, null);
+        this(viewContext, context, null);
     }
 
     protected AbstractGenericExperimentRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext, IIdAndCodeHolder identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext, ActionContext actionContext,
+            IIdAndCodeHolder identifiable)
     {
         super(viewContext, identifiable, EntityKind.EXPERIMENT);
 
@@ -112,6 +116,12 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         sesionKeys.add(attachmentsSessionKey);
         sesionKeys.add(samplesSessionKey);
         addUploadFeatures(sesionKeys);
+        extractInitialValues(actionContext);
+    }
+
+    private void extractInitialValues(ActionContext context)
+    {
+        this.initialProjectIdentifierOrNull = context.tryGetProjectIdentifier();
     }
 
     protected void updateSamples()
@@ -260,7 +270,8 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
     @Override
     protected void createEntitySpecificFormFields()
     {
-        projectChooser = new ProjectSelectionWidget(viewContext, simpleId);
+        projectChooser =
+                new ProjectSelectionWidget(viewContext, simpleId, initialProjectIdentifierOrNull);
         projectChooser.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
         FieldUtil.markAsMandatory(projectChooser);
 

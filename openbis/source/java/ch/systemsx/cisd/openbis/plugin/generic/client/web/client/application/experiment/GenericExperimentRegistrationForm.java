@@ -21,6 +21,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -43,9 +44,9 @@ public final class GenericExperimentRegistrationForm extends
 
     public GenericExperimentRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
-            final ExperimentType experimentType)
+            final ActionContext context, final ExperimentType experimentType)
     {
-        super(viewContext);
+        super(viewContext, context);
         this.experimentType = experimentType;
     }
 

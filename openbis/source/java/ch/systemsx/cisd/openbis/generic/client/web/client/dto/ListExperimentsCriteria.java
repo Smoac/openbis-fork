@@ -20,6 +20,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
  * Criteria for listing <i>experiments</i>.
@@ -31,9 +32,7 @@ public final class ListExperimentsCriteria extends DefaultResultSetConfig<String
 {
     private ExperimentType experimentType;
 
-    private String groupCode;
-
-    private String projectCode;
+    private Project project;
 
     public ExperimentType getExperimentType()
     {
@@ -47,22 +46,22 @@ public final class ListExperimentsCriteria extends DefaultResultSetConfig<String
 
     public String getGroupCode()
     {
-        return groupCode;
-    }
-
-    public void setGroupCode(final String groupCode)
-    {
-        this.groupCode = groupCode;
+        return project.getSpace().getCode();
     }
 
     public String getProjectCode()
     {
-        return projectCode;
+        return project.getCode();
     }
 
-    public void setProjectCode(final String projectCode)
+    public Project getProject()
     {
-        this.projectCode = projectCode;
+        return project;
+    }
+
+    public void setProject(Project project)
+    {
+        this.project = project;
     }
 
 }

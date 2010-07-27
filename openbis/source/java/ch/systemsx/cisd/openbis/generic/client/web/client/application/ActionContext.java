@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
@@ -35,6 +36,8 @@ public class ActionContext
 
     private SampleType sampleTypeOrNull;
 
+    private ExperimentType experimentTypeOrNull;
+
     public ActionContext()
     {
     }
@@ -43,7 +46,6 @@ public class ActionContext
     {
         this.experimentOrNull = experiment;
         this.projectOrNull = experiment.getProject();
-        // this.spaceOrNull = projectOrNull.getSpace();
         this.spaceCodeOrNull = projectOrNull.getSpace().getCode();
     }
 
@@ -62,6 +64,11 @@ public class ActionContext
         return projectOrNull;
     }
 
+    public String tryGetProjectIdentifier()
+    {
+        return projectOrNull == null ? null : projectOrNull.getIdentifier();
+    }
+
     public void setProject(Project project)
     {
         this.projectOrNull = project;
@@ -74,12 +81,29 @@ public class ActionContext
 
     public String tryGetSampleTypeCode()
     {
-        return sampleTypeOrNull == null ? null : sampleTypeOrNull.getCode();
+        return (sampleTypeOrNull == null || sampleTypeOrNull.isAllTypesCode()) ? null
+                : sampleTypeOrNull.getCode();
     }
 
     public void setSampleType(SampleType sampleType)
     {
         this.sampleTypeOrNull = sampleType;
+    }
+
+    public ExperimentType tryGetExperimentType()
+    {
+        return experimentTypeOrNull;
+    }
+
+    public String tryGetExperimentTypeCode()
+    {
+        return (experimentTypeOrNull == null || experimentTypeOrNull.isAllTypesCode()) ? null
+                : experimentTypeOrNull.getCode();
+    }
+
+    public void setExperimentType(ExperimentType experimentType)
+    {
+        this.experimentTypeOrNull = experimentType;
     }
 
     public String tryGetSpaceCode()

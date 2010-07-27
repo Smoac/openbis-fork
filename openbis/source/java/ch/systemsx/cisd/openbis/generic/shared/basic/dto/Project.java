@@ -134,4 +134,10 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
         this.modificationDate = modificationDate;
     }
 
+    @Override
+    public String toString()
+    {
+        return identifier;
+    }
+
 }

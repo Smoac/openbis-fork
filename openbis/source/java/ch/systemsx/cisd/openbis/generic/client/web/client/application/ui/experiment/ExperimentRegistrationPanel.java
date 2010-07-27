@@ -46,6 +46,7 @@ public final class ExperimentRegistrationPanel extends
             ActionContext context)
     {
         super(viewContext, EntityKind.EXPERIMENT, new ExperimentTypeSelectionWidget(viewContext,
-                EntityRegistrationPanel.createId(EntityKind.EXPERIMENT)), context);
+                EntityRegistrationPanel.createId(EntityKind.EXPERIMENT), context
+                        .tryGetExperimentTypeCode()), context);
     }
 }

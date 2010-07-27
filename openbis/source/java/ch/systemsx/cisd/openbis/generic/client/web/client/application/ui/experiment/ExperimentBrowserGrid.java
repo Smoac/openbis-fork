@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -58,6 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -177,9 +180,9 @@ public class ExperimentBrowserGrid extends
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
-                                            viewContext).getExperimentRegistration());
+                                    openExperimentRegistrationTab();
                                 }
+
                             });
         addButton(addButton);
 
@@ -212,6 +215,21 @@ public class ExperimentBrowserGrid extends
         allowMultipleSelection(); // we allow deletion of multiple samples
 
         addEntityOperationsSeparator();
+    }
+
+    private void openExperimentRegistrationTab()
+    {
+        final ActionContext context = new ActionContext();
+        ListExperimentsCriteria criteriaOrNull = getCriteriaProvider().tryGetCriteria();
+        if (criteriaOrNull != null)
+        {
+            final ExperimentType experimentType = criteriaOrNull.getExperimentType();
+            context.setExperimentType(experimentType);
+            final Project project = criteriaOrNull.getProject();
+            context.setProject(project);
+        }
+        DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext)
+                .getExperimentRegistration(context));
     }
 
     private void addGridRefreshListener(ExperimentBrowserToolbar topToolbar)

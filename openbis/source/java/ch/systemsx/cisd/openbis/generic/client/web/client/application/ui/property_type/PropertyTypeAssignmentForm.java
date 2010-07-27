@@ -198,7 +198,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 {
                     experimentTypeSelectionWidget =
                             new ExperimentTypeSelectionWidget(viewContext,
-                                    EXPERIMENT_TYPE_ID_SUFFIX);
+                                    EXPERIMENT_TYPE_ID_SUFFIX, null);
                     created = true;
                 }
                 result = experimentTypeSelectionWidget;
