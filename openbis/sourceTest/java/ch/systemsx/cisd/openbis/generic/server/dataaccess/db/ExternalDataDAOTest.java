@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.TransactionException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -331,21 +330,8 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         return null; // to make the compiler happy
     }
 
-    // 
-    // Tests that deferred triggers throws an exception when data set is created/updated and checked
-    // condition is not fulfilled.
-    //
-    // NOTE: Because such triggers are deferred until commit and transactions are commited on server
-    // level the triggers will not be invoked automatically in these tests. They are tested here
-    // because triggers are something below DAO level and DAO tests are the lowest level tests we
-    // perform. On the other hand one could test that client methods will invoke the the trigger
-    // and test that proper user failure messages are displayed in the GUI.
-    // 
-    // NOTE: Tests of cases when the triggers will not rollback transaction cannot be written here
-    // unless we decide that DB tests may modify DB.
-
     @Test
-    public void testCreateDataSetFailWithBothSampleAndParent()
+    public void testCreateDataSetWithBothSampleAndParent()
     {
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
 
@@ -356,52 +342,31 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         ExternalDataPE externalData = createExternalData(dataSetCode, sample);
         externalData.addParent(parentData);
         externalDataDAO.createDataSet(externalData);
-
-        assertCommitFailsWithBothSampleAndParentConnectionForDataSet(dataSetCode);
     }
 
     @Test
-    public void testUpdateOfDataSetFailWithParentAddedWhenIsSampleConnected()
+    public void testUpdateOfDataSetAddParentWhenThereIsSampleConnected()
     {
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
 
-        // try to update dataset connected with a sample - adding a parent should fail
+        // try to update dataset connected with a sample - adding a parent should succeed
         final ExternalDataPE dataSetConnectedWithSample = findExternalData(PARENT_CODE);
         assertNotNull(dataSetConnectedWithSample.tryGetSample());
         final ExternalDataPE anotherDataSet = findExternalData("20081105092159111-1");
         dataSetConnectedWithSample.addParent(anotherDataSet);
         externalDataDAO.updateDataSet(dataSetConnectedWithSample);
-
-        assertCommitFailsWithBothSampleAndParentConnectionForDataSet(PARENT_CODE);
     }
 
     @Test
-    public void testUpdateOfDataSetFailWithSampleConnectedWhenThereIsParent()
+    public void testUpdateOfDataSetConnectSampleWhenThereIsParent()
     {
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
 
-        // try to update dataset connected with a parent - connecting with a sample should fail
+        // try to update dataset connected with a parent - connecting with a sample should succeed
         final ExternalDataPE dataSetConnectedWithParent = findExternalData(CHILD_CODE);
         assertFalse(dataSetConnectedWithParent.getParents().isEmpty());
         dataSetConnectedWithParent.setSampleAcquiredFrom(pickASample());
         externalDataDAO.updateDataSet(dataSetConnectedWithParent);
-
-        assertCommitFailsWithBothSampleAndParentConnectionForDataSet(CHILD_CODE);
-    }
-
-    private void assertCommitFailsWithBothSampleAndParentConnectionForDataSet(String dataSetCode)
-    {
-        try
-        {
-            daoFactory.getSessionFactory().getCurrentSession().getTransaction().commit();
-        } catch (TransactionException transactionException)
-        {
-            String expectedErrorMessageTemplate =
-                    "ERROR: Insert/Update of Data Set (Code: %s) failed because it cannot "
-                            + "be connected with a Sample and a parent Data Set at the same time.";
-            assertEquals(String.format(expectedErrorMessageTemplate, dataSetCode),
-                    transactionException.getCause().getMessage());
-        }
     }
 
     @Test
