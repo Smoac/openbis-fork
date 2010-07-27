@@ -11,31 +11,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
- * {@link MaterialLocatorResolver} for genes.
+ * {@link MaterialLocatorResolver} for screening materials.
  * 
  * @author Piotr Buczek
  */
-public class GeneMaterialLocatorResolver extends MaterialLocatorResolver
+public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolver
 {
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
     private final static String EXPERIMENT_PARAMETER_KEY = "experiment";
 
-    public GeneMaterialLocatorResolver(IViewContext<IScreeningClientServiceAsync> viewContext)
+    public PlateLocationsMaterialLocatorResolver(
+            IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         super(viewContext.getCommonViewContext());
         this.viewContext = viewContext;
-    }
-
-    @Override
-    public boolean canHandleLocator(ViewLocator locator)
-    {
-        String materialTypeOrNull = locator.getParameters().get(TYPE_PARAMETER_KEY);
-        return super.canHandleLocator(locator)
-                && ScreeningConstants.GENE_PLUGIN_TYPE_CODE.equals(materialTypeOrNull);
     }
 
     @Override
@@ -88,8 +80,8 @@ public class GeneMaterialLocatorResolver extends MaterialLocatorResolver
         @Override
         protected final void process(final IEntityInformationHolder result)
         {
-            ClientPluginFactory.openGeneMaterialViewer(result, experimentIdentifierOrNull,
-                    viewContext);
+            ClientPluginFactory.openPlateLocationsMaterialViewer(result,
+                    experimentIdentifierOrNull, viewContext);
         }
     }
 

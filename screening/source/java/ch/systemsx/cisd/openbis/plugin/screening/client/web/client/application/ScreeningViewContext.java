@@ -8,7 +8,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GeneMaterialLocatorResolver;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.PlateLocationsMaterialLocatorResolver;
 
 /**
  * The <i>screening</i> plugin specific {@link IViewContext} implementation.
@@ -42,6 +42,6 @@ public final class ScreeningViewContext extends
     {
         super.initializeLocatorHandlerRegistry(handlerRegistry);
 
-        handlerRegistry.registerHandler(new GeneMaterialLocatorResolver(this));
+        handlerRegistry.registerHandler(new PlateLocationsMaterialLocatorResolver(this));
     }
 }

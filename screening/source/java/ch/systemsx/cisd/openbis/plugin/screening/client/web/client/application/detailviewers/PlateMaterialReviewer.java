@@ -52,7 +52,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.PlateMaterialReviewerColDefKind;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -124,18 +123,8 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                         public void handle(WellContent wellContent, boolean specialKeyPressed)
                         {
                             EntityReference contentMaterial = wellContent.getMaterialContent();
-                            if (contentMaterial.getEntityType().getCode().equals(
-                                    ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
-                            {
-
-                                ClientPluginFactory.openGeneMaterialViewer(contentMaterial,
-                                        experiment, viewContext);
-                            } else
-                            {
-                                // TODO 2010-07-22, Tomasz Pylak: allow to see non-gene images
-                                showEntityViewer(wellContent.getMaterialContent(),
-                                        specialKeyPressed);
-                            }
+                            ClientPluginFactory.openPlateLocationsMaterialViewer(contentMaterial,
+                                    experiment, viewContext);
                         }
                     });
         registerLinkClickListenerFor(PlateMaterialReviewerColDefKind.PLATE.id(),

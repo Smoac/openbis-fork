@@ -38,12 +38,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
- * Section panel presenting wells from selected experiment with given gene inhibited.
+ * Section panel presenting wells from selected experiment with given material inside.
  * 
  * @author Tomasz Pylak
  * @author Izabela Adamczyk
  */
-class GenePlateLocationsSection extends SingleSectionPanel
+class PlateLocationsMaterialSection extends SingleSectionPanel
 {
     private static final int IMAGE_WIDTH_PX = 100;
 
@@ -59,7 +59,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
 
     private final DefaultChannelState channelState;
 
-    public GenePlateLocationsSection(
+    public PlateLocationsMaterialSection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             final TechId materialId, ExperimentIdentifier experimentIdentifierOrNull)
     {
@@ -82,7 +82,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
         add(locationsPanel, new MarginData(10));
         if (experimentIdentifierOrNull != null)
         {
-            loadGeneLocationsPanel(experimentIdentifierOrNull, locationsPanel);
+            loadPlateLocationsPanel(experimentIdentifierOrNull, locationsPanel);
         }
     }
 
@@ -102,7 +102,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
                     {
                         ExperimentIdentifier experimentIdentifier =
                                 new ExperimentIdentifier(entity.getIdentifier());
-                        loadGeneLocationsPanel(experimentIdentifier, container);
+                        loadPlateLocationsPanel(experimentIdentifier, container);
                     }
                 }
             });
@@ -114,12 +114,12 @@ class GenePlateLocationsSection extends SingleSectionPanel
 
         container.add(GuiUtils.withLabel(experimentChooser.getField(), "Experiment:", 10));
         container.add(new Text(
-                "Choose an experiment to find wells where this gene has been suppressed."));
+                "Choose an experiment to find wells where this material has been suppressed."));
         container.setScrollMode(Scroll.AUTO);
         return container;
     }
 
-    private void loadGeneLocationsPanel(ExperimentIdentifier experimentIdentifier,
+    private void loadPlateLocationsPanel(ExperimentIdentifier experimentIdentifier,
             final LayoutContainer container)
     {
         GuiUtils.replaceLastItem(container, new Text(screeningViewContext
@@ -130,25 +130,25 @@ class GenePlateLocationsSection extends SingleSectionPanel
                         @Override
                         protected void process(List<WellContent> wellLocations)
                         {
-                            Widget geneLocationsPanel = createGeneLocationPanel(wellLocations);
-                            GuiUtils.replaceLastItem(container, geneLocationsPanel);
+                            Widget locationsPanel = createPlateLocationPanel(wellLocations);
+                            GuiUtils.replaceLastItem(container, locationsPanel);
                         }
                     });
     }
 
-    private Widget createGeneLocationPanel(final List<WellContent> wellLocations)
+    private Widget createPlateLocationPanel(final List<WellContent> wellLocations)
     {
         if (wellLocations.size() == 0)
         {
             return new Text(
-                    "This gene has not been suppressed in any plate measured in the chosen experiment.");
+                    "This material has not been found in any well measured in the chosen experiment.");
         }
         List<String> totalChannels = findMaxChannelCollection(wellLocations);
         return ChannelChooser.createViewerWithChannelChooser(new IChanneledViewerFactory()
             {
                 public Widget create(String channel)
                 {
-                    return createGeneLocationPanel(wellLocations, channel);
+                    return createPlateLocationPanel(wellLocations, channel);
                 }
             }, channelState, totalChannels);
     }
@@ -173,7 +173,7 @@ class GenePlateLocationsSection extends SingleSectionPanel
         return channels;
     }
 
-    private Widget createGeneLocationPanel(List<WellContent> wellLocations, String channel)
+    private Widget createPlateLocationPanel(List<WellContent> wellLocations, String channel)
     {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new TableLayout(3));

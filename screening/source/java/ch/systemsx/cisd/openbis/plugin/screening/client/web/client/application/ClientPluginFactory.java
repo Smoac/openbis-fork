@@ -47,8 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.GeneMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateDatasetViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateLocationsMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -94,6 +94,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         } else if (entityKind == EntityKind.MATERIAL)
         {
             types.add(ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
+            types.add(ScreeningConstants.OLIGO_PLUGIN_TYPE_NAME);
+            // NOTE: it would be better to fetch all the material types from the db, but we cannot
+            // do this - this code is executed before the user logs in.
+            // Another way not to hardcode material types would be to allow the plugin to be used
+            // for all material types.
+            types.add("CONTROL");
+            types.add("COMPOUND");
+
         } else if (entityKind == EntityKind.DATA_SET)
         {
             types.add(ScreeningConstants.IMAGE_DATASET_PLUGIN_TYPE_CODE);
@@ -137,22 +145,25 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         public final AbstractTabItemFactory createEntityViewer(final BasicEntityType materialType,
                 final IIdAndCodeHolder materialId)
         {
-            return createGeneMaterialViewerTabFactory(materialId, null, getViewContext());
+            return createPlateLocationsMaterialViewerTabFactory(materialId, null, getViewContext());
         }
     }
 
-    /** opens gene viewer with a selected experiment */
-    public static final void openGeneMaterialViewer(final IIdAndCodeHolder materialId,
+    /**
+     * opens material viewer showing wells in which the material is contained, with a selected
+     * experiment
+     */
+    public static final void openPlateLocationsMaterialViewer(final IIdAndCodeHolder materialId,
             final ExperimentIdentifier experimentIdentifier,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         AbstractTabItemFactory tab =
-                createGeneMaterialViewerTabFactory(materialId, experimentIdentifier, viewContext);
-        // 
+                createPlateLocationsMaterialViewerTabFactory(materialId, experimentIdentifier,
+                        viewContext);
         DispatcherHelper.dispatchNaviEvent(tab);
     }
 
-    private static final AbstractTabItemFactory createGeneMaterialViewerTabFactory(
+    private static final AbstractTabItemFactory createPlateLocationsMaterialViewerTabFactory(
             final IIdAndCodeHolder materialId,
             final ExperimentIdentifier experimentIdentifierOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
@@ -163,21 +174,21 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 public ITabItem create()
                 {
                     final DatabaseModificationAwareComponent viewer =
-                            GeneMaterialViewer.create(viewContext, TechId.create(materialId),
-                                    experimentIdentifierOrNull);
+                            PlateLocationsMaterialViewer.create(viewContext, TechId
+                                    .create(materialId), experimentIdentifierOrNull);
                     return createMaterialViewerTab(materialId, viewer, viewContext);
                 }
 
                 @Override
                 public String getId()
                 {
-                    return GeneMaterialViewer.createId(TechId.create(materialId));
+                    return PlateLocationsMaterialViewer.createId(TechId.create(materialId));
                 }
 
                 @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
-                    return GeneMaterialViewer.getHelpPageIdentifier();
+                    return PlateLocationsMaterialViewer.getHelpPageIdentifier();
                 }
             };
     }

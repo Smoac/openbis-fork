@@ -166,17 +166,13 @@ public class WellContentDialog extends Dialog
         Material material = property.getMaterial();
         if (material != null)
         {
+            container.add(createPlateLocationsMaterialViewerLink(material));
+
             if (material.getMaterialType().getCode().equalsIgnoreCase(
                     ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
             {
-                container.add(createGeneViewerLink(material));
-
                 container.add(new Text("Gene details: "), cellLayout);
                 container.add(createEntityExternalLink(material));
-            } else
-            {
-                // TODO 2010-07-22, Tomasz Pylak: link to detail view able to display images
-                container.add(createEntityLink(material));
             }
         } else
         {
@@ -191,15 +187,16 @@ public class WellContentDialog extends Dialog
         return new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", url, true));
     }
 
-    private Widget createGeneViewerLink(final IEntityInformationHolder gene)
+    private Widget createPlateLocationsMaterialViewerLink(final IEntityInformationHolder material)
     {
-        return LinkRenderer.getLinkWidget(gene.getCode(), new ClickHandler()
+        return LinkRenderer.getLinkWidget(material.getCode(), new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
                     WellContentDialog.this.hide();
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
-                            .openGeneMaterialViewer(gene, experimentIdentifier, viewContext);
+                            .openPlateLocationsMaterialViewer(material, experimentIdentifier,
+                                    viewContext);
                 }
             });
     }

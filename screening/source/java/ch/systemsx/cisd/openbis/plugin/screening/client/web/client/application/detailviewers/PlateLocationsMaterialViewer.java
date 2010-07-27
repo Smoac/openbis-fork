@@ -33,11 +33,11 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.mat
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
 /**
- * Gene viewer.
+ * A viewer for a material which can be a content of the well.
  * 
  * @author Tomasz Pylak
  */
-public class GeneMaterialViewer extends GenericMaterialViewer
+public class PlateLocationsMaterialViewer extends GenericMaterialViewer
 {
 
     /**
@@ -48,8 +48,8 @@ public class GeneMaterialViewer extends GenericMaterialViewer
             IViewContext<IScreeningClientServiceAsync> viewContext, TechId materialId,
             ExperimentIdentifier experimentIdentifierOrNull)
     {
-        GeneMaterialViewer viewer =
-                new GeneMaterialViewer(viewContext, materialId, experimentIdentifierOrNull);
+        PlateLocationsMaterialViewer viewer =
+                new PlateLocationsMaterialViewer(viewContext, materialId, experimentIdentifierOrNull);
         viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
@@ -58,7 +58,7 @@ public class GeneMaterialViewer extends GenericMaterialViewer
 
     private final ExperimentIdentifier experimentIdentifierOrNull;
 
-    private GeneMaterialViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
+    private PlateLocationsMaterialViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
             final TechId materialTechId, ExperimentIdentifier experimentIdentifierOrNull)
     {
         super(viewContext, materialTechId);
@@ -78,14 +78,14 @@ public class GeneMaterialViewer extends GenericMaterialViewer
     {
 
         List<SingleSectionPanel> sections = new ArrayList<SingleSectionPanel>();
-        sections.add(new GenePlateLocationsSection(screeningViewContext, materialId,
+        sections.add(new PlateLocationsMaterialSection(screeningViewContext, materialId,
                 experimentIdentifierOrNull));
         return sections;
     }
 
     public static HelpPageIdentifier getHelpPageIdentifier()
     {
-        return HelpPageIdentifier.createSpecific("Gene Material Viewer");
+        return HelpPageIdentifier.createSpecific("Well Content Material Viewer");
     }
 
 }
