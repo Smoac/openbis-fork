@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
  * Bean for a row in a table of feature vectors. Each row is specified by data set code, plate
- * identifier, well coordinates and and array of feature values. Double.NaN is used for unknown
+ * identifier, well position and and array of feature values. Double.NaN is used for unknown
  * feature value in this array.
  * 
  * @author Franz-Josef Elmer
@@ -28,13 +30,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class FeatureTableRow
 {
     private String dataSetCode;
+    
+    private FeatureVectorDatasetWellReference reference;
 
     private SampleIdentifier plateIdentifier;
 
-    private int rowIndex;
-
-    private int columnIndex;
-
+    private WellPosition wellPosition;
+    
     private float[] featureValues;
 
     public final String getDataSetCode()
@@ -47,6 +49,16 @@ public class FeatureTableRow
         this.dataSetCode = dataSetCode;
     }
 
+    public FeatureVectorDatasetWellReference getReference()
+    {
+        return reference;
+    }
+
+    public void setReference(FeatureVectorDatasetWellReference reference)
+    {
+        this.reference = reference;
+    }
+
     public final SampleIdentifier getPlateIdentifier()
     {
         return plateIdentifier;
@@ -57,24 +69,14 @@ public class FeatureTableRow
         this.plateIdentifier = plateIdentifier;
     }
 
-    public final int getRowIndex()
+    public void setWellPosition(WellPosition wellPosition)
     {
-        return rowIndex;
+        this.wellPosition = wellPosition;
     }
-
-    public final void setRowIndex(int rowIndex)
+    
+    public final WellPosition getWellPosition()
     {
-        this.rowIndex = rowIndex;
-    }
-
-    public final int getColumnIndex()
-    {
-        return columnIndex;
-    }
-
-    public final void setColumnIndex(int columnIndex)
-    {
-        this.columnIndex = columnIndex;
+        return wellPosition;
     }
 
     public final float[] getFeatureValues()

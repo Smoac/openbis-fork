@@ -50,14 +50,17 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
         IReportingPluginTask
 {
     private static final long serialVersionUID = 1L;
-    
+
     private static final String DATA_SET_CODE_TITLE = "Data Set Code";
+
     private static final String PLATE_IDENTIFIER_TITLE = "Plate Identifier";
+
     private static final String ROW_TITLE = "Row";
+
     private static final String COLUMN_TITLE = "Column";
-    
+
     private IEncapsulatedOpenBISService service;
-    
+
     private IImagingQueryDAO dao;
 
     public ImageAnalysisMergedRowsReportingPlugin(Properties properties, File storeRoot)
@@ -72,7 +75,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
         this.service = service;
         this.dao = dao;
     }
-    
+
     public TableModel createReport(List<DatasetDescription> datasets)
     {
         FeatureTableBuilder featureTableBuilder = new FeatureTableBuilder(getDAO(), getService());
@@ -82,7 +85,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
             featureTableBuilder.addFeatureVectorsOfDataSet(dataSetCode);
         }
         List<String> featureNames = featureTableBuilder.getFeatureNames();
-        List<FeatureTableRow> rows = featureTableBuilder.getFeatureTableRows();
+        List<FeatureTableRow> rows = featureTableBuilder.createFeatureTableRows();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader(DATA_SET_CODE_TITLE);
         builder.addHeader(PLATE_IDENTIFIER_TITLE);
@@ -97,8 +100,9 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
             List<ISerializableComparable> values = new ArrayList<ISerializableComparable>();
             values.add(new StringTableCell(row.getDataSetCode()));
             values.add(new StringTableCell(row.getPlateIdentifier().toString()));
-            values.add(new StringTableCell(PlateUtils.translateRowNumberIntoLetterCode(row.getRowIndex())));
-            values.add(new IntegerTableCell(row.getColumnIndex()));
+            values.add(new StringTableCell(PlateUtils.translateRowNumberIntoLetterCode(row
+                    .getWellPosition().getWellRow())));
+            values.add(new IntegerTableCell(row.getWellPosition().getWellColumn()));
             float[] featureValues = row.getFeatureValues();
             StringTableCell nullValue = new StringTableCell("");
             for (float value : featureValues)
@@ -124,7 +128,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
         }
         return dao;
     }
-    
+
     private IEncapsulatedOpenBISService getService()
     {
         if (service == null)

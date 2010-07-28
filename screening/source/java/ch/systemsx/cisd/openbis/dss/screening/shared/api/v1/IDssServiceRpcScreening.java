@@ -22,6 +22,8 @@ import java.util.List;
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
@@ -35,19 +37,50 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 public interface IDssServiceRpcScreening extends IRpcService
 {
     /**
+     * The major version of this service.
+     */
+    public static final int MAJOR_VERSION = 1;
+
+    /**
      * For a given set of feature vector data sets provide the list of all available features. This
      * is just the name of the feature. If for different data sets different sets of features are
      * available, provide the union of the features of all data sets.
      */
-    List<String> listAvailableFeatureNames(String sessionToken,
+    public List<String> listAvailableFeatureNames(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
     /**
-     * For a given set of data sets and a set of features (given by their name), provide the feature
-     * matrix. Each column in that matrix is one feature, each row is one well in one data set.
+     * Conceptually, for a given list of data well references (i.e. specified wells on specified
+     * feature vector data sets) and a set of features (given by their name) provide the feature
+     * matrix. In this matrix, each column is one feature, each row is one well in one data set.
+     * <p>
+     * Physically, the result is delivered as a list of feature vector datasets. Each entry in this
+     * list corresponds to one well in one dataset.
+     * 
+     * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
+     *         <var>featureDatasets</var>.
      */
-    List<FeatureVectorDataset> loadFeatures(String sessionToken,
+    public List<FeatureVectorDataset> loadFeatures(String sessionToken,
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames);
+
+    /**
+     * Conceptually, for a given list of dataset well references (i.e. specified wells on specified
+     * feature vector data sets) and a set of features (given by their name) provide the feature
+     * matrix. In this matrix, each column is one feature, each row is one well in one data set.
+     * <p>
+     * Physically, the result is delivered as a list of feature vectors. Each entry in this list
+     * corresponds to one well in one dataset.
+     * 
+     * @return The list of {@link FeatureVectorWithDescription}s, each element corresponds to one of
+     *         the <var>datasetWellReferences</var>. <b>Note that the order of the returned ist is
+     *         <i>not</i> guaranteed to be the same as the order of the list
+     *         <var>datasetWellReferences</var>. Use
+     *         {@link FeatureVectorWithDescription#getDatasetWellReference()} to find the
+     *         corresponding dataset / well.</b>
+     */
+    public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
+            String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
+            List<String> featureNames);
 
     /**
      * Provide images for a given list of image references (given by data set code, well position,
@@ -56,13 +89,13 @@ public interface IDssServiceRpcScreening extends IRpcService
      * encoded as one long number. The number of blocks is equal to the number of specified
      * references and the order of blocks corresponds to the order of image references.
      */
-    InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences);
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences);
 
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and
      * the available (natural) image size(s).
      */
-    List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
+    public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets);
 
 }

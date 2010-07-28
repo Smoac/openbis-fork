@@ -51,6 +51,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
@@ -71,6 +73,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         IDssServiceRpcScreening
 {
+
+    /**
+     * The minor version of this service.
+     */
+    private static final int MINOR_VERSION = 1;
 
     private IImagingQueryDAO dao;
 
@@ -203,15 +210,57 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 new FeatureTableBuilder(featureNames, getDAO(), getOpenBISService());
         builder.addFeatureVectorsOfDataSet(dataset.getDatasetCode());
         List<String> existingFeatureNames = builder.getFeatureNames();
-        List<FeatureTableRow> featureTableRows = builder.getFeatureTableRows();
+        List<FeatureTableRow> featureTableRows = builder.createFeatureTableRows();
         List<FeatureVector> featureVectors = new ArrayList<FeatureVector>();
         for (FeatureTableRow featureTableRow : featureTableRows)
         {
-            featureVectors.add(new FeatureVector(new WellPosition(
-                    featureTableRow.getRowIndex(), featureTableRow.getColumnIndex()),
-                    featureTableRow.getFeatureValuesAsDouble()));
+            featureVectors.add(new FeatureVector(featureTableRow.getWellPosition(), featureTableRow
+                    .getFeatureValuesAsDouble()));
         }
         return new FeatureVectorDataset(dataset, existingFeatureNames, featureVectors);
+    }
+
+    public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
+            String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
+            List<String> featureNames)
+    {
+        assertDataSetsAreAccessible(sessionToken, datasetWellReferences);
+        final FeatureTableBuilder builder =
+                createFeatureTableBuilder(datasetWellReferences, featureNames);
+        return createFeatureVectorList(builder);
+    }
+
+    private List<FeatureVectorWithDescription> createFeatureVectorList(
+            final FeatureTableBuilder builder)
+    {
+        final List<String> featureNames = builder.getFeatureNames();
+        final List<FeatureTableRow> featureTableRows = builder.createFeatureTableRows();
+        final List<FeatureVectorWithDescription> result =
+                new ArrayList<FeatureVectorWithDescription>(featureTableRows.size());
+        for (FeatureTableRow featureTableRow : featureTableRows)
+        {
+            result.add(createFeatureVector(featureTableRow, featureNames));
+        }
+        return result;
+    }
+
+    private FeatureVectorWithDescription createFeatureVector(FeatureTableRow featureTableRow,
+            final List<String> featureNames)
+    {
+        return new FeatureVectorWithDescription(featureTableRow.getReference(), featureNames,
+                featureTableRow.getFeatureValuesAsDouble());
+    }
+
+    private FeatureTableBuilder createFeatureTableBuilder(
+            List<FeatureVectorDatasetWellReference> plateWellReferences, List<String> featureNames)
+    {
+        final FeatureTableBuilder builder =
+                new FeatureTableBuilder(featureNames, getDAO(), getOpenBISService());
+        for (FeatureVectorDatasetWellReference datasetWellReference : plateWellReferences)
+        {
+            builder.addFeatureVectorsOfDataSet(datasetWellReference);
+        }
+        return builder;
     }
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
@@ -353,16 +402,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return dataset.getDataSetType().getCode().equals(ScreeningConstants.IMAGE_DATASET_TYPE);
     }
 
-    public int getMajorVersion()
-    {
-        return 1;
-    }
-
-    public int getMinorVersion()
-    {
-        return 0;
-    }
-
     private List<ImgFeatureDefDTO> getFeatureDefinitions(IDatasetIdentifier identifier)
     {
         ImgDatasetDTO dataSet = getDAO().tryGetDatasetByPermId(identifier.getDatasetCode());
@@ -391,6 +430,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             dao = DssScreeningUtils.createQuery();
         }
         return dao;
+    }
+
+    public int getMajorVersion()
+    {
+        return MAJOR_VERSION;
+    }
+
+    public int getMinorVersion()
+    {
+        return MINOR_VERSION;
     }
 
 }

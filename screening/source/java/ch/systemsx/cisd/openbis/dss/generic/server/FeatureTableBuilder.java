@@ -30,6 +30,8 @@ import java.util.Map.Entry;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
@@ -49,6 +51,8 @@ public class FeatureTableBuilder
     private static final class Bundle
     {
         private ImgDatasetDTO dataSet;
+
+        private FeatureVectorDatasetWellReference reference;
 
         private Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap;
     }
@@ -87,23 +91,34 @@ public class FeatureTableBuilder
     }
 
     /**
+     * Adds feature vectors for specified data set, marking the well position.
+     */
+    public Bundle addFeatureVectorsOfDataSet(FeatureVectorDatasetWellReference reference)
+    {
+        final Bundle bundle = addFeatureVectorsOfDataSet(reference.getDatasetCode());
+        bundle.reference = reference;
+        return bundle;
+    }
+
+    /**
      * Adds feature vectors for specified data set.
      */
-    public void addFeatureVectorsOfDataSet(String dataSetCode)
+    public Bundle addFeatureVectorsOfDataSet(String dataSetCode)
     {
-        ImgDatasetDTO dataSet = dao.tryGetDatasetByPermId(dataSetCode);
+        final ImgDatasetDTO dataSet = dao.tryGetDatasetByPermId(dataSetCode);
         if (dataSet == null)
         {
             throw new UserFailureException("Unkown data set " + dataSetCode);
         }
-        Bundle bundle = new Bundle();
-        List<ImgFeatureDefDTO> featureDefinitions = dao.listFeatureDefsByDataSetId(dataSet.getId());
+        final Bundle bundle = new Bundle();
+        final List<ImgFeatureDefDTO> featureDefinitions =
+                dao.listFeatureDefsByDataSetId(dataSet.getId());
         bundle.dataSet = dataSet;
         bundle.featureDefToValuesMap = new HashMap<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>>();
         bundles.add(bundle);
         for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
         {
-            String featureName = featureDefinition.getName();
+            final String featureName = featureDefinition.getName();
             if (featureNames.isEmpty() || featureNames.contains(featureName))
             {
                 if (featureNameToIndexMap.containsKey(featureName) == false)
@@ -121,6 +136,7 @@ public class FeatureTableBuilder
                 bundle.featureDefToValuesMap.put(featureDefinition, featureValueSets);
             }
         }
+        return bundle;
     }
 
     /**
@@ -135,7 +151,7 @@ public class FeatureTableBuilder
     /**
      * Returns all features per well coordinates.
      */
-    public List<FeatureTableRow> getFeatureTableRows()
+    public List<FeatureTableRow> createFeatureTableRows()
     {
         List<FeatureTableRow> rows = new ArrayList<FeatureTableRow>();
         for (Bundle bundle : bundles)
@@ -143,40 +159,64 @@ public class FeatureTableBuilder
             String dataSetCode = bundle.dataSet.getPermId();
             ImgContainerDTO container = dao.getContainerById(bundle.dataSet.getContainerId());
             SampleIdentifier identifier = service.tryToGetSampleIdentifier(container.getPermId());
-            for (int rowIndex = 1; rowIndex <= container.getNumberOfRows(); rowIndex++)
+            if (bundle.reference == null)
             {
-                for (int colIndex = 1; colIndex <= container.getNumberOfColumns(); colIndex++)
+                for (int rowIndex = 1; rowIndex <= container.getNumberOfRows(); rowIndex++)
                 {
-                    FeatureTableRow row = new FeatureTableRow();
-                    rows.add(row);
-                    row.setDataSetCode(dataSetCode);
-                    row.setPlateIdentifier(identifier);
-                    row.setRowIndex(rowIndex);
-                    row.setColumnIndex(colIndex);
-                    float[] valueArray = new float[featureNameToIndexMap.size()];
-                    Arrays.fill(valueArray, Float.NaN);
-                    for (Entry<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> entry : bundle.featureDefToValuesMap
-                            .entrySet())
+                    for (int colIndex = 1; colIndex <= container.getNumberOfColumns(); colIndex++)
                     {
-                        ImgFeatureDefDTO featureDefinition = entry.getKey();
-                        List<ImgFeatureValuesDTO> featureValueSets = entry.getValue();
-                        // We take only the first set of feature value sets
-                        ImgFeatureValuesDTO featureValueDTO = featureValueSets.get(0);
-                        PlateFeatureValues featureValues = featureValueDTO.getValues();
-                        if (rowIndex > featureValues.getGeometry().getNumberOfRows()
-                                || colIndex > featureValues.getGeometry().getNumberOfColumns())
-                        {
-                            break;
-                        }
-                        Integer index = featureNameToIndexMap.get(featureDefinition.getName());
-                        assert index != null : "No index for feature "
-                                + featureDefinition.getName();
-                        valueArray[index] = featureValues.getForWellLocation(rowIndex, colIndex);
+                        final FeatureTableRow row =
+                                createFeatureTableRow(bundle.featureDefToValuesMap, dataSetCode,
+                                        identifier, null, new WellPosition(rowIndex,
+                                                colIndex));
+                        rows.add(row);
                     }
-                    row.setFeatureValues(valueArray);
                 }
+            } else
+            {
+                final FeatureTableRow row =
+                        createFeatureTableRow(bundle.featureDefToValuesMap, dataSetCode,
+                                identifier, bundle.reference, bundle.reference.getWellPosition());
+                rows.add(row);
+
             }
         }
         return rows;
+    }
+
+    private FeatureTableRow createFeatureTableRow(
+            Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap,
+            String dataSetCode, SampleIdentifier identifier,
+            FeatureVectorDatasetWellReference reference, WellPosition wellPosition)
+    {
+        FeatureTableRow row = new FeatureTableRow();
+        row.setDataSetCode(dataSetCode);
+        row.setPlateIdentifier(identifier);
+        row.setReference(reference);
+        row.setWellPosition(wellPosition);
+        float[] valueArray = new float[featureNameToIndexMap.size()];
+        Arrays.fill(valueArray, Float.NaN);
+        for (Entry<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> entry : featureDefToValuesMap
+                .entrySet())
+        {
+            ImgFeatureDefDTO featureDefinition = entry.getKey();
+            List<ImgFeatureValuesDTO> featureValueSets = entry.getValue();
+            // We take only the first set of feature value sets
+            ImgFeatureValuesDTO featureValueDTO = featureValueSets.get(0);
+            PlateFeatureValues featureValues = featureValueDTO.getValues();
+            if (wellPosition.getWellRow() > featureValues.getGeometry().getNumberOfRows()
+                    || wellPosition.getWellColumn() > featureValues.getGeometry()
+                            .getNumberOfColumns())
+            {
+                break;
+            }
+            Integer index = featureNameToIndexMap.get(featureDefinition.getName());
+            assert index != null : "No index for feature " + featureDefinition.getName();
+            valueArray[index] =
+                    featureValues.getForWellLocation(wellPosition.getWellRow(), wellPosition
+                            .getWellColumn());
+        }
+        row.setFeatureValues(valueArray);
+        return row;
     }
 }

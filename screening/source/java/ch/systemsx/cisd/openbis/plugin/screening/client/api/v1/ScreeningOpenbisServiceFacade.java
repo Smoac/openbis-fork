@@ -19,6 +19,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServ
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
@@ -29,6 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
  * A client side facade of openBIS and Datastore Server API.
@@ -60,6 +63,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private final DataStoreMultiplexer<IFeatureVectorDatasetIdentifier> featureVectorDataSetIdentifierMultiplexer;
 
     private final DataStoreMultiplexer<FeatureVectorDatasetReference> featureVectorDataSetReferenceMultiplexer;
+
+    private final DataStoreMultiplexer<FeatureVectorDatasetWellReference> featureVectorDataSetWellReferenceMultiplexer;
 
     private final DataStoreMultiplexer<IImageDatasetIdentifier> metaDataMultiplexer;
 
@@ -130,6 +135,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 new DataStoreMultiplexer<IFeatureVectorDatasetIdentifier>(dssServiceCache);
         featureVectorDataSetReferenceMultiplexer =
                 new DataStoreMultiplexer<FeatureVectorDatasetReference>(dssServiceCache);
+        featureVectorDataSetWellReferenceMultiplexer =
+                new DataStoreMultiplexer<FeatureVectorDatasetWellReference>(dssServiceCache);
     }
 
     /**
@@ -250,6 +257,89 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    public List<FeatureVectorDatasetWellReference> convertToFeatureVectorDatasetWellIdentifier(
+            List<PlateWellReferenceWithDatasets> plateWellReferenceWithDataSets)
+    {
+        final List<FeatureVectorDatasetWellReference> result =
+                new ArrayList<FeatureVectorDatasetWellReference>(plateWellReferenceWithDataSets
+                        .size());
+        for (PlateWellReferenceWithDatasets plateWellRef : plateWellReferenceWithDataSets)
+        {
+            for (FeatureVectorDatasetReference fvdr : plateWellRef
+                    .getFeatureVectorDatasetReferences())
+            {
+                result.add(createFVDatasetReference(fvdr, plateWellRef.getWellPosition()));
+            }
+        }
+        return result;
+    }
+
+    private FeatureVectorDatasetWellReference createFVDatasetReference(
+            FeatureVectorDatasetReference fvdr, WellPosition wellPosition)
+    {
+        return new FeatureVectorDatasetWellReference(fvdr.getDatasetCode(), fvdr
+                .getDatastoreServerUrl(), fvdr.getPlate(), fvdr.getPlateGeometry(), fvdr
+                .getRegistrationDate(), fvdr.getParentImageDataset(), wellPosition);
+    }
+
+    public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
+            final List<FeatureVectorDatasetWellReference> datasetWellReferences,
+            final List<String> featureNamesOrNull)
+    {
+        final List<String> featureNames =
+                (isEmpty(featureNamesOrNull)) ? listAvailableFeatureNames(datasetWellReferences)
+                        : featureNamesOrNull;
+
+        final List<FeatureVectorWithDescription> result =
+                new ArrayList<FeatureVectorWithDescription>();
+        featureVectorDataSetWellReferenceMultiplexer.process(datasetWellReferences,
+                new IReferenceHandler<FeatureVectorDatasetWellReference>()
+                    {
+                        public void handle(IDssServiceRpcScreening dssService,
+                                List<FeatureVectorDatasetWellReference> references)
+                        {
+                            result.addAll(dssService.loadFeaturesForDatasetWellReferences(
+                                    sessionToken, references, featureNames));
+                        }
+                    });
+        return result;
+    }
+
+    private boolean isEmpty(final List<String> featureNamesOrNull)
+    {
+        return featureNamesOrNull == null || featureNamesOrNull.isEmpty();
+    }
+
+    public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
+            ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
+            List<String> featureNamesOrNull)
+    {
+        final List<PlateWellReferenceWithDatasets> plateWellRefs =
+                listPlateWells(experimentIdentifer, materialIdentifier, true);
+        final List<String> featureNames =
+                (isEmpty(featureNamesOrNull)) ? listAvailableFeatureNamesForPlateWells(plateWellRefs)
+                        : featureNamesOrNull;
+        final List<FeatureVectorDatasetWellReference> datasetWellReferences =
+                convertToFeatureVectorDatasetWellIdentifier(plateWellRefs);
+        return loadFeaturesForDatasetWellReferences(datasetWellReferences, featureNames);
+    }
+
+    private List<String> listAvailableFeatureNamesForPlateWells(
+            final List<PlateWellReferenceWithDatasets> plateWellRefs)
+    {
+        final List<String> featureNames;
+        final List<FeatureVectorDatasetReference> featureVectorDatasetReferences =
+                new ArrayList<FeatureVectorDatasetReference>(plateWellRefs.size());
+        for (PlateWellReferenceWithDatasets plateWellRef : plateWellRefs)
+        {
+            featureVectorDatasetReferences.addAll(plateWellRef.getFeatureVectorDatasetReferences());
+        }
+        final List<String> availableFeatureNames =
+                listAvailableFeatureNames(featureVectorDatasetReferences);
+        featureNames = availableFeatureNames;
+        return featureNames;
+    }
+
     /**
      * An interface to provide mapping between image references and output streams where the images
      * should be saved.
@@ -362,7 +452,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     }
 
-    private static interface IReferenceHandler<R extends IDatasetIdentifier>
+    private interface IReferenceHandler<R extends IDatasetIdentifier>
     {
         public void handle(IDssServiceRpcScreening dssService, List<R> references);
     }
