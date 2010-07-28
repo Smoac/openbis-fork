@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 /**
- * Contains data which uniquely define a feature vector dataset.
+ * Uniquely Identifies a feature vector dataset.
  * 
  * @author Tomasz Pylak
  */
