@@ -1,6 +1,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -12,6 +14,7 @@ import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
@@ -23,10 +26,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * Experiment section panel which allows to find wells were selected genes have been inhibited.
@@ -45,6 +48,8 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
 
     private final MultilineVarcharField materialListField;
 
+    private List<MaterialType> materialTypesOrNull;
+
     public ExperimentPlateLocationsSection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             IEntityInformationHolderWithIdentifier experiment)
@@ -55,6 +60,15 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
         this.experiment = experiment;
         this.materialListField = createMaterialListArea();
         setDisplayID(DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER, ID_SUFFIX);
+        screeningViewContext.getCommonService().listMaterialTypes(
+                new AbstractAsyncCallback<List<MaterialType>>(screeningViewContext)
+                    {
+                        @Override
+                        protected void process(List<MaterialType> result)
+                        {
+                            materialTypesOrNull = result;
+                        }
+                    });
     }
 
     private MultilineVarcharField createMaterialListArea()
@@ -133,9 +147,23 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
 
         }
         // TODO 2010-07-23, Tomasz Pylak: allow user to choose the types
-        String[] materialTypeCodes = new String[]
-            { ScreeningConstants.GENE_PLUGIN_TYPE_CODE, "CONTROL" };
+        // Now we search using all types available.
+        if (materialTypesOrNull == null)
+        {
+            return null;
+        }
+        String[] materialTypeCodes = extractCodes(materialTypesOrNull);
         return PlateMaterialReviewer.create(screeningViewContext, experiment, materialItemList,
                 materialTypeCodes);
+    }
+
+    private static String[] extractCodes(List<MaterialType> materialTypes)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (MaterialType type : materialTypes)
+        {
+            codes.add(type.getCode());
+        }
+        return codes.toArray(new String[0]);
     }
 }
