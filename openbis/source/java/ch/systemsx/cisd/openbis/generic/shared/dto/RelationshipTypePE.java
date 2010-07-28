@@ -117,12 +117,12 @@ public class RelationshipTypePE extends HibernateAbstractRegistrationHolder impl
     @NotNull(message = ValidationMessages.DESCRIPTION_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
     @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
-    public final String getDescription()
+    public String getDescription()
     {
         return description;
     }
 
-    public final void setDescription(final String description)
+    public void setDescription(final String description)
     {
         this.description = description;
     }
@@ -130,12 +130,12 @@ public class RelationshipTypePE extends HibernateAbstractRegistrationHolder impl
     @NotNull(message = ValidationMessages.LABEL_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.LABEL_COLUMN)
     @Length(max = GenericConstants.COLUMN_LABEL, message = ValidationMessages.LABEL_LENGTH_MESSAGE)
-    public final String getLabel()
+    public String getLabel()
     {
         return label;
     }
 
-    public final void setLabel(final String label)
+    public void setLabel(final String label)
     {
         this.label = label;
     }
@@ -181,12 +181,12 @@ public class RelationshipTypePE extends HibernateAbstractRegistrationHolder impl
     @NotNull(message = ValidationMessages.LABEL_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.PARENT_LABEL_COLUMN)
     @Length(max = GenericConstants.COLUMN_LABEL, message = ValidationMessages.LABEL_LENGTH_MESSAGE)
-    public final String getParentLabel()
+    public String getParentLabel()
     {
         return parentLabel;
     }
 
-    public final void setParentLabel(final String parentLabel)
+    public void setParentLabel(final String parentLabel)
     {
         this.parentLabel = parentLabel;
     }
@@ -194,12 +194,12 @@ public class RelationshipTypePE extends HibernateAbstractRegistrationHolder impl
     @NotNull(message = ValidationMessages.LABEL_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.CHILD_LABEL_COLUMN)
     @Length(max = GenericConstants.COLUMN_LABEL, message = ValidationMessages.LABEL_LENGTH_MESSAGE)
-    public final String getChildLabel()
+    public String getChildLabel()
     {
         return childLabel;
     }
 
-    public final void setChildLabel(final String childLabel)
+    public void setChildLabel(final String childLabel)
     {
         this.childLabel = childLabel;
     }
