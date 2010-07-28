@@ -75,6 +75,10 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
 
     public void start()
     {
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Starting updater thread with queue size: " + updaterQueue.size());
+        }
         Thread thread = new Thread(new FullTextIndexUpdaterRunnable(), "Full Text Index Updater");
         thread.setDaemon(true);
         thread.setPriority(Thread.MIN_PRIORITY);
@@ -111,7 +115,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
             final IndexMode indexMode = context.getIndexMode();
             if (indexMode == IndexMode.NO_INDEX) // sanity check
             {
-                operationLog.debug(String.format("Stopping index updater process as "
+                operationLog.info(String.format("Stopping index updater process as "
                         + " '%s' mode was configured.", indexMode));
                 return;
             }
