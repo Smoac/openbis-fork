@@ -25,15 +25,18 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -41,6 +44,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImagePara
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimensionParser;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
 
 /**
@@ -108,7 +112,16 @@ public class PlateContentLoader
         List<WellMetadata> wells = loadWells(new TechId(HibernateUtils.getId(plate)));
         DatasetImagesReference datasetImagesReference =
                 loadImages(createExternalDataTable(), externalData);
-        return new PlateImages(translate(plate), wells, datasetImagesReference);
+        Geometry plateGeometry = getPlateGeometry(plate);
+        return new PlateImages(translate(plate), wells, datasetImagesReference, plateGeometry
+                .getNumberOfRows(), plateGeometry.getNumberOfColumns());
+    }
+
+    private Geometry getPlateGeometry(SamplePE plate)
+    {
+        List<IEntityProperty> properties =
+                EntityPropertyTranslator.translate(plate.getProperties(), null);
+        return PlateDimensionParser.getPlateGeometry(properties);
     }
 
     private ExternalDataPE loadDataset(TechId datasetId)
@@ -205,8 +218,11 @@ public class PlateContentLoader
             analysisDataset = ScreeningUtils.createDatasetReference(analysisDatasets.get(0));
         }
 
-        return new PlateContent(plate, wells, imageDataset, imageDatasets.size(), analysisDataset,
-                analysisDatasets.size());
+        Geometry plateGeometry = PlateDimensionParser.getPlateGeometry(plate.getProperties());
+        int rows = plateGeometry.getNumberOfRows();
+        int cols = plateGeometry.getNumberOfColumns();
+        return new PlateContent(plate, wells, rows, cols, imageDataset, imageDatasets.size(),
+                analysisDataset, analysisDatasets.size());
     }
 
     private IExternalDataTable createExternalDataTable()
@@ -218,6 +234,7 @@ public class PlateContentLoader
     {
         ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadDataByTechId(plateId);
+        sampleBO.enrichWithProperties();
         SamplePE sample = sampleBO.getSample();
         return translate(sample);
     }

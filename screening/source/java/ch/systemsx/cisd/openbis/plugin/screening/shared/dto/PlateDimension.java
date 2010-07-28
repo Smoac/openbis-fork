@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.dto;
 
 import java.io.Serializable;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 
 /**
  * @author Tomasz Pylak
  */
-// TODO 2010-07-28, Tomasz Pylak: remove this class together with BDS
-@Deprecated
 public class PlateDimension extends AbstractHashable implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -65,6 +64,11 @@ public class PlateDimension extends AbstractHashable implements Serializable
     public void setColsNum(int colsNum)
     {
         this.colsNum = colsNum;
+    }
+
+    public Geometry getPlateGeometry()
+    {
+        return Geometry.createFromRowColDimensions(rowsNum, colsNum);
     }
 
     @Override

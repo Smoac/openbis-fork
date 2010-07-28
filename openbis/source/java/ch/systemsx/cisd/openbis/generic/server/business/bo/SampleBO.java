@@ -319,4 +319,12 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             HibernateUtils.initialize(sample.getSampleType().getSampleTypePropertyTypes());
         }
     }
+
+    public void enrichWithProperties()
+    {
+        if (sample != null)
+        {
+            HibernateUtils.initialize(sample.getProperties());
+        }
+    }
 }

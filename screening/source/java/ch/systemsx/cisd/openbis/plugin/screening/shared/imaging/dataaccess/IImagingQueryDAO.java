@@ -44,7 +44,11 @@ public interface IImagingQueryDAO extends TransactionQuery
                     // and acquired_images.channel_stack.spot.y = wellY
                     + "cs.x = ?{3.x} and cs.y = ?{3.y} and s.x = ?{4.x} and s.y = ?{4.y} and "
                     // joins
-                    + "ai.CHANNEL_STACK_ID = cs.ID and cs.SPOT_ID = s.ID";
+                    + "ai.CHANNEL_STACK_ID = cs.ID and cs.SPOT_ID = s.ID "
+                    // TODO 2010-07-27, Tomasz Pylak: select the first image if there are many time
+                    // points or depth scans.
+                    // Should be deleted when support for time points will be added!
+                    + "order by cs.T_in_SEC, cs.Z_in_M limit 1";
 
     // select acquired_images.images.* from acquired_images
     @Select("select i.* " + "from ACQUIRED_IMAGES as ai join IMAGES as i on ai.IMG_ID = i.ID "

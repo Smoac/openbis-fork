@@ -23,7 +23,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.etlserver.PlateDimension;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
 
 /**
  * Helper class to set the <code>is_complete</code> flag in the <i>BDS</i> library.
@@ -84,11 +84,12 @@ public final class HCSImageCheckList
         {
             throw new IllegalArgumentException("Invalid channel/well/tile: " + image);
         }
-        if (check.isCheckedOff())
+        Float timepointOrNull = image.tryGetTimePoint();
+        if (check.isCheckedOff(timepointOrNull))
         {
             throw new IllegalArgumentException("Image already handled: " + image);
         }
-        check.checkOff();
+        check.checkOff(timepointOrNull);
     }
 
     private static FullLocation createLocation(AcquiredPlateImage image)
@@ -102,7 +103,7 @@ public final class HCSImageCheckList
         final List<FullLocation> fullLocations = new ArrayList<FullLocation>();
         for (final Map.Entry<FullLocation, Check> entry : imageMap.entrySet())
         {
-            if (entry.getValue().isCheckedOff() == false)
+            if (entry.getValue().isCheckedOff(null) == false)
             {
                 fullLocations.add(entry.getKey());
             }
@@ -118,14 +119,17 @@ public final class HCSImageCheckList
     {
         private boolean checkedOff;
 
-        final void checkOff()
+        private List<Float> timepoints = new ArrayList<Float>();
+
+        final void checkOff(Float timepointOrNull)
         {
+            timepoints.add(timepointOrNull);
             checkedOff = true;
         }
 
-        final boolean isCheckedOff()
+        final boolean isCheckedOff(Float timepointOrNull)
         {
-            return checkedOff;
+            return checkedOff && (timepointOrNull == null || timepoints.contains(timepointOrNull));
         }
     }
 

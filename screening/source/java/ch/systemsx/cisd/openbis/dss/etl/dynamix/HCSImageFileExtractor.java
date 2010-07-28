@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dynamix;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -81,7 +82,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     {
         final String[] tokens = StringUtils.split(plateLocation, "_");
         boolean isLeft = (tokens[0].equalsIgnoreCase("left"));
-        Integer pos = Integer.parseInt(plateLocation.substring(3));
+        Integer pos = Integer.parseInt(tokens[1].substring(3));
         assert pos > 0 && pos <= 576 : "wrong position: " + pos;
 
         int sideShift = isLeft ? 1 : 0;
@@ -93,10 +94,9 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     }
 
     @Override
-    /* @param timepointToken - format 20100227152439 */
     protected final Float tryGetTimepoint(final String timepointToken)
     {
-        return Float.parseFloat(timepointToken);
+        return new Float(timepointToken);
     }
 
     @Override
@@ -120,8 +120,10 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
         info.setPlateLocationToken(tokens[0] + "_" + tokens[2]);
         info.setWellLocationToken(null);
         info.setChannelToken(tokens[1]);
-        // 20100227152439
-        info.setTimepointToken(tokens[3].substring(1) + tokens[4]);
+
+        File[] images = imageFile.getParentFile().listFiles();
+        Arrays.sort(images);
+        info.setTimepointToken("" + Arrays.asList(images).indexOf(imageFile));
         return info;
     }
 }

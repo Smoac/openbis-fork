@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.dto;
+
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 
 /**
  * Extractor and parser of the plate geometry from an array of properties.
  * 
  * @author Tomasz Pylak
  */
-// TODO 2010-07-28, Tomasz Pylak: remove this class together with BDS
-@Deprecated
 public class PlateDimensionParser
 {
     public static final String PLATE_GEOMETRY_PROPERTY_NAME = "$PLATE_GEOMETRY";
@@ -115,6 +116,11 @@ public class PlateDimensionParser
             }
         }
         return null;
+    }
+
+    public static Geometry getPlateGeometry(List<IEntityProperty> properties)
+    {
+        return getPlateDimension(properties.toArray(new IEntityProperty[0])).getPlateGeometry();
     }
 
 }

@@ -85,6 +85,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2010-07-28, Tomasz Pylak: remove this class
+@Deprecated
 public final class BDSStorageProcessor extends AbstractStorageProcessor implements
         IHCSImageFileAccepter
 {

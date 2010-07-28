@@ -78,6 +78,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * 
  * @author Christian Ribeaud
  */
+// TODO 2010-07-28, Tomasz Pylak: remove this class
+@Deprecated
 @Friend(toClasses = DssPropertyParametersUtil.class)
 public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
 {

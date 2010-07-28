@@ -46,7 +46,7 @@ public class PlateContent implements IsSerializable
     {
     }
 
-    public PlateContent(Sample plate, List<WellMetadata> wells,
+    public PlateContent(Sample plate, List<WellMetadata> wells, int plateRowsNum, int plateColsNum,
             DatasetImagesReference imagesOrNull, int imageDatasetsNumber,
             DatasetReference imageAnalysisDatasetOrNull, int imageAnalysisDatasetsNumber)
     {
@@ -54,7 +54,7 @@ public class PlateContent implements IsSerializable
                 || (imagesOrNull == null && imageDatasetsNumber != 1);
         assert (imageAnalysisDatasetOrNull != null && imageAnalysisDatasetsNumber == 1)
                 || (imageAnalysisDatasetOrNull == null && imageAnalysisDatasetsNumber != 1);
-        this.plateImages = new PlateImages(plate, wells, imagesOrNull);
+        this.plateImages = new PlateImages(plate, wells, imagesOrNull, plateRowsNum, plateColsNum);
         this.imageDatasetsNumber = imageDatasetsNumber;
         this.imageAnalysisDatasetOrNull = imageAnalysisDatasetOrNull;
         this.imageAnalysisDatasetsNumber = imageAnalysisDatasetsNumber;

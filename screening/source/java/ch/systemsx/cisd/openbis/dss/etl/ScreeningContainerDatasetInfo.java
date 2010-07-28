@@ -17,12 +17,12 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.etlserver.PlateDimension;
-import ch.systemsx.cisd.etlserver.PlateDimensionParser;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimensionParser;
 
 /**
  * Describes one dataset container (e.g. plate) with images.

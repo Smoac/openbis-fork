@@ -42,6 +42,9 @@ public class PlateImages implements IsSerializable
     // null if dataset with images does not exist
     private DatasetImagesReference imagesOrNull;
 
+    // plate dimension
+    private int plateRowsNum, plateColsNum;
+
     // GWT only
     @SuppressWarnings("unused")
     private PlateImages()
@@ -49,11 +52,13 @@ public class PlateImages implements IsSerializable
     }
 
     public PlateImages(Sample plate, List<WellMetadata> wellsMetadata,
-            DatasetImagesReference imagesOrNull)
+            DatasetImagesReference imagesOrNull, int plateRowsNum, int plateColsNum)
     {
         this.plate = plate;
         this.wellsMetadata = wellsMetadata;
         this.imagesOrNull = imagesOrNull;
+        this.plateRowsNum = plateRowsNum;
+        this.plateColsNum = plateColsNum;
     }
 
     public List<WellMetadata> getWells()
@@ -74,25 +79,11 @@ public class PlateImages implements IsSerializable
 
     public int getRowsNum()
     {
-        if (imagesOrNull != null)
-        {
-            return imagesOrNull.getImageParameters().getRowsNum();
-        } else
-        {
-            // TODO 2009-12-09, Tomasz Pylak: calculate rows number on the basis of metadata
-            return 16;
-        }
+        return plateRowsNum;
     }
 
     public int getColsNum()
     {
-        if (imagesOrNull != null)
-        {
-            return imagesOrNull.getImageParameters().getColsNum();
-        } else
-        {
-            // TODO 2009-12-09, Tomasz Pylak: calculate rows number on the basis of metadata
-            return 24;
-        }
+        return plateColsNum;
     }
 }
