@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -316,6 +317,10 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         final List<PlateWellReferenceWithDatasets> plateWellRefs =
                 listPlateWells(experimentIdentifer, materialIdentifier, true);
+        if (plateWellRefs.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         final List<String> featureNames =
                 (isEmpty(featureNamesOrNull)) ? listAvailableFeatureNamesForPlateWells(plateWellRefs)
                         : featureNamesOrNull;
