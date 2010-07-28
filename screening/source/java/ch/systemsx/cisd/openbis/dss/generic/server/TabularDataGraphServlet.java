@@ -170,8 +170,8 @@ public class TabularDataGraphServlet extends AbstractDatasetDownloadServlet
 
         } catch (Exception e)
         {
-            printErrorResponse(response, "Invalid Request");
             e.printStackTrace();
+            printErrorResponse(response, "Invalid Request");
         }
     }
 
