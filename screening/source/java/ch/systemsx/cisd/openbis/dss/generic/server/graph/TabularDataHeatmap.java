@@ -198,11 +198,21 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
             HeatmapElement element = new HeatmapElement();
             if (configuration.isXYSplit())
             {
-                element.x = Integer.parseInt(line[xColumn]);
+                try
+                {
+                    element.x = Integer.parseInt(line[xColumn]);
+                } catch (NumberFormatException ex)
+                {
+                    // handle a case when X is alphanumeric
+                    element.x =
+                            Location.tryCreateLocationFromTransposedMatrixCoordinate(
+                                    line[xColumn] + "1").getY();
+                }
                 element.y = Integer.parseInt(line[yColumn]);
             } else
             {
-                Location loc = Location.tryCreateLocationFromTransposedMatrixCoordinate(line[xColumn]);
+                Location loc =
+                        Location.tryCreateLocationFromTransposedMatrixCoordinate(line[xColumn]);
                 // Transpose the x and y
                 element.x = loc.getY();
                 element.y = loc.getX();
