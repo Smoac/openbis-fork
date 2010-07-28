@@ -28,8 +28,8 @@ ERROR: file1.mzXML - cannot upload the file: there is no sample which matches th
 ERROR: file2.mzXML - cannot upload the file: No project 'UNKNOWN' could be found in the 'TEST' space!
 ERROR: file3.mzXML - cannot upload the file: experiment and project columns should be both empty or should be both filled.
 ERROR: file4.mzXML - cannot upload the file: experiment and project columns should be both empty or should be both filled.
-ERROR: file5.mzXML - cannot upload the file: error when checking if sample '/unknown/x' belongs to an experiment: No space could be found for identifier 'CISD:/UNKNOWN'.
-ERROR: file5.mzXML - cannot upload the file: No space could be found for identifier 'CISD:/UNKNOWN'.
+ERROR: file5.mzXML - cannot upload the file: error when checking if sample '/unknown/x' belongs to an experiment: Authorization failure: User 'etlserver1' does not have enough privileges.
+ERROR: file5.mzXML - cannot upload the file: Authorization failure: User 'etlserver1' does not have enough privileges.
 
 faulty-unknown-property --------------------
 ERROR: file1.mzXML - cannot upload the file: Property type with code 'unknown-property' does not exist!
