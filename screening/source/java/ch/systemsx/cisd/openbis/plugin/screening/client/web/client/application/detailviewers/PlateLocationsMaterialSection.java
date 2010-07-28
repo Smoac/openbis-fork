@@ -176,7 +176,7 @@ class PlateLocationsMaterialSection extends SingleSectionPanel
     private Widget createPlateLocationPanel(List<WellContent> wellLocations, String channel)
     {
         LayoutContainer container = new LayoutContainer();
-        container.setLayout(new TableLayout(3));
+        container.setLayout(new TableLayout(2));
         TableData cellLayout = new TableData();
         cellLayout.setPadding(20);
         for (WellContent loc : wellLocations)
