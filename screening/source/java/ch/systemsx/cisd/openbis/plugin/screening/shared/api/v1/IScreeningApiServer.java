@@ -58,11 +58,6 @@ public interface IScreeningApiServer extends IRpcService
     public static final int MAJOR_VERSION = 1;
 
     /**
-     * The minor version of this service.
-     */
-    public static final int MINOR_VERSION = 1;
-
-    /**
      * Service part of the URL to access this service remotely.
      */
     public static final String SERVICE_URL = "/rmi-" + SERVICE_NAME + "-api-v1";

@@ -190,7 +190,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
 
     public int getMinorVersion()
     {
-        return MINOR_VERSION;
+        return ScreeningServer.MINOR_VERSION;
     }
 
 }

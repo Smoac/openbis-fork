@@ -72,6 +72,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
         IScreeningServer, IScreeningApiServer
 {
+    /**
+     * The minor version of this service.
+     */
+    static final int MINOR_VERSION = 1;
+
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
 
