@@ -49,6 +49,10 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
 
     static final String PASSWORD_KEY = "database-password";
 
+    static final String MAX_IDLE_KEY = "database-max-idle";
+
+    static final String MAX_ACTIVE_KEY = "database-max-active";
+
     private IDataSourceFactory dataSourceFactory = new BasicDataSourceFactory();
 
     private DataSource dataSource;
@@ -69,6 +73,18 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
                 PropertyUtils.getProperty(properties, USER_KEY, System.getProperty("user.name")
                         .toLowerCase());
         this.password = PropertyUtils.getProperty(properties, PASSWORD_KEY);
+
+        int maxActive = PropertyUtils.getInt(properties, MAX_ACTIVE_KEY, -1);
+        if (maxActive != -1)
+        {
+            dataSourceFactory.setMaxActive(maxActive);
+        }
+
+        int maxIdle = PropertyUtils.getInt(properties, MAX_IDLE_KEY, -1);
+        if (maxIdle != -1)
+        {
+            dataSourceFactory.setMaxIdle(maxIdle);
+        }
     }
 
     /**
