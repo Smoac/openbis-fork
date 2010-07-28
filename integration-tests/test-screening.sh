@@ -129,7 +129,7 @@ function integration_tests_screening {
     prepare_data_first_phase
     switch_dss "on" datastore_server_screening
     sleep 30
-    assertSpotSizes "0x0,24x16" 
+    assertSpotSizes "24x16,24x16" 
     prepare_data_second_phase
   	sleep 15
 	  
@@ -142,8 +142,8 @@ function integration_tests_screening {
     local datasets=`find $DSS_INCOMING_PARENT_DIR/store -name "original" | wc -l | tr -d " "`; 
     assert_equals "Wrong number of registered datasets" 5 $datasets
     
-    # TODO: uncomment and add a check if the results are correct
     assertSpotSizes "24x16,24x16,24x16" 
+    # TODO: add a check if the results are correct
     test_screening_api
     
     switch_dss "off" datastore_server_screening
