@@ -203,7 +203,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         return (TableModel) template.execute(resolvedQuery, callback);
     }
 
-    // TODO 2010-02-18, Piotr Buczek: this solution is not safe
+    // WORKAROUND this solution is not safe
     // prepared statement parameters would be better but then we need to know the type of parameters
     private static String createSQLQueryWithBindingsResolved(String sqlQuery,
             QueryParameterBindings bindingsOrNull)

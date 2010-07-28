@@ -114,7 +114,6 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         return result;
     }
 
-    // TODO 2009-05-28, Piotr Buczek: use this instead of save() after BO update that does not flush
     public final void validateAndSaveUpdatedEntity(T entity)
     {
         assert entity != null : "entity is null";

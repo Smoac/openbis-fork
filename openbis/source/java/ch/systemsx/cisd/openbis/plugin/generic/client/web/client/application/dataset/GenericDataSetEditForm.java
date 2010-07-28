@@ -207,7 +207,6 @@ public final class GenericDataSetEditForm extends
     {
         ArrayList<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
-        // TODO 2009-08-01, Piotr Buczek: add other fields specified in LMS-1003
         fields.add(wrapUnaware(connectedWithSampleCheckbox));
         fields.add(wrapUnaware(sampleChooser.getField()));
         fields.add(wrapUnaware(experimentChooser.getField()));

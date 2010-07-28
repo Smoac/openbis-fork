@@ -467,19 +467,20 @@ public class DisplaySettingsManager
         return sectionModifications.get(sectionDisplayTypeID);
     }
 
+    // TODO work in progress, ignore for now.
     /**
      * @return True if the given section is collapsed
      */
     public final Boolean getPanelCollapsedSetting(String panelId)
     {
-        // TODO -- Work in progress
         return Boolean.FALSE;
     }
 
     public final void updatePanelCollapsedSetting(String panelId, Boolean value)
     {
-        // TODO -- Work in progress, ignore for now.
     }
+
+    //
 
     /**
      * @returns section settings for given display id<br>

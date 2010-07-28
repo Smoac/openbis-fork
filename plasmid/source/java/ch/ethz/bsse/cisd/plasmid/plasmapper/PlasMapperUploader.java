@@ -45,6 +45,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class PlasMapperUploader
 {
+    // http://www.java-tips.org/other-api-tips/httpclient/how-to-use-multipart-post-method-for-uploading.html
+
     private final static String PLASMAPPER_URL = "http://localhost:8082/PlasMapper";
 
     private final static String GRAPHIC_MAP_SERVLET_PATH = "/servlet/DrawVectorMap";
@@ -146,7 +148,6 @@ public class PlasMapperUploader
                         + post.getStatusLine()));
             }
             String response = post.getResponseBodyAsString();
-            System.err.println(response); // TODO 2009-06-21, Piotr Buczek: remove after debugging
             operationLog.info(String.format("Response of service: '%s'", response));
             return response;
         } catch (final Exception ex)
