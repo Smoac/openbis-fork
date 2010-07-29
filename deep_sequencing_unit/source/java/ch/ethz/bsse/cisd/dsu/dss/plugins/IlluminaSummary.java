@@ -40,6 +40,8 @@ class IlluminaSummary
 {
     private ChipResultsSummary chipResultsSummary;
 
+    private LaneResultsSummary LaneResultsSummary;
+
     private String Software;
 
     @XmlElement(name = "ChipResultsSummary")
@@ -51,6 +53,17 @@ class IlluminaSummary
     public void setChipResultsSummary(ChipResultsSummary chipResultsSummary)
     {
         this.chipResultsSummary = chipResultsSummary;
+    }
+
+    @XmlElement(name = "LaneResultsSummary")
+    public LaneResultsSummary getLaneResultsSummary()
+    {
+        return LaneResultsSummary;
+    }
+
+    public void setLaneResultsSummary(LaneResultsSummary laneResultsSummary)
+    {
+        LaneResultsSummary = laneResultsSummary;
     }
 
     @XmlElement(name = "Software")

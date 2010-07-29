@@ -19,21 +19,25 @@ package ch.ethz.bsse.cisd.dsu.dss.plugins;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.xml.JaxbXmlParser;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Reporting plugin which shows numbers of the Summary file generated from the Illumina Sequencer.
@@ -46,6 +50,14 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
     private static final long serialVersionUID = 1L;
 
     private static final String SUMMARY_FILE_NAME = "Summary.xml";
+
+    private static final String DATA_INTENSITIES_BASE_CALLS_PATH = "/Data/Intensities/BaseCalls";
+
+    private static final String GERALD_DIR = "GERALD";
+
+    private static final String[] PROPERTIES =
+        { "GENOME_ANALYZER", "END_TYPE", "ILLUMINA_PIPELINE_VERSION",
+                "CYCLES_REQUESTED_BY_CUSTOMER" };
 
     public IlluminaSummaryReportingPlugin(Properties properties, File storeRoot)
     {
@@ -60,30 +72,67 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
         builder.addHeader("Clusters (PF)");
         builder.addHeader("Yield (kbases)");
         builder.addHeader("Software");
+        for (String property : PROPERTIES)
+        {
+            builder.addHeader(property);
+        }
+        builder.addHeader("PhiX: Clusters");
+        builder.addHeader("PhiX: ClustersPF");
+        builder.addHeader("PhiX: Yield (kbases)");
+        builder.addHeader("PhiX: % Align (PF)");
         for (DatasetDescription dataset : datasets)
         {
             File originalData = getDataSubDir(dataset);
-            File summaryFile = extractSummaryFile(dataset, originalData);
-            describe(builder, dataset, summaryFile);
+
+            // set the directory containing the Summary.xml
+            File childDirectory =
+                    new File(originalData, dataset.getSampleCode()
+                            + DATA_INTENSITIES_BASE_CALLS_PATH);
+            File[] files = childDirectory.listFiles(new FileFilter()
+                {
+                    public boolean accept(File file)
+                    {
+                        return file.isDirectory() && file.getName().startsWith(GERALD_DIR);
+                    }
+                });
+
+            System.out.println(files[0]);
+            if (files.length == 1)
+            {
+                File geraldDir = files[0];
+                File summaryFile = new File(geraldDir, SUMMARY_FILE_NAME);
+                describe(builder, dataset, summaryFile);
+            } else
+            {
+                // throw new EnvironmentFailureException(String.format("More than one ..."));
+            }
+            // if (childDirectory.exists())
+            // {
+            // File summaryFile = extractSummaryFile(dataset, childDirectory);
+            // describe(builder, dataset, summaryFile);
+            // } else
+            // {
+            // File summaryFile = extractSummaryFile(dataset, originalData);
+            // }
         }
         return builder.getTableModel();
     }
 
-    private static File extractSummaryFile(DatasetDescription dataset, File originalData)
-    {
-        List<File> files = new ArrayList<File>();
-        FileUtilities.findFiles(originalData, files, createIlluminaSummaryFileFilter());
-        int size = files.size();
-        if (size == 1)
-        {
-            return files.get(0);
-        } else
-        {
-            throw new EnvironmentFailureException(String.format(
-                    "%s file was found for the dataset %s (%s).", (size == 0) ? "No summary"
-                            : " More than one", dataset.getDatasetCode(), dataset.getSampleCode()));
-        }
-    }
+    // private static File extractSummaryFile(DatasetDescription dataset, File originalData)
+    // {
+    // List<File> files = new ArrayList<File>();
+    // FileUtilities.findFiles(originalData, files, createIlluminaSummaryFileFilter());
+    // int size = files.size();
+    // if (size == 1)
+    // {
+    // return files.get(0);
+    // } else
+    // {
+    // throw new EnvironmentFailureException(String.format(
+    // "%s file was found for the dataset %s (%s).", (size == 0) ? "No summary"
+    // : " More than one", dataset.getDatasetCode(), dataset.getSampleCode()));
+    // }
+    // }
 
     private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset,
             File summaryFile)
@@ -103,26 +152,73 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
             software_version = "Not available";
         }
 
-        List<ISerializableComparable> row =
-                Arrays.<ISerializableComparable> asList(
-                        new StringTableCell(dataset.getSampleCode()), new IntegerTableCell(
-                                chipResultSummary.getClusterCountRaw()), new IntegerTableCell(
-                                chipResultSummary.getClusterCountPF()), new IntegerTableCell(
-                                chipResultSummary.getYield() / 1000), new StringTableCell(
-                                software_version));
+        List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
+        row.add(new StringTableCell(dataset.getSampleCode()));
+        row.add(new IntegerTableCell(chipResultSummary.getClusterCountRaw()));
+        row.add(new IntegerTableCell(chipResultSummary.getClusterCountPF()));
+        row.add(new IntegerTableCell(chipResultSummary.getYield() / 1000));
+        row.add(new StringTableCell(software_version));
+        addPropertyColumnValues(dataset, row);
+        // just dummies
+        row.add(new IntegerTableCell(1));
+        row.add(new IntegerTableCell(1));
+        row.add(new IntegerTableCell(1));
+        row.add(new DoubleTableCell(1.0));
         builder.addRow(row);
     }
 
-    private static FileFilter createIlluminaSummaryFileFilter()
+    private static void addPropertyColumnValues(DatasetDescription dataset,
+            List<ISerializableComparable> row)
     {
-        return new FileFilter()
+        Sample sample = getSample(dataset);
+        for (String propertyCode : PROPERTIES)
+        {
+            boolean found = false;
+            for (IEntityProperty property : sample.getProperties())
             {
-                public boolean accept(File file)
+                if (property.getPropertyType().getCode().equals(propertyCode))
                 {
-                    return file.isFile() && file.getName().equals(SUMMARY_FILE_NAME);
+                    row.add(new StringTableCell(property.tryGetAsString()));
+                    found = true;
+                    break;
                 }
-            };
+            }
+            if (found == false)
+            {
+                row.add(new StringTableCell(""));
+            }
+        }
     }
+
+    private static Sample getSample(DatasetDescription dataset)
+    {
+        String spaceCode = dataset.getGroupCode();
+        String sampleCode = dataset.getSampleCode();
+        String databaseInstanceCode = dataset.getDatabaseInstanceCode();
+        SampleIdentifier sampleIdentifier =
+                new SampleIdentifier(new SpaceIdentifier(databaseInstanceCode, spaceCode),
+                        sampleCode);
+        Sample sampleOrNull =
+                ServiceProvider.getOpenBISService().tryGetSampleWithExperiment(sampleIdentifier);
+        if (sampleOrNull == null)
+        {
+            throw new EnvironmentFailureException(String.format(
+                    "Couldn't get sample %s for dataset %s.", dataset.getSampleCode(),
+                    dataset.getDatasetCode()));
+        }
+        return sampleOrNull;
+    }
+
+    // private static FileFilter createIlluminaSummaryFileFilter()
+    // {
+    // return new FileFilter()
+    // {
+    // public boolean accept(File file)
+    // {
+    // return file.isFile() && file.getName().equals(SUMMARY_FILE_NAME);
+    // }
+    // };
+    // }
 
     /**
      * Loader of Illumina summary XML file.
@@ -145,5 +241,4 @@ public class IlluminaSummaryReportingPlugin extends AbstractDatastorePlugin impl
         }
 
     }
-
 }
