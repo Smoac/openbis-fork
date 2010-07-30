@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 public final class ListPersonsCriteria extends DefaultResultSetConfig<String, Person> implements
         IsSerializable
 {
+    // If not null, persons form the authorization group will be listed.
+    // Otherwise all persons are listed.
     private TechId authorizationGroupId;
 
     public ListPersonsCriteria()
