@@ -73,10 +73,10 @@ public class GenePlateLocationsLoader
 
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId geneMaterialId, String eperimentPermId, boolean enrichWithImages)
+            TechId geneMaterialId, String experimentPermId, boolean enrichWithImages)
     {
         return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
-                .getPlateLocations(geneMaterialId, eperimentPermId, enrichWithImages);
+                .getPlateLocations(geneMaterialId, experimentPermId, enrichWithImages);
     }
 
     public static List<WellContent> load(Session session,
