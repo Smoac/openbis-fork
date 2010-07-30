@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,6 +66,8 @@ public class FeatureTableBuilder
     private final Map<String, Integer> featureNameToIndexMap;
 
     private final Set<String> featureNames;
+    
+    private final boolean useAllFeatures;
 
     /**
      * Creates an instance for specified DAO and openBIS service.
@@ -87,7 +89,8 @@ public class FeatureTableBuilder
         this.service = service;
         bundles = new ArrayList<Bundle>();
         featureNameToIndexMap = new LinkedHashMap<String, Integer>();
-        this.featureNames = new HashSet<String>(featureNames);
+        this.featureNames = new LinkedHashSet<String>(featureNames);
+        this.useAllFeatures = featureNames.isEmpty();
     }
 
     /**
@@ -113,13 +116,23 @@ public class FeatureTableBuilder
         final Bundle bundle = new Bundle();
         final List<ImgFeatureDefDTO> featureDefinitions =
                 dao.listFeatureDefsByDataSetId(dataSet.getId());
+        final Map<String, ImgFeatureDefDTO> featureNameToDefMap =
+                new LinkedHashMap<String, ImgFeatureDefDTO>();
+        for (ImgFeatureDefDTO def : featureDefinitions)
+        {
+            featureNameToDefMap.put(def.getName(), def);
+        }
         bundle.dataSet = dataSet;
         bundle.featureDefToValuesMap = new HashMap<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>>();
         bundles.add(bundle);
-        for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
+        if (useAllFeatures)
         {
-            final String featureName = featureDefinition.getName();
-            if (featureNames.isEmpty() || featureNames.contains(featureName))
+            featureNames.addAll(featureNameToDefMap.keySet());
+        }
+        for (String featureName : featureNames)
+        {
+            final ImgFeatureDefDTO featureDefinition = featureNameToDefMap.get(featureName);
+            if (featureDefinition != null)
             {
                 if (featureNameToIndexMap.containsKey(featureName) == false)
                 {
@@ -167,8 +180,7 @@ public class FeatureTableBuilder
                     {
                         final FeatureTableRow row =
                                 createFeatureTableRow(bundle.featureDefToValuesMap, dataSetCode,
-                                        identifier, null, new WellPosition(rowIndex,
-                                                colIndex));
+                                        identifier, null, new WellPosition(rowIndex, colIndex));
                         rows.add(row);
                     }
                 }
