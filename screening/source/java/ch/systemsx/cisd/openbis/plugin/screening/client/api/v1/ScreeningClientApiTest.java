@@ -34,13 +34,18 @@ import org.apache.log4j.PropertyConfigurator;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
@@ -73,6 +78,31 @@ public class ScreeningClientApiTest
             System.err.println("Authentication failed: check the user name and password.");
             return;
         }
+        List<ExperimentIdentifier> experiments = facade.listExperiments();
+        System.out.println("Experiments: " + experiments);
+
+        MaterialIdentifier gene = new MaterialIdentifier(MaterialTypeIdentifier.GENE, "OPRS1");
+        ExperimentIdentifier experimentIdentifer = experiments.get(0);
+        List<PlateWellReferenceWithDatasets> plateWells =
+                facade.listPlateWells(experimentIdentifer, gene, true);
+        System.out.println(String.format("Wells with gene '%s' in experiment '%s': %s", gene,
+                experimentIdentifer, plateWells));
+
+        List<FeatureVectorWithDescription> featuresForPlateWells =
+                facade.loadFeaturesForPlateWells(experimentIdentifer, gene, null);
+        System.out.println("Features for wells: " + featuresForPlateWells);
+
+        List<FeatureVectorWithDescription> featuresForPlateWellsCheck =
+                facade.loadFeaturesForDatasetWellReferences(facade
+                        .convertToFeatureVectorDatasetWellIdentifier(plateWells), null);
+
+        if (featuresForPlateWellsCheck.equals(featuresForPlateWells) == false)
+        {
+            throw new IllegalStateException(String.format(
+                    "Inconsistent results to fetch feature vectors, expected:\n%s\nbut got:\n%s",
+                    featuresForPlateWells, featuresForPlateWellsCheck));
+        }
+
         List<Plate> plates = facade.listPlates();
         System.out.println("Plates: " + plates);
         List<ImageDatasetReference> imageDatasets = facade.listImageDatasets(plates);
@@ -110,9 +140,8 @@ public class ScreeningClientApiTest
 
         facade.logout();
     }
-    
-    private static List<IDatasetIdentifier> getFirstFive(
-            IScreeningOpenbisServiceFacade facade,
+
+    private static List<IDatasetIdentifier> getFirstFive(IScreeningOpenbisServiceFacade facade,
             List<? extends DatasetIdentifier> identfiers)
     {
         List<IDatasetIdentifier> result = new ArrayList<IDatasetIdentifier>();
@@ -141,7 +170,7 @@ public class ScreeningClientApiTest
         {
             File dir = new File(datasetIdentifier.getDatasetCode());
             dir.mkdir();
-            
+
             for (int wellRow = 1; wellRow <= 5; wellRow++)
             {
                 for (int wellCol = 1; wellCol <= 5; wellCol++)
@@ -150,10 +179,10 @@ public class ScreeningClientApiTest
                     {
                         for (int tile = 0; tile < 1; tile++)
                         {
-                            
+
                             PlateImageReference imageRef =
-                                new PlateImageReference(wellRow, wellCol, tile, "dapi",
-                                        datasetIdentifier);
+                                    new PlateImageReference(wellRow, wellCol, tile, "dapi",
+                                            datasetIdentifier);
                             imageRefs.add(imageRef);
                             imageFiles.add(new File(dir, createImageFileName(imageRef)));
                         }
@@ -180,13 +209,13 @@ public class ScreeningClientApiTest
         try
         {
             facade.loadImages(imageReferences, new IImageOutputStreamProvider()
-            {
-                public OutputStream getOutputStream(PlateImageReference imageReference)
-                throws IOException
                 {
-                    return imageRefToFileMap.get(imageReference);
-                }
-            });
+                    public OutputStream getOutputStream(PlateImageReference imageReference)
+                            throws IOException
+                    {
+                        return imageRefToFileMap.get(imageReference);
+                    }
+                });
         } finally
         {
             closeOutputStreams(imageRefToFileMap.values());
