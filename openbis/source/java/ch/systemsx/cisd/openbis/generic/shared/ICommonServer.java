@@ -985,7 +985,7 @@ public interface ICommonServer extends IServer
      * Returns all authorization groups.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken);
 
     /**
@@ -1000,7 +1000,7 @@ public interface ICommonServer extends IServer
      * Returns all persons belonging to given authorization group.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     public List<Person> listPersonInAuthorizationGroup(String sessionToken,
             TechId authorizatonGroupId);
 
