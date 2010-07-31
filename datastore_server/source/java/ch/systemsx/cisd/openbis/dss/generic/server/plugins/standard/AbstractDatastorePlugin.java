@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -43,7 +44,11 @@ public abstract class AbstractDatastorePlugin implements Serializable
 
     protected AbstractDatastorePlugin(Properties properties, File storeRoot)
     {
-        assert storeRoot.exists() : "storeRoot does not exist " + storeRoot;
+        if (storeRoot.exists() == false)
+        {
+            throw ConfigurationFailureException.fromTemplate("Store root '%s' does not exist.",
+                    storeRoot);
+        }
 
         this.storeRoot = storeRoot;
         this.properties = properties;
