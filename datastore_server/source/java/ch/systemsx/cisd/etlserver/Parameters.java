@@ -237,9 +237,7 @@ public class Parameters
                         INPUT_THREAD_NAMES, true);
         if (sectionsProperties.length == 0)
         {
-            // backward compatibility mode - no prefixes before thread properties, one thread only
-            return new ThreadParameters[]
-                { new ThreadParameters(serviceProperties, "default") };
+            return new ThreadParameters[0];
         } else
         {
             return asThreadParameters(sectionsProperties);
