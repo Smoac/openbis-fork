@@ -132,9 +132,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         assertFeatureVector(1, 2, dataSets.get(0).getFeatureVectors().get(1), 242.25, 243.25);
         assertEquals(2, dataSets.get(0).getFeatureVectors().size());
         assertSame(r2, dataSets.get(1).getDataset());
-        assertEquals("[f2]", dataSets.get(1).getFeatureNames().toString());
-        assertFeatureVector(1, 1, dataSets.get(1).getFeatureVectors().get(0), 249.0);
-        assertFeatureVector(1, 2, dataSets.get(1).getFeatureVectors().get(1), 244.5);
+        assertEquals("[f1, f2]", dataSets.get(1).getFeatureNames().toString());
+        assertFeatureVector(1, 1, dataSets.get(1).getFeatureVectors().get(0), Float.NaN, 249.0);
+        assertFeatureVector(1, 2, dataSets.get(1).getFeatureVectors().get(1), Float.NaN, 244.5);
         assertEquals(2, dataSets.get(1).getFeatureVectors().size());
         assertEquals(2, dataSets.size());
         context.assertIsSatisfied();
@@ -224,6 +224,6 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private FeatureVectorDatasetReference createFeatureVectorDatasetReference(String dataSetCode)
     {
-        return new FeatureVectorDatasetReference(dataSetCode, "", null, null, null, null);
+        return new FeatureVectorDatasetReference(dataSetCode, "", null, null, null, null, null);
     }
 }
