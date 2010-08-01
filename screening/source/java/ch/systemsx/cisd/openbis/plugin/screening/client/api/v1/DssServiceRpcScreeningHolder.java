@@ -51,9 +51,8 @@ class DssServiceRpcScreeningHolder
 
     private static IDssServiceRpcScreening createService(String serverUrl)
     {
-        // FIXME: revert to serverUrl!
-        return HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcScreening.class, /* serverUrl */
-                "http://localhost:8889" + ScreeningOpenbisServiceFacade.DSS_SCREENING_API,
+        return HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcScreening.class,
+                serverUrl + ScreeningOpenbisServiceFacade.DSS_SCREENING_API,
                 ScreeningOpenbisServiceFacade.SERVER_TIMEOUT_MIN);
     }
 
