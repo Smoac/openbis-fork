@@ -21,7 +21,6 @@ import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
-
 /**
  * Utility methods about the type of (binary) data.
  *
@@ -29,6 +28,14 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  */
 public class DataTypeUtil
 {
+    public static final String TIFF_FILE = "tif";
+    
+    public static final String PNG_FILE = "png";
+    
+    public static final String JPEG_FILE = "jpg";
+    
+    public static final String GIF_FILE = "gif";
+
     private static final class MagicNumber
     {
         private final String fileType;
@@ -111,9 +118,9 @@ public class DataTypeUtil
     }
     
     private static final MagicNumbersManager MAGIC_NUMBERS_MANAGER =
-            new MagicNumbersManager(new MagicNumber("gif", "474946383961", "474946383761"),
-                    new MagicNumber("jpg", "ffd8ff"), new MagicNumber("png", "89504e470d0a1a0a"),
-                    new MagicNumber("tif", "49492a00", "4d4d002a"));
+            new MagicNumbersManager(new MagicNumber(GIF_FILE, "474946383961", "474946383761"),
+                    new MagicNumber(JPEG_FILE, "ffd8ff"), new MagicNumber(PNG_FILE, "89504e470d0a1a0a"),
+                    new MagicNumber(TIFF_FILE, "49492a00", "4d4d002a"));
 
     /**
      * Tries to figure out the file type of the specified binary content. It uses the first few
@@ -142,6 +149,36 @@ public class DataTypeUtil
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
         return MAGIC_NUMBERS_MANAGER.tryToFigureOutFileTypeOf(initialBytes);
+    }
+    
+    /**
+     * Returns <code>true</code> if the <var>fileTypeOrNull</var> is a tiff file.
+     */
+    public static boolean isTiff(String fileTypeOrNull)
+    {
+        return TIFF_FILE.equals(fileTypeOrNull);
+    }
+
+    /**
+     * Returns <code>true</code> if the <var>fileTypeOrNull</var> is a jpeg file.
+     */
+    public static boolean isJpeg(String fileTypeOrNull)
+    {
+        return JPEG_FILE.equals(fileTypeOrNull);
+    }
+    /**
+     * Returns <code>true</code> if the <var>fileTypeOrNull</var> is a png file.
+     */
+    public static boolean isPng(String fileTypeOrNull)
+    {
+        return PNG_FILE.equals(fileTypeOrNull);
+    }
+    /**
+     * Returns <code>true</code> if the <var>fileTypeOrNull</var> is a gif file.
+     */
+    public static boolean isGif(String fileTypeOrNull)
+    {
+        return GIF_FILE.equals(fileTypeOrNull);
     }
     
     private DataTypeUtil()
