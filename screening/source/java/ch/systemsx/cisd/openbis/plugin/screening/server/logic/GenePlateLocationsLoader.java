@@ -39,6 +39,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -53,6 +56,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImagePara
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContentWithExperiment;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
 
@@ -77,6 +81,14 @@ public class GenePlateLocationsLoader
     {
         return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
                 .getPlateLocations(geneMaterialId, experimentPermId, enrichWithImages);
+    }
+
+    public static List<WellContentWithExperiment> load(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            TechId geneMaterialId)
+    {
+        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
+                .getPlateLocations(geneMaterialId);
     }
 
     public static List<WellContent> load(Session session,
@@ -132,6 +144,12 @@ public class GenePlateLocationsLoader
         {
             return locations;
         }
+    }
+
+    private List<WellContentWithExperiment> getPlateLocations(TechId geneMaterialId)
+    {
+        List<WellContentWithExperiment> locations = loadLocations(geneMaterialId);
+        return locations;
     }
 
     private List<WellContent> getPlateLocations(TechId geneMaterialId,
@@ -345,6 +363,14 @@ public class GenePlateLocationsLoader
         return convert(locations);
     }
 
+    private List<WellContentWithExperiment> loadLocations(TechId geneMaterialId)
+    {
+        DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations =
+                createDAO(daoFactory).getPlateLocationsForMaterialId(geneMaterialId.getId());
+
+        return convertWithExp(locations);
+    }
+
     private List<WellContent> loadLocations(TechId geneMaterialId,
             ExperimentIdentifier experimentIdentifier)
     {
@@ -369,7 +395,19 @@ public class GenePlateLocationsLoader
         return wellLocations;
     }
 
-    private static void sortByMaterialName(List<WellContent> wellLocations)
+    private List<WellContentWithExperiment> convertWithExp(
+            DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations)
+    {
+        List<WellContentWithExperiment> wellLocations = new ArrayList<WellContentWithExperiment>();
+        for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent location : locations)
+        {
+            wellLocations.add(convertWithExp(location));
+        }
+        sortByMaterialName(wellLocations);
+        return wellLocations;
+    }
+
+    private static void sortByMaterialName(List<? extends WellContent> wellLocations)
     {
         Collections.sort(wellLocations, new Comparator<WellContent>()
             {
@@ -396,6 +434,32 @@ public class GenePlateLocationsLoader
                 new EntityReference(loc.material_content_id, loc.material_content_code,
                         loc.material_content_type_code, EntityKind.MATERIAL, null);
         return new WellContent(location, well, plate, materialContent);
+    }
+
+    private static WellContentWithExperiment convertWithExp(
+            ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent loc)
+    {
+        final WellLocation location = ScreeningUtils.tryCreateLocationFromMatrixCoordinate(loc.well_code);
+        final EntityReference well =
+                new EntityReference(loc.well_id, loc.well_code, loc.well_type_code,
+                        EntityKind.SAMPLE, loc.well_perm_id);
+        final EntityReference plate =
+                new EntityReference(loc.plate_id, loc.plate_code, loc.plate_type_code,
+                        EntityKind.SAMPLE, loc.plate_perm_id);
+        final EntityReference materialContent =
+                new EntityReference(loc.material_content_id, loc.material_content_code,
+                        loc.material_content_type_code, EntityKind.MATERIAL, null);
+        final Space space = new Space();
+        space.setCode(loc.space_code);
+        final Project project = new Project();
+        project.setSpace(space);
+        project.setCode(loc.proj_code);
+        final Experiment experiment = new Experiment();
+        experiment.setId(loc.exp_id);
+        experiment.setCode(loc.exp_code);
+        experiment.setPermId(loc.exp_perm_id);
+        experiment.setProject(project);
+        return new WellContentWithExperiment(location, well, plate, materialContent, experiment);
     }
 
     private static IScreeningQuery createDAO(IDAOFactory daoFactory)
