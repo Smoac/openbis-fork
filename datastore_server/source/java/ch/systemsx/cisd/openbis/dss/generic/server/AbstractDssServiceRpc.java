@@ -135,9 +135,9 @@ public abstract class AbstractDssServiceRpc
     /**
      * Asserts that specified data sets are all accessible by the user of the specified session.
      */
-    protected void assertDatasetsAreAccessible(String sessionToken, List<String> dataSetCodes)
+    protected void checkDatasetsAuthorization(String sessionToken, List<String> dataSetCodes)
     {
-        if (areDatasetsAccessible(sessionToken, dataSetCodes) == false)
+        if (isSessionAuthorizedForDatasets(sessionToken, dataSetCodes) == false)
         {
             throw new IllegalArgumentException(
                     "User is not allowed to access at least one of the following data sets: "
@@ -153,7 +153,7 @@ public abstract class AbstractDssServiceRpc
      * @param dataSetCodes The data set codes we want to check access for.
      * @return True if all the data sets are accessible, false if one or more are not accessible.
      */
-    protected boolean areDatasetsAccessible(String sessionToken, List<String> dataSetCodes)
+    protected boolean isSessionAuthorizedForDatasets(String sessionToken, List<String> dataSetCodes)
     {
         boolean access;
         if (operationLog.isInfoEnabled())
@@ -201,7 +201,7 @@ public abstract class AbstractDssServiceRpc
     protected Map<String, File> checkAccessAndGetRootDirectories(String sessionToken,
             List<String> dataSetCodes) throws IllegalArgumentException
     {
-        if (areDatasetsAccessible(sessionToken, dataSetCodes) == false)
+        if (isSessionAuthorizedForDatasets(sessionToken, dataSetCodes) == false)
         {
             throw new IllegalArgumentException("Path does not exist.");
         }

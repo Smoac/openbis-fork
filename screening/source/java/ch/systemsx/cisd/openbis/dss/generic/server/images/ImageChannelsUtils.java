@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server.images;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,8 +85,17 @@ public class ImageChannelsUtils
     public static BufferedImage mergeImageChannels(TileImageReference params,
             List<AbsoluteImageReference> imageReferences)
     {
+        return mergeImageChannels(imageReferences, params.isMergeAllChannels());
+    }
+
+    /**
+     * Creates an images of the specified tile and with requested channels merged.<br>
+     */
+    public static BufferedImage mergeImageChannels(List<AbsoluteImageReference> imageReferences,
+            boolean mergeChannels)
+    {
         BufferedImage resultImage;
-        if (params.isMergeAllChannels())
+        if (mergeChannels)
         {
             resultImage = mergeAllChannels(imageReferences);
         } else
@@ -93,16 +104,26 @@ public class ImageChannelsUtils
                     + "but more have been specified: " + imageReferences;
             AbsoluteImageReference imageReference = imageReferences.get(0);
 
-            resultImage = selectSingleChannel(params, imageReference);
+            resultImage = selectSingleChannel(imageReference);
         }
         return resultImage;
     }
 
-    private static BufferedImage selectSingleChannel(TileImageReference params,
-            AbsoluteImageReference imageReference)
+    /**
+     * Reads the given content and selects a single channel from it.
+     */
+    public static BufferedImage selectSingleChannel(AbsoluteImageReference imageReference)
     {
-        BufferedImage image = ImageUtil.loadImage(imageReference.getContent().getInputStream());
-        ColorComponent colorComponent = imageReference.tryGetColorComponent();
+        return selectSingleChannel(imageReference.getContent().getInputStream(), imageReference
+                .tryGetColorComponent());
+    }
+
+    /**
+     * Reads the given content and selects a single channel from it.
+     */
+    public static BufferedImage selectSingleChannel(InputStream input, ColorComponent colorComponent)
+    {
+        BufferedImage image = ImageUtil.loadImage(input);
         if (colorComponent == null)
         {
             // TODO 2010-06-15 Izabela Adamczyk: We have to select a single channel from the (most
@@ -238,7 +259,10 @@ public class ImageChannelsUtils
         }
     }
 
-    private static BufferedImage transformToChannel(BufferedImage bufferedImage,
+    /**
+     * Transforms the given <var>bufferedImage</var> as 
+     */
+    public static BufferedImage transformToChannel(BufferedImage bufferedImage,
             ColorComponent colorComponent)
     {
         BufferedImage newImage = createNewImage(bufferedImage);
@@ -256,7 +280,7 @@ public class ImageChannelsUtils
         return newImage;
     }
 
-    private static BufferedImage createNewImage(BufferedImage bufferedImage)
+    private static BufferedImage createNewImage(RenderedImage bufferedImage)
     {
         BufferedImage newImage =
                 new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),

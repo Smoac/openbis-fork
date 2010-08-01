@@ -26,13 +26,21 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.sun.media.jai.codec.ImageCodec;
+import com.sun.media.jai.codec.ImageEncoder;
+import com.sun.media.jai.codec.TIFFEncodeParam;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
@@ -106,6 +114,21 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
             if (imageDTO != null)
             {
                 content = contentRepository.getContent(imageDTO.getFilePath());
+                final InputStream is = content.getInputStream();
+                final String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(is);
+                if (DataTypeUtil.isTiff(fileType) == false || imageDTO.getColorComponent() != null
+                        || imageDTO.getPage() != null)
+                {
+                    final int page = (imageDTO.getPage() != null) ? imageDTO.getPage() : 0;
+                    BufferedImage image = ImageUtil.loadImage(is, fileType, page);
+                    if (imageDTO.getColorComponent() != null)
+                    {
+                        image =
+                                ImageChannelsUtils.transformToChannel(image, imageDTO
+                                        .getColorComponent());
+                    }
+                    content = asContent(image, fileType, content.getName(), content.getUniqueId());
+                }
             }
         }
         if (content != null && imageDTO != null)
@@ -115,6 +138,29 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
         } else
         {
             return null;
+        }
+    }
+
+    private static IContent asContent(BufferedImage image, String fileType, String name, String id)
+    {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final TIFFEncodeParam param = new TIFFEncodeParam();
+        param.setLittleEndian(true);
+        if (DataTypeUtil.isJpeg(fileType))
+        {
+            param.setCompression(TIFFEncodeParam.COMPRESSION_JPEG_TTN2);
+        } else
+        {
+            param.setCompression(TIFFEncodeParam.COMPRESSION_DEFLATE);
+        }
+        final ImageEncoder enc = ImageCodec.createImageEncoder("tiff", out, param);
+        try
+        {
+            enc.encode(image);
+            return new ByteArrayBasedContent(out.toByteArray(), name, id);
+        } catch (IOException ex)
+        {
+            throw EnvironmentFailureException.fromTemplate("Cannot encode image.", ex);
         }
     }
 
@@ -166,6 +212,7 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
         {
             return content.getUniqueId();
         }
+
     }
 
 }

@@ -77,7 +77,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     /**
      * The minor version of this service.
      */
-    private static final int MINOR_VERSION = 1;
+    public static final int MINOR_VERSION = 1;
 
     private IImagingQueryDAO dao;
 
@@ -114,7 +114,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     public List<String> listAvailableFeatureNames(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        assertDataSetsAreAccessible(sessionToken, featureDatasets);
+        checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, featureDatasets);
         List<String> result = new ArrayList<String>(); // keep the order
         for (IFeatureVectorDatasetIdentifier identifier : featureDatasets)
         {
@@ -135,6 +135,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
+        checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, imageDatasets);
         ArrayList<String> datasetCodes = new ArrayList<String>();
         for (IImageDatasetIdentifier dataset : imageDatasets)
         {
@@ -194,7 +195,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames)
     {
-        assertDataSetsAreAccessible(sessionToken, featureDatasets);
+        checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, featureDatasets);
         List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
         for (FeatureVectorDatasetReference dataset : featureDatasets)
         {
@@ -224,7 +225,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
             List<String> featureNames)
     {
-        assertDataSetsAreAccessible(sessionToken, datasetWellReferences);
+        checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, datasetWellReferences);
         final FeatureTableBuilder builder =
                 createFeatureTableBuilder(datasetWellReferences, featureNames);
         return createFeatureVectorList(builder);
@@ -265,26 +266,19 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
-        Map<String, IHCSImageDatasetLoader> imageLoadersMap =
+        checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, imageReferences);
+        final Map<String, IHCSImageDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
-        List<IContent> imageFiles = new ArrayList<IContent>();
+        final List<IContent> imageFiles = new ArrayList<IContent>();
         try
         {
             for (PlateImageReference imageReference : imageReferences)
             {
-                IHCSImageDatasetLoader imageAccessor =
+                final IHCSImageDatasetLoader imageAccessor =
                         imageLoadersMap.get(imageReference.getDatasetCode());
                 assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
-                AbsoluteImageReference image = tryGetImage(imageAccessor, imageReference);
-                if (image == null
-                        || (image.tryGetColorComponent() != null || image.tryGetPage() != null))
-                {
-                    // TODO 2010-06-01, Tomasz Pylak: support paging/merged channels images in API
-                    imageFiles.add(null);
-                } else
-                {
-                    imageFiles.add(image.getContent());
-                }
+                final AbsoluteImageReference imageRef = tryGetImage(imageAccessor, imageReference);
+                imageFiles.add((imageRef == null) ? null : imageRef.getContent());
             }
         } finally
         {
@@ -340,6 +334,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                     .getChannel(), null);
         } catch (EnvironmentFailureException e)
         {
+            operationLog.error("Error reading image.", e);
             return null; // no image found
         }
     }
@@ -412,7 +407,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return getDAO().listFeatureDefsByDataSetId(dataSet.getId());
     }
 
-    private void assertDataSetsAreAccessible(String sessionToken,
+    private void checkDatasetsAuthorizationForIDatasetIdentifier(String sessionToken,
             List<? extends IDatasetIdentifier> identifiers)
     {
         List<String> dataSetCodes = new ArrayList<String>();
@@ -420,7 +415,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         {
             dataSetCodes.add(identifier.getDatasetCode());
         }
-        assertDatasetsAreAccessible(sessionToken, dataSetCodes);
+        checkDatasetsAuthorization(sessionToken, dataSetCodes);
     }
 
     private IImagingQueryDAO getDAO()
