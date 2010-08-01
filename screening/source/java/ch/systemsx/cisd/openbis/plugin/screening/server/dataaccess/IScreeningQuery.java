@@ -61,6 +61,41 @@ public interface IScreeningQuery extends BaseQuery
     public DataIterator<WellContent> getPlateLocationsForMaterialId(long materialId,
             long experimentId);
 
+    /**
+     * @return well locations which are connected to a given material (e.g. gene) with the specified
+     *         id.
+     */
+    @Select(sql = "select "
+            + "      pl.id as plate_id,"
+            + "      exp.id as exp_id,"
+            + "      exp.code as exp_code,"
+            + "      exp.perm_id as exp_perm_id,"
+            + "      projects.code as proj_code,"
+            + "      groups.code as space_code,"
+            + "      pl.perm_id as plate_perm_id,"
+            + "      pl.code as plate_code,"
+            + "      pl_type.code as plate_type_code,"
+            + "      well.id as well_id,"
+            + "      well.perm_id as well_perm_id,"
+            + "      well.code as well_code,"
+            + "      well_type.code as well_type_code,"
+            + "      well_material.id as material_content_id,"
+            + "      well_material.code as material_content_code,"
+            + "      well_material_type.code as material_content_type_code"
+            + " from samples pl"
+            + "   join samples well on pl.id = well.samp_id_part_of"
+            + "   join experiments exp on pl.expe_id = exp.id"
+            + "   join projects on exp.proj_id = projects.id"
+            + "   join groups on projects.grou_id = groups.id"
+            + "   join sample_types pl_type on pl.saty_id = pl_type.id"
+            + "   join sample_types well_type on well.saty_id = well_type.id"
+            + "   join sample_properties well_props on well.id = well_props.samp_id"
+            + "   join materials well_material on well_props.mate_prop_id = well_material.id"
+            + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
+            + " where                                               "
+            + "   well_material.id = ?{1}")
+    public DataIterator<WellContent> getPlateLocationsForMaterialId(long materialId);
+
     // well content with "first-level" materials (like oligos or controls)
     static final String PLATE_LOCATIONS_MANY_MATERIALS_SELECT =
             "select pl.id as plate_id, pl.perm_id as plate_perm_id, pl.code as plate_code, pl_type.code as plate_type_code, "
