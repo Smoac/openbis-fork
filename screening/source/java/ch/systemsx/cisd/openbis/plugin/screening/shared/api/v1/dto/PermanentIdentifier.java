@@ -20,15 +20,16 @@ import java.io.Serializable;
 
 /**
  * A class representing a permanent identifier in openBIS.
- *
+ * 
+ * @since 1.1
  * @author Bernd Rinn
  */
 public class PermanentIdentifier implements Serializable, IPermanentIdentifier
 {
     private static final long serialVersionUID = 1L;
-    
+
     private final String permId;
-    
+
     public PermanentIdentifier(String permId)
     {
         this.permId = permId;

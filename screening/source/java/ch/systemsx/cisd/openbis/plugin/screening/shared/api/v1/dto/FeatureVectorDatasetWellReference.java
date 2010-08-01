@@ -29,12 +29,23 @@ public class FeatureVectorDatasetWellReference extends FeatureVectorDatasetRefer
 
     private final WellPosition wellPosition;
 
+    @Deprecated
     public FeatureVectorDatasetWellReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, Geometry plateGeometry, Date registrationDate,
             IImageDatasetIdentifier imageDatasetIdentifier, WellPosition wellPosition)
     {
         super(datasetCode, datastoreServerUrl, plate, plateGeometry, registrationDate,
                 imageDatasetIdentifier);
+        this.wellPosition = wellPosition;
+    }
+
+    public FeatureVectorDatasetWellReference(String datasetCode, String datastoreServerUrl,
+            PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
+            Geometry plateGeometry, Date registrationDate,
+            IImageDatasetIdentifier imageDatasetIdentifier, WellPosition wellPosition)
+    {
+        super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGeometry,
+                registrationDate, imageDatasetIdentifier);
         this.wellPosition = wellPosition;
     }
 

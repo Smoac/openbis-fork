@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellRefe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContentWithExperiment;
 
 /**
  * Contains implementations of the screening public API calls.
@@ -263,6 +264,46 @@ public class ScreeningApiImpl
         }
     }
 
+    public List<PlateWellReferenceWithDatasets> listPlateWells(
+            MaterialIdentifier materialIdentifier, boolean findDatasets)
+    {
+        final MaterialPE materialOrNull =
+                daoFactory.getMaterialDAO().tryFindMaterial(
+                        new ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier(
+                                materialIdentifier.getMaterialCode(), materialIdentifier
+                                        .getMaterialTypeIdentifier().getMaterialTypeCode()));
+        if (materialOrNull == null)
+        {
+            throw UserFailureException.fromTemplate("Material '%s' does not exist",
+                    materialIdentifier.getAugmentedCode());
+        }
+        final List<WellContentWithExperiment> wellContent =
+                GenePlateLocationsLoader.load(session, businessObjectFactory, daoFactory,
+                        new TechId(materialOrNull.getId()));
+
+        if (findDatasets)
+        {
+            final Set<Plate> plates = new HashSet<Plate>(wellContent.size());
+            for (WellContentWithExperiment w : wellContent)
+            {
+                plates.add(asPlate(w));
+            }
+            final FeatureVectorDatasetLoader datasetRetriever =
+                    new FeatureVectorDatasetLoader(session, businessObjectFactory,
+                            dataStoreBaseURL, session.tryGetHomeGroupCode(), plates);
+            final List<ImageDatasetReference> imageDatasets = datasetRetriever.getImageDatasets();
+            final List<FeatureVectorDatasetReference> featureVectorDatasets =
+                    datasetRetriever.getFeatureVectorDatasets();
+
+            return asPlateWellReferences(wellContent, createPlateToDatasetsMap(imageDatasets,
+                    featureVectorDatasets));
+        } else
+        {
+            return asPlateWellReferences(wellContent, Collections
+                    .<String, DatasetReferenceHolder> emptyMap());
+        }
+    }
+
     private ExperimentIdentifier getExperimentIdentifierFromDB(
             ExperimentIdentifier experimentIdentifierFromUser)
     {
@@ -346,6 +387,20 @@ public class ScreeningApiImpl
                 wellContent.getPlate().getPermId(), experimentIdentifier);
     }
 
+    private static Plate asPlate(WellContentWithExperiment wellContent)
+    {
+        return new Plate(wellContent.getPlate().getCode(), wellContent.getExperiment().getProject()
+                .getSpace().getCode(), wellContent.getPlate().getPermId(),
+                asExperiment(wellContent));
+    }
+
+    private static ExperimentIdentifier asExperiment(WellContentWithExperiment wellContent)
+    {
+        return new ExperimentIdentifier(wellContent.getExperiment().getCode(), wellContent
+                .getExperiment().getProject().getCode(), wellContent.getExperiment().getProject()
+                .getSpace().getCode(), wellContent.getExperiment().getPermId());
+    }
+
     private static PlateWellReferenceWithDatasets asPlateWellReference(
             ExperimentIdentifier experimentIdentifier, WellContent wellContent,
             Map<String, DatasetReferenceHolder> plateToDatasetsMap)
@@ -374,6 +429,31 @@ public class ScreeningApiImpl
         for (WellContent wellContent : wellContents)
         {
             plateWellReferences.add(asPlateWellReference(experimentIdentifer, wellContent,
+                    plateToDatasetsMap));
+        }
+        Collections.sort(plateWellReferences, new Comparator<PlateWellReferenceWithDatasets>()
+            {
+                public int compare(PlateWellReferenceWithDatasets o1,
+                        PlateWellReferenceWithDatasets o2)
+                {
+                    return (o1.getExperimentPlateIdentifier().getAugmentedCode() + ":" + o1
+                            .getWellPosition()).compareTo(o2.getExperimentPlateIdentifier()
+                            .getAugmentedCode()
+                            + ":" + o2.getWellPosition());
+                }
+            });
+        return plateWellReferences;
+    }
+
+    private static List<PlateWellReferenceWithDatasets> asPlateWellReferences(
+            List<WellContentWithExperiment> wellContents,
+            Map<String, DatasetReferenceHolder> plateToDatasetsMap)
+    {
+        final List<PlateWellReferenceWithDatasets> plateWellReferences =
+                new ArrayList<PlateWellReferenceWithDatasets>();
+        for (WellContentWithExperiment wellContent : wellContents)
+        {
+            plateWellReferences.add(asPlateWellReference(asExperiment(wellContent), wellContent,
                     plateToDatasetsMap));
         }
         Collections.sort(plateWellReferences, new Comparator<PlateWellReferenceWithDatasets>()

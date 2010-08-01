@@ -30,11 +30,22 @@ public class FeatureVectorDatasetReference extends DatasetReference implements
 
     private final IImageDatasetIdentifier imageDatasetIdentifier;
 
+    @Deprecated
     public FeatureVectorDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, Geometry plateGeometry, Date registrationDate,
             IImageDatasetIdentifier imageDatasetIdentifier)
     {
         super(datasetCode, datastoreServerUrl, plate, plateGeometry, registrationDate);
+        this.imageDatasetIdentifier = imageDatasetIdentifier;
+    }
+
+    public FeatureVectorDatasetReference(String datasetCode, String datastoreServerUrl,
+            PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
+            Geometry plateGeometry, Date registrationDate,
+            IImageDatasetIdentifier imageDatasetIdentifier)
+    {
+        super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGeometry,
+                registrationDate);
         this.imageDatasetIdentifier = imageDatasetIdentifier;
     }
 

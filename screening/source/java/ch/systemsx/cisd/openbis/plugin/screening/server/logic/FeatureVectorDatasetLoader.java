@@ -123,7 +123,8 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
         {
             return new FeatureVectorDatasetReference(externalData.getCode(),
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
-                    extractPlateGeometry(externalData), externalData.getRegistrationDate(), null);
+                    createExperimentIdentifier(externalData), extractPlateGeometry(externalData),
+                    externalData.getRegistrationDate(), null);
         } else
         {
             // Note: this only works reliably because this class sets the parents of the feature
@@ -132,8 +133,8 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
             final ExternalData parentDataset = externalData.getParents().iterator().next();
             return new FeatureVectorDatasetReference(externalData.getCode(),
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(parentDataset),
-                    extractPlateGeometry(parentDataset), externalData.getRegistrationDate(),
-                    asImageDataset(parentDataset));
+                    createExperimentIdentifier(externalData), extractPlateGeometry(parentDataset),
+                    externalData.getRegistrationDate(), asImageDataset(parentDataset));
         }
     }
 }

@@ -14,14 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
+package ch.systemsx.cisd.common.api;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * A factory for {@link ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening}.
+ * The minimal minor version that a service needs to have in order to possess this method.
  *
- * @author Franz-Josef Elmer
+ * @author Bernd Rinn
  */
-interface IDssServiceFactory
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Inherited
+public @interface MinimalMinorVersion
 {
-    public DssServiceRpcScreeningHolder createDssService(String serverUrl);
+    /**
+     * The minimal minor version that a service needs to have in order to possess this method.
+     */
+    int value();
 }

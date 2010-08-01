@@ -36,6 +36,8 @@ public class Plate extends PlateIdentifier
 
     /**
      * Get the identifier of the experiment that this plate is assigned to.
+     * 
+     * @since 1.1
      */
     public ExperimentIdentifier getExperimentIdentifier()
     {

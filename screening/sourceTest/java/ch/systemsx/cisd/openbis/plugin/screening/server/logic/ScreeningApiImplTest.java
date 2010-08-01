@@ -31,11 +31,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -259,6 +262,9 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     {
         ExternalData dataSet = createDataSet(sample, code, id);
         dataSet.setDataSetType(dataSetType(ScreeningConstants.IMAGE_DATASET_TYPE));
+        dataSet.setExperiment(new Experiment());
+        dataSet.getExperiment().setProject(new Project());
+        dataSet.getExperiment().getProject().setSpace(new Space());
         return dataSet;
     }
 
@@ -266,6 +272,9 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     {
         ExternalData dataSet = createDataSet(sample, code, id);
         dataSet.setDataSetType(dataSetType(ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE));
+        dataSet.setExperiment(new Experiment());
+        dataSet.getExperiment().setProject(new Project());
+        dataSet.getExperiment().getProject().setSpace(new Space());
         return dataSet;
     }
 

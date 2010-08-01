@@ -3,8 +3,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,9 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
@@ -41,19 +42,22 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  */
 public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFacade
 {
-    private static final String DSS_SCREENING_API = "/rmi-datastore-server-screening-api-v1/";
+    static final int MAJOR_VERSION_AS = 1;
 
-    private static final String OPENBIS_SCREENING_API = "/rmi-screening-api-v1";
+    static final int MAJOR_VERSION_DSS = 1;
 
-    private static final int SERVER_TIMEOUT_MIN = 5;
+    static final String DSS_SCREENING_API =
+            "/rmi-datastore-server-screening-api-v" + MAJOR_VERSION_DSS;
+
+    private static final String OPENBIS_SCREENING_API = "/rmi-screening-api-v" + MAJOR_VERSION_AS;
+
+    static final int SERVER_TIMEOUT_MIN = 5;
 
     private static final IDssServiceFactory DSS_SERVICE_FACTORY = new IDssServiceFactory()
         {
-            public IDssServiceRpcScreening createDssService(String serverUrl)
+            public DssServiceRpcScreeningHolder createDssService(String serverUrl)
             {
-                return HttpInvokerUtils.createStreamSupportingServiceStub(
-                        IDssServiceRpcScreening.class, serverUrl + DSS_SCREENING_API,
-                        SERVER_TIMEOUT_MIN);
+                return new DssServiceRpcScreeningHolder(serverUrl);
             }
         };
 
@@ -71,6 +75,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private final String sessionToken;
 
+    private final int minorVersionApplicationServer;
+
     /**
      * Creates a service facade which communicates with the openBIS server at the specified URL.
      * Authenticates the user.
@@ -80,13 +86,15 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public static IScreeningOpenbisServiceFacade tryCreate(String userId, String userPassword,
             String serverUrl)
     {
-        IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
-        String sessionToken = openbisServer.tryLoginScreening(userId, userPassword);
+        final IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
+        final int minorVersion = openbisServer.getMinorVersion();
+        final String sessionToken = openbisServer.tryLoginScreening(userId, userPassword);
         if (sessionToken == null)
         {
             return null;
         }
-        return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, DSS_SERVICE_FACTORY);
+        return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
+                DSS_SERVICE_FACTORY);
     }
 
     /**
@@ -98,8 +106,10 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      */
     public static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl)
     {
-        IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
-        return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, DSS_SERVICE_FACTORY);
+        final IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
+        final int minorVersion = openbisServer.getMinorVersion();
+        return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
+                DSS_SERVICE_FACTORY);
     }
 
     private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
@@ -109,24 +119,25 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     ScreeningOpenbisServiceFacade(String sessionToken, IScreeningApiServer screeningServer,
-            final IDssServiceFactory dssServiceFactory)
+            int minorVersion, final IDssServiceFactory dssServiceFactory)
     {
         this.openbisScreeningServer = screeningServer;
         this.sessionToken = sessionToken;
+        this.minorVersionApplicationServer = minorVersion;
         IDssServiceFactory dssServiceCache = new IDssServiceFactory()
             {
-                private final Map<String/* url */, IDssServiceRpcScreening> cache =
-                        new HashMap<String, IDssServiceRpcScreening>();
+                private final Map<String/* url */, DssServiceRpcScreeningHolder> cache =
+                        new HashMap<String, DssServiceRpcScreeningHolder>();
 
-                public IDssServiceRpcScreening createDssService(String serverUrl)
+                public DssServiceRpcScreeningHolder createDssService(String serverUrl)
                 {
-                    IDssServiceRpcScreening dssService = cache.get(serverUrl);
-                    if (dssService == null)
+                    DssServiceRpcScreeningHolder dssServiceHolder = cache.get(serverUrl);
+                    if (dssServiceHolder == null)
                     {
-                        dssService = dssServiceFactory.createDssService(serverUrl);
-                        cache.put(serverUrl, dssService);
+                        dssServiceHolder = dssServiceFactory.createDssService(serverUrl);
+                        cache.put(serverUrl, dssServiceHolder);
                     }
-                    return dssService;
+                    return dssServiceHolder;
                 }
             };
         plateImageReferencesMultiplexer =
@@ -151,6 +162,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     /** Closes connection with the server. After calling this method this facade cannot be used. */
     public void logout()
     {
+        checkASMinimalMinorVersion("logoutScreening");
         openbisScreeningServer.logoutScreening(sessionToken);
     }
 
@@ -160,11 +172,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      */
     public List<Plate> listPlates()
     {
+        checkASMinimalMinorVersion("listPlates");
         return openbisScreeningServer.listPlates(sessionToken);
     }
 
     public List<ExperimentIdentifier> listExperiments()
     {
+        checkASMinimalMinorVersion("listExperiments");
         return openbisScreeningServer.listExperiments(sessionToken);
     }
 
@@ -175,6 +189,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates)
     {
+        checkASMinimalMinorVersion("listFeatureVectorDatasets", List.class);
         return openbisScreeningServer.listFeatureVectorDatasets(sessionToken, plates);
     }
 
@@ -183,6 +198,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      */
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
     {
+        checkASMinimalMinorVersion("listImageDatasets", List.class);
         return openbisScreeningServer.listImageDatasets(sessionToken, plates);
     }
 
@@ -195,8 +211,23 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             boolean findDatasets)
     {
+        checkASMinimalMinorVersion("listPlateWells", ExperimentIdentifier.class,
+                MaterialIdentifier.class, boolean.class);
         return openbisScreeningServer.listPlateWells(sessionToken, experimentIdentifer,
                 materialIdentifier, findDatasets);
+    }
+
+    /**
+     * For the given <var>materialIdentifier</var> find all plate locations that are connected to
+     * it. If <code>findDatasets == true</code>, find also the connected image and image analysis
+     * data sets for the relevant plates.
+     */
+    public List<PlateWellReferenceWithDatasets> listPlateWells(
+            MaterialIdentifier materialIdentifier, boolean findDatasets)
+    {
+        checkASMinimalMinorVersion("listPlateWells", MaterialIdentifier.class, boolean.class);
+        return openbisScreeningServer
+                .listPlateWells(sessionToken, materialIdentifier, findDatasets);
     }
 
     /**
@@ -205,6 +236,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      */
     public List<IDatasetIdentifier> getDatasetIdentifiers(List<String> datasetCodes)
     {
+        checkASMinimalMinorVersion("getDatasetIdentifiers", List.class);
         return openbisScreeningServer.getDatasetIdentifiers(sessionToken, datasetCodes);
     }
 
@@ -220,11 +252,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         featureVectorDataSetIdentifierMultiplexer.process(featureDatasets,
                 new IReferenceHandler<IFeatureVectorDatasetIdentifier>()
                     {
-                        public void handle(IDssServiceRpcScreening dssService,
+                        public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<IFeatureVectorDatasetIdentifier> references)
                         {
-                            result.addAll(dssService.listAvailableFeatureNames(sessionToken,
-                                    references));
+                            checkDSSMinimalMinorVersion(dssService, "listAvailableFeatureNames",
+                                    List.class);
+                            result.addAll(dssService.getService().listAvailableFeatureNames(
+                                    sessionToken, references));
                         }
                     });
         return new ArrayList<String>(result);
@@ -248,11 +282,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         featureVectorDataSetReferenceMultiplexer.process(featureDatasets,
                 new IReferenceHandler<FeatureVectorDatasetReference>()
                     {
-                        public void handle(IDssServiceRpcScreening dssService,
+                        public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<FeatureVectorDatasetReference> references)
                         {
-                            result.addAll(dssService.loadFeatures(sessionToken, references,
-                                    featureNames));
+                            checkDSSMinimalMinorVersion(dssService, "loadFeatures", List.class,
+                                    List.class);
+                            result.addAll(dssService.getService().loadFeatures(sessionToken,
+                                    references, featureNames));
                         }
                     });
         return result;
@@ -279,8 +315,9 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             FeatureVectorDatasetReference fvdr, WellPosition wellPosition)
     {
         return new FeatureVectorDatasetWellReference(fvdr.getDatasetCode(), fvdr
-                .getDatastoreServerUrl(), fvdr.getPlate(), fvdr.getPlateGeometry(), fvdr
-                .getRegistrationDate(), fvdr.getParentImageDataset(), wellPosition);
+                .getDatastoreServerUrl(), fvdr.getPlate(), fvdr.getExperimentIdentifier(), fvdr
+                .getPlateGeometry(), fvdr.getRegistrationDate(), fvdr.getParentImageDataset(),
+                wellPosition);
     }
 
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
@@ -296,11 +333,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         featureVectorDataSetWellReferenceMultiplexer.process(datasetWellReferences,
                 new IReferenceHandler<FeatureVectorDatasetWellReference>()
                     {
-                        public void handle(IDssServiceRpcScreening dssService,
+                        public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<FeatureVectorDatasetWellReference> references)
                         {
-                            result.addAll(dssService.loadFeaturesForDatasetWellReferences(
-                                    sessionToken, references, featureNames));
+                            checkDSSMinimalMinorVersion(dssService,
+                                    "loadFeaturesForDatasetWellReferences", List.class, List.class);
+                            result.addAll(dssService.getService()
+                                    .loadFeaturesForDatasetWellReferences(sessionToken, references,
+                                            featureNames));
                         }
                     });
         return result;
@@ -317,16 +357,29 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         final List<PlateWellReferenceWithDatasets> plateWellRefs =
                 listPlateWells(experimentIdentifer, materialIdentifier, true);
-        if (plateWellRefs.isEmpty())
-        {
-            return Collections.emptyList();
-        }
         final List<String> featureNames =
                 (isEmpty(featureNamesOrNull)) ? listAvailableFeatureNamesForPlateWells(plateWellRefs)
                         : featureNamesOrNull;
         final List<FeatureVectorDatasetWellReference> datasetWellReferences =
                 convertToFeatureVectorDatasetWellIdentifier(plateWellRefs);
-        return loadFeaturesForDatasetWellReferences(datasetWellReferences, featureNames);
+        final List<FeatureVectorWithDescription> featureVectors =
+                loadFeaturesForDatasetWellReferences(datasetWellReferences, featureNames);
+        return featureVectors;
+    }
+
+    public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
+            MaterialIdentifier materialIdentifier, List<String> featureNamesOrNull)
+    {
+        final List<PlateWellReferenceWithDatasets> plateWellRefs =
+                listPlateWells(materialIdentifier, true);
+        final List<String> featureNames =
+                (isEmpty(featureNamesOrNull)) ? listAvailableFeatureNamesForPlateWells(plateWellRefs)
+                        : featureNamesOrNull;
+        final List<FeatureVectorDatasetWellReference> datasetWellReferences =
+                convertToFeatureVectorDatasetWellIdentifier(plateWellRefs);
+        final List<FeatureVectorWithDescription> featureVectors =
+                loadFeaturesForDatasetWellReferences(datasetWellReferences, featureNames);
+        return featureVectors;
     }
 
     private List<String> listAvailableFeatureNamesForPlateWells(
@@ -380,14 +433,16 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             plateImageReferencesMultiplexer.process(imageReferences,
                     new IReferenceHandler<PlateImageReference>()
                         {
-                            public void handle(IDssServiceRpcScreening dssService,
+                            public void handle(DssServiceRpcScreeningHolder dssService,
                                     List<PlateImageReference> references)
                             {
-                                InputStream stream =
-                                        dssService.loadImages(sessionToken, references);
+                                checkDSSMinimalMinorVersion(dssService, "loadImages", List.class);
+                                final InputStream stream =
+                                        dssService.getService()
+                                                .loadImages(sessionToken, references);
                                 try
                                 {
-                                    ConcatenatedFileOutputStreamWriter imagesWriter =
+                                    final ConcatenatedFileOutputStreamWriter imagesWriter =
                                             new ConcatenatedFileOutputStreamWriter(stream);
                                     for (PlateImageReference imageRef : references)
                                     {
@@ -427,10 +482,12 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         final List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
         metaDataMultiplexer.process(imageDatasets, new IReferenceHandler<IImageDatasetIdentifier>()
             {
-                public void handle(IDssServiceRpcScreening dssService,
+                public void handle(DssServiceRpcScreeningHolder dssService,
                         List<IImageDatasetIdentifier> references)
                 {
-                    result.addAll(dssService.listImageMetadata(sessionToken, references));
+                    checkDSSMinimalMinorVersion(dssService, "listImageMetadata", List.class);
+                    result.addAll(dssService.getService().listImageMetadata(sessionToken,
+                            references));
                 }
             });
         return result;
@@ -459,7 +516,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private interface IReferenceHandler<R extends IDatasetIdentifier>
     {
-        public void handle(IDssServiceRpcScreening dssService, List<R> references);
+        public void handle(DssServiceRpcScreeningHolder dssService, List<R> references);
     }
 
     private static final class DataStoreMultiplexer<R extends IDatasetIdentifier>
@@ -477,9 +534,9 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             Set<Entry<String, List<R>>> entrySet = referencesPerDss.entrySet();
             for (Entry<String, List<R>> entry : entrySet)
             {
-                IDssServiceRpcScreening dssService =
+                final DssServiceRpcScreeningHolder dssServiceHolder =
                         dssServiceFactory.createDssService(entry.getKey());
-                handler.handle(dssService, entry.getValue());
+                handler.handle(dssServiceHolder, entry.getValue());
             }
         }
 
@@ -507,6 +564,66 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             list.add(reference);
         }
         return referencesPerDss;
+    }
+
+    private void checkDSSMinimalMinorVersion(final DssServiceRpcScreeningHolder serviceHolder,
+            final String methodName, final Class<?>... parameterTypes)
+    {
+        final int minimalMinorVersion =
+                getMinimalMinorVersion(IDssServiceRpcScreening.class, methodName, parameterTypes);
+        if (serviceHolder.getMinorVersion() < minimalMinorVersion)
+        {
+            final String paramString = Arrays.asList(parameterTypes).toString();
+            throw new UnsupportedOperationException(String.format(
+                    "Method '%s(%s)' requires minor version %d, "
+                            + "but server '%s' has only minor version %d.", methodName, paramString
+                            .substring(1, paramString.length() - 1), minimalMinorVersion,
+                    serviceHolder.getServerUrl(), serviceHolder.getMinorVersion()));
+        }
+    }
+
+    private void checkASMinimalMinorVersion(final String methodName,
+            final Class<?>... parameterTypes)
+    {
+        final int minimalMinorVersion =
+                getMinimalMinorVersion(IScreeningApiServer.class, methodName, parameterTypes);
+        if (minorVersionApplicationServer < minimalMinorVersion)
+        {
+            final String paramString = Arrays.asList(parameterTypes).toString();
+            throw new UnsupportedOperationException(String.format(
+                    "Method '%s(%s)' requires minor version %d, "
+                            + "but server has only minor version %d.", methodName, paramString
+                            .substring(1, paramString.length() - 1), minimalMinorVersion,
+                    minorVersionApplicationServer));
+        }
+    }
+
+    private static int getMinimalMinorVersion(final Class<?> clazz, final String methodName,
+            final Class<?>... parameterTypes)
+    {
+        assert clazz != null : "Unspecified class.";
+        assert methodName != null : "Unspecified method name.";
+
+        final Class<?>[] actualParameterTypes = new Class<?>[parameterTypes.length + 1];
+        actualParameterTypes[0] = String.class; // The token field
+        System.arraycopy(parameterTypes, 0, actualParameterTypes, 1, parameterTypes.length);
+        final Method method;
+        try
+        {
+            method = clazz.getMethod(methodName, actualParameterTypes);
+        } catch (Exception ex)
+        {
+            throw new Error("Method not found.", ex);
+        }
+        final MinimalMinorVersion minimalMinorVersion =
+                method.getAnnotation(MinimalMinorVersion.class);
+        if (minimalMinorVersion == null)
+        {
+            return 0;
+        } else
+        {
+            return minimalMinorVersion.value();
+        }
     }
 
 }

@@ -16,6 +16,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -182,11 +184,24 @@ class PlateDatasetLoader
 
     protected PlateIdentifier createPlateIdentifier(ExternalData parentDataset)
     {
-        Sample sample = getSample(parentDataset);
+        final Sample sample = getSample(parentDataset);
         final String plateCode = sample.getCode();
-        Space space = sample.getSpace();
+        final Space space = sample.getSpace();
         final String spaceCodeOrNull = (space != null) ? space.getCode() : null;
         return new PlateIdentifier(plateCode, spaceCodeOrNull, sample.getPermId());
+    }
+
+    protected ExperimentIdentifier createExperimentIdentifier(ExternalData parentDataset)
+    {
+        return asExperimentIdentifier(parentDataset.getExperiment());
+    }
+
+    private static ExperimentIdentifier asExperimentIdentifier(Experiment experiment)
+    {
+        final ExperimentIdentifier experimentId =
+                new ExperimentIdentifier(experiment.getCode(), experiment.getProject().getCode(),
+                        experiment.getProject().getSpace().getCode(), experiment.getPermId());
+        return experimentId;
     }
 
     protected Geometry extractPlateGeometry(ExternalData dataSet)

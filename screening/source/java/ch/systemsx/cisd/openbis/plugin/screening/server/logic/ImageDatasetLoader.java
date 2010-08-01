@@ -73,6 +73,7 @@ class ImageDatasetLoader extends PlateDatasetLoader
         DataStore dataStore = externalData.getDataStore();
         return new ImageDatasetReference(externalData.getCode(),
                 getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
-                extractPlateGeometry(externalData), externalData.getRegistrationDate());
+                createExperimentIdentifier(externalData), extractPlateGeometry(externalData),
+                externalData.getRegistrationDate());
     }
 }

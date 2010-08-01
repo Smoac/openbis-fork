@@ -163,6 +163,13 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    public List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
+            MaterialIdentifier materialIdentifier, boolean findDatasets)
+    {
+        logAccess(sessionToken, "listPlateWells", "material: %s", materialIdentifier);
+        return null;
+    }
+
     public List<Plate> listPlates(String sessionToken)
     {
         logAccess(sessionToken, "listPlates");

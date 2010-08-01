@@ -89,6 +89,14 @@ public interface IScreeningOpenbisServiceFacade
             boolean findDatasets);
 
     /**
+     * For the given <var>materialIdentifier</var> find all plate locations that are connected to
+     * it. If <code>findDatasets == true</code>, find also the connected image and image analysis
+     * data sets for the relevant plates.
+     */
+    public List<PlateWellReferenceWithDatasets> listPlateWells(
+            MaterialIdentifier materialIdentifier, boolean findDatasets);
+
+    /**
      * Converts the given list of {@link PlateWellReferenceWithDatasets} into a list of
      * {@link FeatureVectorDatasetWellReference}.
      * 
@@ -168,6 +176,23 @@ public interface IScreeningOpenbisServiceFacade
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             List<String> featureNamesOrNull);
+
+    /**
+     * For the given <var>materialIdentifier</var> find all plate locations that are connected to it
+     * and load the feature vectors for the given <var>featureNamesOrNull</var> if not
+     * <code>null</code>, or all available features otherwise.
+     * 
+     * @param materialIdentifier The identifier of the material contained in the wells to get the
+     *            feature vectors for.
+     * @param featureNamesOrNull The names of the features to build the feature vectors from, or
+     *            <code>null</code>, if all available features should be included. Note that for an
+     *            empty list as well all features will be included.
+     * @return The list of {@link FeatureVectorWithDescription}s found in the given
+     *         <var>experimentIdentifer</var> and connected with the given
+     *         <var>materialIdentifier</var>.
+     */
+    public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
+            MaterialIdentifier materialIdentifier, List<String> featureNamesOrNull);
 
     /**
      * Saves images for a given list of image references (given by data set code, well position,

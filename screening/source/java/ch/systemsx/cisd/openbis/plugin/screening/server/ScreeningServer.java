@@ -75,7 +75,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * The minor version of this service.
      */
-    static final int MINOR_VERSION = 1;
+    public static final int MINOR_VERSION = 2;
 
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
@@ -201,6 +201,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         return createScreeningApiImpl(sessionToken).listPlateWells(experimentIdentifer,
                 materialIdentifier, findDatasets);
+    }
+
+    public List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
+
+    MaterialIdentifier materialIdentifier, boolean findDatasets)
+    {
+        return createScreeningApiImpl(sessionToken)
+                .listPlateWells(materialIdentifier, findDatasets);
     }
 
     public List<Plate> listPlates(String sessionToken)

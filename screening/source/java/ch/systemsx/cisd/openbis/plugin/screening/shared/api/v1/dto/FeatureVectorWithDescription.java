@@ -6,6 +6,8 @@ import java.util.List;
 /**
  * Feature vectors of one well in one feature vector dataset.
  * 
+ * @since 1.1
+ * 
  * @author Bernd Rinn
  */
 public class FeatureVectorWithDescription extends FeatureVector implements Serializable

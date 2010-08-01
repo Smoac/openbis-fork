@@ -21,12 +21,14 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ExperimentIdentifierPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.PlateWellReferenceWithDatasetsValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningExperimentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningPlateListReadOnlyPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningPlateValidator;
@@ -89,10 +91,13 @@ public interface IScreeningApiServer extends IRpcService
     /**
      * Return the list of all visible experiments, along with their hierarchical context (space,
      * project).
+     * 
+     * @since 1.1
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ScreeningExperimentValidator.class)
+    @MinimalMinorVersion(1)
     List<ExperimentIdentifier> listExperiments(String sessionToken);
 
     /**
@@ -127,15 +132,32 @@ public interface IScreeningApiServer extends IRpcService
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
-     * For the given <var>experimentIdentifier</var> find all plate locations that are connected to
+     * For the given <var>experimentIdentifier</var>, find all plate locations that are connected to
      * the specified <var>materialIdentifier</var>. If <code>findDatasets == true</code>, find also
      * the connected image and image analysis data sets for the relevant plates.
+     * 
+     * @since 1.1
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @MinimalMinorVersion(1)
     List<PlateWellReferenceWithDatasets> listPlateWells(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experimentIdentifer,
+            MaterialIdentifier materialIdentifier, boolean findDatasets);
+
+    /**
+     * For the given <var>materialIdentifier</var>, find all plate locations that are connected to
+     * it. If <code>findDatasets == true</code>, find also the connected image and image analysis
+     * data sets for the relevant plates.
+     * 
+     * @since 1.2
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = PlateWellReferenceWithDatasetsValidator.class)
+    @MinimalMinorVersion(2)
+    List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
             MaterialIdentifier materialIdentifier, boolean findDatasets);
 
 }

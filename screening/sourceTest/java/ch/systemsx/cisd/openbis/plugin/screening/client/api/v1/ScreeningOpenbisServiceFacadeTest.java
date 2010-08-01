@@ -29,22 +29,32 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = DssServiceRpcScreeningHolder.class)
 public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
 {
     private static final String DATA_SET1 = "ds1";
@@ -85,8 +95,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         context = new Mockery();
         screeningService = context.mock(IScreeningApiServer.class);
         dssServiceFactory = context.mock(IDssServiceFactory.class);
-        i1id = new ImageDatasetReference(DATA_SET1, URL1, null, null, null);
-        i2id = new ImageDatasetReference(DATA_SET2, URL2, null, null, null);
+        i1id = new ImageDatasetReference(DATA_SET1, URL1, null, null, null, null);
+        i2id = new ImageDatasetReference(DATA_SET2, URL2, null, null, null, null);
         f1id = context.mock(IFeatureVectorDatasetIdentifier.class, "f1id");
         f2id = context.mock(IFeatureVectorDatasetIdentifier.class, "f2id");
         dssService1 = context.mock(IDssServiceRpcScreening.class, "dss1");
@@ -96,22 +106,38 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    allowing(dssService1).getMajorVersion();
+                    will(returnValue(ScreeningOpenbisServiceFacade.MAJOR_VERSION_DSS));
+
+                    allowing(dssService1).getMinorVersion();
+                    will(returnValue(DssServiceRpcScreening.MINOR_VERSION));
+
+                    allowing(dssService2).getMajorVersion();
+                    will(returnValue(ScreeningOpenbisServiceFacade.MAJOR_VERSION_DSS));
+
+                    allowing(dssService2).getMinorVersion();
+                    will(returnValue(DssServiceRpcScreening.MINOR_VERSION));
+                }
+            });
+        context.checking(new Expectations()
+            {
+                {
                     allowing(f1id).getDatastoreServerUrl();
                     will(returnValue(URL1));
 
-                    one(dssServiceFactory).createDssService(URL1);
-                    will(returnValue(dssService1));
+                    allowing(dssServiceFactory).createDssService(URL1);
+                    will(returnValue(new DssServiceRpcScreeningHolder(URL1, dssService1)));
 
                     allowing(f2id).getDatastoreServerUrl();
                     will(returnValue(URL2));
 
-                    one(dssServiceFactory).createDssService(URL2);
-                    will(returnValue(dssService2));
+                    allowing(dssServiceFactory).createDssService(URL2);
+                    will(returnValue(new DssServiceRpcScreeningHolder(URL2, dssService2)));
                 }
             });
         facade =
                 new ScreeningOpenbisServiceFacade(SESSION_TOKEN, screeningService,
-                        dssServiceFactory);
+                        ScreeningServer.MINOR_VERSION, dssServiceFactory);
     }
 
     @AfterMethod
@@ -145,9 +171,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
     {
         final List<String> featureNames = Arrays.asList("A", "B");
         final FeatureVectorDatasetReference r1 =
-                new FeatureVectorDatasetReference(DATA_SET1, URL1, null, null, null, i1id);
+                new FeatureVectorDatasetReference(DATA_SET1, URL1, null, null, null, null, i1id);
         final FeatureVectorDatasetReference r2 =
-                new FeatureVectorDatasetReference(DATA_SET2, URL2, null, null, null, i2id);
+                new FeatureVectorDatasetReference(DATA_SET2, URL2, null, null, null, null, i2id);
         final FeatureVectorDataset ds1 = new FeatureVectorDataset(r1, null, null);
         final FeatureVectorDataset ds2 = new FeatureVectorDataset(r2, null, null);
         final FeatureVectorDataset ds3 = new FeatureVectorDataset(r2, null, null);
@@ -169,6 +195,30 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         assertSame(ds2, features.get(1));
         assertSame(ds3, features.get(2));
         assertEquals(3, features.size());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListPlateWells()
+    {
+        final String geneCode = "MYGENE";
+        final MaterialIdentifier materialIdentifier =
+                new MaterialIdentifier(MaterialTypeIdentifier.GENE, geneCode);
+        final PlateWellReferenceWithDatasets pwRef = new PlateWellReferenceWithDatasets(new Plate(
+                null, null, null, ExperimentIdentifier.createFromPermId(null)),
+                new WellPosition(1, 2));
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listPlateWells(SESSION_TOKEN, materialIdentifier, false);
+                    will(returnValue(Arrays.asList(pwRef)));
+                }
+            });
+
+        final List<PlateWellReferenceWithDatasets> ref = facade.listPlateWells(materialIdentifier, false);
+        assertEquals(1, ref.size());
+        assertEquals(pwRef, ref.get(0));
 
         context.assertIsSatisfied();
     }

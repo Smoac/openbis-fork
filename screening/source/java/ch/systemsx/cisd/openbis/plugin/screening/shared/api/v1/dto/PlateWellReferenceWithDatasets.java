@@ -24,6 +24,8 @@ import java.util.List;
  * Provides a reference to a well on a screening plate, together with available data sets for the
  * screening plate.
  * 
+ * @since 1.1
+ * 
  * @author Bernd Rinn
  */
 public class PlateWellReferenceWithDatasets implements Serializable

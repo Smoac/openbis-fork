@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
@@ -77,7 +78,9 @@ public interface IDssServiceRpcScreening extends IRpcService
      *         <var>datasetWellReferences</var>. Use
      *         {@link FeatureVectorWithDescription#getDatasetWellReference()} to find the
      *         corresponding dataset / well.</b>
+     * @since 1.1
      */
+    @MinimalMinorVersion(1)
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
             List<String> featureNames);

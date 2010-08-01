@@ -34,9 +34,18 @@ public class ImageDatasetReference extends DatasetReference implements IImageDat
         super(datasetCode, datastoreServerUrl, plate);
     }
 
+    @Deprecated
     public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, Geometry plateGemoetry, Date registrationDate)
     {
         super(datasetCode, datastoreServerUrl, plate, plateGemoetry, registrationDate);
+    }
+
+    public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
+            PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
+            Geometry plateGemoetry, Date registrationDate)
+    {
+        super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGemoetry,
+                registrationDate);
     }
 }
