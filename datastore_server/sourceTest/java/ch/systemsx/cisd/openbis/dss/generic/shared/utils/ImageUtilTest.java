@@ -107,7 +107,7 @@ public class ImageUtilTest extends AssertJUnit
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("File type of an image input stream couldn't be figured out.", ex.getMessage());
+            assertEquals("File type of an image input stream couldn't be determined.", ex.getMessage());
         }
         
         assertEquals(true, inputStream.closeInvoked);
