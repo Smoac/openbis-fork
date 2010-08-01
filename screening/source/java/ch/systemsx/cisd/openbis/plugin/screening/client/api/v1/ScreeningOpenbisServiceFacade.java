@@ -47,7 +47,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     static final int MAJOR_VERSION_DSS = 1;
 
     static final String DSS_SCREENING_API =
-            "/rmi-datastore-server-screening-api-v" + MAJOR_VERSION_DSS;
+            "/rmi-datastore-server-screening-api-v" + MAJOR_VERSION_DSS + "/";
 
     private static final String OPENBIS_SCREENING_API = "/rmi-screening-api-v" + MAJOR_VERSION_AS;
 
