@@ -131,14 +131,14 @@ public class FeatureTableBuilder
         }
         for (String featureName : featureNames)
         {
+            if (featureNameToIndexMap.containsKey(featureName) == false)
+            {
+                featureNameToIndexMap.put(featureName,
+                        new Integer(featureNameToIndexMap.size()));
+            }
             final ImgFeatureDefDTO featureDefinition = featureNameToDefMap.get(featureName);
             if (featureDefinition != null)
             {
-                if (featureNameToIndexMap.containsKey(featureName) == false)
-                {
-                    featureNameToIndexMap.put(featureName,
-                            new Integer(featureNameToIndexMap.size()));
-                }
                 List<ImgFeatureValuesDTO> featureValueSets =
                         dao.getFeatureValues(featureDefinition);
                 if (featureValueSets.isEmpty())
