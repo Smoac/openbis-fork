@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.io;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -71,7 +72,7 @@ public class FileBasedContent implements IContent
     {
         try
         {
-            return new FileInputStream(file);
+            return new BufferedInputStream(new FileInputStream(file));
         } catch (FileNotFoundException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

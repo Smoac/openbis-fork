@@ -47,7 +47,10 @@ public interface IContent
     public boolean exists();
 
     /**
-     * Returns a new instance of an input stream over the complete content.
+     * Returns a new instance of an input stream over the complete content. Note that the returned
+     * {@link InputStream} is expected to have {@link InputStream#markSupported()}
+     * <code>==true</code>.
      */
     public InputStream getInputStream();
+
 }
