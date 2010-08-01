@@ -16,11 +16,10 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
-import ij.io.Opener;
-
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +35,12 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.io.IOUtils;
 
+import com.sun.media.jai.codec.FileSeekableStream;
+import com.sun.media.jai.codec.ImageCodec;
+import com.sun.media.jai.codec.ImageDecoder;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 
 /**
@@ -47,24 +51,44 @@ import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 public class ImageUtil
 {
     private static final Set<String> FILE_TYPES =
-            Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("gif", "jpg", "jpeg", "png", 
-                    "tif", "tiff")));
-    
+            Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("gif", "jpg", "jpeg",
+                    "png", "tif", "tiff")));
+
     private static interface ImageLoader
     {
         public BufferedImage load(InputStream inputStream);
+
+        public BufferedImage load(InputStream inputStream, int page);
     }
-    
+
     private static final class TiffImageLoader implements ImageLoader
     {
         static final ImageLoader INSTANCE = new TiffImageLoader();
-        
+
         public BufferedImage load(InputStream inputStream)
         {
-            return new Opener().openTiff(inputStream, "").getBufferedImage();
+            return load(inputStream, 0);
+        }
+
+        public BufferedImage load(InputStream inputStream, int page)
+        {
+            final ImageDecoder dec = ImageCodec.createImageDecoder("tiff", inputStream, null);
+            Raster raster;
+            try
+            {
+                raster = dec.decodeAsRaster(page);
+            } catch (IOException ex)
+            {
+                throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
+            }
+            final BufferedImage image =
+                    new BufferedImage(raster.getWidth(), raster.getHeight(),
+                            BufferedImage.TYPE_INT_RGB);
+            image.setData(raster);
+            return image;
         }
     }
-    
+
     private static final class JavaImageLoader implements ImageLoader
     {
         static final ImageLoader INSTANCE = new JavaImageLoader();
@@ -79,19 +103,29 @@ public class ImageUtil
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
-        
+
+        public BufferedImage load(InputStream inputStream, int page)
+        {
+            if (page == 0)
+            {
+                return load(inputStream);
+            } else
+            {
+                throw new UnsupportedOperationException();
+            }
+        }
+
     }
-    
+
     private static final Map<String, ImageLoader> imageLoaders = new HashMap<String, ImageLoader>();
-    
+
     static
     {
-        imageLoaders.put("gif", JavaImageLoader.INSTANCE);
-        imageLoaders.put("jpg", JavaImageLoader.INSTANCE);
-        imageLoaders.put("png", JavaImageLoader.INSTANCE);
-        imageLoaders.put("tif", TiffImageLoader.INSTANCE);
+        imageLoaders.put(DataTypeUtil.GIF_FILE, JavaImageLoader.INSTANCE);
+        imageLoaders.put(DataTypeUtil.JPEG_FILE, JavaImageLoader.INSTANCE);
+        imageLoaders.put(DataTypeUtil.PNG_FILE, JavaImageLoader.INSTANCE);
+        imageLoaders.put(DataTypeUtil.TIFF_FILE, TiffImageLoader.INSTANCE);
     }
-    
 
     /**
      * Returns <code>true</code> if the specified file is a supported image file. Supported formats
@@ -110,7 +144,7 @@ public class ImageUtil
         String fileType = name.substring(lastIndexOfDot + 1).toLowerCase();
         return FILE_TYPES.contains(fileType);
     }
-    
+
     /**
      * Loads an image from specified input stream. Supported images formats are GIF, JPG, PNG, and
      * TIFF. The input stream will be closed after loading.
@@ -120,18 +154,47 @@ public class ImageUtil
      */
     public static BufferedImage loadImage(InputStream inputStream)
     {
+        return loadImage(inputStream, 0);
+    }
+
+    /**
+     * Loads the specified <var>page</var> from the image from the tiven </var>inputStream</var>.
+     * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
+     * loading. Note that only for TIFF files a <var>page</var> other than 0 may be specified. 
+     * 
+     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
+     *             identifying supported image format.
+     */
+    public static BufferedImage loadImage(InputStream inputStream, int page)
+    {
+        InputStream markSupportingInputStream = inputStream;
+        if (inputStream.markSupported() == false)
+        {
+            markSupportingInputStream = new BufferedInputStream(inputStream);
+        }
+        String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(markSupportingInputStream);
+        return loadImage(markSupportingInputStream, fileType, page);
+    }
+    
+    /**
+     * Loads the specified <var>page</var> from the image from the tiven </var>inputStream</var>.
+     * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
+     * loading. Note that only for TIFF files a <var>page</var> other than 0 may be specified. 
+     * 
+     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
+     *             identifying supported image format.
+     */
+    public static BufferedImage loadImage(InputStream inputStream, String fileType, int page)
+    {
         try
         {
-            InputStream markSupportingInputStream = inputStream;
-            if (inputStream.markSupported() == false)
-            {
-                markSupportingInputStream = new BufferedInputStream(inputStream);
-            }
-            String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(markSupportingInputStream);
             if (fileType == null)
             {
                 throw new IllegalArgumentException(
-                        "File type of an image input stream couldn't be figured out.");
+                        "File type of an image input stream couldn't be determined.");
+            } else if (DataTypeUtil.isTiff(fileType) == false && page > 0)
+            {
+                throw new IllegalArgumentException("File type has to be 'tiff'.");
             }
             ImageLoader imageLoader = imageLoaders.get(fileType);
             if (imageLoader == null)
@@ -139,7 +202,7 @@ public class ImageUtil
                 throw new IllegalArgumentException("Unable to load image of file type '" + fileType
                         + "'.");
             }
-            return imageLoader.load(markSupportingInputStream);
+            return imageLoader.load(inputStream);
         } finally
         {
             IOUtils.closeQuietly(inputStream);
@@ -160,8 +223,9 @@ public class ImageUtil
         }
         try
         {
-            return new Opener().openImage(file.getAbsolutePath()).getBufferedImage();
-        } catch (RuntimeException ex)
+            FileSeekableStream inStream = new FileSeekableStream(file);
+            return loadImage(inStream);
+        } catch (IOException ex)
         {
             throw new IllegalArgumentException("Isn't a valid image file: "
                     + file.getAbsolutePath() + ". Error: " + ex.getMessage());
