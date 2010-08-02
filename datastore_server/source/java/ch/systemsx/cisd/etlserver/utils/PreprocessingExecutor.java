@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
@@ -43,21 +44,21 @@ public class PreprocessingExecutor
 
     private final static Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, PreprocessingExecutor.class);
-    
-    private final static PreprocessingExecutor DUMMY = new PreprocessingExecutor(null, 0, 0L)
-    {
-        @Override
-        public boolean execute(String filePath)
-        {
-            return true;
-        }
 
-        @Override
-        public boolean executeOnce(String filePath)
+    private final static PreprocessingExecutor DUMMY = new PreprocessingExecutor(null, 0, 0L, -1)
         {
-            return true;
-        }
-    };
+            @Override
+            public boolean execute(String filePath)
+            {
+                return true;
+            }
+
+            @Override
+            public boolean executeOnce(String filePath)
+            {
+                return true;
+            }
+        };
 
     /**
      * A path to a script which should be called from command line for every dataset batch before it
@@ -71,16 +72,19 @@ public class PreprocessingExecutor
     public final static String PREPROCESSING_SCRIPT_FAILURE_INTERVAL_IN_SEC =
             "preprocessing-script-failure-interval";
 
+    public final static String PREPROCESSING_SCRIPT_TIMEOUT = "preprocessing-script-timeout-sec";
+
     public static PreprocessingExecutor create(Properties properties)
     {
         String preprocessingScriptPath = properties.getProperty(PREPROCESSING_SCRIPT_PATH);
         int maxRetriesOnFailure = PropertyUtils.getInt(properties, PREPROCESSING_SCRIPT_RETRIES, 0);
-        int millisToSleepOnFailure =
+        long millisToSleepOnFailure =
                 PropertyUtils.getInt(properties, PREPROCESSING_SCRIPT_FAILURE_INTERVAL_IN_SEC, 0) * 1000;
+        long millisToWaitForCompletion = extractMillisToWaitForCompletion(properties);
         if (preprocessingScriptPath != null)
         {
             return new PreprocessingExecutor(preprocessingScriptPath, maxRetriesOnFailure,
-                    millisToSleepOnFailure);
+                    millisToSleepOnFailure, millisToWaitForCompletion);
         } else
         {
             operationLog.info("No preprocessing script found, skipping preprocessing.");
@@ -89,18 +93,33 @@ public class PreprocessingExecutor
         }
     }
 
+    private static long extractMillisToWaitForCompletion(Properties properties)
+    {
+        long timeoutSec =
+                PropertyUtils.getLong(properties, PREPROCESSING_SCRIPT_TIMEOUT,
+                        ConcurrencyUtilities.NO_TIMEOUT);
+        if (timeoutSec == ConcurrencyUtilities.NO_TIMEOUT)
+        {
+            return ConcurrencyUtilities.NO_TIMEOUT;
+        }
+        return timeoutSec * 1000;
+    }
+
     private final String preprocessingScriptPath;
 
     private final int maxRetriesOnFailure;
 
     private final long millisToSleepOnFailure;
 
+    private final long millisToWaitForCompletion;
+
     private PreprocessingExecutor(String preprocessingScriptPath, int maxRetriesOnFailure,
-            long millisToSleepOnFailure)
+            long millisToSleepOnFailure, long millisToWaitForCompletion)
     {
         this.preprocessingScriptPath = preprocessingScriptPath;
         this.maxRetriesOnFailure = maxRetriesOnFailure;
         this.millisToSleepOnFailure = millisToSleepOnFailure;
+        this.millisToWaitForCompletion = millisToWaitForCompletion;
     }
 
     public boolean execute(final String filePath)
@@ -121,15 +140,17 @@ public class PreprocessingExecutor
 
     public boolean executeOnce(final String filePath)
     {
-        return callScript(preprocessingScriptPath, filePath);
+        return callScript(preprocessingScriptPath, millisToWaitForCompletion, filePath);
     }
 
-    private static boolean callScript(String scriptPath, String... args)
+    private static boolean callScript(String scriptPath, long millisToWaitForCompletion,
+            String... args)
     {
         List<String> cmd = new ArrayList<String>();
         cmd.add(scriptPath);
         cmd.addAll(Arrays.asList(args));
-        return ProcessExecutionHelper.runAndLog(cmd, operationLog, machineLog);
+        return ProcessExecutionHelper.runAndLog(cmd, operationLog, machineLog,
+                millisToWaitForCompletion);
     }
 
 }
