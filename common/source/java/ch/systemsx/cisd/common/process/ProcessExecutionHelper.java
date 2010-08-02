@@ -140,13 +140,15 @@ public final class ProcessExecutionHelper
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @param millisToWaitForCompletion The time to wait for the process to complete in
      *            milli-seconds. If the process is not finished after that time, it will be
-     *            terminated by a watch dog.
+     *            terminated by a watch dog. Use {@link ConcurrencyUtilities#NO_TIMEOUT} if you do
+     *            not want any timeout.
      * @return <code>true</code>, if the process did complete successfully, <code>false</code>
      *         otherwise.
      * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog, final long millisToWaitForCompletion) throws InterruptedExceptionUnchecked
+            final Logger machineLog, final long millisToWaitForCompletion)
+            throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
                 DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).runAndLog();
@@ -165,7 +167,8 @@ public final class ProcessExecutionHelper
      * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog, final long millisToWaitForCompletion) throws InterruptedExceptionUnchecked
+            final Logger machineLog, final long millisToWaitForCompletion)
+            throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
                 DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(true);
@@ -205,11 +208,11 @@ public final class ProcessExecutionHelper
      *            a watch dog.
      * @param outputReadingStrategy The strategy for when to read the output (both
      *            <code>stdout</code> and <code>sterr</code>) of the process.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if the thread gets
-     *            interrupted while waiting on the future.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if
+     *            the thread gets interrupted while waiting on the future.
      * @return The process result.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is
-     *             <code>true</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
+     *             <var>stopOnInterrupt</var> is <code>true</code>.
      */
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
             final Logger machineLog, final long millisToWaitForCompletion,
