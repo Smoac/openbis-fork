@@ -296,14 +296,14 @@ var common = {
   
   menu_material: "Material",
   MATERIAL_MENU_BROWSE: "Browse",
-  MATERIAL_MENU_IMPORT: "Import",
+  MATERIAL_MENU_IMPORT: "Batch Import",
   MATERIAL_MENU_TYPES: "Types",
    
   menu_sample: "Sample",
   SAMPLE_MENU_SEARCH: "Advanced Search",
   SAMPLE_MENU_BROWSE: "Browse",
   SAMPLE_MENU_NEW: "New",
-  SAMPLE_MENU_IMPORT: "Import",
+  SAMPLE_MENU_IMPORT: "Batch Import",
   SAMPLE_MENU_MASS_UPDATE: "Batch Update",
   SAMPLE_MENU_TYPES: "Types",
   
