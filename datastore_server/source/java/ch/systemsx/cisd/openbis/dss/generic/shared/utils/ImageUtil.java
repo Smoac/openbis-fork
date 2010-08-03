@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
+import ij.io.Opener;
+
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -70,22 +72,45 @@ public class ImageUtil
             return load(inputStream, 0);
         }
 
+        private final static int MAX_READ_AHEAD = 30000000;
+        
         public BufferedImage load(InputStream inputStream, int page)
         {
-            final ImageDecoder dec = ImageCodec.createImageDecoder("tiff", inputStream, null);
-            Raster raster;
+            inputStream.mark(MAX_READ_AHEAD);
             try
             {
-                raster = dec.decodeAsRaster(page);
-            } catch (IOException ex)
+                final ImageDecoder dec = ImageCodec.createImageDecoder("tiff", inputStream, null);
+                Raster raster;
+                try
+                {
+                    raster = dec.decodeAsRaster(page);
+                } catch (IOException ex)
+                {
+                    throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
+                }
+                final BufferedImage image =
+                        new BufferedImage(raster.getWidth(), raster.getHeight(),
+                                BufferedImage.TYPE_INT_RGB);
+                image.setData(raster);
+                return image;
+            } catch (RuntimeException ex)
             {
-                throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
+                if (page == 0)
+                {
+                    try
+                    {
+                        inputStream.reset();
+                    } catch (IOException ex1)
+                    {
+                        throw ex;
+                    }
+                    // There are some TIFF files which cannot be opened by JIA, try ImageJ instead... 
+                    return new Opener().openTiff(inputStream, "").getBufferedImage();
+                } else
+                {
+                    throw ex;
+                }
             }
-            final BufferedImage image =
-                    new BufferedImage(raster.getWidth(), raster.getHeight(),
-                            BufferedImage.TYPE_INT_RGB);
-            image.setData(raster);
-            return image;
         }
     }
 
