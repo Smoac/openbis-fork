@@ -46,6 +46,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  */
 public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 {
+    private static final String TILE_MAPPING = "tile_mapping";
+
+    private final TileMapper tileMapperOrNull;
+
     private final List<String> channelNames;
 
     private final List<ColorComponent> channelColorComponentsOrNull;
@@ -59,6 +63,8 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
         this.channelColorComponentsOrNull = tryGetChannelComponents(properties);
         checkChannelsAndColorComponents();
         this.wellGeometry = getWellGeometry(properties);
+        this.tileMapperOrNull =
+                TileMapper.tryCreate(properties.getProperty(TILE_MAPPING), wellGeometry);
     }
 
     private void checkChannelsAndColorComponents()
@@ -85,14 +91,22 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
      * </p>
      */
     @Override
-    protected final Location tryGetWellLocation(final String wellLocation)
+    protected Location tryGetWellLocation(final String wellLocation)
     {
         try
         {
             int tileNumber = Integer.parseInt(wellLocation);
-            Location letterLoc = Location.tryCreateLocationFromPosition(tileNumber, wellGeometry);
-            // transpose rows with columns
-            return new Location(letterLoc.getY(), letterLoc.getX());
+
+            if (tileMapperOrNull != null)
+            {
+                tileMapperOrNull.tryGetLocation(tileNumber);
+            } else
+            {
+                Location letterLoc =
+                        Location.tryCreateLocationFromPosition(tileNumber, wellGeometry);
+                // transpose rows with columns
+                return new Location(letterLoc.getY(), letterLoc.getX());
+            }
         } catch (final NumberFormatException ex)
         {
             // Nothing to do here. Rest of the code can handle this.
