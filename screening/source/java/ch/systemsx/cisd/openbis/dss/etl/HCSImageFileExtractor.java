@@ -99,7 +99,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 
             if (tileMapperOrNull != null)
             {
-                tileMapperOrNull.tryGetLocation(tileNumber);
+                return tileMapperOrNull.tryGetLocation(tileNumber);
             } else
             {
                 Location letterLoc =
