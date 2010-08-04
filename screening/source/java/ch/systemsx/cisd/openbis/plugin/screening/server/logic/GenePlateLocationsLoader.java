@@ -439,16 +439,15 @@ public class GenePlateLocationsLoader
     private static WellContentWithExperiment convertWithExp(
             ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent loc)
     {
-        final WellLocation location = ScreeningUtils.tryCreateLocationFromMatrixCoordinate(loc.well_code);
-        final EntityReference well =
-                new EntityReference(loc.well_id, loc.well_code, loc.well_type_code,
-                        EntityKind.SAMPLE, loc.well_perm_id);
-        final EntityReference plate =
-                new EntityReference(loc.plate_id, loc.plate_code, loc.plate_type_code,
-                        EntityKind.SAMPLE, loc.plate_perm_id);
-        final EntityReference materialContent =
-                new EntityReference(loc.material_content_id, loc.material_content_code,
-                        loc.material_content_type_code, EntityKind.MATERIAL, null);
+        WellContent content = convert(loc);
+        final Experiment experiment = convertExperiment(loc);
+        return new WellContentWithExperiment(content.tryGetLocation(), content.getWell(), content
+                .getPlate(), content.getMaterialContent(), experiment);
+    }
+
+    private static Experiment convertExperiment(
+            ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent loc)
+    {
         final Space space = new Space();
         space.setCode(loc.space_code);
         final Project project = new Project();
@@ -459,7 +458,7 @@ public class GenePlateLocationsLoader
         experiment.setCode(loc.exp_code);
         experiment.setPermId(loc.exp_perm_id);
         experiment.setProject(project);
-        return new WellContentWithExperiment(location, well, plate, materialContent, experiment);
+        return experiment;
     }
 
     private static IScreeningQuery createDAO(IDAOFactory daoFactory)
