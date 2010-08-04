@@ -222,14 +222,6 @@
     </modificationset>
   </project>
   
-  <project name="openbis_knime">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
   <project name="cifex">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
@@ -274,18 +266,6 @@
     </modificationset>
   </project>
   
-  <project name="rtd_phosphonetx">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/openbis"/>
-      <buildstatus logdir="logs/datastore_server"/>
-      <buildstatus logdir="logs/dbmigration"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-
   <project name="screening">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
@@ -309,45 +289,4 @@
     </modificationset>
   </project>
 
-  <project name="eu_basysbio">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/datastore_server"/>
-      <buildstatus logdir="logs/dbmigration"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
-  <project name="deep_sequencing_unit">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/datastore_server"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
- 
-  <project name="rtd_cina">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/datastore_server"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
-  <project name="plasmid">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/datastore_server"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
 </cruisecontrol>
