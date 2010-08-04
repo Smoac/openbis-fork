@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.dss.etl.dynamix;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -30,7 +32,9 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.AcquiredPlateImage;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dynamix.WellLocationMappingUtils.DynamixWellPosition;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Image extractor for DynamiX project - work in progress.
@@ -39,12 +43,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 {
+    private static final String POSITION_MAPPING_FILE_NAME = "pos2loc.tsv";
+
     private final List<String> channelNames;
+
+    private final Map<File/* mapping file */, Map<DynamixWellPosition, WellLocation>> wellLocationMapCache;
 
     public HCSImageFileExtractor(final Properties properties)
     {
         super(properties);
         this.channelNames = extractChannelNames(properties);
+        this.wellLocationMapCache = new HashMap<File, Map<DynamixWellPosition, WellLocation>>();
     }
 
     @Override
@@ -74,23 +83,14 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 
     @Override
     /*
-     * Note: the right mapping for DynamiX project should be found, this one is just to fit all
-     * images on the 24x48 plate. Odd columns contain right position, even contain left position.
-     * @param plateLocation - format left_pos100
+     * @param plateLocation - format row_column
      */
     protected final Location tryGetPlateLocation(final String plateLocation)
     {
         final String[] tokens = StringUtils.split(plateLocation, "_");
-        boolean isLeft = (tokens[0].equalsIgnoreCase("left"));
-        Integer pos = Integer.parseInt(tokens[1].substring(3));
-        assert pos > 0 && pos <= 576 : "wrong position: " + pos;
-
-        int sideShift = isLeft ? 1 : 0;
-        int singleSidedMaxColumn = 24;
-        int row = ((pos - 1) / singleSidedMaxColumn);
-        int col = ((pos - 1) % singleSidedMaxColumn) * 2 + sideShift;
-
-        return new Location(col + 1, row + 1);
+        Integer row = new Integer(tokens[0]);
+        Integer column = new Integer(tokens[1]);
+        return Location.tryCreateLocationFromRowAndColumn(row, column);
     }
 
     @Override
@@ -114,10 +114,12 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
             }
             return null;
         }
+        WellLocation wellLocation = getWellLocation(imageFile, tokens);
+
         // "left_dia_pos100_t20100227_152439.tif"
         ImageFileInfo info = new ImageFileInfo();
-        // left_pos100
-        info.setPlateLocationToken(tokens[0] + "_" + tokens[2]);
+        // row_column - will be parsed later. It's unnecessary and should be refactored.
+        info.setPlateLocationToken(wellLocation.getRow() + "_" + wellLocation.getColumn());
         info.setWellLocationToken(null);
         info.setChannelToken(tokens[1]);
 
@@ -125,5 +127,31 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
         Arrays.sort(images);
         info.setTimepointToken("" + Arrays.asList(images).indexOf(imageFile));
         return info;
+    }
+
+    private WellLocation getWellLocation(File imageFile, final String[] tokens)
+    {
+        Map<DynamixWellPosition, WellLocation> map = getWellLocationMapping(imageFile);
+        DynamixWellPosition wellPos =
+                WellLocationMappingUtils.parseWellPosition(tokens[0], tokens[2]);
+        return map.get(wellPos);
+    }
+
+    private Map<DynamixWellPosition, WellLocation> getWellLocationMapping(File imageFile)
+    {
+        File mappingFile = getMappingFile(imageFile);
+        Map<DynamixWellPosition, WellLocation> map = wellLocationMapCache.get(mappingFile);
+        if (map == null)
+        {
+            map = WellLocationMappingUtils.parseWellLocationMap(mappingFile);
+            wellLocationMapCache.put(mappingFile, map);
+        }
+        return map;
+    }
+
+    private static File getMappingFile(File imageFile)
+    {
+        File mappingDir = imageFile.getParentFile().getParentFile().getParentFile();
+        return new File(mappingDir, POSITION_MAPPING_FILE_NAME);
     }
 }
