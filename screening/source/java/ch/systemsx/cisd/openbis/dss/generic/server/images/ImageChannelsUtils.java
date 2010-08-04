@@ -229,6 +229,7 @@ public class ImageChannelsUtils
         for (IContent imageFile : imageFiles)
         {
             BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
+            assert image != null : "image is null";
             images.add(image);
         }
         return images;
@@ -260,7 +261,7 @@ public class ImageChannelsUtils
     }
 
     /**
-     * Transforms the given <var>bufferedImage</var> as 
+     * Transforms the given <var>bufferedImage</var> as
      */
     public static BufferedImage transformToChannel(BufferedImage bufferedImage,
             ColorComponent colorComponent)
