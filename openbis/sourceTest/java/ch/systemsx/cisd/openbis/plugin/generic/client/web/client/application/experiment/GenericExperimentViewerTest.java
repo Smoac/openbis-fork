@@ -189,20 +189,20 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         checkExperiment.property("PermID").matchingPattern(
                 ".*<a href=\".*permId=" + EXP_REUSE_PERM_ID + ".*>" + EXP_REUSE_PERM_ID + "</a>.*");
         final CheckTableCommand sampleTable = checkExperiment.sampleTable().expectedSize(7);
-        sampleTable.expectedRow(new SampleRow("CP1-A1", CELL_PLATE).derivedFromAncestors(
-                "CISD:/CISD/DP1-A", "CISD:/CISD/MP1-MIXED"));
-        sampleTable.expectedRow(new SampleRow("CP1-A2", CELL_PLATE).derivedFromAncestors(
-                "CISD:/CISD/DP1-A", "CISD:/CISD/MP1-MIXED"));
-        sampleTable.expectedRow(new SampleRow("CP1-B1", CELL_PLATE).derivedFromAncestors(
-                "CISD:/CISD/DP1-B", "CISD:/CISD/MP1-MIXED"));
-        sampleTable.expectedRow(new SampleRow("CP2-A1", CELL_PLATE).derivedFromAncestors(
-                "CISD:/CISD/DP2-A", "CISD:/CISD/MP2-NO-CL"));
-        sampleTable.expectedRow(new SampleRow("RP1-A2X", REINFECT_PLATE).derivedFromAncestors(
-                "CISD:/CISD/CP1-A2", "CISD:/CISD/DP1-A", "CISD:/CISD/MP1-MIXED"));
-        sampleTable.expectedRow(new SampleRow("RP1-B1X", REINFECT_PLATE).derivedFromAncestors(
-                "CISD:/CISD/CP1-B1", "CISD:/CISD/DP1-B", "CISD:/CISD/MP1-MIXED"));
-        sampleTable.expectedRow(new SampleRow("RP2-A1X", REINFECT_PLATE).derivedFromAncestors(
-                "CISD:/CISD/CP2-A1", "CISD:/CISD/DP2-A", "CISD:/CISD/MP2-NO-CL"));
+        sampleTable.expectedRow(new SampleRow("CP1-A1", CELL_PLATE)
+                .derivedFromAncestors("CISD:/CISD/DP1-A"));
+        sampleTable.expectedRow(new SampleRow("CP1-A2", CELL_PLATE)
+                .derivedFromAncestors("CISD:/CISD/DP1-A"));
+        sampleTable.expectedRow(new SampleRow("CP1-B1", CELL_PLATE)
+                .derivedFromAncestors("CISD:/CISD/DP1-B"));
+        sampleTable.expectedRow(new SampleRow("CP2-A1", CELL_PLATE)
+                .derivedFromAncestors("CISD:/CISD/DP2-A"));
+        sampleTable.expectedRow(new SampleRow("RP1-A2X", REINFECT_PLATE)
+                .derivedFromAncestors("CISD:/CISD/CP1-A2"));
+        sampleTable.expectedRow(new SampleRow("RP1-B1X", REINFECT_PLATE)
+                .derivedFromAncestors("CISD:/CISD/CP1-B1"));
+        sampleTable.expectedRow(new SampleRow("RP2-A1X", REINFECT_PLATE)
+                .derivedFromAncestors("CISD:/CISD/CP2-A1"));
         remoteConsole.prepare(checkExperiment);
 
         launchTest();

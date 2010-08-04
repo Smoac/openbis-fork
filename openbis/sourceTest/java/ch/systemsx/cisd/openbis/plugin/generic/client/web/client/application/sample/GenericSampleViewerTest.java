@@ -102,9 +102,6 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
 
         final String parentCode1 = "3V-123";
-        final String parentId1 = CISD_ID_PREFIX + parentCode1;
-        final String parentCode2 = "MP001-1";
-        final String parentId2 = CISD_ID_PREFIX + parentCode2;
 
         final CheckSample checkSample = new CheckSample();
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE_ID);
@@ -115,9 +112,9 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Sample Type").asCode("CELL_PLATE");
         final CheckTableCommand childrenTable = checkSample.childrenTable().expectedSize(2);
         childrenTable.expectedRow(new SampleRow("3VRP1A", "REINFECT_PLATE").identifier("CISD",
-                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE_ID, parentId1, parentId2));
+                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE_ID));
         childrenTable.expectedRow(new SampleRow("3VRP1B", "REINFECT_PLATE").identifier("CISD",
-                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE_ID, parentId1, parentId2));
+                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE_ID));
         checkSample.property("Invalidation").by(new IValueAssertion<Invalidation>()
             {
                 public void assertValue(final Invalidation invalidation)
@@ -126,10 +123,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     assertEquals("wrong-code", invalidation.getReason());
                 }
             });
-        checkSample.property("Parent 1").asCode(parentCode1);
-        checkSample.property("Parent 1").asInvalidEntity();
-        checkSample.property("Parent 2").asCode(parentCode2);
-        checkSample.property("Parent 2").asInvalidEntity();
+        checkSample.property("Parent").asCode(parentCode1);
+        checkSample.property("Parent").asInvalidEntity();
 
         final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(1);
         dataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()

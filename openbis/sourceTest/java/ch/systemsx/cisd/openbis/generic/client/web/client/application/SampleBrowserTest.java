@@ -121,8 +121,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
         remoteConsole.prepare(exportCommand);
-        String header =
-                "Code\tExperiment\tProject\tRegistrator\tRegistration Date\tParent 1\tParent 2";
+        String header = "Code\tExperiment\tProject\tRegistrator\tRegistration Date\tParents";
         String firstLine =
                 "3VCP1\tEXP1\tNEMO\tDoe, John\t2008-11-05 09:21:46 GMT+01:00\tCISD:/CISD/3V-123\tCISD:/CISD/MP001-1";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 16));
@@ -136,8 +135,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
-                "CISD", "NEMO", "EXP1").derivedFromAncestors("CISD:/CISD/3V-123",
-                "CISD:/CISD/MP001-1"));
+                "CISD", "NEMO", "EXP1").derivedFromAncestors("CISD:/CISD/3V-123"));
         table.expectedColumnsNumber(22);
         remoteConsole.prepare(table.expectedSize(15));
 
@@ -164,10 +162,9 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new SampleRow("C1", "CONTROL_LAYOUT").identifier("CISD", "CISD")
                 .withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
 
-        // test that 3 parents of 'REINFECT_PLATE' are displayed
+        // test that parent of 'REINFECT_PLATE' is displayed
         table.expectedRow(new SampleRow("RP1-A2X", "REINFECT_PLATE").identifier("CISD", "CISD")
-                .derivedFromAncestors("CISD:/CISD/CP1-A2", "CISD:/CISD/DP1-A",
-                        "CISD:/CISD/MP1-MIXED"));
+                .derivedFromAncestors("CISD:/CISD/CP1-A2"));
 
         table.expectedColumnsNumber(25);
         remoteConsole.prepare(table.expectedSize(40));
