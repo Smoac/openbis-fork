@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * The unique {@link ISampleBO} implementation.
@@ -214,39 +213,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         for (SamplePE s : samples)
         {
             checkBusinessRules(s, getExternalDataDAO(), cache);
-        }
-    }
-
-    // currently we don't display hierarchy in sample browser where all sample types are displayed
-    // so we don't have to load hierarchy this way
-    @SuppressWarnings("unused")
-    private void enrichWithHierarchy()
-    {
-        // this part rather cannot be optimized with one SQL query (LMS-884)
-        assert samples != null : "Samples not loaded.";
-        for (SamplePE s : samples)
-        {
-            enrichParents(s);
-        }
-    }
-
-    private final static void enrichParents(final SamplePE sample)
-    {
-        SamplePE container = sample;
-        int containerHierarchyDepth = sample.getSampleType().getContainerHierarchyDepth();
-        while (containerHierarchyDepth > 0 && container != null)
-        {
-            container = container.getContainer();
-            HibernateUtils.initialize(container);
-            containerHierarchyDepth--;
-        }
-        SamplePE generator = sample;
-        int generatorHierarchyDepth = sample.getSampleType().getGeneratedFromHierarchyDepth();
-        while (generatorHierarchyDepth > 0 && generator != null)
-        {
-            generator = generator.getGeneratedFrom();
-            HibernateUtils.initialize(generator);
-            generatorHierarchyDepth--;
         }
     }
 
