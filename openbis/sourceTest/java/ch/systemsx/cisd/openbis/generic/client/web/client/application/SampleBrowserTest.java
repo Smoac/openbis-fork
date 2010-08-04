@@ -123,7 +123,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(exportCommand);
         String header = "Code\tExperiment\tProject\tRegistrator\tRegistration Date\tParents";
         String firstLine =
-                "3VCP1\tEXP1\tNEMO\tDoe, John\t2008-11-05 09:21:46 GMT+01:00\tCISD:/CISD/3V-123\tCISD:/CISD/MP001-1";
+                "3VCP1\tEXP1\tNEMO\tDoe, John\t2008-11-05 09:21:46 GMT+01:00\tCISD:/CISD/3V-123";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 16));
 
         launchTest();
@@ -136,7 +136,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
                 "CISD", "NEMO", "EXP1").derivedFromAncestors("CISD:/CISD/3V-123"));
-        table.expectedColumnsNumber(22);
+        table.expectedColumnsNumber(21);
         remoteConsole.prepare(table.expectedSize(15));
 
         launchTest();
@@ -166,7 +166,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new SampleRow("RP1-A2X", "REINFECT_PLATE").identifier("CISD", "CISD")
                 .derivedFromAncestors("CISD:/CISD/CP1-A2"));
 
-        table.expectedColumnsNumber(25);
+        table.expectedColumnsNumber(23);
         remoteConsole.prepare(table.expectedSize(40));
 
         launchTest();
