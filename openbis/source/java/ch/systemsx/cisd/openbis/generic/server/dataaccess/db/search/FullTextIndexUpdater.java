@@ -25,6 +25,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
+import ch.systemsx.cisd.common.collections.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -59,18 +60,48 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         this.context = context;
         operationLog.debug(String.format("Hibernate search context: %s.", context));
         fullTextIndexer = new DefaultFullTextIndexer(context.getBatchSize());
-        File queueFile = getUpdaterQueueFile(context);
+
+        final IndexMode indexMode = context.getIndexMode();
+        if (indexMode == IndexMode.NO_INDEX)
+        {
+            // don't use persistent queue e.g. in tests to avoid problems (see SE-286)
+            operationLog.info(String.format(
+                    "'%s' mode was configured. Updater tasks will not be persisted", indexMode));
+            updaterQueue = new ExtendedLinkedBlockingQueue<IndexUpdateOperation>();
+            return;
+        }
+
+        final File indexBase = new File(context.getIndexBase());
+        final File queueFile = getUpdaterQueueFile(indexBase);
         operationLog.debug(String.format("Updater queue file: %s.", queueFile));
-        updaterQueue =
-                ExtendedBlockingQueueFactory
-                        .<IndexUpdateOperation> createPersistRecordBased(queueFile);
+        updaterQueue = createUpdaterQueue(indexBase, queueFile);
     }
 
-    private static File getUpdaterQueueFile(HibernateSearchContext context)
+    private static IExtendedBlockingQueue<IndexUpdateOperation> createUpdaterQueue(
+            final File indexBase, final File queueFile)
     {
-        final File indexBase = new File(context.getIndexBase());
-        final File queueFile = new File(indexBase, FULL_TEXT_INDEX_UPDATER_QUEUE_FILENAME);
-        return queueFile;
+        try
+        {
+            return ExtendedBlockingQueueFactory
+                    .<IndexUpdateOperation> createPersistRecordBased(queueFile);
+        } catch (RuntimeException e)
+        {
+            // don't fail if e.g. deserialization of the queue fails (see SE-286)
+            String newFileName =
+                    FULL_TEXT_INDEX_UPDATER_QUEUE_FILENAME + "_" + System.currentTimeMillis();
+            notificationLog.error(String.format("%s.\n "
+                    + "Renaming '%s' to '%s' and using an empty queue file. "
+                    + "Restart server with the queue that caused the problem "
+                    + "or force reindex of all entities.", e.getMessage(), queueFile, newFileName));
+            queueFile.renameTo(new File(indexBase, newFileName));
+            return ExtendedBlockingQueueFactory
+                    .<IndexUpdateOperation> createPersistRecordBased(queueFile);
+        }
+    }
+
+    private static File getUpdaterQueueFile(File indexBase)
+    {
+        return new File(indexBase, FULL_TEXT_INDEX_UPDATER_QUEUE_FILENAME);
     }
 
     public void start()
@@ -133,16 +164,17 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                     Session session = null;
                     try
                     {
+                        final Class<?> clazz = Class.forName(operation.getClassName());
                         session = getSession();
                         switch (operation.getOperationKind())
                         {
                             case REINDEX:
-                                fullTextIndexer.doFullTextIndexUpdate(getSession(), operation
-                                        .getClazz(), operation.getIds());
+                                fullTextIndexer.doFullTextIndexUpdate(getSession(), clazz,
+                                        operation.getIds());
                                 break;
                             case REMOVE:
-                                fullTextIndexer.removeFromIndex(getSession(), operation.getClazz(),
-                                        operation.getIds());
+                                fullTextIndexer.removeFromIndex(getSession(), clazz, operation
+                                        .getIds());
                         }
                         stopWatch.stop();
                     } catch (RuntimeException e)
@@ -154,12 +186,12 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                         {
                             releaseSession(session);
                         }
-                    }
-                    if (operationLog.isInfoEnabled())
-                    {
-                        operationLog.info(operation.getOperationKind() + " of "
-                                + operation.getIds().size() + " "
-                                + operation.getClazz().getSimpleName() + "s took " + stopWatch);
+                        if (operationLog.isInfoEnabled())
+                        {
+                            operationLog.info(operation.getOperationKind() + " of "
+                                    + operation.getIds().size() + " " + operation.getClassName()
+                                    + "s took " + stopWatch);
+                        }
                     }
                     updaterQueue.take();
                 }

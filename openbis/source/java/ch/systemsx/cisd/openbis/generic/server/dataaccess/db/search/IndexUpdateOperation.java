@@ -37,9 +37,10 @@ public class IndexUpdateOperation implements Serializable
         REMOVE
     }
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
-    private final Class<?> clazz;
+    // we don't store Class<?> not to cause problems with deserialization
+    private final String className;
 
     private final List<Long> ids;
 
@@ -58,14 +59,14 @@ public class IndexUpdateOperation implements Serializable
     private IndexUpdateOperation(IndexUpdateOperationKind operationKind, Class<?> clazz,
             List<Long> ids)
     {
-        this.clazz = clazz;
+        this.className = clazz.getName();
         this.ids = ids;
         this.operationKind = operationKind;
     }
 
-    public Class<?> getClazz()
+    public String getClassName()
     {
-        return clazz;
+        return className;
     }
 
     public List<Long> getIds()
@@ -81,7 +82,7 @@ public class IndexUpdateOperation implements Serializable
     @Override
     public String toString()
     {
-        return operationKind + " " + clazz.getName() + ": " + CollectionUtils.abbreviate(ids, 10);
+        return operationKind + " " + className + ": " + CollectionUtils.abbreviate(ids, 10);
     }
 
 }
