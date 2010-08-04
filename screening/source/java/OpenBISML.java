@@ -15,9 +15,11 @@
  */
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.client.cli.Login;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
@@ -43,8 +46,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
- * Simple Matlab interface for openBIS for Screening. It is meant to be used in one Matlab
- * session at a time, i.e. it is <i>not</i> multi-threading safe.
+ * Simple Matlab interface for openBIS for Screening. It is meant to be used in one Matlab session
+ * at a time, i.e. it is <i>not</i> multi-threading safe.
  * <p>
  * While written in Java, the API is idiomatic for Matlab, i.e. values are returned as
  * multi-dimensional arrays. For the <code>get...</code> and <code>load...</code> methods the first
@@ -65,6 +68,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  * % Logout to close the session on the server
  * OpenBISML.logout()
  * </pre>
+ * 
+ * <i>Note: using this login your password will end up in the Matlab command history. An alternative
+ * that avoids this is to call the
+ * {@link ch.systemsx.cisd.openbis.plugin.screening.client.cli.Login} class. Logging in on the
+ * console will grant this class access to the openBIS server.</i>
  * 
  * @author Bernd Rinn
  */
@@ -88,7 +96,7 @@ public class OpenBISML
     {
         // Not to be constructed.
     }
-    
+
     //
     // Versioning
     //
@@ -97,14 +105,14 @@ public class OpenBISML
      * The version of the API.
      */
     public static final String VERSION = "1";
-    
+
     /**
-     * The required version ("major.minor") of the screening API on the openBIS application server. 
+     * The required version ("major.minor") of the screening API on the openBIS application server.
      */
     public static final String REQUIRES_OPENBIS_AS_API = "1.2";
 
     /**
-     * The required version ("major.minor") of the screening API on the openBIS datastore server. 
+     * The required version ("major.minor") of the screening API on the openBIS datastore server.
      */
     public static final String REQUIRES_OPENBIS_DSS_API = "1.1";
 
@@ -132,6 +140,11 @@ public class OpenBISML
         {
             throw new RuntimeException("Login failed.");
         }
+        init();
+    }
+
+    private static void init()
+    {
         experiments = openbis.listExperiments();
         experimentCodeToExperimentMap.clear();
         for (ExperimentIdentifier e : experiments)
@@ -172,6 +185,10 @@ public class OpenBISML
             return;
         }
         openbis.logout();
+        if (Login.OPENBIS_TOKEN_FILE.exists())
+        {
+            Login.OPENBIS_TOKEN_FILE.delete();
+        }
         openbis = null;
     }
 
@@ -944,7 +961,48 @@ public class OpenBISML
     {
         if (openbis == null)
         {
-            throw new RuntimeException("Not logged in.");
+            if (Login.OPENBIS_TOKEN_FILE.exists())
+            {
+                BufferedReader br = null;
+                try
+                {
+                    br = new BufferedReader(new FileReader(Login.OPENBIS_TOKEN_FILE));
+                    final String token = br.readLine();
+                    br.close();
+                    br = new BufferedReader(new FileReader(Login.OPENBIS_SERVER_URL_FILE));
+                    final String serverUrl = br.readLine();
+                    br.close();
+                    br = null;
+                    openbis = ScreeningOpenbisServiceFacadeFactory.tryCreate(token, serverUrl);
+                    if (openbis == null)
+                    {
+                        throw new RuntimeException("Login failed.");
+                    }
+                    init();
+                } catch (IOException ex)
+                {
+                    if (openbis == null)
+                    {
+                        throw new RuntimeException("Login failed.", ex);
+                    }
+                } finally
+                {
+                    if (br != null)
+                    {
+                        try
+                        {
+                            br.close();
+                        } catch (IOException ex)
+                        {
+                            // Silence this.
+                        }
+                    }
+                }
+            }
+            if (openbis == null)
+            {
+                throw new RuntimeException("Not logged in.");
+            }
         }
     }
 }
