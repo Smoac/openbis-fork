@@ -127,6 +127,8 @@ public class CsvFileReaderHelper
      */
     public static class DefaultCsvFileReaderConfiguration implements ICsvFileReaderConfiguration
     {
+        public static final ICsvFileReaderConfiguration INSTANCE =
+                new DefaultCsvFileReaderConfiguration();
 
         public char getColumnDelimiter()
         {
@@ -147,6 +149,20 @@ public class CsvFileReaderHelper
         {
             return true;
         }
+    }
 
+    /**
+     * Default configuration for reading TSV file:
+     */
+    public static class DefaultTsvFileReaderConfiguration extends DefaultCsvFileReaderConfiguration
+    {
+        public static final ICsvFileReaderConfiguration INSTANCE =
+                new DefaultTsvFileReaderConfiguration();
+
+        @Override
+        public char getColumnDelimiter()
+        {
+            return '\t';
+        }
     }
 }
