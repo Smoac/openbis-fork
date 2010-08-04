@@ -169,7 +169,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
         assertNotNull(s.getInvalidation());
         assertEquals("/CISD/NEMO/EXP1", s.getExperiment().getIdentifier());
         assertEquals("CISD:/CISD/3V-123", s.getGeneratedFrom().getIdentifier());
-        assertEquals("CISD:/CISD/MP001-1", s.getGeneratedFrom().getGeneratedFrom().getIdentifier());
+        assertNull(s.getGeneratedFrom().getGeneratedFrom());
     }
 
     private void checkUserProperty(List<IEntityProperty> properties, String propertyCode,

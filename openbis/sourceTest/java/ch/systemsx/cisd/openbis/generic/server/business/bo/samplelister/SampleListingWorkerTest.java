@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -172,7 +171,5 @@ public class SampleListingWorkerTest extends AbstractDAOTest
     {
         assertNotNull("ID:" + s.getId(), s.getGeneratedFrom());
         assertEquals("ID:" + s.getId(), PARENT_ID, s.getGeneratedFrom().getId().longValue());
-        assertNotNull("ID:" + s.getId(), s.getGeneratedFrom().getGeneratedFrom());
-        assertNull("ID:" + s.getId(), s.getGeneratedFrom().getGeneratedFrom().getGeneratedFrom());
     }
 }
