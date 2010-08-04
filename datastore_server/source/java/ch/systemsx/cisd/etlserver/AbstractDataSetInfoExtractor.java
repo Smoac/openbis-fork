@@ -24,11 +24,6 @@ import java.util.Properties;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
-import ch.systemsx.cisd.common.parser.IParserObjectFactory;
-import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
-import ch.systemsx.cisd.common.parser.IPropertyMapper;
-import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.parser.TabFileLoader;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -97,20 +92,7 @@ public abstract class AbstractDataSetInfoExtractor implements IDataSetInfoExtrac
             if (propertiesFile.isFile())
             {
                 TabFileLoader<NewProperty> tabFileLoader =
-                        new TabFileLoader<NewProperty>(
-                                new IParserObjectFactoryFactory<NewProperty>()
-                                    {
-
-                                        public IParserObjectFactory<NewProperty> createFactory(
-                                                IPropertyMapper propertyMapper)
-                                                throws ParserException
-                                        {
-                                            return new AbstractParserObjectFactory<NewProperty>(
-                                                    NewProperty.class, propertyMapper)
-                                                {
-                                                };
-                                        }
-                                    });
+                        new TabFileLoader<NewProperty>(NewProperty.class);
                 result.addAll(tabFileLoader.load(propertiesFile));
 
             } else
