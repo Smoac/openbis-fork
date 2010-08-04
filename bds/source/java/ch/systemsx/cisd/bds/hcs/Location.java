@@ -24,7 +24,6 @@ import ch.systemsx.cisd.common.geometry.Point;
  * 
  * @author Christian Ribeaud
  */
-// REFACTOR 2009-12-07, Tomasz Pylak: change (y,x) -> (row, col)
 public final class Location
 {
     static final String NOT_POSITIVE = "Given coordinate '%s' must be > 0 (%d <= 0).";
@@ -45,6 +44,11 @@ public final class Location
         this.x = x;
         assert y > 0 : String.format(NOT_POSITIVE, "y", y);
         this.y = y;
+    }
+
+    public static final Location tryCreateLocationFromRowAndColumn(final int row, final int column)
+    {
+        return new Location(column, row);
     }
 
     /**
