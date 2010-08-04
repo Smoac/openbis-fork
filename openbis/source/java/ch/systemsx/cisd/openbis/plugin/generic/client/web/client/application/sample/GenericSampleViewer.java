@@ -274,18 +274,19 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
             properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment);
         }
 
-        // If there is only one Derived Sample it can be shown as a property, otherwise
-        // users should use Derived Samples section.
+        // If there is only one Derived Sample it can be shown as a property,
+        // otherwise show number of samples (users should use Derived Samples section).
         if (generated.length == 1)
         {
             properties.put(messageProvider.getMessage(Dict.DERIVED_SAMPLE), generated);
+        } else if (generated.length > 1)
+        {
+            properties.put(messageProvider.getMessage(Dict.DERIVED_SAMPLE) + "s", generated.length);
         }
         Sample generatedFrom = sample.getGeneratedFrom();
-        int depth = getPositiveGeneratedFromHierarchyDepth(sampleType);
-        for (int i = 0; i < depth && generatedFrom != null; i++)
+        if (generatedFrom != null)
         {
-            properties.put(messageProvider.getMessage(Dict.GENERATED_FROM, i + 1), generatedFrom);
-            generatedFrom = generatedFrom.getGeneratedFrom();
+            properties.put(messageProvider.getMessage(Dict.PARENT), generatedFrom);
         }
         Sample partOf = sample.getContainer();
         if (partOf != null)
@@ -302,12 +303,6 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
             properties.put(label, property);
         }
         return properties;
-    }
-
-    private static int getPositiveGeneratedFromHierarchyDepth(SampleType sampleType)
-    {
-        int result = sampleType.getGeneratedFromHierarchyDepth();
-        return result == 0 ? 1 : result;
     }
 
     private final Component createLeftPanel(final SampleParentWithDerived sampleGeneration)

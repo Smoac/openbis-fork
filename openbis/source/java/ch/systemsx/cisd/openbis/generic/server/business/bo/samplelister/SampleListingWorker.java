@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
-import it.unimi.dsi.fastutil.longs.Long2IntMap;
-import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -150,9 +148,9 @@ final class SampleListingWorker
     private final Long2ObjectMap<RelatedSampleRecord> samplesAwaitingContainerResolution =
             new Long2ObjectOpenHashMap<RelatedSampleRecord>();
 
-    private final Long2IntMap requestedContainerSamples = new Long2IntOpenHashMap();
+    private final LongSet idsOfRequestedContainerSamples = new LongOpenHashSet();
 
-    private final Long2IntMap requestedParentSamples = new Long2IntOpenHashMap();
+    private final LongSet idsOfRequestedParentSamples = new LongOpenHashSet();
 
     private boolean singleSampleTypeMode;
 
@@ -628,38 +626,12 @@ final class SampleListingWorker
 
     private void addRelatedContainerSampleToRequested(long containerId)
     {
-        // for containers we need to load only their codes - connected samples are not needed
-        addOrUpdateRequestedContainerSample(containerId, 0);
+        idsOfRequestedContainerSamples.add(containerId);
     }
 
-    private void addOrUpdateRequestedContainerSample(long sampleId, int newDepth)
+    private void addRelatedParentSampleToRequested(long parentId)
     {
-        // if sample was already requested update depth to maximum of old and new depth
-        int oldDepth = requestedContainerSamples.get(sampleId);
-        requestedContainerSamples.put(sampleId, Math.max(oldDepth, newDepth));
-    }
-
-    private void addRelatedParentSampleToRequested(long parentId, long oldSampleId,
-            int initialDepth, boolean primarySample)
-    {
-        if (primarySample)
-        {
-            addOrUpdateRequestedParentSample(parentId, initialDepth);
-        } else
-        {
-            final int depthLeft = requestedParentSamples.get(oldSampleId) - 1;
-            if (depthLeft > 0)
-            {
-                addOrUpdateRequestedParentSample(parentId, depthLeft);
-            }
-        }
-    }
-
-    private void addOrUpdateRequestedParentSample(long sampleId, int newDepth)
-    {
-        // if sample was already requested update depth to maximum of old and new depth
-        int oldDepth = requestedParentSamples.get(sampleId);
-        requestedParentSamples.put(sampleId, Math.max(oldDepth, newDepth));
+        idsOfRequestedParentSamples.add(parentId);
     }
 
     private Experiment getOrCreateExperiment(SampleRecord row)
@@ -690,6 +662,23 @@ final class SampleListingWorker
 
     private void retrieveDependentSamplesRecursively(boolean primary)
     {
+        if (primary)
+        {
+            addParentsToRequested();
+        }
+        idsOfRequestedContainerSamples.removeAll(sampleMap.keySet());
+        idsOfRequestedParentSamples.removeAll(sampleMap.keySet());
+        if (idsOfRequestedContainerSamples.size() + idsOfRequestedParentSamples.size() == 0)
+        {
+            return;
+        }
+        retrieveDependentBasicSamples(query.getSamples(idsOfRequestedContainerSamples));
+        retrieveDependentBasicSamples(query.getSamples(idsOfRequestedParentSamples));
+        retrieveDependentSamplesRecursively(false);
+    }
+
+    private void addParentsToRequested()
+    {
         Iterable<SampleRelationRecord> parentRelations =
                 query.getParentRelations(parentRelationhipTypeId,
                         idsOfSamplesAwaitingParentResolution);
@@ -697,18 +686,8 @@ final class SampleListingWorker
         {
             samplesAwaitingParentResolution.put(relation.sample_id_child, new RelatedSampleRecord(
                     sampleMap.get(relation.sample_id_child), relation.sample_id_parent));
-            addRelatedParentSampleToRequested(relation.sample_id_parent, relation.sample_id_child,
-                    maxSampleParentResolutionDepth, primary);
+            addRelatedParentSampleToRequested(relation.sample_id_parent);
         }
-        requestedContainerSamples.keySet().removeAll(sampleMap.keySet());
-        requestedParentSamples.keySet().removeAll(sampleMap.keySet());
-        if (requestedContainerSamples.size() + requestedParentSamples.size() == 0)
-        {
-            return;
-        }
-        retrieveDependentBasicSamples(query.getSamples(requestedContainerSamples.keySet()));
-        retrieveDependentBasicSamples(query.getSamples(requestedParentSamples.keySet()));
-        retrieveDependentSamplesRecursively(false);
     }
 
     private void resolveParents()

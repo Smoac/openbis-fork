@@ -221,8 +221,6 @@ public abstract class Dict
 
     public static final String EXPERIMENT_IDENTIFIER = "experiment_identifier";
 
-    public static final String GENERATED_FROM = "generated_from";
-
     public static final String PART_OF = "part_of";
 
     //
@@ -297,11 +295,13 @@ public abstract class Dict
 
     public static final String IS_LISTABLE = "is_listable";
 
-    public static final String GENERATED_FROM_HIERARCHY_DEPTH = "generated_from_hierarchy_depth";
-
     public static final String SHOW_CONTAINER = "show_container";
 
+    public static final String SHOW_PARENTS = "show_parents";
+
     public static final String IS_SHOW_CONTAINER = "is_show_container";
+
+    public static final String IS_SHOW_PARENTS = "is_show_parents";
 
     //
     // Property Type Browser

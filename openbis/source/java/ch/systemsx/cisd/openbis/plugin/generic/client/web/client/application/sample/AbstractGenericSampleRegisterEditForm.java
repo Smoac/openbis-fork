@@ -255,10 +255,10 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     /** sets visibility of container and parent fields dependent on sample type */
     private final void setContainerAndParentVisibility(final SampleType sampleType)
     {
-        boolean showContainer = sampleType.getContainerHierarchyDepth() > 0;
-        boolean showParent = sampleType.getGeneratedFromHierarchyDepth() > 0;
+        boolean showContainer = sampleType.isShowContainer();
+        boolean showParents = sampleType.isShowParents();
         container.getField().setVisible(showContainer);
-        parent.getField().setVisible(showParent);
+        parent.getField().setVisible(showParents);
     }
 
     private String getSampleTypeCode()

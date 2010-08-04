@@ -105,17 +105,14 @@ public final class SampleModelFactory
         List<AbstractParentSampleColDef> list = createColDefList();
         if (sampleTypeOrNull != null)
         {
-            for (int depth = 1; depth <= sampleTypeOrNull.getGeneratedFromHierarchyDepth(); depth++)
+            if (sampleTypeOrNull.isShowParents())
             {
-                String headerText =
-                        getParentColumnHeader(msgProviderOrNull, Dict.GENERATED_FROM, depth);
-                list.add(new ParentGeneratedFromSampleColDef(depth, headerText));
+                String headerText = tryGetMessage(msgProviderOrNull, Dict.PARENTS);
+                list.add(new ParentGeneratedFromSampleColDef(1, headerText));
             }
             if (sampleTypeOrNull.isShowContainer())
             {
-                String headerText =
-                        msgProviderOrNull == null ? null : msgProviderOrNull
-                                .getMessage(Dict.PART_OF);
+                String headerText = tryGetMessage(msgProviderOrNull, Dict.PART_OF);
                 list.add(new ParentContainerSampleColDef(1, headerText));
             }
         }
@@ -127,10 +124,9 @@ public final class SampleModelFactory
         return new ArrayList<AbstractParentSampleColDef>();
     }
 
-    private static String getParentColumnHeader(IMessageProvider msgProviderOrNull,
-            String messageKey, int depth)
+    private static String tryGetMessage(IMessageProvider msgProviderOrNull, String messageKey)
     {
-        return msgProviderOrNull == null ? null : msgProviderOrNull.getMessage(messageKey, depth);
+        return msgProviderOrNull == null ? null : msgProviderOrNull.getMessage(messageKey);
     }
 
 }

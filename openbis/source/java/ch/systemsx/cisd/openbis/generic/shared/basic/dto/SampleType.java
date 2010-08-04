@@ -37,7 +37,7 @@ public final class SampleType extends EntityType implements IsSerializable
 
     private Long id;
 
-    private int generatedFromHierarchyDepth;
+    private boolean showParents;
 
     private boolean showContainer;
 
@@ -52,11 +52,6 @@ public final class SampleType extends EntityType implements IsSerializable
     private List<SampleTypePropertyType> sampleTypePropertyTypes =
             new ArrayList<SampleTypePropertyType>(0);
 
-    public final int getGeneratedFromHierarchyDepth()
-    {
-        return generatedFromHierarchyDepth;
-    }
-
     public Long getId()
     {
         return id;
@@ -67,10 +62,29 @@ public final class SampleType extends EntityType implements IsSerializable
         this.id = id;
     }
 
+    // parents
+
+    public final int getGeneratedFromHierarchyDepth()
+    {
+        return isShowParents() ? 1 : 0;
+    }
+
     public final void setGeneratedFromHierarchyDepth(final int generatedFromHierarchyDepth)
     {
-        this.generatedFromHierarchyDepth = generatedFromHierarchyDepth;
+        setShowParents(generatedFromHierarchyDepth > 0);
     }
+
+    public final void setShowParents(final boolean showParents)
+    {
+        this.showParents = showParents;
+    }
+
+    public final boolean isShowParents()
+    {
+        return showParents;
+    }
+
+    // container
 
     public final int getContainerHierarchyDepth()
     {

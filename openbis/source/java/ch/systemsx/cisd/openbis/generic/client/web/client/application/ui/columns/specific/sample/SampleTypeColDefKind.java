@@ -60,13 +60,12 @@ public enum SampleTypeColDefKind implements IColumnDefinitionKind<SampleType>
             }
         }),
 
-    GENERATED_FROM_HIERARCHY_DEPTH(new AbstractColumnDefinitionKind<SampleType>(
-            Dict.GENERATED_FROM_HIERARCHY_DEPTH, 200, true)
+    IS_SHOW_PARENTS(new AbstractColumnDefinitionKind<SampleType>(Dict.IS_SHOW_PARENTS, 200, true)
         {
             @Override
             public String tryGetValue(SampleType entity)
             {
-                return Integer.toString(entity.getGeneratedFromHierarchyDepth());
+                return SimpleYesNoRenderer.render(entity.isShowParents());
             }
         }),
 

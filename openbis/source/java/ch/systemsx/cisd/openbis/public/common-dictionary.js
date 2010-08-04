@@ -218,8 +218,9 @@ var common = {
   listable: "Listable",
   is_listable: "Listable?",
   show_container: "Show Container",
+  show_parents: "Show Parents",
   is_show_container: "Show Container?",
-  generated_from_hierarchy_depth: "Parent Hierarchy Depth",
+  is_show_parents: "Show Parents?",
    
   //
   // Property Type Browser
