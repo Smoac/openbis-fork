@@ -79,6 +79,23 @@ public class TabFileLoader<T>
     private final IParserObjectFactoryFactory<T> factory;
 
     /**
+     * Creates a new instance based on the factory which uses only bean annotations.
+     */
+    public TabFileLoader(final Class<T> beanClass)
+    {
+        this.factory = new IParserObjectFactoryFactory<T>()
+            {
+                public IParserObjectFactory<T> createFactory(IPropertyMapper propertyMapper)
+                        throws ParserException
+                {
+                    return new AbstractParserObjectFactory<T>(beanClass, propertyMapper)
+                        {
+                        };
+                }
+            };
+    }
+
+    /**
      * Creates a new instance based on the specified factory.
      */
     public TabFileLoader(final IParserObjectFactoryFactory<T> factory)
