@@ -132,8 +132,9 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     private WellLocation getWellLocation(File imageFile, final String[] tokens)
     {
         Map<DynamixWellPosition, WellLocation> map = getWellLocationMapping(imageFile);
+        String posToken = tokens[2].substring("pos".length());
         DynamixWellPosition wellPos =
-                WellLocationMappingUtils.parseWellPosition(tokens[0], tokens[2]);
+                WellLocationMappingUtils.parseWellPosition(tokens[0], posToken);
         return map.get(wellPos);
     }
 

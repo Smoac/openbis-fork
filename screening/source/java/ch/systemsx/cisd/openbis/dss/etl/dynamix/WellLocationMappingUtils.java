@@ -43,8 +43,7 @@ class WellLocationMappingUtils
 
     public static DynamixWellPosition parseWellPosition(String sideToken, String posToken)
     {
-        String posNumber = posToken.substring("pos".length());
-        return new DynamixWellPosition(new Integer(posNumber), isRight(sideToken));
+        return new DynamixWellPosition(new Integer(posToken), isRight(sideToken));
     }
 
     private static Map<DynamixWellPosition, WellLocation> createMapping(
