@@ -151,14 +151,7 @@ public class SampleBrowserGrid extends
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForContainer(containerSampleId);
-        final String entityTypeCode = sampleType.getCode();
-
-        final SampleBrowserGrid browserGrid =
-                createGridAsComponent(viewContext, browserId, criteria, entityTypeCode,
-                        DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
-        browserGrid.updateCriteriaProviderAndRefresh();
-        browserGrid.extendBottomToolbar();
-        return browserGrid.asDisposableWithoutToolbar();
+        return createGridForRelatedSamples(viewContext, criteria, browserId, sampleType);
     }
 
     public static IDisposableComponent createGridForDerivedSamples(
@@ -167,8 +160,24 @@ public class SampleBrowserGrid extends
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForParent(parentSampleId);
-        final String entityTypeCode = sampleType.getCode();
+        return createGridForRelatedSamples(viewContext, criteria, browserId, sampleType);
+    }
 
+    public static IDisposableComponent createGridForParentSamples(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final TechId childSampleId,
+            final String browserId, final SampleType sampleType)
+    {
+        final ListSampleDisplayCriteria criteria =
+                ListSampleDisplayCriteria.createForChild(childSampleId);
+        return createGridForRelatedSamples(viewContext, criteria, browserId, sampleType);
+    }
+
+    private static IDisposableComponent createGridForRelatedSamples(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final ListSampleDisplayCriteria criteria, final String browserId,
+            final SampleType sampleType)
+    {
+        final String entityTypeCode = sampleType.getCode();
         final SampleBrowserGrid browserGrid =
                 createGridAsComponent(viewContext, browserId, criteria, entityTypeCode,
                         DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);

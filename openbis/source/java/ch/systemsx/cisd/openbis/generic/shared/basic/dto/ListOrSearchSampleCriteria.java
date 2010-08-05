@@ -44,7 +44,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     private Collection<Long> sampleIds;
 
     private final String[] sampleCodes;
-    
+
     private final String[] permIds;
 
     private boolean enrichDependentSamplesWithProperties = false;
@@ -86,7 +86,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         {
             this.sampleCodes = null;
             this.permIds = codes;
-            
+
         } else
         {
             this.sampleCodes = codes;
@@ -157,6 +157,12 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     public TechId getParentSampleId()
     {
         return listCriteria == null ? null : listCriteria.getParentSampleId();
+    }
+
+    @Override
+    public TechId getChildSampleId()
+    {
+        return listCriteria == null ? null : listCriteria.getChildSampleId();
     }
 
     @Override

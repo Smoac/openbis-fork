@@ -213,7 +213,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     public DataIterator<SampleRecord> getSamplesForContainer(long sampleContainerId);
 
     //
-    // Samples for parent
+    // Samples for parent/child
     //
 
     /**
@@ -224,6 +224,15 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "      WHERE relationship_id=?{1} AND sample_id_parent=?{2})", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getChildrenSamplesForParent(long relationshipId,
             long sampleParentId);
+
+    /**
+     * Returns the parent samples for the given ids of relationship and child sample.
+     */
+    @Select(sql = SELECT_FROM_SAMPLES_S + " WHERE s.id IN "
+            + "     (SELECT sample_id_parent FROM sample_relationships "
+            + "      WHERE relationship_id=?{1} AND sample_id_child=?{2})", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getParentSamplesForChild(long relationshipId,
+            long sampleChildId);
 
     //
     // New samples of type

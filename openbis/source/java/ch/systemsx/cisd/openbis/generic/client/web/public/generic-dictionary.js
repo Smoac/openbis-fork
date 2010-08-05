@@ -14,6 +14,7 @@ var generic = {
   sample_properties_heading: "Sample Properties",
   part_of_heading: "Components",
   derived_samples_heading: "Derived Samples",
+  parent_samples_heading: "Parent Samples",
   derived_sample: "Derived Sample",
   external_data_heading: "Data Sets",
   show_only_directly_connected: "directly connected",

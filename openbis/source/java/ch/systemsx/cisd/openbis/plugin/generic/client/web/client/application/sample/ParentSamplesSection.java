@@ -27,41 +27,41 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * {@link SingleSectionPanel} containing samples with specified parent sample.
+ * {@link SingleSectionPanel} containing samples with specified child sample.
  * 
  * @author Piotr Buczek
  */
-public class DerivedSamplesSection extends DisposableSectionPanel
+public class ParentSamplesSection extends DisposableSectionPanel
 {
-    private static final String PREFIX = "derived-samples-section_";
+    private static final String PREFIX = "parent-samples-section_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final Sample parent;
+    private final Sample child;
 
-    public DerivedSamplesSection(final IViewContext<?> viewContext, final Sample parent)
+    public ParentSamplesSection(final IViewContext<?> viewContext, final Sample child)
     {
-        super(viewContext.getMessage(Dict.DERIVED_SAMPLES_HEADING), viewContext);
-        this.parent = parent;
+        super(viewContext.getMessage(Dict.PARENT_SAMPLES_HEADING), viewContext);
+        this.child = child;
     }
 
     // @Private
-    static String createGridId(TechId parentId)
+    static String createGridId(TechId childId)
     {
-        return SampleBrowserGrid.createGridId(createBrowserId(parentId));
+        return SampleBrowserGrid.createGridId(createBrowserId(childId));
     }
 
-    private static String createBrowserId(TechId parentId)
+    private static String createBrowserId(TechId childId)
     {
-        return ID_PREFIX + parentId + "-browser";
+        return ID_PREFIX + childId + "-browser";
     }
 
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        TechId parentId = TechId.create(parent);
-        return SampleBrowserGrid.createGridForDerivedSamples(viewContext.getCommonViewContext(),
-                parentId, createBrowserId(parentId), parent.getSampleType());
+        TechId childId = TechId.create(child);
+        return SampleBrowserGrid.createGridForParentSamples(viewContext.getCommonViewContext(),
+                childId, createBrowserId(childId), child.getSampleType());
     }
 
 }

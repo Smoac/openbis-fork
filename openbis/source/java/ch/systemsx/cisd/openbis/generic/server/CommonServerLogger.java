@@ -197,22 +197,25 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         if (criteria.isIncludeSpace())
         {
             logAccess(sessionToken, "list_samples",
-                    "TYPE(%s) OWNERS(space=%s) CONTAINER(%s) PARENT(%s) EXPERIMENT(%s)", criteria
-                            .getSampleType(), criteria.getSpaceCode(), criteria
+                    "TYPE(%s) OWNERS(space=%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
+                    criteria.getSampleType(), criteria.getSpaceCode(), criteria
                             .getContainerSampleId(), criteria.getParentSampleId(), criteria
-                            .getExperimentId());
+                            .getChildSampleId(), criteria.getExperimentId());
         } else if (criteria.isIncludeInstance())
         {
-            logAccess(sessionToken, "list_samples",
-                    "TYPE(%s) OWNERS(instance=%s) CONTAINER(%s) PARENT(%s) EXPERIMENT(%s)",
+            logAccess(
+                    sessionToken,
+                    "list_samples",
+                    "TYPE(%s) OWNERS(instance=%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
                     criteria.getSampleType(), criteria.getSampleType().getDatabaseInstance(),
                     criteria.getContainerSampleId(), criteria.getParentSampleId(), criteria
-                            .getExperimentId());
+                            .getChildSampleId(), criteria.getExperimentId());
         } else
         {
             logAccess(sessionToken, "list_samples",
-                    "TYPE(%s) CONTAINER(%s) PARENT(%s) EXPERIMENT(%s)", criteria.getSampleType(),
-                    criteria.getContainerSampleId(), criteria.getParentSampleId(), criteria
+                    "TYPE(%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)", criteria
+                            .getSampleType(), criteria.getContainerSampleId(), criteria
+                            .getParentSampleId(), criteria.getChildSampleId(), criteria
                             .getExperimentId());
         }
         return null;

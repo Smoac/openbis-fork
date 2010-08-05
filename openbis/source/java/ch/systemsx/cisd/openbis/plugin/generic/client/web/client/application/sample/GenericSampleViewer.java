@@ -110,6 +110,8 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
 
     private DisposableSectionPanel derivedSamplesSection;
 
+    private DisposableSectionPanel parentSamplesSection;
+
     private DisposableSectionPanel dataSetBrowser;
 
     private PropertyGrid propertyGrid;
@@ -196,7 +198,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         {
             container.addPanel(panel);
         }
-        // Container samples
+        // Contained samples
         containerSamplesSection = new ContainerSamplesSection(viewContext, generator);
         containerSamplesSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION,
                 displayIdSuffix);
@@ -206,6 +208,11 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         derivedSamplesSection.setDisplayID(DisplayTypeIDGenerator.DERIVED_SAMPLES_SECTION,
                 displayIdSuffix);
         container.addPanel(derivedSamplesSection);
+        // Parent samples
+        parentSamplesSection = new ParentSamplesSection(viewContext, generator);
+        parentSamplesSection.setDisplayID(DisplayTypeIDGenerator.PARENT_SAMPLES_SECTION,
+                displayIdSuffix);
+        container.addPanel(parentSamplesSection);
         // Data Sets
         CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
         dataSetBrowser =

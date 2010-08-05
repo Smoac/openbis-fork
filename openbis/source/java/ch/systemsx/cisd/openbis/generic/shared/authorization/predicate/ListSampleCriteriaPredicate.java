@@ -57,28 +57,30 @@ public class ListSampleCriteriaPredicate extends AbstractGroupPredicate<ListSamp
     }
 
     @Override
-    protected
-    Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             ListSampleCriteria value)
     {
         Status status = Status.OK;
-        if (value.getExperimentId() != null && status == Status.OK)
+        if (value.getExperimentId() != null)
         {
             status =
                     experimentTechIdPredicate.doEvaluation(person, allowedRoles, value
                             .getExperimentId());
-        }
-        if (value.getContainerSampleId() != null && status == Status.OK)
+        } else if (value.getContainerSampleId() != null)
         {
             status =
                     sampleTechIdPredicate.doEvaluation(person, allowedRoles, value
                             .getContainerSampleId());
-        }
-        if (value.getParentSampleId() != null && status == Status.OK)
+        } else if (value.getParentSampleId() != null)
         {
             status =
                     sampleTechIdPredicate.doEvaluation(person, allowedRoles, value
                             .getParentSampleId());
+        } else if (value.getChildSampleId() != null)
+        {
+            status =
+                    sampleTechIdPredicate.doEvaluation(person, allowedRoles, value
+                            .getChildSampleId());
         }
         if (value.isIncludeSpace() && status == Status.OK)
         {

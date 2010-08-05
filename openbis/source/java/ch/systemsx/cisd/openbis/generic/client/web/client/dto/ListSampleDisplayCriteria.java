@@ -46,6 +46,11 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
         return new ListSampleDisplayCriteria(ListSampleCriteria.createForParent(parentSampleId));
     }
 
+    public static ListSampleDisplayCriteria createForChild(final TechId childSampleId)
+    {
+        return new ListSampleDisplayCriteria(ListSampleCriteria.createForChild(childSampleId));
+    }
+
     public static ListSampleDisplayCriteria createForExperiment(final TechId experimentId)
     {
         return new ListSampleDisplayCriteria(ListSampleCriteria.createForExperiment(experimentId));

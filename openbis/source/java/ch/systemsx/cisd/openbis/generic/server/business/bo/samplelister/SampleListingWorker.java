@@ -230,6 +230,7 @@ final class SampleListingWorker
         retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForParentSamples());
+        retrievePrimaryBasicSamples(tryGetIteratorForChildSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForNewTrackedSamples());
         if (operationLog.isDebugEnabled())
         {
@@ -459,7 +460,7 @@ final class SampleListingWorker
         return query.getSamplesForContainer(containerTechId.getId());
     }
 
-    private Iterable<SampleRecord> tryGetIteratorForParentSamples()
+    private Iterable<SampleRecord> tryGetIteratorForChildSamples()
     {
         final TechId parentTechId = criteria.getParentSampleId();
         if (parentTechId == null)
@@ -467,6 +468,16 @@ final class SampleListingWorker
             return null;
         }
         return query.getChildrenSamplesForParent(parentRelationhipTypeId, parentTechId.getId());
+    }
+
+    private Iterable<SampleRecord> tryGetIteratorForParentSamples()
+    {
+        final TechId childTechId = criteria.getChildSampleId();
+        if (childTechId == null)
+        {
+            return null;
+        }
+        return query.getParentSamplesForChild(parentRelationhipTypeId, childTechId.getId());
     }
 
     private Iterable<SampleRecord> tryGetIteratorForSharedSamples()
