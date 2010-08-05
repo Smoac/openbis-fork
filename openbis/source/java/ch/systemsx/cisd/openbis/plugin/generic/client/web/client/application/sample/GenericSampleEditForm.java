@@ -152,7 +152,8 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
 
     private void initializeGeneratedFromParent()
     {
-        Sample parentSample = originalSample.getGeneratedFrom();
+        // FIXME 2010-08-05, Piotr Buczek: use parents - not generatedFrom
+        Sample parentSample = originalSample.getGeneratedFrom(); 
         if (parentSample != null)
         {
             parent.updateValue(parentSample.getIdentifier());

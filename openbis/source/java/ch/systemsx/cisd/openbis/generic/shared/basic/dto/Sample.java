@@ -52,7 +52,7 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
 
     private Sample container;
 
-    private Sample generatedFrom;
+    private List<Sample> parents = new ArrayList<Sample>();
 
     private List<IEntityProperty> properties;
 
@@ -156,14 +156,40 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         this.container = container;
     }
 
-    public Sample getGeneratedFrom()
+    public List<Sample> getParents()
     {
-        return generatedFrom;
+        return parents;
     }
 
+    public void setParents(List<Sample> parents)
+    {
+        this.parents = parents;
+    }
+
+    public void addParent(final Sample parent)
+    {
+        parents.add(parent);
+    }
+
+    public Sample getGeneratedFrom()
+    {
+        if (parents.size() == 0)
+        {
+            return null;
+        }
+        if (parents.size() > 1)
+        {
+            throw new IllegalStateException("Sample " + getIdentifier()
+                    + " has more than one parent");
+        }
+        return parents.get(0);
+    }
+
+    // used only for testing
     public void setGeneratedFrom(final Sample generatedFrom)
     {
-        this.generatedFrom = generatedFrom;
+        parents = new ArrayList<Sample>();
+        parents.add(generatedFrom);
     }
 
     public List<IEntityProperty> getProperties()

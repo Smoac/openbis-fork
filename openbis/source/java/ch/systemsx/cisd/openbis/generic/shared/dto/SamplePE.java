@@ -415,17 +415,34 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Transient
     public SamplePE getGeneratedFrom()
     {
-        Set<SampleRelationshipPE> relationships = getParentRelationships();
+        final List<SamplePE> parents = getParents();
+        if (parents.size() == 0)
+        {
+            return null;
+        }
+        if (parents.size() > 1)
+        {
+            throw new IllegalStateException("Sample " + getIdentifier()
+                    + " has more than one parent");
+        }
+        return parents.get(0);
+    }
+
+    @Transient
+    public List<SamplePE> getParents()
+    {
+        final Set<SampleRelationshipPE> relationships = getParentRelationships();
+        final List<SamplePE> parents = new ArrayList<SamplePE>();
         for (SampleRelationshipPE r : relationships)
         {
             assert r.getChildSample().equals(this);
             if (r.getRelationship().getCode().equals(
                     BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP))
             {
-                return r.getParentSample();
+                parents.add(r.getParentSample());
             }
         }
-        return null;
+        return parents;
     }
 
     public void setExperiment(final ExperimentPE experiment)

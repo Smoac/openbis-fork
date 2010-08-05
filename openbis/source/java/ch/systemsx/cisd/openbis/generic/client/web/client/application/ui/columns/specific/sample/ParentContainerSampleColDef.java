@@ -23,27 +23,26 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class ParentContainerSampleColDef extends AbstractParentSampleColDef
 {
-    private static final String PARENT_PREFIX = "containerParent";
+    private static final String IDENTIFIER = "containerParent";
 
     // GWT only
     public ParentContainerSampleColDef()
     {
-        super(0, null);
+        this(null);
     }
 
-    public ParentContainerSampleColDef(int level, String headerText)
+    public ParentContainerSampleColDef(String headerText)
     {
-        super(level, headerText);
+        super(headerText);
+    }
+
+    public String getIdentifier()
+    {
+        return IDENTIFIER;
     }
 
     @Override
-    protected String getIdentifierPrefix()
-    {
-        return PARENT_PREFIX;
-    }
-
-    @Override
-    protected Sample tryGetParent(Sample sample)
+    public Sample tryGetParent(Sample sample)
     {
         return sample.getContainer();
     }

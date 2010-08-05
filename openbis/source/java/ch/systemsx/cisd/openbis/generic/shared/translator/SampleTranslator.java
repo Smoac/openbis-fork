@@ -126,12 +126,15 @@ public final class SampleTranslator
                         baseIndexURL, containerDep - 1, 0, false));
             }
         }
-        if (generatedFromDep > 0 && samplePE.getGeneratedFrom() != null)
+        if (generatedFromDep > 0 && samplePE.getParentRelationships() != null)
         {
-            if (HibernateUtils.isInitialized(samplePE.getGeneratedFrom()))
+            if (HibernateUtils.isInitialized(samplePE.getParentRelationships()))
             {
-                result.setGeneratedFrom(SampleTranslator.translate(samplePE.getGeneratedFrom(),
-                        baseIndexURL, 0, generatedFromDep - 1, false));
+                for (SamplePE parent : samplePE.getParents())
+                {
+                    result.addParent(SampleTranslator.translate(parent, baseIndexURL, 0,
+                            generatedFromDep - 1, false));
+                }
             }
         }
         result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));

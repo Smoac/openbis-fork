@@ -612,7 +612,7 @@ public class SampleBrowserGrid extends
                             @Override
                             protected IEntityInformationHolder getEntity(Sample rowItem)
                             {
-                                return parentColDef.tryGetParentSample(rowItem);
+                                return parentColDef.tryGetParent(rowItem);
                             }
                         });
         }

@@ -507,8 +507,9 @@ public final class SampleBOTest extends AbstractBOTest
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                         .<NewAttachment> emptyList(), now, null, parent.getSampleIdentifier()
                         .toString(), null));
-        assertNotNull(sample.getGeneratedFrom());
-        assertEquals(parent, sample.getGeneratedFrom());
+        SamplePE newParent = sample.getGeneratedFrom();
+        assertNotNull(newParent);
+        assertEquals(parent, newParent);
         context.assertIsSatisfied();
 
     }

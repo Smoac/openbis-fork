@@ -283,10 +283,14 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         {
             properties.put(messageProvider.getMessage(Dict.DERIVED_SAMPLE) + "s", generated.length);
         }
-        Sample generatedFrom = sample.getGeneratedFrom();
-        if (generatedFrom != null)
+        final List<Sample> parents = sample.getParents();
+        final int parentsSize = parents.size();
+        if (parentsSize == 1)
         {
-            properties.put(messageProvider.getMessage(Dict.PARENT), generatedFrom);
+            properties.put(messageProvider.getMessage(Dict.PARENT), parents.get(0));
+        } else if (parentsSize > 1)
+        {
+            properties.put(messageProvider.getMessage(Dict.PARENTS), parentsSize);
         }
         Sample partOf = sample.getContainer();
         if (partOf != null)

@@ -26,22 +26,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 public abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sample> implements
         IsSerializable
 {
-    abstract protected Sample tryGetParent(Sample sample);
+    abstract public Sample tryGetParent(Sample sample);
 
-    abstract protected String getIdentifierPrefix();
-
-    private int/* the level which should be shown */level;
-
-    AbstractParentSampleColDef(int level, String headerText)
+    AbstractParentSampleColDef(String headerText)
     {
         super(headerText, AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH, false, false);
-        this.level = level;
     }
 
     @Override
     protected String tryGetValue(Sample sample)
     {
-        Sample parent = tryGetParentSample(sample);
+        Sample parent = tryGetParent(sample);
         if (parent != null)
         {
             return parent.getIdentifier();
@@ -54,24 +49,6 @@ public abstract class AbstractParentSampleColDef extends AbstractColumnDefinitio
     @Override
     public String tryGetLink(Sample sample)
     {
-        return LinkExtractor.tryExtract(tryGetParentSample(sample));
+        return LinkExtractor.tryExtract(tryGetParent(sample));
     }
-
-    public String getIdentifier()
-    {
-        return getIdentifierPrefix() + level;
-    }
-
-    public final Sample tryGetParentSample(final Sample sample)
-    {
-        Sample parent = sample;
-        int depth = level;
-        while (depth > 0 && parent != null)
-        {
-            parent = tryGetParent(parent);
-            depth--;
-        }
-        return parent;
-    }
-
 }

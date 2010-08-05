@@ -85,6 +85,7 @@ public class SampleGenericBusinessRules
         if (sample == null)
             return;
         assertValidParentRelation(sample.getContainer(), sample, "contained in");
+        // FIXME 2010-08-05, Piotr Buczek: use parents - not generatedFrom
         assertValidParentRelation(sample.getGeneratedFrom(), sample, "child of");
     }
 

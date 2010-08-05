@@ -108,18 +108,18 @@ public final class SampleModelFactory
             if (sampleTypeOrNull.isShowParents())
             {
                 String headerText = tryGetMessage(msgProviderOrNull, Dict.PARENTS);
-                list.add(new ParentGeneratedFromSampleColDef(1, headerText));
+                list.add(new ParentGeneratedFromSampleColDef(headerText));
             }
             if (sampleTypeOrNull.isShowContainer())
             {
                 String headerText = tryGetMessage(msgProviderOrNull, Dict.PART_OF);
-                list.add(new ParentContainerSampleColDef(1, headerText));
+                list.add(new ParentContainerSampleColDef(headerText));
             }
         }
         return list;
     }
 
-    private static ArrayList<AbstractParentSampleColDef> createColDefList()
+    private static List<AbstractParentSampleColDef> createColDefList()
     {
         return new ArrayList<AbstractParentSampleColDef>();
     }

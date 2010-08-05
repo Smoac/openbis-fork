@@ -697,7 +697,7 @@ final class SampleListingWorker
         {
             final RelatedSampleRecord record = e.getValue();
             final Sample parent = sampleMap.get(record.relatedSampleId);
-            record.sample.setGeneratedFrom(parent);
+            record.sample.addParent(parent);
         }
     }
 

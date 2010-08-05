@@ -20,28 +20,50 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 public class ParentGeneratedFromSampleColDef extends AbstractParentSampleColDef
 {
-    private static final String PARENT_PREFIX = "generatedFromParent";
+    private static final String IDENTIFIER = "generatedFromParent";
 
     // GWT only
     public ParentGeneratedFromSampleColDef()
     {
-        super(0, null);
+        this(null);
     }
 
-    public ParentGeneratedFromSampleColDef(int level, String headerText)
+    public ParentGeneratedFromSampleColDef(String headerText)
     {
-        super(level, headerText);
+        super(headerText);
+    }
+
+    public String getIdentifier()
+    {
+        return IDENTIFIER;
     }
 
     @Override
-    protected String getIdentifierPrefix()
+    public Sample tryGetParent(Sample sample)
     {
-        return PARENT_PREFIX;
+        if (sample.getParents().size() == 1)
+        {
+            return sample.getGeneratedFrom();
+        } else
+        {
+            return null;
+        }
     }
 
     @Override
-    protected Sample tryGetParent(Sample sample)
+    protected String tryGetValue(Sample sample)
     {
-        return sample.getGeneratedFrom();
+        int parentsSize = sample.getParents().size();
+        if (parentsSize == 0)
+        {
+            return null;
+        } else if (parentsSize == 1)
+        {
+            return super.tryGetValue(sample);
+        } else
+        {
+            return parentsSize + "";
+        }
     }
+
 }

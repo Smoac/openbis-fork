@@ -126,26 +126,23 @@ public class SampleRow extends RowWithProperties
 
     public SampleRow derivedFromAncestors(final String... ancestorCodes)
     {
-        int level = 1;
         for (String ancestorCode : ancestorCodes)
         {
-            derivedFromAncestor(ancestorCode, level);
-            level++;
+            derivedFromAncestor(ancestorCode);
         }
         return this;
     }
 
-    private SampleRow derivedFromAncestor(final String ancestorCode, final int level)
+    private SampleRow derivedFromAncestor(final String ancestorCode)
     {
-        final String identifier =
-                new ParentGeneratedFromSampleColDef(level, "dummy").getIdentifier();
+        final String identifier = new ParentGeneratedFromSampleColDef("dummy").getIdentifier();
         withCell(identifier, ancestorCode);
         return this;
     }
 
     public SampleRow partOfContainer(final String containerCode)
     {
-        final String identifier = new ParentContainerSampleColDef(1, "dummy").getIdentifier();
+        final String identifier = new ParentContainerSampleColDef("dummy").getIdentifier();
         withCell(identifier, containerCode);
         return this;
     }

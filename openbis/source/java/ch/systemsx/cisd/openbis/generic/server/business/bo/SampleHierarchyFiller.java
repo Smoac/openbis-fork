@@ -42,33 +42,16 @@ public final class SampleHierarchyFiller
 
     private final static void enrichContainerHierarchy(final SamplePE sample)
     {
-        SamplePE container = sample;
-        final Integer integer = sample.getSampleType().getContainerHierarchyDepth();
-        assert integer != null : "'partOf' hierarchy depth not specified.";
-        int containerHierarchyDepth = getPositiveIntegerValue(integer);
-        while (containerHierarchyDepth-- > 0 && container != null)
-        {
-            container = container.getContainer();
-            initialize(container);
-        }
+        final SamplePE container = sample.getContainer();
+        initialize(container);
     }
 
     private final static void enrichParentHierarchy(final SamplePE sample)
     {
-        SamplePE generatedFrom = sample;
-        final Integer integer = sample.getSampleType().getGeneratedFromHierarchyDepth();
-        assert integer != null : "'generatedFrom' hierarchy depth not specified.";
-        int generatedFromHierarchyDepth = getPositiveIntegerValue(integer);
-        while (generatedFromHierarchyDepth-- > 0 && generatedFrom != null)
+        for (SamplePE parent : sample.getParents())
         {
-            generatedFrom = generatedFrom.getGeneratedFrom();
-            initialize(generatedFrom);
+            initialize(parent);
         }
-    }
-
-    public final static int getPositiveIntegerValue(int integer)
-    {
-        return integer == 0 ? 1 : integer;
     }
 
     private final static void initialize(final SamplePE sample)
